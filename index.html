@@ -4,7 +4,7 @@
 <script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="891-1794676544">
+<meta name="skwyd-build" content="892-1794676877">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1478,6 +1478,12 @@ html body #view .card.otbl.obody.ofit1 th,html body #view .card.otbl.obody.ofit1
 html body #view .card.otbl.obody.ofit2 th,html body #view .card.otbl.obody.ofit2 td{padding:8px 4px!important;font-size:12.5px!important}
 html body #view .card.otbl.obody.ofit2 .spill,html body #view .card.otbl.obody.ofit2 .tag{padding-left:6px!important;padding-right:6px!important}
 html body #view .card.otbl.obody>table>thead>tr>th:last-child,html body #view .card.otbl.obody>table>tbody>tr>td:last-child{padding-right:16px!important}
+html body #view .card.otbl.obody{overflow:visible!important;max-height:none!important}
+html body #view .card.otbl.obody>.tscroll>table>thead>tr>th{position:sticky!important;top:0!important;z-index:3;background:#f8f9fb!important;box-shadow:inset 0 -1px 0 #ebecf0}
+html body #view .card>.tscroll::-webkit-scrollbar{height:10px;width:10px}
+html body #view .card>.tscroll::-webkit-scrollbar-thumb{background:#c9cfdb;border-radius:8px;border:2px solid #fff}
+html body #view .card>.tscroll::-webkit-scrollbar-track{background:#f4f5f8}
+html body #view .card>.tscroll+.pager{position:relative;z-index:4;background:#fff;border-radius:0 0 14px 14px}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
@@ -2703,7 +2709,7 @@ setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(
   try{ renderNav((location.hash.slice(1) || "dashboard")); }catch(_){}
   const v = document.getElementById("view"); if(v) v.innerHTML = `<div class="card empty" style="margin-top:20px">This page couldn't be shown. <button class="btn" onclick="location.reload()">Reload</button></div>`; } }; }, 0);
 // the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
-function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); t.style.maxHeight = Math.max(320, (m ? m.clientHeight : innerHeight) - top - 16) + "px"; const tb = t.querySelector(":scope>table"); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= t.clientWidth) break; t.classList.add(c); } } }
+function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); void top; t.style.maxHeight = ""; const tb = t.querySelector("table"), box = tb && (tb.closest(".tscroll") || t); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= box.clientWidth) break; t.classList.add(c); } } }
 addEventListener("resize", () => fitOtbl());
 function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
   const route = (location.hash.slice(1) || "dashboard");
@@ -9535,7 +9541,9 @@ if(os&&getComputedStyle(os).position==="sticky"){ /* the title and the page tabs
 const tc=os&&os.querySelector(".otabsc"); if(tc){const off=Math.max(0,Math.round(tc.getBoundingClientRect().top-os.getBoundingClientRect().top)); os.classList.add("pin"); if(os.style.getPropertyValue("--ostop")!==(-off)+"px")os.style.setProperty("--ostop",(-off)+"px"); t=Math.max(0,os.offsetHeight-off);}
 H.style.setProperty("--thtop",t+"px");
 /* list pages: the table scrolls inside its own box (header row and pager stay in view); the page scrolls separately */
-if(!(typeof DET!=="undefined"&&DET.key&&DET.id))document.querySelectorAll("#view > .card.tbl:not(.secbox):not(.obody), #view > .card.otbl:not(.obody)").forEach(c=>{const tb=c.querySelector(":scope>table");if(!tb||!tb.tHead||!tb.tBodies[0]||tb.tBodies[0].rows.length<8)return;const w=document.createElement("div");w.className="tscroll";tb.before(w);w.appendChild(tb);});
+if(!(typeof DET!=="undefined"&&DET.key&&DET.id))document.querySelectorAll("#view > .card.tbl:not(.secbox), #view > .card.otbl").forEach(c=>{const tb=c.querySelector(":scope>table");if(!tb||!tb.tHead||!tb.tBodies[0])return;const pg=c.querySelector(":scope>.pager");if(!pg&&(c.classList.contains("obody")||tb.tBodies[0].rows.length<8))return;const w=document.createElement("div");w.className="tscroll";tb.before(w);w.appendChild(tb);});
+/* the scrolling box ends at the bottom of the screen: its sideways scrollbar and the pager under it stay in view */
+{const mn=document.querySelector(".main");if(mn&&!(typeof DET!=="undefined"&&DET.key&&DET.id)){const mt=mn.getBoundingClientRect().top;document.querySelectorAll("#view > .card > .tscroll").forEach(w=>{const c=w.parentElement,wr=w.getBoundingClientRect();const top=wr.top+mn.scrollTop-mt,after=Math.max(0,c.getBoundingClientRect().bottom-wr.bottom);const h=Math.max(300,Math.round(mn.clientHeight-top-after-18))+"px";if(w.style.maxHeight!==h)w.style.maxHeight=h;});}}
 document.querySelectorAll(".card.tbl").forEach(c=>{const tb=c.querySelector(":scope>table");if(!tb||!tb.tHead)return;c.classList.remove("tfit");let sc=false;for(let el=tb;el&&el!==document.body;el=el.parentElement){if(el===c)continue;const o=getComputedStyle(el);if(/(auto|scroll|hidden|clip)/.test(o.overflowY+o.overflowX)){sc=true;break;}}if(!sc&&tb.scrollWidth<=c.clientWidth+1){c.classList.add("tfit");const o=getComputedStyle(c);if(o.overflowX!=="visible"||o.overflowY!=="visible")c.classList.remove("tfit");}});};
 let tq=0;new MutationObserver(()=>{if(!tq){tq=1;SOON(()=>{tq=0;thFit();});}}).observe(document.body,{subtree:true,childList:true});addEventListener("resize",()=>setTimeout(thFit,60));
 document.addEventListener("wheel",e=>{if(!H.classList.contains("mlock"))return;const t=e.target;if(t.classList&&(t.classList.contains("scrim")||t.classList.contains("bmdscrim")))e.preventDefault();},{passive:false});
