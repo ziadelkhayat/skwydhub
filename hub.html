@@ -89,13 +89,18 @@ const ICON = {
 // countries: name, dialing code, usual currency (Lebanon and Syria price in US dollars by default)
 const COUNTRIES = [["Lebanon","+961","USD"],["United Arab Emirates","+971","AED"],["Saudi Arabia","+966","SAR"],["Qatar","+974","QAR"],["Kuwait","+965","KWD"],["Bahrain","+973","BHD"],["Oman","+968","OMR"],["Jordan","+962","JOD"],["Syria","+963","USD"],["Iraq","+964","IQD"],["Egypt","+20","EGP"],["Turkey","+90","TRY"],["Cyprus","+357","EUR"],["France","+33","EUR"],["Germany","+49","EUR"],["Belgium","+32","EUR"],["Italy","+39","EUR"],["Spain","+34","EUR"],["Greece","+30","EUR"],["United Kingdom","+44","GBP"],["United States","+1","USD"],["Canada","+1","CAD"],["Australia","+61","AUD"],["Brazil","+55","BRL"],["Senegal","+221","XOF"],["Ivory Coast","+225","XOF"],["Nigeria","+234","NGN"],["DR Congo","+243","CDF"],["Ghana","+233","USD"],["India","+91","INR"],["Philippines","+63","PHP"],["Sri Lanka","+94","LKR"],["Bangladesh","+880","BDT"],["Ethiopia","+251","ETB"]];
 const CURRENCIES = [["USD","US Dollar (USD)"],["LBP","Lebanese Pound (LBP)"],["EUR","Euro (EUR)"],["AED","UAE Dirham (AED)"],["SAR","Saudi Riyal (SAR)"],["QAR","Qatari Riyal (QAR)"],["KWD","Kuwaiti Dinar (KWD)"],["BHD","Bahraini Dinar (BHD)"],["OMR","Omani Rial (OMR)"],["JOD","Jordanian Dinar (JOD)"],["SYP","Syrian Pound (SYP)"],["IQD","Iraqi Dinar (IQD)"],["EGP","Egyptian Pound (EGP)"],["TRY","Turkish Lira (TRY)"],["GBP","British Pound (GBP)"],["CAD","Canadian Dollar (CAD)"],["AUD","Australian Dollar (AUD)"],["BRL","Brazilian Real (BRL)"],["XOF","West African CFA Franc (XOF)"],["NGN","Nigerian Naira (NGN)"],["CDF","Congolese Franc (CDF)"],["INR","Indian Rupee (INR)"],["PHP","Philippine Peso (PHP)"],["LKR","Sri Lankan Rupee (LKR)"],["BDT","Bangladeshi Taka (BDT)"],["ETB","Ethiopian Birr (ETB)"]];
-const DIALS = [...new Set(COUNTRIES.map(c => c[1]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 const countryOpts = sel => `<option value="">Choose…</option>` + COUNTRIES.map(([n]) => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
-const dialOpts = sel => DIALS.map(d => `<option ${d===sel?"selected":""}>${d}</option>`).join("");
+const dialOpts = sel => COUNTRIES.map(([n, d]) => `<option value="${n}" ${n===sel?"selected":""}>${n} (${d})</option>`).join("");
+const dialOf = n => (COUNTRIES.find(c => c[0]===n) || [,""])[1];
+const CATEGORIES = [["Restaurant",["Quick Service","Fast Casual","Casual Dining","Fine Dining","Cloud Kitchen","Food Truck","Pizzeria","Shawarma & Grills"]],["Café & Bakery",["Coffee Shop","Bakery","Pastry & Desserts","Juice Bar","Ice Cream"]],["Bar & Lounge",["Bar","Lounge","Pub","Night Club","Shisha Lounge"]],["Catering",["Catering","Central Kitchen","Events"]],["Retail",["Supermarket","Grocery","Butcher","Convenience Store"]],["Other",["Other"]]];
+const categoryOpts = sel => `<option value="">Choose…</option>` + CATEGORIES.map(([c]) => `<option ${c===sel?"selected":""}>${esc(c)}</option>`).join("");
+const subOpts = (cat, sel) => `<option value="">Choose…</option>` + ((CATEGORIES.find(x => x[0]===cat) || [,[]])[1]).map(s => `<option ${s===sel?"selected":""}>${esc(s)}</option>`).join("");
+
 const currencyOpts = sel => `<option value="">Choose…</option>` + CURRENCIES.map(([k,t]) => `<option value="${k}" ${k===sel?"selected":""}>${t}</option>`).join("");
 // picking a country fills in its dialing code and currency
-function geoLink(form) { const f = form.elements; f.country.onchange = () => { const c = COUNTRIES.find(x => x[0] === f.country.value); if (!c) return; f.dial.value = c[1]; f.currency.value = c[2]; }; }
-const fullPhone = (dial, num) => { num = String(num || "").trim().replace(/^0+/, ""); return num ? dial + " " + num : ""; };
+function geoLink(form) { const f = form.elements; f.country.onchange = () => { const c = COUNTRIES.find(x => x[0] === f.country.value); if (!c) return; f.dial.value = c[0]; f.currency.value = c[2]; };
+  f.category.onchange = () => { f.subcategory.innerHTML = subOpts(f.category.value, ""); f.subcategory.disabled = !f.category.value; }; }
+const fullPhone = (country, num) => { const dial = dialOf(country); num = String(num || "").trim().replace(/^0+/, ""); return num ? dial + " " + num : ""; };
 const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
 const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
 let DATA = null, me = null, view = "companies", q = "";
@@ -167,7 +172,7 @@ function viewCompanies() {
     <div class="card"><div class="bar"><input class="sel" id="q" placeholder="Search" value="${esc(q)}" style="width:260px"><div class="sp"></div><span class="note">${rows.length} of ${cs.length}</span><button class="btn pri" id="newco">New Business</button></div>
     ${rows.length ? `<table><thead><tr><th>Company</th><th>Account Number</th><th>Contact</th><th>Status</th><th class="num">Ends In</th><th class="num">POS Devices</th><th class="num">Price</th><th class="num">Owed</th><th class="num">Orders (30 Days)</th><th>Joined</th></tr></thead><tbody>
       ${rows.map(c => { const sb_ = c.sub || {}; return `<tr class="click" data-co="${esc(c.id)}">
-        <td><b>${esc(c.name)}</b></td><td>${esc(c.account_no || "—")}</td>
+        <td><b>${esc(c.name)}</b>${c.subcategory || c.category ? `<div class="note">${esc(c.subcategory || c.category)}</div>` : ""}</td><td>${esc(c.account_no || "—")}</td>
         <td>${esc(c.contact_name || "")}<div class="note">${esc(c.email || "")}${c.phone ? " · " + esc(c.phone) : ""}</div></td>
         <td>${stateTag(c)}</td><td class="num">${sb_.complimentary ? "—" : sb_.daysLeft != null ? sb_.daysLeft + (sb_.daysLeft === 1 ? " Day" : " Days") : "—"}</td>
         <td class="num">${sb_.posUsed ?? 0} / ${sb_.complimentary ? "∞" : sb_.posDevices ?? 0}</td>
@@ -189,11 +194,13 @@ function newCompany() {
       <div class="fld"><label>Business Name <i class="req">*</i></label><input class="sel" name="name" required></div>
       <div class="fld"><label>Country <i class="req">*</i></label><select class="sel" name="country" required>${countryOpts("Lebanon")}</select></div>
       <div class="fld"><label>Currency <i class="req">*</i></label><select class="sel" name="currency" required>${currencyOpts("USD")}</select></div>
+      <div class="fld"><label>Business Category <i class="req">*</i></label><select class="sel" name="category" required>${categoryOpts("")}</select></div>
+      <div class="fld"><label>Business Subcategory <i class="req">*</i></label><select class="sel" name="subcategory" required disabled>${subOpts("", "")}</select></div>
     </div>
     <div class="sec">Owner</div>
     <div class="grid">
       <div class="fld"><label>Owner Name <i class="req">*</i></label><input class="sel" name="contactName" required></div>
-      <div class="fld"><label>Phone <i class="req">*</i></label><div style="display:flex;gap:8px"><select class="sel" name="dial" style="width:96px;flex:none" aria-label="Country code">${dialOpts("+961")}</select><input class="sel" name="phone" required inputmode="tel" placeholder="70 123 456" style="flex:1;min-width:0"></div></div>
+      <div class="fld" style="grid-column:span 2"><label>Phone <i class="req">*</i></label><div style="display:flex;gap:8px"><select class="sel" name="dial" style="width:230px;flex:none" aria-label="Country code">${dialOpts("Lebanon")}</select><input class="sel" name="phone" required inputmode="tel" placeholder="70 123 456" style="flex:1;min-width:0"></div></div>
       <div class="fld"><label>Email <i class="req">*</i></label><input class="sel" name="email" type="email" autocomplete="off" required></div>
       <div class="fld"><label>Password <i class="req">*</i></label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6" required></div>
     </div>
@@ -220,7 +227,7 @@ function newCompany() {
     if (v("paidUntil") && !parseDmy(v("paidUntil"))) { err.textContent = "Write dates as dd-mm-yyyy."; return; }
     $("#nsave").disabled = true;
     try {
-      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), email: em,
+      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), category: v("category"), subcategory: v("subcategory"), email: em,
         status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, complimentary: f.elements.complimentary.checked,
         paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null, modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value) } });
       let note = "";
@@ -269,6 +276,8 @@ function drawCompany() {
       <div class="fld"><label>Contact Name</label><input class="sel" name="contactName" value="${esc(c.contact_name || "")}"></div>
       <div class="fld"><label>Email</label><input class="sel" name="email" type="email" value="${esc(c.email || "")}"></div>
       <div class="fld"><label>Phone</label><input class="sel" name="phone" value="${esc(c.phone || "")}"></div>
+      <div class="fld"><label>Business Category</label><select class="sel" name="category">${categoryOpts(c.category || "")}</select></div>
+      <div class="fld"><label>Business Subcategory</label><select class="sel" name="subcategory" ${c.category ? "" : "disabled"}>${subOpts(c.category || "", c.subcategory || "")}</select></div>
     </div>
     <div class="sec">Subscription</div>
     <div class="grid">
@@ -298,6 +307,7 @@ function drawCompany() {
 
   $("[data-x]").onclick = close_;
   $("#viewas").onclick = () => viewAs(c.id);
+  { const f = $("#sf").elements; f.category.onchange = () => { f.subcategory.innerHTML = subOpts(f.category.value, ""); f.subcategory.disabled = !f.category.value; }; }
   $("#sf").onsubmit = async e => {
     e.preventDefault(); const f = e.target, v = n => f.elements[n].value;
     for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { $("#serr").textContent = "Write dates as dd-mm-yyyy."; return; }
@@ -305,7 +315,7 @@ function drawCompany() {
       trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
-      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: v("phone").trim() } };
+      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: v("phone").trim(), category: v("category"), subcategory: v("subcategory") } };
     try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
   };
   $("#newinv").onclick = async () => {
