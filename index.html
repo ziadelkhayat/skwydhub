@@ -4,7 +4,7 @@
 <script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="892-1794676877">
+<meta name="skwyd-build" content="893-1794676996">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -4665,8 +4665,8 @@ function ccTileFit(){ const g = $("#oProducts"), w = g && g.closest(".ccprods");
   let C, R = 0, t;
   if(cs.overflowY==="visible"){ C = Math.max(2, Math.round((W + gap) / (118 + gap))); t = Math.floor((W - (C-1)*gap) / C); }   // one-column phones: sized by the width, the page scrolls
   else { const H = g.clientHeight - px(cs.paddingTop) - px(cs.paddingBottom) - .5; if(H < 60) return; let best = null; const ideal = Math.min(160, Math.max(112, W / 6));   // the POS rule: least empty space, tiles near a comfortable size
-    for(let c = 4; c <= 12; c++){ const tw = (W - (c-1)*gap) / c; if(tw < 70) break;
-      for(const r of [Math.floor((H + gap) / (tw + gap)), Math.ceil((H + gap) / (tw + gap))]){ if(r < 3) continue;
+    for(let c = 6; c <= 6; c++){ const tw = (W - (c-1)*gap) / c; if(tw < 70) break;   /* same as the POS: six tiles across on every screen */
+      for(const r of [Math.max(3, Math.floor((H + gap) / (tw + gap)))]){   /* as many full-size rows as fit (at least three), spare height stays below */
         const tt = Math.min(tw, (H - (r-1)*gap) / r), waste = 1 - c*r*tt*tt / (W*H) + .6 * Math.abs(tt - ideal) / ideal; if(!best || waste < best.waste) best = { c, r, tt: Math.floor(tt), waste }; } }
     if(!best){ w.classList.remove("fit"); return; }
     C = best.c; R = best.r; t = best.tt; g.style.setProperty("--rg", gap + "px"); }
