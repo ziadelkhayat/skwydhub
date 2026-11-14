@@ -202,7 +202,8 @@ function newCompany() {
     </div>
     <div class="sec">Owner</div>
     <div class="grid">
-      <div class="fld"><label>Owner Name <i class="req">*</i></label><input class="sel" name="contactName" required></div>
+      <div class="fld"><label>Owner First Name <i class="req">*</i></label><input class="sel" name="firstName" required></div>
+      <div class="fld"><label>Owner Last Name <i class="req">*</i></label><input class="sel" name="lastName" required></div>
       <div class="fld" style="grid-column:span 2"><label>Phone <i class="req">*</i></label><div style="display:flex;gap:8px"><select class="sel" name="dial" style="width:230px;flex:none" aria-label="Country code">${dialOpts("Lebanon")}</select><input class="sel" name="phone" required inputmode="tel" placeholder="70 123 456" style="flex:1;min-width:0"></div></div>
       <div class="fld"><label>Email <i class="req">*</i></label><input class="sel" name="email" type="email" autocomplete="off" required></div>
       <div class="fld"><label>Password <i class="req">*</i></label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6" required></div>
@@ -230,13 +231,13 @@ function newCompany() {
     if (v("paidUntil") && !parseDmy(v("paidUntil"))) { err.textContent = "Write dates as dd-mm-yyyy."; return; }
     $("#nsave").disabled = true;
     try {
-      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), category: v("category"), subcategory: v("subcategory"), email: em,
+      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: (v("firstName") + " " + v("lastName")).trim(), firstName: v("firstName"), lastName: v("lastName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), category: v("category"), subcategory: v("subcategory"), email: em,
         status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, complimentary: f.elements.complimentary.checked,
         paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null, modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value) } });
       let note = "";
       if (em && pw) {   // the owner's login: a separate client so the admin stays signed in
         const tmp = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh", { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "skwyd-hub-new-owner" } });
-        const su = await tmp.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: "https://portal.skwydhub.com/", data: { name: v("contactName") } } });
+        const su = await tmp.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: "https://portal.skwydhub.com/", data: { name: (v("firstName") + " " + v("lastName")).trim() } } });
         if (su.error) note = "The business was created, but the owner's login wasn't: " + su.error.message;
         else if (su.data?.user && !(su.data.user.identities || []).length) note = "This email already has a Skwyd Hub login: the owner signs in with their existing password.";
       }
@@ -276,7 +277,8 @@ function drawCompany() {
     <div class="sec">Business &amp; Owner</div>
     <div class="grid">
       <div class="fld"><label>Business Name</label><input class="sel" name="name" value="${esc(c.name)}" required></div>
-      <div class="fld"><label>Owner Name</label><input class="sel" name="contactName" value="${esc(c.contact_name || "")}"></div>
+      <div class="fld"><label>Owner First Name</label><input class="sel" name="firstName" value="${esc(c.first_name ?? String(c.contact_name || "").split(" ")[0] ?? "")}"></div>
+      <div class="fld"><label>Owner Last Name</label><input class="sel" name="lastName" value="${esc(c.last_name ?? String(c.contact_name || "").split(" ").slice(1).join(" "))}"></div>
       <div class="fld"><label>Owner Email</label><input class="sel" name="email" type="email" value="${esc(c.email || "")}"></div>
       <div class="fld" style="grid-column:span 2"><label>Owner Phone</label>${(() => { const ph = splitPhone(c.phone); return `<div style="display:flex;gap:8px"><select class="sel" name="dial" style="width:200px;flex:none" aria-label="Country code">${dialOpts(ph.country)}</select><input class="sel" name="phone" inputmode="tel" value="${esc(ph.num)}" style="flex:1;min-width:0"></div>`; })()}</div>
       <div class="fld"><label>Country</label><select class="sel" name="country">${countryOpts(c.country || "Lebanon")}</select></div>
@@ -320,7 +322,7 @@ function drawCompany() {
       trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
-      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: fullPhone(v("dial"), v("phone")), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
+      company: { name: v("name").trim(), contactName: (v("firstName").trim() + " " + v("lastName").trim()).trim(), firstName: v("firstName").trim(), lastName: v("lastName").trim(), email: v("email").trim(), phone: fullPhone(v("dial"), v("phone")), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
     try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
   };
   $("#newinv").onclick = async () => {

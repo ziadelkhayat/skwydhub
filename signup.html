@@ -64,7 +64,8 @@ function form(msg = "") {
     <div class="full"><label for="co">Business Name</label><input id="co" required autocomplete="organization"></div>
     <div><label for="cg">Business Category</label><select id="cg" name="category" required>${categoryOpts("")}</select></div>
     <div><label for="sc">Business Subcategory</label><select id="sc" name="subcategory" required disabled>${subOpts("", "")}</select></div>
-    <div class="full"><label for="nm">Your Name</label><input id="nm" required autocomplete="name"></div>
+    <div><label for="fn">First Name</label><input id="fn" required autocomplete="given-name"></div>
+    <div><label for="ln">Last Name</label><input id="ln" required autocomplete="family-name"></div>
     <div class="full"><label for="ph">Phone</label><div style="display:flex;gap:8px"><select id="dl" name="dial" style="width:150px;flex:none" aria-label="Country code">${dialOpts("Lebanon")}</select><input id="ph" name="phone" required autocomplete="tel-national" inputmode="tel" style="flex:1;min-width:0"></div></div>
     <div><label for="ct">Country</label><select id="ct" name="country" required>${countryOpts("Lebanon")}</select></div>
     <div><label for="cu">Currency</label><select id="cu" name="currency" required>${currencyOpts("USD")}</select></div>
@@ -80,7 +81,7 @@ function form(msg = "") {
     const email = $("#em").value.trim();
     const { data, error } = await sb.auth.signUp({ email, password: $("#pw").value, options: {
       emailRedirectTo: location.origin + "/signup",
-      data: { signup: "company", company: $("#co").value.trim(), name: $("#nm").value.trim(), phone: fullPhone($("#dl").value, $("#ph").value), category: $("#cg").value, subcategory: $("#sc").value, country: $("#ct").value, currency: $("#cu").value } } });
+      data: { signup: "company", company: $("#co").value.trim(), name: ($("#fn").value.trim() + " " + $("#ln").value.trim()).trim(), first_name: $("#fn").value.trim(), last_name: $("#ln").value.trim(), phone: fullPhone($("#dl").value, $("#ph").value), category: $("#cg").value, subcategory: $("#sc").value, country: $("#ct").value, currency: $("#cu").value } } });
     b.disabled = false; b.textContent = "Create My Account";
     if (error) { err.textContent = /registered|exists/i.test(error.message) ? "This email already has a Skwyd Hub account. Sign in instead." : error.message; return; }
     if (data.user && !(data.user.identities || []).length) { err.textContent = "This email already has a Skwyd Hub account. Sign in instead."; return; }
