@@ -67,6 +67,18 @@ tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
 .gate .err{text-align:center;margin-top:10px}
 @media (max-width:900px){.app{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr 1fr}}
 .req{color:var(--bad);font-style:normal}
+/* calendar that drops down under dd-mm-yyyy fields */
+.cal{position:absolute;z-index:200;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(20,20,50,.18);padding:12px;width:292px;user-select:none}
+.cal .ch{display:flex;align-items:center;gap:6px;margin-bottom:8px}.cal .ch b{flex:1;text-align:center;font-size:14px;white-space:nowrap}
+.cal .ch button{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1}
+.cal .ch button:hover{background:var(--accent-soft)}
+.cal .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal .cg span{font-size:11.5px;color:var(--muted);padding:4px 0}
+.cal .cg button{border:0;background:none;border-radius:8px;height:32px;cursor:pointer;font-size:13px}
+.cal .cg button:hover{background:var(--accent-soft)}.cal .cg button.out{color:#c4c3cc}
+.cal .cg button.td{box-shadow:inset 0 0 0 1px var(--accent)}.cal .cg button.on{background:var(--accent);color:#fff}
+.cal .cf{display:flex;justify-content:space-between;margin-top:8px}.cal .cf button{border:0;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 6px}
+input[placeholder="dd-mm-yyyy"]{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238d8c98' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
 </style>
 </head>
 <body>
@@ -107,6 +119,44 @@ const fullPhone = (country, num) => { const dial = dialOf(country); num = String
 const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
 const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
 let DATA = null, me = null, view = "companies", q = "";
+
+// ---------- calendar: every dd-mm-yyyy field opens a month calendar below it (typing still works) ----------
+const CAL = { el: null, input: null, y: 0, m: 0 };
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function calClose() { CAL.el?.remove(); CAL.el = CAL.input = null; }
+function calOpen(input) {
+  if (CAL.input === input) return; calClose();
+  const cur = parseDmy(input.value), base = cur ? new Date(cur + "T00:00:00") : new Date();
+  CAL.input = input; CAL.y = base.getFullYear(); CAL.m = base.getMonth();
+  CAL.el = document.createElement("div"); CAL.el.className = "cal"; document.body.appendChild(CAL.el); calDraw();
+}
+function calPlace() { const r = CAL.input.getBoundingClientRect(), h = CAL.el.offsetHeight, below = r.bottom + 6 + h < innerHeight;
+  CAL.el.style.left = Math.min(r.left + scrollX, scrollX + innerWidth - 304) + "px"; CAL.el.style.top = (below ? r.bottom + 6 : r.top - h - 6) + scrollY + "px"; }
+function calDraw() {
+  const { y, m } = CAL, first = new Date(y, m, 1), start = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate(), prev = new Date(y, m, 0).getDate();
+  const sel = parseDmy(CAL.input.value), t = new Date(), today = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
+  const iso = (yy, mm, dd) => { const d = new Date(yy, mm, dd); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+  let cells = ""; for (let i = 0; i < 42; i++) { const dn = i - start + 1, d = iso(y, m, dn), out = dn < 1 || dn > days, lab = dn < 1 ? prev + dn : dn > days ? dn - days : dn;
+    cells += `<button type="button" data-d="${d}" class="${out?"out":""} ${d===today?"td":""} ${d===sel?"on":""}">${lab}</button>`; }
+  CAL.el.innerHTML = `<div class="ch"><button type="button" data-mv="-12" title="Previous year">«</button><button type="button" data-mv="-1" title="Previous month">‹</button><b>${MONTHS[m]} ${y}</b><button type="button" data-mv="1" title="Next month">›</button><button type="button" data-mv="12" title="Next year">»</button></div>
+    <div class="cg">${["Mo","Tu","We","Th","Fr","Sa","Su"].map(d => `<span>${d}</span>`).join("")}${cells}</div>
+    <div class="cf"><button type="button" data-clear>Clear</button><button type="button" data-d="${today}">Today</button></div>`;
+  calPlace();
+}
+document.addEventListener("focusin", e => { const t = e.target; if (t.matches?.('input[placeholder="dd-mm-yyyy"]')) calOpen(t); else if (CAL.el && !CAL.el.contains(t)) calClose(); });
+document.addEventListener("mousedown", e => {
+  if (!CAL.el) return;
+  if (CAL.el.contains(e.target)) { e.preventDefault();   // keep the field focused
+    const mv = e.target.closest("[data-mv]"), d = e.target.closest("[data-d]");
+    if (mv) { const n = new Date(CAL.y, CAL.m + Number(mv.dataset.mv), 1); CAL.y = n.getFullYear(); CAL.m = n.getMonth(); calDraw(); }
+    else if (d) { const [yy, mm, dd] = d.dataset.d.split("-"); CAL.input.value = `${dd}-${mm}-${yy}`; CAL.input.dispatchEvent(new Event("change", { bubbles: true })); calClose(); }
+    else if (e.target.closest("[data-clear]")) { CAL.input.value = ""; CAL.input.dispatchEvent(new Event("change", { bubbles: true })); calClose(); }
+    return; }
+  if (e.target !== CAL.input) calClose();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && CAL.el) { e.stopPropagation(); calClose(); } }, true);
+document.addEventListener("input", e => { if (e.target === CAL.input) { const v = parseDmy(e.target.value); if (v) { const d = new Date(v + "T00:00:00"); CAL.y = d.getFullYear(); CAL.m = d.getMonth(); calDraw(); } } });
+addEventListener("scroll", () => CAL.el && calPlace(), true);
 
 async function rpc(fn, args) { const { data, error } = await sb.rpc(fn, args); if (error) throw new Error(error.message); return data; }
 
@@ -260,7 +310,7 @@ async function openCompany(id) {
   CO = DATA.companies.find(c => c.id === id); INV = await rpc("slick_pa_invoices", { p_company: id });
   drawCompany(); $("#m").classList.add("on");
 }
-function close_() { $("#m").classList.remove("on"); }
+function close_() { calClose(); $("#m").classList.remove("on"); }
 function drawCompany() {
   const c = CO, s = c.subscription || {}, st = c.sub || {}, cur = DATA.settings?.currency || "USD";
   const mods = s.modules || [];
