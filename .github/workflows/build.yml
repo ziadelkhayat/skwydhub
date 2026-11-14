@@ -30,9 +30,9 @@ jobs:
           npx cap add android
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="fullSensor"/' android/app/src/main/AndroidManifest.xml   # POS turns with the tablet: landscape and portrait
           # direct printing: a small native plugin sends raw ESC/POS bytes to network printers (Devices → Printers, port 9100)
-          mkdir -p android/app/src/main/java/com/slick/pos
-          cat > android/app/src/main/java/com/slick/pos/RawPrinterPlugin.java <<'JAVA'
-          package com.slick.pos;
+          mkdir -p android/app/src/main/java/com/skwydhub/pos
+          cat > android/app/src/main/java/com/skwydhub/pos/RawPrinterPlugin.java <<'JAVA'
+          package com.skwydhub.pos;
           import android.util.Base64;
           import com.getcapacitor.Plugin;
           import com.getcapacitor.PluginCall;
@@ -63,8 +63,8 @@ jobs:
             }
           }
           JAVA
-          cat > android/app/src/main/java/com/slick/pos/MainActivity.java <<'JAVA'
-          package com.slick.pos;
+          cat > android/app/src/main/java/com/skwydhub/pos/MainActivity.java <<'JAVA'
+          package com.skwydhub.pos;
           import android.os.Bundle;
           import com.getcapacitor.BridgeActivity;
           public class MainActivity extends BridgeActivity {
@@ -80,7 +80,7 @@ jobs:
       - name: Prepare website
         run: |
           mkdir -p site && cp index.html pos.html order.html wokdb.js modpick.js sw.js pos.webmanifest pos-icon-192.png pos-icon-512.png site/ && cp www/supabase.js site/
-          cp android/app/build/outputs/apk/debug/app-debug.apk site/the-wok-pos.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk site/skwydhub-pos.apk
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
