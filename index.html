@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="898-1794679580">
+<meta name="skwyd-build" content="899-1794679811">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1497,6 +1497,10 @@ html body #view .card>.tscroll+.pager{position:relative;z-index:4;background:#ff
 .sbinfo .sbig label{display:block;font-size:13px;color:var(--muted,#8b8a99);margin-bottom:6px}
 .sbinfo .sbig label+div{padding-bottom:8px;border-bottom:1px solid var(--line,#e7e6ee);font-size:15px;overflow-wrap:anywhere}
 @media(max-width:700px){.sbinfo .sbig{grid-template-columns:1fr}}
+/* Business details: fields set by skwyd hub look like normal fields; pointing at one shows the not-allowed cursor */
+html body .bizcard .sel:disabled,html body .bizcard input:disabled{background:#fff!important;color:var(--ink,#1c1b22)!important;-webkit-text-fill-color:var(--ink,#1c1b22)!important;opacity:1!important;cursor:not-allowed!important}
+html body .bizcard .msel>.msel-f.dis{background:#fff!important;opacity:1!important;color:var(--ink,#1c1b22)!important;cursor:not-allowed!important}
+html body .bizcard .msel>.msel-f.dis *{cursor:not-allowed!important;color:inherit}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
@@ -6786,12 +6790,12 @@ function viewCompany(){
     ${admin?"":`<div class="banner">Only the owner or an admin can change business details.</div>`}
     <h3 class="bizh">General</h3>
     <div class="card bizcard"><div class="bizgrid">
-      ${c.name ? `<div class="f"><label>Business Name</label><input id="co_name" class="sel" value="${esc(c.name)}" disabled title="${PLAT_NOTE}"></div>` : f("name","Business Name *",{tip:"The legal or trading name of the business that owns every brand and branch."})}
-      <div class="f"><label>Account Number</label><input class="sel" value="${esc(c.accountNo || "—")}" disabled title="Your business account number, given by skwyd hub. Used on the sign-in page for every brand in this business."></div>
-      <div class="f"><label for="co_country">Country</label><select id="co_country" class="sel" ${admin && !lk ? "" : "disabled"} ${lk ? `title="${LOCK_NOTE}"` : ""}>${(() => { const cn = c.country||"Lebanon", l = SKW_WORLD.c.map(r => r[1]); if(!l.includes(cn)) l.unshift(cn); return l.map(n=>`<option value="${esc(n)}" ${cn===n?"selected":""}>${esc(n)}</option>`).join(""); })()}</select></div>
-      <div class="f"><label for="co_bcur">Currency</label><select id="co_bcur" class="sel" ${admin && !lk ? "" : "disabled"} ${lk ? `title="${LOCK_NOTE}"` : ""}>${CURRENCIES.map(([k,t])=>`<option value="${k}" ${(c.currency||COUNTRY_CUR[c.country||"Lebanon"]||"USD")===k?"selected":""}>${t}</option>`).join("")}</select></div>
-      <div class="f"><label for="co_bizCategory">Business Category</label><select id="co_bizCategory" class="sel" ${c.name ? `disabled title="${PLAT_NOTE}"` : dis}>${Object.keys(BIZ_CATS).map(k => `<option ${cat===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
-      <div class="f"><label for="co_bizSubcategory">Business Subcategory</label><select id="co_bizSubcategory" class="sel" ${c.name ? `disabled title="${PLAT_NOTE}"` : dis}>${subs.map(k => `<option ${(c.bizSubcategory||subs[0])===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+      ${c.name ? `<div class="f"><label>Business Name</label><input id="co_name" class="sel" value="${esc(c.name)}" disabled></div>` : f("name","Business Name *",{tip:"The legal or trading name of the business that owns every brand and branch."})}
+      <div class="f"><label>Account Number</label><input class="sel" value="${esc(c.accountNo || "—")}" disabled></div>
+      <div class="f"><label for="co_country">Country</label><select id="co_country" class="sel" ${admin && !lk ? "" : "disabled"}>${(() => { const cn = c.country||"Lebanon", l = SKW_WORLD.c.map(r => r[1]); if(!l.includes(cn)) l.unshift(cn); return l.map(n=>`<option value="${esc(n)}" ${cn===n?"selected":""}>${esc(n)}</option>`).join(""); })()}</select></div>
+      <div class="f"><label for="co_bcur">Currency</label><select id="co_bcur" class="sel" ${admin && !lk ? "" : "disabled"}>${CURRENCIES.map(([k,t])=>`<option value="${k}" ${(c.currency||COUNTRY_CUR[c.country||"Lebanon"]||"USD")===k?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div class="f"><label for="co_bizCategory">Business Category</label><select id="co_bizCategory" class="sel" ${c.name ? "disabled" : dis}>${Object.keys(BIZ_CATS).map(k => `<option ${cat===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+      <div class="f"><label for="co_bizSubcategory">Business Subcategory</label><select id="co_bizSubcategory" class="sel" ${c.name ? "disabled" : dis}>${subs.map(k => `<option ${(c.bizSubcategory||subs[0])===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
       ${f("taxName","Tax Registration Name",{tip:"The name registered with the tax authority, printed on invoices."})}
       ${f("taxNumber","Tax Number",{tip:"The VAT / tax registration number printed on invoices."})}
     </div>${lk ? `<p class="note bizn">Business name, account number, category, country and currency are set by skwyd hub and can't be changed here.</p>` : `<p class="note bizn">Pick the country and currency carefully: once you save, they can't be changed.</p>`}${sv}</div>
