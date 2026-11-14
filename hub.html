@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skwyd Hub – Admin</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20140%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M40%2086%20Q36%20108%2018%20124%22/%3E%3Cpath%20d%3D%22M50%2090%20Q48%20112%2042%20129%22/%3E%3Cpath%20d%3D%22M60%2091%20V131%22/%3E%3Cpath%20d%3D%22M70%2090%20Q72%20112%2078%20129%22/%3E%3Cpath%20d%3D%22M80%2086%20Q84%20108%20102%20124%22/%3E%3C/g%3E%3Cpath%20d%3D%22M60%209C33%209%2018%2037%2018%2061c0%2022%2016%2031%2042%2031s42-9%2042-31C102%2037%2087%209%2060%209z%22%20fill%3D%22%23c6f432%22%20stroke%3D%22%23172554%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f7f7f9;--surface:#fff;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--accent-soft:#eef1fa;--accent-ink:#172d6a;
+  --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#c6f432;--radius:10px}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,sans-serif}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{background:var(--navy);color:#fff;padding:18px 12px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 22px}.brand b{font-size:16px;display:block}.brand small{color:#aab4d4;font-size:12px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#d6dcf0;text-decoration:none;font-weight:500;cursor:pointer}
+.nav a:hover{background:rgba(255,255,255,.08);color:#fff}.nav a.on{background:rgba(255,255,255,.14);color:#fff}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.top{display:flex;align-items:center;gap:12px;padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .sp{flex:1}.who{color:var(--ink2)}
+.content{padding:24px 28px 60px;max-width:1320px}
+h1{font-size:22px;margin:0 0 4px}.subt{color:var(--ink2);margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{padding:14px 16px}.kpi span{color:var(--muted);font-size:12px}.kpi b{display:block;font-size:22px;margin-top:2px}
+.bar{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}.bar .sp{flex:1}
+input.sel,select.sel,textarea.sel{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:0}
+input.sel:focus,select.sel:focus,textarea.sel:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{color:var(--muted);font-size:12px}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.t-trial{background:var(--accent-soft);color:var(--accent-ink)}.t-active{background:var(--good-soft);color:var(--good)}
+.t-grace{background:var(--warn-soft);color:var(--warn)}.t-locked{background:var(--bad-soft);color:var(--bad)}.t-free{background:#f0f0f4;color:var(--ink2)}
+.t-open{background:var(--warn-soft);color:var(--warn)}.t-paid{background:var(--good-soft);color:var(--good)}.t-void{background:#f0f0f4;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#fafafc}.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn.pri:hover{background:var(--accent-ink)}
+.btn.danger{color:var(--bad)}.btn.sm{padding:5px 10px;font-size:13px}.btn:disabled{opacity:.5;cursor:default}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+/* dialog */
+.modal{position:fixed;inset:0;background:rgba(20,22,40,.35);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal.on{display:flex}
+.dlg{background:#fff;border-radius:14px;width:min(920px,100%);box-shadow:0 20px 60px rgba(20,20,50,.25)}
+.dlg header{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}.dlg header h2{font-size:17px;margin:0;flex:1}
+.x{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px;border-radius:6px}.x:hover{background:var(--bg);color:var(--ink)}
+.dlg .body{padding:18px 20px}.dlg footer{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px}
+.fld label{display:block;font-size:12px;color:var(--ink2);margin-bottom:4px;font-weight:500}.fld .sel{width:100%}
+.mods{display:flex;flex-wrap:wrap;gap:8px}.chk{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.sec{font-size:13px;font-weight:600;margin:20px 0 10px;color:var(--ink)}
+.sum{display:flex;gap:24px;flex-wrap:wrap;padding:12px 14px;background:var(--bg);border-radius:8px;margin-bottom:6px}.sum div span{display:block;font-size:12px;color:var(--muted)}
+/* sign in */
+.gate{min-height:100vh;display:grid;place-items:center;background:radial-gradient(900px 500px at 20% 0%,#e6ebf8,transparent),var(--bg);padding:20px}
+.gate form{background:#fff;border-radius:20px;padding:32px;width:min(380px,100%);box-shadow:0 10px 40px rgba(20,20,60,.1)}
+.gate h1{text-align:center;font-size:20px;margin:10px 0 2px}.gate p{text-align:center;color:var(--ink2);margin:0 0 18px}
+.gate label{display:block;font-size:13px;color:var(--ink2);margin:10px 0 5px;font-weight:500}.gate input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
+.gate button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.gate .err{text-align:center;margin-top:10px}
+@media (max-width:900px){.app{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const sb = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh");
+const $ = (s, el = document) => el.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const money = (v, cur) => (cur ? cur + " " : "") + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const dmy = d => { if (!d) return "—"; const x = new Date(d); return String(x.getDate()).padStart(2,"0") + "-" + String(x.getMonth()+1).padStart(2,"0") + "-" + x.getFullYear(); };
+const dmyIn = d => d ? dmy(d) : "";
+const parseDmy = v => { const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(String(v).trim()); if (!m) return null; const iso = m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0"); return isNaN(new Date(iso)) ? null : iso; };
+const LOGO = `<svg viewBox="0 0 120 140" width="30" height="34"><g fill="none" stroke="#c6f432" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/></svg>`;
+const ICON = {
+  companies: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
+  prices: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+};
+const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
+const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
+let DATA = null, me = null, view = "companies", q = "";
+
+async function rpc(fn, args) { const { data, error } = await sb.rpc(fn, args); if (error) throw new Error(error.message); return data; }
+
+// ---------- sign in ----------
+function gate(msg = "") {
+  $("#root").innerHTML = `<div class="gate"><form id="gf">
+    <div style="text-align:center">${LOGO.replace('width="30" height="34"','width="54" height="62"')}</div>
+    <h1>Skwyd Hub Admin</h1><p>Sign in to manage customers and subscriptions</p>
+    <label for="ge">Email</label><input id="ge" type="email" autocomplete="username" required>
+    <label for="gp">Password</label><input id="gp" type="password" autocomplete="current-password" required>
+    <button>Sign In</button><div class="err" id="gerr">${esc(msg)}</div></form></div>`;
+  $("#gf").onsubmit = async e => {
+    e.preventDefault(); $("#gerr").textContent = "";
+    const { error } = await sb.auth.signInWithPassword({ email: $("#ge").value.trim(), password: $("#gp").value });
+    if (error) { $("#gerr").textContent = "Wrong email or password."; return; }
+    boot();
+  };
+}
+
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return gate();
+  me = session.user;
+  let ok = false; try { ok = await rpc("slick_is_platform_admin"); } catch (e) {}
+  if (!ok) { await sb.auth.signOut(); return gate("This account isn't a Skwyd Hub admin."); }
+  await load();
+}
+async function load() { DATA = await rpc("slick_pa_overview"); render(); }
+
+// ---------- shell ----------
+function render() {
+  const nav = [["companies","Companies"],["prices","Price List"],["settings","Settings"]];
+  $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand">${LOGO}<div><b>skwyd hub</b><small>Admin</small></div></div>
+    <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
+    <div class="main"><div class="top"><div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
+    <div class="content" id="view"></div></div></div><div class="modal" id="m"><div class="dlg" id="dlg"></div></div>`;
+  $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
+  document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { view = a.dataset.view; render(); });
+  ({ companies: viewCompanies, prices: viewPrices, settings: viewSettings })[view]();
+}
+
+function stateTag(c) {
+  const s = c.sub || {}; if (s.complimentary) return `<span class="tag t-free">Free</span>`;
+  return `<span class="tag t-${s.state || "locked"}">${STATE_LABEL[s.state] || "—"}</span>`;
+}
+
+// ---------- companies ----------
+function viewCompanies() {
+  const cs = DATA.companies || [], cur = DATA.settings?.currency || "USD";
+  const paying = cs.filter(c => !c.sub?.complimentary && c.sub?.state === "active");
+  const mrr = paying.reduce((a, c) => a + Number(c.quote?.total || 0) / (c.quote?.cycle === "yearly" ? 12 : 1), 0);
+  const owed = cs.reduce((a, c) => a + Number(c.sub?.owed || 0), 0);
+  const count = st => cs.filter(c => !c.sub?.complimentary && c.sub?.state === st).length;
+  const s = q.trim().toLowerCase();
+  const rows = cs.filter(c => !s || [c.name, c.account_no, c.email, c.phone, c.contact_name].some(v => String(v || "").toLowerCase().includes(s)));
+  $("#view").innerHTML = `<h1>Companies</h1><p class="subt">Every restaurant using Skwyd Hub, their plan and what they owe.</p>
+    <div class="kpis">
+      <div class="card kpi"><span>Monthly Revenue</span><b>${money(mrr, cur)}</b></div>
+      <div class="card kpi"><span>Paying</span><b>${paying.length}</b></div>
+      <div class="card kpi"><span>On Trial</span><b>${count("trial")}</b></div>
+      <div class="card kpi"><span>Grace / Locked</span><b>${count("grace")} / ${count("locked")}</b></div>
+      <div class="card kpi"><span>Open Invoices</span><b>${money(owed, cur)}</b></div>
+    </div>
+    <div class="card"><div class="bar"><input class="sel" id="q" placeholder="Search" value="${esc(q)}" style="width:260px"><div class="sp"></div><span class="note">${rows.length} of ${cs.length}</span></div>
+    ${rows.length ? `<table><thead><tr><th>Company</th><th>Account Number</th><th>Contact</th><th>Status</th><th class="num">Ends In</th><th class="num">POS Devices</th><th class="num">Price</th><th class="num">Owed</th><th class="num">Orders (30 Days)</th><th>Joined</th></tr></thead><tbody>
+      ${rows.map(c => { const sb_ = c.sub || {}; return `<tr class="click" data-co="${esc(c.id)}">
+        <td><b>${esc(c.name)}</b></td><td>${esc(c.account_no || "—")}</td>
+        <td>${esc(c.contact_name || "")}<div class="note">${esc(c.email || "")}${c.phone ? " · " + esc(c.phone) : ""}</div></td>
+        <td>${stateTag(c)}</td><td class="num">${sb_.complimentary ? "—" : sb_.daysLeft != null ? sb_.daysLeft + (sb_.daysLeft === 1 ? " Day" : " Days") : "—"}</td>
+        <td class="num">${sb_.posUsed ?? 0} / ${sb_.complimentary ? "∞" : sb_.posDevices ?? 0}</td>
+        <td class="num">${sb_.complimentary ? "—" : money(c.quote?.total, "") + `<div class="note">${c.quote?.cycle === "yearly" ? "Yearly" : "Monthly"}</div>`}</td>
+        <td class="num">${Number(sb_.owed) ? money(sb_.owed, "") : "—"}</td><td class="num">${c.orders30 || 0}</td><td style="white-space:nowrap">${dmy(c.created_at)}</td></tr>`; }).join("")}
+    </tbody></table>` : `<div class="empty">No companies match.</div>`}</div>`;
+  const qi = $("#q"); qi.oninput = () => { q = qi.value; viewCompanies(); const n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); };
+  document.querySelectorAll("[data-co]").forEach(tr => tr.onclick = () => openCompany(tr.dataset.co));
+}
+
+// ---------- one company ----------
+let CO = null, INV = [];
+async function openCompany(id) {
+  CO = DATA.companies.find(c => c.id === id); INV = await rpc("slick_pa_invoices", { p_company: id });
+  drawCompany(); $("#m").classList.add("on");
+}
+function close_() { $("#m").classList.remove("on"); }
+function drawCompany() {
+  const c = CO, s = c.subscription || {}, st = c.sub || {}, cur = DATA.settings?.currency || "USD";
+  const mods = s.modules || [];
+  $("#dlg").innerHTML = `<header><h2>${esc(c.name)}</h2>${stateTag(c)}<button class="x" data-x title="Close">×</button></header>
+  <div class="body"><form id="sf">
+    <div class="sum">
+      <div><span>Account Number</span><b>${esc(c.account_no || "—")}</b></div>
+      <div><span>${s.status === "trial" ? "Trial Ends" : "Paid Until"}</span><b>${dmy(s.status === "trial" ? s.trial_ends_at : s.paid_until)}</b></div>
+      <div><span>Locks On</span><b>${st.complimentary ? "Never" : dmy(st.lockAt)}</b></div>
+      <div><span>POS Devices In Use</span><b>${st.posUsed ?? 0} of ${st.complimentary ? "∞" : s.pos_devices}</b></div>
+      <div><span>Branches</span><b>${st.branches ?? 0}</b></div>
+      <div><span>Next Invoice</span><b>${money(c.quote?.total, cur)}</b></div>
+    </div>
+    <div class="sec">Contact</div>
+    <div class="grid">
+      <div class="fld"><label>Company Name</label><input class="sel" name="name" value="${esc(c.name)}" required></div>
+      <div class="fld"><label>Contact Name</label><input class="sel" name="contactName" value="${esc(c.contact_name || "")}"></div>
+      <div class="fld"><label>Email</label><input class="sel" name="email" type="email" value="${esc(c.email || "")}"></div>
+      <div class="fld"><label>Phone</label><input class="sel" name="phone" value="${esc(c.phone || "")}"></div>
+    </div>
+    <div class="sec">Subscription</div>
+    <div class="grid">
+      <div class="fld"><label>Status</label><select class="sel" name="status">${[["trial","Trial"],["active","Active"],["cancelled","Cancelled"]].map(([v,t]) => `<option value="${v}" ${s.status===v?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly" ${s.cycle!=="yearly"?"selected":""}>Monthly</option><option value="yearly" ${s.cycle==="yearly"?"selected":""}>Yearly</option></select></div>
+      <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="${s.pos_devices ?? 1}"></div>
+      <div class="fld"><label>Trial Ends</label><input class="sel" name="trialEndsAt" placeholder="dd-mm-yyyy" value="${dmyIn(s.trial_ends_at)}"></div>
+      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy" value="${dmyIn(s.paid_until)}"></div>
+      <div class="fld"><label>Grace Days</label><input class="sel" name="graceDays" type="number" min="0" step="1" placeholder="Default (${DATA.settings?.graceDays ?? 7})" value="${s.grace_days ?? ""}"></div>
+      <div class="fld"><label>Discount %</label><input class="sel" name="discountPct" type="number" min="0" max="100" step="0.01" value="${s.discount_pct ?? 0}"></div>
+      <div class="fld" style="grid-column:span 2"><label>Modules</label><div class="mods">${MODULES.map(([k,t]) => `<label class="chk"><input type="checkbox" name="mod" value="${k}" ${mods.includes(k)?"checked":""}>${t}</label>`).join("")}</div></div>
+      <div class="fld"><label class="chk" style="margin-top:20px"><input type="checkbox" name="locked" ${s.locked?"checked":""}>Locked By Hand</label></div>
+      <div class="fld"><label class="chk" style="margin-top:20px"><input type="checkbox" name="complimentary" ${s.complimentary?"checked":""}>Free (Never Billed)</label></div>
+      <div class="fld" style="grid-column:1/-1"><label>Notes</label><textarea class="sel" name="notes" rows="2">${esc(s.notes || "")}</textarea></div>
+    </div>
+    <div class="err" id="serr"></div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn pri">Save</button></div>
+  </form>
+  <div class="sec" style="display:flex;align-items:center">Invoices<span style="flex:1"></span><button class="btn sm" id="newinv" ${st.complimentary?"disabled":""}>Create Invoice For Next Period</button></div>
+  <div class="card">${INV.length ? `<table><thead><tr><th>Number</th><th>Period</th><th class="num">Total</th><th>Status</th><th>Due</th><th>Paid</th><th></th></tr></thead><tbody>
+    ${INV.map(i => `<tr><td><b>${esc(i.number)}</b></td><td>${dmy(i.period_start)} → ${dmy(i.period_end)}<div class="note">${(i.lines||[]).map(l => esc(l.name) + " × " + l.qty).join(" · ")}</div></td>
+      <td class="num">${money(i.total, i.currency)}</td><td><span class="tag t-${i.status}">${i.status[0].toUpperCase() + i.status.slice(1)}</span></td>
+      <td>${dmy(i.due_at)}</td><td>${i.paid_at ? dmy(i.paid_at) + `<div class="note">${esc(i.method || "")}${i.reference ? " · " + esc(i.reference) : ""}</div>` : "—"}</td>
+      <td class="num">${i.status === "open" ? `<button class="btn sm" data-pay="${i.id}">Mark Paid</button> <button class="btn sm danger" data-void="${i.id}">Void</button>` : ""}</td></tr>`).join("")}
+  </tbody></table>` : `<div class="empty">No invoices yet.</div>`}</div>
+  <div id="payf"></div><div class="err" id="ierr"></div></div>`;
+
+  $("[data-x]").onclick = close_;
+  $("#sf").onsubmit = async e => {
+    e.preventDefault(); const f = e.target, v = n => f.elements[n].value;
+    for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { $("#serr").textContent = "Write dates as dd-mm-yyyy."; return; }
+    const p = { status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, discountPct: Number(v("discountPct")) || 0,
+      trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
+      graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
+      locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
+      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: v("phone").trim() } };
+    try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
+  };
+  $("#newinv").onclick = async () => {
+    try { await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: 7 }); await reload(); } catch (err) { $("#ierr").textContent = err.message; }
+  };
+  document.querySelectorAll("[data-pay]").forEach(b => b.onclick = () => payForm(b.dataset.pay));
+  document.querySelectorAll("[data-void]").forEach(b => b.onclick = async () => {
+    if (!confirm("Void this invoice? It will no longer be owed.")) return;
+    try { await rpc("slick_pa_void_invoice", { p_invoice: b.dataset.void }); await reload(); } catch (err) { $("#ierr").textContent = err.message; }
+  });
+}
+function payForm(id) {
+  const i = INV.find(x => x.id === id);
+  $("#payf").innerHTML = `<form id="pf" class="card" style="margin-top:12px;padding:14px"><b>Mark ${esc(i.number)} As Paid (${money(i.total, i.currency)})</b>
+    <div class="grid" style="margin-top:10px"><div class="fld"><label>Method</label><select class="sel" name="method" required><option value="">Choose…</option>
+      <option>Bank Transfer</option><option>Whish</option><option>OMT</option><option>Cash</option><option>Card</option><option>Other</option></select></div>
+      <div class="fld"><label>Reference</label><input class="sel" name="ref" placeholder="Transfer or receipt number"></div>
+      <div class="fld" style="display:flex;align-items:flex-end;gap:8px"><button class="btn pri">Mark Paid</button><button type="button" class="btn" id="pfc">Cancel</button></div></div></form>`;
+  $("#pfc").onclick = () => $("#payf").innerHTML = "";
+  $("#pf").onsubmit = async e => {
+    e.preventDefault();
+    try { await rpc("slick_pa_mark_paid", { p_invoice: id, p_method: e.target.elements.method.value, p_reference: e.target.elements.ref.value.trim() || null }); await reload(); }
+    catch (err) { $("#ierr").textContent = err.message; }
+  };
+}
+async function reload() { const id = CO?.id; await load(); if (id) { CO = DATA.companies.find(c => c.id === id); INV = await rpc("slick_pa_invoices", { p_company: id }); drawCompany(); $("#m").classList.add("on"); } }
+
+// ---------- price list ----------
+function viewPrices() {
+  const ps = DATA.products || [], cur = DATA.settings?.currency || "USD";
+  const unit = { device: "Per POS Device", branch: "Per Branch", company: "Per Company" };
+  $("#view").innerHTML = `<h1>Price List</h1><p class="subt">What each part of Skwyd Hub costs (${esc(cur)}). New invoices use these prices; a company's discount applies on top.</p>
+  <form id="pl" class="card"><table><thead><tr><th>Name</th><th>Charged</th><th class="num">Monthly</th><th class="num">Yearly</th><th>Always Included</th><th>Offered</th></tr></thead><tbody>
+  ${ps.map(p => `<tr data-id="${esc(p.id)}"><td><input class="sel" name="name" value="${esc(p.name)}" required></td>
+    <td><select class="sel" name="unit">${Object.entries(unit).map(([k,t]) => `<option value="${k}" ${p.unit===k?"selected":""}>${t}</option>`).join("")}</select></td>
+    <td class="num"><input class="sel" name="monthly" type="number" min="0" step="0.01" value="${p.monthly}" style="width:110px;text-align:right"></td>
+    <td class="num"><input class="sel" name="yearly" type="number" min="0" step="0.01" value="${p.yearly}" style="width:110px;text-align:right"></td>
+    <td><input type="checkbox" name="required" ${p.required?"checked":""}></td><td><input type="checkbox" name="active" ${p.active?"checked":""}></td></tr>`).join("")}
+  </tbody></table><div class="bar" style="border-top:1px solid var(--line);border-bottom:0"><div class="err" id="perr"></div><div class="sp"></div><button class="btn pri">Save</button></div></form>`;
+  $("#pl").onsubmit = async e => {
+    e.preventDefault();
+    const list = [...document.querySelectorAll("#pl tr[data-id]")].map((tr, i) => ({ id: tr.dataset.id, name: $("[name=name]", tr).value.trim(), unit: $("[name=unit]", tr).value,
+      monthly: Number($("[name=monthly]", tr).value) || 0, yearly: Number($("[name=yearly]", tr).value) || 0, required: $("[name=required]", tr).checked, active: $("[name=active]", tr).checked, sort: i + 1 }));
+    try { DATA.products = await rpc("slick_pa_save_products", { p: list }); await load(); } catch (err) { $("#perr").textContent = err.message; }
+  };
+}
+
+// ---------- settings ----------
+function viewSettings() {
+  const s = DATA.settings || {};
+  $("#view").innerHTML = `<h1>Settings</h1><p class="subt">How trials and late payments work for every company.</p>
+  <form id="stf" class="card" style="padding:18px;max-width:640px"><div class="grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="fld"><label>Free Trial (Days)</label><input class="sel" name="trialDays" type="number" min="0" step="1" value="${s.trialDays ?? 14}"></div>
+    <div class="fld"><label>Grace Period (Days)</label><input class="sel" name="graceDays" type="number" min="0" step="1" value="${s.graceDays ?? 7}"></div>
+    <div class="fld"><label>Currency</label><select class="sel" name="currency">${["USD","EUR","LBP"].map(c => `<option ${s.currency===c?"selected":""}>${c}</option>`).join("")}</select></div>
+  </div><p class="note">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
+  <div style="display:flex;align-items:center;gap:10px"><div class="err" id="sterr"></div><span style="flex:1"></span><button class="btn pri">Save</button></div></form>`;
+  $("#stf").onsubmit = async e => {
+    e.preventDefault(); const f = e.target.elements;
+    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value } }); await load(); }
+    catch (err) { $("#sterr").textContent = err.message; }
+  };
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("#m")?.classList.contains("on")) close_();
+});
+boot();
+</script>
+</body>
+</html>
