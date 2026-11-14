@@ -4,7 +4,7 @@
 <script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="894-1794678039">
+<meta name="skwyd-build" content="895-1794678660">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6959,7 +6959,7 @@ document.addEventListener("drop", e => { const t = e.target.closest?.("[data-rsd
 document.addEventListener("dragend", () => { rsDrag = null; document.querySelectorAll(".dragging,.dropto").forEach(x => x.classList.remove("dragging","dropto")); });
 async function rsSave(k, l){ try{ await put("settings", "app", { [k]: l.join("\n") }); render(); }catch(err){ console.error(err); toast("Couldn't save. Only the owner or an admin can change reasons."); } }
 function viewCurrency(){
-  const c = company(), admin = !state.role || state.role==="owner" || state.role==="admin";
+  const c = { ...company(), ...(state.curDraft||{}) }, admin = !state.role || state.role==="owner" || state.role==="admin";
   return `<div class="phead"><h1>Currency</h1><div class="sp"></div>${admin?`<button class="btn pri" id="curSave">Save</button>`:""}</div>
     <p class="subt" style="margin-top:-6px">The currency your menu prices are in, how many decimals they show, and an optional second currency.</p>
     ${admin?"":`<div class="banner">Only the owner or an admin can change the currency.</div>`}
@@ -6981,8 +6981,17 @@ function viewCurrency(){
 /* quick tender amounts: the cash shortcut buttons the cashier taps, per currency (up to 6, drag to reorder) */
 const QT = { open:{ 1:true, 2:true }, draft:{ 1:null, 2:null }, err:{} };
 const qtKey = k => k==1 ? "quickTender" : "quickTender2";
-const qtCode = k => k==1 ? (company().currency || "USD") : (company().currency2 || "");
-const qtDec = k => k==1 ? Math.min(2, +(company().priceDecimals ?? 2)) : (+company().decimals2 || 0);
+const curNow = () => ({ ...company(), ...(state.curDraft||{}) });   // what the Currency page shows: saved values plus unsaved picks
+const qtCode = k => k==1 ? (curNow().currency || "USD") : (curNow().currency2 || "");
+const qtDec = k => k==1 ? Math.min(2, +(curNow().priceDecimals ?? 2)) : (+curNow().decimals2 || 0);
+/* unsaved picks on the Currency page survive a redraw (adding an amount, opening a panel); choosing the second currency shows its amounts straight away */
+addEventListener("hashchange", () => { if(!/^#currency\b/.test(location.hash)) state.curDraft = {}; });
+const CUR_F = ["currency","currencySymbol","priceDecimals","currency2","currencySymbol2","rate2","decimals2"];
+document.addEventListener("input", e => { const id = e.target.id || ""; if(!id.startsWith("co_") || document.body.dataset.route!=="currency") return; const k = id.slice(3); if(!CUR_F.includes(k)) return;
+  state.curDraft = { ...(state.curDraft||{}), [k]: k==="priceDecimals" || k==="decimals2" ? +e.target.value : k==="rate2" ? (e.target.value==="" ? null : +e.target.value) : e.target.value }; });
+document.addEventListener("change", e => { const id = e.target.id || ""; if(document.body.dataset.route!=="currency" || !CUR_F.includes(id.slice(3))) return; const k = id.slice(3);
+  state.curDraft = { ...(state.curDraft||{}), [k]: k==="priceDecimals" || k==="decimals2" ? +e.target.value : k==="rate2" ? (e.target.value==="" ? null : +e.target.value) : e.target.value };
+  if(k==="currency2"){ state.curDraft.currencySymbol2 = ""; setTimeout(render, 0); } });
 const qtSaved = k => String(company()[qtKey(k)] || "").split(",").map(x => x.trim()).filter(Boolean);
 const qtCur = k => QT.draft[k] ?? qtSaved(k);
 function qtPanel(k){
@@ -7018,14 +7027,14 @@ async function saveCurrency(){
   if(!data.currency2) data.currencySymbol2 = "";
   if(data.currency2 && !(data.rate2 > 0)){ $("#curErr").textContent = "Enter the exchange rate for the second currency."; $("#co_rate2").focus(); return; }
   for(const k of ["1","2"]) if(QT.draft[k] != null){ const q = qtCheck(k); if(q == null) return; data[qtKey(k)] = q; }
-  try{ await put("settings", "company", data); QT.draft = {}; toast("Currency saved"); render(); }
+  try{ await put("settings", "company", data); QT.draft = {}; state.curDraft = {}; toast("Currency saved"); render(); }
   catch(e){ console.error(e); $("#curErr").textContent = "Couldn't save. Only the owner or an admin can change this."; }
 }
 document.addEventListener("click", async e => { if(e.target.closest("#curSave")) return saveCurrency();
   if(e.target.closest("#cur2On")){ state.cur2on = true; return render(); }
   if(e.target.closest("#cur2Off")){ if(!company().currency2){ state.cur2on = false; return render(); }
     if(!(await askYes("Are you sure you want to deactivate the secondary currency? Its settings will be cleared and the POS and web ordering will stop showing it."))) return;
-    try{ await put("settings", "company", { currency2:"", currencySymbol2:"", rate2:null, decimals2:0, quickTender2:"" }); state.cur2on = false; QT.draft[2] = null; toastOk("Secondary currency deactivated"); render(); }
+    try{ await put("settings", "company", { currency2:"", currencySymbol2:"", rate2:null, decimals2:0, quickTender2:"" }); state.cur2on = false; QT.draft[2] = null; state.curDraft = {}; toastOk("Secondary currency deactivated"); render(); }
     catch(err){ console.error(err); toast("Couldn't save. Only the owner or an admin can change this."); } } });
 /* Reasons (Manage → Reasons, Foodics style): a card per kind; tap a reason to edit it; drag to reorder; deleted ones under Deleted */
 const RS_KINDS = [["vr","Void and Return Reason"],["rejectReasons","Order Rejection Reason"],["cancelReasons","Order Cancellation Reason"],["qtyReasons","Quantity Adjustment Reason"],["drawerReasons","Drawer Operation Reason"]];
