@@ -264,6 +264,7 @@ function newCompany() {
       <div class="fld"><label>Status</label><select class="sel" name="status"><option value="trial">Trial (${cur.trialDays ?? 14} Days)</option><option value="active">Active</option></select></div>
       <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
       <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="2"></div>
+      <div class="fld"><label>Warehouses</label><input class="sel" name="warehouses" type="number" min="0" step="1" value="1"></div>
       <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy"></div>
       <div class="fld" style="grid-column:span 2"><label>Modules</label><div class="mods">${MODULES.map(([k,t]) => `<label class="chk"><input type="checkbox" name="mod" value="${k}" checked>${t}</label>`).join("")}</div></div>
       <div class="fld"><label class="chk" style="margin-top:20px"><input type="checkbox" name="complimentary">Free (Never Billed)</label></div>
@@ -282,7 +283,7 @@ function newCompany() {
     $("#nsave").disabled = true;
     try {
       const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: (v("firstName") + " " + v("lastName")).trim(), firstName: v("firstName"), lastName: v("lastName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), category: v("category"), subcategory: v("subcategory"), email: em,
-        status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, complimentary: f.elements.complimentary.checked,
+        status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, warehouses: Number(v("warehouses")) || 0, complimentary: f.elements.complimentary.checked,
         paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null, modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value) } });
       let note = "";
       if (em && pw) {   // the owner's login: a separate client so the admin stays signed in
@@ -321,6 +322,7 @@ function drawCompany() {
       <div><span>${s.status === "trial" ? "Trial Ends" : "Paid Until"}</span><b>${dmy(s.status === "trial" ? s.trial_ends_at : s.paid_until)}</b></div>
       <div><span>Locks On</span><b>${st.complimentary ? "Never" : dmy(st.lockAt)}</b></div>
       <div><span>POS Devices In Use</span><b>${st.posUsed ?? 0} of ${st.complimentary ? "∞" : s.pos_devices}</b></div>
+      <div><span>Warehouses In Use</span><b>${st.warehousesUsed ?? 0} of ${st.complimentary ? "∞" : s.warehouses ?? 1}</b></div>
       <div><span>Branches</span><b>${st.branches ?? 0}</b></div>
       <div><span>Next Invoice</span><b>${money(c.quote?.total, cur)}</b></div>
     </div>
@@ -341,6 +343,7 @@ function drawCompany() {
       <div class="fld"><label>Status</label><select class="sel" name="status">${[["trial","Trial"],["active","Active"],["cancelled","Cancelled"]].map(([v,t]) => `<option value="${v}" ${s.status===v?"selected":""}>${t}</option>`).join("")}</select></div>
       <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly" ${s.cycle!=="yearly"?"selected":""}>Monthly</option><option value="yearly" ${s.cycle==="yearly"?"selected":""}>Yearly</option></select></div>
       <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="${s.pos_devices ?? 1}"></div>
+      <div class="fld"><label>Warehouses</label><input class="sel" name="warehouses" type="number" min="0" step="1" value="${s.warehouses ?? 1}"></div>
       <div class="fld"><label>Trial Ends</label><input class="sel" name="trialEndsAt" placeholder="dd-mm-yyyy" value="${dmyIn(s.trial_ends_at)}"></div>
       <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy" value="${dmyIn(s.paid_until)}"></div>
       <div class="fld"><label>Grace Days</label><input class="sel" name="graceDays" type="number" min="0" step="1" placeholder="Default (${DATA.settings?.graceDays ?? 7})" value="${s.grace_days ?? ""}"></div>
@@ -368,7 +371,7 @@ function drawCompany() {
   $("#sf").onsubmit = async e => {
     e.preventDefault(); const f = e.target, v = n => f.elements[n].value;
     for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { $("#serr").textContent = "Write dates as dd-mm-yyyy."; return; }
-    const p = { status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, discountPct: Number(v("discountPct")) || 0,
+    const p = { status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, warehouses: Number(v("warehouses")) || 0, discountPct: Number(v("discountPct")) || 0,
       trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
@@ -403,7 +406,7 @@ async function reload() { const id = CO?.id; await load(); if (id) { CO = DATA.c
 // ---------- price list ----------
 function viewPrices() {
   const ps = DATA.products || [], cur = DATA.settings?.currency || "USD";
-  const unit = { device: "Per POS Device", branch: "Per Branch", company: "Per Company" };
+  const unit = { device: "Per POS Device", warehouse: "Per Warehouse", branch: "Per Branch", company: "Per Company" };
   $("#view").innerHTML = `<h1>Price List</h1><p class="subt">What each part of Skwyd Hub costs (${esc(cur)}). New invoices use these prices; a company's discount applies on top.</p>
   <form id="pl" class="card"><table><thead><tr><th>Name</th><th>Charged</th><th class="num">Monthly</th><th class="num">Yearly</th><th>Always Included</th><th>Offered</th></tr></thead><tbody>
   ${ps.map(p => `<tr data-id="${esc(p.id)}"><td><input class="sel" name="name" value="${esc(p.name)}" required></td>

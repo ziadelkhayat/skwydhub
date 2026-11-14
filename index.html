@@ -2780,7 +2780,7 @@ function subInvoices(onlyOpen){ const l = (SUB?.invoices || []).filter(i => !onl
   return `<div class="card" style="padding:0;overflow:auto"><table style="width:100%"><thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th class="num">Total</th><th>Status</th><th>Paid</th></tr></thead><tbody>${l.map(i =>
     `<tr><td><b>${esc(i.number)}</b></td><td>${subDate(i.periodStart)} – ${subDate(i.periodEnd)}</td><td>${subDate(i.dueAt)}</td><td class="num">${subMoney(i.total, i.currency)}</td><td>${st(i)}</td><td>${i.paidAt ? subDate(i.paidAt) + (i.method ? " · " + esc(i.method[0].toUpperCase() + i.method.slice(1)) : "") : "—"}</td></tr>`).join("")}</tbody></table></div>`; }
 function subPlanTable(q){ if(!q) return "";
-  const unit = l => l.unit==="device" ? " per device" : l.unit==="branch" ? " per branch" : "";
+  const unit = l => l.unit==="device" ? " per device" : l.unit==="warehouse" ? " per warehouse" : l.unit==="branch" ? " per branch" : "";
   return `<table style="width:100%"><thead><tr><th>Item</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${(q.lines||[]).map(l =>
     `<tr><td>${esc(l.name)}</td><td class="num">${(+l.qty||0).toLocaleString("en-US")}</td><td class="num">${subMoney(l.price, q.currency)}<span class="note">${unit(l)}</span></td><td class="num">${subMoney(l.amount, q.currency)}</td></tr>`).join("")}</tbody>
     <tfoot>${+q.discount ? `<tr><td colspan="3" class="num">Subtotal</td><td class="num">${subMoney(q.subtotal, q.currency)}</td></tr><tr><td colspan="3" class="num">Discount</td><td class="num">−${subMoney(q.discount, q.currency)}</td></tr>` : ""}
@@ -2794,6 +2794,7 @@ function viewSubscription(){
   h += `<div class="sbgrid">
     <div class="card"><h3>Plan</h3><div class="v">${stName}</div><div class="d">${stNote}</div></div>
     <div class="card"><h3>POS Devices</h3><div class="v">${used} / ${s.complimentary ? "∞" : lim ?? "—"}</div><div class="d">Activated registers</div></div>
+    <div class="card"><h3>Warehouses</h3><div class="v">${+s.warehousesUsed||0} / ${s.complimentary ? "∞" : s.warehouses ?? "—"}</div><div class="d">Warehouses in use</div></div>
     <div class="card"><h3>Amount Due</h3><div class="v">${subMoney(s.owed)}</div><div class="d">${+s.openInvoices ? `${s.openInvoices} open invoice${+s.openInvoices===1?"":"s"}` : "Nothing to pay"}</div></div>
     <div class="card"><h3>Account Number</h3><div class="v">${esc(s.company?.accountNo || "—")}</div><div class="d">Staff sign in with it</div></div></div>`;
   { const co = s.company || {}, ca = co.createdAt ? new Date(co.createdAt) : null, pad = n => String(n).padStart(2, "0");
@@ -2802,7 +2803,7 @@ function viewSubscription(){
     h += `<h3 class="ct" style="margin:6px 0 10px">General Information</h3><div class="card sbinfo" style="margin-bottom:16px"><div class="sbig">
       <div><label>Account Package Type</label><div>${pkg}</div></div><div><label>Account Creation Date</label><div>${when}</div></div>
       <div><label>Account Creation Email</label><div>${esc(co.email || "—")}</div></div></div></div>`; }
-  const mods = (s.products||[]).filter(p => !p.required && p.unit!=="device");
+  const mods = (s.products||[]).filter(p => !p.required && p.unit!=="device" && p.unit!=="warehouse");
   h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Modules</h3><div class="sbmods">${mods.map(p => { const on = s.complimentary || (s.modules||[]).includes(p.id);
     return `<div class="${on?"":"off"}"><span>${esc(p.name)}</span>${on ? `<span class="tag on">Included</span>` : `<span class="tag">Not Included</span>`}</div>`; }).join("")}</div></div>`;
   if(!s.complimentary && s.quote) h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Your Plan · Billed ${s.quote.cycle==="yearly" ? "Yearly" : "Monthly"}</h3>${subPlanTable(s.quote)}</div>`;
@@ -4170,6 +4171,8 @@ async function submitCrud(e){
     if(f.req && (data[f.k]===""||data[f.k]===null)){ CQ("#cErr").textContent = f.l + " is required."; el.focus(); return; }
     if(f.k==="factor" && !(data.factor > 0)){ CQ("#cErr").textContent = "The factor must be more than 0 (how many ingredient units are in one storage unit)."; el.focus(); return; }
   }
+  if(cfg.col==="warehouses" && !crudEdit.id && SUB && !SUB.complimentary && SUB.warehouses!=null && S.warehouses.filter(live).length >= +SUB.warehouses){   // warehouses are charged: the plan sets how many
+    CQ("#cErr").textContent = `Your plan includes ${SUB.warehouses} warehouse${+SUB.warehouses===1?"":"s"}. Add more warehouses to your Skwyd Hub subscription to create this one.`; return; }
   if(cfg.prep){ const msg = await cfg.prep(data, crudEdit.id); if(msg){ CQ("#cErr").textContent = msg; return; } }
   if(cfg.fields.some(f=>f.k==="sku") && data.sku && S[cfg.col].some(r=>r.id!==crudEdit.id && live(r) && r.sku===data.sku)){ CQ("#cErr").textContent = "That SKU is already used."; return; }
   if(cfg.unique && S[cfg.col].some(r=>r.id!==crudEdit.id && live(r) && String(r[cfg.unique]||"").toLowerCase()===String(data[cfg.unique]||"").toLowerCase())){ CQ("#cErr").textContent = `That ${cfg.unique} is already used by another ${cfg.one.toLowerCase()}.`; return; }
@@ -4177,7 +4180,7 @@ async function submitCrud(e){
   const tgIds = TAG_KEY[crudEdit.key] ? tagPickGet("cf__tags") : null; if(tgIds && !crudEdit.id && !data.id) data.id = uid(cfg.col.slice(0,3));
   const newId = !crudEdit.id && data.id ? data.id : null; delete data.id;
   try{ await put(cfg.col, crudEdit.id || newId, data); if(tgIds) await tagSetFor(TAG_KEY[crudEdit.key], crudEdit.id || newId, tgIds); if(cfg.after) await cfg.after(old, data); if(cfg.saved) await cfg.saved(old, data); toast(cfg.one + " saved"); closeCrud(); }
-  catch(err){ console.error(err); CQ("#cErr").textContent = "Couldn't save. You may not have edit access."; }
+  catch(err){ console.error(err); CQ("#cErr").textContent = /Your plan includes|subscription/i.test(err?.message || "") ? err.message : "Couldn't save. You may not have edit access."; }
 }
 async function softDelete(flag){
   const cfg = CRUD[crudEdit.key];
