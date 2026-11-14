@@ -276,6 +276,8 @@ function drawCompany() {
       <div class="fld"><label>Contact Name</label><input class="sel" name="contactName" value="${esc(c.contact_name || "")}"></div>
       <div class="fld"><label>Email</label><input class="sel" name="email" type="email" value="${esc(c.email || "")}"></div>
       <div class="fld"><label>Phone</label><input class="sel" name="phone" value="${esc(c.phone || "")}"></div>
+      <div class="fld"><label>Country</label><select class="sel" name="country">${countryOpts(c.country || "Lebanon")}</select></div>
+      <div class="fld"><label>Currency</label><select class="sel" name="currency">${currencyOpts(c.currency || "USD")}</select></div>
       <div class="fld"><label>Business Category</label><select class="sel" name="category">${categoryOpts(c.category || "")}</select></div>
       <div class="fld"><label>Business Subcategory</label><select class="sel" name="subcategory" ${c.category ? "" : "disabled"}>${subOpts(c.category || "", c.subcategory || "")}</select></div>
     </div>
@@ -315,7 +317,7 @@ function drawCompany() {
       trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
-      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: v("phone").trim(), category: v("category"), subcategory: v("subcategory") } };
+      company: { name: v("name").trim(), contactName: v("contactName").trim(), email: v("email").trim(), phone: v("phone").trim(), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
     try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
   };
   $("#newinv").onclick = async () => {

@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="897-1794679230">
+<meta name="skwyd-build" content="898-1794679580">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1493,6 +1493,10 @@ html body #view .card>.tscroll::-webkit-scrollbar-track{background:#f4f5f8}
 html body #view .card>.tscroll+.pager{position:relative;z-index:4;background:#fff;border-radius:0 0 14px 14px}
 .msel>.msel-p .msel-o{white-space:nowrap}
 .msel>.msel-p .msel-o>span:not(.note){overflow:hidden;text-overflow:ellipsis}
+.sbinfo .sbig{display:grid;grid-template-columns:1fr 1fr;gap:18px 48px}
+.sbinfo .sbig label{display:block;font-size:13px;color:var(--muted,#8b8a99);margin-bottom:6px}
+.sbinfo .sbig label+div{padding-bottom:8px;border-bottom:1px solid var(--line,#e7e6ee);font-size:15px;overflow-wrap:anywhere}
+@media(max-width:700px){.sbinfo .sbig{grid-template-columns:1fr}}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
@@ -2787,6 +2791,12 @@ function viewSubscription(){
     <div class="card"><h3>POS Devices</h3><div class="v">${used} / ${s.complimentary ? "∞" : lim ?? "—"}</div><div class="d">Activated registers</div></div>
     <div class="card"><h3>Amount Due</h3><div class="v">${subMoney(s.owed)}</div><div class="d">${+s.openInvoices ? `${s.openInvoices} open invoice${+s.openInvoices===1?"":"s"}` : "Nothing to pay"}</div></div>
     <div class="card"><h3>Account Number</h3><div class="v">${esc(s.company?.accountNo || "—")}</div><div class="d">Staff sign in with it</div></div></div>`;
+  { const co = s.company || {}, ca = co.createdAt ? new Date(co.createdAt) : null, pad = n => String(n).padStart(2, "0");
+    const when = ca && !isNaN(ca) ? `${pad(ca.getDate())}-${pad(ca.getMonth()+1)}-${ca.getFullYear()} ${ca.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" }).toLowerCase().replace(" ", "")}` : "—";
+    const pkg = s.complimentary ? "Complimentary" : s.state==="trial" || s.status==="trial" ? "Free Trial" : (s.cycle==="yearly" ? "Yearly" : "Monthly");
+    h += `<h3 class="ct" style="margin:6px 0 10px">General Information</h3><div class="card sbinfo" style="margin-bottom:16px"><div class="sbig">
+      <div><label>Account Package Type</label><div>${pkg}</div></div><div><label>Account Creation Date</label><div>${when}</div></div>
+      <div><label>Account Creation Email</label><div>${esc(co.email || "—")}</div></div></div></div>`; }
   const mods = (s.products||[]).filter(p => !p.required && p.unit!=="device");
   h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Modules</h3><div class="sbmods">${mods.map(p => { const on = s.complimentary || (s.modules||[]).includes(p.id);
     return `<div class="${on?"":"off"}"><span>${esc(p.name)}</span>${on ? `<span class="tag on">Included</span>` : `<span class="tag">Not Included</span>`}</div>`; }).join("")}</div></div>`;
