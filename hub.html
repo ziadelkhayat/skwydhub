@@ -66,6 +66,7 @@ tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
 .gate button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
 .gate .err{text-align:center;margin-top:10px}
 @media (max-width:900px){.app{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr 1fr}}
+.req{color:var(--bad);font-style:normal}
 </style>
 </head>
 <body>
@@ -175,17 +176,17 @@ function newCompany() {
   <div class="body"><form id="nf">
     <div class="sec">Business</div>
     <div class="grid">
-      <div class="fld"><label>Business Name</label><input class="sel" name="name" required></div>
-      <div class="fld"><label>Country</label><input class="sel" name="country" value="Lebanon"></div>
+      <div class="fld"><label>Business Name <i class="req">*</i></label><input class="sel" name="name" required></div>
+      <div class="fld"><label>Country <i class="req">*</i></label><input class="sel" name="country" value="Lebanon" required></div>
     </div>
     <div class="sec">Owner</div>
     <div class="grid">
-      <div class="fld"><label>Owner Name</label><input class="sel" name="contactName"></div>
-      <div class="fld"><label>Phone</label><input class="sel" name="phone"></div>
-      <div class="fld"><label>Email</label><input class="sel" name="email" type="email" autocomplete="off"></div>
-      <div class="fld"><label>Password</label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6"></div>
+      <div class="fld"><label>Owner Name <i class="req">*</i></label><input class="sel" name="contactName" required></div>
+      <div class="fld"><label>Phone <i class="req">*</i></label><input class="sel" name="phone" required></div>
+      <div class="fld"><label>Email <i class="req">*</i></label><input class="sel" name="email" type="email" autocomplete="off" required></div>
+      <div class="fld"><label>Password <i class="req">*</i></label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6" required></div>
     </div>
-    <p class="note">With an email and password, the owner gets a login: they confirm their email once, then sign in at portal.skwydhub.com with the account number, this email and this password. Leave them empty to set up the business yourself first.</p>
+    <p class="note">The owner confirms their email once, then signs in at portal.skwydhub.com with the account number, this email and this password.</p>
     <div class="sec">Subscription</div>
     <div class="grid">
       <div class="fld"><label>Status</label><select class="sel" name="status"><option value="trial">Trial (${cur.trialDays ?? 14} Days)</option><option value="active">Active</option></select></div>
