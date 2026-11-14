@@ -4,7 +4,7 @@
 <script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="890-1794676024">
+<meta name="skwyd-build" content="891-1794676544">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1474,6 +1474,10 @@ html body .lyset{padding:22px 24px}html body .lyset .lyon{font-size:16px;margin-
 html body aside.side .brand.skb{flex-direction:column!important;align-items:center!important;gap:6px!important;padding:14px 12px 24px!important}html body .skmark{width:46px;height:54px}html body .skmark svg{width:100%;height:100%;display:block}html body aside.side .skword b{font-weight:800!important;font-size:25px!important;letter-spacing:-.6px;color:#fff!important;line-height:1}html body .skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:10px;line-height:1.3;padding:1px 6px;border-radius:6px;background:#c6f432;color:#172554;border:2px solid #fff;transform:translateY(-3px)}
 html body aside.side #coLogo,html body aside.side #coSub{display:none!important}html body aside.side .skword{display:flex!important;align-items:flex-start;white-space:nowrap}
 html body #view .card.otbl.obody th,html body #view .card.otbl.obody td{padding:10px 8px!important;font-size:14px!important;word-break:normal;overflow-wrap:anywhere}html body #view .card.otbl.obody th{white-space:normal!important;overflow-wrap:normal!important;min-width:56px}html body #view .card.otbl::-webkit-scrollbar{height:10px;width:10px}html body #view .card.otbl::-webkit-scrollbar-thumb{background:#c9cfdb;border-radius:8px;border:2px solid #fff}html body #view .card.otbl::-webkit-scrollbar-track{background:#f4f5f8}
+html body #view .card.otbl.obody.ofit1 th,html body #view .card.otbl.obody.ofit1 td{padding:9px 6px!important;font-size:13px!important}
+html body #view .card.otbl.obody.ofit2 th,html body #view .card.otbl.obody.ofit2 td{padding:8px 4px!important;font-size:12.5px!important}
+html body #view .card.otbl.obody.ofit2 .spill,html body #view .card.otbl.obody.ofit2 .tag{padding-left:6px!important;padding-right:6px!important}
+html body #view .card.otbl.obody>table>thead>tr>th:last-child,html body #view .card.otbl.obody>table>tbody>tr>td:last-child{padding-right:16px!important}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
@@ -2699,7 +2703,7 @@ setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(
   try{ renderNav((location.hash.slice(1) || "dashboard")); }catch(_){}
   const v = document.getElementById("view"); if(v) v.innerHTML = `<div class="card empty" style="margin-top:20px">This page couldn't be shown. <button class="btn" onclick="location.reload()">Reload</button></div>`; } }; }, 0);
 // the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
-function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); t.style.maxHeight = Math.max(320, (m ? m.clientHeight : innerHeight) - top - 16) + "px"; }
+function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); t.style.maxHeight = Math.max(320, (m ? m.clientHeight : innerHeight) - top - 16) + "px"; const tb = t.querySelector(":scope>table"); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= t.clientWidth) break; t.classList.add(c); } } }
 addEventListener("resize", () => fitOtbl());
 function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
   const route = (location.hash.slice(1) || "dashboard");
