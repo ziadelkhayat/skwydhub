@@ -291,7 +291,7 @@ begin
   insert into staff_users (company_id, name, email, phone, user_id, branch_ids)
     values (cid, left(coalesce(nullif(trim(m->>'name'), ''), 'Owner'), 80), new.email, left(m->>'phone', 30), new.id, '{}');
   insert into settings (company_id, id, data)
-    values (cid, 'company', jsonb_build_object('name', nm, 'accountNo', m->>'account_no', 'currency', 'USD', 'country', coalesce(m->>'country', 'Lebanon'), 'taxInclusive', true));
+    values (cid, 'company', jsonb_build_object('name', nm, 'accountNo', m->>'account_no', 'currency', coalesce(nullif(left(upper(m->>'currency'), 3), ''), 'USD'), 'country', coalesce(m->>'country', 'Lebanon'), 'taxInclusive', true));
   insert into brands (company_id, name) values (cid, nm) returning id into bd;
   insert into branches (company_id, brand_id, name, code) values (cid, bd, 'Main Branch', 'B01') returning id into br;
   insert into payment_methods (company_id, name, type, open_drawer, sort) values (cid, 'Cash', 'cash', true, 1);

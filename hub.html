@@ -86,6 +86,16 @@ const ICON = {
   prices: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
 };
+// countries: name, dialing code, usual currency (Lebanon and Syria price in US dollars by default)
+const COUNTRIES = [["Lebanon","+961","USD"],["United Arab Emirates","+971","AED"],["Saudi Arabia","+966","SAR"],["Qatar","+974","QAR"],["Kuwait","+965","KWD"],["Bahrain","+973","BHD"],["Oman","+968","OMR"],["Jordan","+962","JOD"],["Syria","+963","USD"],["Iraq","+964","IQD"],["Egypt","+20","EGP"],["Turkey","+90","TRY"],["Cyprus","+357","EUR"],["France","+33","EUR"],["Germany","+49","EUR"],["Belgium","+32","EUR"],["Italy","+39","EUR"],["Spain","+34","EUR"],["Greece","+30","EUR"],["United Kingdom","+44","GBP"],["United States","+1","USD"],["Canada","+1","CAD"],["Australia","+61","AUD"],["Brazil","+55","BRL"],["Senegal","+221","XOF"],["Ivory Coast","+225","XOF"],["Nigeria","+234","NGN"],["DR Congo","+243","CDF"],["Ghana","+233","USD"],["India","+91","INR"],["Philippines","+63","PHP"],["Sri Lanka","+94","LKR"],["Bangladesh","+880","BDT"],["Ethiopia","+251","ETB"]];
+const CURRENCIES = [["USD","US Dollar (USD)"],["LBP","Lebanese Pound (LBP)"],["EUR","Euro (EUR)"],["AED","UAE Dirham (AED)"],["SAR","Saudi Riyal (SAR)"],["QAR","Qatari Riyal (QAR)"],["KWD","Kuwaiti Dinar (KWD)"],["BHD","Bahraini Dinar (BHD)"],["OMR","Omani Rial (OMR)"],["JOD","Jordanian Dinar (JOD)"],["SYP","Syrian Pound (SYP)"],["IQD","Iraqi Dinar (IQD)"],["EGP","Egyptian Pound (EGP)"],["TRY","Turkish Lira (TRY)"],["GBP","British Pound (GBP)"],["CAD","Canadian Dollar (CAD)"],["AUD","Australian Dollar (AUD)"],["BRL","Brazilian Real (BRL)"],["XOF","West African CFA Franc (XOF)"],["NGN","Nigerian Naira (NGN)"],["CDF","Congolese Franc (CDF)"],["INR","Indian Rupee (INR)"],["PHP","Philippine Peso (PHP)"],["LKR","Sri Lankan Rupee (LKR)"],["BDT","Bangladeshi Taka (BDT)"],["ETB","Ethiopian Birr (ETB)"]];
+const DIALS = [...new Set(COUNTRIES.map(c => c[1]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+const countryOpts = sel => `<option value="">Choose…</option>` + COUNTRIES.map(([n]) => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
+const dialOpts = sel => DIALS.map(d => `<option ${d===sel?"selected":""}>${d}</option>`).join("");
+const currencyOpts = sel => `<option value="">Choose…</option>` + CURRENCIES.map(([k,t]) => `<option value="${k}" ${k===sel?"selected":""}>${t}</option>`).join("");
+// picking a country fills in its dialing code and currency
+function geoLink(form) { const f = form.elements; f.country.onchange = () => { const c = COUNTRIES.find(x => x[0] === f.country.value); if (!c) return; f.dial.value = c[1]; f.currency.value = c[2]; }; }
+const fullPhone = (dial, num) => { num = String(num || "").trim().replace(/^0+/, ""); return num ? dial + " " + num : ""; };
 const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
 const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
 let DATA = null, me = null, view = "companies", q = "";
@@ -177,12 +187,13 @@ function newCompany() {
     <div class="sec">Business</div>
     <div class="grid">
       <div class="fld"><label>Business Name <i class="req">*</i></label><input class="sel" name="name" required></div>
-      <div class="fld"><label>Country <i class="req">*</i></label><input class="sel" name="country" value="Lebanon" required></div>
+      <div class="fld"><label>Country <i class="req">*</i></label><select class="sel" name="country" required>${countryOpts("Lebanon")}</select></div>
+      <div class="fld"><label>Currency <i class="req">*</i></label><select class="sel" name="currency" required>${currencyOpts("USD")}</select></div>
     </div>
     <div class="sec">Owner</div>
     <div class="grid">
       <div class="fld"><label>Owner Name <i class="req">*</i></label><input class="sel" name="contactName" required></div>
-      <div class="fld"><label>Phone <i class="req">*</i></label><input class="sel" name="phone" required></div>
+      <div class="fld"><label>Phone <i class="req">*</i></label><div style="display:flex;gap:8px"><select class="sel" name="dial" style="width:96px;flex:none" aria-label="Country code">${dialOpts("+961")}</select><input class="sel" name="phone" required inputmode="tel" placeholder="70 123 456" style="flex:1;min-width:0"></div></div>
       <div class="fld"><label>Email <i class="req">*</i></label><input class="sel" name="email" type="email" autocomplete="off" required></div>
       <div class="fld"><label>Password <i class="req">*</i></label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6" required></div>
     </div>
@@ -200,7 +211,7 @@ function newCompany() {
     <div style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn" data-x2>Cancel</button><button class="btn pri" id="nsave">Create</button></div>
   </form></div>`;
   $("#m").classList.add("on");
-  $("[data-x]").onclick = close_; $("[data-x2]").onclick = close_;
+  $("[data-x]").onclick = close_; $("[data-x2]").onclick = close_; geoLink($("#nf"));
   $("#nf").onsubmit = async e => {
     e.preventDefault(); const f = e.target, v = n => f.elements[n].value.trim(), err = $("#nerr"); err.textContent = "";
     const em = v("email"), pw = f.elements.password.value;
@@ -209,7 +220,7 @@ function newCompany() {
     if (v("paidUntil") && !parseDmy(v("paidUntil"))) { err.textContent = "Write dates as dd-mm-yyyy."; return; }
     $("#nsave").disabled = true;
     try {
-      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: v("phone"), email: em,
+      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: fullPhone(v("dial"), v("phone")), currency: v("currency"), email: em,
         status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, complimentary: f.elements.complimentary.checked,
         paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null, modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value) } });
       let note = "";

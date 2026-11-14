@@ -127,7 +127,7 @@ begin
             coalesce((select array_agg(x) from jsonb_array_elements_text(p->'modules') x), array['inventory','marketing','online_ordering','marketplace','call_center']),
             coalesce((p->>'complimentary')::boolean, false));
   insert into settings (company_id, id, data)
-    values (cid, 'company', jsonb_build_object('name', nm, 'accountNo', acct, 'currency', 'USD', 'country', coalesce(nullif(p->>'country', ''), 'Lebanon'), 'taxInclusive', true));
+    values (cid, 'company', jsonb_build_object('name', nm, 'accountNo', acct, 'currency', coalesce(nullif(left(upper(p->>'currency'), 3), ''), 'USD'), 'country', coalesce(nullif(p->>'country', ''), 'Lebanon'), 'taxInclusive', true));
   insert into brands (company_id, name) values (cid, nm) returning id into bd;
   insert into branches (company_id, brand_id, name, code) values (cid, bd, 'Main Branch', 'B01');
   insert into payment_methods (company_id, name, type, open_drawer, sort) values (cid, 'Cash', 'cash', true, 1);
@@ -146,3 +146,4 @@ begin
     execute format('grant execute on function public.%s to authenticated', f);
   end loop;
 end $$;
+-- (applied live as migration new_business_currency: both sign-up paths save the currency picked on the form)

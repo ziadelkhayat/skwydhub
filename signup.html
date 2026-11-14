@@ -40,6 +40,16 @@ const sb = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const LOGO = `<svg viewBox="0 0 120 140" width="58" height="66"><g fill="none" stroke="#c6f432" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/></svg>`;
+// countries: name, dialing code, usual currency (Lebanon and Syria price in US dollars by default)
+const COUNTRIES = [["Lebanon","+961","USD"],["United Arab Emirates","+971","AED"],["Saudi Arabia","+966","SAR"],["Qatar","+974","QAR"],["Kuwait","+965","KWD"],["Bahrain","+973","BHD"],["Oman","+968","OMR"],["Jordan","+962","JOD"],["Syria","+963","USD"],["Iraq","+964","IQD"],["Egypt","+20","EGP"],["Turkey","+90","TRY"],["Cyprus","+357","EUR"],["France","+33","EUR"],["Germany","+49","EUR"],["Belgium","+32","EUR"],["Italy","+39","EUR"],["Spain","+34","EUR"],["Greece","+30","EUR"],["United Kingdom","+44","GBP"],["United States","+1","USD"],["Canada","+1","CAD"],["Australia","+61","AUD"],["Brazil","+55","BRL"],["Senegal","+221","XOF"],["Ivory Coast","+225","XOF"],["Nigeria","+234","NGN"],["DR Congo","+243","CDF"],["Ghana","+233","USD"],["India","+91","INR"],["Philippines","+63","PHP"],["Sri Lanka","+94","LKR"],["Bangladesh","+880","BDT"],["Ethiopia","+251","ETB"]];
+const CURRENCIES = [["USD","US Dollar (USD)"],["LBP","Lebanese Pound (LBP)"],["EUR","Euro (EUR)"],["AED","UAE Dirham (AED)"],["SAR","Saudi Riyal (SAR)"],["QAR","Qatari Riyal (QAR)"],["KWD","Kuwaiti Dinar (KWD)"],["BHD","Bahraini Dinar (BHD)"],["OMR","Omani Rial (OMR)"],["JOD","Jordanian Dinar (JOD)"],["SYP","Syrian Pound (SYP)"],["IQD","Iraqi Dinar (IQD)"],["EGP","Egyptian Pound (EGP)"],["TRY","Turkish Lira (TRY)"],["GBP","British Pound (GBP)"],["CAD","Canadian Dollar (CAD)"],["AUD","Australian Dollar (AUD)"],["BRL","Brazilian Real (BRL)"],["XOF","West African CFA Franc (XOF)"],["NGN","Nigerian Naira (NGN)"],["CDF","Congolese Franc (CDF)"],["INR","Indian Rupee (INR)"],["PHP","Philippine Peso (PHP)"],["LKR","Sri Lankan Rupee (LKR)"],["BDT","Bangladeshi Taka (BDT)"],["ETB","Ethiopian Birr (ETB)"]];
+const DIALS = [...new Set(COUNTRIES.map(c => c[1]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+const countryOpts = sel => `<option value="">Choose…</option>` + COUNTRIES.map(([n]) => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
+const dialOpts = sel => DIALS.map(d => `<option ${d===sel?"selected":""}>${d}</option>`).join("");
+const currencyOpts = sel => `<option value="">Choose…</option>` + CURRENCIES.map(([k,t]) => `<option value="${k}" ${k===sel?"selected":""}>${t}</option>`).join("");
+// picking a country fills in its dialing code and currency
+function geoLink(form) { const f = form.elements; f.country.onchange = () => { const c = COUNTRIES.find(x => x[0] === f.country.value); if (!c) return; f.dial.value = c[1]; f.currency.value = c[2]; }; }
+const fullPhone = (dial, num) => { num = String(num || "").trim().replace(/^0+/, ""); return num ? dial + " " + num : ""; };
 const HEAD = (t, s) => `<div class="logo">${LOGO}</div><h1>${t}</h1><p class="lead">${s}</p>`;
 
 function form(msg = "") {
@@ -48,13 +58,14 @@ function form(msg = "") {
   <form id="f" autocomplete="on"><div class="grid">
     <div class="full"><label for="co">Business Name</label><input id="co" required autocomplete="organization"></div>
     <div><label for="nm">Your Name</label><input id="nm" required autocomplete="name"></div>
-    <div><label for="ph">Phone</label><input id="ph" required autocomplete="tel" inputmode="tel"></div>
-    <div class="full"><label for="ct">Country</label><input id="ct" value="Lebanon" autocomplete="country-name"></div>
+    <div><label for="ph">Phone</label><div style="display:flex;gap:8px"><select id="dl" name="dial" style="width:92px;flex:none" aria-label="Country code">${dialOpts("+961")}</select><input id="ph" name="phone" required autocomplete="tel-national" inputmode="tel" style="flex:1;min-width:0"></div></div>
+    <div><label for="ct">Country</label><select id="ct" name="country" required>${countryOpts("Lebanon")}</select></div>
+    <div><label for="cu">Currency</label><select id="cu" name="currency" required>${currencyOpts("USD")}</select></div>
     <div class="full"><label for="em">Email</label><input id="em" type="email" required autocomplete="email"></div>
     <div class="full"><label for="pw">Password</label><input id="pw" type="password" required minlength="6" autocomplete="new-password"></div>
   </div><button class="pri" id="go">Create My Account</button><div class="err" id="err">${esc(msg)}</div></form>
   <div class="foot">Already using Skwyd Hub? <a href="/">Sign In</a></div>`;
-  $("#co").focus();
+  $("#co").focus(); geoLink($("#f"));
   $("#f").onsubmit = async e => {
     e.preventDefault(); const b = $("#go"), err = $("#err"); err.textContent = "";
     if ($("#pw").value.length < 6) { err.textContent = "The password needs at least 6 characters."; return; }
@@ -62,7 +73,7 @@ function form(msg = "") {
     const email = $("#em").value.trim();
     const { data, error } = await sb.auth.signUp({ email, password: $("#pw").value, options: {
       emailRedirectTo: location.origin + "/signup",
-      data: { signup: "company", company: $("#co").value.trim(), name: $("#nm").value.trim(), phone: $("#ph").value.trim(), country: $("#ct").value.trim() || "Lebanon" } } });
+      data: { signup: "company", company: $("#co").value.trim(), name: $("#nm").value.trim(), phone: fullPhone($("#dl").value, $("#ph").value), country: $("#ct").value, currency: $("#cu").value } } });
     b.disabled = false; b.textContent = "Create My Account";
     if (error) { err.textContent = /registered|exists/i.test(error.message) ? "This email already has a Skwyd Hub account. Sign in instead." : error.message; return; }
     if (data.user && !(data.user.identities || []).length) { err.textContent = "This email already has a Skwyd Hub account. Sign in instead."; return; }
