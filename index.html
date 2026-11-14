@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="899-1794679811">
+<meta name="skwyd-build" content="900-1794679882">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6799,7 +6799,7 @@ function viewCompany(){
       ${f("taxName","Tax Registration Name",{tip:"The name registered with the tax authority, printed on invoices."})}
       ${f("taxNumber","Tax Number",{tip:"The VAT / tax registration number printed on invoices."})}
     </div>${lk ? `<p class="note bizn">Business name, account number, category, country and currency are set by skwyd hub and can't be changed here.</p>` : `<p class="note bizn">Pick the country and currency carefully: once you save, they can't be changed.</p>`}${sv}</div>
-    <h3 class="bizh">Owner</h3>
+    <h3 class="bizh">Contact</h3>
     <div class="card bizcard"><div class="bizgrid">
       <div class="f"><label for="co_email">Owner Email</label><input id="co_email" class="sel" type="email" value="${esc(c.email||"")}" disabled title="${PLAT_NOTE}"></div>
       <div class="f"><label for="co_ownerPhone">Owner Phone Number</label><div class="phrow"><select id="co_ownerPhoneCc" class="sel" aria-label="Country code" disabled title="${PLAT_NOTE}">${CC_CODES.map(([d,n])=>`<option value="${d}" ${d===ph.cc?"selected":""}>${esc(n)} (${d})</option>`).join("")}</select><input id="co_ownerPhone" class="sel" type="tel" inputmode="tel" value="${esc(ph.num)}" disabled title="${PLAT_NOTE}"></div></div>
