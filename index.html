@@ -1509,11 +1509,23 @@ html body .note{font-size:14px}
 html body .spill{font-size:14px!important;font-weight:600!important}
 html body .dinfo .note{font-size:15px!important;font-weight:400!important;color:#636366!important}
 html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
+.subbar{margin:16px 32px 0;max-width:1296px;display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;font-size:13.5px;background:#eef2ff;color:#1e3a8a;border:1px solid #c7d2fe}
+.subbar[hidden]{display:none}
+.subbar.warn{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+.subbar b{font-weight:600}.subbar .sp{flex:1}.subbar .btn{height:30px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.subbar{margin:12px 14px 0}}
+.sbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px}
+.sbgrid .card .v{font-size:22px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}.sbgrid .card .d{font-size:12.5px;color:var(--muted);margin-top:3px}
+.sbmods{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.sbmods>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px}
+.sbmods .off{color:var(--muted)}
+.sblock td,.sblock th{white-space:nowrap}.sblock{max-width:780px;margin:40px auto;text-align:center}.sblock h1{font-size:24px;margin:14px 0 8px}.sblock p{color:var(--ink2);line-height:1.55;margin:0 0 6px}
+.sblock .card{text-align:left;margin-top:22px}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=47"></script>
+<script src="wokdb.js?v=48"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1547,6 +1559,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
           <button type="button" role="menuitem" id="amSignOut">Sign out</button>
         </div></div><button class="btn sm" id="signOut" type="button" style="display:none"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out</button>
     </div>
+    <div id="subBar" hidden></div>
     <div class="content" id="view"><div id="bootLoad" style="display:grid;place-items:center;min-height:60vh;color:#8d8c98;font-size:15px;gap:12px"><div><span style="display:inline-block;width:22px;height:22px;border:3px solid #e5e3ec;border-top-color:#1e3a8a;border-radius:50%;animation:bootspin .8s linear infinite;vertical-align:middle;margin-right:10px"></span>Loading…</div></div><style>@keyframes bootspin{to{transform:rotate(360deg)}}</style></div>
   </div>
 </div>
@@ -1715,7 +1728,7 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Manage",i:"gear",tabs:1,kids:[["users","Users"],["roles","Roles"],["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
+  {t:"Manage",i:"gear",tabs:1,kids:[["users","Users"],["roles","Roles"],["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"],["subscription","Subscription"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"}
 ];
@@ -1795,7 +1808,7 @@ Object.assign(I, {
   layout:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>'
 });
 // one icon per screen
-const SUBI = { "inventory-more":"grid", "manage-more":"grid",
+const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card",
   "sales-reports":"bars","inventory-reports":"pie","business-reports":"chart","analysis-reports":"layout",
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
@@ -1889,6 +1902,8 @@ async function initStore(){
     db = await window.claude.use("db");
     if(!db){ clearTimeout(timer); return fallback(); }
     try{ const user = await window.claude.use("user"); if(user){ const n = await user.name?.(); if(n){ if(!localStorage.getItem("skwyd_who")){ $("#who").textContent = n; $("#avatar").textContent = String(n).trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); } state.userName = String(n).split(" ")[0]; } state.role = await user.role?.(); state.userId = await user.id?.(); state.email = await user.email?.() || ""; state.fullName = n || ""; paintAcct(); setTimeout(() => ensureAdminPin(), 1500); } }catch(e){}
+    if(window.WOK?.locked?.()){ storeMode = "db"; await subLoad(); render(); return; }   // subscription ended: only the lock screen
+    subLoad();
     col = db.collection("branches");
     subscribeAll();
     col.onSnapshot(snap => {
@@ -2711,6 +2726,74 @@ setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(
 // the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
 function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); void top; t.style.maxHeight = ""; const tb = t.querySelector("table"), box = tb && (tb.closest(".tscroll") || t); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= box.clientWidth) break; t.classList.add(c); } } }
 addEventListener("resize", () => fitOtbl());
+/* ---------- Skwyd Hub subscription: the plan, the trial/overdue banner, the lock screen and Manage → Subscription ---------- */
+let SUB = null;   // slick_my_subscription(): state trial/active/grace/locked, daysLeft, modules, invoices…
+async function subLoad(){ try{ if(!window.WOK?.subscription) return; const d = await window.WOK.subscription(); if(d){ SUB = d; render(); } }catch(e){ console.error(e); } }
+setInterval(() => { if(storeMode==="db" && !document.hidden) subLoad(); }, 600000);
+const subLocked = () => !window.WOK?.viewAs?.() && (SUB?.state==="locked" || !!window.WOK?.locked?.());   // a Skwyd Hub admin viewing the business still gets in
+// which paid module a screen belongs to
+const MOD_OF = { "call-center":"call_center", "Inventory":"inventory", "inventory-reports":"inventory", "Marketing":"marketing", "Web Ordering":"online_ordering", "marketplace":"marketplace" };
+const MOD_NAME = { inventory:"Inventory", marketing:"Marketing", online_ordering:"Online Ordering", marketplace:"Marketplace", call_center:"Call Center" };
+function planMod(route){ route = ROUTE_PARENT[route] || route; if(MOD_OF[route]) return MOD_OF[route]; if(INV_ROUTES.has(route)) return "inventory";
+  const n = NAV.find(x => x.id===route || (x.kids||[]).some(k=>k[0]===route) || (x.side||[]).some(k=>k[0]===route)); return n ? MOD_OF[n.id || n.t] || null : null; }
+function planHas(route){ if(!SUB || SUB.complimentary || !Array.isArray(SUB.modules)) return true; const m = planMod(route); return !m || SUB.modules.includes(m); }
+const subCur = () => SUB?.billing?.currency || SUB?.quote?.currency || "USD";
+const subMoney = (n, c) => (c || subCur()) + " " + (+n||0).toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
+const subDate = s => { if(!s) return "—"; const d = new Date(s); return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + d.getFullYear(); };
+const subDays = n => `${n} day${n===1?"":"s"}`;
+function subContact(){ const b = SUB?.billing || {}, l = [];
+  if(b.supportPhone) l.push(`<a class="lnk" href="tel:${esc(b.supportPhone.replace(/\s+/g,""))}">${esc(b.supportPhone)}</a>`);
+  if(b.supportEmail) l.push(`<a class="lnk" href="mailto:${esc(b.supportEmail)}">${esc(b.supportEmail)}</a>`);
+  return l.length ? l.join(" · ") : "Skwyd Hub support"; }
+function paintSubBar(){ const el = $("#subBar"); if(!el) return; const s = SUB, route = location.hash.slice(1) || "dashboard";
+  let h = "", warn = false; const va = window.WOK?.viewAs?.();
+  if(va){ el.hidden = false; el.className = "subbar warn"; el.innerHTML = `<span>You're viewing <b>${esc(va.name)}</b> (account ${esc(va.accountNo||"")}) as Skwyd Hub admin. Changes you make here are saved to this business.</span><span class="sp"></span><button type="button" class="btn" onclick="WOK.stopView()">Exit</button>`; return; }
+  if(s && !s.complimentary && !subLocked() && route!=="subscription"){
+    const go = canOpen("subscription") ? `<a class="btn" href="#subscription">View Plan</a>` : "";
+    if(s.state==="trial") h = `<span>Free trial: <b>${subDays(+s.daysLeft||0)} left</b>. Your plan starts after the trial ends.</span><span class="sp"></span>${go}`;
+    else if(s.state==="grace"){ warn = true; h = `<span><b>Payment overdue.</b> ${+s.owed ? subMoney(s.owed) + " is due. " : ""}Access locks in <b>${subDays(+s.daysLeft||0)}</b>.</span><span class="sp"></span>${canOpen("subscription") ? `<a class="btn" href="#subscription">Pay Now</a>` : ""}`; }
+    else if(s.state==="active" && +s.openInvoices && +s.daysLeft <= 7){ h = `<span>Your invoice of <b>${subMoney(s.owed)}</b> is ready. The plan renews in ${subDays(+s.daysLeft||0)}.</span><span class="sp"></span>${go}`; }
+  }
+  el.hidden = !h; el.className = "subbar" + (warn ? " warn" : ""); el.innerHTML = h; }
+function subInvoices(onlyOpen){ const l = (SUB?.invoices || []).filter(i => !onlyOpen || i.status==="open");
+  if(!l.length) return `<div class="card empty">No invoices yet.</div>`;
+  const st = i => i.status==="paid" ? `<span class="tag on">Paid</span>` : new Date(i.dueAt) < new Date() ? `<span class="tag" style="background:#fee2e2;color:#b91c1c">Overdue</span>` : `<span class="tag">Open</span>`;
+  return `<div class="card" style="padding:0;overflow:auto"><table style="width:100%"><thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th class="num">Total</th><th>Status</th><th>Paid</th></tr></thead><tbody>${l.map(i =>
+    `<tr><td><b>${esc(i.number)}</b></td><td>${subDate(i.periodStart)} – ${subDate(i.periodEnd)}</td><td>${subDate(i.dueAt)}</td><td class="num">${subMoney(i.total, i.currency)}</td><td>${st(i)}</td><td>${i.paidAt ? subDate(i.paidAt) + (i.method ? " · " + esc(i.method[0].toUpperCase() + i.method.slice(1)) : "") : "—"}</td></tr>`).join("")}</tbody></table></div>`; }
+function subPlanTable(q){ if(!q) return "";
+  const unit = l => l.unit==="device" ? " per device" : l.unit==="branch" ? " per branch" : "";
+  return `<table style="width:100%"><thead><tr><th>Item</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${(q.lines||[]).map(l =>
+    `<tr><td>${esc(l.name)}</td><td class="num">${(+l.qty||0).toLocaleString("en-US")}</td><td class="num">${subMoney(l.price, q.currency)}<span class="note">${unit(l)}</span></td><td class="num">${subMoney(l.amount, q.currency)}</td></tr>`).join("")}</tbody>
+    <tfoot>${+q.discount ? `<tr><td colspan="3" class="num">Subtotal</td><td class="num">${subMoney(q.subtotal, q.currency)}</td></tr><tr><td colspan="3" class="num">Discount</td><td class="num">−${subMoney(q.discount, q.currency)}</td></tr>` : ""}
+    <tr><td colspan="3" class="num"><b>Total per ${q.cycle==="yearly" ? "year" : "month"}</b></td><td class="num"><b>${subMoney(q.total, q.currency)}</b></td></tr></tfoot></table>`; }
+function viewSubscription(){
+  let h = `<div class="phead"><h1>Subscription</h1></div>`;
+  if(!SUB){ setTimeout(subLoad, 0); return h + `<div class="card ph"><div>Loading your plan…</div></div>`; }
+  const s = SUB, used = +s.posUsed||0, lim = s.posDevices;
+  const stName = s.complimentary ? "Free" : ({ trial:"Free Trial", active:"Active", grace:"Payment Overdue", locked:"Locked" })[s.state] || "—";
+  const stNote = s.complimentary ? "Included at no cost" : s.state==="trial" ? `${subDays(+s.daysLeft||0)} left · ends ${subDate(s.trialEndsAt)}` : s.state==="active" ? `Renews ${subDate(s.paidUntil)}` : s.state==="grace" ? `Locks ${subDate(s.lockAt)}` : "";
+  h += `<div class="sbgrid">
+    <div class="card"><h3>Plan</h3><div class="v">${stName}</div><div class="d">${stNote}</div></div>
+    <div class="card"><h3>POS Devices</h3><div class="v">${used} / ${s.complimentary ? "∞" : lim ?? "—"}</div><div class="d">Activated registers</div></div>
+    <div class="card"><h3>Amount Due</h3><div class="v">${subMoney(s.owed)}</div><div class="d">${+s.openInvoices ? `${s.openInvoices} open invoice${+s.openInvoices===1?"":"s"}` : "Nothing to pay"}</div></div>
+    <div class="card"><h3>Account Number</h3><div class="v">${esc(s.company?.accountNo || "—")}</div><div class="d">Staff sign in with it</div></div></div>`;
+  const mods = (s.products||[]).filter(p => !p.required && p.unit!=="device");
+  h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Modules</h3><div class="sbmods">${mods.map(p => { const on = s.complimentary || (s.modules||[]).includes(p.id);
+    return `<div class="${on?"":"off"}"><span>${esc(p.name)}</span>${on ? `<span class="tag on">Included</span>` : `<span class="tag">Not Included</span>`}</div>`; }).join("")}</div></div>`;
+  if(!s.complimentary && s.quote) h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Your Plan · Billed ${s.quote.cycle==="yearly" ? "Yearly" : "Monthly"}</h3>${subPlanTable(s.quote)}</div>`;
+  h += `<h3 class="ct" style="margin:6px 0 10px">Invoices</h3>${subInvoices()}`;
+  h += `<p class="note" style="margin-top:14px">To pay an invoice, add POS devices or modules, or change your billing, contact ${subContact()}. Card payments here are coming soon.</p>`;
+  return h; }
+function viewLocked(){ const s = SUB || {};
+  return `<div class="sblock"><div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#b91c1c;display:grid;place-items:center;margin:0 auto"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+    <h1>Your Skwyd Hub subscription has ended</h1>
+    <p>The back office, POS registers and online ordering are paused until the open invoice is paid. Your data is kept safe.</p>
+    <p>To renew, contact ${subContact()}${s.company?.accountNo ? ` with your account number <b>${esc(s.company.accountNo)}</b>` : ""}.</p>
+    ${+s.owed ? `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Amount Due</h3><b style="font-size:20px">${subMoney(s.owed)}</b></div></div>` : ""}
+    ${(s.invoices||[]).some(i => i.status==="open") ? `<div style="margin-top:14px;text-align:left">${subInvoices(true)}</div>` : ""}
+    <p style="margin-top:18px"><button type="button" class="btn" onclick="location.reload()">Check Again</button></p></div>`; }
+function viewNotInPlan(route){ const m = planMod(route), n = MOD_NAME[m] || "This module";
+  return `<div class="phead"><h1>${esc(n)}</h1></div>` + `<div class="card ph"><div><div class="big">${esc(n)} isn't in your plan</div>Add it to your Skwyd Hub subscription to use it.${canOpen("subscription") ? `<br><br><a class="btn pri" href="#subscription">View Plan</a>` : ""}</div></div>`; }
 function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
   const route = (location.hash.slice(1) || "dashboard");
   renderNav(route); document.body.dataset.route = route; document.body.dataset.sec = navSec(route) || ""; document.body.classList.toggle("noloc", company().localization===false);
@@ -2729,10 +2812,14 @@ function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout
   const ae = document.activeElement, fid = ae && v.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? (ae.id ? "#" + CSS.escape(ae.id) : ae.matches("[data-ofsearch]") ? "[data-ofsearch]" : "") : "", fval = fid ? ae.value : null, fs = fid ? ae.selectionStart : 0, fe = fid ? ae.selectionEnd : 0;
   queueMicrotask(() => { if(!fid) return; const n = v.querySelector(fid); if(!n || n===document.activeElement) return; if(n.value!==fval) n.value = fval; n.focus(); try{ n.setSelectionRange(fs, fe); }catch(e){} });
   if(storeMode==="loading"){ v.innerHTML = `<div class="ph" id="bootLoad"><div>Loading…</div></div>`; return; }   // still under the full-page loading screen
+  paintSubBar();
+  if(subLocked()){ $("#nav").innerHTML = ""; v.innerHTML = viewLocked(); if(!SUB) subLoad(); return; }   // subscription ended: nothing else opens until it's paid
+  if(!planHas(route)){ v.innerHTML = viewNotInPlan(route); return; }
   if(!canOpen(route)){ v.innerHTML = `<h1>${esc(TITLES[route]||"")}</h1>` + placeholder("No access", "Your role doesn't include this area. Ask the owner to change your role under Manage → Roles."); return; }
   if(RPT_HUB[route]) v.innerHTML = viewReports(route);
   else if(route==="marketplace") v.innerHTML = viewMarketplace();
   else if(route==="dashboard") v.innerHTML = viewDashboard();
+  else if(route==="subscription") v.innerHTML = viewSubscription();
   else if(route==="branches") v.innerHTML = viewBranches();
   else if(route==="inventory-more" || route==="manage-more") v.innerHTML = viewMore(route);
   else if(moduleRoute(route) !== null) v.innerHTML = moduleRoute(route);
@@ -3207,6 +3294,7 @@ const NAV_PERM = { "marketplace":"bo_manage", "dashboard":"bo_dashboard", "order
 // may the signed-in person do this back-office action? (the owner and admins always may)
 const mayDo = perm => { const p = myPerms(); return !p || p.includes(perm) || p.includes("bo_manage"); };
 function canOpen(route){
+  if(!planHas(route)) return false;
   const p = myPerms(); if(!p) return true; route = ROUTE_PARENT[route] || route;
   const n = NAV.find(x => x.id===route || (x.kids||[]).some(k=>k[0]===route) || (x.side||[]).some(k=>k[0]===route)); if(!n) return true;
   const need = NAV_PERM[n.id || n.t]; return !need || p.includes(need);

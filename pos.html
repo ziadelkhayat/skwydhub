@@ -933,7 +933,7 @@ function askReason(title, reasons, yes){
 window.SKWYD_OFFLINE = true;</script>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
-<script src="wokdb.js?v=47"></script>
+<script src="wokdb.js?v=48"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1109,6 +1109,14 @@ document.addEventListener("click", e => {
 $("#code").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g,""); $("#actBtn").disabled = e.target.value.length!==6; $("#actErr").textContent = ""; });
 function actGate(msg){ show("activate"); $("#actErr").textContent = msg || ""; $("#code").focus(); }
 document.addEventListener("wok:activate", e => actGate(e.detail?.msg));
+// the restaurant's Skwyd Hub subscription is locked: the register stops selling until it's paid (it stays activated)
+function subLock(){ if(document.getElementById("subLock")) return; const d = document.createElement("div"); d.id = "subLock";
+  d.style.cssText = "position:fixed;inset:0;z-index:99999;background:#172554;color:#fff;display:grid;place-items:center;text-align:center;padding:24px;font-family:inherit";
+  d.innerHTML = `<div style="max-width:420px"><div style="font-size:22px;font-weight:700;margin-bottom:10px">This register is paused</div><div style="opacity:.85;line-height:1.5">The restaurant's Skwyd Hub subscription has ended. Ask the owner to renew it from the back office (Manage → Subscription). The register starts again by itself once it's paid.</div><button type="button" style="margin-top:22px;padding:12px 26px;border-radius:10px;border:0;background:#c6f432;color:#172554;font-weight:700;font-size:15px" onclick="location.reload()">Check Again</button></div>`;
+  document.body.appendChild(d); }
+document.addEventListener("wok:locked", subLock);
+setInterval(async () => { if(!navigator.onLine || document.getElementById("subLock") || !window.WOK?.subscription) return; const st = await window.WOK.subscription(); if(st?.state === "locked") subLock(); }, 300000);
+window.WOK?.ready?.then?.(async () => { if(window.WOK.locked?.()) return subLock(); if(!navigator.onLine) return; const st = await window.WOK.subscription?.(); if(st?.state === "locked") subLock(); });
 if(window.WOK?.needsActivation?.()) actGate();
 const ACT_ERR = { wait:"Too many wrong codes. Wait a few minutes, then try again.", invalid:"That code isn't valid.", used:"This code was already used. Generate a new code in the back office.", offline:"Connect to the internet to activate. After that the register works offline too.", setup:"Code activation isn't switched on yet. Ask the owner to finish the setup in Supabase." };
 $("#actForm").addEventListener("submit", async e => {
@@ -1116,7 +1124,7 @@ $("#actForm").addEventListener("submit", async e => {
   if(window.WOK?.needsActivation?.()){   // new register, no login: the server checks the code
     $("#actBtn").disabled = true; $("#actErr").textContent = "";
     let r; try{ r = await window.WOK.activate($("#code").value, id => store.set("wokDevice", id)); }catch(err){ console.error(err); r = { error: "" }; }
-    if(r.error != null){ $("#actErr").textContent = ACT_ERR[r.error] || "Couldn't activate. " + (r.error || "Try again."); $("#actBtn").disabled = $("#code").value.length!==6; return; }
+    if(r.error != null){ $("#actErr").textContent = ACT_ERR[r.error] || (/\s/.test(r.error||"") ? r.error : "Couldn't activate. " + (r.error || "Try again.")); $("#actBtn").disabled = $("#code").value.length!==6; return; }
     toast("Device activated"); return;
   }
   const code = $("#code").value; let d = S.devices.find(x => x.code===code && !x.deleted);
@@ -1125,12 +1133,12 @@ $("#actForm").addEventListener("submit", async e => {
   if(!d && window.WOK?.activate){   // not visible to this tablet's old login: let the server check the code
     $("#actBtn").disabled = true; let r; try{ r = await window.WOK.activate(code, id => store.set("wokDevice", id)); }catch(err){ r = { error: "" }; }
     if(r.error == null) return location.reload();
-    $("#actErr").textContent = ACT_ERR[r.error] || "Couldn't activate. " + (r.error || "Try again."); $("#actBtn").disabled = false; return; }
+    $("#actErr").textContent = ACT_ERR[r.error] || (/\s/.test(r.error||"") ? r.error : "Couldn't activate. " + (r.error || "Try again.")); $("#actBtn").disabled = false; return; }
   if(!d){ $("#actErr").textContent = "That code isn't valid."; return; }
   if(d.activatedAt){ $("#actErr").textContent = "This code was already used. Generate a new code in the back office."; return; }
   $("#actBtn").disabled = true;
   try{ await db.collection("devices").doc(d.id).update({ activatedAt:new Date().toISOString(), lastSeen:new Date().toISOString() }); store.set("wokDevice", d.id); if(!S.devices.some(x => x.id===d.id)) return location.reload(); startApp(d.id); toast("Device activated"); }
-  catch(err){ console.error(err); $("#actErr").textContent = "Couldn't activate. You may not have access to this back office."; $("#actBtn").disabled = false; }
+  catch(err){ console.error(err); $("#actErr").textContent = /plan|subscription/i.test(err?.message||"") ? err.message : "Couldn't activate. You may not have access to this back office."; $("#actBtn").disabled = false; }
 });
 function startApp(id){
   device = S.devices.find(d => d.id===id); branch = S.branches.find(b => b.id===device.branchId);

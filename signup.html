@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start Your Free Trial – Skwyd Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20140%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M40%2086%20Q36%20108%2018%20124%22/%3E%3Cpath%20d%3D%22M50%2090%20Q48%20112%2042%20129%22/%3E%3Cpath%20d%3D%22M60%2091%20V131%22/%3E%3Cpath%20d%3D%22M70%2090%20Q72%20112%2078%20129%22/%3E%3Cpath%20d%3D%22M80%2086%20Q84%20108%20102%20124%22/%3E%3C/g%3E%3Cpath%20d%3D%22M60%209C33%209%2018%2037%2018%2061c0%2022%2016%2031%2042%2031s42-9%2042-31C102%2037%2087%209%2060%209z%22%20fill%3D%22%23c6f432%22%20stroke%3D%22%23172554%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f7f7f9;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--navy:#172554;--lime:#c6f432;--bad:#b42318}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;background:radial-gradient(900px 500px at 15% 0%,#e6ebf8,transparent),var(--bg)}
+button,input,select{font:inherit;color:inherit}
+h1{font-family:"Plus Jakarta Sans",Inter,sans-serif}
+.wrap{min-height:100vh;display:grid;place-items:center;padding:28px 16px}
+.card{background:#fff;border-radius:20px;padding:30px 30px 26px;width:min(520px,100%);box-shadow:0 10px 40px rgba(20,20,60,.1)}
+.logo{text-align:center}
+h1{text-align:center;font-size:22px;margin:10px 0 4px}.lead{text-align:center;color:var(--ink2);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.full{grid-column:1/-1}
+label{display:block;font-size:13px;color:var(--ink2);margin:10px 0 5px;font-weight:500}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+button.pri{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+button.pri:disabled{opacity:.6;cursor:default}
+.err{color:var(--bad);text-align:center;margin-top:10px;min-height:1em}
+.foot{text-align:center;margin-top:14px;color:var(--ink2)}.foot a{color:var(--accent);font-weight:500;text-decoration:none}
+.perks{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:12.5px;margin:-8px 0 16px}
+.acct{margin:18px auto 6px;text-align:center;background:#f4f6fd;border:1px dashed #c7d2fe;border-radius:14px;padding:16px}
+.acct span{display:block;font-size:12.5px;color:var(--ink2)}.acct b{display:block;font-size:34px;letter-spacing:.12em;font-family:"Plus Jakarta Sans",Inter,sans-serif;color:var(--navy);margin-top:2px}
+.ok{text-align:center;color:var(--ink2);line-height:1.55}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.card{padding:24px 20px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card" id="card"></div></div>
+<script>
+const sb = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh");
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const LOGO = `<svg viewBox="0 0 120 140" width="58" height="66"><g fill="none" stroke="#c6f432" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/></svg>`;
+const HEAD = (t, s) => `<div class="logo">${LOGO}</div><h1>${t}</h1><p class="lead">${s}</p>`;
+
+function form(msg = "") {
+  $("#card").innerHTML = HEAD("Start Your Free Trial", "Run your restaurant on Skwyd Hub: POS, back office, inventory and online ordering.") +
+  `<div class="perks"><span>✓ No card needed</span><span>✓ Every module included in the trial</span></div>
+  <form id="f" autocomplete="on"><div class="grid">
+    <div class="full"><label for="co">Business Name</label><input id="co" required autocomplete="organization"></div>
+    <div><label for="nm">Your Name</label><input id="nm" required autocomplete="name"></div>
+    <div><label for="ph">Phone</label><input id="ph" required autocomplete="tel" inputmode="tel"></div>
+    <div class="full"><label for="ct">Country</label><input id="ct" value="Lebanon" autocomplete="country-name"></div>
+    <div class="full"><label for="em">Email</label><input id="em" type="email" required autocomplete="email"></div>
+    <div class="full"><label for="pw">Password</label><input id="pw" type="password" required minlength="6" autocomplete="new-password"></div>
+  </div><button class="pri" id="go">Create My Account</button><div class="err" id="err">${esc(msg)}</div></form>
+  <div class="foot">Already using Skwyd Hub? <a href="/">Sign In</a></div>`;
+  $("#co").focus();
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); const b = $("#go"), err = $("#err"); err.textContent = "";
+    if ($("#pw").value.length < 6) { err.textContent = "The password needs at least 6 characters."; return; }
+    b.disabled = true; b.textContent = "Creating…";
+    const email = $("#em").value.trim();
+    const { data, error } = await sb.auth.signUp({ email, password: $("#pw").value, options: {
+      emailRedirectTo: location.origin + "/signup",
+      data: { signup: "company", company: $("#co").value.trim(), name: $("#nm").value.trim(), phone: $("#ph").value.trim(), country: $("#ct").value.trim() || "Lebanon" } } });
+    b.disabled = false; b.textContent = "Create My Account";
+    if (error) { err.textContent = /registered|exists/i.test(error.message) ? "This email already has a Skwyd Hub account. Sign in instead." : error.message; return; }
+    if (data.user && !(data.user.identities || []).length) { err.textContent = "This email already has a Skwyd Hub account. Sign in instead."; return; }
+    if (data.session) return welcome();
+    $("#card").innerHTML = HEAD("Check Your Email", "One last step") +
+      `<p class="ok">We sent a link to <b>${esc(email)}</b>. Open it to confirm your email, and you'll get your account number right here.</p>
+       <div class="foot">Didn't get it? Check spam, or <a href="#" id="again">send it again</a>.</div><div class="err" id="err"></div>`;
+    $("#again").onclick = async e2 => { e2.preventDefault(); const r = await sb.auth.resend({ type: "signup", email, options: { emailRedirectTo: location.origin + "/signup" } });
+      $("#err").style.color = r.error ? "" : "#1f7a3d"; $("#err").textContent = r.error ? r.error.message : "Sent again."; };
+  };
+}
+
+// signed in (right after sign-up, or back from the confirmation email): show the account number
+async function welcome() {
+  let d = null;
+  for (let i = 0; i < 5 && !d?.company; i++) { const r = await sb.rpc("slick_my_subscription"); d = r.data; if (!d?.company) await new Promise(r => setTimeout(r, 800)); }
+  if (!d?.company) { await sb.auth.signOut({ scope: "local" }); return form("This login isn't linked to a business. Sign in instead, or contact Skwyd Hub."); }
+  try { localStorage.setItem("skwyd_acct", d.company.accountNo || ""); } catch (e) {}
+  $("#card").innerHTML = HEAD(`Welcome, ${esc(d.company.name)}`, `Your free trial is on${d.daysLeft ? ` for ${d.daysLeft} days` : ""}.`) +
+    `<div class="acct"><span>Your Account Number</span><b>${esc(d.company.accountNo || "—")}</b></div>
+     <p class="ok">Keep it: you and your staff sign in with it, together with your email and password.</p>
+     <button class="pri" onclick="location.href='/#dashboard'">Open My Back Office</button>`;
+}
+
+(async () => {   // back from the confirmation email (or still signed in during the trial): straight to the account number
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { const r = await sb.rpc("slick_my_subscription"); if (r.data?.company && r.data.status === "trial") return welcome(); }
+  form();
+})();
+</script>
+</body>
+</html>

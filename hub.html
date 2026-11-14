@@ -115,16 +115,18 @@ async function boot() {
   if (!ok) { await sb.auth.signOut(); return gate("This account isn't a Skwyd Hub admin."); }
   await load();
 }
-async function load() { DATA = await rpc("slick_pa_overview"); render(); }
+let VIEW = null;
+async function load() { DATA = await rpc("slick_pa_overview"); try { VIEW = await rpc("slick_my_view"); } catch (e) { VIEW = null; } render(); }
 
 // ---------- shell ----------
 function render() {
   const nav = [["companies","Companies"],["prices","Price List"],["settings","Settings"]];
   $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand">${LOGO}<div><b>skwyd hub</b><small>Admin</small></div></div>
     <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
-    <div class="main"><div class="top"><div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
+    <div class="main"><div class="top">${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://portal.skwydhub.com/#dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
     <div class="content" id="view"></div></div></div><div class="modal" id="m"><div class="dlg" id="dlg"></div></div>`;
   $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
+  if ($("#stopv")) $("#stopv").onclick = async () => { await rpc("slick_stop_view"); await load(); };
   document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { view = a.dataset.view; render(); });
   ({ companies: viewCompanies, prices: viewPrices, settings: viewSettings })[view]();
 }
@@ -151,7 +153,7 @@ function viewCompanies() {
       <div class="card kpi"><span>Grace / Locked</span><b>${count("grace")} / ${count("locked")}</b></div>
       <div class="card kpi"><span>Open Invoices</span><b>${money(owed, cur)}</b></div>
     </div>
-    <div class="card"><div class="bar"><input class="sel" id="q" placeholder="Search" value="${esc(q)}" style="width:260px"><div class="sp"></div><span class="note">${rows.length} of ${cs.length}</span></div>
+    <div class="card"><div class="bar"><input class="sel" id="q" placeholder="Search" value="${esc(q)}" style="width:260px"><div class="sp"></div><span class="note">${rows.length} of ${cs.length}</span><button class="btn pri" id="newco">New Business</button></div>
     ${rows.length ? `<table><thead><tr><th>Company</th><th>Account Number</th><th>Contact</th><th>Status</th><th class="num">Ends In</th><th class="num">POS Devices</th><th class="num">Price</th><th class="num">Owed</th><th class="num">Orders (30 Days)</th><th>Joined</th></tr></thead><tbody>
       ${rows.map(c => { const sb_ = c.sub || {}; return `<tr class="click" data-co="${esc(c.id)}">
         <td><b>${esc(c.name)}</b></td><td>${esc(c.account_no || "—")}</td>
@@ -163,6 +165,70 @@ function viewCompanies() {
     </tbody></table>` : `<div class="empty">No companies match.</div>`}</div>`;
   const qi = $("#q"); qi.oninput = () => { q = qi.value; viewCompanies(); const n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); };
   document.querySelectorAll("[data-co]").forEach(tr => tr.onclick = () => openCompany(tr.dataset.co));
+  $("#newco").onclick = newCompany;
+}
+
+// ---------- new business (one that didn't sign up by itself) ----------
+function newCompany() {
+  const cur = DATA.settings || {};
+  $("#dlg").innerHTML = `<header><h2>New Business</h2><button class="x" data-x title="Close">×</button></header>
+  <div class="body"><form id="nf">
+    <div class="sec">Business</div>
+    <div class="grid">
+      <div class="fld"><label>Business Name</label><input class="sel" name="name" required></div>
+      <div class="fld"><label>Country</label><input class="sel" name="country" value="Lebanon"></div>
+    </div>
+    <div class="sec">Owner</div>
+    <div class="grid">
+      <div class="fld"><label>Owner Name</label><input class="sel" name="contactName"></div>
+      <div class="fld"><label>Phone</label><input class="sel" name="phone"></div>
+      <div class="fld"><label>Email</label><input class="sel" name="email" type="email" autocomplete="off"></div>
+      <div class="fld"><label>Password</label><input class="sel" name="password" type="password" autocomplete="new-password" minlength="6"></div>
+    </div>
+    <p class="note">With an email and password, the owner gets a login: they confirm their email once, then sign in at portal.skwydhub.com with the account number, this email and this password. Leave them empty to set up the business yourself first.</p>
+    <div class="sec">Subscription</div>
+    <div class="grid">
+      <div class="fld"><label>Status</label><select class="sel" name="status"><option value="trial">Trial (${cur.trialDays ?? 14} Days)</option><option value="active">Active</option></select></div>
+      <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+      <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="2"></div>
+      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy"></div>
+      <div class="fld" style="grid-column:span 2"><label>Modules</label><div class="mods">${MODULES.map(([k,t]) => `<label class="chk"><input type="checkbox" name="mod" value="${k}" checked>${t}</label>`).join("")}</div></div>
+      <div class="fld"><label class="chk" style="margin-top:20px"><input type="checkbox" name="complimentary">Free (Never Billed)</label></div>
+    </div>
+    <div class="err" id="nerr"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn" data-x2>Cancel</button><button class="btn pri" id="nsave">Create</button></div>
+  </form></div>`;
+  $("#m").classList.add("on");
+  $("[data-x]").onclick = close_; $("[data-x2]").onclick = close_;
+  $("#nf").onsubmit = async e => {
+    e.preventDefault(); const f = e.target, v = n => f.elements[n].value.trim(), err = $("#nerr"); err.textContent = "";
+    const em = v("email"), pw = f.elements.password.value;
+    if (pw && !em) { err.textContent = "Add the owner's email for the login."; return; }
+    if (em && pw && pw.length < 6) { err.textContent = "The password needs at least 6 characters."; return; }
+    if (v("paidUntil") && !parseDmy(v("paidUntil"))) { err.textContent = "Write dates as dd-mm-yyyy."; return; }
+    $("#nsave").disabled = true;
+    try {
+      const r = await rpc("slick_pa_create_company", { p: { name: v("name"), country: v("country"), contactName: v("contactName"), phone: v("phone"), email: em,
+        status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, complimentary: f.elements.complimentary.checked,
+        paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null, modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value) } });
+      let note = "";
+      if (em && pw) {   // the owner's login: a separate client so the admin stays signed in
+        const tmp = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh", { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "skwyd-hub-new-owner" } });
+        const su = await tmp.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: "https://portal.skwydhub.com/", data: { name: v("contactName") } } });
+        if (su.error) note = "The business was created, but the owner's login wasn't: " + su.error.message;
+        else if (su.data?.user && !(su.data.user.identities || []).length) note = "This email already has a Skwyd Hub login: the owner signs in with their existing password.";
+      }
+      await load(); CO = DATA.companies.find(c => c.id === r.id); INV = []; drawCompany(); $("#m").classList.add("on");
+      if (note) $("#ierr").textContent = note;
+    } catch (ex) { err.textContent = ex.message; $("#nsave").disabled = false; }
+  };
+}
+
+// ---------- open a business's back office as its owner ----------
+async function viewAs(id) {
+  const w = window.open("about:blank", "_blank");   // opened right away so the browser doesn't block it
+  try { await rpc("slick_pa_view_as", { p_company: id }); if (w) w.location = "https://portal.skwydhub.com/#dashboard"; else location.href = "https://portal.skwydhub.com/#dashboard"; await load(); }
+  catch (e) { if (w) w.close(); alert(e.message); }
 }
 
 // ---------- one company ----------
@@ -175,7 +241,7 @@ function close_() { $("#m").classList.remove("on"); }
 function drawCompany() {
   const c = CO, s = c.subscription || {}, st = c.sub || {}, cur = DATA.settings?.currency || "USD";
   const mods = s.modules || [];
-  $("#dlg").innerHTML = `<header><h2>${esc(c.name)}</h2>${stateTag(c)}<button class="x" data-x title="Close">×</button></header>
+  $("#dlg").innerHTML = `<header><h2>${esc(c.name)}</h2>${stateTag(c)}<button class="btn sm" id="viewas" type="button">Open Dashboard</button><button class="x" data-x title="Close">×</button></header>
   <div class="body"><form id="sf">
     <div class="sum">
       <div><span>Account Number</span><b>${esc(c.account_no || "—")}</b></div>
@@ -219,6 +285,7 @@ function drawCompany() {
   <div id="payf"></div><div class="err" id="ierr"></div></div>`;
 
   $("[data-x]").onclick = close_;
+  $("#viewas").onclick = () => viewAs(c.id);
   $("#sf").onsubmit = async e => {
     e.preventDefault(); const f = e.target, v = n => f.elements[n].value;
     for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { $("#serr").textContent = "Write dates as dd-mm-yyyy."; return; }
@@ -282,11 +349,14 @@ function viewSettings() {
     <div class="fld"><label>Free Trial (Days)</label><input class="sel" name="trialDays" type="number" min="0" step="1" value="${s.trialDays ?? 14}"></div>
     <div class="fld"><label>Grace Period (Days)</label><input class="sel" name="graceDays" type="number" min="0" step="1" value="${s.graceDays ?? 7}"></div>
     <div class="fld"><label>Currency</label><select class="sel" name="currency">${["USD","EUR","LBP"].map(c => `<option ${s.currency===c?"selected":""}>${c}</option>`).join("")}</select></div>
-  </div><p class="note">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
+  </div><div class="grid" style="grid-template-columns:repeat(2,1fr)">
+    <div class="fld"><label>Support Phone</label><input class="sel" name="supportPhone" value="${esc(s.supportPhone || "")}"></div>
+    <div class="fld"><label>Support Email</label><input class="sel" name="supportEmail" type="email" value="${esc(s.supportEmail || "")}"></div>
+  </div><p class="note">Restaurants see the support phone and email on their Subscription page and lock screen, to pay or change their plan.</p><p class="note">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
   <div style="display:flex;align-items:center;gap:10px"><div class="err" id="sterr"></div><span style="flex:1"></span><button class="btn pri">Save</button></div></form>`;
   $("#stf").onsubmit = async e => {
     e.preventDefault(); const f = e.target.elements;
-    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value } }); await load(); }
+    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), supportEmail: f.supportEmail.value.trim() } }); await load(); }
     catch (err) { $("#sterr").textContent = err.message; }
   };
 }

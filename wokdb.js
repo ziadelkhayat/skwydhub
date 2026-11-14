@@ -249,7 +249,7 @@
         <label for="wkAcct">Account number</label><input id="wkAcct" inputmode="numeric" autocomplete="organization" required value="${ls.get("skwyd_acct", "") || ""}">
         <label for="wkEmail">Email</label><input id="wkEmail" type="email" autocomplete="username" required>
         <label for="wkPass">Password</label><input id="wkPass" type="password" autocomplete="current-password" required>
-        <button id="wkBtn">Sign in</button><a href="#" class="wk-forgot" id="wkForgot">Forgot password?</a>${IS_POS ? '<a href="#" class="wk-forgot" id="wkAct">Activate with a device code</a>' : ""}<div class="wk-err" id="wkErr"></div></form>`;
+        <button id="wkBtn">Sign in</button><a href="#" class="wk-forgot" id="wkForgot">Forgot password?</a>${!IS_POS && /skwydhub\.com$|pages\.dev$|localhost/.test(location.hostname) ? '<a href="/signup" class="wk-forgot">New to Skwyd Hub? Start a free trial</a>' : ""}${IS_POS ? '<a href="#" class="wk-forgot" id="wkAct">Activate with a device code</a>' : ""}<div class="wk-err" id="wkErr"></div></form>`;
       document.body.appendChild(el);
       el.querySelector("#wkAct")?.addEventListener("click", e => { e.preventDefault(); emailMode = false; gate(); });
       el.querySelector("#wkForgot").addEventListener("click", async e => { e.preventDefault(); const em = el.querySelector("#wkEmail").value.trim(), er = el.querySelector("#wkErr");
@@ -263,7 +263,7 @@
         if(error){ b.disabled = false; el.querySelector("#wkErr").textContent = error.message === "Invalid login credentials" ? "Wrong account number, email or password." : error.message; return; }
         // the business's account number (given by skwyd hub) must match
         try{ const { data: co } = await sb.from("settings").select("data").eq("id", "company").maybeSingle(); const want = String(co?.data?.accountNo || "").replace(/\s+/g, "");
-          if(want && want !== acct){ await sb.auth.signOut(); b.disabled = false; el.querySelector("#wkErr").textContent = "Wrong account number, email or password."; return; } }catch(_){}
+          if(want && want !== acct && !(await sb.rpc("slick_is_platform_admin")).data){ await sb.auth.signOut(); b.disabled = false; el.querySelector("#wkErr").textContent = "Wrong account number, email or password."; return; } }catch(_){}
         ls.set("skwyd_acct", acct); b.disabled = false;
         await afterLogin();
       });
@@ -278,19 +278,21 @@
     const anon = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: "skwyd-activate" } });
     const { data, error } = await anon.rpc("skwyd_activate_device_key", { p_code: code });
     if(error) return { error: isNet(error) ? "offline" : (error.code === "PGRST202" || /skwyd_activate_device_key/.test(error.message)) ? "setup" : error.message };
-    if(!data || data.error) return { error: data?.error || "invalid" };
+    if(!data || data.error) return data?.error === "plan" ? { error: data.message || "plan" } : { error: data?.error || "invalid" };
     try{ localStorage.setItem("skwyd_devkey", data.key); localStorage.setItem("skwyd_devtopic", data.topic || ""); localStorage.removeItem("skwyd_staff"); }catch(_){ return { error: "Couldn't save on this tablet." }; }
     needsAct = false; if(onId) onId(data.id);
     setTimeout(() => location.reload(), 300); return { id: data.id };
   }
   // a register deactivated in the back office leaves the sale screen within seconds (it may not get the change pushed, so it also asks)
   let watchT = null;
+  // the company's Skwyd Hub subscription (trial, grace, locked…): works even while it's locked
+  async function subState(){ try{ const r = await sb.rpc("slick_my_subscription"); return r.error ? null : r.data; }catch(_){ return null; } }
   function deactivated(){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); }
   async function deviceCheck(){
     if(!OFF || !staff?.device || !navigator.onLine) return;
     try{
       if(DEVKEY){ const r = await sb.rpc("skwyd_device_ok"); if(!r.error && r.data === false) deactivated(); return; }
-      const r = await sb.rpc("staff_role"); if(!r.error && !r.data){ try{ await sb.auth.signOut({ scope:"local" }); }catch(_){} deactivated(); }
+      const r = await sb.rpc("staff_role"); if(!r.error && !r.data){ const st = await subState(); if(st?.state === "locked"){ document.dispatchEvent(new CustomEvent("wok:locked", { detail: st })); return; } try{ await sb.auth.signOut({ scope:"local" }); }catch(_){} deactivated(); }
     }catch(e){}
   }
   function deviceWatch(){ if(watchT || !OFF) return; watchT = setInterval(deviceCheck, 20000);
@@ -309,13 +311,16 @@
     if(user.is_anonymous){   // a register activated with its device code
       const r = await sb.rpc("staff_role");
       if(r.error && isNet(r.error) && cached && cached.user_id === user.id){ online = false; status(); return useStaff(cached); }
-      if(!r.data){ await sb.auth.signOut(); return gate(); }
+      if(!r.data){ const st = await subState(); if(st?.state === "locked") return useStaff({ user_id: user.id, role: null, name: "Register", device: true, locked: true });
+        await sb.auth.signOut(); return gate(); }
       return useStaff({ user_id: user.id, role: r.data, name: "Register", device: true });
     }
     let { data, error } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle();
     if(error && isNet(error) && cached && cached.user_id === user.id) return useStaff(cached);
     if(!data && !error){ const c = await sb.rpc("skwyd_claim_login"); if(c.data) ({ data } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle()); }   // first sign-in of a user added under Manage → Users
-    if(!data){ await sb.auth.signOut(); return gate("This login isn't set up as staff yet. Ask the owner to add you."); }
+    if(!data){ try{ const v = await sb.rpc("slick_my_view"); if(v.data?.companyId) return useStaff({ user_id: user.id, email: user.email, name: user.user_metadata?.name || user.email, role: "owner", viewAs: v.data }); }catch(_){}   // a Skwyd Hub admin opening a business's back office
+      const st = await subState(); if(st?.state === "locked") return useStaff({ user_id: user.id, email: user.email, name: user.user_metadata?.name || user.email, role: "owner", locked: true });   // the lock screen explains; nothing else loads
+      await sb.auth.signOut(); return gate("This login isn't set up as staff yet. Ask the owner to add you."); }
     // a user turned off (or deleted) under Manage → Users can't sign in to the back office
     try{ const su = await sb.from("staff_users").select("active,deleted").eq("user_id", user.id).maybeSingle(); if(su.data?.deleted){ await sb.auth.signOut(); return gate("This user was deleted. Ask the owner to restore you."); } }catch(e){}
     useStaff({ ...data, email: user.email });
@@ -342,7 +347,7 @@
     canEdit: async () => ["owner","admin"].includes(staff?.role), isOwner: async () => staff?.role === "owner", signOut: async () => { if(DEVKEY && staff?.device){ if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Deactivate anyway?") : Promise.resolve(confirm("Deactivate anyway?"))))) return; try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; }
       if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device.") : Promise.resolve(confirm(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device."))))) return; await sb.auth.signOut(); if(OFF) localStorage.removeItem("skwyd_staff"); location.reload(); } };
 
-  window.WOK = { sb, cfg:{ url:SUPABASE_URL, key:SUPABASE_KEY }, ready, deviceCheck, user: userApi, activate: activateDevice, emailLogin: () => gate("", true), needsActivation: () => needsAct, isDevice: () => !!staff?.device, sync: { status, flush, failed: () => failed.slice(), retryFailed: () => { outbox.push(...failed.map(o => ({ ...o, tries:0 }))); failed = []; saveBox(); flush(); },
+  window.WOK = { sb, subscription: subState, locked: () => !!staff?.locked, viewAs: () => staff?.viewAs || null, stopView: async () => { await sb.rpc("slick_stop_view"); location.reload(); }, cfg:{ url:SUPABASE_URL, key:SUPABASE_KEY }, ready, deviceCheck, user: userApi, activate: activateDevice, emailLogin: () => gate("", true), needsActivation: () => needsAct, isDevice: () => !!staff?.device, sync: { status, flush, failed: () => failed.slice(), retryFailed: () => { outbox.push(...failed.map(o => ({ ...o, tries:0 }))); failed = []; saveBox(); flush(); },
     // sales history was cleared in the back office: drop sales saved on this register before that moment
     purgeBefore: (cols, iso) => { const old = o => cols.includes(o.col) && String(o.at||"") < iso; outbox = outbox.filter(o => !old(o)); failed = failed.filter(o => !old(o)); saveBox();
       cols.forEach(c => { ls.set(cacheKey(c), []); local[c] = withPending(c, []); emit(c, local[c], true); if(listeners[c]) refresh(c); }); status(); } } };
