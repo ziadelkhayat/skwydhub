@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="slick-build" content="883-1794661237">
+<meta name="slick-build" content="886-1794674295">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -84,7 +84,7 @@ button[data-npk="C"],button[data-kp="C"]{font-weight:700;color:#e5484d!important
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Slick POS</title>
+<title>skwyd hub POS</title>
 <link rel="manifest" href="pos.webmanifest">
 <meta name="theme-color" content="#1e3a8a">
 <link rel="icon" href="pos-icon-192.png">
@@ -861,6 +861,7 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 .rti{flex:none;width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;box-sizing:border-box}
 #abar .abtn.abtn .rti svg{width:22px!important;height:22px!important}#abar .abtn.abtn .rti svg,#abar .abtn.abtn .rti svg *{color:#fff!important;stroke:#fff!important}
 .bnav .rti svg,.bnav button .rti svg{width:22px!important;height:22px!important;color:#1e3a8a!important;stroke:#1e3a8a!important}
+.sklk{flex-direction:column!important;gap:6px!important;font-family:var(--f-ui,inherit)!important;letter-spacing:-1px!important}.sklk .skmark{width:58px;height:68px;display:block}.sklk .skmark svg,.skmark svg{width:100%;height:100%;display:block}.sklk .skw{font-weight:800;font-size:36px;color:#172554;line-height:1}.skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:13px;letter-spacing:0;line-height:1.3;padding:1px 7px;border-radius:7px;background:#c6f432;color:#172554;border:2px solid #172554;transform:translateY(-2px)}
 </style>
 <script>
 /* ---------- naming: menu "products" are called Items; inventory "items" are called Products ----------
@@ -934,7 +935,7 @@ window.SLICK_OFFLINE = true;</script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
-<div id="boot" class="center"><div class="panel"><div class="logo">S</div><h1>Slick POS</h1><p>Connecting…</p></div></div>
+<div id="boot" class="center"><div class="panel"><div class="skmark" style="width:54px;height:62px;margin:0 auto 10px"><svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><h1>skwyd hub POS</h1><p>Connecting…</p></div></div>
 
 <div id="activate" class="center hide"><form class="panel" id="actForm">
   <div class="logo">S</div><h1>Activate this device</h1>
@@ -946,7 +947,7 @@ window.SLICK_OFFLINE = true;</script>
 </form></div>
 
 <div id="lock" class="center hide" style="position:fixed;inset:0;z-index:50;background:var(--bg,#f3f4f8)"><div class="panel">
-  <div class="lkmark" aria-label="Slick"><span class="lkdot">S</span>LICK</div><p id="lockSub" class="lksub">Enter Your Login PIN</p><h1 id="lockTitle" hidden>Sign in</h1>
+  <div class="lkmark sklk" aria-label="skwyd hub"><span class="skmark"><svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></span><span class="skw">skwyd<span class="skhub">hub</span></span></div><p id="lockSub" class="lksub">Enter Your Login PIN</p><h1 id="lockTitle" hidden>Sign in</h1>
   <div class="pindots lkbox" id="pinDots"><i></i><i></i><i></i><i></i><i></i></div><div class="err" id="pinErr" style="min-height:20px;color:#b42318"></div>
   <div class="pinpad lkpad"><button data-pin="1">1</button><button data-pin="2">2</button><button data-pin="3">3</button><button data-pin="4">4</button><button data-pin="5">5</button><button data-pin="6">6</button><button data-pin="7">7</button><button data-pin="8">8</button><button data-pin="9">9</button><button data-pin="0">0</button><button data-pin="c" class="lkc" aria-label="Clear">C</button></div>
   <button type="button" class="lksync" id="lkSync">Sync Users</button>
@@ -2263,7 +2264,7 @@ async function completeSale(){
 function receiptText(o){
   const w = 32, row = (a,b) => a.slice(0, w-b.length-1).padEnd(w-b.length) + b, a = appSet(), net = (+o.total||0) - (+o.tax||0);
   const typ = o.type==="dinein" ? "Dine-in"+(o.table?" T"+o.table:"") : o.type==="pickup"||o.type==="takeaway" ? "Pickup" : o.type==="fast" ? "Fast Order" : "Delivery";
-  const lines = [ (()=>{ const n = (S.brands.find(b=>b.id===branch?.brandId)?.name || "Slick").toUpperCase(); return n.padStart((w+n.length)/2); })(), (branch?.name||"").padStart((w+(branch?.name||"").length)/2), ...rcptHead(w), "",
+  const lines = [ (()=>{ const n = (S.brands.find(b=>b.id===branch?.brandId)?.name || "skwyd hub").toUpperCase(); return n.padStart((w+n.length)/2); })(), (branch?.name||"").padStart((w+(branch?.name||"").length)/2), ...rcptHead(w), "",
     ...(a.invoiceTitle && o.status!=="refund" ? [a.invoiceTitle.slice(0,w).padStart((w+Math.min(w,a.invoiceTitle.length))/2), ""] : []),
     ...(o.status==="refund" ? ["*** REFUND ***".padStart((w+14)/2), row("Return " + ordRef(o), typ), ...(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo ? ["Original invoice " + invNo(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo)] : []), ...(o.returnReason ? ["Reason: " + o.returnReason] : [])]
       : [a.showOrderNo===false ? typ : row("Order #"+(o.no||"—"), typ), ...(o.ref ? ["Ref " + o.ref] : []), ...(a.rcptInvoice && o.invoiceNo ? ["Invoice " + invNo(o.invoiceNo)] : [])]), ...(a.rcptSource && o.source ? ["Source: " + o.source] : []),
@@ -3231,7 +3232,7 @@ async function openDiag(){
     ["Device", device.name + (isMaster() ? "" : " (sub-POS)")], ["Branch", branch?.name || "—"], ["Business date", today + (openDay() < today ? ` · ${openDay()} not ended` : "")], ["Shift", openShift() ? "Open" : "Closed"],
     ["Menu loaded", `${products().length} products · ${S.categories.filter(live).length} categories`], ["Orders on this tablet", S.orders.filter(o => o.branchId===device.branchId).length], ["Users with a PIN", posUsers().length],
     ["Offline app", sw], ["Storage", est ? `${(est.usage/1048576).toFixed(1)} MB used of ${(est.quota/1048576/1024).toFixed(1)} GB` : "—"], ["Screen", `${innerWidth} × ${innerHeight}`], ["Clock", new Date().toLocaleString("en-GB") + " · " + (Intl.DateTimeFormat().resolvedOptions().timeZone || "")],
-    ["Printing", window.Capacitor ? "Android app" : "Browser · printing works in the Android app"], ["App", "Slick POS · " + (document.querySelector('script[src^="wokdb.js"]')?.getAttribute("src").split("?v=")[1] ? "data v" + document.querySelector('script[src^="wokdb.js"]').getAttribute("src").split("?v=")[1] : "")]];
+    ["Printing", window.Capacitor ? "Android app" : "Browser · printing works in the Android app"], ["App", "skwyd hub POS · " + (document.querySelector('script[src^="wokdb.js"]')?.getAttribute("src").split("?v=")[1] ? "data v" + document.querySelector('script[src^="wokdb.js"]').getAttribute("src").split("?v=")[1] : "")]];
   modal("diag", `<div class="mh"><h2>Diagnostics</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb"><div class="rsec" style="box-shadow:none;padding:0"><table>${rows.map(([k,v]) => `<tr><td class="c">${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table></div>
     ${f.length ? `<p style="margin-top:12px"><b>Rejected changes</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order #"+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
     <div class="mf">${f.length?'<button class="btn" id="retryFailed">Retry rejected</button>':""}<button class="btn" id="diagReload" style="margin-right:auto">Reload app</button><button class="btn pri" id="syncNow">Sync now</button></div>`);

@@ -1,7 +1,7 @@
 {
  "id": "slick-pos",
- "name": "Slick POS",
- "short_name": "Slick POS",
+ "name": "skwyd hub POS",
+ "short_name": "skwyd hub",
  "description": "The Wok point of sale",
  "start_url": "pos.html",
  "scope": "./",

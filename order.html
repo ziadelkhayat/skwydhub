@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="slick-build" content="883-1794661237">
+<meta name="slick-build" content="886-1794674295">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1333,7 +1333,7 @@ function renderLocs(){
     return `<div class="loc"><b>${esc(b.name)}</b><div>${ic("clock")}${o ? '<span class="ok2">Open</span>' : "Closed"} · ${esc(brHoursToday(b) || "")}</div>${x.address ? `<div>${ic("pin")}${esc(x.address)}</div>` : ""}${x.phone ? `<div>${ic("phone")}<a href="tel:${esc(String(x.phone).replace(/[^\d+]/g,""))}">${esc(x.phone)}</a></div>` : ""}</div>`; }).join("")}</div></div>`;
 }
 
-const shell = () => `<div id="whereBox" class="where"></div><div class="tools">${SH().search !== false ? `<div class="srch">${ic("search")}<input id="q" type="search" placeholder="Search" autocomplete="off" value="${esc(q)}"></div>` : ""}<div class="crow"><div class="vtog" role="group" aria-label="Show items as"><button type="button" data-view="list" aria-label="List">${ic("list")}</button><button type="button" data-view="grid" aria-label="Grid">${ic("grid")}</button></div><nav class="cats" id="catBar" aria-label="Menu categories"></nav></div><div class="cprog"><i id="cprog"></i></div></div><div id="menuBox"></div><div id="locBox"></div><footer class="ft">${cfg.footer ? esc(cfg.footer) + " · " : ""}Powered by Slick</footer>`;
+const shell = () => `<div id="whereBox" class="where"></div><div class="tools">${SH().search !== false ? `<div class="srch">${ic("search")}<input id="q" type="search" placeholder="Search" autocomplete="off" value="${esc(q)}"></div>` : ""}<div class="crow"><div class="vtog" role="group" aria-label="Show items as"><button type="button" data-view="list" aria-label="List">${ic("list")}</button><button type="button" data-view="grid" aria-label="Grid">${ic("grid")}</button></div><nav class="cats" id="catBar" aria-label="Menu categories"></nav></div><div class="cprog"><i id="cprog"></i></div></div><div id="menuBox"></div><div id="locBox"></div><footer class="ft">${cfg.footer ? esc(cfg.footer) + " · " : ""}Powered by skwyd hub</footer>`;
 if(!cfg.enabled && !PREVIEW){ renderHead(); $("#main").innerHTML = `<div class="closed"><b>Web ordering is closed right now.</b>Please call us or try again later.</div>`; return; }
 $("#main").innerHTML = shell();
 $("#main").addEventListener("click", e => {
