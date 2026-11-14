@@ -31,6 +31,8 @@ button.pri:disabled{opacity:.6;cursor:default}
 .acct span{display:block;font-size:12.5px;color:var(--ink2)}.acct b{display:block;font-size:34px;letter-spacing:.12em;font-family:"Plus Jakarta Sans",Inter,sans-serif;color:var(--navy);margin-top:2px}
 .ok{text-align:center;color:var(--ink2);line-height:1.55}
 @media (max-width:520px){.grid{grid-template-columns:1fr}.card{padding:24px 20px}}
+.req{color:#e11d48;font-style:normal}
+label.terms{display:flex;align-items:center;gap:10px;font-weight:500;cursor:pointer;margin-top:14px}label.terms input{width:18px;height:18px;margin:0;flex:none}
 </style>
 </head>
 <body>
@@ -61,28 +63,30 @@ function form(msg = "") {
   $("#card").innerHTML = HEAD("Start Your Free Trial", "Run your restaurant on Skwyd Hub: POS, back office, inventory and online ordering.") +
   `<div class="perks"><span>✓ No card needed</span><span>✓ Every module included in the trial</span></div>
   <form id="f" autocomplete="on"><div class="grid">
-    <div class="full"><label for="co">Business Name</label><input id="co" required autocomplete="organization"></div>
-    <div><label for="cg">Business Category</label><select id="cg" name="category" required>${categoryOpts("")}</select></div>
-    <div><label for="sc">Business Subcategory</label><select id="sc" name="subcategory" required disabled>${subOpts("", "")}</select></div>
-    <div><label for="fn">First Name</label><input id="fn" required autocomplete="given-name"></div>
-    <div><label for="ln">Last Name</label><input id="ln" required autocomplete="family-name"></div>
-    <div class="full"><label for="ph">Phone</label><div style="display:flex;gap:8px"><select id="dl" name="dial" style="width:150px;flex:none" aria-label="Country code">${dialOpts("Lebanon")}</select><input id="ph" name="phone" required autocomplete="tel-national" inputmode="tel" style="flex:1;min-width:0"></div></div>
-    <div><label for="ct">Country</label><select id="ct" name="country" required>${countryOpts("Lebanon")}</select></div>
-    <div><label for="cu">Currency</label><select id="cu" name="currency" required>${currencyOpts("USD")}</select></div>
-    <div class="full"><label for="em">Email</label><input id="em" type="email" required autocomplete="email"></div>
-    <div class="full"><label for="pw">Password</label><input id="pw" type="password" required minlength="6" autocomplete="new-password"></div>
-  </div><button class="pri" id="go">Create My Account</button><div class="err" id="err">${esc(msg)}</div></form>
+    <div><label for="fn">First Name <i class="req">*</i></label><input id="fn" required autocomplete="given-name"></div>
+    <div><label for="ln">Last Name <i class="req">*</i></label><input id="ln" required autocomplete="family-name"></div>
+    <div class="full"><label for="ph">Phone Number <i class="req">*</i></label><div style="display:flex;gap:8px"><select id="dl" name="dial" style="width:150px;flex:none" aria-label="Country code">${dialOpts("Lebanon")}</select><input id="ph" name="phone" required autocomplete="tel-national" inputmode="tel" style="flex:1;min-width:0"></div></div>
+    <div class="full"><label for="em">Email <i class="req">*</i></label><input id="em" type="email" required autocomplete="email"></div>
+    <div class="full"><label for="pw">Password <i class="req">*</i></label><input id="pw" type="password" required minlength="6" autocomplete="new-password"></div>
+    <div class="full"><label for="co">Business Name <i class="req">*</i></label><input id="co" required autocomplete="organization"></div>
+    <div><label for="cg">Business Category <i class="req">*</i></label><select id="cg" name="category" required>${categoryOpts("")}</select></div>
+    <div><label for="sc">Business Subcategory <i class="req">*</i></label><select id="sc" name="subcategory" required disabled>${subOpts("", "")}</select></div>
+    <div><label for="ct">Business Location <i class="req">*</i></label><select id="ct" name="country" required>${countryOpts("Lebanon")}</select></div>
+    <div><label for="cu">Currency <i class="req">*</i></label><select id="cu" name="currency" required>${currencyOpts("USD")}</select></div>
+    <div class="full"><label class="terms"><input type="checkbox" id="tc" required> Accept Terms and Conditions</label></div>
+  </div><button class="pri" id="go">Start Your Free Trial</button><div class="err" id="err">${esc(msg)}</div></form>
   <div class="foot">Already using Skwyd Hub? <a href="/">Sign In</a></div>`;
-  $("#co").focus(); geoLink($("#f"));
+  $("#fn").focus(); geoLink($("#f"));
   $("#f").onsubmit = async e => {
     e.preventDefault(); const b = $("#go"), err = $("#err"); err.textContent = "";
+    if (!$("#tc").checked) { err.textContent = "Accept the terms and conditions to continue."; return; }
     if ($("#pw").value.length < 6) { err.textContent = "The password needs at least 6 characters."; return; }
     b.disabled = true; b.textContent = "Creating…";
     const email = $("#em").value.trim();
     const { data, error } = await sb.auth.signUp({ email, password: $("#pw").value, options: {
       emailRedirectTo: location.origin + "/signup",
       data: { signup: "company", company: $("#co").value.trim(), name: ($("#fn").value.trim() + " " + $("#ln").value.trim()).trim(), first_name: $("#fn").value.trim(), last_name: $("#ln").value.trim(), phone: fullPhone($("#dl").value, $("#ph").value), category: $("#cg").value, subcategory: $("#sc").value, country: $("#ct").value, currency: $("#cu").value } } });
-    b.disabled = false; b.textContent = "Create My Account";
+    b.disabled = false; b.textContent = "Start Your Free Trial";
     if (error) { err.textContent = /registered|exists/i.test(error.message) ? "This email already has a Skwyd Hub account. Sign in instead." : error.message; return; }
     if (data.user && !(data.user.identities || []).length) { err.textContent = "This email already has a Skwyd Hub account. Sign in instead."; return; }
     if (data.session) return welcome();
