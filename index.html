@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="901-1794680049">
+<meta name="skwyd-build" content="902-1794680174">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6689,9 +6689,9 @@ function viewAccount(){
     <h3 class="bizh">Profile</h3>
     <div class="card bizcard"><div class="acgrid">
       <div class="f"><label for="acName">Name *</label><input id="acName" class="sel" value="${esc(n)}"></div>
-      <div class="f"><label for="acPhone">Phone Number</label><div class="phrow"><select id="acPhoneCc" class="sel" aria-label="Country code">${CC_CODES.map(([d,nm])=>`<option value="${d}" ${d===aph.cc?"selected":""}>${esc(nm)} (${d})</option>`).join("")}</select><input id="acPhone" class="sel" type="tel" value="${esc(aph.num)}" placeholder="71123456"></div></div>
+      <div class="f"><label for="acPhone">Phone Number *</label><div class="phrow"><select id="acPhoneCc" class="sel" aria-label="Country code">${CC_CODES.map(([d,nm])=>`<option value="${d}" ${d===aph.cc?"selected":""}>${esc(nm)} (${d})</option>`).join("")}</select><input id="acPhone" class="sel" type="tel" value="${esc(aph.num)}" placeholder="71123456"></div></div>
       <div class="f"><label>Email</label><input class="sel" value="${esc(state.email||"")}" disabled></div>
-      ${adm ? `<div class="f"><label for="acPin">Login Pin</label><div style="display:flex;gap:8px"><input id="acPin" class="sel" inputmode="numeric" maxlength="5" autocomplete="off" style="flex:1;letter-spacing:.2em" value="${esc(myAdminRow()?.pinHash ? (lsGet("skwyd_mypin_" + state.userId) || "•••••") : "")}" placeholder="5 digits"><button type="button" class="btn" data-pingen="acPin">Generate</button></div><div class="err" id="acPinErr"></div></div>` : "<div></div>"}
+      ${adm ? `<div class="f"><label for="acPin">Login Pin *</label><div style="display:flex;gap:8px"><input id="acPin" class="sel" inputmode="numeric" maxlength="5" autocomplete="off" style="flex:1;letter-spacing:.2em" value="${esc(myAdminRow()?.pinHash ? (lsGet("skwyd_mypin_" + state.userId) || "•••••") : "")}" placeholder="5 digits"><button type="button" class="btn" data-pingen="acPin">Generate</button></div><div class="err" id="acPinErr"></div></div>` : "<div></div>"}
       <div class="f"><label for="acLang">Language *</label><select id="acLang" class="sel"><option value="en" ${lang!=="ar"?"selected":""}>English</option><option value="ar" ${lang==="ar"?"selected":""}>Arabic</option></select></div><div></div>
     </div>
     <label class="chk" style="margin:18px 0 0"><input type="checkbox" id="acLocN" ${LOCN()?"checked":""}> Display Localized Names</label>
@@ -6718,6 +6718,8 @@ async function savePin(pin){
 }
 async function saveAccount(){
   const name = ($("#acName")?.value || "").trim(); if(!name){ $("#acErr").textContent = "Enter your name."; return; }
+  if(!($("#acPhone")?.value || "").trim()){ toast("Enter your phone number."); $("#acPhone")?.focus(); return; }
+  if($("#acPin") && !($("#acPin").value || "").trim()){ toast("Enter your login PIN, or tap Generate."); $("#acPin").focus(); return; }
   const lg = $("#acLang")?.value || "en"; try{ localStorage.setItem("skwydLang", lg); }catch(_){} { const r = myUserRow(); if(r && r.language!==lg){ try{ await put("users", r.id, { language: lg }); }catch(e){ console.error(e); } } }
   { const r = myUserRow(), ph = ($("#acPhone")?.value || "").trim() ? fullPhone($("#acPhone").value.trim(), $("#acPhoneCc").value) : ""; if(r && (r.phone||"")!==ph){ try{ await put("users", r.id, { phone: ph || null }); }catch(e){ console.error(e); } } }
   const pv = ($("#acPin")?.value || "").trim(); if($("#acPin") && pv && pv!=="•••••" && pv!==lsGet("skwyd_mypin_" + state.userId)){ if(!(await savePin(pv))) return; }
