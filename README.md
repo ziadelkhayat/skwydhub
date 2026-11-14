@@ -1,6 +1,6 @@
-# Slick ERP
+# skwyd hub
 
-Slick: back office, POS (Android APK) and multi-brand online ordering for restaurants, running on Supabase.
+skwyd hub: back office, POS (Android APK) and multi-brand online ordering for restaurants, running on Supabase.
 
 | Page | What it is |
 |---|---|
