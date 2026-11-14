@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="904-1794680645">
+<meta name="skwyd-build" content="905-1794680739">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6701,11 +6701,10 @@ function viewAccount(){
 function acPwForm(){
   const box = $("#ccBox"); box.className = "modal";
   box.innerHTML = `<header><h2>Change Password</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
-  <div class="body" style="display:block"><div class="f" style="margin-bottom:14px"><label for="acPw0">Current Password *</label><input id="acPw0" type="password" autocomplete="current-password"></div>
-    <div class="f" style="margin-bottom:14px"><label for="acPw1">New Password *</label><input id="acPw1" type="password" autocomplete="new-password"></div>
+  <div class="body" style="display:block"><div class="f" style="margin-bottom:14px"><label for="acPw1">New Password *</label><input id="acPw1" type="password" autocomplete="new-password"></div>
     <div class="f"><label for="acPw2">Confirm New Password *</label><input id="acPw2" type="password" autocomplete="new-password"></div><div class="err" id="acPwErr"></div></div>
   <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Close</button><button type="button" class="btn pri" id="acPwSave">Save</button></footer>`;
-  $("#ccScrim").classList.add("show"); setTimeout(() => $("#acPw0")?.focus(), 50);
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#acPw1")?.focus(), 50);
 }
 async function savePin(pin){
   const err = m => { if($("#acPinErr")) $("#acPinErr").textContent = m; return false; };
@@ -6733,10 +6732,9 @@ document.addEventListener("click", async e => {
   const at = e.target.closest("[data-actab]"); if(at){ e.preventDefault(); state.acTab = at.dataset.actab; return render(); }
   if(e.target.closest("#acSave")) return saveAccount();
   if(e.target.closest("#acPwOpen")) return acPwForm();
-  if(e.target.closest("#acPwSave")){ const c0 = $("#acPw0").value, a = $("#acPw1").value, b = $("#acPw2").value, err = m => $("#acPwErr").textContent = m;
-    if(!c0) return err("Enter your current password."); if(a.length < 8) return err("Use at least 8 characters."); if(a !== b) return err("The two new passwords don't match.");
+  if(e.target.closest("#acPwSave")){ const a = $("#acPw1").value, b = $("#acPw2").value, err = m => $("#acPwErr").textContent = m;
+    if(a.length < 8) return err("Use at least 8 characters."); if(a !== b) return err("The two new passwords don't match.");
     const btn = $("#acPwSave"); btn.disabled = true;
-    const { error:e0 } = await WOK.sb.auth.signInWithPassword({ email: state.email, password: c0 }); if(e0){ btn.disabled = false; return err("The current password is wrong."); }
     const { error } = await WOK.sb.auth.updateUser({ password:a }); btn.disabled = false; if(error) return err(error.message);
     $("#ccScrim").classList.remove("show"); return toast("Password changed"); }
 
