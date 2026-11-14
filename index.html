@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="slick-build" content="884-1794664759">
+<meta name="slick-build" content="885-1794670639">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1466,7 +1466,8 @@ html body aside.side .nti.nln svg.nls{width:20px!important;height:20px!important
 html body .tti,html body .hico.hnt{background:transparent!important;border:0!important;box-shadow:none!important;color:#1e3a8a!important}
 html body .tti svg,html body .hico.hnt svg{color:#1e3a8a!important;stroke:#1e3a8a!important}
 html body aside.side .nav .grp.open > button,html body aside.side .nav .grp > button{color:#fff!important}html body aside.side .nav .ico,html body aside.side .nav .sub a .ico{color:#fff!important}
-html body #view .card.otbl{max-height:calc(100dvh - 200px);overflow:auto;overscroll-behavior:contain}html body #view .card.otbl.obody>table>thead>tr>th{position:sticky!important;top:0!important;z-index:3;background:#f8f9fb!important;box-shadow:inset 0 -1px 0 #ebecf0}
+html body #view .card.otbl{max-height:calc(100dvh - 200px);overflow:auto;margin-bottom:0!important;overscroll-behavior:contain}html body #view .card.otbl.obody>table>thead>tr>th{position:sticky!important;top:0!important;z-index:3;background:#f8f9fb!important;box-shadow:inset 0 -1px 0 #ebecf0}
+html body .lyset{padding:22px 24px}html body .lyset .lyon{font-size:16px;margin-bottom:6px}html body .lysum{background:#f4f6fb;border-radius:12px;padding:14px 16px;margin:14px 0 18px;line-height:1.6;color:#3a3846}html body .lysum p{margin:0 0 6px}html body .lysum p:last-child{margin:0}html body .lysum b{color:#1e3a8a}html body .lygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin-bottom:14px}@media(max-width:700px){html body .lygrid{grid-template-columns:1fr}}html body .lyfoot{display:flex;align-items:center;justify-content:flex-end;gap:12px;border-top:1px solid #ecedf1;margin:18px -24px -22px;padding:14px 24px}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
@@ -2691,7 +2692,10 @@ document.addEventListener("click", async e => { const b = e.target.closest?.("[d
 setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(this, arguments); }catch(e){ console.error("render", e);
   try{ renderNav((location.hash.slice(1) || "dashboard")); }catch(_){}
   const v = document.getElementById("view"); if(v) v.innerHTML = `<div class="card empty" style="margin-top:20px">This page couldn't be shown. <button class="btn" onclick="location.reload()">Reload</button></div>`; } }; }, 0);
-function render0(){ setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
+// the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
+function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); t.style.maxHeight = Math.max(320, (m ? m.clientHeight : innerHeight) - top - 16) + "px"; }
+addEventListener("resize", () => fitOtbl());
+function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
   const route = (location.hash.slice(1) || "dashboard");
   renderNav(route); document.body.dataset.route = route; document.body.dataset.sec = navSec(route) || ""; document.body.classList.toggle("noloc", company().localization===false);
   if(!state.dateSet){ const p = periodOf(dmode(), todayStr()); state.date = p.to; state.days = p.n; state.anchor = todayStr(); }   // follows the business day (end time comes from Company settings)
@@ -5712,6 +5716,9 @@ function moduleRoute(route){
   if(route==="delivery-charges") return viewDeliveryCharges();
   if(route==="discounts") return viewDiscounts();
   if(route==="promotions") return viewPromotions();
+  if(route==="loyalty") return viewLoyalty();
+  if(route==="gift-cards") return viewGiftCards();
+  if(route==="coupons") return viewCoupons();
   if(route==="currency") return viewCurrency();
   if(route==="settings"){ const bl = S.brands.filter(live); setTimeout(() => { location.replace("#brands"); if(bl.length===1) setTimeout(() => openDetail("brands", bl[0].id), 50); }, 0); return ""; }
   if(DOC_KINDS[route]) return viewDocs(route);
@@ -7236,6 +7243,192 @@ document.addEventListener("click", async e => {
 });
 document.addEventListener("input", e => { if(e.target.id==="dsQ"){ DS.q = e.target.value; const p = e.target.selectionStart; render(); const i = $("#dsQ"); if(i){ i.focus(); try{ i.setSelectionRange(p, p); }catch(_){} } } });
 
+/* ---------- Loyalty, Gift Cards, Coupons (Marketing, Foodics style) ---------- */
+const lgcDoc = id => (typeof S!=="undefined" ? S.settings : []).find(x => x.id===id) || {};
+const lgcDmy = s => s ? String(s).slice(0, 10).split("-").reverse().join("-") : "—";
+const LY_DEF = { enabled:false, method:"points", minOrder:1, delayMin:60, rewardType:"pct", rewardValue:10, maxDiscount:0, required:0, validityDays:365, sms:false };
+const lyCfg = () => { const d = lgcDoc("loyalty"); const o = { ...LY_DEF }; Object.keys(LY_DEF).forEach(k => { if(d[k]!==undefined && d[k]!==null) o[k] = d[k]; }); return o; };
+function lySummary(c){
+  const pt = c.method==="punches", u = n => pt ? (n==1 ? "punch" : "punches") : (n==1 ? "point" : "points"), b = t => `<b>(${t})</b>`;
+  const first = pt ? `When your customer spends ${b(money(+c.minOrder||0))} or more on 1 order, a punch will be added to their account after ${b((+c.delayMin||0) + " minutes")} from closing the order. They can get at most 1 punch per day.`
+    : `When your customer spends ${b(money(+c.minOrder||0))} or more on 1 order, they will get ${b("1 point")} for each ${b(money(1))} spent. The points are added after ${b((+c.delayMin||0) + " minutes")} from closing the order.`;
+  const val = c.rewardType==="amount" ? money(+c.rewardValue||0) : (+c.rewardValue||0) + " %";
+  return `<p>${first}</p><p>Once the customer accumulates ${b((+c.required||0) + " " + u(+c.required||0))} they can receive an order discount of ${b(val)}${c.rewardType==="amount" ? "" : ` up to ${b(money(+c.maxDiscount||0))}`} within ${b((+c.validityDays||0) + " days")} from the creation date.</p>`;
+}
+function lyRead(){ const v = id => document.getElementById(id); return { enabled: v("lyOn").checked, method: v("lyMethod").value, minOrder: v("lyMin").value, delayMin: v("lyDelay").value, rewardType: v("lyType").value, rewardValue: v("lyVal").value, maxDiscount: v("lyMax").value, required: v("lyReq").value, validityDays: v("lyDays").value, sms: v("lySms").checked }; }
+function viewLoyalty(){
+  const c = lyCfg(), pt = c.method==="punches", amt = c.rewardType==="amount", req = '<span class="reqst">*</span>';
+  const f = (id, lbl, val, extra="") => `<div class="f"><label for="${id}">${lbl} ${req}</label><input id="${id}" type="number" min="0" step="any" value="${esc(val ?? "")}" ${extra}></div>`;
+  return `<div class="phead"><h1>Loyalty Settings</h1></div>
+  <div class="card lyset">
+    <label class="chk lyon"><input type="checkbox" id="lyOn" ${c.enabled ? "checked" : ""}> Enable Loyalty</label>
+    <div id="lyBody" ${c.enabled ? "" : "hidden"}>
+      <div class="lysum" id="lySum">${lySummary(c)}</div>
+      <div class="lygrid">
+        <div class="f"><label for="lyMethod">Loyalty Method ${req}</label><select id="lyMethod" class="sel" data-req="1"><option value="points" ${pt ? "" : "selected"}>Points</option><option value="punches" ${pt ? "selected" : ""}>Punches</option></select></div>
+        ${f("lyMin", `Minimum Order Price (${esc(SYM())})`, c.minOrder)}
+        ${f("lyDelay", "Earning Delay (Minute)", c.delayMin, 'step="1"')}
+        <div class="f"><label for="lyType">Reward Type ${req}</label><select id="lyType" class="sel" data-req="1"><option value="pct" ${amt ? "" : "selected"}>Discount Percentage</option><option value="amount" ${amt ? "selected" : ""}>Discount Amount</option></select></div>
+        ${f("lyVal", `Reward Value (<span id="lyValU">${amt ? esc(SYM()) : "%"}</span>)`, c.rewardValue)}
+        <div id="lyMaxW" ${amt ? "hidden" : ""}>${f("lyMax", `Maximum Discount Amount (${esc(SYM())})`, c.maxDiscount)}</div>
+        ${f("lyReq", `Reward Required <span id="lyReqU">${pt ? "Punches" : "Points"}</span>`, c.required, 'step="1"')}
+        ${f("lyDays", "Reward Validity (Days)", c.validityDays, 'step="1"')}
+      </div>
+      <label class="chk"><input type="checkbox" id="lySms" ${c.sms ? "checked" : ""}> Send Notifications By SMS</label>
+      <div class="note" style="margin:4px 0 0 28px">Check this to send loyalty notifications to the customer by SMS</div>
+    </div>
+    <div class="lyfoot"><span class="err" id="lyErr"></span><span class="sp"></span><button class="btn pri" id="lySave">Save Changes</button></div>
+  </div>`;
+}
+document.addEventListener("input", e => { if(!e.target.closest?.(".lyset")) return; lyLive(); });
+document.addEventListener("change", e => { if(!e.target.closest?.(".lyset")) return; lyLive(); });
+function lyLive(){ const c = lyRead(), amt = c.rewardType==="amount", pt = c.method==="punches";
+  $("#lyBody").hidden = !c.enabled; $("#lyMaxW").hidden = amt; $("#lyValU").textContent = amt ? SYM() : "%"; $("#lyReqU").textContent = pt ? "Punches" : "Points"; $("#lySum").innerHTML = lySummary(c); }
+async function lySave(){
+  const c = lyRead(), err = m => { $("#lyErr").textContent = m; toast(m); };
+  const n = k => c[k]==="" || c[k]==null ? NaN : +c[k];
+  if(c.enabled){
+    for(const [k, l] of [["minOrder","Minimum Order Price"],["delayMin","Earning Delay"],["rewardValue","Reward Value"],["required", c.method==="punches" ? "Reward Required Punches" : "Reward Required Points"],["validityDays","Reward Validity"]]) if(!(n(k) >= 0)) return err(l + " is required.");
+    if(c.rewardType!=="amount" && !(n("maxDiscount") >= 0)) return err("Maximum Discount Amount is required.");
+    if(!(n("required") > 0)) return err("The required " + (c.method==="punches" ? "punches" : "points") + " must be more than 0.");
+    if(c.rewardType!=="amount" && n("rewardValue") > 100) return err("A percentage can't be more than 100.");
+  }
+  const old = lgcDoc("loyalty"), data = { ...old, enabled:c.enabled, method:c.method, minOrder:+c.minOrder||0, delayMin:Math.round(+c.delayMin||0), rewardType:c.rewardType, rewardValue:+c.rewardValue||0, maxDiscount: c.rewardType==="amount" ? 0 : (+c.maxDiscount||0), required:Math.round(+c.required||0), validityDays:Math.round(+c.validityDays||0), sms:c.sms };
+  delete data.id; delete data.updatedAt; delete data.createdAt;
+  $("#lySave").disabled = true;
+  try{ await put("settings", "loyalty", data); toastOk("Loyalty settings saved"); }catch(e){ console.error(e); err("Couldn't save. Only the owner or an admin can change loyalty settings."); }
+  const b = $("#lySave"); if(b) b.disabled = false;
+}
+document.addEventListener("click", e => { if(e.target.closest?.("#lySave")){ e.preventDefault(); lySave(); } });
+document.addEventListener("keydown", e => { if(e.key==="Enter" && e.target.closest?.(".lyset") && !document.querySelector(".scrim.show")){ e.preventDefault(); lySave(); } });
+
+/* Gift cards: sold like a product; the card's code holds its balance (database) */
+const GC = { tab:"all" };
+const gcList = () => lgcDoc("gift_cards").list || [];
+async function gcSave(list){ try{ await put("settings", "gift_cards", { list }); return true; }catch(e){ console.error(e); toast("Couldn't save. Only the owner or an admin can change gift cards."); return false; } }
+const gcNextSku = () => { let n = 0; gcList().forEach(g => { const m = /^GC-?(\d+)$/i.exec(g.sku||""); if(m) n = Math.max(n, +m[1]); }); return "GC-" + String(n + 1).padStart(4, "0"); };
+const gcCats = () => S.categories.filter(c => live(c) && !c.channel && !c.deleted).sort(bySort).map(c => [c.id, c.name]);
+function viewGiftCards(){
+  const del = GC.tab==="deleted", list = gcList().filter(g => !!g.deleted===del).filter(crudFltOk("gift-cards")).sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  return `<div class="phead"><h1>Gift Cards</h1><div class="sp"></div><button class="btn" data-gccheck>Check Balance</button><button class="btn pri" data-gcnew>Create Gift Card</button></div>
+  <div class="card tbl"><div class="ttop"><div class="ttabs"><a href="#gift-cards" data-gctab="all" class="${del ? "" : "on"}">All</a><a href="#gift-cards" data-gctab="deleted" class="${del ? "on" : ""}">Deleted</a></div><div class="sp"></div></div>
+  ${list.length ? `<table><thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Pricing Method</th><th class="num">Price</th>${del ? "<th></th>" : ""}</tr></thead><tbody>${list.map(g => `<tr class="click" ${del ? "" : `data-gcopen="${esc(g.id)}"`}>
+    <td><b>${esc(g.name)}</b>${g.nameAr ? ` <span class="note">${esc(g.nameAr)}</span>` : ""}</td><td><span class="code">${esc(g.sku||"—")}</span></td><td>${esc(S.categories.find(c => c.id===g.categoryId)?.name || "—")}</td><td>${g.pricing==="open" ? "Open Price" : "Fixed Price"}</td><td class="num">${g.pricing==="open" ? "—" : money(+g.price||0)}</td>
+    ${del ? `<td class="num"><button class="btn sm" data-gcrestore="${esc(g.id)}">Restore</button></td>` : ""}</tr>`).join("")}</tbody></table>`
+    : `<div class="empty" style="text-align:center;padding:48px 16px">${del ? "No deleted gift cards" : "Create Gift Cards which customers can buy and later use to pay for their orders. The gift card is sold as a product and the amount of selling will not be reflected in the sales reports."}</div>`}</div>`;
+}
+function gcForm(g){
+  const ed = !!g, x = g || { pricing:"fixed", sku: gcNextSku() }, box = $("#ccBox"); box.className = "modal";
+  box.innerHTML = `<header><h2>${ed ? "Edit" : "Create"} Gift Card</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+  <div class="body" style="display:block"><div class="dsgrid">
+    <div class="f"><label for="gcName">Name <span class="reqst">*</span></label><input id="gcName" value="${esc(x.name||"")}"></div>
+    <div class="f"><label for="gcNameAr">Name Localized</label><input id="gcNameAr" value="${esc(x.nameAr||"")}"></div>
+    <div class="f"><label for="gcCat">Category <span class="reqst">*</span></label><select id="gcCat" class="sel" data-req="1"><option value="">Choose…</option>${gcCats().map(([k,t]) => `<option value="${esc(k)}" ${x.categoryId===k ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+    <div class="f"><label for="gcSku">SKU <span class="reqst">*</span></label><div style="display:flex;gap:8px"><input id="gcSku" value="${esc(x.sku||"")}" style="flex:1"><button type="button" class="btn" id="gcGen">Generate</button></div></div>
+    <div class="f"><label for="gcPm">Pricing Method <span class="reqst">*</span></label><select id="gcPm" class="sel" data-req="1"><option value="fixed" ${x.pricing!=="open" ? "selected" : ""}>Fixed Price</option><option value="open" ${x.pricing==="open" ? "selected" : ""}>Open Price</option></select></div>
+    <div class="f" id="gcPriceF" ${x.pricing==="open" ? "hidden" : ""}><label for="gcPrice">Price (${esc(SYM())}) <span class="reqst">*</span></label><input id="gcPrice" type="number" min="0" step="any" value="${esc(x.price ?? "")}"></div>
+  </div><div class="err" id="gcErr"></div></div>
+  <footer>${ed ? `<button type="button" class="btn danger" id="gcDel" style="margin-right:auto">Delete Gift Card</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="gcGo">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#gcName")?.focus(), 50);
+  $("#gcPm").onchange = () => { $("#gcPriceF").hidden = $("#gcPm").value==="open"; };
+  $("#gcGen").onclick = () => { $("#gcSku").value = gcNextSku(); };
+  $("#gcGo").onclick = async () => {
+    const err = m => $("#gcErr").textContent = m, n = $("#gcName").value.trim(), sku = $("#gcSku").value.trim(), pm = $("#gcPm").value, pr = $("#gcPrice").value;
+    if(!n) return err("Name is required."); if(!$("#gcCat").value) return err("Category is required."); if(!sku) return err("SKU is required.");
+    if(pm==="fixed" && (pr==="" || +pr <= 0)) return err("Price is required.");
+    if(gcList().some(o => !o.deleted && o.id!==x.id && String(o.sku).toLowerCase()===sku.toLowerCase())) return err("That SKU is already used.");
+    const data = { name:n, nameAr:$("#gcNameAr").value.trim(), categoryId:$("#gcCat").value, sku, pricing:pm, price: pm==="fixed" ? +pr : null };
+    const list = ed ? gcList().map(o => o.id===x.id ? { ...o, ...data } : o) : [...gcList(), { id: uid("gcd"), ...data, active:true, createdAt: new Date().toISOString() }];
+    $("#gcGo").disabled = true; if(await gcSave(list)){ $("#ccScrim").classList.remove("show"); toastOk(ed ? "Gift card saved" : "Gift card created"); render(); } else $("#gcGo").disabled = false; };
+  if(ed) $("#gcDel").onclick = async () => { if(!(await askYes("Delete this gift card?"))) return; if(await gcSave(gcList().map(o => o.id===x.id ? { ...o, deleted:true } : o))){ $("#ccScrim").classList.remove("show"); toastOk("Gift card deleted"); render(); } };
+}
+function gcCheck(){
+  const box = $("#ccBox"); box.className = "modal";
+  box.innerHTML = `<header><h2>Check Balance</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+  <div class="body" style="display:block"><div class="f"><label for="gcCode">Gift Card Code <span class="reqst">*</span></label><input id="gcCode" autocomplete="off"></div><div id="gcRes" style="margin-top:12px"></div></div>
+  <footer><span style="flex:1"></span><button type="button" class="btn pri" id="gcLook">Check</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#gcCode")?.focus(), 50);
+  const go = async () => { const code = $("#gcCode").value.trim(); if(!code) return toast("Enter the gift card code.");
+    $("#gcLook").disabled = true;
+    try{ const r = await window.WOK.sb.rpc("slick_gift_info", { p_code: code }); if(r.error) throw r.error; const d = r.data || {};
+      $("#gcRes").innerHTML = d.found ? `<div class="igrid">${info("Code", `<span class="code">${esc(d.code)}</span>`)}${info("Gift Card", esc(d.name||"—"))}${info("Balance", `<b>${money(+d.balance||0)}</b>`)}${info("Initial Amount", money(+d.initial||0))}${info("Sold On", lgcDmy(d.createdAt))}</div>` : `<div class="note">No gift card with this code.</div>`;
+    }catch(e){ console.error(e); toast("Couldn't check the gift card. Check the connection."); }
+    const b = $("#gcLook"); if(b) b.disabled = false; };
+  $("#gcLook").onclick = go; $("#gcCode").onkeydown = e => { if(e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); go(); } };
+}
+document.addEventListener("click", async e => {
+  const t = e.target; if(!t.closest || !t.closest("#view") || document.body.dataset.route!=="gift-cards") return;
+  const tb = t.closest("[data-gctab]"); if(tb){ e.preventDefault(); GC.tab = tb.dataset.gctab; return render(); }
+  if(t.closest("[data-gcnew]")) return gcForm(null);
+  if(t.closest("[data-gccheck]")) return gcCheck();
+  const o = t.closest("[data-gcopen]"); if(o) return gcForm(gcList().find(g => g.id===o.dataset.gcopen));
+  const rs = t.closest("[data-gcrestore]"); if(rs){ if(await gcSave(gcList().map(g => g.id===rs.dataset.gcrestore ? { ...g, deleted:false } : g))){ toastOk("Gift card restored"); render(); } }
+});
+
+/* Coupons: a code linked to a set discount; uses are counted in the database */
+const CP = { tab:"all", counts:null, loading:false };
+const cpList = () => lgcDoc("coupons").list || [];
+async function cpSave(list){ try{ await put("settings", "coupons", { list }); return true; }catch(e){ console.error(e); toast("Couldn't save. Only the owner or an admin can change coupons."); return false; } }
+async function cpCounts(){ if(CP.loading) return; CP.loading = true; try{ const r = await window.WOK.sb.rpc("slick_coupon_counts"); if(!r.error){ CP.counts = r.data || {}; if(document.body.dataset.route==="coupons") render(); } }catch(e){ console.error(e); } CP.loading = false; }
+const cpToday = () => new Date().toLocaleDateString("en-CA");
+const cpStatus = c => c.active===false ? "Inactive" : c.end && c.end < cpToday() ? "Expired" : c.start && c.start > cpToday() ? "Scheduled" : c.maxUses && (CP.counts?.[c.id]||0) >= c.maxUses ? "Used Up" : "Active";
+const cpDiscs = type => dsList().filter(d => !d.deleted && (d.qualification===type || d.qualification==="both"));
+function viewCoupons(){
+  if(CP.counts===null) cpCounts();
+  const del = CP.tab==="deleted", list = cpList().filter(c => !!c.deleted===del).sort((a,b) => String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+  const pill = s => `<span class="spill ${s==="Active" ? "s-closed" : s==="Expired"||s==="Used Up" ? "s-void" : "s-pending"}">${s}</span>`;
+  return `<div class="phead"><h1>Coupons</h1><div class="sp"></div><button class="btn" data-cpbulk>Bulk Create</button><button class="btn pri" data-cpnew>Create Coupon</button></div>
+  <div class="card tbl"><div class="ttop"><div class="ttabs"><a href="#coupons" data-cptab="all" class="${del ? "" : "on"}">All</a><a href="#coupons" data-cptab="deleted" class="${del ? "on" : ""}">Deleted</a></div><div class="sp"></div></div>
+  ${list.length ? `<table><thead><tr><th>Name</th><th>Code</th><th>Coupon Type</th><th>Discount</th><th class="num">Uses</th><th>Start Date</th><th>End Date</th><th>Status</th>${del ? "<th></th>" : ""}</tr></thead><tbody>${list.map(c => `<tr class="click" ${del ? "" : `data-cpopen="${esc(c.id)}"`}>
+    <td><b>${esc(c.name)}</b></td><td><span class="code">${esc(c.code)}</span></td><td>${c.type==="product" ? "Product" : "Order"}</td><td>${esc(dsList().find(d => d.id===c.discountId)?.name || "—")}</td>
+    <td class="num">${CP.counts ? (CP.counts[c.id]||0) : "…"} / ${esc(c.maxUses ?? "—")}</td><td>${lgcDmy(c.start)}</td><td>${lgcDmy(c.end)}</td><td>${pill(cpStatus(c))}</td>
+    ${del ? `<td class="num"><button class="btn sm" data-cprestore="${esc(c.id)}">Restore</button></td>` : ""}</tr>`).join("")}</tbody></table>`
+    : `<div class="empty" style="text-align:center;padding:48px 16px">${del ? "No deleted coupons" : "Create coupons that your customers can use to get discounts on orders."}</div>`}</div>`;
+}
+const cpCode = () => { const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = ""; for(let i = 0; i < 8; i++) s += A[Math.floor(Math.random() * A.length)]; return s; };
+function cpForm(c, bulk){
+  const ed = !!c, x = c || { type:"order", active:true }, box = $("#ccBox"); box.className = "modal";
+  const discOpts = t => `<option value="">Choose…</option>` + cpDiscs(t).map(d => `<option value="${esc(d.id)}" ${x.discountId===d.id ? "selected" : ""}>${esc(d.name)} (${dsAmtLbl(d)})</option>`).join("");
+  const rq = '<span class="reqst">*</span>';
+  box.innerHTML = `<header><h2>${bulk ? "Bulk Create Coupons" : ed ? "Edit Coupon" : "Create Coupon"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+  <div class="body" style="display:block"><div class="dsgrid">
+    ${bulk ? `<div class="f"><label for="cpN">Number Of Coupons ${rq}</label><input id="cpN" type="number" min="1" max="500" step="1" value="10"><div class="note">Number of Coupons to be created.</div></div>` : ""}
+    <div class="f"><label for="cpName">Name ${rq}</label><input id="cpName" value="${esc(x.name||"")}"><div class="note">The name of the coupon, used for reporting.</div></div>
+    <div class="f"><label for="cpType">Coupon Type ${rq}</label><select id="cpType" class="sel" data-req="1"><option value="product" ${x.type==="product" ? "selected" : ""}>Product</option><option value="order" ${x.type!=="product" ? "selected" : ""}>Order</option></select><div class="note">Whether the coupon applies on an order level or a product level</div></div>
+    ${bulk ? "" : `<div class="f"><label for="cpCode">Code ${rq}</label><div style="display:flex;gap:8px"><input id="cpCode" value="${esc(x.code||"")}" style="flex:1;text-transform:uppercase"><button type="button" class="btn" id="cpGen">Generate</button></div><div class="note">Customers use this code. Only numbers or letters.</div></div>`}
+    <div class="f"><label for="cpDisc">Discount ${rq}</label><select id="cpDisc" class="sel" data-req="1">${discOpts(x.type)}</select><div class="note">A discount from Marketing → Discounts that matches the coupon type</div></div>
+    <div class="f"><label for="cpMax">Maximum Uses ${rq}</label><input id="cpMax" type="number" min="1" step="1" value="${esc(x.maxUses ?? "")}"><div class="note">How many times this coupon can be used.</div></div>
+    <div class="f"><label for="cpStart">Start Date ${rq}</label><input id="cpStart" type="date" value="${esc(x.start||cpToday())}"></div>
+    <div class="f"><label for="cpEnd">End Date ${rq}</label><input id="cpEnd" type="date" value="${esc(x.end||"")}"></div>
+    ${ed ? `<label class="chk full"><input type="checkbox" id="cpAct" ${x.active!==false ? "checked" : ""}> Active</label>` : ""}
+  </div><div class="err" id="cpErr"></div></div>
+  <footer>${ed ? `<button type="button" class="btn danger" id="cpDel" style="margin-right:auto">Delete Coupon</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="cpGo">${bulk ? "Create" : "Save"}</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => (bulk ? $("#cpN") : $("#cpName"))?.focus(), 50);
+  $("#cpType").onchange = () => { x.discountId = $("#cpDisc").value; $("#cpDisc").innerHTML = discOpts($("#cpType").value); const mw = $("#cpDisc").closest(".msel"); if(mw && typeof msPaint==="function") msPaint(mw); };
+  if($("#cpGen")) $("#cpGen").onclick = () => { $("#cpCode").value = cpCode(); };
+  $("#cpGo").onclick = async () => {
+    const err = m => $("#cpErr").textContent = m, n = $("#cpName").value.trim(), ty = $("#cpType").value, dId = $("#cpDisc").value, mx = $("#cpMax").value, st = $("#cpStart").value, en = $("#cpEnd").value;
+    const code = bulk ? "" : $("#cpCode").value.trim().toUpperCase(), cnt = bulk ? Math.round(+$("#cpN").value||0) : 1;
+    if(bulk && !(cnt >= 1 && cnt <= 500)) return err("Number Of Coupons must be between 1 and 500.");
+    if(!n) return err("Name is required."); if(!bulk && !code) return err("Code is required."); if(!bulk && !/^[A-Z0-9]+$/.test(code)) return err("The code may only contain numbers or letters.");
+    if(!dId) return err("Discount is required."); if(!(+mx >= 1)) return err("Maximum Uses is required."); if(!st) return err("Start Date is required."); if(!en) return err("End Date is required."); if(en < st) return err("The end date must be after the start date.");
+    const used = new Set(cpList().filter(o => !o.deleted && o.id!==x.id).map(o => String(o.code).toUpperCase()));
+    if(!bulk && used.has(code)) return err("This code is already used by another coupon.");
+    const data = { name:n, type:ty, discountId:dId, maxUses:Math.round(+mx), start:st, end:en };
+    let list;
+    if(ed) list = cpList().map(o => o.id===x.id ? { ...o, ...data, code, active: $("#cpAct").checked } : o);
+    else { const add = []; for(let i = 0; i < cnt; i++){ let k = code; if(bulk){ do k = cpCode(); while(used.has(k)); } used.add(k); add.push({ id: uid("cpn"), ...data, code:k, active:true, createdAt: new Date(Date.now() + i).toISOString() }); } list = [...cpList(), ...add]; }
+    $("#cpGo").disabled = true; if(await cpSave(list)){ $("#ccScrim").classList.remove("show"); toastOk(bulk ? cnt + " coupons created" : ed ? "Coupon saved" : "Coupon created"); render(); } else $("#cpGo").disabled = false; };
+  if(ed) $("#cpDel").onclick = async () => { if(!(await askYes("Delete this coupon?"))) return; if(await cpSave(cpList().map(o => o.id===x.id ? { ...o, deleted:true } : o))){ $("#ccScrim").classList.remove("show"); toastOk("Coupon deleted"); render(); } };
+}
+document.addEventListener("click", async e => {
+  const t = e.target; if(!t.closest || !t.closest("#view") || document.body.dataset.route!=="coupons") return;
+  const tb = t.closest("[data-cptab]"); if(tb){ e.preventDefault(); CP.tab = tb.dataset.cptab; return render(); }
+  if(t.closest("[data-cpnew]")) return cpForm(null, false);
+  if(t.closest("[data-cpbulk]")) return cpForm(null, true);
+  const o = t.closest("[data-cpopen]"); if(o) return cpForm(cpList().find(c => c.id===o.dataset.cpopen), false);
+  const rs = t.closest("[data-cprestore]"); if(rs){ if(await cpSave(cpList().map(c => c.id===rs.dataset.cprestore ? { ...c, deleted:false } : c))){ toastOk("Coupon restored"); render(); } }
+});
 /* filters belong to the page: leaving a page puts its filters back to the defaults */
 function resetPageFilters(){
   try{ BM.open1 = false; BM.item = ""; }catch(_){}
