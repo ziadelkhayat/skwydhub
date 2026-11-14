@@ -4,7 +4,7 @@
 <script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="893-1794676996">
+<meta name="skwyd-build" content="894-1794678039">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6737,6 +6737,7 @@ const company = () => S.settings.find(x=>x.id==="company") || {};
 // country and currency are chosen when the business is set up; after that they can't be changed
 const bizLocked = () => !!company().country;
 const LOCK_NOTE = "Set when the business was created. It can't be changed.";
+const PLAT_NOTE = "Set by skwyd hub. It can only be changed from the skwyd hub admin dashboard.";
 function paintCompany(){
   const c = company(), n = $("#coName"), l = $("#coLogo"), sub = $("#coSub"); if(!n) return;
   n.textContent = "skwyd"; sub.textContent = "";   // the sidebar always shows the skwyd hub logo
@@ -6754,15 +6755,15 @@ function viewCompany(){
     ${admin?"":`<div class="banner">Only the owner or an admin can change business details.</div>`}
     <h3 class="bizh">General</h3>
     <div class="card bizcard"><div class="bizgrid">
-      ${f("name","Business Name *",{tip:"The legal or trading name of the business that owns every brand and branch."})}
+      ${c.name ? `<div class="f"><label>Business Name</label><input id="co_name" class="sel" value="${esc(c.name)}" disabled title="${PLAT_NOTE}"></div>` : f("name","Business Name *",{tip:"The legal or trading name of the business that owns every brand and branch."})}
       <div class="f"><label>Account Number</label><input class="sel" value="${esc(c.accountNo || "—")}" disabled title="Your business account number, given by skwyd hub. Used on the sign-in page for every brand in this business."></div>
-      <div class="f"><label for="co_bizCategory">Business Category</label><select id="co_bizCategory" class="sel" ${dis}>${Object.keys(BIZ_CATS).map(k => `<option ${cat===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
-      <div class="f"><label for="co_bizSubcategory">Business Subcategory</label><select id="co_bizSubcategory" class="sel" ${dis}>${subs.map(k => `<option ${(c.bizSubcategory||subs[0])===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+      <div class="f"><label for="co_bizCategory">Business Category</label><select id="co_bizCategory" class="sel" ${c.name ? `disabled title="${PLAT_NOTE}"` : dis}>${Object.keys(BIZ_CATS).map(k => `<option ${cat===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+      <div class="f"><label for="co_bizSubcategory">Business Subcategory</label><select id="co_bizSubcategory" class="sel" ${c.name ? `disabled title="${PLAT_NOTE}"` : dis}>${subs.map(k => `<option ${(c.bizSubcategory||subs[0])===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
       ${f("taxName","Tax Registration Name",{tip:"The name registered with the tax authority, printed on invoices."})}
       ${f("taxNumber","Tax Number",{tip:"The VAT / tax registration number printed on invoices."})}
       <div class="f"><label for="co_country">Country</label><select id="co_country" class="sel" ${admin && !lk ? "" : "disabled"} ${lk ? `title="${LOCK_NOTE}"` : ""}>${CC_CODES.map(([d,n])=>`<option value="${esc(n)}" ${(c.country||"Lebanon")===n?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
       <div class="f"><label for="co_bcur">Currency</label><select id="co_bcur" class="sel" ${admin && !lk ? "" : "disabled"} ${lk ? `title="${LOCK_NOTE}"` : ""}>${CURRENCIES.map(([k,t])=>`<option value="${k}" ${(c.currency||COUNTRY_CUR[c.country||"Lebanon"]||"USD")===k?"selected":""}>${t}</option>`).join("")}</select></div>
-    </div>${lk ? `<p class="note bizn">Country and currency were set when the business was created and can't be changed.</p>` : `<p class="note bizn">Pick the country and currency carefully: once you save, they can't be changed.</p>`}${sv}</div>
+    </div>${lk ? `<p class="note bizn">Business name, account number, category, country and currency are set by skwyd hub and can't be changed here.</p>` : `<p class="note bizn">Pick the country and currency carefully: once you save, they can't be changed.</p>`}${sv}</div>
     <h3 class="bizh">Contacts</h3>
     <div class="card bizcard"><div class="bizgrid">
       ${f("email","Email",{type:"email"})}
@@ -6788,6 +6789,7 @@ document.addEventListener("input", e => { if(e.target.id==="co_dayEnd" && $("#co
 async function saveCompany(){
   const v = k => ($("#co_"+k)?.value || "").trim();
   const data = { name:v("name"), taxNumber:v("taxNumber"), taxName:v("taxName"), bizCategory:v("bizCategory"), bizSubcategory:v("bizSubcategory"), ownerEmail:null, ownerPhone: fullPhone(v("ownerPhone"), v("ownerPhoneCc")), email:v("email"), logoUrl:null, localization: !!$("#co_loc")?.checked, chargesBeforeDisc: !!$("#co_chgsub")?.checked, timeZone:v("timeZone") || "Asia/Beirut", gmapsKey:v("gmapsKey"), country: company().country || v("country") || "Lebanon", currency: bizLocked() ? (company().currency || "USD") : (v("bcur") || "USD"), ...(company().accountNo ? { accountNo: company().accountNo } : {}) };
+  { const c0 = company(); if(c0.name){ data.name = c0.name; data.bizCategory = c0.bizCategory || data.bizCategory; data.bizSubcategory = c0.bizSubcategory || data.bizSubcategory; } }   // set by skwyd hub: the back office keeps what is there
   if(!data.name){ $("#coErr").textContent = "Business name is required."; $("#co_name").focus(); return; }
   try{ await put("settings", "company", data);
     // the ordering pages read the Maps key from each brand's web ordering settings
