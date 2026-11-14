@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
+
 <meta charset="utf-8">
-<meta name="slick-build" content="886-1794674295">
+<meta name="skwyd-build" content="890-1794676024">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
-(function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
+(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
     var n = (t.match(/slick-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b) return;
     var ts = function(x){ return +(String(x).split("-")[1]) || 0; }; if(!(ts(n) > ts(b))) return;   /* only ever move forward: right after an update some servers still hand out the older copy, and reloading for that made the page refresh back and forth */
-    try{ if(sessionStorage.getItem("slick_rl") === n) return; sessionStorage.setItem("slick_rl", n); }catch(e){}
+    try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
     fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -616,7 +618,7 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 <body class="lay-grid">
 <div class="splash" id="splash" aria-live="polite" aria-label="Loading"><div class="spl"><span class="splogo" id="splLogo"></span><b id="splName"></b><i class="spin"></i></div></div>
 <script>/* show the last brand seen (logo, name, colour) while the menu loads */
-(function(){ try{ const b = new URLSearchParams(location.search).get("brand") || localStorage.getItem("slick_last_brand"), s = b && JSON.parse(localStorage.getItem("slick_splash_" + b) || "null");
+(function(){ try{ const b = new URLSearchParams(location.search).get("brand") || localStorage.getItem("skwyd_last_brand"), s = b && JSON.parse(localStorage.getItem("skwyd_splash_" + b) || "null");
   if(!s) return; if(s.acc) document.documentElement.style.setProperty("--acc", s.acc); if(s.dark) document.documentElement.classList.add("dark");
   const l = document.getElementById("splLogo"); if(s.logo){ const i = new Image(); i.src = s.logo; i.alt = ""; l.appendChild(i); } else l.textContent = (s.name||"·").trim()[0].toUpperCase();
   document.getElementById("splName").textContent = s.name || ""; }catch(e){} })();</script>
@@ -720,8 +722,8 @@ if(!brandId){ $("#hero").hidden = true; $("#main").innerHTML = `<h2 class="ch" s
 const brand = bl.data.find(b => b.id === brandId);
 if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't taking web orders.</b></div>`; return; }
 
-PUB = await sb.rpc("slick_public_settings").then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB, () => PUB);
-await sb.rpc("slick_public_symbols").then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
+PUB = await sb.rpc("skwyd_public_settings").then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB, () => PUB);
+await sb.rpc("skwyd_public_symbols").then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
 let incl = true;   // set below: true when every tax is inclusive
 const [st, scd, br, ca, pr, zo, mg, tx, tg, mo] = await Promise.all([
   sb.from("settings").select("data").eq("id","online_"+brandId).maybeSingle(),
@@ -832,13 +834,13 @@ function locate(){
 }
 /* ---------- location: a Toters-style picker in the top bar ----------
    delivery goes by the pinned location and the delivery zones; pickup and dine-in pick the branch by hand */
-const AK = "slick_addr_" + brandId;
+const AK = "skwyd_addr_" + brandId;
 const lsGet = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
-const VK = "slick_view"; let VIEW = lsGet(VK, "");   // the customer's own grid / list choice, else the brand's layout
+const VK = "skwyd_view"; let VIEW = lsGet(VK, "");   // the customer's own grid / list choice, else the brand's layout
 const curLay = () => VIEW || "list";   // list by default; the customer can switch to grid
 let addrs = lsGet(AK, []), addr = null, LS = { view:"main", draft:null, res:[], menu:"" }, lmap = null, lsT = null;
 { const s = lsGet(AK + "_sel", null); addr = typeof s==="string" ? addrs.find(a => a.id===s) || null : s?.temp || null; if(addr){ pin = [addr.lat, addr.lng]; zoneId = zoneList().find(z => inside(pin, z.polygon))?.id || ""; } }   // the saved address picks its delivery zone on load
-/* ---------- customer accounts: ordering needs an account. Supabase Auth keeps the password; Slick never sees it ---------- */
+/* ---------- customer accounts: ordering needs an account. Supabase Auth keeps the password; skwyd hub never sees it ---------- */
 let USER = null, PROF = null, AU = { view:"in", then:null, msg:"", email:"" }, AC = { view:"home", pts:null, then:null, msg:"" };
 const fullName = () => [PROF?.first_name, PROF?.last_name].filter(Boolean).join(" ");
 const inits = () => ((((PROF?.first_name||"")[0]||"") + ((PROF?.last_name||"")[0]||"")) || (USER?.email||"?")[0]).toUpperCase();
@@ -938,7 +940,7 @@ async function openAcct(view){
   if(!USER) return openAuth("in", null, "");
   if(lmap){ lmap.remove(); lmap = null; }
   AC.view = view || "home"; drawAcct(); $("#scrim").classList.add("show");
-  if(AC.view==="loyal"){ const r = await sb.rpc("slick_my_points"); AC.pts = r.error ? null : Math.max(0, Math.floor(+r.data || 0)); const el = $("#acPts"); if(el) el.textContent = AC.pts==null ? "—" : AC.pts.toLocaleString("en-US"); }
+  if(AC.view==="loyal"){ const r = await sb.rpc("skwyd_my_points"); AC.pts = r.error ? null : Math.max(0, Math.floor(+r.data || 0)); const el = $("#acPts"); if(el) el.textContent = AC.pts==null ? "—" : AC.pts.toLocaleString("en-US"); }
 }
 function drawAcct(){
   const sh = $("#sheet"), v = AC.view, p = PROF || {};
@@ -1213,11 +1215,11 @@ const hasMods = p => (p.modifiers||[]).some(l => mgroups[l.modifierId]);
 async function addItem(p){
   if(!p || oos(p)) return;
   const kids = kidsOf(p);
-  if(kids.length && SlickMods.variant){ const v = await SlickMods.variant({ name:p.name, setName:(p.variants||[]).find(v=>v.group)?.group, variants: kids.map(k => ({ name:k.name, price:priceOf(k.p), id:k.p.id })), money:usd }); if(!v) return; return addItem(kids.find(k => k.p.id===v.id).p); }
+  if(kids.length && SkwydMods.variant){ const v = await SkwydMods.variant({ name:p.name, setName:(p.variants||[]).find(v=>v.group)?.group, variants: kids.map(k => ({ name:k.name, price:priceOf(k.p), id:k.p.id })), money:usd }); if(!v) return; return addItem(kids.find(k => k.p.id===v.id).p); }
   let options = [], mods = "", price = priceOf(p);
   const base = price, nm = p.name;
-  if(hasMods(p)){ const r = await SlickMods.pick({ name:nm, basePrice:price, ...modData(p), money:usd }); if(!r) return; options = r.options; mods = r.mods; price = r.unitPrice; }
-  const k = SlickMods.key(p.id, options), ex = cart.find(i => SlickMods.key(i.productId, i.options) === k);
+  if(hasMods(p)){ const r = await SkwydMods.pick({ name:nm, basePrice:price, ...modData(p), money:usd }); if(!r) return; options = r.options; mods = r.mods; price = r.unitPrice; }
+  const k = SkwydMods.key(p.id, options), ex = cart.find(i => SkwydMods.key(i.productId, i.options) === k);
   if(ex) ex.qty++; else cart.push({ productId:p.id, name:nm, price, qty:1, ...(options.length ? { options, mods, optPrice: +(price - base).toFixed(2) } : {}) });
   const y = scrollY; renderMenu(); scrollTo(0,y);
 }
@@ -1275,7 +1277,7 @@ function openItem(p){
       if(g("[data-iadd]")) return itAdd(); });
     d.addEventListener("input", e => { if(e.target.id==="ipNote") IT.note = e.target.value; }); }
   d.classList.add("show"); document.body.style.overflow = "hidden"; drawItem(true);
-  try{ history.pushState({ slickItem:1 }, ""); }catch(e){}
+  try{ history.pushState({ skwydItem:1 }, ""); }catch(e){}
 }
 const NUTL = [["calories","Calories","kcal"],["fat","Total fat","g"],["satFat","Saturated fat","g"],["transFat","Trans fat","g"],["cholesterol","Cholesterol","mg"],["carbs","Carbohydrate","g"],["fiber","Fiber","g"],["sugars","Total sugars","g"],["addedSugars","Added sugars","g"],["protein","Protein","g"],["salt","Salt","g"],["sodium","Sodium","mg"],["caffeine","Caffeine","mg"]];
 const nutRows = p => NUTL.filter(([k]) => p?.nutrition?.[k] != null && p.nutrition[k] !== "").map(([k,l,u]) => `<tr><td>${l}</td><td>${esc(p.nutrition[k])} ${u}</td></tr>`).join("");
@@ -1300,7 +1302,7 @@ function drawItem(first){
   if(!first) el.querySelector(".pg").scrollTop = y;
 }
 function closeItem(fromPop){ const d = $("#ipg"); if(!d || !d.classList.contains("show")) return; d.classList.remove("show"); d.innerHTML = ""; document.body.style.overflow = "";
-  if(!fromPop && history.state?.slickItem) try{ history.back(); }catch(e){} }
+  if(!fromPop && history.state?.skwydItem) try{ history.back(); }catch(e){} }
 addEventListener("popstate", () => closeItem(true));
 function itAdd(){
   if(IT.kids.length && !IT.kid){ IT.err = -2; drawItem(); return $("#ig-v")?.scrollIntoView({ behavior:"smooth", block:"start" }); }
@@ -1310,7 +1312,7 @@ function itAdd(){
   IT.links.forEach((l, gi) => { let free = +l.free||0; itUnits(l, gi).forEach(x => { const c = free > 0 ? 0 : (+x.price||0); if(free > 0) free--; chosen.push({ id:x.id, modifierId:l.modifierId, name:x.name, price:c }); }); });
   const tally = []; chosen.forEach(x => { const t = tally.find(y => y.name===x.name); if(t) t.n++; else tally.push({ name:x.name, n:1 }); });
   const unit = +itUnit().toFixed(2), base = priceOf(b), note = IT.note.trim(), qn = IT.qty;
-  const k = SlickMods.key(b.id, chosen) + "|" + note, ex = cart.find(i => SlickMods.key(i.productId, i.options) + "|" + (i.note||"") === k);
+  const k = SkwydMods.key(b.id, chosen) + "|" + note, ex = cart.find(i => SkwydMods.key(i.productId, i.options) + "|" + (i.note||"") === k);
   if(IT.edit!=null && cart[IT.edit]){ const ei = IT.edit; IT.edit = null; const line = { productId:b.id, name:b.name, price:unit, qty:qn, ...(chosen.length ? { options:chosen, mods:tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), optPrice:+(unit - base).toFixed(2) } : {}), ...(note ? { note } : {}) };
     cart[ei] = line; closeItem(); renderMenu(); return openCart("basket"); }
   if(ex) ex.qty += qn; else cart.push({ productId:b.id, name:b.name, price:unit, qty:qn, ...(chosen.length ? { options:chosen, mods:tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), optPrice:+(unit - base).toFixed(2) } : {}), ...(note ? { note } : {}) });
@@ -1419,7 +1421,7 @@ async function openScan(){
 document.addEventListener("click", e => { if(e.target.closest("[data-scanqr]")) openScan(); });
 
 /* ---------- favorites (kept on this device, and on the account when signed in) ---------- */
-const FAVK = () => "slick_fav_" + brandId + "_" + (USER?.id || "");
+const FAVK = () => "skwyd_fav_" + brandId + "_" + (USER?.id || "");
 function favs(){ if(!USER) return []; const a = Array.isArray(PROF?.favorites) ? PROF.favorites : null; if(a) return a; try{ return JSON.parse(localStorage.getItem(FAVK()) || "[]"); }catch(e){ return []; } }
 const isFav = id => favs().includes(id);
 function togFav(id){ if(!USER) return false; let f = favs(); const on = !f.includes(id); f = on ? [...f, id] : f.filter(x => x !== id);
@@ -1469,14 +1471,14 @@ document.addEventListener("click", e => { let t;
     IT.qty = it.qty; IT.note = it.note || ""; IT.edit = ix; drawItem(); }
 });
 
-/* ---------- past orders: from the account (slick_my_orders), else the ones placed on this device ---------- */
-const OHK = () => "slick_orders_" + brandId;
+/* ---------- past orders: from the account (skwyd_my_orders), else the ones placed on this device ---------- */
+const OHK = () => "skwyd_orders_" + brandId;
 const OST = { pending:["Waiting for the branch","w"], active:["Being prepared","a"], closed:["Completed","c"], done:["Completed","c"], void:["Cancelled","bad"], voided:["Cancelled","bad"], declined:["Declined","bad"], returned:["Returned","bad"] };
 async function openOrders(){
   const sh = $("#sheet"); sh.className = "sheet locsheet acsheet";
   const head = `<div class="grab"></div><div class="lshead"><span></span><h3>Your orders</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
   sh.innerHTML = head + `<div class="info" style="text-align:center;padding:24px 0">Loading your orders…</div>`; $("#scrim").classList.add("show"); $("#scrim").scrollTop = 0;
-  let list = null; const r = await sb.rpc("slick_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
+  let list = null; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
   if(!r.error && Array.isArray(r.data)) list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x);
   if(!list) list = lsGet(OHK(), []).filter(o => !USER || !o.uid || o.uid===USER.id);
   OHL.list = list;
@@ -1492,7 +1494,7 @@ function reorder(o){
   let skipped = 0;
   (o.items||[]).forEach(it => { const p = products.find(x => x.id===it.productId);
     if(!p || !visible().some(v => v.id===p.id) || oos(p)){ skipped++; return; }
-    const k = SlickMods.key(it.productId, it.options) + "|" + (it.note||""), ex = cart.find(i => SlickMods.key(i.productId, i.options) + "|" + (i.note||"") === k);
+    const k = SkwydMods.key(it.productId, it.options) + "|" + (it.note||""), ex = cart.find(i => SkwydMods.key(i.productId, i.options) + "|" + (i.note||"") === k);
     if(ex) ex.qty += +it.qty||1; else cart.push({ ...it, qty:+it.qty||1 }); });
   reprice(); renderMenu();
   if(!cart.length){ toast("These items aren't available right now"); return; }
@@ -1620,27 +1622,27 @@ async function placeOrder(e){
 }
 
 /* ---------- order tracking: live status page + notifications on every change ---------- */
-var TK = { id:null, list:[], timer:0, seen: lsGet("slick_trk_" + brandId, {}) };
+var TK = { id:null, list:[], timer:0, seen: lsGet("skwyd_trk_" + brandId, {}) };
 const TFIN = ["closed","done"], TBAD = ["void","voided","declined","returned","refund"];
 const tkLive = o => o && !TFIN.includes(o.status) && !TBAD.includes(o.status);
 function tkSteps(o){ const t = o.type || "delivery", last = t==="delivery" ? ["Delivered","Enjoy your meal!"] : t==="pickup" ? ["Picked up","Thanks for ordering with us"] : ["Served","Enjoy your meal!"];
   return [["Order placed","Waiting for the restaurant to accept"],["Accepted","The kitchen is preparing your order"],[t==="delivery" ? "On its way" : t==="pickup" ? "Ready for pickup" : "Ready", t==="delivery" ? "Your order is ready and heading to you" : "Your order is ready"],last]; }
 function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? (o.ready ? 2 : 1) : 0; }
 const tkTitle = o => TBAD.includes(o.status) ? (o.status==="declined" ? "Order declined" : "Order cancelled") : tkSteps(o)[tkStep(o)][0];
-async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("slick_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
+async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
   if(!r.error && Array.isArray(r.data)) TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); return TK.list; }
 function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order #" + o.no + " · " : "") + (TBAD.includes(o.status) ? "Please contact the restaurant for details." : tkSteps(o)[Math.max(0, tkStep(o))][1]);
   try{ navigator.vibrate?.([180, 90, 180]); }catch(e){}
   try{ const a = new (window.AudioContext || window.webkitAudioContext)(), g = a.createGain(); g.connect(a.destination); [880, 1175].forEach((f, i) => { const os = a.createOscillator(); os.frequency.value = f; os.connect(g); g.gain.setValueAtTime(.08, a.currentTime); os.start(a.currentTime + i * .18); os.stop(a.currentTime + i * .18 + .15); }); }catch(e){}
   toast(t + (o.no ? " · #" + o.no : ""));
   if(!("Notification" in window) || Notification.permission !== "granted") return;
-  const opt = { body, tag:"slick-order-" + o.id, renotify:true, icon:(cfg.theme||{}).logo || undefined, data:{ url: location.href.split("#")[0] + "#track=" + o.id } };
+  const opt = { body, tag:"skwyd-order-" + o.id, renotify:true, icon:(cfg.theme||{}).logo || undefined, data:{ url: location.href.split("#")[0] + "#track=" + o.id } };
   (navigator.serviceWorker?.getRegistration?.() || Promise.resolve(null)).then(r => r ? r.showNotification(brand.name + " · " + t, opt) : new Notification(brand.name + " · " + t, opt)).catch(() => { try{ new Notification(brand.name + " · " + t, opt); }catch(e){} }); }
 async function trkPoll(){ if(!TK){ setTimeout(trkPoll, 0); return; }   // called during start-up, before the tracker is set up
   clearTimeout(TK.timer); if(!USER || PREVIEW) return trkPill();
   const list = await tkFetch(), day = Date.now() - 864e5;
   list.forEach(o => { if(!o.id) return; const was = TK.seen[o.id]; if(was && was !== o.status && new Date(o.created_at) > day) tkNotify(o); TK.seen[o.id] = o.status; });
-  lsSet("slick_trk_" + brandId, Object.fromEntries(Object.entries(TK.seen).slice(-60)));
+  lsSet("skwyd_trk_" + brandId, Object.fromEntries(Object.entries(TK.seen).slice(-60)));
   trkPill(); if(TK.id && $("#trk")?.classList.contains("show")) trkDraw();
   const live = list.some(o => tkLive(o) && new Date(o.created_at) > day);
   if(live || TK.id) TK.timer = setTimeout(trkPoll, document.hidden ? 30000 : 10000); }
@@ -1690,7 +1692,7 @@ function appIcon(size){ const t = cfg.theme || {}; if(t.logo) return t.logo;
   x.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--on-acc").trim() || "#fff"; x.font = `800 ${Math.round(size * .5)}px Inter, system-ui, sans-serif`; x.textAlign = "center"; x.textBaseline = "middle";
   x.fillText((brand.name.trim()[0] || "·").toUpperCase(), size / 2, size / 2 + size * .03); return c.toDataURL("image/png"); }
 function setupApp(){
-  try{ localStorage.setItem("slick_last_brand", brandId); localStorage.setItem("slick_splash_" + brandId, JSON.stringify({ name:brand.name, logo:(cfg.theme||{}).logo || "", acc:getComputedStyle(document.documentElement).getPropertyValue("--acc").trim(), dark:(cfg.theme||{}).bg==="dark" })); }catch(e){}
+  try{ localStorage.setItem("skwyd_last_brand", brandId); localStorage.setItem("skwyd_splash_" + brandId, JSON.stringify({ name:brand.name, logo:(cfg.theme||{}).logo || "", acc:getComputedStyle(document.documentElement).getPropertyValue("--acc").trim(), dark:(cfg.theme||{}).bg==="dark" })); }catch(e){}
   if(PREVIEW) return;
   const t = cfg.theme || {}, acc = getComputedStyle(document.documentElement).getPropertyValue("--acc").trim() || "#1e3a8a";
   const start = location.origin + location.pathname + "?brand=" + encodeURIComponent(brandId) + (qrBranch ? "&branch=" + encodeURIComponent(qrBranch) + (qrTable ? "&table=" + encodeURIComponent(qrTable) : "") : "");
@@ -1704,7 +1706,7 @@ function setupApp(){
 }
 setupApp();
 // offer to install: Android / Chrome show their own prompt; iPhone gets "Share → Add to Home Screen"
-let instEvt = null; const IK = "slick_inst_" + brandId;
+let instEvt = null; const IK = "skwyd_inst_" + brandId;
 const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const mobile = iOS || /android/i.test(navigator.userAgent);
 function instBar(kind){
@@ -1734,7 +1736,7 @@ document.addEventListener("click", async e => {
   if(e.target.closest("[data-inst]") && instEvt){ instEvt.prompt(); const r = await instEvt.userChoice.catch(() => null); instEvt = null; $("#inst")?.remove(); if(r?.outcome !== "accepted") lsSet(IK, Date.now() + 7*864e5); }
 });
 // live preview from the back office (Web Ordering): the settings being edited, before they're saved
-if(PREVIEW){ addEventListener("message", e => { if(e.origin !== location.origin || e.data?.type !== "slick-web-cfg") return; Object.keys(cfg).forEach(k => delete cfg[k]); Object.assign(cfg, e.data.cfg || {}); $("#main").innerHTML = shell(); render(); }); parent.postMessage({ type:"slick-web-ready" }, location.origin); }
+if(PREVIEW){ addEventListener("message", e => { if(e.origin !== location.origin || e.data?.type !== "skwyd-web-cfg") return; Object.keys(cfg).forEach(k => delete cfg[k]); Object.assign(cfg, e.data.cfg || {}); $("#main").innerHTML = shell(); render(); }); parent.postMessage({ type:"skwyd-web-ready" }, location.origin); }
 })().catch(e => console.error(e)).finally(() => { const s = document.getElementById("splash"); if(s){ s.classList.add("done"); setTimeout(() => s.remove(), 400); } });
 </script>
 <script>/* iPhone Safari with "Request Desktop Website" on lays the page out ~980px wide and shrinks it. On a phone, switch the

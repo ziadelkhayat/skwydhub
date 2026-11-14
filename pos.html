@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
+
 <meta charset="utf-8">
-<meta name="slick-build" content="888-1794675288">
+<meta name="skwyd-build" content="890-1794676024">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
-(function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
+(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
     var n = (t.match(/slick-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b) return;
     var ts = function(x){ return +(String(x).split("-")[1]) || 0; }; if(!(ts(n) > ts(b))) return;   /* only ever move forward: right after an update some servers still hand out the older copy, and reloading for that made the page refresh back and forth */
-    try{ if(sessionStorage.getItem("slick_rl") === n) return; sessionStorage.setItem("slick_rl", n); }catch(e){}
+    try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
     fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -217,7 +219,7 @@ html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.b
 .mut{color:var(--mut);font-size:13px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;opacity:0;transition:opacity .2s;z-index:20;pointer-events:none}.toast.show{opacity:1}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.stats div{background:var(--bg);border-radius:10px;padding:12px}.stats b{display:block;font-size:20px;margin-top:2px}
-/* ===== Slick modern theme (POS) ===== */
+/* ===== skwyd hub modern theme (POS) ===== */
 :root{--bg:#f4f5fa;--line:#e8e8f0;--acc:#1e3a8a;--accs:#eff2fc;--acci:#1e3a8a;--good:#12a150;--goods:#e3f7ec;--bad:#e5484d}
 body{-webkit-font-smoothing:antialiased}
 .logo{background:linear-gradient(135deg,#1e3a8a,#1e3a8a);box-shadow:0 6px 18px rgba(30,58,138,.4)}
@@ -408,7 +410,7 @@ input,select,textarea{font-size:16px!important}                /* iOS doesn't zo
 }
 @media (max-width:700px){.main{grid-template-columns:1fr!important}}
 
-/* ===================== Slick POS look v2: light, soft violet neutrals, floating cards, colored categories ===================== */
+/* ===================== skwyd hub POS look v2: light, soft violet neutrals, floating cards, colored categories ===================== */
 :root{--bg:#f2f4f8;--s:#fff;--sunk:#f7f8fa;--ink:#1b1830;--ink2:#5d5973;--mut:#6f6b85;--faint:#a6a2b8;--line:#e6e9f1;--acc:#1e3a8a;--accs:#eef2fc;--acci:#1e3a8a;
   --good:#17905f;--goods:#e3f5ec;--warn:#c9740f;--warns:#fdf0dc;--bad:#d23f3f;--bads:#fde8e8;
   --sh:0 1px 2px rgba(27,24,48,.05),0 4px 14px rgba(27,24,48,.06);--shl:0 24px 60px rgba(27,24,48,.22);
@@ -600,7 +602,7 @@ button,input,select,textarea{font-family:var(--f-ui)}
 .rpaper{width:400px;max-width:100%;margin:0 auto;background:#fff;color:#111;padding:20px 18px 18px;border-radius:6px;box-shadow:0 2px 14px rgba(21,19,31,.1);font-size:14px;line-height:1.4}
 .ovrcus .calh b{text-transform:none;letter-spacing:0;color:var(--ink);font-size:15px}
 
-/* ===== Slick motion: one feel across the back office and the POS ===== */
+/* ===== skwyd hub motion: one feel across the back office and the POS ===== */
 :root{--ease-out:cubic-bezier(.16,1,.3,1)}
 .scrim{display:flex!important;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s var(--ease-out),visibility 0s linear .22s;animation:none!important}
 .scrim.show{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .22s var(--ease-out),visibility 0s}
@@ -891,7 +893,7 @@ new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") NM
 window.addEventListener("hashchange", () => setTimeout(() => nmApply(document.body), 0));
 document.addEventListener("DOMContentLoaded", () => nmApply(document.body));
 
-/* ---------- Slick's own Yes / No message (instead of the browser's) ---------- */
+/* ---------- skwyd hub's own Yes / No message (instead of the browser's) ---------- */
 function askDlg(o){
   return new Promise(res => {
     const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
@@ -928,7 +930,7 @@ function askReason(title, reasons, yes){
     document.addEventListener("keydown", key, true); document.body.appendChild(w);
   });
 }
-window.SLICK_OFFLINE = true;</script>
+window.SKWYD_OFFLINE = true;</script>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script src="wokdb.js?v=47"></script>
@@ -1063,7 +1065,7 @@ function onData(c){
   if(!device) return;
   device = S.devices.find(d => d.id===device.id) || device;
   if(device.deleted){ store.set("wokDevice", null); location.reload(); return; }
-  if(!device.activatedAt){ try{ ["slick_devkey","slick_devtopic","slick_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} store.set("wokDevice", null); try{ window.WOK?.isDevice?.() && WOK.sb.auth.signOut({ scope:"local" }); }catch(_){} setTimeout(() => location.reload(), 300); return; }   // deactivated in the back office
+  if(!device.activatedAt){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} store.set("wokDevice", null); try{ window.WOK?.isDevice?.() && WOK.sb.auth.signOut({ scope:"local" }); }catch(_){} setTimeout(() => location.reload(), 300); return; }   // deactivated in the back office
   syncCheck();
   branch = S.branches.find(b => b.id===device.branchId) || branch;
   if(c==="settings") salesResetCheck();
@@ -1088,7 +1090,7 @@ function paintSync(){ try{ paintNet(); }catch(_){}
   p.className = "sync" + (s.failed||s.needsLogin ? " bad" : !s.online ? " off" : s.pending ? " off busy" : "");
   p.textContent = s.needsLogin ? "Sign in to sync" : !s.online ? (s.pending ? `Offline · ${s.pending} to sync` : "Offline") : s.pending ? `Syncing ${s.pending}…` : s.failed ? `${s.failed} not synced` : "Online";
 }
-window.addEventListener("slick-sync", e => { const was = syncSt; syncSt = e.detail; paintSync();
+window.addEventListener("skwyd-sync", e => { const was = syncSt; syncSt = e.detail; paintSync();
   if(was.online && !syncSt.online) toast("Offline · sales will be saved on this tablet and synced later"); });
 false && $("#syncPill").addEventListener("click", () => {
   const s = syncSt, f = window.WOK.sync.failed();
@@ -1165,7 +1167,7 @@ function lock(){ cashier = null; WELC = null;
   $("#lock").classList.remove("welc"); pinBuf = ""; paintPin(); $("#pinErr").textContent = ""; $("#lock").classList.remove("hide"); paintCashier(); paintLockInfo(); }
 // bottom-left of the sign-in screen: this tablet's code, brand and branch
 function paintLockInfo(){ const el = $("#lkInfo"); if(!el || !device) return; const br = S.branches?.find(b => b.id===device.branchId) || branch, bd = br && (S.brands||[]).find(x => x.id===br.brandId);
-  const acct = (S.settings||[]).find(x => x.id==="company")?.accountNo || (() => { try{ return JSON.parse(localStorage.getItem("slick_acct") || "null"); }catch(e){ return localStorage.getItem("slick_acct"); } })() || "";   // the business account number
+  const acct = (S.settings||[]).find(x => x.id==="company")?.accountNo || (() => { try{ return JSON.parse(localStorage.getItem("skwyd_acct") || "null"); }catch(e){ return localStorage.getItem("skwyd_acct"); } })() || "";   // the business account number
   el.innerHTML = [acct ? String(acct) : "", bd?.name || "", br?.name || ""].filter(Boolean).map(esc).join("<br>"); }
 // Sync Users: fetch the latest users (and everything else) from the server right away
 document.addEventListener("click", e => { if(!e.target.closest("#lkSync")) return; const b = e.target.closest("#lkSync"); b.disabled = true; b.textContent = "Syncing…";
@@ -1226,7 +1228,7 @@ const bizDate = (t = new Date()) => { const ms = +new Date(t), d0 = new Date(ms 
 // call number: one sequence per branch (all registers), starting again at 1 after each end of day; the server fixes any clash
 function nextOrderNo(){
   const since = S.day_closes.filter(c => c.branchId===device.branchId).reduce((m,c) => Math.max(m, +new Date(c.closedAt) || 0), 0);
-  const key = "slickNo_" + device.branchId; let c = {}; try{ c = JSON.parse(store.get(key) || "{}"); }catch(e){}
+  const key = "skwydNo_" + device.branchId; let c = {}; try{ c = JSON.parse(store.get(key) || "{}"); }catch(e){}
   let n = c.since===since ? +c.n||0 : 0;
   // the latest order of the day (not the highest number), so the sequence carries on after it wraps at Call Number Reset
   let last = null; S.orders.forEach(o => { if(o.branchId===device.branchId && o.no && o.status!=="refund" && +new Date(o.createdAt) > since && (!last || +new Date(o.createdAt) > +new Date(last.createdAt))) last = o; });
@@ -1237,7 +1239,7 @@ function nextOrderNo(){
   store.set(key, JSON.stringify({ since, n, at: Date.now() })); return String(n);
 }
 // a number taken for an order that then couldn't be saved goes back, so the sequence has no gap
-function giveBackNo(no){ const key = "slickNo_" + device.branchId; try{ const c = JSON.parse(store.get(key) || "{}"); if(String(c.n)===String(no)){ c.n = +no - 1; store.set(key, JSON.stringify(c)); } }catch(e){} }
+function giveBackNo(no){ const key = "skwydNo_" + device.branchId; try{ const c = JSON.parse(store.get(key) || "{}"); if(String(c.n)===String(no)){ c.n = +no - 1; store.set(key, JSON.stringify(c)); } }catch(e){} }
 /* ---------- company and app settings (Account settings, Manage → Settings) ---------- */
 const company = () => S.settings.find(x=>x.id==="company") || {};
 const APP_DEF = { requireCustPickup:true, requireCustDelivery:true, requireTable:false, stockAction:"ask", reasonRequired:true, discountApproval:false, rcptInvoice:true, rcptCustomer:true, rcptTax:true, rcptSource:false,
@@ -1794,12 +1796,12 @@ async function addProduct(p){
   let price = prodPrice(p);
   if(p.pricingMethod==="open"){ if(!can("pos_open_price")){ deny("open-price items"); return; } const v = await askNumber("Price for " + p.name, price || ""); if(v===null) return; price = v; }
   const kids = kidsOf(p);
-  if(kids.length && window.SlickMods?.variant){ const v = await SlickMods.variant({ name:p.name, setName:(p.variants||[]).find(v=>v.group)?.group, variants: kids.map(k => ({ name:k.name, price:prodPrice(k.p), id:k.p.id })), money:usd }); if(!v) return; return addProduct(kids.find(k => k.p.id===v.id).p); }
+  if(kids.length && window.SkwydMods?.variant){ const v = await SkwydMods.variant({ name:p.name, setName:(p.variants||[]).find(v=>v.group)?.group, variants: kids.map(k => ({ name:k.name, price:prodPrice(k.p), id:k.p.id })), money:usd }); if(!v) return; return addProduct(kids.find(k => k.p.id===v.id).p); }
   let options = [], mods = "", addN = 1, note = "";
-  if((p.modifiers||[]).length && window.SlickMods){ const r = await SlickMods.pick({ name:p.name, basePrice:price, ...modData(p), money:usd, askNote:true }); if(!r) return; options = r.options; mods = r.mods; price = r.unitPrice; addN = Math.max(1, +r.qty||1); note = r.note || ""; }
-  const k = SlickMods ? SlickMods.key(p.id, options) : p.id;
-  const ex = !note && editOrder()?.status!=="active" && cart.find(i => !i.note && !i.saved && (window.SlickMods ? SlickMods.key(i.productId, i.options) : i.productId) === k && i.price === price);
-  if(ex){ ex.qty += addN; reDisc(ex); } else cart.push({ productId:p.id, name:p.name, price, qty:addN, ...(options.length ? { options } : {}), ...(note ? { note } : {}), ...(options.length || note ? { mods: SlickMods.label(mods, note) } : {}) });   // the same item again goes on its line (as in the call center), not on a new one
+  if((p.modifiers||[]).length && window.SkwydMods){ const r = await SkwydMods.pick({ name:p.name, basePrice:price, ...modData(p), money:usd, askNote:true }); if(!r) return; options = r.options; mods = r.mods; price = r.unitPrice; addN = Math.max(1, +r.qty||1); note = r.note || ""; }
+  const k = SkwydMods ? SkwydMods.key(p.id, options) : p.id;
+  const ex = !note && editOrder()?.status!=="active" && cart.find(i => !i.note && !i.saved && (window.SkwydMods ? SkwydMods.key(i.productId, i.options) : i.productId) === k && i.price === price);
+  if(ex){ ex.qty += addN; reDisc(ex); } else cart.push({ productId:p.id, name:p.name, price, qty:addN, ...(options.length ? { options } : {}), ...(note ? { note } : {}), ...(options.length || note ? { mods: SkwydMods.label(mods, note) } : {}) });   // the same item again goes on its line (as in the call center), not on a new one
   renderCart();
 }
 // a menu item: a tap anywhere on the tile adds one
@@ -1815,15 +1817,15 @@ $("#lines").addEventListener("pointerdown", e => { clearTimeout(lpLine.t); lpLin
 $("#lines").addEventListener("pointermove", e => { if(Math.abs(e.clientX - lpLine.x) + Math.abs(e.clientY - lpLine.y) > 12) clearTimeout(lpLine.t); });
 ["pointerup","pointercancel","pointerleave"].forEach(n => $("#lines").addEventListener(n, () => clearTimeout(lpLine.t)));
 async function editLine(ix, only){   // only: "note" (tap: options and note) or "disc" (long press: the discount)
-  const i = cart[ix], p = i && S.products.find(x=>x.id===i.productId); if(!i || !window.SlickMods) return;
+  const i = cart[ix], p = i && S.products.find(x=>x.id===i.productId); if(!i || !window.SkwydMods) return;
   const base = (+i.price||0) - (i.options||[]).reduce((t,x)=>t+(+x.price||0),0);   // the item's own price, before its options
-  const r = await SlickMods.pick({ name:i.name, basePrice:base, ...(p && !i.saved ? modData(p) : { links:[], groups:{}, options:[] }), money:usd, edit:true, only, initial:i.options||[], qty:i.qty,
+  const r = await SkwydMods.pick({ name:i.name, basePrice:base, ...(p && !i.saved ? modData(p) : { links:[], groups:{}, options:[] }), money:usd, edit:true, only, initial:i.options||[], qty:i.qty,
     ...(only==="mods" ? { qtyEdit:true, minQty: Math.max(1, i.saved||0), canRemove: !i.saved } : {}), note:i.note||"", allowDiscount: can("pos_item_discount"), discType:i.discType, discValue:i.discValue }); if(!r) return;
   if(r.remove){ cart.splice(ix, 1); renderCart(); renderMenu(); return; }
   if(+r.disc > (+i.disc||0) + 0.001 && appSet().discNeedsCustomer && !custGiven(cust.name, cust.phone)){ toast("Add the customer first: discounts need customer info"); return; }
   if(+r.disc > (+i.disc||0) + 0.001 && appSet().discountApproval && !(await approve("pos_item_discount", "Approve item discount"))) return;
   if(i.saved){ if(r.disc != null){ i.disc = r.disc; i.discType = r.discType; i.discValue = r.discValue; if(!+i.disc){ delete i.disc; delete i.discType; delete i.discValue; } } renderCart(); return; }   // sent to the kitchen: only its discount changes
-  Object.assign(i, { price:r.unitPrice, qty:r.qty, options:r.options, note:r.note, mods:SlickMods.label(r.mods, r.note) });
+  Object.assign(i, { price:r.unitPrice, qty:r.qty, options:r.options, note:r.note, mods:SkwydMods.label(r.mods, r.note) });
   if(r.disc != null){ i.disc = r.disc; i.discType = r.discType; i.discValue = r.discValue; } else reDisc(i);
   if(!i.options.length) delete i.options; if(!i.note) delete i.note; if(!i.mods) delete i.mods; if(!+i.disc){ delete i.disc; delete i.discType; delete i.discValue; }
   renderCart();
@@ -2300,7 +2302,7 @@ function kitchenText(o){
   if(o.notes) lines.push("NOTE: " + o.notes);
   return lines.join("\n");
 }
-window.SlickKitchenText = kitchenText;
+window.SkwydKitchenText = kitchenText;
 
 /* ---------- approval with a manager's PIN ---------- */
 function approve(perm, title){
@@ -2535,7 +2537,7 @@ async function doVR(kind, mode){
     await db.collection("orders").doc(o.id).update(patch);
     // stock: a void before the sale used the food → waste takes it out; a return → back to stock puts it back
     const mv = kind==="void" ? (stock==="waste" ? "waste" : null) : (stock==="stock" ? "restock" : null);
-    if(mv && window.WOK?.sb){ try{ const r = await window.WOK.sb.rpc("slick_stock_items", { p_order:o.id, p_items:chosen.map(({ ix, ...it }) => it), p_mode:mv }); if(r.error) throw r.error; }
+    if(mv && window.WOK?.sb){ try{ const r = await window.WOK.sb.rpc("skwyd_stock_items", { p_order:o.id, p_items:chosen.map(({ ix, ...it }) => it), p_mode:mv }); if(r.error) throw r.error; }
       catch(err){ console.error("stock", err); toast("Saved, but the stock couldn't be updated. Adjust it under Inventory → Quantity Adjustment."); } }
     toast(`${kind==="void"?"Voided":"Refund ticket created · "+usd(-ticket.total)} · approved by ${ok.name}`);
     if(EDIT && EDIT.id===o.id && kind==="void"){ VOID_CHG = o.id; const keep = window.__keep; window.__keep = null; setTimeout(() => { const n = S.orders.find(x=>x.id===o.id); if(n && isOpenOrd(n)) loadOrder(o.id, keep); else { closeModal(); unloadOrder(); } }, 400); }
@@ -2629,13 +2631,13 @@ function paintNav(){ const k = modalKind==="incoming" || modalKind==="orderview"
 /* ---------- hold an unsent order on this register and pick it up later ---------- */
 // back office cleared all sales: this register drops what it still keeps from before (unsent sales, cached orders/shifts, today's call numbers)
 function salesResetCheck(){
-  const at = (S.settings.find(x => x.id==="app") || {}).salesResetAt; if(!at || store.get("slickSalesReset")===at) return;
-  store.set("slickSalesReset", at);
+  const at = (S.settings.find(x => x.id==="app") || {}).salesResetAt; if(!at || store.get("skwydSalesReset")===at) return;
+  store.set("skwydSalesReset", at);
   try{ window.WOK?.sync?.purgeBefore?.(["orders","shifts","day_closes","order_transactions"], new Date(at).toISOString()); }catch(e){ console.warn(e); }
-  try{ Object.keys(localStorage).filter(k => k.startsWith("slickNo_")).forEach(k => store.set(k, null)); }catch(e){}
+  try{ Object.keys(localStorage).filter(k => k.startsWith("skwydNo_")).forEach(k => store.set(k, null)); }catch(e){}
   if(device) toast("Sales history was cleared");
 }
-const heldKey = () => "slickHeld:" + device.id;
+const heldKey = () => "skwydHeld:" + device.id;
 const heldList = () => { try{ return JSON.parse(store.get(heldKey()) || "[]"); }catch(e){ return []; } };
 const heldSave = l => { store.set(heldKey(), l.length ? JSON.stringify(l) : null); renderCart(); };
 function holdOrder(silent){
@@ -3145,7 +3147,7 @@ const RP_CSS = `.rc{text-align:center;display:flex;flex-direction:column;gap:2px
 .rl{display:flex;align-items:baseline;gap:8px;padding:3px 0;font-variant-numeric:tabular-nums}.rl span{flex:1;min-width:0}.rl i{font-style:normal;min-width:28px;text-align:right}.rl b{min-width:86px;text-align:right;font-weight:600}.rmut span{color:#888}
 .rend{text-align:center;margin-top:12px;padding-top:8px;border-top:1px dashed #999;font-size:11px}`;
 // receipts and kitchen tickets go straight to the printer (no preview on screen)
-// Direct printing on the printers set in Devices → Printers (network printers, raw ESC/POS on port 9100, through the Slick POS app)
+// Direct printing on the printers set in Devices → Printers (network printers, raw ESC/POS on port 9100, through the skwyd hub POS app)
 const RAWP = () => window.Capacitor?.Plugins?.RawPrinter;
 function escpos(text, copies){
   const enc = new TextEncoder(), body = enc.encode(String(text).replace(/\r/g, "") + "\n\n\n\n"), one = [0x1b, 0x40, ...body, 0x1d, 0x56, 0x42, 0x00];   // init, text, feed, cut
@@ -3161,7 +3163,7 @@ async function printJob(kind, make, title){
   const what = kind==="kitchen" ? "kitchen" : "receipt";
   if(!list.length){ toast("No printer available", true); return; }
   const plug = RAWP();
-  if(!plug){ const t = make(list[0]); if(t) printText(t, title); return; }   // in a browser (not the Slick POS app): the system print window
+  if(!plug){ const t = make(list[0]); if(t) printText(t, title); return; }   // in a browser (not the skwyd hub POS app): the system print window
   const jobs = list.map(pr => [pr, make(pr)]).filter(([, t]) => t);
   if(!jobs.length) return;
   const bad = [];

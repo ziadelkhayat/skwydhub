@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
+
 <meta charset="utf-8">
-<meta name="slick-build" content="889-1794675511">
+<meta name="skwyd-build" content="890-1794676024">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
-(function(){ var m = document.querySelector('meta[name="slick-build"]'), b = m && m.content; if(!b || !window.fetch) return;
+(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
     var n = (t.match(/slick-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b) return;
     var ts = function(x){ return +(String(x).split("-")[1]) || 0; }; if(!(ts(n) > ts(b))) return;   /* only ever move forward: right after an update some servers still hand out the older copy, and reloading for that made the page refresh back and forth */
-    try{ if(sessionStorage.getItem("slick_rl") === n) return; sessionStorage.setItem("slick_rl", n); }catch(e){}
+    try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
     fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -229,7 +231,7 @@ tr.click,tr.clk,[data-open],[data-bropen],[data-devopen],[data-dcrow],[data-rsed
 .lpmap{height:260px;border:1px solid var(--line);border-radius:12px;position:relative;z-index:0;isolation:isolate}.lpbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:13px}.lpc{color:var(--mut,#6b6880);font-variant-numeric:tabular-nums}
 
 
-/* ================= Slick modern theme ================= */
+/* ================= skwyd hub modern theme ================= */
 :root{
   --bg:#f4f5fa; --surface:#fff; --ink:#081027; --ink2:#55536a; --muted:#8c8aa0; --line:#e8e8f0;
   --accent:#1e3a8a; --accent-soft:#eff2fc; --accent-ink:#1e3a8a; --accent-2:#1e3a8a;
@@ -945,7 +947,7 @@ tr.click:hover td,.otbl tr.clk:hover td,tr.clk:hover td{background:#f7f8fc}
 .toast,#toast{border-radius:12px;box-shadow:0 12px 32px rgba(23,21,31,.2)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-/* ===== Slick motion: one feel across the back office and the POS ===== */
+/* ===== skwyd hub motion: one feel across the back office and the POS ===== */
 :root{--ease-out:cubic-bezier(.16,1,.3,1)}
 .scrim{display:flex!important;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s var(--ease-out),visibility 0s linear .22s;animation:none!important}
 .scrim.show{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .22s var(--ease-out),visibility 0s}
@@ -1505,7 +1507,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
-<div id="splash" style="position:fixed;inset:0;z-index:2147483600;background:#f3f4f8;display:grid;place-items:center;transition:opacity .25s"><div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#1e3a8a,#1e3a8a);color:#fff;display:grid;place-items:center;font:700 34px/1 Inter,system-ui,sans-serif;animation:splashPulse 1.2s ease-in-out infinite">S</div><div id="splashMsg" style="font:500 14px Inter,system-ui,sans-serif;color:#8d8c98;min-height:18px"></div></div></div>
+<div id="splash" style="position:fixed;inset:0;z-index:2147483600;background:#f3f4f8;display:grid;place-items:center;transition:opacity .25s"><div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:66px;height:77px;animation:splashPulse 1.2s ease-in-out infinite"><svg style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><div id="splashMsg" style="font:500 14px Inter,system-ui,sans-serif;color:#8d8c98;min-height:18px"></div></div></div>
 <style>@keyframes splashPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.92);opacity:.75}}</style>
 <script>
 // full-page loading screen on every refresh: the logo in the middle until the first screen (or the sign-in) is ready
@@ -1528,7 +1530,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
       <select class="sel" id="branchSel" aria-label="Branch filter"></select>
       <span id="syncPill" style="display:none"></span>
       <div class="sp"></div>
-      <div class="acct"><button type="button" class="acctbtn" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="avatar" id="avatar" aria-hidden="true"></span><span id="who"></span><script>try{ const c0 = JSON.parse(localStorage.getItem("slick_who") || "null"); if(c0){ document.getElementById("avatar").textContent = c0.av; document.getElementById("who").textContent = c0.who; } }catch(e){}</script><span class="chev" aria-hidden="true">▾</span></button>
+      <div class="acct"><button type="button" class="acctbtn" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="avatar" id="avatar" aria-hidden="true"></span><span id="who"></span><script>try{ const c0 = JSON.parse(localStorage.getItem("skwyd_who") || "null"); if(c0){ document.getElementById("avatar").textContent = c0.av; document.getElementById("who").textContent = c0.who; } }catch(e){}</script><span class="chev" aria-hidden="true">▾</span></button>
         <div class="acctmenu" id="acctMenu" role="menu" hidden>
           <div class="acchead"><b id="amName">—</b><span class="note" id="amEmail"></span><span class="tag on" id="amRole" style="margin-top:6px;align-self:flex-start">Owner</span></div>
           <a href="#account" role="menuitem">Account settings</a>
@@ -1628,7 +1630,7 @@ new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") NM
 window.addEventListener("hashchange", () => setTimeout(() => nmApply(document.body), 0));
 document.addEventListener("DOMContentLoaded", () => nmApply(document.body));
 
-/* ---------- Slick's own Yes / No message (instead of the browser's) ---------- */
+/* ---------- skwyd hub's own Yes / No message (instead of the browser's) ---------- */
 function askDlg(o){
   return new Promise(res => {
     const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
@@ -1856,7 +1858,7 @@ $("#nav").addEventListener("click", e => {
 /* ---------- branch store ---------- */
 let branches = [];        // {id,name,code,address,city,phone,open,close,zones,active,callCenter,production,createdAt}
 let db = null, col = null, storeMode = "loading";
-const state = { range:"day", dashTab:"general", branch:"all", brand:(()=>{ try{ return localStorage.getItem("slickBrand")||"all"; }catch(e){ return "all"; } })(), compare:false, date:"", userName:"" };
+const state = { range:"day", dashTab:"general", branch:"all", brand:(()=>{ try{ return localStorage.getItem("skwydBrand")||"all"; }catch(e){ return "all"; } })(), compare:false, date:"", userName:"" };
 
 function activeBranches(){ return branches.filter(b => b.active !== false && (state.brand==="all" || b.brandId===state.brand)); }
 function brandList(){ return (typeof S!=="undefined" ? S.brands : []).filter(b => !b.deleted).sort((a,b)=>a.name.localeCompare(b.name)); }
@@ -1876,7 +1878,7 @@ async function initStore(){
     if(!window.claude || !window.claude.use) { clearTimeout(timer); return fallback(); }
     db = await window.claude.use("db");
     if(!db){ clearTimeout(timer); return fallback(); }
-    try{ const user = await window.claude.use("user"); if(user){ const n = await user.name?.(); if(n){ if(!localStorage.getItem("slick_who")){ $("#who").textContent = n; $("#avatar").textContent = String(n).trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); } state.userName = String(n).split(" ")[0]; } state.role = await user.role?.(); state.userId = await user.id?.(); state.email = await user.email?.() || ""; state.fullName = n || ""; paintAcct(); setTimeout(() => ensureAdminPin(), 1500); } }catch(e){}
+    try{ const user = await window.claude.use("user"); if(user){ const n = await user.name?.(); if(n){ if(!localStorage.getItem("skwyd_who")){ $("#who").textContent = n; $("#avatar").textContent = String(n).trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); } state.userName = String(n).split(" ")[0]; } state.role = await user.role?.(); state.userId = await user.id?.(); state.email = await user.email?.() || ""; state.fullName = n || ""; paintAcct(); setTimeout(() => ensureAdminPin(), 1500); } }catch(e){}
     col = db.collection("branches");
     subscribeAll();
     col.onSnapshot(snap => {
@@ -1994,7 +1996,7 @@ async function wipeBranch(kind){
   BD.busy = true; paintBranchData(b.id);
   try{
     const sb = WOK.sb, chk = r => { if(r.error && !/does not exist|schema cache/i.test(r.error.message||"")) throw r.error; };
-    if(kind==="orders"){ chk(await sb.rpc("slick_wipe_branch_orders", { p_branch: String(b.id) })); }   // references keep counting; this branch's invoices and returns start again
+    if(kind==="orders"){ chk(await sb.rpc("skwyd_wipe_branch_orders", { p_branch: String(b.id) })); }   // references keep counting; this branch's invoices and returns start again
     else { chk(await sb.from("inventory_docs").delete().or(`location_id.eq.${b.id},dest_id.eq.${b.id}`)); chk(await sb.from("order_transactions").delete().eq("branch_id", b.id)); chk(await sb.from("stock_counts").delete().eq("branch_id", b.id)); }
     const left = await countBranchData(b.id), n = kind==="orders" ? left.orders : left.inv;
     toast(n ? `${n} record${n===1?"":"s"} couldn't be deleted. Only the owner or an admin can delete them.` : kind==="orders" ? `Orders of ${b.name} deleted` : `Inventory transactions of ${b.name} deleted`);
@@ -2025,7 +2027,7 @@ const bizDate = (t = new Date(), bid) => { const ms = +new Date(t), d0 = new Dat
   return d; };
 const dayBounds = (from, to, bid) => { const c = dayCut(bid), t0 = new Date(from+"T00:00:00"), t1 = new Date((to||from)+"T00:00:00"); t1.setDate(t1.getDate()+1); t0.setMinutes(c); t1.setMinutes(c); return [t0, t1]; };
 const todayStr = () => bizDate(new Date(), typeof state!=="undefined" && state.branch && state.branch!=="all" ? state.branch : undefined);   // an early day end at the branch counts, like on the POS
-window.SlickDay = { dayCut, dayStartH, bizDate, dayBounds };
+window.SkwydDay = { dayCut, dayStartH, bizDate, dayBounds };
 const setTopH = () => { document.documentElement.style.setProperty("--toph", "0px"); };   // the top bar scrolls away with the page
 addEventListener("resize", setTopH); addEventListener("load", setTopH); setTimeout(setTopH, 800);
 const rangeDays = () => Math.max(1, state.days || 1);
@@ -2041,7 +2043,7 @@ function dashParams(offset){
 async function loadDash(force){
   if(!window.WOK || storeMode!=="db") return;
   const kind = dashKind(), cur = kind==="inventory" ? { p_branches: dashParams(0).p_branches } : dashParams(0);
-  const fn = kind==="kitchen" ? "slick_kitchen" : kind==="inventory" ? "slick_inventory" : "slick_dashboard";
+  const fn = kind==="kitchen" ? "skwyd_kitchen" : kind==="inventory" ? "skwyd_inventory" : "skwyd_dashboard";
   const key = JSON.stringify([kind, cur, state.compare, state.cmpDate||"", state.cmpDays||0, state.days||1]);
   if(!force && key===DASH.key && (DASH.cur || DASH.loading || DASH.err)) return;
   if(key!==DASH.key){ DASH.cur = null; DASH.prev = null; }
@@ -2511,7 +2513,7 @@ document.addEventListener("click", e => {
   if(e.target.closest("#rptCsv")){ const B = rptBuild(), strip = v => String(v).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
     const q = v => { v = strip(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
     const lines = [B.head.map(h=>h[0]), ...B.rows, ...(B.foot ? [B.foot] : [])].map(l => l.map(q).join(","));
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" })); a.download = `slick-${B.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${RPT.from}-to-${RPT.to}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" })); a.download = `skwyd-${B.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${RPT.from}-to-${RPT.to}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); return; }
   if(e.target.closest("#rptPrint")){ const B = rptBuild(), w = window.open("", "_blank"); if(!w) return toast("Allow pop-ups to print");
     w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); return; }
 });
@@ -2904,7 +2906,7 @@ $("#view").addEventListener("change", async e => {
   if(e.target.id==="cmpDate"){ state.cmpDate = e.target.value && e.target.value!==cmpDefault() ? e.target.value : ""; render(); }
 });
 $("#branchSel").addEventListener("change", e => { state.branch = e.target.value; render(); });
-$("#brandSel").addEventListener("change", e => { state.brand = e.target.value; state.branch = "all"; try{ localStorage.setItem("slickBrand", state.brand); }catch(err){} render(); });
+$("#brandSel").addEventListener("change", e => { state.brand = e.target.value; state.branch = "all"; try{ localStorage.setItem("skwydBrand", state.brand); }catch(err){} render(); });
 $("#view").addEventListener("click", e => {
   if(e.target.closest("#dashRefresh")){ loadDash(true); render(); return; }
   const rp = e.target.closest("[data-report]"); if(rp){ e.preventDefault(); dashToReport(rp.dataset.report); return; }
@@ -3149,7 +3151,7 @@ function timeOpts(cur, o = {}){ const L = []; for(let q = 0; q < (o.maxH || 24) 
   return (o.empty != null ? `<option value="" ${!cur?"selected":""}>${esc(o.empty)}</option>` : "") + L.map(v => `<option value="${v}" ${v===cur?"selected":""}>${tLbl(v)}</option>`).join(""); }
 function timeSel(el, cur, o){ if(el) el.innerHTML = timeOpts(cur, o); }
 /* ---------- users & roles ---------- */
-// Foodics-style authorities: [key, title, description]; keys already used across Slick are kept
+// Foodics-style authorities: [key, title, description]; keys already used across skwyd hub are kept
 const PERMS = [
   ["@Order Authorities"],["bo_orders","Read Orders","Allows the user to view orders in the console."],["bo_orders_manage","Manage Orders","Allows the user to accept, decline, void and pay orders in the console."],
   ["@Customer Authorities"],["bo_customers","Read Customers","Allows the user to view customers data in the console."],["bo_customers_insights","Read Customers Insights","Allows the user to view customers loyalty, house account credit, etc..."],["bo_customers_edit","Manage Customers","Allows the user to edit or delete customers."],["bo_import","Import / Export","Allows the user to import and export lists (products, customers…)."],
@@ -3170,7 +3172,7 @@ const lsGet = k => { try{ return localStorage.getItem(k); }catch(e){ return null
 const isAdminRow = r => !!r && (r.role==="owner" || r.role==="admin" || (!r.role && !!r.userId && r.userId===state.userId && (state.role==="owner" || state.role==="admin") && !r.roleId && !(r.roleIds||[]).length));
 const myUserRow = () => S.users.find(u => live(u) && state.userId && u.userId===state.userId);
 // "Display localized names": lists show each record's localized name first (kept on the signed-in user's row, or on this browser)
-const LOCN = () => { const r = myUserRow(); if(r) return !!r.displayLocalized; try{ return localStorage.getItem("slickLocN")==="1"; }catch(_){ return false; } };
+const LOCN = () => { const r = myUserRow(); if(r) return !!r.displayLocalized; try{ return localStorage.getItem("skwydLocN")==="1"; }catch(_){ return false; } };
 const locRow = r => LOCN() && r && r.nameAr ? { ...r, name: r.nameAr, nameAr: r.name } : r;
 const myAdminRow = () => S.users.find(u => live(u) && isAdminRow(u) && state.userId && u.userId===state.userId);
 // the owner/admin gets a cashier PIN from the start: 12345 until they change it in My profile
@@ -3180,7 +3182,7 @@ async function ensureAdminPin(){
   const row = myAdminRow(); if(row && row.role && row.pinHash) return;
   const id = row?.id || newUserId(), pin = "12345";
   for(const u of S.users.filter(u => live(u) && u.id!==id && u.pinHash)){ if(await pinHash(u.id, pin)===u.pinHash || await pinHash(u.id, pin.slice(0,4))===u.pinHash) return; }
-  try{ await put("users", id, { name: state.fullName || row?.name || "Admin", email: (state.email||"").toLowerCase() || null, role: state.role, roleIds: [], branchIds: [], userId: state.userId, active: true, pinHash: await pinHash(id, pin) }); lsSet("slick_mypin_" + state.userId, pin); }
+  try{ await put("users", id, { name: state.fullName || row?.name || "Admin", email: (state.email||"").toLowerCase() || null, role: state.role, roleIds: [], branchIds: [], userId: state.userId, active: true, pinHash: await pinHash(id, pin) }); lsSet("skwyd_mypin_" + state.userId, pin); }
   catch(e){ console.error(e); adminPinDone = false; }
 }
 const newUserId = () => "usr_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
@@ -3685,7 +3687,7 @@ const CC_CODES = [["+961","Lebanon"],["+971","United Arab Emirates"],["+966","Sa
 async function createStaffLogin(email, password){
   try{
     const cfg = WOK.cfg || {}, url = cfg.url, key = cfg.key; if(!url || !key) return { error:"Couldn't reach the login service. Reload and try again." };
-    const tmp = window.supabase.createClient(url, key, { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false, storageKey:"slick-staff-signup" } });
+    const tmp = window.supabase.createClient(url, key, { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false, storageKey:"skwyd-staff-signup" } });
     const { data, error } = await tmp.auth.signUp({ email, password, options:{ emailRedirectTo: location.href.split("#")[0] } });
     if(error) return { error: /registered|exists/i.test(error.message) ? "This email already has a login. They sign in with it (or use Forgot password)." : "Couldn't create the login: " + error.message };
     if(data?.user && !(data.user.identities||[]).length) return { error:"This email already has a login. They sign in with it (or use Forgot password)." };
@@ -4175,11 +4177,11 @@ function ccSendSync(){ const hasCust = !!(($("#oPhone")?.value || "").trim() && 
 document.addEventListener("change", e => { if(e.target.closest && e.target.closest("#ccBox")) setTimeout(ccSendSync, 0); });
 document.addEventListener("click", e => { if(e.target.closest && e.target.closest("#ccBox #oType")) setTimeout(ccSendSync, 0); });
 // the branch approved or rejected an order edit: a notification for the call center (everyone on the Call Center page, and the agent who sent it wherever they are)
-function ccEditWatch(){ const me = state.fullName || state.userName || "Operator", onCC = document.body.dataset.route==="call-center"; let seen = []; try{ seen = JSON.parse(localStorage.getItem("slick_er_seen") || "[]"); }catch(_){}
+function ccEditWatch(){ const me = state.fullName || state.userName || "Operator", onCC = document.body.dataset.route==="call-center"; let seen = []; try{ seen = JSON.parse(localStorage.getItem("skwyd_er_seen") || "[]"); }catch(_){}
   (S.orders||[]).forEach(o => { const er = o.editRequest; if(!er || !["approved","rejected"].includes(er.status) || seen.includes(er.id)) return;
     const mine = er.by===me; if(!mine && !onCC) return;
     if(er.decidedAt && Date.now() - new Date(er.decidedAt) > (mine ? 12*3600000 : 30*60000)) return;   // older answers aren't news
-    seen.push(er.id); try{ localStorage.setItem("slick_er_seen", JSON.stringify(seen.slice(-300))); }catch(_){}
+    seen.push(er.id); try{ localStorage.setItem("skwyd_er_seen", JSON.stringify(seen.slice(-300))); }catch(_){}
     ccNote(o, er); }); }
 function ccNote(o, er){
   let box = $("#ccNotes"); if(!box){ box = document.createElement("div"); box.id = "ccNotes"; document.body.appendChild(box); }
@@ -4707,7 +4709,7 @@ async function saveOrder(status){
   let data;
   if(ccLocked && o){
     // placed order: source, type, items (and the address if it just became delivery); removed items are kept as voided
-    const key = i => (window.SlickMods ? SlickMods.key(i.productId, i.options) : i.productId) + "|" + (i.note||"");
+    const key = i => (window.SkwydMods ? SkwydMods.key(i.productId, i.options) : i.productId) + "|" + (i.note||"");
     const left = cart.map(i => ({ k:key(i), q:+i.qty })), voided = [];
     ccOrig.forEach(i => { const m = left.find(x => x.k===key(i) && x.q > 0), keep = m ? Math.min(m.q, +i.qty) : 0; if(m) m.q -= keep; if(keep < +i.qty) voided.push({ ...i, qty: +i.qty - keep, voidedAt: new Date().toISOString(), voidedBy: state.userName || "Call center" }); });
     const act = o.status==="active";
@@ -4723,7 +4725,7 @@ async function saveOrder(status){
   }
   if(!ccEdit){ data.agent = state.fullName || state.userName || "Operator"; data.channel = "callcenter"; }
   if(ccLocked && o && o.status==="active"){   // accepted by the branch: the change waits there to be approved; the order itself stays as it is until then
-    const key = i => (window.SlickMods ? SlickMods.key(i.productId, i.options) : i.productId) + "|" + (i.note||""), pool = ccOrig.map(i => ({ k:key(i), q:+i.qty })), added = [];
+    const key = i => (window.SkwydMods ? SkwydMods.key(i.productId, i.options) : i.productId) + "|" + (i.note||""), pool = ccOrig.map(i => ({ k:key(i), q:+i.qty })), added = [];
     cart.forEach(i => { let need = +i.qty; pool.forEach(x => { if(x.k===key(i) && x.q > 0 && need > 0){ const t = Math.min(x.q, need); x.q -= t; need -= t; } }); if(need > 0){ const { saved, ...rest } = i; added.push({ ...rest, qty:need }); } });
     const voided = (data.voidedItems || []).slice((o.voidedItems||[]).length).map(v => ({ name:v.name, qty:v.qty, ...(v.mods ? { mods:v.mods } : {}), ...(v.options ? { options:v.options } : {}), productId:v.productId }));
     const er = { id: uid("er"), status:"pending", at:new Date().toISOString(), by: state.fullName || state.userName || "Operator", data, summary:{ added, voided, ...(ccVoidReason ? { reason: ccVoidReason } : {}) } };
@@ -4786,7 +4788,7 @@ function viewDevices(){
   const dsel = (state.devSel ||= new Set()); [...dsel].forEach(id => { if(!list.some(d => d.id===id)) dsel.delete(id); });
   let h = `<div class="phead"><h1>Devices</h1><div class="sp"></div><button class="btn pri" id="devNew">Create Device</button></div>
   <div class="card setup"><div><h3>Set up a POS tablet</h3><ol class="steps"><li>Download the <b>skwyd hub POS</b> APK on the Android tablet and install it (allow "install from this source" when asked).</li><li>Create a device here and choose its branch and type.</li><li>Open the app, sign in with a staff account, then enter the device's 6-digit activation code.</li><li>The tablet downloads its branch, menu, prices and printers, then it's ready to take orders.</li></ol></div>
-  <div class="apk"><a class="btn pri" href="the-wok-pos.apk" download>${svgIco("download")}Download POS APK</a><a class="lnk" href="pos.html" target="_blank" rel="noopener">or open POS in a browser</a></div></div><div style="height:16px"></div>`;
+  <div class="apk"><a class="btn pri" href="skwydhub-pos.apk" download>${svgIco("download")}Download POS APK</a><a class="lnk" href="pos.html" target="_blank" rel="noopener">or open POS in a browser</a></div></div><div style="height:16px"></div>`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: devices won't be saved.</div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${[["all","All"], ...DEV_TYPES].map(([k,t]) => `<a href="#devices" data-devtab="${k}" class="${dt===k?"on":""}">${t}</a>`).join("")}</div><div class="sp"></div>${crudFltBtn("devices")}</div>${list.length ? `<table><thead><tr><th class="noedit bkc"><input type="checkbox" data-devall ${list.every(d => dsel.has(d.id))?"checked":""} aria-label="Select all"></th>${dsel.size
       ? `<th colspan="4" class="bkbar"><b>${dsel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" data-devacts>Actions ▾</button><span class="ddmenu" id="devActM" hidden><button type="button" data-devbulk="add">Add Tags</button><button type="button" data-devbulk="del">Remove Tags</button><button type="button" data-devbulk="sync">Force Sync Data</button></span></span></th>`
@@ -5038,12 +5040,12 @@ function olFit(){ const fr = document.querySelector(".olframe"), ifr = fr?.query
   fr.style.height = (d[1] * sc + bw * 2) + "px"; ifr.style.cssText = `width:${d[0]}px;height:${d[1]}px;transform:scale(${sc});transform-origin:0 0`; }
 addEventListener("resize", () => setTimeout(olFit, 50));
 new MutationObserver(() => { const fr = document.querySelector(".olframe"); if(fr && !fr.dataset.fit){ fr.dataset.fit = 1; setTimeout(olFit, 0); } }).observe(document.body, { childList:true, subtree:true });
-function olPreview(){ clearTimeout(olT); olT = setTimeout(() => { if(!$("#olOn")) return; const cfg = olCollect(); state.olDraft = { brand:olBrand(), cfg }; $("#olFrame")?.contentWindow?.postMessage({ type:"slick-web-cfg", cfg }, location.origin); }, 120); }
+function olPreview(){ clearTimeout(olT); olT = setTimeout(() => { if(!$("#olOn")) return; const cfg = olCollect(); state.olDraft = { brand:olBrand(), cfg }; $("#olFrame")?.contentWindow?.postMessage({ type:"skwyd-web-cfg", cfg }, location.origin); }, 120); }
 async function saveOnline(){
   const data = olCollect();
   try{ await put("settings", "online_" + olBrand(), data); state.olDraft = null; toast("Web ordering saved"); } catch(err){ console.error(err); toast("Couldn't save settings"); }
 }
-addEventListener("message", e => { if(e.origin===location.origin && e.data?.type==="slick-web-ready" && $("#olOn")) olPreview(); });
+addEventListener("message", e => { if(e.origin===location.origin && e.data?.type==="skwyd-web-ready" && $("#olOn")) olPreview(); });
 document.addEventListener("input", e => { if(e.target.closest?.(".olmain")){ if(e.target.id==="olAcc") $("#olAccHex").value = e.target.value; if(e.target.id==="olAccHex" && /^#[\da-f]{6}$/i.test(e.target.value)) $("#olAcc").value = e.target.value; olPreview(); } });
 document.addEventListener("change", e => { if(!e.target.closest?.(".olmain")) return; const p = e.target.dataset?.olpause; if(p){ const s = e.target.closest(".olbr"); s.classList.toggle("paused", !e.target.checked); s.querySelector("[data-olpst]").textContent = e.target.checked ? "Taking orders" : "Paused"; } olPreview(); });
 document.addEventListener("click", e => {
@@ -6016,7 +6018,7 @@ async function exportOrders(){
   const rows = data.map(r => [r.ref, r.status==="refund" ? "" : r.no, r.status==="refund" ? ordRef(r) : r.invoice_no ? invNo(r.invoice_no) : "", brandName(r.brand_id), new Date(r.created_at).toLocaleString("en-GB"), branches.find(x=>x.id===r.branch_id)?.name||"", CH_LBL[r.channel]||r.channel, r.source && r.source.toUpperCase()!=="POS" ? r.source : "", ordTypeLbl(r.type), r.table_no, ORD_ST[r.status]||r.status, r.customer_name, r.phone, r.address,
     (Array.isArray(r.items)?r.items:[]).map(i=>`${+i.qty||1}x ${i.name}${i.mods?" ("+i.mods+")":""}`).join("; "), r.subtotal, r.discount, r.delivery_fee, r.total, r.payment?.method, r.agent]);
   const blob = new Blob(["\ufeff" + [head, ...rows].map(l=>l.map(q).join(",")).join("\n")], { type:"text/csv;charset=utf-8" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = ORD.from ? `slick-orders-${ORD.from}-to-${ORD.to}.csv` : "slick-orders-all-time.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = ORD.from ? `skwyd-orders-${ORD.from}-to-${ORD.to}.csv` : "skwyd-orders-all-time.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
   if(data.length===5000) toast("Exported the latest 5,000 orders. Narrow the dates for more.");
 }
 $("#view").addEventListener("change", e => {
@@ -6203,7 +6205,7 @@ async function loadCustomers(force){
   const adv = cusAdv(), key = JSON.stringify([CUS.filter, CUS.q, CUS.sort, adv ? CUS.flt : CUS.page]);
   if(!force && key===CUS.key && (CUS.loading || CUS.done===key || CUS.summary || CUS.err)) return;
   CUS.key = key; CUS.loading = true; CUS.err = "";
-  const { data, error } = await WOK.sb.rpc("slick_customers", adv ? { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: 10000, p_offset: 0 }
+  const { data, error } = await WOK.sb.rpc("skwyd_customers", adv ? { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: 10000, p_offset: 0 }
                                                                   : { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: CUS.per, p_offset: (CUS.page-1)*CUS.per });
   if(CUS.key!==key) return;
   CUS.loading = false; CUS.done = key;
@@ -6391,12 +6393,12 @@ function openCusAddr(ix){
 }
 async function exportCustomers(){
   toast("Preparing export…");
-  const { data, error } = await WOK.sb.rpc("slick_customers", { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: 10000, p_offset: 0 });
+  const { data, error } = await WOK.sb.rpc("skwyd_customers", { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: 10000, p_offset: 0 });
   if(error) return toast("Export failed: " + error.message);
   const q = v => { v = v==null ? "" : String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
   const rows = data.rows.filter(c => !cusAdv() || cusMatch(c)).map(c => [c.name, c.phone, c.email, c.n, c.last_at?new Date(c.last_at).toLocaleDateString("en-GB"):"", (+c.spent).toFixed(2), (c.tags||[]).join("; "), c.blacklisted?"Yes":"No"]);
   const blob = new Blob([[["Name","Phone","Email","Total Orders","Last Order","Total Spent","Tags","Blacklisted"], ...rows].map(l=>l.map(q).join(",")).join("\n")], { type:"text/csv" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `slick-customers-${todayStr()}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `skwyd-customers-${todayStr()}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
 let cusQT; $("#view").addEventListener("input", e => { if(e.target.id==="cusQ"){ clearTimeout(cusQT); const v = e.target.value; cusQT = setTimeout(() => { CUS.q = v; CUS.page = 1; render(); const el = $("#cusQ"); if(el){ el.focus(); el.setSelectionRange(v.length, v.length); } }, 350); } });
 $("#view").addEventListener("change", e => { if(e.target.id==="cusSort"){ CUS.sort = e.target.value; CUS.page = 1; render(); } });
@@ -6544,9 +6546,9 @@ document.addEventListener("click", e => { const co = e.target.closest?.("tr[data
 const ROLE_LBL = { owner:"Owner · full access", admin:"Admin", agent:"Staff", cashier:"Cashier" };
 function paintAcct(){
   const n = state.fullName || state.userName || "Account", co = (S.settings.find(x=>x.id==="company")||{}).name;
-  let c0 = null; try{ c0 = JSON.parse(localStorage.getItem("slick_who") || "null"); }catch(e){}
+  let c0 = null; try{ c0 = JSON.parse(localStorage.getItem("skwyd_who") || "null"); }catch(e){}
   if(!co && c0 && !S.settings.some(x => x.id==="company")){ $("#who").textContent = c0.who; $("#avatar").textContent = c0.av; }   // still loading: keep the business name from last time
-  else { $("#who").textContent = co || n; if(co){ const av = co.trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); $("#avatar").textContent = av; try{ localStorage.setItem("slick_who", JSON.stringify({ who:co, av })); }catch(e){} } } $("#amName").textContent = n; $("#amEmail").textContent = state.email || "";
+  else { $("#who").textContent = co || n; if(co){ const av = co.trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); $("#avatar").textContent = av; try{ localStorage.setItem("skwyd_who", JSON.stringify({ who:co, av })); }catch(e){} } } $("#amName").textContent = n; $("#amEmail").textContent = state.email || "";
   $("#amRole").textContent = ROLE_LBL[state.role] || (state.role ? cap(state.role) : "Preview");
 }
 $("#acctBtn").addEventListener("click", e => { e.stopPropagation(); const m = $("#acctMenu"), open = m.hidden; m.hidden = !open; $("#acctBtn").setAttribute("aria-expanded", open); });
@@ -6558,14 +6560,14 @@ function viewAccount(){
   const head = `<div class="phead"><h1>${esc(n || "Account")}</h1><span class="acbadge">${owner ? "Account Owner" : esc(ROLE_LBL[state.role] || state.role || "User")}</span><div class="sp"></div><button type="button" class="btn" id="acPwOpen">${svgIco("shield")} Change Password</button></div>`;
   if(tab==="business") return viewCompany().replace(/<div class="phead"><h1>Business<\/h1><\/div>/, head).replace('<!--tabs-->', tabs);
   const aph = ccSplit(me?.phone || "");
-  let lang = me?.language || ""; if(!lang){ try{ lang = localStorage.getItem("slickLang") || "en"; }catch(_){ lang = "en"; } }
+  let lang = me?.language || ""; if(!lang){ try{ lang = localStorage.getItem("skwydLang") || "en"; }catch(_){ lang = "en"; } }
   return `${head}${tabs}
     <h3 class="bizh">Profile</h3>
     <div class="card bizcard"><div class="acgrid">
       <div class="f"><label for="acName">Name *</label><input id="acName" class="sel" value="${esc(n)}"></div>
       <div class="f"><label for="acPhone">Phone Number</label><div class="phrow"><select id="acPhoneCc" class="sel" aria-label="Country code">${CC_CODES.map(([d,nm])=>`<option value="${d}" ${d===aph.cc?"selected":""}>(${d}) ${esc(nm)}</option>`).join("")}</select><input id="acPhone" class="sel" type="tel" value="${esc(aph.num)}" placeholder="71123456"></div></div>
       <div class="f"><label>Email</label><input class="sel" value="${esc(state.email||"")}" disabled></div>
-      ${adm ? `<div class="f"><label for="acPin">Login Pin</label><div style="display:flex;gap:8px"><input id="acPin" class="sel" inputmode="numeric" maxlength="5" autocomplete="off" style="flex:1;letter-spacing:.2em" value="${esc(myAdminRow()?.pinHash ? (lsGet("slick_mypin_" + state.userId) || "•••••") : "")}" placeholder="5 digits"><button type="button" class="btn" data-pingen="acPin">Generate</button></div><div class="err" id="acPinErr"></div></div>` : "<div></div>"}
+      ${adm ? `<div class="f"><label for="acPin">Login Pin</label><div style="display:flex;gap:8px"><input id="acPin" class="sel" inputmode="numeric" maxlength="5" autocomplete="off" style="flex:1;letter-spacing:.2em" value="${esc(myAdminRow()?.pinHash ? (lsGet("skwyd_mypin_" + state.userId) || "•••••") : "")}" placeholder="5 digits"><button type="button" class="btn" data-pingen="acPin">Generate</button></div><div class="err" id="acPinErr"></div></div>` : "<div></div>"}
       <div class="f"><label for="acLang">Language *</label><select id="acLang" class="sel"><option value="en" ${lang!=="ar"?"selected":""}>English</option><option value="ar" ${lang==="ar"?"selected":""}>Arabic</option></select></div><div></div>
     </div>
     <label class="chk" style="margin:18px 0 0"><input type="checkbox" id="acLocN" ${LOCN()?"checked":""}> Display Localized Names</label>
@@ -6587,15 +6589,15 @@ async function savePin(pin){
   const row = myAdminRow(), id = row?.id || newUserId();
   for(const u of S.users.filter(u => live(u) && u.id!==id && u.pinHash)){ if(await pinHash(u.id, pin)===u.pinHash || await pinHash(u.id, pin.slice(0,4))===u.pinHash) return err("This PIN clashes with another user's PIN. Pick a different one (Generate)."); }
   try{ await put("users", id, { name: state.fullName || "Admin", email: (state.email||"").toLowerCase() || null, role: state.role, roleIds: [], branchIds: [], userId: state.userId, active: true, pinHash: await pinHash(id, pin) });
-    lsSet("slick_mypin_" + state.userId, pin); err(""); return true; }
+    lsSet("skwyd_mypin_" + state.userId, pin); err(""); return true; }
   catch(e2){ console.error(e2); return err("Couldn't save the PIN" + (e2?.message ? ": " + e2.message : ".")); }
 }
 async function saveAccount(){
   const name = ($("#acName")?.value || "").trim(); if(!name){ $("#acErr").textContent = "Enter your name."; return; }
-  const lg = $("#acLang")?.value || "en"; try{ localStorage.setItem("slickLang", lg); }catch(_){} { const r = myUserRow(); if(r && r.language!==lg){ try{ await put("users", r.id, { language: lg }); }catch(e){ console.error(e); } } }
+  const lg = $("#acLang")?.value || "en"; try{ localStorage.setItem("skwydLang", lg); }catch(_){} { const r = myUserRow(); if(r && r.language!==lg){ try{ await put("users", r.id, { language: lg }); }catch(e){ console.error(e); } } }
   { const r = myUserRow(), ph = ($("#acPhone")?.value || "").trim() ? fullPhone($("#acPhone").value.trim(), $("#acPhoneCc").value) : ""; if(r && (r.phone||"")!==ph){ try{ await put("users", r.id, { phone: ph || null }); }catch(e){ console.error(e); } } }
-  const pv = ($("#acPin")?.value || "").trim(); if($("#acPin") && pv && pv!=="•••••" && pv!==lsGet("slick_mypin_" + state.userId)){ if(!(await savePin(pv))) return; }
-  const ln = !!$("#acLocN")?.checked; if(ln!==LOCN()){ try{ localStorage.setItem("slickLocN", ln ? "1" : "0"); }catch(_){} const r = myUserRow(); if(r){ try{ await put("users", r.id, { displayLocalized: ln }); }catch(e){ console.error(e); } } }
+  const pv = ($("#acPin")?.value || "").trim(); if($("#acPin") && pv && pv!=="•••••" && pv!==lsGet("skwyd_mypin_" + state.userId)){ if(!(await savePin(pv))) return; }
+  const ln = !!$("#acLocN")?.checked; if(ln!==LOCN()){ try{ localStorage.setItem("skwydLocN", ln ? "1" : "0"); }catch(_){} const r = myUserRow(); if(r){ try{ await put("users", r.id, { displayLocalized: ln }); }catch(e){ console.error(e); } } }
   try{ const { error } = await WOK.sb.from("staff").update({ name }).eq("user_id", state.userId); if(error) throw error;
     await WOK.sb.from("staff_users").update({ name }).eq("user_id", state.userId);
     state.fullName = name; state.userName = name.split(" ")[0]; $("#avatar").textContent = name.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); paintAcct(); toast("Account saved"); }
@@ -7354,7 +7356,7 @@ function gcCheck(){
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#gcCode")?.focus(), 50);
   const go = async () => { const code = $("#gcCode").value.trim(); if(!code) return toast("Enter the gift card code.");
     $("#gcLook").disabled = true;
-    try{ const r = await window.WOK.sb.rpc("slick_gift_info", { p_code: code }); if(r.error) throw r.error; const d = r.data || {};
+    try{ const r = await window.WOK.sb.rpc("skwyd_gift_info", { p_code: code }); if(r.error) throw r.error; const d = r.data || {};
       $("#gcRes").innerHTML = d.found ? `<div class="igrid">${info("Code", `<span class="code">${esc(d.code)}</span>`)}${info("Gift Card", esc(d.name||"—"))}${info("Balance", `<b>${money(+d.balance||0)}</b>`)}${info("Initial Amount", money(+d.initial||0))}${info("Sold On", lgcDmy(d.createdAt))}</div>` : `<div class="note">No gift card with this code.</div>`;
     }catch(e){ console.error(e); toast("Couldn't check the gift card. Check the connection."); }
     const b = $("#gcLook"); if(b) b.disabled = false; };
@@ -7373,7 +7375,7 @@ document.addEventListener("click", async e => {
 const CP = { tab:"all", counts:null, loading:false };
 const cpList = () => lgcDoc("coupons").list || [];
 async function cpSave(list){ try{ await put("settings", "coupons", { list }); return true; }catch(e){ console.error(e); toast("Couldn't save. Only the owner or an admin can change coupons."); return false; } }
-async function cpCounts(){ if(CP.loading) return; CP.loading = true; try{ const r = await window.WOK.sb.rpc("slick_coupon_counts"); if(!r.error){ CP.counts = r.data || {}; if(document.body.dataset.route==="coupons") render(); } }catch(e){ console.error(e); } CP.loading = false; }
+async function cpCounts(){ if(CP.loading) return; CP.loading = true; try{ const r = await window.WOK.sb.rpc("skwyd_coupon_counts"); if(!r.error){ CP.counts = r.data || {}; if(document.body.dataset.route==="coupons") render(); } }catch(e){ console.error(e); } CP.loading = false; }
 const cpToday = () => new Date().toLocaleDateString("en-CA");
 const cpStatus = c => c.active===false ? "Inactive" : c.end && c.end < cpToday() ? "Expired" : c.start && c.start > cpToday() ? "Scheduled" : c.maxUses && (CP.counts?.[c.id]||0) >= c.maxUses ? "Used Up" : "Active";
 const cpDiscs = type => dsList().filter(d => !d.deleted && (d.qualification===type || d.qualification==="both"));
@@ -7890,7 +7892,7 @@ async function saveUserPw(id){
       if(r.userId) await put("users", id, { userId: r.userId }); return done(r.confirm ? "Password created · they confirm their email once, then sign in" : "Password created"); }
     const me = (await WOK.sb.auth.getUser())?.data?.user?.id;
     if(me && me===u.userId){ const { error } = await WOK.sb.auth.updateUser({ password: p1 }); if(error) return err.textContent = "Couldn't change it: " + error.message; return done("Password changed"); }
-    const { data, error } = await WOK.sb.rpc("slick_set_user_password", { p_user: u.userId, p_password: p1 });
+    const { data, error } = await WOK.sb.rpc("skwyd_set_user_password", { p_user: u.userId, p_password: p1 });
     if(error) return err.textContent = /function|schema cache|not find/i.test(error.message) ? "Password changes need a one-time database update (supabase-user-password.sql)." : "Couldn't change it: " + error.message;
     if(data?.error) return err.textContent = ({ forbidden:"Only the owner or an admin can change other users' passwords.", short:"The password needs at least 8 characters.", nouser:"This user's login wasn't found." })[data.error] || "Couldn't change it.";
     done("Password changed");
@@ -8226,25 +8228,25 @@ document.addEventListener("pointermove", e => { if(Math.abs(e.clientX - ccLp.x) 
 ["pointerup","pointercancel"].forEach(n => document.addEventListener(n, () => clearTimeout(ccLp.t)));
 document.addEventListener("contextmenu", e => { if(e.target.closest && e.target.closest("#oCart [data-cedit]")) e.preventDefault(); });
 async function ccEditItem(ix, only){
-  const i = cart[ix], p = i && S.products.find(x=>x.id===i.productId); if(!i || !window.SlickMods) return;
+  const i = cart[ix], p = i && S.products.find(x=>x.id===i.productId); if(!i || !window.SkwydMods) return;
   const base = (+i.price||0) - (i.options||[]).reduce((t,x)=>t+(+x.price||0),0);   // the item's own price, before its options
-  const r = await SlickMods.pick({ name:i.name, basePrice:base, ...(p ? ccModData(p) : { links:[], groups:{}, options:[] }), money:usd, edit:true, only, initial:i.options||[], qty:i.qty, note:i.note||"", allowDiscount: mayDo("bo_cc_discount"), discType:i.discType, discValue:i.discValue }); if(!r) return;
-  Object.assign(i, { price: r.unitPrice, qty:r.qty, options:r.options, note:r.note, mods: SlickMods.label(r.mods, r.note) });
+  const r = await SkwydMods.pick({ name:i.name, basePrice:base, ...(p ? ccModData(p) : { links:[], groups:{}, options:[] }), money:usd, edit:true, only, initial:i.options||[], qty:i.qty, note:i.note||"", allowDiscount: mayDo("bo_cc_discount"), discType:i.discType, discValue:i.discValue }); if(!r) return;
+  Object.assign(i, { price: r.unitPrice, qty:r.qty, options:r.options, note:r.note, mods: SkwydMods.label(r.mods, r.note) });
   if(r.disc != null){ i.disc = r.disc; i.discType = r.discType; i.discValue = r.discValue; }
   if(!i.options.length) delete i.options; if(!i.note) delete i.note; if(!i.mods) delete i.mods; if(!+i.disc){ delete i.disc; delete i.discType; delete i.discValue; }
   renderCart(false);
 }
 async function ccAdd(p){
   const ok = availableProducts(), kids = (p.variants||[]).map(v => ({ name:v.name, p: ok.find(x => x.id===v.productId) })).filter(x => x.p);
-  if(kids.length && window.SlickMods?.variant){ const v = await SlickMods.variant({ name:p.name, setName:varGroup(p), variants: kids.map(k => ({ name:k.name, price:ccPrice(k.p), id:k.p.id })), money:usd }); if(!v) return; return ccAdd(kids.find(k => k.p.id===v.id).p); }
+  if(kids.length && window.SkwydMods?.variant){ const v = await SkwydMods.variant({ name:p.name, setName:varGroup(p), variants: kids.map(k => ({ name:k.name, price:ccPrice(k.p), id:k.p.id })), money:usd }); if(!v) return; return ccAdd(kids.find(k => k.p.id===v.id).p); }
   let price = ccPrice(p), options = [], mods = "", note = "";
   const nm = p.name;
-  if((p.modifiers||[]).length && window.SlickMods){
-    const r = await SlickMods.pick({ name:nm, basePrice:price, ...ccModData(p), money:usd, askNote:true }); if(!r) return;
+  if((p.modifiers||[]).length && window.SkwydMods){
+    const r = await SkwydMods.pick({ name:nm, basePrice:price, ...ccModData(p), money:usd, askNote:true }); if(!r) return;
     options = r.options; mods = r.mods; price = r.unitPrice; note = r.note || "";
   }
-  const k = window.SlickMods ? SlickMods.key(p.id, options) : p.id, ex = !note && !ccActiveO() && cart.find(i => !i.note && !i.saved && (window.SlickMods ? SlickMods.key(i.productId, i.options) : i.productId) === k);
-  if(ex) ex.qty++; else cart.push({ productId:p.id, name:nm, price, qty:1, ...(options.length ? { options } : {}), ...(note ? { note } : {}), ...(options.length || note ? { mods: SlickMods.label(mods, note) } : {}) });
+  const k = window.SkwydMods ? SkwydMods.key(p.id, options) : p.id, ex = !note && !ccActiveO() && cart.find(i => !i.note && !i.saved && (window.SkwydMods ? SkwydMods.key(i.productId, i.options) : i.productId) === k);
+  if(ex) ex.qty++; else cart.push({ productId:p.id, name:nm, price, qty:1, ...(options.length ? { options } : {}), ...(note ? { note } : {}), ...(options.length || note ? { mods: SkwydMods.label(mods, note) } : {}) });
   renderCart(false);
 }
 
@@ -8427,8 +8429,8 @@ async function flowAction(action){
     if(!(await saveDoc(true))) return;
     DOC.busy = true; render();
     const by = state.fullName || state.userName || null, lines = d.items.map(l => ({ itemId:l.itemId, qty:+l.qty||0, cost: +(l.cost ?? itemOf(l.itemId)?.cost ?? 0) || 0, ordered:+l.qty||0 }));
-    let r = await WOK.sb.rpc("slick_doc_action", { p_id: d.id, p_action: "submit", p_by: by, p_lines: null });
-    if(!r.error) r = await WOK.sb.rpc("slick_doc_action", { p_id: d.id, p_action: "receive", p_by: by, p_lines: lines });
+    let r = await WOK.sb.rpc("skwyd_doc_action", { p_id: d.id, p_action: "submit", p_by: by, p_lines: null });
+    if(!r.error) r = await WOK.sb.rpc("skwyd_doc_action", { p_id: d.id, p_action: "receive", p_by: by, p_lines: lines });
     DOC.busy = false;
     if(r.error){ console.error(r.error); DOC.err = "Couldn't receive: " + r.error.message; return render(); }
     Object.assign(d, { status:"closed", items: lines, submittedAt: new Date().toISOString(), submittedBy: by, receivedAt: new Date().toISOString(), receivedBy: by }); DOC.recv = null;
@@ -8460,7 +8462,7 @@ async function flowAction(action){
     if(!(await askYes("Are you sure you want to receive these items?"))) return;
   }
   DOC.busy = true; render();
-  const { data, error } = await WOK.sb.rpc("slick_doc_action", { p_id: d.id, p_action: action, p_by: state.fullName || state.userName || null, p_lines: lines });
+  const { data, error } = await WOK.sb.rpc("skwyd_doc_action", { p_id: d.id, p_action: action, p_by: state.fullName || state.userName || null, p_lines: lines });
   DOC.busy = false;
   if(error){ console.error(error); DOC.err = "Couldn't do that: " + error.message; return render(); }
   if(action==="submit"){ d.status = "pending"; d.submittedAt = new Date().toISOString(); d.submittedBy = state.fullName || null; toast(K.kind==="transfer" ? "Transfer sent" : "Submitted"); }
@@ -8554,7 +8556,7 @@ function viewInvLevels(){
   INV._rows = rows; INV._locs = per ? locs : null;
   return h + `</div>`;
 }
-// every movement, with how much it changed the quantity (needs the slick_inv_history database function)
+// every movement, with how much it changed the quantity (needs the skwyd_inv_history database function)
 const invMoveType = r => { const n = (r.note||"") + " " + (r.batch||"");
   if(/Consumption from order/i.test(n)) return "Sale"; if(/voided|Return/i.test(n)) return "Return"; if(/Waste/i.test(n)) return "Waste";
   if(/Purchase/i.test(n)) return "Purchase"; if(/Transfer/i.test(n)) return "Transfer"; if(/production/i.test(n)) return "Production";
@@ -8564,9 +8566,9 @@ async function loadInvHistory(){
   H.from ||= invDay(-6); H.to ||= invDay(0);
   const key = [H.from, H.to, H.loc, H.item].join("|"); if(H.loading || H.key===key) return;
   H.loading = true; H.key = key; H.err = "";
-  const { data, error } = await WOK.sb.rpc("slick_inv_history", { p_from: H.from + "T00:00:00", p_to: H.to + "T23:59:59.999", p_loc: H.loc || null, p_item: H.item || null });
+  const { data, error } = await WOK.sb.rpc("skwyd_inv_history", { p_from: H.from + "T00:00:00", p_to: H.to + "T23:59:59.999", p_loc: H.loc || null, p_item: H.item || null });
   H.loading = false;
-  if(error){ console.error(error); H.rows = []; H.err = /slick_inv_history/.test(error.message||"") ? "Inventory history needs a database update first." : "Couldn't load the history: " + error.message; }
+  if(error){ console.error(error); H.rows = []; H.err = /skwyd_inv_history/.test(error.message||"") ? "Inventory history needs a database update first." : "Couldn't load the history: " + error.message; }
   else H.rows = data || [];
   if(location.hash.slice(1)==="inv-history") render();
 }
@@ -8690,7 +8692,7 @@ const n2 = v => (+v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumF
 async function loadStock(force){
   if(storeMode!=="db" || DOC.stock==="loading" || (!force && DOC.stock && Date.now()-DOC.stockAt < 60000)) return;
   DOC.stock = "loading";
-  const { data, error } = await WOK.sb.rpc("slick_stock_all");
+  const { data, error } = await WOK.sb.rpc("skwyd_stock_all");
   if(error){ console.error(error); DOC.stock = {}; toast("Couldn't load stock levels"); }
   else { DOC.stock = {}; (data||[]).forEach(r => (DOC.stock[r.location_id] ||= {})[r.item_id] = +r.qty); }
   DOC.stockAt = Date.now(); render();
@@ -8985,7 +8987,7 @@ async function submitDoc(){
     DOC.busy = false; toastOk(`${d.ref || "Inventory count"} submitted`); DASH.key = ""; IC.loaded = {}; DOC.stockAt = 0;
     d.status = "closed"; d.submittedAt = now; d.submittedBy = by; loadStock(true); render(); return;
   }
-  const { data, error } = await WOK.sb.rpc("slick_close_inv_doc", { p_id: d.id, p_by: state.fullName || state.userName || null });
+  const { data, error } = await WOK.sb.rpc("skwyd_close_inv_doc", { p_id: d.id, p_by: state.fullName || state.userName || null });
   DOC.busy = false;
   if(error){ console.error(error); DOC.err = "Couldn't submit: " + error.message + (/permission|policy/i.test(error.message) ? " (only owners and admins can change item costs)" : ""); return render(); }
   toast(`${data?.ref || "Document"} submitted`); DASH.key = ""; IC.loaded = {}; DOC.stockAt = 0;
@@ -9231,7 +9233,7 @@ const IC = { branch:"", levels:{}, loaded:{}, draft:{}, q:"", cat:"", sheet:"", 
 async function loadLevels(branch, force){
   if(!branch || storeMode!=="db" || (!force && IC.loaded[branch])) return;
   IC.loaded[branch] = "loading";
-  const { data, error } = await WOK.sb.rpc("slick_stock_levels", { p_branch: branch });
+  const { data, error } = await WOK.sb.rpc("skwyd_stock_levels", { p_branch: branch });
   if(error){ IC.loaded[branch] = null; toast("Couldn't load the last counts"); console.error(error); return; }
   IC.levels[branch] = Object.fromEntries((data||[]).map(r => [r.item_id, r])); IC.loaded[branch] = true;
   if(location.hash.slice(1)==="inventory-count") render();
@@ -9315,7 +9317,7 @@ function downloadReportCsv(){
   const lines = [[`skwyd hub sales report`], [r.scope], [r.period], [], ["Hour","Orders","Net sales (" + SYM() + ")","Net payments (" + SYM() + ")","Discounts (" + SYM() + ")","Avg ticket (USD)"], ...r.hr];
   if(r.days.length > 1) lines.push([], ["Date","Orders","Net sales (" + SYM() + ")"], ...r.days);
   const blob = new Blob([lines.map(l => l.map(q).join(",")).join("\n")], { type:"text/csv" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `slick-sales-${dashFrom()}-to-${state.date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `skwyd-sales-${dashFrom()}-to-${state.date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
 document.body.insertAdjacentHTML("beforeend", `<div class="scrim" id="crudScrim"><form class="modal" id="crudBox" autocomplete="off"></form></div>
   <div class="scrim" id="ccScrim"><div class="modal wide" id="ccBox"></div></div>`);

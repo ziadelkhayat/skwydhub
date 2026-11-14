@@ -1,6 +1,6 @@
-/* Slick: modifier picker shared by the POS, the call center and web ordering.
-   SlickMods.pick({ name, basePrice, links, groups, options, money }) -> Promise<null | { options, unitPrice, mods }>
-   SlickMods.variant({ name, setName, variants:[{ name, price }], money }) -> Promise<null | { name, price }>
+/* skwyd hub: modifier picker shared by the POS, the call center and web ordering.
+   SkwydMods.pick({ name, basePrice, links, groups, options, money }) -> Promise<null | { options, unitPrice, mods }>
+   SkwydMods.variant({ name, setName, variants:[{ name, price }], money }) -> Promise<null | { name, price }>
    links:   [{ modifierId, min, max, free, multi }] in display order (from the product)
             min/max count every option picked (2 × Cheese counts as 2); multi = the same option can be picked more than once
    groups:  { [modifierId]: { name } }
@@ -8,7 +8,7 @@
 (function(){
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
   // the number pad is for the POS (touch screen); the back office and call center use a keyboard
-  const PAD = /pos\.html/i.test(location.pathname) || !!window.SLICK_OFFLINE;
+  const PAD = /pos\.html/i.test(location.pathname) || !!window.SKWYD_OFFLINE;
   const touch = (() => { try{ return matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0; }catch(e){ return false; } })();
   const css = `.smp-scrim{position:fixed;inset:0;background:rgba(20,16,40,.45);display:flex;align-items:flex-end;justify-content:center;z-index:9998;font-family:Inter,system-ui,sans-serif}
   @media(min-width:640px){.smp-scrim{align-items:center}}
@@ -147,5 +147,5 @@
       document.body.appendChild(el);
     });
   }
-  window.SlickMods = { pick, key, label, variant };
+  window.SkwydMods = { pick, key, label, variant };
 })();

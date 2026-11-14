@@ -1,4 +1,4 @@
-/* Slick ERP — connects the back office and POS to Supabase.
+/* skwyd hub ERP — connects the back office and POS to Supabase.
    Gives the pages the same small database API they used before (collections, snapshots, set/update/delete),
    and shows a staff login before anything loads. */
 (function(){
@@ -6,9 +6,9 @@
   const SUPABASE_KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh";   // public key, safe in the browser
   // a POS tablet activated with its code carries a secret device key instead of any login
   const lsRaw = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
-  const DEVKEY = window.SLICK_OFFLINE ? lsRaw("slick_devkey") : null, DEVTOPIC = DEVKEY ? lsRaw("slick_devtopic") : null;
+  const DEVKEY = window.SKWYD_OFFLINE ? lsRaw("skwyd_devkey") : null, DEVTOPIC = DEVKEY ? lsRaw("skwyd_devtopic") : null;
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, DEVKEY
-    ? { auth: { persistSession: false, autoRefreshToken: false, storageKey: "slick-device-noauth" }, global: { headers: { "x-slick-device": DEVKEY } } }
+    ? { auth: { persistSession: false, autoRefreshToken: false, storageKey: "skwyd-device-noauth" }, global: { headers: { "x-skwyd-device": DEVKEY } } }
     : { auth: { persistSession: true, autoRefreshToken: true } });
 
   // app collection -> table, and which columns each table accepts
@@ -65,21 +65,21 @@
     return o;
   }
 
-  /* ---------- offline layer (POS only: set window.SLICK_OFFLINE = true before loading this file) ----------
+  /* ---------- offline layer (POS only: set window.SKWYD_OFFLINE = true before loading this file) ----------
      Every collection is cached on the device. Writes go to an outbox first, show up on screen right away,
      and are sent to the server in order as soon as there is a connection. */
-  const OFF = !!window.SLICK_OFFLINE;
+  const OFF = !!window.SKWYD_OFFLINE;
   const ls = { get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
                set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ console.warn("storage full", e); } } };
   const isNet = e => !navigator.onLine || !e || e.name === "AuthRetryableFetchError" || e.name === "AbortError" || e.status === 0 ||
     /failed to fetch|network|load failed|timeout|abort|offline/i.test(String(e.message || e)) || (e.code === "" && !e.hint);
-  let outbox = OFF ? ls.get("slick_outbox", []) : [];
-  let failed = OFF ? ls.get("slick_failed", []) : [];
-  let online = navigator.onLine, syncing = false, lastSync = ls.get("slick_last_sync", null), needsLogin = false;
-  const saveBox = () => { ls.set("slick_outbox", outbox); ls.set("slick_failed", failed); };
+  let outbox = OFF ? ls.get("skwyd_outbox", []) : [];
+  let failed = OFF ? ls.get("skwyd_failed", []) : [];
+  let online = navigator.onLine, syncing = false, lastSync = ls.get("skwyd_last_sync", null), needsLogin = false;
+  const saveBox = () => { ls.set("skwyd_outbox", outbox); ls.set("skwyd_failed", failed); };
   function status(){
     const st = { online, syncing, pending: outbox.length, failed: failed.length, lastSync, needsLogin };
-    window.dispatchEvent(new CustomEvent("slick-sync", { detail: st })); return st;
+    window.dispatchEvent(new CustomEvent("skwyd-sync", { detail: st })); return st;
   }
   function applyOp(rows, op){
     const i = rows.findIndex(r => r.id === op.id);
@@ -88,7 +88,7 @@
     else if(op.op === "delete" && i >= 0) rows.splice(i, 1);
     return rows;
   }
-  const cacheKey = col => "slick_c_" + col;
+  const cacheKey = col => "skwyd_c_" + col;
   const local = {};               // col -> rows currently shown (app format)
   function withPending(col, rows){ outbox.filter(o => o.col === col).forEach(o => applyOp(rows, o)); return rows; }
 
@@ -115,7 +115,7 @@
       try{
         const rows = await fetchAll(col);
         if(DEVKEY && !rows.length && (col === "devices" || col === "branches")){   // nothing visible: was this register deactivated?
-          const r = await sb.rpc("slick_device_ok"); if(!r.error && r.data === false){ try{ ["slick_devkey","slick_devtopic","slick_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; } }
+          const r = await sb.rpc("skwyd_device_ok"); if(!r.error && r.data === false){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; } }
         if(OFF){ ls.set(cacheKey(col), rows); if(!online){ online = true; status(); } }
         local[col] = OFF ? withPending(col, rows) : rows;
         emit(col, local[col], false);
@@ -132,7 +132,7 @@
   function liveBell(){
     if(bell){ try{ sb.removeChannel(bell); }catch(e){} }
     const setAll = v => Object.keys(listeners).forEach(c => rtOk[c] = v);
-    bell = sb.channel(DEVTOPIC || "slick-none", { config: { broadcast: { self: false } } })
+    bell = sb.channel(DEVTOPIC || "skwyd-none", { config: { broadcast: { self: false } } })
       .on("broadcast", { event: "chg" }, m => { const t = m?.payload?.t; Object.keys(listeners).forEach(c => { if(listeners[c].length && (!t || tableOf(c) === t)) refresh(c); }); })
       .subscribe(st => { if(st === "SUBSCRIBED"){ if(bell._was) Object.keys(listeners).forEach(c => listeners[c].length && refresh(c)); bell._was = true; setAll(true); }
         else if(st === "CHANNEL_ERROR" || st === "TIMED_OUT" || st === "CLOSED"){ setAll(false); clearTimeout(timers._bell); timers._bell = setTimeout(liveBell, 3000); } });
@@ -172,7 +172,7 @@
       const touched = new Set();
       while(outbox.length){
         const op = outbox[0];
-        try{ await send(op); outbox.shift(); touched.add(op.col); online = true; lastSync = new Date().toISOString(); ls.set("slick_last_sync", lastSync); saveBox(); status(); }
+        try{ await send(op); outbox.shift(); touched.add(op.col); online = true; lastSync = new Date().toISOString(); ls.set("skwyd_last_sync", lastSync); saveBox(); status(); }
         catch(e){
           if(isNet(e)){ online = false; break; }
           op.tries = (op.tries||0) + 1; op.lastError = e.message || String(e);
@@ -246,7 +246,7 @@
       const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
       el = document.createElement("div"); el.id = "wkGate"; el.className = "wk-gate";
       el.innerHTML = `<form class="wk-card" autocomplete="on"><div class="wk-sq"><svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><h1 class="wk-name">skwyd<span class="wk-hub">hub</span></h1><p>${document.title.includes("POS") ? "Sign in to start the register" : "Sign in to the back office"}</p>
-        <label for="wkAcct">Account number</label><input id="wkAcct" inputmode="numeric" autocomplete="organization" required value="${ls.get("slick_acct", "") || ""}">
+        <label for="wkAcct">Account number</label><input id="wkAcct" inputmode="numeric" autocomplete="organization" required value="${ls.get("skwyd_acct", "") || ""}">
         <label for="wkEmail">Email</label><input id="wkEmail" type="email" autocomplete="username" required>
         <label for="wkPass">Password</label><input id="wkPass" type="password" autocomplete="current-password" required>
         <button id="wkBtn">Sign in</button><a href="#" class="wk-forgot" id="wkForgot">Forgot password?</a>${IS_POS ? '<a href="#" class="wk-forgot" id="wkAct">Activate with a device code</a>' : ""}<div class="wk-err" id="wkErr"></div></form>`;
@@ -261,10 +261,10 @@
         const acct = el.querySelector("#wkAcct").value.replace(/\s+/g, "");
         const { error } = await sb.auth.signInWithPassword({ email: el.querySelector("#wkEmail").value.trim(), password: el.querySelector("#wkPass").value });
         if(error){ b.disabled = false; el.querySelector("#wkErr").textContent = error.message === "Invalid login credentials" ? "Wrong account number, email or password." : error.message; return; }
-        // the business's account number (given by Slick) must match
+        // the business's account number (given by skwyd hub) must match
         try{ const { data: co } = await sb.from("settings").select("data").eq("id", "company").maybeSingle(); const want = String(co?.data?.accountNo || "").replace(/\s+/g, "");
           if(want && want !== acct){ await sb.auth.signOut(); b.disabled = false; el.querySelector("#wkErr").textContent = "Wrong account number, email or password."; return; } }catch(_){}
-        ls.set("slick_acct", acct); b.disabled = false;
+        ls.set("skwyd_acct", acct); b.disabled = false;
         await afterLogin();
       });
     }
@@ -275,33 +275,33 @@
     if(!navigator.onLine) return { error: "offline" };
     const { data: { session } } = await sb.auth.getSession();
     if(session){ try{ await sb.auth.signOut({ scope: "local" }); }catch(_){} }   // a register is never tied to a login
-    const anon = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: "slick-activate" } });
-    const { data, error } = await anon.rpc("slick_activate_device_key", { p_code: code });
-    if(error) return { error: isNet(error) ? "offline" : (error.code === "PGRST202" || /slick_activate_device_key/.test(error.message)) ? "setup" : error.message };
+    const anon = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: "skwyd-activate" } });
+    const { data, error } = await anon.rpc("skwyd_activate_device_key", { p_code: code });
+    if(error) return { error: isNet(error) ? "offline" : (error.code === "PGRST202" || /skwyd_activate_device_key/.test(error.message)) ? "setup" : error.message };
     if(!data || data.error) return { error: data?.error || "invalid" };
-    try{ localStorage.setItem("slick_devkey", data.key); localStorage.setItem("slick_devtopic", data.topic || ""); localStorage.removeItem("slick_staff"); }catch(_){ return { error: "Couldn't save on this tablet." }; }
+    try{ localStorage.setItem("skwyd_devkey", data.key); localStorage.setItem("skwyd_devtopic", data.topic || ""); localStorage.removeItem("skwyd_staff"); }catch(_){ return { error: "Couldn't save on this tablet." }; }
     needsAct = false; if(onId) onId(data.id);
     setTimeout(() => location.reload(), 300); return { id: data.id };
   }
   // a register deactivated in the back office leaves the sale screen within seconds (it may not get the change pushed, so it also asks)
   let watchT = null;
-  function deactivated(){ try{ ["slick_devkey","slick_devtopic","slick_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); }
+  function deactivated(){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); }
   async function deviceCheck(){
     if(!OFF || !staff?.device || !navigator.onLine) return;
     try{
-      if(DEVKEY){ const r = await sb.rpc("slick_device_ok"); if(!r.error && r.data === false) deactivated(); return; }
+      if(DEVKEY){ const r = await sb.rpc("skwyd_device_ok"); if(!r.error && r.data === false) deactivated(); return; }
       const r = await sb.rpc("staff_role"); if(!r.error && !r.data){ try{ await sb.auth.signOut({ scope:"local" }); }catch(_){} deactivated(); }
     }catch(e){}
   }
   function deviceWatch(){ if(watchT || !OFF) return; watchT = setInterval(deviceCheck, 20000);
     addEventListener("focus", deviceCheck); document.addEventListener("visibilitychange", () => { if(!document.hidden) deviceCheck(); }); addEventListener("online", deviceCheck); }
   function useStaff(s){
-    staff = s; if(OFF) ls.set("slick_staff", s); if(s?.device) deviceWatch();
+    staff = s; if(OFF) ls.set("skwyd_staff", s); if(s?.device) deviceWatch();
     const el = document.getElementById("wkGate"); if(el) el.style.display = "none";
     readyResolve(dbApi); if(OFF) setTimeout(flush, 500);
   }
   async function afterLogin(){
-    const cached = OFF ? ls.get("slick_staff", null) : null;
+    const cached = OFF ? ls.get("skwyd_staff", null) : null;
     let user = null;
     try{ const r = await sb.auth.getUser(); user = r.data?.user; if(r.error && isNet(r.error) && cached){ online = false; status(); return useStaff(cached); } }
     catch(e){ if(cached && isNet(e)) return useStaff(cached); }
@@ -314,7 +314,7 @@
     }
     let { data, error } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle();
     if(error && isNet(error) && cached && cached.user_id === user.id) return useStaff(cached);
-    if(!data && !error){ const c = await sb.rpc("slick_claim_login"); if(c.data) ({ data } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle()); }   // first sign-in of a user added under Manage → Users
+    if(!data && !error){ const c = await sb.rpc("skwyd_claim_login"); if(c.data) ({ data } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle()); }   // first sign-in of a user added under Manage → Users
     if(!data){ await sb.auth.signOut(); return gate("This login isn't set up as staff yet. Ask the owner to add you."); }
     // a user turned off (or deleted) under Manage → Users can't sign in to the back office
     try{ const su = await sb.from("staff_users").select("active,deleted").eq("user_id", user.id).maybeSingle(); if(su.data?.deleted){ await sb.auth.signOut(); return gate("This user was deleted. Ask the owner to restore you."); } }catch(e){}
@@ -323,14 +323,14 @@
   (async () => {
     if(DEVKEY){   // an activated register: no login, its key is checked by the database on every request
       const dev = { user_id: "device", role: "cashier", name: "Register", device: true };
-      let ok = null; try{ const r = await sb.rpc("slick_device_ok"); if(!r.error) ok = !!r.data; else if(!isNet(r.error)) ok = null; }catch(e){}
-      if(ok === false){ try{ localStorage.removeItem("slick_devkey"); localStorage.removeItem("slick_devtopic"); localStorage.removeItem("wokDevice"); }catch(_){}
+      let ok = null; try{ const r = await sb.rpc("skwyd_device_ok"); if(!r.error) ok = !!r.data; else if(!isNet(r.error)) ok = null; }catch(e){}
+      if(ok === false){ try{ localStorage.removeItem("skwyd_devkey"); localStorage.removeItem("skwyd_devtopic"); localStorage.removeItem("wokDevice"); }catch(_){}
         return gate(); }
       if(ok === null && navigator.onLine){ /* server check unavailable: keep working, the next ring or poll will tell */ }
       if(!navigator.onLine){ online = false; status(); }
       return useStaff(dev);
     }
-    const cached = OFF ? ls.get("slick_staff", null) : null;
+    const cached = OFF ? ls.get("skwyd_staff", null) : null;
     let res; try{ res = await sb.auth.getSession(); }catch(e){ res = { data:{ session:null }, error:e }; }
     const session = res.data?.session;
     if(session) await afterLogin();
@@ -339,8 +339,8 @@
   })();
 
   const userApi = { id: async () => staff?.user_id, email: async () => staff?.email || "", name: async () => staff?.name || staff?.email, role: async () => staff?.role, branchId: async () => staff?.branch_id,
-    canEdit: async () => ["owner","admin"].includes(staff?.role), isOwner: async () => staff?.role === "owner", signOut: async () => { if(DEVKEY && staff?.device){ if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Deactivate anyway?") : Promise.resolve(confirm("Deactivate anyway?"))))) return; try{ ["slick_devkey","slick_devtopic","slick_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; }
-      if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device.") : Promise.resolve(confirm(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device."))))) return; await sb.auth.signOut(); if(OFF) localStorage.removeItem("slick_staff"); location.reload(); } };
+    canEdit: async () => ["owner","admin"].includes(staff?.role), isOwner: async () => staff?.role === "owner", signOut: async () => { if(DEVKEY && staff?.device){ if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Deactivate anyway?") : Promise.resolve(confirm("Deactivate anyway?"))))) return; try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; }
+      if(OFF && outbox.length && !(await (window.askYes ? window.askYes(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device.") : Promise.resolve(confirm(outbox.length + " change(s) haven't synced yet. Sign out anyway? They stay saved on this device."))))) return; await sb.auth.signOut(); if(OFF) localStorage.removeItem("skwyd_staff"); location.reload(); } };
 
   window.WOK = { sb, cfg:{ url:SUPABASE_URL, key:SUPABASE_KEY }, ready, deviceCheck, user: userApi, activate: activateDevice, emailLogin: () => gate("", true), needsActivation: () => needsAct, isDevice: () => !!staff?.device, sync: { status, flush, failed: () => failed.slice(), retryFailed: () => { outbox.push(...failed.map(o => ({ ...o, tries:0 }))); failed = []; saveBox(); flush(); },
     // sales history was cleared in the back office: drop sales saved on this register before that moment
