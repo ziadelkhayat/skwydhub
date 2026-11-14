@@ -1534,6 +1534,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 .sbmods .off{color:var(--muted)}
 .sblock td,.sblock th{white-space:nowrap}.sblock{max-width:780px;margin:40px auto;text-align:center}.sblock h1{font-size:24px;margin:14px 0 8px}.sblock p{color:var(--ink2);line-height:1.55;margin:0 0 6px}
 .sblock .card{text-align:left;margin-top:22px}
+.bizcard input.sel:disabled{background:#f3f4f8;color:var(--ink2);cursor:not-allowed}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -6796,9 +6797,9 @@ function viewCompany(){
     </div>${lk ? `<p class="note bizn">Business name, account number, category, country and currency are set by skwyd hub and can't be changed here.</p>` : `<p class="note bizn">Pick the country and currency carefully: once you save, they can't be changed.</p>`}${sv}</div>
     <h3 class="bizh">Owner</h3>
     <div class="card bizcard"><div class="bizgrid">
-      ${f("email","Owner Email",{type:"email"})}
-      <div class="f"><label for="co_ownerPhone">Owner Phone Number</label><div class="phrow"><select id="co_ownerPhoneCc" class="sel" aria-label="Country code" ${dis}>${CC_CODES.map(([d,n])=>`<option value="${d}" ${d===ph.cc?"selected":""}>${esc(n)} (${d})</option>`).join("")}</select><input id="co_ownerPhone" class="sel" type="tel" inputmode="tel" value="${esc(ph.num)}" ${dis}></div></div>
-    </div>${sv}</div>
+      <div class="f"><label for="co_email">Owner Email</label><input id="co_email" class="sel" type="email" value="${esc(c.email||"")}" disabled title="${PLAT_NOTE}"></div>
+      <div class="f"><label for="co_ownerPhone">Owner Phone Number</label><div class="phrow"><select id="co_ownerPhoneCc" class="sel" aria-label="Country code" disabled title="${PLAT_NOTE}">${CC_CODES.map(([d,n])=>`<option value="${d}" ${d===ph.cc?"selected":""}>${esc(n)} (${d})</option>`).join("")}</select><input id="co_ownerPhone" class="sel" type="tel" inputmode="tel" value="${esc(ph.num)}" disabled title="${PLAT_NOTE}"></div></div>
+    </div><p class="note bizn">The owner's email and phone are set by skwyd hub and can't be changed here.</p></div>
     <h3 class="bizh">Settings</h3>
     <div class="card bizcard"><div class="bizgrid">
       <div class="f"><label for="co_timeZone">Time Zone <span class="tip" title="Used for business days, reports and order times.">ⓘ</span></label><select id="co_timeZone" class="sel" ${dis}>${tzList().map(([z,off])=>`<option value="${z}" ${(c.timeZone||"Asia/Beirut")===z?"selected":""}>(UTC${off}) ${z.replace(/_/g," ")}</option>`).join("")}</select></div>
@@ -6819,7 +6820,8 @@ document.addEventListener("input", e => { if(e.target.id==="co_dayEnd" && $("#co
 async function saveCompany(){
   const v = k => ($("#co_"+k)?.value || "").trim();
   const data = { name:v("name"), taxNumber:v("taxNumber"), taxName:v("taxName"), bizCategory:v("bizCategory"), bizSubcategory:v("bizSubcategory"), ownerEmail:null, ownerPhone: fullPhone(v("ownerPhone"), v("ownerPhoneCc")), email:v("email"), logoUrl:null, localization: !!$("#co_loc")?.checked, chargesBeforeDisc: !!$("#co_chgsub")?.checked, timeZone:v("timeZone") || "Asia/Beirut", gmapsKey:v("gmapsKey"), country: company().country || v("country") || "Lebanon", currency: bizLocked() ? (company().currency || "USD") : (v("bcur") || "USD"), ...(company().accountNo ? { accountNo: company().accountNo } : {}) };
-  { const c0 = company(); if(c0.name){ data.name = c0.name; data.bizCategory = c0.bizCategory || data.bizCategory; data.bizSubcategory = c0.bizSubcategory || data.bizSubcategory; } }   // set by skwyd hub: the back office keeps what is there
+  { const c0 = company(); data.email = c0.email || ""; data.ownerPhone = c0.ownerPhone || "";   // owner details come from skwyd hub
+    if(c0.name){ data.name = c0.name; data.bizCategory = c0.bizCategory || data.bizCategory; data.bizSubcategory = c0.bizSubcategory || data.bizSubcategory; } }   // set by skwyd hub: the back office keeps what is there
   if(!data.name){ $("#coErr").textContent = "Business name is required."; $("#co_name").focus(); return; }
   try{ await put("settings", "company", data);
     // the ordering pages read the Maps key from each brand's web ordering settings

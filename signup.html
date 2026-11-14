@@ -46,7 +46,7 @@ const CURRENCIES = [["USD","US Dollar (USD)"],["LBP","Lebanese Pound (LBP)"],["E
 const countryOpts = sel => `<option value="">Choose…</option>` + COUNTRIES.map(([n]) => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
 const dialOpts = sel => COUNTRIES.map(([n, d]) => `<option value="${n}" ${n===sel?"selected":""}>${n} (${d})</option>`).join("");
 const dialOf = n => (COUNTRIES.find(c => c[0]===n) || [,""])[1];
-const CATEGORIES = [["Restaurant",["Quick Service","Fast Casual","Casual Dining","Fine Dining","Cloud Kitchen","Food Truck","Pizzeria","Shawarma & Grills"]],["Café & Bakery",["Coffee Shop","Bakery","Pastry & Desserts","Juice Bar","Ice Cream"]],["Bar & Lounge",["Bar","Lounge","Pub","Night Club","Shisha Lounge"]],["Catering",["Catering","Central Kitchen","Events"]],["Retail",["Supermarket","Grocery","Butcher","Convenience Store"]],["Other",["Other"]]];
+const CATEGORIES = [["F&B",["Food QSR","Casual Dining","Fine Dining","Cafe","Bakery & Pastry","Cloud Kitchen","Bar & Lounge","Catering","Food Truck"]],["Retail",["Grocery","Butcher","Supermarket","Other retail"]],["Services",["Salon & Spa","Laundry","Other services"]]];   // same list as the back office (Account → Business)
 const categoryOpts = sel => `<option value="">Choose…</option>` + CATEGORIES.map(([c]) => `<option ${c===sel?"selected":""}>${esc(c)}</option>`).join("");
 const subOpts = (cat, sel) => `<option value="">Choose…</option>` + ((CATEGORIES.find(x => x[0]===cat) || [,[]])[1]).map(s => `<option ${s===sel?"selected":""}>${esc(s)}</option>`).join("");
 
@@ -54,7 +54,7 @@ const currencyOpts = sel => `<option value="">Choose…</option>` + CURRENCIES.m
 // picking a country fills in its dialing code and currency
 function geoLink(form) { const f = form.elements; f.country.onchange = () => { const c = COUNTRIES.find(x => x[0] === f.country.value); if (!c) return; f.dial.value = c[0]; f.currency.value = c[2]; };
   f.category.onchange = () => { f.subcategory.innerHTML = subOpts(f.category.value, ""); f.subcategory.disabled = !f.category.value; }; }
-const fullPhone = (country, num) => { const dial = dialOf(country); num = String(num || "").trim().replace(/^0+/, ""); return num ? dial + " " + num : ""; };
+const fullPhone = (country, num) => { const dial = dialOf(country); num = String(num || "").replace(/\D/g, "").replace(/^0+/, ""); return num ? dial + num : ""; };   // +96170123456, as the back office saves it
 const HEAD = (t, s) => `<div class="logo">${LOGO}</div><h1>${t}</h1><p class="lead">${s}</p>`;
 
 function form(msg = "") {
