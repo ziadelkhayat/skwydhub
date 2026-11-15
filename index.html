@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="923-1794776128">
+<meta name="skwyd-build" content="924-1794776463">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1622,8 +1622,8 @@ input.dfh{display:none!important}
 .nav .grp.open.stay .sub{animation:none!important}
 .olslugrow{display:flex;align-items:center;gap:10px;margin-top:6px}.olslugrow .note{flex:1;margin:0}.olslugrow .note.slok{color:#15803d}.olslugrow .note.slbad{color:#b42318}
 /* Sales Channels: the items show beside the categories, not under them */
-@media(min-width:900px){html body .mm{grid-template-columns:minmax(250px,300px) minmax(0,1fr)!important;align-items:start}html body .mm>*:first-child{border-right:.8px solid #e5e5ea!important;border-bottom:0!important;align-self:stretch}
-html body .mm .mmside .mmhd{flex-wrap:wrap}html body .mm .mmside .mmhd .search{flex:1 1 100%!important;max-width:none!important;width:100%!important}html body .mm .mmmain .mmtbl{overflow-x:auto}html body .mm .mmmain .mmth,html body .mm .mmmain .mmrow{column-gap:6px!important;padding-left:10px!important;padding-right:10px!important}}
+@media(min-width:900px){html body .mm{grid-template-columns:minmax(260px,320px) minmax(0,1fr)!important;align-items:start}html body .mm>*:first-child{border-right:.8px solid #e5e5ea!important;border-bottom:0!important;align-self:stretch}
+html body .mm .mmside .mmhd{flex-wrap:wrap}html body .mm .mmside .mmhd .search{flex:1 1 100%!important;max-width:none!important;width:100%!important}html body .mm .mmmain .mmtbl{overflow-x:auto}html body .mm .mmside{grid-template-columns:none}html body .mm .mmside .mmct{min-width:0}html body .mm .mmside .mmct b{white-space:normal!important;overflow:hidden;text-overflow:clip;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;line-height:1.25}html body .mm .mmside .mmct small{white-space:nowrap}html body .mm .mmside .mmcat .scimg{display:none}html body .mm .mmmain .mmth,html body .mm .mmmain .mmrow{column-gap:6px!important;padding-left:10px!important;padding-right:10px!important}}
 .ccdman{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:6px}.ccdseg{display:flex;gap:6px;background:#f3f4f8;border-radius:10px;padding:4px}.ccdseg button{flex:1;border:0;background:none;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;cursor:pointer;color:#4b5563}.ccdseg button.on{background:#fff;color:#172554;font-weight:600;box-shadow:0 1px 3px rgba(20,16,40,.12)}
 /* build 914: names typed by people keep their spelling in titles; page headers wrap to the right; plain codes in tables */
 h1 .dn,.dn{text-transform:none}
@@ -3555,7 +3555,7 @@ const CRUD = {
       if(!id && subOf){ const par = S.categories.find(c => c.id===subOf); if(!par) return "Choose the category.";   // a sub-category: sits under its category, opens when the category is pressed
         const mine = S.categories.filter(c => live(c) && catPar(c)===par.id);
         data.channel = par.channel; data.reference = "sub:" + par.id; data.productIds = []; data.inactiveBranchIds = (par.inactiveBranchIds||[]).filter(k => String(k).startsWith("only:")); data.brandId = par.brandId || null;
-        data.sort = (Math.max(0, ...mine.map(c => +c.sort||0)) + 10); data.id = "cat_" + par.channel + "_" + Date.now().toString(36); BM.cat = par.id; return ""; }
+        data.sort = (Math.max(0, ...mine.map(c => +c.sort||0)) + 10); data.id = "cat_" + par.channel + "_" + Date.now().toString(36); BM.cat = par.id; BM.pendCat = data.id; (BM.cex ||= new Set()).add(par.id); return ""; }
       if(!id){ const ch = bmMenu()[0], mine = S.categories.filter(c => live(c) && c.channel===ch);
       data.channel = ch; data.productIds = []; if(ch!=="online") data.inactiveBranchIds = ["only:" + BM.branch]; data.sort = (Math.max(0, ...mine.map(c => +c.sort||0)) + 10); data.id = "cat_" + ch + "_" + Date.now().toString(36); } return ""; }
   },
@@ -3567,7 +3567,7 @@ const CRUD = {
     prep: async (data, id) => { if(!id){ const par = S.categories.find(c => c.id===BM.subOf); if(!par) return "Choose the category first.";
       const mine = S.categories.filter(c => live(c) && catPar(c)===par.id);
       data.channel = par.channel; data.reference = "sub:" + par.id; data.productIds = []; data.inactiveBranchIds = (par.inactiveBranchIds||[]).filter(k => String(k).startsWith("only:")); data.brandId = par.brandId || null;
-      data.sort = (Math.max(0, ...mine.map(c => +c.sort||0)) + 10); data.id = "cat_" + par.channel + "_" + Date.now().toString(36); } return ""; }
+      data.sort = (Math.max(0, ...mine.map(c => +c.sort||0)) + 10); data.id = "cat_" + par.channel + "_" + Date.now().toString(36); BM.pendCat = data.id; (BM.cex ||= new Set()).add(par.id); } return ""; }
   },
   products: {
     col:"products", title:"Products", one:"Product", detail: r => productDetail(r), bulk:1,
@@ -5490,6 +5490,7 @@ function viewBranchMenu(){
       <div class="sp"></div>${bmSaveBtns(nDraft)}
       ${others.length ? `<div class="ddwrap"><button type="button" class="btn" id="bmCopyB">Copy From ▾</button><div class="ddmenu" id="bmCopyM" hidden>${others.map(([v,t]) => `<button type="button" data-bmcopy="${esc(v)}">${esc(t)}</button>`).join("")}</div></div>` : ""}</div>`;
   const cats = chCats(ch[0]), cq = (BM.cq||"").trim().toLowerCase();
+  if(BM.pendCat && cats.some(c => c.id===BM.pendCat)){ BM.cat = BM.pendCat; BM.pendCat = ""; }   // a sub-category just added: open it, under its category
   if(!cats.some(c => c.id===BM.cat)) BM.cat = cats[0]?.id || "";
   const cur = cats.find(c => c.id===BM.cat), inCur = cur ? bmCatProds(cur).filter(p => all.includes(p)) : [];
   const rows = inCur.filter(p => !q || p.name.toLowerCase().includes(q) || varKids(p).some(k => k.name.toLowerCase().includes(q)));
