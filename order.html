@@ -648,6 +648,10 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 
 <script>
+// every date is written 15-11-2026 (with time: 15-11-2026 19:08)
+if(!Date.prototype.dmy) Date.prototype.dmy = function(time){ const p = n => String(n).padStart(2,"0"); return isNaN(this) ? "—" : p(this.getDate()) + "-" + p(this.getMonth()+1) + "-" + this.getFullYear() + (time ? " " + p(this.getHours()) + ":" + p(this.getMinutes()) : ""); };
+const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" + String(s).slice(0,4) : "";
+
 (async () => {
 const RECOV = /type=recovery/.test(location.hash);
 const sb = supabase.createClient("https://akrezmxgtorkuwxxctyk.supabase.co", "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh");
@@ -1492,7 +1496,7 @@ async function openOrders(){
   OHL.list = list;
   if(NAV.cur !== "orders" || !$("#scrim").classList.contains("show")) return;
   sh.innerHTML = head + (list.length ? `<div class="olist">${list.map((o, i) => { const st = OST[o.status] || [o.status ? o.status[0].toUpperCase() + o.status.slice(1) : "Placed", "w"], d = new Date(o.created_at), its = (o.items||[]);
-      return `<div class="ocard"><div class="otop"><div><b>${esc(branches.find(b => b.id===o.branch_id)?.name || brand.name)}</b><small>${isNaN(d) ? "" : d.toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" }) + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}${o.no ? " · #" + esc(o.no) : ""}</small></div><span class="ost ${st[1]}">${esc(st[0])}</span></div>
+      return `<div class="ocard"><div class="otop"><div><b>${esc(branches.find(b => b.id===o.branch_id)?.name || brand.name)}</b><small>${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}${o.no ? " · #" + esc(o.no) : ""}</small></div><span class="ost ${st[1]}">${esc(st[0])}</span></div>
         <div class="oits">${its.slice(0, 4).map(it => `<span>${+it.qty||1}× ${esc(it.name)}</span>`).join("")}${its.length > 4 ? `<span>+${its.length - 4} more</span>` : ""}</div>
         <div class="obot"><b>${usd(+o.total||0)}</b>${o.id ? `<button type="button" class="reord trkbtn" data-track="${esc(o.id)}">${ic("clock")}${["pending","active"].includes(o.status) ? "Track" : "Details"}</button>` : ""}<button type="button" class="reord" data-reorder="${i}">${ic("plus")}Reorder</button></div></div>`; }).join("")}</div>`
     : `<div class="fvempty"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No orders yet</b>Your orders will show here after you place one.</div><button type="button" class="primary" data-nav="order" style="margin-top:18px">Browse the menu</button>`);
@@ -1534,7 +1538,7 @@ function slots(b){ const out = [], prep = +bcfg(b?.id).prep || 20, days = Math.m
     const ts = []; for(let m = 0; m < 1440; m += step){ const t = new Date(day.getTime() + m*60000); if(t.getTime() > now && brOpenNow(b, t)) ts.push(t); }
     if(ts.length) out.push({ day, ts }); }
   return out; }
-const dayLbl = d => { const t = new Date(); t.setHours(0,0,0,0); const x = new Date(d); x.setHours(0,0,0,0); const n = Math.round((x - t) / 864e5); return n===0 ? "Today" : n===1 ? "Tomorrow" : x.toLocaleDateString("en-GB",{ weekday:"short", day:"numeric", month:"short" }); };
+const dayLbl = d => { const t = new Date(); t.setHours(0,0,0,0); const x = new Date(d); x.setHours(0,0,0,0); const n = Math.round((x - t) / 864e5); return n===0 ? "Today" : n===1 ? "Tomorrow" : x.dmy(); };
 const timeLbl = t => t.toLocaleTimeString("en-US",{ hour:"numeric", minute:"2-digit" });
 function payList(){ const p = CO().pay || {}; const l = []; if(p.cash !== false) l.push(["Cash", mode==="delivery" ? "Pay the driver" : "Pay at the counter", "cash"]); if(p.card) l.push(["Card", mode==="delivery" ? "Card machine on delivery" : "Pay by card at the counter", "card"]); return l.length ? l : [["Cash","","cash"]]; }
 
@@ -1673,7 +1677,7 @@ function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find
       ${o.no ? `<span class="trkno">Order #${esc(o.no)}</span>` : ""}</div>
     ${bad ? "" : `<ol class="trks">${steps.map((x, i) => `<li class="${i < st ? "done" : i===st ? "now" : ""}"><span class="dt">${i < st || st===3 ? ic("check") : ""}</span><div><b>${esc(x[0])}</b>${i===st && st < 3 ? `<small>${esc(x[1])}</small>` : ""}</div></li>`).join("")}</ol>`}
     ${tkLive(o) && np !== "granted" && np !== "unsupported" ? `<button type="button" class="trknot" data-trknot>${ic("mega")}<span><b>Turn on notifications</b><small>We'll let you know as soon as your order status changes</small></span></button>` : tkLive(o) && np==="granted" ? `<div class="trkon1">${ic("check")}Notifications are on for this order</div>` : ""}
-    <div class="trkc"><div class="trkr"><span>${ic(o.type==="delivery" ? "bike" : o.type==="pickup" ? "bag" : "dine")}</span><div><b>${esc(br?.name || brand.name)}</b><small>${o.type==="delivery" ? "Delivery" : o.type==="pickup" ? "Pickup" : "Dine-in"} · ${isNaN(d) ? "" : d.toLocaleDateString("en-GB", { day:"numeric", month:"short" }) + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}</small></div>${ph ? `<a class="trkcall" href="tel:${esc(ph)}" aria-label="Call the restaurant">${ic("phone")}</a>` : ""}</div>
+    <div class="trkc"><div class="trkr"><span>${ic(o.type==="delivery" ? "bike" : o.type==="pickup" ? "bag" : "dine")}</span><div><b>${esc(br?.name || brand.name)}</b><small>${o.type==="delivery" ? "Delivery" : o.type==="pickup" ? "Pickup" : "Dine-in"} · ${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}</small></div>${ph ? `<a class="trkcall" href="tel:${esc(ph)}" aria-label="Call the restaurant">${ic("phone")}</a>` : ""}</div>
       <div class="trkits">${its.map(it => `<div><span>${+it.qty||1}×</span><b>${esc(it.name)}</b><em>${usd((+it.price||0) * (+it.qty||1))}</em></div>`).join("")}</div>
       <div class="trktot"><span>Total</span><b>${usd(+o.total||0)}</b></div></div>
     <button type="button" class="ghost" data-trkx>Back to the menu</button></div>`; }

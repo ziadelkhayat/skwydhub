@@ -1558,6 +1558,28 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 .sblock td,.sblock th{white-space:nowrap}.sblock{max-width:780px;margin:40px auto;text-align:center}.sblock h1{font-size:24px;margin:14px 0 8px}.sblock p{color:var(--ink2);line-height:1.55;margin:0 0 6px}
 .sblock .card{text-align:left;margin-top:22px}
 .bizcard input.sel:disabled{background:#f3f4f8;color:var(--ink2);cursor:not-allowed}
+
+/* date pickers: one look for business day, from–to, week and month (like the reference) */
+.drp .dq{background:var(--surface,#fff);gap:8px;padding:14px;min-width:150px;justify-content:center}
+.drp .dq button{border:1px solid var(--line);border-radius:8px;text-align:center;padding:9px 14px;color:var(--ink);font-weight:500}
+.drp .dq button:hover{background:#f3f4f8}.drp .dq button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.drp .dh button{border:0;background:none;font-size:20px;font-weight:600}.drp .dh button:hover:not(:disabled){background:#f3f4f8}
+.drp .dh span,.pkpop .pkh b{border:1px solid var(--accent);border-radius:8px;padding:4px 8px;font-weight:700}
+.pkpop .pkh b{border-color:transparent}
+.drp .dw{font-weight:500;color:#8e8a9f}
+.drp .dd{height:34px;margin:0 1px}
+.drp .dd::after{inset:1px;border-radius:6px}
+.drp .dd.in{background:#dadbe1}.drp .dd.ed.st{background:linear-gradient(90deg,transparent 50%,#dadbe1 50%)}.drp .dd.ed.en{background:linear-gradient(90deg,#dadbe1 50%,transparent 50%)}
+.drp .dd.ed::after{background:var(--accent)}.drp .dd.ot:not(.ed):not(.in){color:#a9a7b3}
+.drp .dd.today:not(.ed)::after{box-shadow:inset 0 0 0 1.5px var(--accent)}.drp .dd.today:not(.ed){color:inherit}
+.drp .dn{display:none}
+.pkpop .pkg button.on{background:var(--accent)!important;color:#fff!important;border-radius:6px}
+/* every date field: one button that shows 15-11-2026 and opens the picker */
+.dfx{display:inline-flex!important;align-items:center;gap:10px;width:100%;height:42px!important;min-height:0!important;max-height:42px;align-self:start;text-align:left;cursor:pointer;white-space:nowrap}
+.dfx span{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:left}.dfx .ph{color:#9b98a8}
+.dfx svg{width:18px;height:18px;flex:none;color:#6b6880}.dfx .dfclr{border:0;background:none;padding:0 2px;color:#9b98a8;font-size:16px;line-height:1;cursor:pointer}
+input.dfh{display:none!important}
+.dmyw:has(.dfx)>.dmyo{display:none!important}.dfx,.dfx span{text-transform:none!important}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1574,6 +1596,10 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 <div id="splash" style="position:fixed;inset:0;z-index:2147483600;background:#f3f4f8;display:grid;place-items:center;transition:opacity .25s"><div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:66px;height:77px;animation:splashPulse 1.2s ease-in-out infinite"><svg style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><div id="splashMsg" style="font:500 14px Inter,system-ui,sans-serif;color:#8d8c98;min-height:18px"></div></div></div>
 <style>@keyframes splashPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.92);opacity:.75}}</style>
 <script>
+// every date is written 15-11-2026 (with time: 15-11-2026 19:08)
+if(!Date.prototype.dmy) Date.prototype.dmy = function(time){ const p = n => String(n).padStart(2,"0"); return isNaN(this) ? "—" : p(this.getDate()) + "-" + p(this.getMonth()+1) + "-" + this.getFullYear() + (time ? " " + p(this.getHours()) + ":" + p(this.getMinutes()) : ""); };
+const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" + String(s).slice(0,4) : "";
+
 // full-page loading screen on every refresh: the logo in the middle until the first screen (or the sign-in) is ready
 (function(){ const sp = document.getElementById("splash"); let done = false;
   const hide = () => { if(done) return; done = true; sp.style.opacity = "0"; setTimeout(() => sp.remove(), 260); };
@@ -2215,7 +2241,7 @@ function cmpRange(){ if(state.cmpDate) return { end:state.cmpDate, n: state.cmpD
   if(dmode()==="month"){ const p = periodOf("month", dAdd(dashFrom(), -1)); return { end:p.to, n:p.n }; }
   return { end: dAdd(state.date, -rangeDays()), n: rangeDays() }; }
 function cmpDefault(){ return cmpRange().end; }
-const perLbl = (to, n) => n===1 ? to : `${dAdd(to, 1-n)} - ${to}`;
+const perLbl = (to, n) => n===1 ? dmyS(to) : `${dmyS(dAdd(to, 1-n))} – ${dmyS(to)}`;
 function cmpLbl(){ const c = cmpRange(); return state.cmpDate ? perLbl(c.end, c.n) : dmode()==="month" ? "previous month" : dmode()==="week" ? "previous week" : "previous day"; }
 function filterBar(){
   const md = dmode(), c = cmpRange();
@@ -2232,7 +2258,7 @@ function pkClose(){ PK.el?.remove(); PK.el = null; }
 function pkOpen(anchor, mode, cur, onPick){ pkClose(); const el = PK.el = document.createElement("div"); el.className = "pkpop"; document.body.appendChild(el);
   const r = anchor.getBoundingClientRect(); el.style.top = (r.bottom + window.scrollY + 6) + "px"; el.style.left = Math.max(8, r.left + window.scrollX) + "px";
   const d0 = new Date(cur+"T12:00:00"); let y = d0.getFullYear(), m = d0.getMonth();
-  const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], fmt = s => { const d = new Date(s+"T12:00:00"); return String(d.getDate()).padStart(2,"0") + " " + MN[d.getMonth()]; };
+  const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], fmt = s => { const d = new Date(s+"T12:00:00"); return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0"); };
   const draw = () => { if(mode==="month"){ const sel = periodOf("month", cur).from;
       el.innerHTML = `<div class="pkh"><button type="button" data-pkn="-1" aria-label="Previous year">‹</button><b>${y}</b><button type="button" data-pkn="1" aria-label="Next year">›</button></div><div class="pkg pkm">${MN.map((t,i) => { const v = ymdS(new Date(y, i, 1, 12)); return `<button type="button" data-pkv="${v}" class="${v===sel?"on":""}">${t}</button>`; }).join("")}</div>`; }
     else { const sel = wkStart(cur), first = ymdS(new Date(y, m, 1, 12)); let a = wkStart(first); if(a < first) a = dAdd(a, 7); const l = []; while(new Date(a+"T12:00:00").getMonth()===m){ l.push(a); a = dAdd(a, 7); }
@@ -2292,7 +2318,7 @@ function viewDashboard(){
     </div>`;
     if(rangeDays()>1){
       const n = rangeDays(), days = [], labels = [], end = new Date(state.date+"T12:00:00");
-      for(let i=n-1;i>=0;i--){ const x = new Date(end); x.setDate(end.getDate()-i); const k = x.toISOString().slice(0,10); days.push(+(D.days.find(d=>d.d===k)?.net||0)); labels.push(x.toLocaleDateString("en-GB",{day:"numeric",month:"short"})); }
+      for(let i=n-1;i>=0;i--){ const x = new Date(end); x.setDate(end.getDate()-i); const k = x.toISOString().slice(0,10); days.push(+(D.days.find(d=>d.d===k)?.net||0)); labels.push(x.dmy()); }
       h += `<div class="card" style="margin-bottom:16px"><div class="kh"><h3>Net sales by day</h3></div>${lineChart(days, {w:1400, h:260, fs:13, fmt:"m", dots:true, labelStep: n>7?5:1, labels, label:"Net sales by day"})}</div>`;
     }
     h += `<div class="grid two">
@@ -2355,7 +2381,7 @@ function viewKitchenDash(K, P, bname){
   return h;
 }
 function viewInventoryDash(I, bname){
-  const fmtD = d => d ? new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "Never";
+  const fmtD = d => d ? new Date(d).dmy() : "Never";
   const hints = [];
   if(I.items && I.withCost < I.items) hints.push(`${I.items - I.withCost} of ${I.items} items have no cost, so their stock value shows as zero.`);
   if(I.items && !I.withMin) hints.push("No item has a minimum level yet");
@@ -2489,7 +2515,7 @@ function rptTable(head, rows, foot){
 }
 // what the report shows: { title, head:[[label, tip, numeric]], rows:[[cells]], foot, csv:[[...]] }
 function rptBuild(){
-  const R = RPT.rows || [], t = (d) => d ? new Date(d).toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+  const R = RPT.rows || [], t = (d) => d ? new Date(d).dmy(true) : "—";
   if(RPT.key==="sales"){
     const dimLbl = { branch:"Branch", product:"Product", category:"Category", type:"Order Type", source:"Order Source", channel:"Sales Channel", cashier:"Cashier", payment:"Payment Type", customer:"Customer" }[RPT.dim];
     const gl = RPT_GROUPS.find(g => g[0]===RPT.group)?.[1], list = rptAggregate(R, RPT.dim, RPT.group);
@@ -2556,7 +2582,7 @@ function rptBuild(){
   }
   return { title:"Report", head:[], rows:[] };
 }
-const fmtD = d => d ? new Date(d + "T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "—";
+const fmtD = d => d ? new Date(d + "T12:00:00").dmy() : "—";
 function viewReports(route){
   const hub = RPT_HUB[route]; if(!hub) return "";
   if(!RPT.key || RPT.hub!==route){
@@ -2634,7 +2660,7 @@ function viewBranches(){
       <td><b>${esc(b.name)}</b>${tagChips("branch", b.id)}${brandList().length > 1 ? ` <span class="note">${esc(brandName(b.brandId))}</span>` : ""}</td>
       <td>${esc(b.code || "—")}</td>
       <td>${esc(tgName(b.settings?.taxGroup)) || '<span class="note">—</span>'}</td>
-      <td>${b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : '<span class="note">—</span>'}</td></tr>`).join("")
+      <td>${b.createdAt ? new Date(b.createdAt).dmy() : '<span class="note">—</span>'}</td></tr>`).join("")
   }</tbody></table></div>`;
   return h;
 }
@@ -3356,7 +3382,7 @@ function canOpen(route){
 const bySort = (a,b) => (a.sort??9999)-(b.sort??9999) || String(a.name||"").localeCompare(String(b.name||""));
 const catRank = id => S.categories.find(c => c.id===id)?.sort ?? 9999;
 const branchName = id => branches.find(b => b.id===id)?.name || "—";
-const fmtDate = s => s ? new Date(s).toLocaleString("en-GB",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",","") : "—";
+const fmtDate = s => s ? new Date(s).dmy(true).replace(",","") : "—";
 const ago = s => { const m = Math.round((Date.now() - new Date(s))/60000); if(m<1) return "just now"; if(m<60) return m + " minute" + (m>1?"s":"") + " ago"; const h = Math.round(m/60); if(h<24) return (h===1?"an":h) + " hour" + (h>1?"s":"") + " ago"; return Math.round(h/24) + " days ago"; };
 const usd = n => CURJ(SYM(), (+n||0).toLocaleString("en-US",{minimumFractionDigits:DEC(),maximumFractionDigits:DEC()}));
 
@@ -4941,7 +4967,7 @@ const devType = t => (DEV_TYPES.find(x => x[0]===t) || [, t==="waiter" ? "Waiter
 const devRef = () => { const used = new Set(S.devices.filter(d => !d.deleted).map(d => String(d.reference||"").toUpperCase())); for(let n = 1; ; n++){ const r = "POS" + String(n).padStart(2, "0"); if(!used.has(r)) return r; } };   // POS01, POS02, …
 const devStatus = d => d.activatedAt ? '<span class="tag on">Used</span>' : '<span class="tag off">Not Used</span>';
 function viewDevice(d){
-  const s = d.settings || {}, row = (k, v) => `<div><span>${k}</span>${v}</div>`, dt = t => t ? new Date(t).toLocaleString("en-GB",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}) : "—";
+  const s = d.settings || {}, row = (k, v) => `<div><span>${k}</span>${v}</div>`, dt = t => t ? new Date(t).dmy(true) : "—";
   const last = S.orders.filter(o => o.deviceId===d.id).reduce((m,o) => o.createdAt > m ? o.createdAt : m, "");
   return `<div class="phead"><a class="btn" href="#devices" data-devback style="text-decoration:none">← Back</a><h1>${esc(d.name)}</h1><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
       <button class="btn" data-devsync="${esc(d.id)}">${svgIco("refresh")}Force Sync Data</button><button class="btn" data-devcopy="${esc(d.id)}">${svgIco("copy")}Copy Settings</button><button class="btn" data-devset="${esc(d.id)}">${svgIco("gear")}Device Settings</button><button class="btn pri" data-devedit="${esc(d.id)}">Edit Device</button></div>
@@ -6090,7 +6116,7 @@ function viewOrders(){
   loadOrders();
   const sel = (id, val, opts) => `<select class="sel" id="${id}">${opts.map(([v,t])=>`<option value="${v}" ${val===v?"selected":""}>${t}</option>`).join("")}</select>`;
   const pages = Math.max(1, Math.ceil(ORD.count/ORD.per)), a = ORD.count ? (ORD.page-1)*ORD.per+1 : 0, b = Math.min(ORD.count, ORD.page*ORD.per);
-  const dt = t => new Date(t).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+  const dt = t => new Date(t).dmy(true);
   const CHL = { pos:"POS", callcenter:"Call center", online:"Web ordering" }, TYL = { dinein:"Dine-in", fast:"Fast Order", pickup:"Pickup", delivery:"Delivery" };
   const chips = [["brand", ORD.brand && (brandName(ORD.brand) || "Brand")], ["branch", ORD.branch && (branches.find(b=>b.id===ORD.branch)?.name || "Branch")], ["channel", ORD.channel && CHL[ORD.channel]], ["type", ORD.type && TYL[ORD.type]], ["source", ORD.source], ["pay", ORD.pay]].filter(x => x[1]);
   const nF = chips.length;
@@ -6113,7 +6139,7 @@ async function openOrderDetail(id, quiet){
   const { data, error } = await WOK.sb.from("orders").select("*").eq("id", id).maybeSingle();
   if(error || !data){ if(!quiet) toast("Couldn't open this order"); return; }
   const o = fromRowO(data); ORD.open = id;
-  const dt = t => t ? new Date(t).toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+  const dt = t => t ? new Date(t).dmy(true) : "—";
   const mins = (a,b) => a && b ? Math.round((new Date(b)-new Date(a))/60000) + " min" : "";
   const admin = ["owner","admin"].includes(state.role);
   const items = Array.isArray(o.items) ? o.items : [];
@@ -6129,7 +6155,7 @@ async function openOrderDetail(id, quiet){
       <div><span>Order type</span>${esc(ordTypeLbl(o.type))}${o.table?` · Table ${esc(o.table)}`:""}</div>
       <div><span>Order source</span>${o.source && o.source!=="POS" && !(o.channel==="online" && o.source==="Website") ? esc(o.source) : "—"}</div>
       <div><span>Tags</span>${tagsOf("order", o.id).map(t => `<span class="tag cc">${esc(tagName(t))}</span>`).join(" ") || "—"} <a href="#orders" class="lnk" data-otags="${esc(o.id)}">Edit</a></div>
-      <div><span>Business date</span>${o.createdAt ? new Date(bizDate(o.createdAt, o.branchId) + "T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) + ` <span class="note">${new Date(o.createdAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span>` : "—"}</div>
+      <div><span>Business date</span>${o.createdAt ? new Date(bizDate(o.createdAt, o.branchId) + "T12:00:00").dmy() + ` <span class="note">${new Date(o.createdAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span>` : "—"}</div>
       ${o.acceptedAt?`<div><span>Accepted</span>${dt(o.acceptedAt)} <span class="note">(${mins(o.createdAt,o.acceptedAt)})</span></div>`:""}
       ${o.doneAt?`<div><span>${o.status==="declined"?"Declined":"Done"}</span>${dt(o.doneAt)} <span class="note">(${mins(o.createdAt,o.doneAt)} total)</span></div>`:""}
       ${o.agent?`<div><span>${o.channel==="pos"?"Device":"User"}</span>${esc(o.agent)}</div>`:""}
@@ -6205,7 +6231,7 @@ $("#view").addEventListener("change", e => {
 });
 let ordQT; $("#view").addEventListener("input", e => { if(e.target.id==="ordQ"){ clearTimeout(ordQT); const v = e.target.value; ordQT = setTimeout(() => { ORD.q = v; ORD.page = 1; render(); const el = $("#ordQ"); if(el){ el.focus(); el.setSelectionRange(v.length, v.length); } }, 350); } });
 // one calendar for a from–to range: first click picks the start, second click the end
-const drpFmt = d => new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+const drpFmt = d => dmyS(d);
 const drpLabel = (f, t) => !f ? "Pick dates" : f===t ? drpFmt(f) : drpFmt(f) + " – " + drpFmt(t);
 const ymd = d => new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 const DRP = { el:null, anchor:null, m:null, a:null, hover:null, onPick:null, from:"", to:"" };
@@ -6235,7 +6261,7 @@ document.addEventListener("click", e => { const it = e.target.closest?.(".ddmenu
   const m = it.closest(".ddmenu, #acctMenu, #ubMenu"); if(m && m.id === "ubMenu" && it.matches("label")) return;   // the branch picker stays open while ticking branches
   setTimeout(() => { if(m && m.isConnected && !m.hidden){ m.hidden = true; if(m.id==="acctMenu") $("#acctBtn")?.setAttribute("aria-expanded","false"); } }, 0); });
 document.addEventListener("keydown", e => { if(e.key==="Escape") closeMenus(); });
-function drpClose(){ DRP.el?.remove(); DRP.el = null; DRP.a = null; DRP.all = false; DRP.single = false; }
+function drpClose(){ DRP.el?.remove(); DRP.el = null; DRP.a = null; DRP.all = false; DRP.single = false; DRP.future = false; }
 function drpOpen(anchor, from, to, onPick){
   drpClose(); Object.assign(DRP, { anchor, from, to, onPick, a:null, hover:null, m:(to || todayStr()).slice(0,7) });
   DRP.el = document.createElement("div"); DRP.el.className = "drp"; DRP.el.setAttribute("role","dialog"); DRP.el.setAttribute("aria-label","Choose dates");
@@ -6246,14 +6272,16 @@ function drpDraw(){
   const [y, mo] = DRP.m.split("-").map(Number), first = new Date(y, mo-1, 1), days = new Date(y, mo, 0).getDate(), lead = (first.getDay() + 6) % 7, max = todayStr();
   const lo = DRP.a ? (DRP.hover && DRP.hover < DRP.a ? DRP.hover : DRP.a) : DRP.from, hi = DRP.a ? (DRP.hover && DRP.hover > DRP.a ? DRP.hover : DRP.a) : DRP.to;
   let cells = "";
-  for(let i=0;i<lead;i++) cells += "<span></span>";
+  const dkey = dt => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`;
+  const cellOf = (k, n, ot) => `<button type="button" class="dd${ot?" ot":""}${k===lo||k===hi?" ed":k>lo&&k<hi?" in":""}${k===lo&&hi&&hi!==lo?" st":""}${k===hi&&lo&&hi!==lo?" en":""}${k===max?" today":""}" data-drpd="${k}" ${k>max && !DRP.future?"disabled":""}>${n}</button>`;
+  for(let i=lead;i>0;i--){ const dt = new Date(y, mo-1, 1-i, 12); cells += cellOf(dkey(dt), dt.getDate(), true); }
   for(let d=1; d<=days; d++){ const k = `${y}-${String(mo).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    cells += `<button type="button" class="dd${k===lo||k===hi?" ed":k>lo&&k<hi?" in":""}${k===lo&&hi&&hi!==lo?" st":""}${k===hi&&lo&&hi!==lo?" en":""}${k===max?" today":""}" data-drpd="${k}" ${k>max?"disabled":""}>${d}</button>`; }
-  const Q = DRP.single ? [["Today","0"],["Yesterday","-1"]] : [...(DRP.all ? [["All time","all"]] : []), ["Today","0"],["Yesterday","-1"],["This week","w"],["Last week","lw"],["Last 7 days","6"],["Last 30 days","29"],["This month","m"],["Last month","lm"]];
+    cells += `<button type="button" class="dd${k===lo||k===hi?" ed":k>lo&&k<hi?" in":""}${k===lo&&hi&&hi!==lo?" st":""}${k===hi&&lo&&hi!==lo?" en":""}${k===max?" today":""}" data-drpd="${k}" ${k>max && !DRP.future?"disabled":""}>${d}</button>`; }
+  const Q = DRP.single ? [] : [...(DRP.all ? [["All Time","all"]] : []), ["Today","0"],["Yesterday","-1"],["This Week","w"],["Last Week","lw"],["This Month","m"],["Last Month","lm"]];
   const on = v => { const r = drpQRange(v); return r && r[0]===DRP.from && r[1]===DRP.to; };
   DRP.el.innerHTML = `${DRP.single ? "" : `<div class="dq">${Q.map(([t,n])=>`<button type="button" data-drpq="${n}" class="${!DRP.a && (n==="all" ? !DRP.from : on(n)) ? "on" : ""}">${t}</button>`).join("")}</div>`}
-    <div class="dc"><div class="dh"><button type="button" data-drpm="-1" aria-label="Previous month">‹</button><span>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</span><button type="button" data-drpm="1" aria-label="Next month" ${DRP.m>=max.slice(0,7)?"disabled":""}>›</button></div>
-    <div class="dg">${["Mo","Tu","We","Th","Fr","Sa","Su"].map(w=>`<span class="dw">${w}</span>`).join("")}${cells}</div>
+    <div class="dc"><div class="dh"><button type="button" data-drpm="-1" aria-label="Previous month">‹</button><span>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</span><button type="button" data-drpm="1" aria-label="Next month" ${!DRP.future && DRP.m>=max.slice(0,7)?"disabled":""}>›</button></div>
+    <div class="dg">${["Mo","Tu","We","Th","Fr","Sa","Su"].map(w=>`<span class="dw">${w}</span>`).join("")}${cells}${(() => { let t = ""; const used = lead + days; for(let i=1;i<=42-used;i++){ const dt = new Date(y, mo, i, 12); t += cellOf(dkey(dt), dt.getDate(), true); } return t; })()}</div>
     ${DRP.single ? "" : `<div class="dn">${DRP.a ? "Now pick the end date" : "Pick the start date, then the end date"}</div>`}</div>`;
 }
 // the dates a quick choice stands for
@@ -6263,6 +6291,40 @@ function drpQRange(v){ const t = todayStr(), d = new Date(t + "T12:00:00"), iso 
   if(v==="lw") return [daysAgo(dow + 7), daysAgo(dow + 1)];
   if(v==="lm"){ const a = new Date(d.getFullYear(), d.getMonth() - 1, 1, 12), b = new Date(d.getFullYear(), d.getMonth(), 0, 12); return [iso(a), iso(b)]; }
   return [daysAgo(+v), t]; }
+// every date field in the back office uses the same picker: a business day field opens the one-day calendar,
+// a From and To pair becomes one field that opens the from–to calendar with quick picks. Dates show as 15-11-2026.
+(() => {
+  const partner = el => { const m = (el.id || "").match(/^(.*?)(from|From)$/); if(!m) return null; const p = document.getElementById(m[1] + (m[2]==="from" ? "to" : "To")); return p && p.type==="date" ? p : null; };
+  const fire = el => { el.dispatchEvent(new Event("input", { bubbles:true })); el.dispatchEvent(new Event("change", { bubbles:true })); };
+  const paint = b => { const f = b._f.value, t = b._t?.value || "", has = b._t ? (f || t) : f;
+    const txt = b._t ? (has ? (f && t && f!==t ? dmyS(f) + " – " + dmyS(t) : dmyS(f || t)) : "Any date") : (f ? dmyS(f) : "dd-mm-yyyy");
+    const key = txt + "|" + !!has; if(b._k === key) return; b._k = key;
+    b.innerHTML = `<span class="${has ? "" : "ph"}">${txt}</span>${has && !b._req ? `<i class="dfclr" role="button" aria-label="Clear date">×</i>` : ""}${svgIco("calendar")}`; };
+  const relabel = (inp) => { const l = (inp.id && document.querySelector(`label[for="${CSS.escape(inp.id)}"]`)) || inp.closest("label"); if(!l) return;
+    [...l.childNodes].forEach(n => { if(n.nodeType===3) n.textContent = n.textContent.replace(/\s*\(?\bFrom\b\)?\s*/i, " ").replace(/\s+\*/, " *").replace(/^\s+$/, ""); }); };
+  function enhance(){
+    document.querySelectorAll('input[type="date"]:not(.dfh)').forEach(inp => {
+      if(inp.closest(".drp,.pkpop")) return;
+      const to = partner(inp); if(/(^|_)(to|To)$|To$/.test(inp.id || "") && document.getElementById((inp.id||"").replace(/(to|To)$/, m => m==="to" ? "from" : "From"))) return;   // the To of a pair: handled with its From
+      const b = document.createElement("button"); b.type = "button"; b.className = "sel drpbtn dfx"; b._f = inp; b._t = to; b.setAttribute("aria-haspopup", "dialog");
+      if(inp.required){ b._req = true; inp.required = false; } if(to?.required) to.required = false;   // a hidden field can't show the browser's "fill this in" bubble
+      const hide = el => { el.classList.add("dfh"); el.style.setProperty("display", "none", "important"); };
+      hide(inp); if(to){ hide(to); const w = to.closest(".f") || to.closest("label"); if(w && !w.contains(inp)) w.style.display = "none"; relabel(inp); }
+      inp.after(b); paint(b);
+    });
+    document.querySelectorAll(".dfx").forEach(paint);
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest?.(".dfx"); if(!b) return; e.preventDefault(); e.stopPropagation();
+    if(e.target.closest(".dfclr")){ b._f.value = ""; if(b._t) b._t.value = ""; fire(b._f); if(b._t) fire(b._t); drpClose(); paint(b); return; }
+    if(DRP.el && DRP.anchor === b) return drpClose();
+    const f = b._f.value || b._t?.value || "", t = b._t?.value || b._f.value || "";
+    drpOpen(b, f, t, (x, y) => { b._f.value = x || ""; fire(b._f); if(b._t){ b._t.value = y || ""; fire(b._t); } paint(b); });
+    DRP.single = !b._t; DRP.all = !!b._t; DRP.future = true; drpDraw();
+  }, true);
+  let q = 0; new MutationObserver(() => { if(q) return; q = requestAnimationFrame(() => { q = 0; enhance(); }); }).observe(document.documentElement, { childList:true, subtree:true });
+  document.addEventListener("DOMContentLoaded", enhance);
+})();
 function drpDone(f, t){ const cb = DRP.onPick; drpClose(); cb && cb(f, t); }
 document.addEventListener("click", e => {
   if(!DRP.el) return;
@@ -6356,7 +6418,7 @@ const ccDefault = () => { const n = company().country || "Lebanon"; if(n==="Unit
 const telFmt = v => { const t = String(v||"").trim(); if(!t.startsWith("+")) return t; const sp = ccSplit(t); return sp.num && t.replace(/[^\d+]/g, "").startsWith(sp.cc) ? sp.cc + " " + skwPhoneFmt(sp.cc, sp.num) : t; };   // +961 70123456
 function ccSplit(v){ const t = String(v||"").trim(); if(t.startsWith("+")){ const d = t.replace(/[^\d+]/g, ""), m = CC_CODES.map(x=>x[0]).sort((a,b)=>b.length-a.length).find(c => d.startsWith(c)); if(m) return { cc: m, num: d.slice(m.length) }; } return { cc: ccDefault(), num: t }; }
 function ccPhone(){ const raw = ($("#oPhone")?.value || "").trim(); if(!raw) return ""; if(raw.startsWith("+")) return normPhone(raw); return ($("#oCc")?.value || ccDefault()) + raw.replace(/\D/g, "").replace(/^0+/, ""); }
-const ago2 = t => { if(!t) return "—"; const d = Math.floor((Date.now()-new Date(t))/86400000); return d<=0 ? "Today" : d===1 ? "Yesterday" : d<31 ? d+" days ago" : new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}); };
+const ago2 = t => { if(!t) return "—"; const d = Math.floor((Date.now()-new Date(t))/86400000); return d<=0 ? "Today" : d===1 ? "Yesterday" : d<31 ? d+" days ago" : new Date(t).dmy(); };
 const cusAdv = () => Object.values(CUS.flt).some(v => v);
 function cusMatch(c){
   const f = CUS.flt, has = (v, q) => String(v||"").toLowerCase().includes(String(q).toLowerCase().trim());
@@ -6432,7 +6494,7 @@ function viewCustomer(){
   const prod = {}, brs = {};
   done.forEach(o => { brs[o.branch_id] = (brs[o.branch_id]||0) + 1; (o.items||[]).forEach(i => { if(i.voided) return; const k = i.name || "—"; prod[k] = (prod[k]||0) + (+i.qty||1); }); });
   const spent = done.reduce((s,o)=>s+(+o.total||0),0), disc = done.reduce((s,o)=>s+cusNum(o.discount),0), fb = cusTop(brs);
-  const dtf = t => t ? new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "—";
+  const dtf = t => t ? new Date(t).dmy() : "—";
   const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
   const zn = id => (S.zones||[]).find(z => z.id===id)?.name;
   const used = []; { const ak = v => String(v||"").trim().replace(/^\[.*?\]\s*/, "").toLowerCase().replace(/[:·,]/g, " ").replace(/\s+/g, " ").trim();   /* the same place, whatever its label: an order address already saved isn't offered again */
@@ -6453,14 +6515,14 @@ function viewCustomer(){
       ${row("Gender", esc({ male:"Male", female:"Female" }[c.gender] || "—"))}${row("Loyalty", c.loyalty ? "Enabled" : "Disabled")}${row("House Account", c.house_account ? `Enabled · balance <b class="${haBal(c) < 0 ? "neg" : ""}">${money(haBal(c))}</b>` : "Disabled")}${c.house_account ? row("Credit Limit", `${c.house_limit!=null ? money(+c.house_limit) : "No limit"} <a href="#customers" class="lnk" id="cuHaLim">Change</a>`) : ""}${row("Blacklist", c.blacklisted ? "Yes" : "No")}
       ${row("Created", dtf(c.created_at))}${c.notes ? `<div style="grid-column:1/-1"><span>Customer Notes</span>${esc(c.notes)}</div>` : ""}</div>
     ${c.house_account || (c.__ha||[]).length ? `<div class="card brcard"><div class="brch"><h3>House Account Transactions</h3><span class="note" style="margin-left:6px">Balance ${money(haBal(c))}</span><span class="sp"></span>${c.house_account ? `<button class="btn sm" id="cuHaPay">Add Payment</button>` : ""}</div>
-      ${(c.__ha||[]).length ? tbl(["Date","Type","Payment Type","Reference","Branch","By",`<span class="num">Amount</span>`], c.__ha.map(t => `<tr><td>${new Date(t.created_at).toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})}</td><td>${t.kind==="payment" ? "Payment" : "Order"}</td><td>${esc(t.method || "—")}</td><td>${esc(t.order_ref || t.note || "—")}</td><td>${esc(t.branch_id ? branchName(t.branch_id) || "—" : "—")}</td><td>${esc(t.created_by || "—")}</td><td class="num" style="color:${t.kind==="payment" ? "#067647" : "#b42318"}">${t.kind==="payment" ? "+" : "−"}${money(+t.amount)}</td></tr>`))
+      ${(c.__ha||[]).length ? tbl(["Date","Type","Payment Type","Reference","Branch","By",`<span class="num">Amount</span>`], c.__ha.map(t => `<tr><td>${new Date(t.created_at).dmy(true)}</td><td>${t.kind==="payment" ? "Payment" : "Order"}</td><td>${esc(t.method || "—")}</td><td>${esc(t.order_ref || t.note || "—")}</td><td>${esc(t.branch_id ? branchName(t.branch_id) || "—" : "—")}</td><td>${esc(t.created_by || "—")}</td><td class="num" style="color:${t.kind==="payment" ? "#067647" : "#b42318"}">${t.kind==="payment" ? "+" : "−"}${money(+t.amount)}</td></tr>`))
         : '<p class="note brempty">Here you can register debit payments and see all credit and debit payments made by this customer.</p>'}</div>` : ""}
     <div class="card brcard"><div class="brch"><h3>Tags</h3><span class="sp"></span><button class="btn sm" id="cuTagBtn">Add</button></div>${c.tags.length ? `<div>${c.tags.map((t,i)=>`<span class="tag cc">${esc(t)} <a href="#customers" class="lnk" data-cdtag="${i}" aria-label="Remove tag" style="text-decoration:none">×</a></span>`).join(" ")}</div>` : '<p class="note brempty">No data to display!</p>'}</div>
     <div class="card brcard"><div class="brch"><h3>Addresses</h3><span class="sp"></span><button class="btn sm" id="cuAddrBtn">Add</button></div>${tbl(["Name","Description","Delivery Zone","Created",""],
       c.addresses.map((a,i) => `<tr class="click" data-cuedaddr="${i}" title="Open address details"><td>${esc(addrSplit(a.address).label || "—")}</td><td>${desc(a.address)} ${a.lat ? mapLink(a) : ""}</td><td>${esc(zn(a.zoneId) || "—")}</td><td>${dtf(a.createdAt)}</td><td class="num"><a href="#customers" class="lnk" data-cdaddr="${i}">Remove</a></td></tr>`)
       .concat(used.map((v,i) => `<tr><td>${esc(addrSplit(v).label || "—")}</td><td>${desc(v)} <span class="tag">from orders</span></td><td>—</td><td>—</td><td class="num"><a href="#customers" class="lnk" data-csaddr="${i}">Save</a></td></tr>`)))}</div>
     <div class="card brcard otbl"><div class="brch"><h3>Orders</h3></div>${tbl(["Reference #","Invoice #","Order #","Business date","Branch","Sales channel","Order type","Order source","Payment Type","Status",`<span class="num">Total</span>`],
-      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(CH_LBL[o.channel]||cap(o.channel))}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div>`;
+      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(CH_LBL[o.channel]||cap(o.channel))}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div>`;
 }
 // save a change made on the customer page straight away
 async function cusPatch(patch, msg){
@@ -6567,7 +6629,7 @@ async function exportCustomers(){
   const { data, error } = await WOK.sb.rpc("skwyd_customers", { p_q: CUS.q.trim(), p_filter: CUS.filter, p_sort: CUS.sort, p_limit: 10000, p_offset: 0 });
   if(error) return toast("Export failed: " + error.message);
   const q = v => { v = v==null ? "" : String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
-  const rows = data.rows.filter(c => !cusAdv() || cusMatch(c)).map(c => [c.name, c.phone, c.email, c.n, c.last_at?new Date(c.last_at).toLocaleDateString("en-GB"):"", (+c.spent).toFixed(2), (c.tags||[]).join("; "), c.blacklisted?"Yes":"No"]);
+  const rows = data.rows.filter(c => !cusAdv() || cusMatch(c)).map(c => [c.name, c.phone, c.email, c.n, c.last_at?new Date(c.last_at).dmy():"", (+c.spent).toFixed(2), (c.tags||[]).join("; "), c.blacklisted?"Yes":"No"]);
   const blob = new Blob([[["Name","Phone","Email","Total Orders","Last Order","Total Spent","Tags","Blacklisted"], ...rows].map(l=>l.map(q).join(",")).join("\n")], { type:"text/csv" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `skwyd-customers-${todayStr()}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
@@ -6621,7 +6683,7 @@ async function ccLookup(view){
   const ok = (past||[]).filter(o => ["pending","active","closed"].includes(o.status)), spent = ok.reduce((a,o)=>a+(+o.total||0),0);
   const fav = {}; ok.forEach(o => (o.items||[]).forEach(i => fav[i.name] = (fav[i.name]||0) + (+i.qty||1)));
   const top = Object.entries(fav).sort((a,b)=>b[1]-a[1]).slice(0,3), last = ok[0], first = ok[ok.length-1];
-  const d = t => t ? new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "—";
+  const d = t => t ? new Date(t).dmy() : "—";
   $("#oInsights").innerHTML = `<div class="cins"><div class="cins-h"><b>Customer insights</b><span class="note">Since ${d(data.created_at || first?.created_at)}</span></div>
     <div class="cins-g"><div><span>Orders</span><b>${ok.length}</b></div><div><span>Total spent</span><b>${usd(spent)}</b></div><div><span>Avg. order</span><b>${usd(ok.length ? spent/ok.length : 0)}</b></div><div><span>Last order</span><b>${last ? d(last.created_at) : "—"}</b></div></div>
     ${ok.length ? (() => { const n = k => ok.filter(o => o.type===k || (k==="takeaway" && o.type==="pickup")).length, st = n("dinein") + n("fast"); return `<div class="cmix">${n("delivery")} delivery · ${n("takeaway")} pickup${st ? ` · ${st} in store` : ""}</div>`; })() : ""}
@@ -7001,7 +7063,7 @@ function brandDetail(b){
   const admin = !state.role || state.role==="owner" || state.role==="admin", dis = admin ? "" : "disabled", tab = BS_TABS.find(t => t[0]===state.bsTab) || BS_TABS[0];
   const v = { ...brandSet(b.id), ...(state.bsDraft?.[b.id] || {}) }, row = (k, x) => `<div><span>${k}</span>${x}</div>`, brs = branches.filter(x => x.brandId===b.id);
   return `<div class="phead"><a href="#brands" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(b.name)}</h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Brand</button></div>
-    <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Branches", brs.length)}${row("Created", b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "—")}</div>
+    <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Branches", brs.length)}${row("Created", b.createdAt ? new Date(b.createdAt).dmy() : "—")}</div>
     <div class="bswrap"><nav class="bsnav"><b>Settings</b>${BS_TABS.map(([k,t])=>`<a href="#brands" data-bstab="${k}" class="${tab[0]===k?"on":""}">${t}</a>`).join("")}</nav>
     <div class="card bsbody" data-bsbrand="${esc(b.id)}"><h3>${tab[2]}</h3>${admin?"":`<div class="banner">Only the owner or an admin can change settings.</div>`}
       ${tab[3].map(f => bsField(f, v, b, dis)).join("")}
@@ -7264,7 +7326,7 @@ function prSummary(p){
 function prStatus(p){ const t = new Date().toISOString().slice(0,10);
   if(p.deleted) return ["Deleted","s-void"]; if(p.active===false) return ["Inactive","s-draft"];
   if(p.start && p.start > t) return ["Scheduled","s-pending"]; if(p.end && p.end < t) return ["Expired","s-void"]; return ["Active","s-closed"]; }
-const prPeriod = p => { const d = x => new Date(x + "T00:00").toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" }); return p.start || p.end ? (p.start ? d(p.start) : "Now") + " – " + (p.end ? d(p.end) : "No end") : "Always"; };
+const prPeriod = p => { const d = x => new Date(x + "T00:00").dmy(); return p.start || p.end ? (p.start ? d(p.start) : "Now") + " – " + (p.end ? d(p.end) : "No end") : "Always"; };
 function viewPromotions(){
   const q = PR.q.trim().toLowerCase(), tab = PR.tab;
   const list = prList().filter(p => (tab==="deleted" ? !!p.deleted : !p.deleted && (tab==="all" || (tab==="active") === (p.active!==false))) && (!q || (p.name + " " + (p.nameAr||"")).toLowerCase().includes(q))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
@@ -8053,7 +8115,7 @@ async function removeVariant(kid){
 
 function userDetail(u){
   const rs = S.roles.filter(r => userRoleIds(u).includes(r.id)), picked = (u.branchIds||[]).length, brs = picked ? branches.filter(b => u.branchIds.includes(b.id)) : branches.filter(b => b.active!==false);   // "-" alone = no branches yet
-  const dt = t => t ? new Date(t).toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+  const dt = t => t ? new Date(t).dmy(true) : "—";
   // same layout as every other detail page: header, details card, then the sections
   let h = `<div class="phead"><a href="#users" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(u.name)}</h1><div class="sp"></div>
     ${u.userId && state.role!=="owner" ? "" : `<button class="btn" data-usrpw="${esc(u.id)}">${u.userId ? "Change Password" : "Create Password"}</button>`}<button class="btn pri" data-detedit>Edit User</button></div>`;
@@ -8845,7 +8907,7 @@ function viewOrderTx(){
 function openOT(id){ if(!OT.rows.some(x => x.id===id)) return; OT.open = id; render(); scrollTo(0, 0); }
 function otDetail(r){
   const ret = r.kind==="return", o = (S.orders||[]).find(x => x.id===r.order_id || (r.order_no!=null && String(x.no)===String(r.order_no) && x.branchId===r.branch_id));
-  const dt = t => t ? new Date(t).toLocaleString("en-GB", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" }) : "—";
+  const dt = t => t ? new Date(t).dmy(true) : "—";
   let h = `<div class="phead"><a href="#order-transactions" class="btn" data-otback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${ret ? "Return" : "Consumption"} from order (${esc(r.ref)})</h1><span style="margin-left:8px">${docStatusTag({ status:"closed" })}</span><div class="sp"></div><button class="btn" data-otprint>Print</button></div>`;
   h += infoGrid([info("Branch", esc(branchName(r.branch_id))), info("Business Date", esc(r.business_date || (o ? bizDate(o.createdAt, o.branchId) : bizDate(r.created_at, r.branch_id)) || String(r.created_at||"").slice(0,10) || "—")), info("Submitted At", esc(dt(r.created_at))), info("Order Reference", esc(o ? ccRef(o) : (r.order_no ? "#" + r.order_no : "—"))), info("Created At", esc(dt(o?.createdAt || r.created_at))), info("Total Cost", esc(fmtCost(r.total_cost)))]);
   h += `<div class="dzsec dzwide"><div class="dzh"><h3>Items</h3></div><div class="card tbl" style="margin:0"><table><thead><tr><th>Name</th><th>SKU</th><th class="num">Quantity</th><th class="num">Unit Cost</th><th class="num">Total Cost</th></tr></thead><tbody>${(r.items||[]).map(x => { const it = itemOf(x.itemId) || {};
@@ -9446,7 +9508,7 @@ function viewInventoryCount(){
   const items = S.inv_items.filter(live).filter(i => (!inSheet || inSheet.has(i.id)) && (!IC.cat || i.category===IC.cat) && (!q || (i.name+" "+(i.sku||"")).toLowerCase().includes(q)))
     .sort((a,b)=>(a.category||"").localeCompare(b.category||"") || a.name.localeCompare(b.name));
   const entered = Object.values(d).filter(v => v!=="" && v!=null).length;
-  const fmtD = t => t ? new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "";
+  const fmtD = t => t ? new Date(t).dmy() : "";
   return `<div class="phead"><h1>Inventory Count</h1><div class="sp"></div>${scopeBar(false)}</div><p class="subt">Type what's on the shelf for each item, in its storage unit. Leave items blank to skip them. Each save keeps the previous counts as history.</p>
     <div class="row fbar">
       <select class="sel" id="icBranch" aria-label="Branch or warehouse">${act.map(([k,t])=>`<option value="${esc(k)}" ${k===IC.branch?"selected":""}>${esc(t)}</option>`).join("")}</select>

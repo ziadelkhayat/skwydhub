@@ -873,6 +873,10 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 .sklk{flex-direction:column!important;gap:6px!important;font-family:var(--f-ui,inherit)!important;letter-spacing:-1px!important}.sklk .skmark{width:58px;height:68px;display:block}.sklk .skmark svg,.skmark svg{width:100%;height:100%;display:block}.sklk .skw{font-weight:800;font-size:36px;color:#172554;line-height:1}.skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:13px;letter-spacing:0;line-height:1.3;padding:1px 7px;border-radius:7px;background:#c6f432;color:#172554;border:2px solid #172554;transform:translateY(-2px)}
 </style>
 <script>
+// every date is written 15-11-2026 (with time: 15-11-2026 19:08)
+if(!Date.prototype.dmy) Date.prototype.dmy = function(time){ const p = n => String(n).padStart(2,"0"); return isNaN(this) ? "—" : p(this.getDate()) + "-" + p(this.getMonth()+1) + "-" + this.getFullYear() + (time ? " " + p(this.getHours()) + ":" + p(this.getMinutes()) : ""); };
+const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" + String(s).slice(0,4) : "";
+
 /* ---------- naming: menu "products" are called Items; inventory "items" are called Products ----------
    Done on what's shown, so data and links keep their names. On inventory screens both words swap
    (there "item" meant an inventory item and "product" a menu product); everywhere else Product → Item. */
@@ -1374,9 +1378,9 @@ function saleBlock(){
   if(dayClosed(today)) return "Day already ended";
   return "";
 }
-const fmtDay = d => new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short" });
+const fmtDay = d => new Date(d + "T12:00:00").dmy();
 // manual end of day: the current business day can be ended once, until midnight; after midnight it ends by itself at the business day start time (Manage → Branches)
-const atLbl = t => t.toLocaleString("en-GB", { weekday:"short", day:"numeric", month:"short", hour:"numeric", minute:"2-digit" });
+const atLbl = t => t.dmy(true);
 const autoEndAt = day => { const t = new Date(day + "T00:00:00"); t.setDate(t.getDate() + 1); t.setMinutes(dayCut()); return t; };   // the next calendar day at the day start time
 // one end of day per calendar date: after a day is ended, the next one can only happen from midnight
 const endedToday = () => { const d0 = new Date().toDateString(); return S.day_closes.some(c => c.branchId===device.branchId && c.closedAt && new Date(c.closedAt).toDateString()===d0); };
@@ -2476,7 +2480,7 @@ function openOrderView(id){
   S.orders.filter(x => x.refundOf===o.id).forEach(x => acts.push(`<button class="btn" data-ov="${esc(x.id)}">Return ${esc(ordRef(x))}</button>`));
   if(o.status==="refund" && src) acts.push(`<button class="btn" data-ov="${esc(src.id)}">Open original order</button>`);
   modal("orderview", `<div class="mh"><h2>Order ${esc(ordRef(o)==="—" && o.ref ? o.ref : ordRef(o))} <span class="spill s-${o.status}">${stLbl(o)}</span></h2></div><div class="mb">
-    <p class="mut">${o.invoiceNo && o.no?`${esc(invNo(o.invoiceNo))} · `:""}${esc(typLbl(o.type))}${o.table?" T"+esc(o.table):""} · <b class="chtag">${o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering"}</b>${o.source && !["POS","Call center"].includes(o.source) ? " · " + esc(o.source) : ""} · ${new Date(o.createdAt).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}${o.agent?` · ${esc(o.agent)}`:""}</p>
+    <p class="mut">${o.invoiceNo && o.no?`${esc(invNo(o.invoiceNo))} · `:""}${esc(typLbl(o.type))}${o.table?" T"+esc(o.table):""} · <b class="chtag">${o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering"}</b>${o.source && !["POS","Call center"].includes(o.source) ? " · " + esc(o.source) : ""} · ${new Date(o.createdAt).dmy(true)}${o.agent?` · ${esc(o.agent)}`:""}</p>
     ${o.customerName||o.phone ? `<p><b>${esc(o.customerName||"")}</b> ${o.phone?`<a href="tel:${esc(o.phone)}" style="color:#1e3a8a">${esc(telFmt(o.phone))}</a>`:""}${o.address?`<br><span class="mut">${esc(o.address)}</span>`:""}${o.lat?`<br><a href="https://www.google.com/maps?q=${o.lat},${o.lng}" target="_blank" rel="noopener" style="color:#1e3a8a">📍 Open pinned location</a>`:""}</p>` : ""}
     <div class="vlines">${(o.items||[]).map(i=>`<div><span>${i.qty} × ${esc(i.name)}${modList(i)}${+i.disc?`<small style="display:block;color:#b45309">Discount −${usd(i.disc)}</small>`:""}</span><b>${usd(lineNet(i))}</b></div>`).join("")}
       ${(o.voidedItems||[]).map(i=>`<div class="mut"><span><s>${i.qty} × ${esc(i.name)}</s> · voided${i.reason?" ("+esc(i.reason)+")":""}</span><s>${usd((+i.price||0)*(+i.qty||1))}</s></div>`).join("")}
@@ -2920,7 +2924,7 @@ async function pdPast(id, ph){
 function insCard(c, ok){
   ok = (ok || []).filter(o => ["pending","active","closed"].includes(o.status)); const spent = ok.reduce((s,o) => s + o.total, 0);
   const nType = k => ok.filter(o => o.type===k || (k==="takeaway" && o.type==="pickup")).length;
-  const d = x => x ? new Date(x).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" }) : "—";
+  const d = x => x ? new Date(x).dmy() : "—";
   const since = d(c.created_at || ok[ok.length-1]?.at);
   return `<div class="cins"><div class="cins-h"><b>Customer insights</b><span class="mut">Since ${since}</span></div>
     ${c.blacklisted || (c.tags||[]).length || c.notes ? `<div class="ctags">${c.blacklisted ? '<span class="tag bad">⚠ Blacklisted</span>' : ""}${(c.tags||[]).map(x => `<span class="tag">${esc(x)}</span>`).join("")}${c.notes ? `<i>${esc(c.notes)}</i>` : ""}</div>` : ""}
@@ -3158,10 +3162,10 @@ function openReports(){
 // the report as one list, laid out like an 80 mm receipt: on screen and when printed
 function reportHtml(d){
   d = d || reportData(); const cnt = d.sales.length, m = n => usd(n);
-  const head = RP==="shift" ? (d.sh ? `Shift opened ${new Date(d.sh.openedAt).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}${d.sh.cashier ? " by " + esc(d.sh.cashier) : ""}${d.sh.closedAt ? " · closed" : " · still open"}` : "The till hasn't been opened on this register yet.") : `Business date ${bizDate()}`;
+  const head = RP==="shift" ? (d.sh ? `Shift opened ${new Date(d.sh.openedAt).dmy(true)}${d.sh.cashier ? " by " + esc(d.sh.cashier) : ""}${d.sh.closedAt ? " · closed" : " · still open"}` : "The till hasn't been opened on this register yet.") : `Business date ${bizDate()}`;
   const r = (k, v, n) => `<div class="rl"><span>${esc(k)}</span>${n !== undefined ? `<i>${esc(n)}</i>` : ""}<b>${v}</b></div>`;
   const sec = (h, rows, money = true) => `<div class="rh">${h}</div>${rows.length ? rows.map(([k,c]) => r(k, money ? m(c.v) : esc(c.v), c.n)).join("") : `<div class="rl rmut"><span>Nothing yet</span></div>`}`;
-  return `<div class="rc"><b class="rt">${esc(branch?.name || "")}</b><div>Report · ${esc(RP_L[RP])}</div><div>${esc(device.name)}${RP==="branch" ? "" : ""}</div><div>${head}</div><div>Printed ${new Date().toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})}</div></div>
+  return `<div class="rc"><b class="rt">${esc(branch?.name || "")}</b><div>Report · ${esc(RP_L[RP])}</div><div>${esc(device.name)}${RP==="branch" ? "" : ""}</div><div>${head}</div><div>Printed ${new Date().dmy(true)}</div></div>
     <div class="rh">Summary</div>${r("Orders", cnt)}${r("Gross sales", m(d.gross))}${r("Returns", m(-d.ref))}${r("Net sales (after returns)", m(d.net))}${r("Tax", m(d.tax))}${r("Discounts", m(d.disc))}${r("Charges", m(d.chg))}${r("Average order", m(cnt ? d.gross / cnt : 0))}${r("Voided orders", m(d.voidTotal), d.voids.length)}${r("Voided items", m(d.voidItemsTotal), d.voidItemsN)}
     ${sec("Payments", d.pay)}${sec("Order types", d.types)}${sec("Channels", d.chans)}${sec("Categories", d.catRows)}${sec("Top products", d.prodRows.slice(0, 15))}${sec("Staff", d.staff)}<div class="rend">— End of report —</div>`;
 }
