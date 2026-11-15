@@ -12,8 +12,9 @@
     : { auth: { persistSession: true, autoRefreshToken: true } });
 
   // app collection -> table, and which columns each table accepts
-  const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users" };
+  const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users", work_shifts: "staff_shifts" };
   const COLS = {
+    staff_shifts: "id employee_id branch_id day start_time end_time break_min job_title note published deleted created_at",
     brands: "id name name_ar active deleted created_at slug",
     branches: "id brand_id name code address city phone open_time close_time active call_center production created_at name_ar tax_number lat lng settings",
     categories: "id brand_id name name_ar reference sort deleted created_at inactive_branch_ids channel product_ids image_url",
@@ -102,6 +103,7 @@
     const t = tableOf(col);
     let q = sb.from(t).select("*");
     if(t === "orders") q = q.gte("created_at", new Date(Date.now() - 3*86400000).toISOString()).order("created_at", { ascending:false }).limit(1000);
+    else if(t === "staff_shifts") q = q.gte("day", new Date(Date.now() - 120*86400000).toISOString().slice(0,10)).limit(5000);
     else if(t === "shifts") q = q.gte("opened_at", new Date(Date.now() - 7*86400000).toISOString()).limit(1000);
     else q = q.limit(5000);
     if(OFF && window.AbortSignal && AbortSignal.timeout) q = q.abortSignal(AbortSignal.timeout(15000));
