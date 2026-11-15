@@ -1,8 +1,12 @@
 // order.skwydhub.com opens online ordering, admin.skwydhub.com the Skwyd Hub admin (hub.html); portal.skwydhub.com the back office (index.html).
+// Each business's ordering page has its own address: order.skwydhub.com/<brand address> (set in Web Ordering).
 export async function onRequest(ctx) {
-  const url = new URL(ctx.request.url);
-  const page = url.pathname === "/" && (url.hostname.startsWith("order.") ? "/order" : url.hostname.startsWith("admin.") ? "/hub" : null);
-  if (page) {                            // Cloudflare serves order.html at /order and hub.html at /hub
+  const url = new URL(ctx.request.url), host = url.hostname;
+  const isFile = /\.[a-z0-9]+$/i.test(url.pathname);
+  let page = null;
+  if (host.startsWith("order.") && !isFile) page = "/order";                // "/" and "/thewok" both open order.html, which reads the address
+  else if (host.startsWith("admin.") && url.pathname === "/") page = "/hub";
+  if (page && url.pathname !== page) {   // Cloudflare serves order.html at /order and hub.html at /hub; the address bar keeps the original path
     url.pathname = page;
     return ctx.env.ASSETS.fetch(new Request(url.toString(), ctx.request));
   }
