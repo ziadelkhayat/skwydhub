@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="922-1794776026">
+<meta name="skwyd-build" content="926-1794776708">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1530,7 +1530,7 @@ function renderMenu(){
   const catPar = c => { const r = String(c?.reference||""); return r.startsWith("sub:") ? r.slice(4) : ""; };
   const on0 = (useCh ? chc : S.categories.filter(c => live(c) && !c.channel)).filter(c => !(c.inactiveBranchIds||[]).includes(device.branchId) && !(c.inactiveBranchIds||[]).includes(device.branchId + ":pos")).sort((a,b)=>(a.sort??999)-(b.sort??999) || a.name.localeCompare(b.name));
   const onSubs = id => on0.filter(c => catPar(c)===id), isTop = c => !catPar(c) || !on0.some(x => x.id===catPar(c));
-  const cats = on0.filter(c => isTop(c) ? prods.some(p => has(c, p)) || onSubs(c.id).some(sc => prods.some(p => has(sc, p))) : prods.some(p => has(c, p)));
+  const cats = on0.filter(c => isTop(c) ? prods.some(p => has(c, p)) || onSubs(c.id).length > 0 : true);   // every sub-category shows inside its category (even before it has items), like in Sales Channels
   const tops = cats.filter(c => isTop(c)), subsOf = id => cats.filter(c => catPar(c)===id && !isTop(c));
   const inOrder = c => (a, b) => useCh ? chPos(c, a) - chPos(c, b) : (a.sort??9999)-(b.sort??9999) || a.name.localeCompare(b.name);
   if(cat && !cats.some(c=>c.id===cat)) cat = "";

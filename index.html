@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="924-1794776463">
+<meta name="skwyd-build" content="926-1794776708">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -3571,7 +3571,7 @@ const CRUD = {
     col:"categories", title:"Channel categories", one:"Category", hardDelete:1, addLbl:"Add",
     tabs:[["all","All",r=>live(r)&&!!r.channel]],
     fields:[{k:"name",l:"Name",req:1},{k:"nameAr",l:"Name Localized"},
-      {k:"subOf",l:"Parent Category",t:"select",ph:"None (main category)",full:1,hideIf:r=>bmSubIds(r.id).length>0,get:r=>catPar(r),opts:()=>S.categories.filter(c => live(c) && c.channel===bmMenu()[0] && !catPar(c)).sort((a,b)=>(+a.sort||0)-(+b.sort||0)).map(c=>[c.id,c.name])},
+      {k:"subOf",l:"Parent Category",t:"select",ph:"None (main category)",full:1,hideIf:r=>bmSubIds(r.id).length>0,get:r=>catPar(r),opts:()=>chCats(bmMenu()[0]).filter(c => !catPar(c)).sort((a,b)=>(+a.sort||0)-(+b.sort||0)).map(c=>[c.id,c.name])},
       {k:"imageUrl",l:"Image",t:"image",full:1}],
     prep: async (data, id) => { const subOf = data.subOf; delete data.subOf;
       if(id && subOf!==undefined){ const cur = S.categories.find(c => c.id===id);   // edit: move under another category, or back to a main category
