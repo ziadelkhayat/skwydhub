@@ -5,9 +5,12 @@
 <script>
 // clean addresses: portal.skwydhub.com/orders instead of /#orders. HASH() gives "#orders" like before, go("orders") moves there,
 // links written href="#orders" still work, and old /#orders links are turned into /orders.
-const HASH = () => { const p = location.pathname.replace(/^\/+|\/?index\.html$/g, "").split("/")[0]; return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
+// the address says what the screen says: menu products are "items", inventory items are "products"
+const URL_OUT = { "products":"items", "inv-items":"products" }, URL_IN = { "items":"products", "products":"inv-items" };
+const urlSeg = r => String(r).replace(/^[^/?]+/, m => URL_OUT[m] || m);
+const HASH = () => { const sg = location.pathname.replace(/^\/+|\/?index\.html$/g, "").split("/"), p = sg[0] && (sg[0]==="products" && /^prd_/.test(sg[1]||"") ? "products" : (URL_IN[sg[0]] || sg[0])); return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
 const RECORD = () => decodeURIComponent(location.pathname.replace(/^\/+/, "").split("/")[1] || "");
-function go(r, replace){ r = String(r || "").replace(/^#?\/*/, ""); const url = "/" + r; if(url === location.pathname + location.search) return; history[replace ? "replaceState" : "pushState"](null, "", url); dispatchEvent(new HashChangeEvent("hashchange")); }
+function go(r, replace){ r = urlSeg(String(r || "").replace(/^#?\/*/, "")); const url = "/" + r; if(url === location.pathname + location.search) return; history[replace ? "replaceState" : "pushState"](null, "", url); dispatchEvent(new HashChangeEvent("hashchange")); }
 (() => {
   if(/^#\/?[a-z][^=&]*$/i.test(location.hash)) history.replaceState(null, "", "/" + location.hash.replace(/^#\/*/, ""));   // old link with #
   addEventListener("popstate", () => dispatchEvent(new HashChangeEvent("hashchange")));
@@ -24,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="912-1794765608">
+<meta name="skwyd-build" content="913-1794765869">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -3880,7 +3883,7 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
     : DOC.open && DOC.open.route===r && DOC.open.id ? DOC.open.id : DET.key===r && DET.id ? (S[CRUD[r]?.col]?.find(x => x.id===DET.id)?.uid || DET.id) : "";   // menu and inventory items: their random ID, not the SKU-based one
   let last = null, opening = null;
   function sync(){
-    const r = route(); if(!r || opening) return; const rec = current(r), want = "/" + r + (rec ? "/" + encodeURIComponent(rec) : "") + location.search;
+    const r = route(); if(!r || opening) return; const rec = current(r), want = "/" + urlSeg(r) + (rec ? "/" + encodeURIComponent(rec) : "") + location.search;
     if(location.pathname + location.search === want){ last = rec; return; }
     if(rec && rec !== last && !RECORD()) history.pushState(null, "", want);   // opened: Back will close it
     else history.replaceState(null, "", want);
@@ -3901,7 +3904,7 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
           else if(CRUD[r]){ const rec = S[CRUD[r].col]?.find(x => x.uid===id || x.id===id); if(rec) openDetail(r, rec.id); }
         }
       }catch(e){ console.error(e); }
-      if(current(r)===id || n > 40){ opening = null; last = current(r); if(current(r)!==id) history.replaceState(null, "", "/" + r + location.search); return; }
+      if(current(r)===id || n > 40){ opening = null; last = current(r); if(current(r)!==id) history.replaceState(null, "", "/" + urlSeg(r) + location.search); return; }
       setTimeout(tryIt, 300); };
     tryIt();
   }
