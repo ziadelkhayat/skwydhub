@@ -1580,6 +1580,8 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 .dfx svg{width:18px;height:18px;flex:none;color:#6b6880}.dfx .dfclr{border:0;background:none;padding:0 2px;color:#9b98a8;font-size:16px;line-height:1;cursor:pointer}
 input.dfh{display:none!important}
 .dmyw:has(.dfx)>.dmyo{display:none!important}.dfx,.dfx span{text-transform:none!important}
+.ordtools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ordtools .sel{height:40px;width:auto;min-width:160px}.ordtools .drpbtn{gap:10px;min-width:220px;justify-content:flex-start}.ordtools .drpbtn .ph{color:#9b98a8}.ordtools .drpbtn span{flex:1;text-align:left}
+@media(max-width:760px){.ordtools{width:100%}.ordtools .sel,.ordtools .drpbtn{flex:1;min-width:0}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3820,6 +3822,7 @@ document.addEventListener("drop", async e => { const t = e.target.closest?.("[da
   ids.splice(i, 1); ids.splice(ids.indexOf(to) + (i < j ? 1 : 0), 0, from);
   try{ for(const [n, id] of ids.entries()){ const r = S[cfg.col].find(x => x.id===id); if(r && r.sort !== n+1){ await put(cfg.col, id, { sort:n+1 }); r.sort = n+1; } } toast("Order saved · all screens updated"); render(); }
   catch(err){ console.error(err); toast("Couldn't save the new order"); render(); } });
+document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.branch = e.target.value; ORD.page = 1; render(); } });
 // list pages on a phone or tablet: hold a row, drag it, let go on the row it should take the place of
 (() => { let hold = null, drag = null;
   document.addEventListener("pointerdown", e => { if(e.pointerType==="mouse") return; const t = e.target.closest?.("[data-rowdrag]"); if(!t || e.target.closest("button,a,input,select,label")) return;
@@ -6037,7 +6040,7 @@ const ORD = { tab:"all", q:"", from:"", to:"", channel:"", type:"", pay:"", sour
 const ordTypeLbl = t => TYPE_LBL[t] || cap(t||"—");
 // Foodics: one Filter dialog for the orders list, same fields and order as Foodics (the x on the button resets it)
 const ORD_FX = { status:"", q:"", ref:"", num:"", from:"", to:"", brand:"", branch:"", channel:"", type:"", source:"", pay:"", ahead:"", rnotes:"", knotes:"", cust:"", due:"", device:"" };
-const ordFltN = () => Object.keys(ORD_FX).filter(k => k!=="to" && String(ORD[k]||"").trim()).length;
+const ordFltN = () => Object.keys(ORD_FX).filter(k => !["from","to","branch"].includes(k) && String(ORD[k]||"").trim()).length;
 document.addEventListener("click", e => {
   if(e.target.closest?.("[data-ordflt]")){ e.preventDefault(); const box = $("#ccBox"); box.className = "modal";
     const CHL = { pos:"POS", callcenter:"Call Center", online:"Web Ordering" }, TYL = { dinein:"Dine In", fast:"Fast Order", pickup:"Pick Up", delivery:"Delivery" };
@@ -6046,8 +6049,8 @@ document.addEventListener("click", e => {
     const dte = (k, l) => `<div class="f"><label for="of_${k}">${l}</label><input id="of_${k}" class="sel" type="date" value="${esc(ORD[k]||"")}"></div>`;
     const sel = (k, l, opts, cur) => `<div class="f"><label for="of_${k}">${l}</label><select id="of_${k}" class="sel"><option value="">Any</option>${opts.map(([v, t]) => `<option value="${esc(v)}" ${(cur ?? ORD[k])===v?"selected":""}>${esc(t)}</option>`).join("")}</select></div>`;
     box.innerHTML = `<header><h2>Filter</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px">
-      ${txt("ref","Reference")}${txt("num","Number")}${dte("from","Business Date From")}${dte("to","Business Date To")}
-      ${brandList().length > 1 ? sel("brand","Brand", brandList().map(b=>[b.id,b.name])) : ""}${sel("branch","Branch", branches.map(b=>[b.id,b.name]))}
+      ${txt("ref","Reference")}${txt("num","Number")}
+      ${brandList().length > 1 ? sel("brand","Brand", brandList().map(b=>[b.id,b.name])) : ""}
       ${sel("status","Status", STL)}${sel("type","Type", Object.entries(TYL))}
       ${sel("source","Source", ordSources().map(x=>[x,x]))}${sel("channel","Sales Channel", Object.entries(CHL))}
       ${sel("ahead","Ahead", [["yes","Yes"],["no","No"]])}${sel("pay","Payment Type", ordPays().map(x=>[x,x]))}
@@ -6056,8 +6059,8 @@ document.addEventListener("click", e => {
       <footer><button type="button" class="btn" id="ofReset">Reset</button><span style="flex:1"></span><button type="button" class="btn pri" id="ofApply">Apply</button></footer>`;
     $("#ccScrim").classList.add("show"); return; }
   if(e.target.closest?.("#ofApply")){ const g = k => $("#of_" + k)?.value?.trim() || ""; let f = g("from"), t = g("to"); if(f && !t) t = f; if(t && !f) f = t; if(f > t) [f, t] = [t, f];
-    const o = {}; Object.keys(ORD_FX).forEach(k => o[k] = g(k)); Object.assign(ORD, o, { q:"", from:f, to:t, fpop:"", page:1 }); $("#ccScrim").classList.remove("show"); render(); return; }
-  if(e.target.closest?.("#ofReset")){ Object.assign(ORD, ORD_FX, { fpop:"", page:1 }); $("#ccScrim").classList.remove("show"); render(); return; }
+    const o = {}; Object.keys(ORD_FX).forEach(k => o[k] = ["from","to","branch"].includes(k) ? ORD[k] : g(k)); Object.assign(ORD, o, { q:"", fpop:"", page:1 }); /* branch and business date are set on the page, outside the filter */ $("#ccScrim").classList.remove("show"); render(); return; }
+  if(e.target.closest?.("#ofReset")){ Object.assign(ORD, ORD_FX, { from:ORD.from, to:ORD.to, branch:ORD.branch, fpop:"", page:1 }); $("#ccScrim").classList.remove("show"); render(); return; }
 });
 function ordQuery(sel, opts, withStatus){
   const sb = WOK.sb;
@@ -6123,7 +6126,8 @@ function viewOrders(){
   const FP = [["brand","Brand","All brands", brandList().map(b=>[b.id,b.name])], ["branch","Branch","All branches", branches.filter(b=>!ORD.brand || b.brandId===ORD.brand).map(b=>[b.id,b.name])],
     ["channel","Sales channel","All sales channels", Object.entries(CHL)], ["type","Order type","All order types", Object.entries(TYL)],
     ["source","Order source","All order sources", ordSources().map(x=>[x,x])], ["pay","Payment Type","All payment types", ordPays().map(x=>[x,x])]];
-  return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><button class="btn" id="ordCsv">Export CSV</button></div>
+  return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+    <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "ph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
   <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div></div></div>
   <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
