@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="932-1794778202">
+<meta name="skwyd-build" content="933-1794778487">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -521,16 +521,6 @@ a.btn{text-decoration:none}
 .schleg i{display:inline-block;width:14px;height:10px;border-radius:3px;background:#1e3a8a;margin-right:6px;vertical-align:middle}.schleg i.d{background:#eef2ff;border:1.5px dashed #1e3a8a}.schleg i.c{background:#fff;box-shadow:0 0 0 2px #e5484d}
 .shpre{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.shpre button{border:1px solid var(--line);background:var(--card,#fff);border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer}.shpre button:hover{border-color:#1e3a8a;color:#1e3a8a}
 .shdays{display:flex;gap:6px;flex-wrap:wrap}.shdays label{border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12.5px;cursor:pointer}.shdays label:has(input:checked){background:#1e3a8a;color:#fff!important;border-color:#1e3a8a}.shdays input{display:none}
-.fz{border:1.5px dashed #1e3a8a;border-radius:12px;background:#fff;padding:18px 12px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;outline:none}
-.fz:hover,.fz:focus-visible,.fz.drag{background:#eef2ff;border-color:#1e3a8a}
-.fz .fzi{width:40px;height:40px;border-radius:50%;background:#eef2ff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:6px;color:#1e3a8a}
-.fz p{margin:0;font-size:14px;color:var(--ink,#1d1b29)}.fz p u{color:#1e3a8a;font-weight:600}.fz small{display:block;margin-top:2px;font-size:12px;color:var(--muted,#8a8799)}
-.fzc{display:flex;align-items:center;gap:10px;border:1px solid var(--line,#e6e5ee);border-radius:12px;background:#fff;padding:10px 12px}
-.fzc .fzt{width:38px;height:44px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none;font-size:11px;font-weight:700;background:#eef2ff;color:#1e3a8a;overflow:hidden}
-.fzc .fzt.pdf{background:#fdecec;color:#b42318}.fzc .fzt img{width:100%;height:100%;object-fit:cover}
-.fzc .fzn{flex:1;min-width:0}.fzc .fzn b{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fzc .fzn small{font-size:12px;color:var(--muted,#8a8799)}
-.fzc button{border:0;background:none;color:#1e3a8a;font-weight:600;font-size:13px;cursor:pointer;padding:6px}.fzc button.fzx{color:var(--muted,#8a8799);font-size:18px;line-height:1}
-.fzerr{color:#b42318;font-size:12.5px;margin-top:6px}
 .bform .fsec:first-child{border-top:0;padding-top:0;margin-top:0}
 .hours{display:flex;flex-direction:column;gap:6px}.hrow{display:grid;grid-template-columns:100px 140px 22px 140px 1fr;gap:10px;align-items:center}.hrow input[type=time]{padding:6px 8px}
 @media(max-width:700px){.bform{grid-template-columns:1fr}.hrow{grid-template-columns:80px 1fr 22px 1fr;}.hrow .chk{grid-column:1/-1}}
@@ -1886,7 +1876,7 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["roles","Roles"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -5279,10 +5269,7 @@ function viewOnline(){
       ${tg("olOn", c.enabled, "Accept web orders", "Turn off to show a “closed” page.")}
       <div class="f" style="margin-top:12px"><label for="olSlug">Web Address *</label><div class="olslug"><span>${esc(ORDER_HOST.replace(/^https:\/\//, ""))}</span><input id="olSlug" class="sel" value="${esc(slug || olSlugGuess())}" autocomplete="off" spellcheck="false" maxlength="40">${slug ? `<button type="button" class="olic" data-olcopy="${esc(link)}" title="Copy the link" aria-label="Copy the link">${svgIco("copy")}</button><a class="olic" href="${esc(link)}" target="_blank" rel="noopener" title="Open the ordering page" aria-label="Open the ordering page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>` : ""}</div>
         <div class="olslugrow"><span id="olSlugMsg" class="note"></span></div></div>
-      ${inp("olCuis","Tags under the brand name",c.cuisines,"e.g. Noodles, Rice Bowls, Asian (separate with commas)")}
-      ${inp("olTag","Tagline",c.tagline,"e.g. Fresh wok dishes, delivered hot")}
-      ${inp("olMsg","Announcement banner",c.banner,"e.g. Free delivery on orders over USD 30")}
-      ${inp("olFooter","Footer note",c.footer,"e.g. Prices include VAT")}</div>
+</div>
     <div class="card olcard"><h3 class="ct">Contact & social</h3><p class="note">Shown as buttons under the brand name.</p><div class="olgrid">
       ${inp("olsPhone","Phone",so.phone,"+961 …","tel")}${inp("olsWa","WhatsApp number",so.whatsapp,"+961 …","tel")}
       ${inp("olsIg","Instagram",so.instagram,"@thewok")}${inp("olsFb","Facebook",so.facebook,"page name or link")}
@@ -6105,37 +6092,6 @@ document.addEventListener("click", async e => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `timesheet-${TC.from}-${TC.to}.csv`; a.click(); return; }
 });
 
-/* ---------- file fields everywhere: a drop zone that turns into a file card once a file is picked ---------- */
-(() => {
-  const kb = n => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
-  const ext = n => (String(n||"").split(".").pop() || "").toUpperCase().slice(0, 4);
-  const hint = i => { const a = (i.accept || "").toLowerCase(), mb = i.dataset.maxmb; const k = a.includes("pdf") && a.includes("image") ? "PDF or photo" : a.includes("image") ? "Photo" : a.includes("pdf") ? "PDF" : a.includes("csv") || a.includes("sheet") || a.includes("xls") ? "Spreadsheet" : "Any file"; return k + (mb ? `, up to ${mb} MB` : ""); };
-  const up = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.6 4.4 0 0 1 0-9 5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/><path d="M9 15l3-3 3 3M12 12v9"/></svg>';
-  function paint(inp){
-    const box = inp._fz, f = inp.files && inp.files[0], cur = inp.dataset.current, err = box.querySelector(".fzerr")?.textContent || "";
-    if(!f && !cur){ box.innerHTML = `<div class="fz" tabindex="0" role="button" aria-label="Choose a file"><span class="fzi">${up}</span><p>Drop a file here or <u>browse</u></p><small>${esc(hint(inp))}</small></div>${err ? `<div class="fzerr">${esc(err)}</div>` : ""}`; return; }
-    const name = f ? f.name : cur, e = ext(name), img = f && /^image\//.test(f.type);
-    box.innerHTML = `<div class="fzc"><span class="fzt ${e==="PDF" ? "pdf" : ""}">${img ? "" : esc(e || "FILE")}</span><span class="fzn"><b title="${esc(name)}">${esc(name)}</b><small>${f ? kb(f.size) + " · ready to upload" : "Current file"}</small></span><button type="button" data-fzre>Replace</button>${f ? `<button type="button" class="fzx" data-fzx aria-label="Remove">×</button>` : ""}</div>`;
-    if(img){ const r = new FileReader(); r.onload = () => { const t = box.querySelector(".fzt"); if(t) t.innerHTML = `<img alt="" src="${r.result}">`; }; r.readAsDataURL(f); }
-  }
-  function take(inp, files){ const f = files && files[0]; if(!f) return; const mb = +inp.dataset.maxmb;
-    if(mb && f.size > mb * 1048576){ inp.value = ""; paint(inp); inp._fz.insertAdjacentHTML("beforeend", `<div class="fzerr">That file is bigger than ${mb} MB.</div>`); return; }
-    if(files !== inp.files){ const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files; inp.dispatchEvent(new Event("change", { bubbles:true })); } paint(inp); }
-  function enhance(inp){
-    if(inp._fz || inp.hidden || inp.type!=="file" || inp.closest("label") || inp.hasAttribute("webkitdirectory")) return;
-    const box = document.createElement("div"); box.className = "fzw"; inp._fz = box; inp.style.display = "none"; inp.after(box); paint(inp);
-    box.addEventListener("click", e => { if(e.target.closest("[data-fzx]")){ inp.value = ""; inp.dispatchEvent(new Event("change", { bubbles:true })); return paint(inp); } if(e.target.closest(".fz,[data-fzre]")) inp.click(); });
-    box.addEventListener("keydown", e => { if((e.key==="Enter" || e.key===" ") && e.target.closest(".fz")){ e.preventDefault(); inp.click(); } });
-    ["dragenter","dragover"].forEach(ev => box.addEventListener(ev, e => { if(!e.dataTransfer?.types?.includes("Files")) return; e.preventDefault(); box.querySelector(".fz,.fzc")?.classList.add("drag"); }));
-    ["dragleave","drop"].forEach(ev => box.addEventListener(ev, () => box.querySelector(".fz,.fzc")?.classList.remove("drag")));
-    box.addEventListener("drop", e => { if(!e.dataTransfer?.files?.length) return; e.preventDefault(); take(inp, e.dataTransfer.files); });
-    inp.addEventListener("change", () => { box.querySelector(".fzerr")?.remove(); take(inp, inp.files); });
-  }
-  const scan = root => root.querySelectorAll?.('input[type="file"]').forEach(enhance);
-  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if(n.nodeType===1){ if(n.matches?.('input[type="file"]')) enhance(n); else scan(n); } }))).observe(document.documentElement, { childList:true, subtree:true });
-  document.addEventListener("DOMContentLoaded", () => scan(document));
-})();
-
 /* ---------- Employee Management → Documents & Onboarding: papers with expiry dates, required documents, onboarding checklist ---------- */
 const SD = { tab:"expiring" };
 const DOC_TYPES = ["ID Card","Passport","Employment Contract","Health Certificate","Work Permit","Residence Permit","Driving License","Criminal Record","CV","Bank Details"];
@@ -6173,7 +6129,7 @@ function sdForm(id, empId){
     <div class="f"><label for="sdType">Document *</label><input id="sdType" list="sdTypes" value="${esc(cur.docType||"")}" placeholder="e.g. Health Certificate"><datalist id="sdTypes">${types.map(t => `<option value="${esc(t)}">`).join("")}</datalist></div>
     <div class="f"><label for="sdNo">Number</label><input id="sdNo" value="${esc(cur.number||"")}"></div><div class="f"><label for="sdIss">Issued</label><input id="sdIss" type="date" value="${esc(d10s(cur.issuedOn))}"></div>
     <div class="f"><label for="sdExp">Expires</label><input id="sdExp" type="date" value="${esc(d10s(cur.expiresOn))}"></div>
-    <div class="f full"><label for="sdFile">File</label><input id="sdFile" type="file" accept="image/*,application/pdf" data-maxmb="10" ${cur.fileName ? `data-current="${esc(cur.fileName)}"` : ""}></div>
+    <div class="f"><label for="sdFile">File (PDF or photo, up to 10 MB)</label><input id="sdFile" type="file" accept="image/*,application/pdf">${cur.fileName ? `<div class="note">Now: ${esc(cur.fileName)}</div>` : ""}</div>
     <div class="f full"><label for="sdNote">Note</label><input id="sdNote" value="${esc(cur.note||"")}"></div><div class="err" id="sdErr" style="grid-column:1/-1"></div></div>
   <footer>${d ? `<button type="button" class="btn danger" data-sddel="${esc(d.id)}">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-sdsave="${esc(d?.id||"")}">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); }

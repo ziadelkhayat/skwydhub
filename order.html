@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="930-1794777554">
+<meta name="skwyd-build" content="933-1794778487">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -153,6 +153,7 @@ h2.ch small{font-size:13px;color:var(--mut);font-weight:500;font-family:var(--fo
 .line .rt{text-align:right;white-space:nowrap;font-weight:600;font-size:14px}
 .rm{display:block;border:0;background:none;color:var(--mut);font-size:12px;padding:2px 0;text-decoration:underline}
 .mlist{margin:3px 0 0;padding:0 0 0 16px;font-size:12px;line-height:1.45;color:var(--mut);font-weight:400;list-style:disc;text-align:left}.mlist li.mn{list-style:none;margin-left:-16px;font-style:italic}
+.promos{display:flex;gap:10px;overflow-x:auto;margin:18px 0 6px;padding-bottom:4px;scrollbar-width:none}.promos::-webkit-scrollbar{display:none}.promo{flex:0 0 auto;max-width:320px;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc)}.promo div{display:grid;gap:2px}.promo b{font-size:14px;color:var(--ink)}.promo span{font-size:13px;color:var(--ink2)}.tot .pdisc{color:var(--ok);font-weight:600}
 .tot{display:grid;gap:7px;margin:14px 0;font-size:14px}.tot div{display:flex;justify-content:space-between;color:var(--ink2)}.tot .g{font-size:18px;font-weight:800;color:var(--ink);padding-top:8px;border-top:1px solid var(--line)}
 .primary{width:100%;border:0;border-radius:999px;background:var(--acc);color:var(--on-acc);padding:15px;font-weight:700;font-size:16px;box-shadow:0 10px 24px color-mix(in srgb,var(--acc) 35%,transparent);transition:transform .15s,filter .2s}
 .primary:hover{filter:brightness(1.06)}.primary:active{transform:scale(.98)}.primary:disabled{opacity:.5;box-shadow:none}
@@ -726,7 +727,8 @@ const ICO = {
   out:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11"/>',
   mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
   edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
-  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>'
 };
 const ic = (k, st) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${st ? ` style="${st}"` : ""}>${ICO[k]||""}</svg>`;
 // modifiers shown as a list under the product: one line per option ("2× Cheese"), then the item note
@@ -769,6 +771,7 @@ const brand = bl.data.find(b => b.id === brandId);
 if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't taking web orders.</b></div>`; return; }
 
 PUB = await sb.rpc("skwyd_public_settings").then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB, () => PUB);
+let PROMOS = []; await sb.rpc("skwyd_public_promotions", { p_brand: brandId }).then(r => { if(!r.error && Array.isArray(r.data)) PROMOS = r.data.filter(p => p && !p.deleted && p.active!==false); }, () => {});   // Marketing → Promotions (automatic offers)
 await sb.rpc("skwyd_public_symbols").then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
 let incl = true;   // set below: true when every tax is inclusive
 const [st, scd, br, ca, pr, zo, mg, tx, tg, mo] = await Promise.all([
@@ -790,7 +793,7 @@ const taxGroups = (tg?.data||[]).filter(g=>!g.deleted), groupRate = new Proxy({}
 const taxParts = () => cart.reduce((a,i) => { const p = products.find(x=>x.id===i.productId), r = (p && groupRate[p.tax_group]) || { inc:0, exc:0 }, l = (+i.price||0)*(+i.qty||1), base = l/(1+r.inc); a.tax += (l - base) + base*r.exc; a.add += base*r.exc; return a; }, { tax:0, add:0 });
 incl = !Object.values(taxDef).some(t => !t.inc);
 const taxIn = () => +taxParts().tax.toFixed(2);
-const grand = () => +(sub() + fee() + taxParts().add).toFixed(2);
+const grand = () => +Math.max(0, sub() + fee() + taxParts().add - (typeof disc==="function" ? disc() : 0)).toFixed(2);
 const mopts = (mo.data||[]).filter(o => !o.deleted && o.active!==false);
 if(pr.error){ const r2 = await sb.from("products").select("id,deleted,name,price,description,category_id,active,channels,branch_ids,pricing_method,custom_prices,inactive_branch_ids,out_of_stock_branch_ids,modifiers,sort,image_url,tax_group,variants").order("sort").order("name"); if(!r2.error){ pr.data = r2.data; pr.error = null; } }   // nutrition & allergens not readable yet: show the menu without them
 { const l = ((scd?.data?.data||{}).list||[]).filter(c => c.kind==="online" && (c.brandId||"")===(brandId||"")); if(l.length && !l.some(c => !c.deleted)){ $("#main").innerHTML = `<div class="closed"><b>Online ordering isn't available right now.</b>Please order by phone or visit us.</div>`; return; } }   // this brand's Web Ordering sales channel was deleted
@@ -1240,7 +1243,7 @@ function renderMenu(){
   let h = vcats.map((c, i) => { const list = vis.filter(p => inCat(c, p)).sort(catOrder(c)), subs = subsOf(c.id).map(sc => [sc, vis.filter(p => inCat(sc, p)).sort(catOrder(sc))]), n = list.length + subs.reduce((a, [, l]) => a + l.length, 0);
     return `<section class="cat" id="c_${esc(c.id)}" style="animation-delay:${Math.min(i,6)*40}ms"><h2 class="ch">${c.image_url ? `<img class="cimg" src="${esc(c.image_url)}" alt="" loading="lazy">` : ""}${esc(c.name)} <small>${n}</small></h2>${list.length ? `<div class="items">${list.map(itemCard).join("")}</div>` : ""}${subs.map(([sc, l]) => `<h3 class="sch">${esc(sc.name)} <small>${l.length}</small></h3><div class="items">${l.map(itemCard).join("")}</div>`).join("")}</section>`; }).join("");
   if(!vcats.length) h = `<div class="empty">${ql ? `Nothing matches “${esc(q)}”.` : "The menu isn't available here yet."}</div>`;
-  $("#menuBox").innerHTML = h;
+  $("#menuBox").innerHTML = (ql ? "" : promoStrip()) + h;
   // highlight the category in view
   catObs?.disconnect(); catObs = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting){ document.querySelectorAll("#catBar button").forEach(b => b.classList.toggle("on", b.dataset.cat === e.target.id.slice(2))); const on = document.querySelector("#catBar button.on"); if(on){ const bar = $("#catBar"); bar.scrollTo({ left: on.offsetLeft - bar.clientWidth/2 + on.clientWidth/2, behavior:"smooth" }); } } }); }, { rootMargin:`-${130 + ($("#locbar")?.offsetHeight||0)}px 0px -60% 0px` });
   document.querySelectorAll("section.cat").forEach(s => catObs.observe(s)); catProg();
@@ -1368,9 +1371,44 @@ function itAdd(){
 }
 const sub = () => cart.reduce((a,i)=>a+i.price*i.qty,0);
 const fee = () => mode==="delivery" ? (+zones.find(z=>z.id===zoneId)?.fee||0) : 0;
+// promotions, worked out like the POS: the best one that's on now for this order type and branch
+const prTy = () => mode==="takeaway" ? "pickup" : mode;
+function promoOn(p, any){ const n = new Date(), z = v => String(v).padStart(2,"0"), d = n.getFullYear() + "-" + z(n.getMonth()+1) + "-" + z(n.getDate()), hm = z(n.getHours()) + ":" + z(n.getMinutes());
+  if(p.start && d < p.start) return false; if(p.end && d > p.end) return false;
+  if((p.days||[]).length && !p.days.map(String).includes(String(n.getDay()))) return false;
+  if(p.from || p.to){ const f = p.from || "00:00", t = p.to || "23:59"; if(f <= t ? (hm < f || hm > t) : (hm < f && hm > t)) return false; }
+  if(!any && (p.orderTypes||[]).length && !p.orderTypes.includes(prTy())) return false;
+  const b = curBranch(); return !b || !(p.branchIds||[]).length || p.branchIds.includes(b); }
+const prUnits = ids => cart.filter(i => (ids||[]).includes(i.productId)).flatMap(i => { const q = Math.max(1, Math.round(+i.qty||1)); return Array(q).fill((+i.price||0)); }).sort((a,b) => a-b);
+function promoAmt(p, s){
+  if(+p.minOrder && s < +p.minOrder) return 0;
+  const sum = a => a.reduce((x,v) => x+v, 0), off = base => p.valueType==="fixed" ? Math.min(+p.value||0, base) : Math.min(base*(+p.value||0)/100, +p.maxDiscount > 0 ? +p.maxDiscount : Infinity);
+  if(p.type==="disc") return off(s);
+  if(p.type==="itemdisc"){ const base = sum(cart.filter(i => (p.itemIds||[]).includes(i.productId) || (p.categoryIds||[]).includes(products.find(x => x.id===i.productId)?.category_id)).map(i => i.price*i.qty)); return base ? (p.valueType==="fixed" ? Math.min(+p.value||0, base) : base*(+p.value||0)/100) : 0; }
+  if(p.type==="bxgy"){ const bq = Math.max(1, +p.buyQty||1), gq = Math.max(1, +p.getQty||1), pct = (p.getPct==null ? 100 : +p.getPct)/100, buy = p.buyIds||[], get = p.getIds||[], buyOnly = buy.filter(id => !get.includes(id));
+    if(!buyOnly.length){ const u = prUnits([...new Set([...buy, ...get])]), sets = Math.floor(u.length/(bq+gq)); return sum(u.slice(0, sets*gq))*pct; }
+    const sets = Math.floor(prUnits(buyOnly).length/bq); return sum(prUnits(get).slice(0, sets*gq))*pct; }
+  if(p.type==="freeitem") return sum(prUnits(p.freeIds).slice(0, Math.max(1, +p.freeQty||1)));
+  if(p.type==="bundle"){ const ids = p.bundleIds||[]; if(ids.length < 2) return 0; const per = ids.map(id => prUnits([id])); if(per.some(u => !u.length)) return 0;
+    const sets = Math.min(...per.map(u => u.length)); return Math.max(0, sum(per.map(u => sum(u.slice(0, sets)))) - sets*(+p.bundlePrice||0)); }
+  return 0; }
+function promoBest(){ if(!cart.length || !PROMOS.length) return null; const s = sub(); let best = null;
+  for(const p of PROMOS){ if(!promoOn(p)) continue; const a = +Math.min(promoAmt(p, s), s).toFixed(2); if(a > 0 && (!best || a > best.amount)) best = { id:p.id, name:p.name, amount:a }; }
+  return best; }
+const disc = () => promoBest()?.amount || 0;
+const pNames = ids => (ids||[]).map(id => products.find(x => x.id===id)?.name).filter(Boolean);
+function promoLine(p){ const v = p.valueType==="fixed" ? usd(p.value) : (+p.value||0) + "%", L = a => { a = a.slice(0, 3); return a.join(", "); };
+  if(p.type==="disc") return `${v} off your order${+p.minOrder ? ` over ${usd(p.minOrder)}` : ""}`;
+  if(p.type==="itemdisc"){ const n = [...pNames(p.itemIds), ...(p.categoryIds||[]).map(id => cats.find(c => c.id===id)?.name).filter(Boolean)]; return `${v} off${n.length ? " " + L(n) : " selected items"}`; }
+  if(p.type==="bxgy"){ const b = pNames(p.buyIds), g = pNames(p.getIds), pc = p.getPct==null ? 100 : +p.getPct; return `Buy ${+p.buyQty||1}${b.length ? " " + L(b) : ""}, get ${+p.getQty||1}${g.length ? " " + L(g) : ""} ${pc>=100 ? "free" : pc + "% off"}`; }
+  if(p.type==="freeitem"){ const n = pNames(p.freeIds); return `Free ${n.length ? L(n) : "item"}${+p.minOrder ? ` on orders over ${usd(p.minOrder)}` : ""}`; }
+  if(p.type==="bundle"){ const n = pNames(p.bundleIds); return `${n.length ? L(n) : "Bundle"} for ${usd(p.bundlePrice)}`; }
+  return ""; }
+function promoStrip(){ const l = PROMOS.filter(p => promoOn(p, true)); if(!l.length) return "";
+  return `<div class="promos">${l.map(p => `<div class="promo">${ic("tag","width:18px;height:18px")}<div><b>${esc(p.name||"Offer")}</b><span>${esc(promoLine(p))}</span></div></div>`).join("")}</div>`; }
 const minOrder = () => mode==="delivery" ? (+zones.find(x=>x.id===zoneId)?.min_order||0) : mode==="takeaway" ? (+bcfg(branchId).minPickup||0) : 0;
 function cartLines(){ return cart.map((i,ix)=>`<div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div>`).join(""); }
-function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(grand()-taxIn()-fee())}</span></div><div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
+function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(sub() + taxParts().add - taxIn())}</span></div>${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
 function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden = !n; const tc = $("[data-tcart] .n"); if(tc) tc.textContent = n || ""; $("#cartCount").textContent = n; $("#cartTotal").textContent = usd(sub());
   const min = minOrder();
   $("#side").innerHTML = `<div class="card"><h3>${ic("cart","width:20px;height:20px")}Your order</h3>${n ? cartLines() + totals() + (min && sub()<min ? `<div class="warn">Minimum order is ${usd(min)}.</div>` : "") + `<button type="button" class="primary" data-checkout ${min && sub()<min ? "disabled" : ""}>Checkout · ${usd(grand())}</button>`
@@ -1644,6 +1682,7 @@ async function placeOrder(e){
   const email = $("#cEmail")?.value.trim() || ""; if((CO().email==="required" || email) && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email.");
   const pay = document.querySelector('input[name="pay"]:checked')?.value || "Cash";
   const extra = [later ? `Scheduled for ${dayLbl(at)} ${timeLbl(at)}` : "", payList().length > 1 ? `Pay by ${pay}` : ""].filter(Boolean);   // the email goes to the customer record, not the kitchen note
+  const pb = promoBest(); if(pb) extra.push(`Promotion: ${pb.name} (−${usd(pb.amount)})`);
   const note = [$("#cNote")?.value.trim(), ...extra].filter(Boolean).join(" · ");
   if(PREVIEW) return err("This is a preview. Orders can't be placed here.");
   if(!USER) return openAuth("in", openCart, "Sign in or create an account to place your order.");
@@ -1652,7 +1691,7 @@ async function placeOrder(e){
     branch_id:b, zone_id: mode==="delivery" ? zoneId : null, table_no: mode==="dinein" ? (tableNo||null) : null,
     lat: mode==="delivery" ? pin[0] : null, lng: mode==="delivery" ? pin[1] : null,
     customer_name:$("#cName").value.trim(), phone, address: mode==="delivery" ? addrJoin(Object.fromEntries(["label","street","building","floor","door","extra"].map(k => [k, $("#cA_"+k).value]))) : null, notes: note || null,
-    items: cart, subtotal:+sub().toFixed(2), delivery_fee:fee(), discount:0, tax:taxIn(), total:grand(), scheduled_at: later ? at.toISOString() : null, customer_user_id: USER.id };
+    items: cart, subtotal:+sub().toFixed(2), delivery_fee:fee(), discount:disc(), tax:taxIn(), total:grand(), scheduled_at: later ? at.toISOString() : null, customer_user_id: USER.id };
   const { error } = await sb.from("orders").insert(row);
   if(!error){ const h = lsGet(OHK(), []); h.unshift({ created_at:new Date().toISOString(), status:"pending", branch_id:b, type:row.type, items:JSON.parse(JSON.stringify(cart)), total:row.total, uid:USER.id }); lsSet(OHK(), h.slice(0, 30)); }
   if(error){ console.error(error); err("We couldn't place your order. Please try again or call us."); $("#place").disabled = false; $("#place").textContent = `Place order · ${usd(grand())}`; return; }
