@@ -1,0 +1,46 @@
+/* Skwyd Hub dark theme: colours, and the parts the generated file (theme-dark.css) can't work out by itself.
+   On when <html data-theme="dark">; theme.js sets it from the user's choice (Light, Dark or Same As Device). */
+html[data-theme=dark]{color-scheme:dark;
+  --bg:#0d1220;--surface:#151b2d;--ink:#e7e9f2;--ink2:#b9bed0;--muted:#8a90a7;--line:#262f48;--line2:#303a57;
+  --accent:#4d6fe3;--accent-soft:#1c2648;--accent-ink:#aebfff;--accent-2:#4d6fe3;
+  --chart:#7f9cff;--chart-soft:#1c2648;
+  --good:#3fd17f;--good-soft:#11301f;--warn:#f2b240;--warn-soft:#3a2a0c;--bad:#ff6b70;--bad-soft:#3b1519;
+  --side:#0a0f1d;--side-2:#131a2e;--side-ink:#b9bdd0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);--shadow-lg:0 24px 64px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.4);
+  --s:#151b2d;--acc:#4d6fe3;--acci:#aebfff}
+html[data-theme=dark] body,html[data-theme=dark] body .app,html[data-theme=dark] body .main,html[data-theme=dark] body .content{background:#0b101c!important;color:var(--ink)}
+html[data-theme=dark] body .main>.top{background:rgba(11,16,28,.88)!important}
+html[data-theme=dark] body[data-sec] #view .empty::before{background-color:#1c2648!important}
+html[data-theme=dark] [stroke="#172554"],html[data-theme=dark] [stroke="#1e3a8a"]{stroke:#9fb4ff}
+html[data-theme=dark] input,html[data-theme=dark] select,html[data-theme=dark] textarea{background-color:#10162a;color:var(--ink);border-color:var(--line2)}
+html[data-theme=dark] input::placeholder,html[data-theme=dark] textarea::placeholder{color:#6d748c}
+html[data-theme=dark] input:disabled,html[data-theme=dark] select:disabled,html[data-theme=dark] textarea:disabled{background-color:#1a2136!important;color:#9aa0b6!important}
+html[data-theme=dark] .top{border-color:var(--line)!important}
+html[data-theme=dark] .btn:not(.pri):not(.danger):not(.m-done){background:#1a2136;color:var(--ink);border-color:var(--line2)}
+html[data-theme=dark] .btn:not(.pri):not(.danger):not(.m-done):hover{background:#222a43}
+html[data-theme=dark] .btn.pri{background:#3d5fd6;border-color:#3d5fd6;color:#fff}
+html[data-theme=dark] .btn.danger{background:#3b1519;color:#ff9b9e;border-color:#5c2228}
+html[data-theme=dark] table th{color:#9aa0b6}
+html[data-theme=dark] tr:hover td{background:rgba(255,255,255,.025)}
+html[data-theme=dark] a{color:#9fb4ff}
+html[data-theme=dark] .nav a,html[data-theme=dark] .nav button{color:var(--side-ink)}
+html[data-theme=dark] .tag{filter:saturate(1.1)}
+html[data-theme=dark] .scrim{background:rgba(3,6,14,.65)!important}
+html[data-theme=dark] .m-skel i{background:#232b44}
+html[data-theme=dark] .m-tabbar{background:#9fb4ff}
+html[data-theme=dark] .empty::before{filter:brightness(.9)}
+html[data-theme=dark] img{opacity:.92}
+html[data-theme=dark] ::-webkit-scrollbar-thumb{background:#2b3450}
+/* Leaflet map tiles: dim, not inverted */
+html[data-theme=dark] .leaflet-tile-pane{filter:brightness(.75) contrast(1.05)}
+
+/* switching smoothly */
+html.theme-fade,html.theme-fade *,html.theme-fade *::before,html.theme-fade *::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,box-shadow .35s ease!important}
+
+/* the switch in the account menu */
+.thsw{display:flex;align-items:center;gap:6px;padding:8px 12px 10px;border-top:1px solid var(--line)}
+.thsw span{font-size:12px;color:var(--muted);margin-right:auto}
+.thsw button{border:1px solid var(--line);background:none;border-radius:8px;width:34px;height:30px;display:grid;place-items:center;cursor:pointer;color:var(--ink2);padding:0}
+.thsw button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.thsw svg{width:16px;height:16px}
+.thsw.thtop{border:0;padding:0 4px}
