@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="916-1794775047">
+<meta name="skwyd-build" content="927-1794777313">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -762,7 +762,6 @@ const pathSlug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, "").
 const bl = await sb.from("brands").select("id,name,slug").not("deleted", "is", true).order("name");
 if(bl.error){ $("#main").innerHTML = `<div class="closed"><b>We couldn't load the menu.</b>Please try again in a moment.</div>`; return; }
 if(!brandId && pathSlug && pathSlug!=="order") brandId = bl.data.find(b => String(b.slug||"").toLowerCase()===pathSlug)?.id || "-";
-if(!brandId && bl.data.length === 1) brandId = bl.data[0].id;
 if(!brandId){ $("#hero").hidden = true; $("#main").innerHTML = `<div class="closed"><b>Order from your restaurant</b>Open the ordering link your restaurant shared with you (order.skwydhub.com/their-name), or scan the QR code on your table.</div>`; return; }   // never list other businesses
 const brand = bl.data.find(b => b.id === brandId);
 if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't taking web orders.</b></div>`; return; }
