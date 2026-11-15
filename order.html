@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="897-1794679231">
+<meta name="skwyd-build" content="910-1794763953">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -620,6 +620,40 @@ button,.btn,label,legend,summary,h1,h2,h3,h4,th,select,option,optgroup,[role=tab
 ::placeholder{text-transform:capitalize}
 input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper,.rpaper *,a[href^="mailto:"],a[href^="http"],.tx small,.iphd p{text-transform:none}
 .ocr.mut>span,.ocr.mut>small,.ocr.wrap>span{text-transform:none}
+:root{--ease:cubic-bezier(.2,.8,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);--bg:#f3f4f8}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#toast{position:fixed;bottom:22px;left:50%;z-index:2147483100;max-width:min(560px,calc(100% - 32px));padding:12px 18px;border-radius:10px;background:#b42318;color:#fff;font-weight:600;box-shadow:0 12px 32px rgba(23,21,31,.2);pointer-events:none;opacity:0;transform:translate(-50%,14px);transition:opacity .25s var(--ease-out),transform .35s var(--ease-out)}
+#toast.show{opacity:1;transform:translate(-50%,0)}#toast.ok{background:#067647}
+@keyframes slkAskIn{from{opacity:0}to{opacity:1}}
+@keyframes askUp{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:none}}
+.slk-ask{position:fixed;inset:0;z-index:2147483200;background:rgba(20,16,40,.45);display:grid;place-items:center;padding:16px;animation:slkAskIn .12s ease-out}
+.slk-ask-b{background:#fff;color:#0c1738;border-radius:14px;box-shadow:0 24px 60px rgba(20,16,40,.28);width:min(520px,100%);overflow:hidden;animation:askUp .26s var(--ease-out)}
+.slk-ask-h{margin:0;padding:20px 24px 4px;font-size:19px;font-weight:600}
+.slk-ask-b p{margin:0;padding:10px 24px 22px;font-size:15px;line-height:1.5;white-space:pre-line;color:#3a3650}
+.slk-ask-f{display:flex;justify-content:flex-end;gap:10px;background:#f0f1f5;padding:14px 24px}
+.slk-ask-f button{min-width:78px;min-height:40px;padding:0 16px;border-radius:9px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.slk-ask-no{background:#fff;border:1px solid #d5d9e6;color:#0c1738}.slk-ask-yes{background:#1e3a8a;border:1px solid #1e3a8a;color:#fff}.slk-ask-yes.bad{background:#b42318;border-color:#b42318}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+.msel{position:relative;display:block}
+.msel>.msel-f{display:flex;align-items:center;gap:8px;min-height:40px;width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 12px;cursor:pointer;text-align:left}
+.msel>.msel-f:focus,.msel.open>.msel-f{outline:0;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.15)}
+.msel>.msel-f.dis{background:var(--bg);cursor:not-allowed;opacity:.7}
+.msel-k{margin-left:auto;flex:none;color:var(--muted);transition:transform .2s var(--ease)}.msel.open .msel-k{transform:rotate(180deg)}
+.msel-ph{color:var(--muted)}.msel-v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msel>.msel-p{position:fixed;z-index:2147483150;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(23,21,31,.16);padding:8px;animation:popIn .16s var(--ease)}
+.msel-q{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;margin-bottom:6px}.msel-q:focus{outline:0;border-color:#1e3a8a}
+.msel-l{display:flex;flex-direction:column;max-height:240px;overflow:auto}
+.msel .msel-o{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:6px;background:none;padding:9px 10px;font:inherit;font-size:14px;text-align:left;cursor:pointer;color:var(--ink);white-space:nowrap}
+.msel .msel-o:hover{background:var(--bg)}.msel .msel-o.on{color:#172d6a;font-weight:600}.msel .msel-o[hidden]{display:none}
+.msel .msel-o::after{content:"";margin-left:auto;width:16px;height:16px;flex:none}
+.msel .msel-o.on::after{background:no-repeat center/16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+.msel-none{padding:12px 10px;color:var(--muted);font-size:13.5px;text-align:center}
+.mselect>select{display:none!important}
+/* the same messages as the back office: red for errors, green when done (the line under a form stays hidden) */
+.err,.aok{display:none!important}
+.msel>.msel-f{min-height:44px;font:inherit;font-size:16px;color:inherit}
+.phrow .mselect{flex:none;width:118px}
+.msel-q,.msel-q::placeholder{text-transform:none!important}
 </style>
 </head>
 <body class="lay-grid">
@@ -1017,7 +1051,7 @@ $("#sheet").addEventListener("click", async e => {
     $("#scrim").classList.remove("show"); return setAddr(addr && (["gps","pin"].includes(addr.id) || addrs.some(a => a.id===addr.id)) ? addr : null); }
   if(g("[data-aadd]")){ LS.draft = { forNew:true }; LS.ret = "acct"; return openLoc("map"); }
   if(t = g("[data-aedit]")){ const a = addrs.find(x => x.id===t.dataset.aedit); if(a){ LS.draft = { ...a, edit:true }; LS.ret = "acct"; openLoc("form"); } return; }
-  if(t = g("[data-adel]")){ const a = addrs.find(x => x.id===t.dataset.adel); if(!a || !confirm(`Delete “${a.label || "this address"}”?`)) return;
+  if(t = g("[data-adel]")){ const a = addrs.find(x => x.id===t.dataset.adel); if(!a || !(await skwAsk(`Delete “${a.label || "this address"}”?`, "Delete"))) return;
     addrs = addrs.filter(x => x.id!==a.id); await saveAddrs(); if(addr?.id===a.id) setAddr(null); return drawAcct(); }
 });
 document.addEventListener("click", e => { if(e.target.closest("[data-acct]")){ AC.then = null; AC.msg = ""; } if(e.target.closest("[data-acct]")) USER ? openAcct("home") : openAuth("in", null, ""); });
@@ -1777,6 +1811,68 @@ if(PREVIEW){ addEventListener("message", e => { if(e.origin !== location.origin 
     else { sh.style.transition = "transform .2s ease"; sh.style.transform = ""; setTimeout(() => sh.style.transition = "", 210); }
     y0 = null; dy = 0; };
   sh.addEventListener("touchend", end); sh.addEventListener("touchcancel", end);
-})();</script>
+})();
+/* ---------- the same messages, question box, dates and dropdowns as the back office ---------- */
+let SKT = 0;
+function skwMsg(m, ok){ let t = document.getElementById("toast"); if(!t){ t = document.createElement("div"); t.id = "toast"; t.setAttribute("role","status"); document.body.appendChild(t); }
+  t.textContent = m; t.classList.toggle("ok", !!ok); void t.offsetWidth; t.classList.add("show"); clearTimeout(SKT); SKT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
+// a line under a form (.err red, .aok green) shows as the message instead
+new MutationObserver(ms => { for(const m of ms){ const el = m.target.nodeType===3 ? m.target.parentElement : m.target; const box = el?.closest?.(".err,.aok"); if(box && box.textContent.trim()){ skwMsg(box.textContent.trim(), box.classList.contains("aok")); } } })
+  .observe(document.documentElement, { childList:true, characterData:true, subtree:true });
+function skwAsk(msg, yes = "Yes", no = "Cancel"){ return new Promise(done => { const w = document.createElement("div"); w.className = "slk-ask";
+  w.innerHTML = `<div class="slk-ask-b" role="dialog" aria-modal="true"><h3 class="slk-ask-h">Are you sure?</h3><p></p><div class="slk-ask-f"><button type="button" class="slk-ask-no"></button><button type="button" class="slk-ask-yes${/delete|remove/i.test(yes) ? " bad" : ""}"></button></div></div>`;
+  w.querySelector("p").textContent = msg; w.querySelector(".slk-ask-no").textContent = no; w.querySelector(".slk-ask-yes").textContent = yes;
+  const end = v => { removeEventListener("keydown", key, true); w.remove(); done(v); };
+  const key = e => { if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); end(false); } else if(e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); end(true); } };
+  w.onclick = e => { if(e.target===w || e.target.closest(".slk-ask-no")) end(false); else if(e.target.closest(".slk-ask-yes")) end(true); };
+  addEventListener("keydown", key, true); document.body.appendChild(w); w.querySelector(".slk-ask-yes").focus(); }); }
+// dates as dd-mm-yyyy (dd-mm when the year isn't shown)
+(() => { const P = Date.prototype, ld = P.toLocaleDateString;
+  P.toLocaleDateString = function(l, o){ o = o || {}; if(isNaN(this)) return ld.call(this, l, o); if(!o.day && (o.month==="long" || o.month==="short" || o.weekday)) return ld.call(this, l || "en-GB", o);
+    const pt = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone:o.timeZone, day:"2-digit", month:"2-digit", year:"numeric", weekday:"short" }).formatToParts(this).map(x => [x.type, x.value]));
+    return (o.weekday ? pt.weekday + " " : "") + pt.day + "-" + pt.month + (o.year===undefined && (o.day || o.month) ? "" : "-" + pt.year); }; })();
+const escH = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+// dropdowns with a search box (the real <select> stays underneath, so every form reads it as before)
+const MS_CARET = `<svg class="msel-k" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
+function msPaint(m) { const f = m.querySelector(":scope > .msel-f"), sel = m.querySelector("select"); if (!f || !sel) return;
+  const o = sel.options[sel.selectedIndex], t = o && o.value !== "" ? o.text : "";
+  f.innerHTML = (t ? `<span class="msel-v">${escH(t)}</span>` : `<span class="msel-ph">Choose...</span>`) + MS_CARET; f.classList.toggle("dis", sel.disabled); m.dataset.v = sel.value; m.dataset.n = sel.options.length; }
+function msEnhance(root = document) {
+  root.querySelectorAll("select:not([multiple]):not([data-ms]):not([hidden])").forEach(sel => { sel.dataset.ms = "1";
+    const m = document.createElement("div"); m.className = "msel mselect"; if (sel.style.width) m.style.width = sel.style.width; sel.parentNode.insertBefore(m, sel); m.appendChild(sel);
+    const f = document.createElement("div"); f.className = "msel-f"; f.tabIndex = 0; f.setAttribute("role", "button"); f.setAttribute("aria-label", sel.name || "Choose");
+    const p = document.createElement("div"); p.className = "msel-p"; p.hidden = true; p.innerHTML = `<input class="msel-q" placeholder="Type something to start searching" autocomplete="off"><div class="msel-l"></div>`;
+    m.prepend(p); m.prepend(f); msPaint(m); });
+}
+function msPlace(m) { const p = m.querySelector(":scope > .msel-p"), r = m.querySelector(":scope > .msel-f").getBoundingClientRect(), up = innerHeight - r.bottom < 300 && r.top > innerHeight - r.bottom;
+  Object.assign(p.style, { left: r.left + "px", width: "max-content", minWidth: r.width + "px", maxWidth: Math.max(r.width, Math.min(460, innerWidth - 16)) + "px", top: up ? "auto" : (r.bottom + 4) + "px", bottom: up ? (innerHeight - r.top + 4) + "px" : "auto" });
+  const pw = p.getBoundingClientRect().width; if (pw && r.left + pw > innerWidth - 8) p.style.left = Math.max(8, innerWidth - 8 - pw) + "px"; }
+function msClose(except) { document.querySelectorAll(".msel.open").forEach(m => { if (m !== except) { m.classList.remove("open"); m.querySelector(":scope > .msel-p").hidden = true; } }); }
+function msOpen(m) { msClose(m); const sel = m.querySelector("select"); if (sel.disabled) return; const p = m.querySelector(":scope > .msel-p");
+  const opts = [...sel.options].filter(o => !(o.value === "" && /^(choose|select)/i.test(o.text)) && !o.hidden);
+  p.querySelector(".msel-l").innerHTML = (!sel.required && [...sel.options].some(o => o.value === "") ? `<button type="button" class="msel-o${sel.value === "" ? " on" : ""}" data-msv="">None</button>` : "")
+    + opts.map(o => `<button type="button" class="msel-o${o.value === sel.value ? " on" : ""}" data-msv="${escH(o.value)}"${o.disabled ? " disabled" : ""}>${escH(o.text)}</button>`).join("") || `<div class="msel-none">No options</div>`;
+  m.classList.add("open"); p.hidden = false; const q = p.querySelector(".msel-q"); q.value = ""; msPlace(m); p.querySelector(".msel-o.on")?.scrollIntoView({ block: "nearest" }); setTimeout(() => q.focus(), 0); }
+document.addEventListener("click", e => {
+  const f = e.target.closest(".msel-f"); if (f) { e.preventDefault(); const m = f.parentElement; m.classList.contains("open") ? msClose() : msOpen(m); return; }
+  const o = e.target.closest(".mselect .msel-o"); if (o) { e.preventDefault(); const m = o.closest(".msel"), sel = m.querySelector("select"); sel.value = o.dataset.msv;
+    sel.dispatchEvent(new Event("input", { bubbles: true })); sel.dispatchEvent(new Event("change", { bubbles: true })); msClose(); if (document.contains(m)) msPaint(m); m.querySelector(".msel-f")?.focus(); return; }
+  if (e.target.closest(".msel-p")) return;
+  msClose();
+}, true);
+document.addEventListener("input", e => { if (!e.target.classList?.contains("msel-q")) return; const q = e.target.value.trim().toLowerCase(), l = e.target.parentElement.querySelector(".msel-l");
+  l.querySelectorAll(".msel-o").forEach(o => { o.hidden = !!q && !o.textContent.toLowerCase().includes(q); });
+  l.querySelector(".msel-emp")?.remove(); if (![...l.querySelectorAll(".msel-o")].some(o => !o.hidden)) l.insertAdjacentHTML("beforeend", `<div class="msel-none msel-emp">No results</div>`); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.querySelector(".msel.open")) { e.preventDefault(); e.stopPropagation(); msClose(); return; }
+  const f = e.target.closest?.(".msel-f"); if (f && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) { e.preventDefault(); msOpen(f.parentElement); return; }
+  if (e.target.classList?.contains("msel-q") && e.key === "Enter") { e.preventDefault(); [...e.target.parentElement.querySelectorAll(".msel-o")].find(o => !o.hidden)?.click(); }
+}, true);
+addEventListener("scroll", e => { if (e.target.closest?.(".msel-p")) return; document.querySelectorAll(".msel.open").forEach(msPlace); }, true);
+addEventListener("resize", () => document.querySelectorAll(".msel.open").forEach(msPlace));
+// a value or option list changed by code (picking a country fills its currency) shows straight away
+setInterval(() => document.querySelectorAll(".mselect").forEach(m => { const sel = m.querySelector("select"); if (sel && (m.dataset.v !== sel.value || +m.dataset.n !== sel.options.length || m.querySelector(".msel-f").classList.contains("dis") !== sel.disabled)) msPaint(m); }), 300);
+new MutationObserver(() => msEnhance()).observe(document.body, { childList: true, subtree: true });
+</script>
 </body>
 </html>
