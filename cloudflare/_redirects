@@ -1,3 +1,4 @@
-# The POS app file is still built and hosted by GitHub until it moves to the Play Store
-/the-wok-pos.apk  https://ziadelkhayat.github.io/slick/the-wok-pos.apk  302
-/pos.html         https://ziadelkhayat.github.io/slick/pos.html         302
+# The POS is only the Android app (pos.html is not on the web).
+# Its APK is built and hosted by GitHub until it moves to the Play Store.
+/skwydhub-pos.apk  https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk  302
+/the-wok-pos.apk   https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk  302
