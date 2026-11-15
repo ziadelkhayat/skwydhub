@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="907-1794682437">
+<meta name="skwyd-build" content="908-1794761800">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1501,6 +1501,25 @@ html body #view .card>.tscroll+.pager{position:relative;z-index:4;background:#ff
 html body .bizcard .sel:disabled,html body .bizcard input:disabled{background:#fff!important;color:var(--ink,#1c1b22)!important;-webkit-text-fill-color:var(--ink,#1c1b22)!important;opacity:1!important;cursor:not-allowed!important}
 html body .bizcard .msel>.msel-f.dis{background:#fff!important;opacity:1!important;color:var(--ink,#1c1b22)!important;cursor:not-allowed!important}
 html body .bizcard .msel>.msel-f.dis *{cursor:not-allowed!important;color:inherit}
+/* side menu style 2 (Light & Clean): white menu, grey items, the open screen in a light navy pill */
+html body .app aside.side{background:#fff!important;border-right:1px solid #eceef3!important;scrollbar-color:#d6dae3 transparent}
+html body .app aside.side .brand.skb{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;padding:14px 12px 22px!important}
+html body .app aside.side .skmark{width:40px;height:47px}
+html body .app aside.side .skmark svg g{stroke:#172554!important}
+html body .app aside.side .skmark svg path[fill="#c6f432"]{stroke:#172554!important}
+html body .app aside.side .skword{align-items:center!important}
+html body .app aside.side .skword b{color:#172554!important}
+html body .app aside.side .skhub{border-color:#172554!important}
+html body .app aside.side a,html body .app aside.side nav .grp>button,html body .app aside.side nav .grp,html body .app aside.side .chev{color:#64748b!important;background:none!important;font-weight:500!important}
+html body .app aside.side nav .lbl{color:#94a3b8!important}
+html body .app aside.side a svg,html body .app aside.side button svg,html body .app aside.side a .ico,html body .app aside.side .nav .ico,html body .app aside.side .nav .sub a .ico{color:#64748b!important}
+html body .app aside.side .nti.nln svg.nls{stroke:#64748b!important;color:#64748b!important}
+html body .app aside.side a:hover,html body .app aside.side nav .grp>button:hover{background:#f5f7fb!important;color:#1e3a8a!important}
+html body .app aside.side a:hover svg.nls,html body .app aside.side nav .grp>button:hover svg.nls{stroke:#1e3a8a!important}
+html body .app aside.side a.on{background:#eef2ff!important;color:#1e3a8a!important;font-weight:800!important;box-shadow:none!important}
+html body .app aside.side a.on svg,html body .app aside.side a.on .ico,html body .app aside.side a.on svg.nls{color:#1e3a8a!important;stroke:#1e3a8a!important}
+html body .app aside.side .nav .grp.open > button,html body .app aside.side .nav .grp.open > button svg.nls{color:#1e3a8a!important;stroke:#1e3a8a!important}
+html body .app aside.side a.on::before{display:none!important}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */

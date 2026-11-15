@@ -6,9 +6,16 @@
 <title>Skwyd Hub – Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20140%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M40%2086%20Q36%20108%2018%20124%22/%3E%3Cpath%20d%3D%22M50%2090%20Q48%20112%2042%20129%22/%3E%3Cpath%20d%3D%22M60%2091%20V131%22/%3E%3Cpath%20d%3D%22M70%2090%20Q72%20112%2078%20129%22/%3E%3Cpath%20d%3D%22M80%2086%20Q84%20108%20102%20124%22/%3E%3C/g%3E%3Cpath%20d%3D%22M60%209C33%209%2018%2037%2018%2061c0%2022%2016%2031%2042%2031s42-9%2042-31C102%2037%2087%209%2060%209z%22%20fill%3D%22%23c6f432%22%20stroke%3D%22%23172554%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>/* skwyd hub: every country with its dialing code, currency and phone number format (from Google's libphonenumber data) */
+var SKW_WORLD = {"c":[["AF","Afghanistan","+93","AFN"],["AL","Albania","+355","ALL"],["DZ","Algeria","+213","DZD"],["AS","American Samoa","+1","USD"],["AD","Andorra","+376","EUR"],["AO","Angola","+244","AOA"],["AI","Anguilla","+1","XCD"],["AG","Antigua and Barbuda","+1","XCD"],["AR","Argentina","+54","ARS"],["AM","Armenia","+374","AMD"],["AW","Aruba","+297","AWG"],["AU","Australia","+61","AUD"],["AT","Austria","+43","EUR"],["AZ","Azerbaijan","+994","AZN"],["BS","Bahamas","+1","BSD"],["BH","Bahrain","+973","BHD"],["BD","Bangladesh","+880","BDT"],["BB","Barbados","+1","BBD"],["BY","Belarus","+375","BYN"],["BE","Belgium","+32","EUR"],["BZ","Belize","+501","BZD"],["BJ","Benin","+229","XOF"],["BM","Bermuda","+1","BMD"],["BT","Bhutan","+975","BTN"],["BO","Bolivia","+591","BOB"],["BA","Bosnia and Herzegovina","+387","BAM"],["BW","Botswana","+267","BWP"],["BR","Brazil","+55","BRL"],["IO","British Indian Ocean Territory","+246","USD"],["VG","British Virgin Islands","+1","USD"],["BN","Brunei","+673","BND"],["BG","Bulgaria","+359","EUR"],["BF","Burkina Faso","+226","XOF"],["BI","Burundi","+257","BIF"],["KH","Cambodia","+855","KHR"],["CM","Cameroon","+237","XAF"],["CA","Canada","+1","CAD"],["CV","Cape Verde","+238","CVE"],["BQ","Caribbean Netherlands","+599","USD"],["KY","Cayman Islands","+1","KYD"],["CF","Central African Republic","+236","XAF"],["TD","Chad","+235","XAF"],["CL","Chile","+56","CLP"],["CN","China","+86","CNY"],["CX","Christmas Island","+61","AUD"],["CC","Cocos (Keeling) Islands","+61","AUD"],["CO","Colombia","+57","COP"],["KM","Comoros","+269","KMF"],["CG","Congo","+242","XAF"],["CK","Cook Islands","+682","CKD"],["CR","Costa Rica","+506","CRC"],["HR","Croatia","+385","EUR"],["CU","Cuba","+53","CUP"],["CW","Curaçao","+599","XCG"],["CY","Cyprus","+357","EUR"],["CZ","Czechia","+420","CZK"],["CD","DR Congo","+243","CDF"],["DK","Denmark","+45","DKK"],["DJ","Djibouti","+253","DJF"],["DM","Dominica","+1","XCD"],["DO","Dominican Republic","+1","DOP"],["EC","Ecuador","+593","USD"],["EG","Egypt","+20","EGP"],["SV","El Salvador","+503","USD"],["GQ","Equatorial Guinea","+240","XAF"],["ER","Eritrea","+291","ERN"],["EE","Estonia","+372","EUR"],["SZ","Eswatini","+268","SZL"],["ET","Ethiopia","+251","ETB"],["FK","Falkland Islands","+500","FKP"],["FO","Faroe Islands","+298","DKK"],["FJ","Fiji","+679","FJD"],["FI","Finland","+358","EUR"],["FR","France","+33","EUR"],["GF","French Guiana","+594","EUR"],["PF","French Polynesia","+689","XPF"],["GA","Gabon","+241","XAF"],["GM","Gambia","+220","GMD"],["GE","Georgia","+995","GEL"],["DE","Germany","+49","EUR"],["GH","Ghana","+233","GHS"],["GI","Gibraltar","+350","GIP"],["GR","Greece","+30","EUR"],["GL","Greenland","+299","DKK"],["GD","Grenada","+1","XCD"],["GP","Guadeloupe","+590","EUR"],["GU","Guam","+1","USD"],["GT","Guatemala","+502","GTQ"],["GG","Guernsey","+44","GBP"],["GN","Guinea","+224","GNF"],["GW","Guinea-Bissau","+245","XOF"],["GY","Guyana","+592","GYD"],["HT","Haiti","+509","HTG"],["HN","Honduras","+504","HNL"],["HK","Hong Kong","+852","HKD"],["HU","Hungary","+36","HUF"],["IS","Iceland","+354","ISK"],["IN","India","+91","INR"],["ID","Indonesia","+62","IDR"],["IR","Iran","+98","IRR"],["IQ","Iraq","+964","IQD"],["IE","Ireland","+353","EUR"],["IM","Isle of Man","+44","GBP"],["IL","Israel","+972","ILS"],["IT","Italy","+39","EUR"],["CI","Ivory Coast","+225","XOF"],["JM","Jamaica","+1","JMD"],["JP","Japan","+81","JPY"],["JE","Jersey","+44","GBP"],["JO","Jordan","+962","JOD"],["KZ","Kazakhstan","+7","KZT"],["KE","Kenya","+254","KES"],["KI","Kiribati","+686","AUD"],["XK","Kosovo","+383","EUR"],["KW","Kuwait","+965","KWD"],["KG","Kyrgyzstan","+996","KGS"],["LA","Laos","+856","LAK"],["LV","Latvia","+371","EUR"],["LB","Lebanon","+961","LBP"],["LS","Lesotho","+266","LSL"],["LR","Liberia","+231","LRD"],["LY","Libya","+218","LYD"],["LI","Liechtenstein","+423","CHF"],["LT","Lithuania","+370","EUR"],["LU","Luxembourg","+352","EUR"],["MO","Macau","+853","MOP"],["MG","Madagascar","+261","MGA"],["MW","Malawi","+265","MWK"],["MY","Malaysia","+60","MYR"],["MV","Maldives","+960","MVR"],["ML","Mali","+223","XOF"],["MT","Malta","+356","EUR"],["MH","Marshall Islands","+692","USD"],["MQ","Martinique","+596","EUR"],["MR","Mauritania","+222","MRU"],["MU","Mauritius","+230","MUR"],["YT","Mayotte","+262","EUR"],["MX","Mexico","+52","MXN"],["FM","Micronesia","+691","USD"],["MD","Moldova","+373","MDL"],["MC","Monaco","+377","EUR"],["MN","Mongolia","+976","MNT"],["ME","Montenegro","+382","EUR"],["MS","Montserrat","+1","XCD"],["MA","Morocco","+212","MAD"],["MZ","Mozambique","+258","MZN"],["MM","Myanmar","+95","MMK"],["NA","Namibia","+264","NAD"],["NR","Nauru","+674","AUD"],["NP","Nepal","+977","NPR"],["NL","Netherlands","+31","EUR"],["NC","New Caledonia","+687","XPF"],["NZ","New Zealand","+64","NZD"],["NI","Nicaragua","+505","NIO"],["NE","Niger","+227","XOF"],["NG","Nigeria","+234","NGN"],["NU","Niue","+683","NZD"],["NF","Norfolk Island","+672","AUD"],["KP","North Korea","+850","KPW"],["MK","North Macedonia","+389","MKD"],["MP","Northern Mariana Islands","+1","USD"],["NO","Norway","+47","NOK"],["OM","Oman","+968","OMR"],["PK","Pakistan","+92","PKR"],["PW","Palau","+680","USD"],["PS","Palestine","+970","EGP"],["PA","Panama","+507","PAB"],["PG","Papua New Guinea","+675","PGK"],["PY","Paraguay","+595","PYG"],["PE","Peru","+51","PEN"],["PH","Philippines","+63","PHP"],["PL","Poland","+48","PLN"],["PT","Portugal","+351","EUR"],["PR","Puerto Rico","+1","USD"],["QA","Qatar","+974","QAR"],["RO","Romania","+40","RON"],["RU","Russia","+7","RUB"],["RW","Rwanda","+250","RWF"],["RE","Réunion","+262","EUR"],["BL","Saint Barthélemy","+590","EUR"],["SH","Saint Helena, Ascension and Tristan da Cunha","+290","GBP"],["KN","Saint Kitts and Nevis","+1","XCD"],["LC","Saint Lucia","+1","XCD"],["MF","Saint Martin","+590","EUR"],["PM","Saint Pierre and Miquelon","+508","EUR"],["VC","Saint Vincent and the Grenadines","+1","XCD"],["WS","Samoa","+685","WST"],["SM","San Marino","+378","EUR"],["SA","Saudi Arabia","+966","SAR"],["SN","Senegal","+221","XOF"],["RS","Serbia","+381","RSD"],["SC","Seychelles","+248","SCR"],["SL","Sierra Leone","+232","SLE"],["SG","Singapore","+65","SGD"],["SX","Sint Maarten","+1","XCG"],["SK","Slovakia","+421","EUR"],["SI","Slovenia","+386","EUR"],["SB","Solomon Islands","+677","SBD"],["SO","Somalia","+252","SOS"],["ZA","South Africa","+27","ZAR"],["KR","South Korea","+82","KRW"],["SS","South Sudan","+211","SSP"],["ES","Spain","+34","EUR"],["LK","Sri Lanka","+94","LKR"],["SD","Sudan","+249","SDG"],["SR","Suriname","+597","SRD"],["SJ","Svalbard and Jan Mayen","+47","NOK"],["SE","Sweden","+46","SEK"],["CH","Switzerland","+41","CHF"],["SY","Syria","+963","SYP"],["ST","São Tomé and Príncipe","+239","STN"],["TW","Taiwan","+886","TWD"],["TJ","Tajikistan","+992","TJS"],["TZ","Tanzania","+255","TZS"],["TH","Thailand","+66","THB"],["TL","Timor-Leste","+670","USD"],["TG","Togo","+228","XOF"],["TK","Tokelau","+690","NZD"],["TO","Tonga","+676","TOP"],["TT","Trinidad and Tobago","+1","TTD"],["TN","Tunisia","+216","TND"],["TR","Turkey","+90","TRY"],["TM","Turkmenistan","+993","TMT"],["TC","Turks and Caicos Islands","+1","USD"],["TV","Tuvalu","+688","AUD"],["UG","Uganda","+256","UGX"],["UA","Ukraine","+380","UAH"],["AE","United Arab Emirates","+971","AED"],["GB","United Kingdom","+44","GBP"],["US","United States","+1","USD"],["VI","United States Virgin Islands","+1","USD"],["UY","Uruguay","+598","UYU"],["UZ","Uzbekistan","+998","UZS"],["VU","Vanuatu","+678","VUV"],["VA","Vatican City","+39","EUR"],["VE","Venezuela","+58","VES"],["VN","Vietnam","+84","VND"],["WF","Wallis and Futuna","+681","XPF"],["EH","Western Sahara","+212","DZD"],["YE","Yemen","+967","YER"],["ZM","Zambia","+260","ZMW"],["ZW","Zimbabwe","+263","BWP"],["AX","Åland Islands","+358","EUR"]],"p":{"+247":[[5],{"5":[5]},"40123"],"+376":[[6,9],{"6":[3,3]},"312 345"],"+971":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"50 123 4567"],"+93":[[9],{"9":[2,3,4]},"70 123 4567"],"+1":[[10],{"10":[3,3,4]},"201-555-0123"],"+355":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"67 212 3456"],"+374":[[8],{"8":[2,6]},"77 123456"],"+244":[[9],{"9":[3,3,3]},"923 123 456"],"+54":[[10,11],{"10":[2,4,4],"11":[1,2,4,4]},"9 11 2345-6789"],"+43":[[4,5,6,7,8,9,10,11,12,13],{"10":[1,9],"9":[3,6]},"664 123456"],"+61":[[9],{"9":[3,3,3]},"412 345 678"],"+297":[[7],{"7":[3,4]},"560 1234"],"+358":[[5,6,7,8,9,10],{"9":[2,7]},"41 2345678"],"+994":[[9],{"9":[2,3,2,2]},"40 123 45 67"],"+387":[[8,9],{"8":[2,3,3]},"61 123 456"],"+880":[[6,7,8,9,10],{"8":[1,7],"10":[4,6]},"1812-345678"],"+32":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"450 00 12 34"],"+226":[[8],{"8":[2,2,2,2]},"70 12 34 56"],"+359":[[6,7,8,9],{"7":[1,3,3],"8":[2,3,3]},"43 012 345"],"+973":[[8],{"8":[4,4]},"3600 1234"],"+257":[[8],{"8":[2,2,2,2]},"79 56 12 34"],"+229":[[10],{"10":[2,2,2,2,2]},"01 95 12 34 56"],"+590":[[9],{"9":[3,2,2,2]},"690 00 12 34"],"+673":[[7],{"7":[3,4]},"712 3456"],"+591":[[8],{"8":[8]},"71234567"],"+599":[[7,8],{"8":[1,3,4]},"9 518 1234"],"+55":[[10,11],{"10":[2,4,4],"11":[2,5,4]},"11 96123-4567"],"+975":[[7,8],{"7":[1,3,3],"8":[2,2,2,2]},"17 12 34 56"],"+267":[[7,8],{"7":[3,4],"8":[2,3,3]},"71 123 456"],"+375":[[9],{"9":[2,3,2,2]},"29 491-19-11"],"+501":[[7],{"7":[3,4]},"622-1234"],"+243":[[7,8,9,10],{"7":[2,5],"9":[3,3,3]},"991 234 567"],"+236":[[8],{"8":[2,2,2,2]},"70 01 23 45"],"+242":[[9],{"9":[2,3,4]},"06 123 4567"],"+41":[[9],{"9":[2,3,2,2]},"78 123 45 67"],"+225":[[10],{"10":[2,2,2,4]},"01 23 45 6789"],"+682":[[5],{"5":[2,3]},"71 234"],"+56":[[9],{"9":[1,4,4]},"2 2123 4567"],"+237":[[9],{"9":[1,2,2,2,2]},"6 71 23 45 67"],"+86":[[7,8,9,10,11],{"10":[2,4,4],"11":[3,4,4]},"131 2345 6789"],"+57":[[8,10],{"10":[3,7]},"321 1234567"],"+506":[[8],{"8":[4,4]},"8312 3456"],"+53":[[6,7,8,10],{"8":[1,7]},"5 1234567"],"+238":[[7],{"7":[3,2,2]},"991 12 34"],"+357":[[8],{"8":[2,6]},"96 123456"],"+420":[[9],{"9":[3,3,3]},"601 123 456"],"+49":[[5,6,7,8,9,10,11,12,13,14,15],{"8":[2,6],"11":[4,7]},"1512 3456789"],"+253":[[8],{"8":[2,2,2,2]},"77 83 10 01"],"+45":[[8],{"8":[2,2,2,2]},"34 41 23 45"],"+213":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"551 23 45 67"],"+593":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"99 123 4567"],"+372":[[7,8],{"7":[3,4],"8":[4,4]},"5123 4567"],"+20":[[8,9,10],{"9":[1,8],"10":[2,8]},"10 01234567"],"+212":[[9],{"9":[1,2,2,2,2]},"6 50 12 34 56"],"+291":[[7],{"7":[1,3,3]},"7 123 456"],"+34":[[9],{"9":[3,2,2,2]},"612 34 56 78"],"+251":[[9],{"9":[2,3,4]},"91 123 4567"],"+679":[[7],{"7":[3,4]},"701 2345"],"+500":[[5],{"5":[5]},"51234"],"+691":[[7],{"7":[3,4]},"350 1234"],"+298":[[6],{"6":[2,2,2]},"21 12 34"],"+33":[[9],{"9":[1,2,2,2,2]},"6 12 34 56 78"],"+241":[[7,8],{"8":[2,2,2,2]},"06 03 12 34"],"+44":[[9,10],{"10":[4,6]},"7400 123456"],"+995":[[9],{"9":[3,2,2,2]},"555 12 34 56"],"+594":[[9],{"9":[3,2,2,2]},"694 20 12 34"],"+233":[[9],{"9":[2,3,4]},"23 123 4567"],"+350":[[8],{"8":[8]},"57123456"],"+299":[[6],{"6":[2,2,2]},"22 12 34"],"+220":[[7,9],{"7":[3,4]},"301 2345"],"+224":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"601 12 34 56"],"+240":[[9],{"9":[3,3,3]},"222 123 456"],"+30":[[10],{"10":[3,3,4]},"691 234 5678"],"+502":[[8],{"8":[4,4]},"5123 4567"],"+245":[[9],{"9":[3,3,3]},"955 012 345"],"+592":[[7],{"7":[3,4]},"609 1234"],"+852":[[8],{"8":[4,4]},"5123 4567"],"+504":[[8],{"8":[4,4]},"9123-4567"],"+385":[[8,9],{"8":[1,4,3],"9":[2,3,4]},"92 123 4567"],"+509":[[8],{"8":[2,2,4]},"34 10 1234"],"+36":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"20 123 4567"],"+62":[[7,8,9,10,11,12],{"9":[3,3,3]},"812-345-678"],"+353":[[7,8,9,10],{"7":[2,5],"9":[2,3,4]},"85 012 3456"],"+972":[[8,9,11,12],{"8":[1,3,4],"9":[2,3,4]},"50-234-5678"],"+91":[[10],{"10":[5,5]},"81234 56789"],"+246":[[7],{"7":[3,4]},"380 1234"],"+964":[[8,9,10],{"8":[1,3,4],"10":[3,3,4]},"791 234 5678"],"+98":[[6,7,10],{"10":[3,3,4]},"912 345 6789"],"+354":[[7,9],{"7":[3,4]},"611 1234"],"+39":[[6,7,8,9,10,11,12],{"10":[3,3,4]},"312 345 6789"],"+962":[[8,9],{"8":[1,3,4],"9":[1,4,4]},"7 9012 3456"],"+81":[[9,10],{"9":[1,4,4],"10":[2,4,4]},"90-1234-5678"],"+254":[[7,8,9],{"9":[3,6]},"712 123456"],"+996":[[9],{"9":[3,3,3]},"700 123 456"],"+855":[[8,9],{"8":[2,3,3]},"91 234 567"],"+686":[[5,8],{"5":[5],"8":[8]},"72001234"],"+269":[[7],{"7":[3,2,2]},"321 23 45"],"+850":[[8,10],{"8":[1,3,4],"10":[3,3,4]},"192 123 4567"],"+82":[[5,6,8,9,10],{"8":[1,3,4],"10":[2,4,4]},"10-2000-0000"],"+965":[[8],{"8":[3,5]},"500 12345"],"+7":[[10],{"10":[3,3,2,2]},"912 345-67-89"],"+856":[[8,9,10],{"8":[2,3,3],"10":[2,2,3,3]},"20 23 123 456"],"+961":[[7,8],{"7":[1,3,3],"8":[2,3,3]},"71 123 456"],"+423":[[7,9],{"7":[3,2,2],"9":[3,3,3]},"660 234 567"],"+94":[[9],{"9":[2,3,4]},"71 234 5678"],"+231":[[7,8,9],{"8":[2,3,3],"9":[2,3,4]},"77 012 3456"],"+266":[[8],{"8":[4,4]},"5012 3456"],"+370":[[8],{"8":[3,5]},"612 34567"],"+352":[[4,5,6,7,8,9,10,11],{"8":[2,2,2,2],"9":[3,3,3]},"628 123 456"],"+371":[[8],{"8":[2,3,3]},"21 234 567"],"+218":[[9],{"9":[2,7]},"91-2345678"],"+377":[[8,9],{"8":[2,2,2,2],"9":[1,2,2,2,2]},"6 12 34 56 78"],"+373":[[8],{"8":[3,2,3]},"621 12 345"],"+382":[[8],{"8":[2,3,3]},"60 123 456"],"+261":[[9],{"9":[2,2,3,2]},"32 12 345 67"],"+692":[[7],{"7":[3,4]},"235-1234"],"+389":[[8],{"8":[2,3,3]},"72 345 678"],"+223":[[8],{"8":[2,2,2,2]},"65 01 23 45"],"+95":[[6,7,8,9,10],{"7":[1,3,3],"8":[1,3,4]},"9 212 3456"],"+976":[[8,9,10],{"8":[4,4]},"8812 3456"],"+853":[[8],{"8":[4,4]},"6612 3456"],"+596":[[9],{"9":[3,2,2,2]},"696 20 12 34"],"+222":[[8],{"8":[2,2,2,2]},"22 12 34 56"],"+356":[[8],{"8":[4,4]},"9696 1234"],"+230":[[7,8],{"8":[4,4]},"5251 2345"],"+960":[[7],{"7":[3,4]},"771-2345"],"+265":[[7,9],{"7":[1,3,3],"9":[3,2,2,2]},"991 23 45 67"],"+52":[[10],{"10":[3,3,4]},"222 123 4567"],"+60":[[8,9,10],{"9":[2,3,4]},"12-345 6789"],"+258":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"82 123 4567"],"+264":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"81 123 4567"],"+687":[[6],{"6":[2,2,2]},"75.12.34"],"+227":[[8],{"8":[2,2,2,2]},"93 12 34 56"],"+672":[[6],{"6":[1,5]},"3 81234"],"+234":[[10],{"10":[3,3,4]},"802 123 4567"],"+505":[[8],{"8":[4,4]},"8123 4567"],"+31":[[9,11],{"9":[1,8]},"6 12345678"],"+47":[[8],{"8":[2,2,2,2]},"40 61 23 45"],"+977":[[8,10],{"8":[1,7],"10":[3,7]},"984-1234567"],"+674":[[7],{"7":[3,4]},"555 1234"],"+683":[[4,7],{"4":[4],"7":[3,4]},"888 4012"],"+64":[[8,9,10],{"8":[1,3,4],"9":[2,3,4]},"21 123 4567"],"+968":[[8],{"8":[4,4]},"9212 3456"],"+507":[[7,8],{"7":[3,4],"8":[4,4]},"6123-4567"],"+51":[[8,9],{"8":[1,7],"9":[3,3,3]},"912 345 678"],"+689":[[8],{"8":[2,2,2,2]},"87 12 34 56"],"+675":[[7,8],{"7":[3,4],"8":[4,4]},"7012 3456"],"+63":[[6,8,9,10],{"9":[1,4,4],"10":[3,3,4]},"905 123 4567"],"+92":[[9,10],{"10":[3,7]},"301 2345678"],"+48":[[7,9],{"9":[3,3,3]},"512 345 678"],"+508":[[6,9],{"6":[2,2,2]},"55 12 34"],"+970":[[8,9],{"8":[1,3,4],"9":[3,3,3]},"599 123 456"],"+351":[[9],{"9":[3,3,3]},"912 345 678"],"+680":[[7],{"7":[3,4]},"620 1234"],"+595":[[7,8,9],{"9":[3,6]},"961 456789"],"+974":[[8],{"8":[4,4]},"3312 3456"],"+262":[[9],{"9":[3,2,2,2]},"692 12 34 56"],"+40":[[6,9],{"9":[3,3,3]},"712 034 567"],"+381":[[7,8,9,10,11,12],{"8":[2,6],"9":[2,7]},"60 1234567"],"+250":[[8,9],{"9":[3,3,3]},"720 123 456"],"+966":[[9],{"9":[2,3,4]},"51 234 5678"],"+677":[[5,7],{"5":[5],"7":[2,5]},"74 21234"],"+248":[[7],{"7":[1,3,3]},"2 510 123"],"+249":[[9],{"9":[2,3,4]},"91 123 1234"],"+46":[[7,8,9],{"7":[1,2,2,2],"9":[2,3,2,2]},"70 123 45 67"],"+65":[[8],{"8":[4,4]},"8123 4567"],"+290":[[4,5],{"5":[5]},"51234"],"+386":[[8],{"8":[2,3,3]},"31 234 567"],"+421":[[6,7,9],{"9":[3,3,3]},"912 123 456"],"+232":[[8],{"8":[2,6]},"25 123456"],"+378":[[8,10],{"10":[4,6],"8":[2,2,2,2]},"66 66 12 12"],"+221":[[9],{"9":[2,3,2,2]},"70 123 45 67"],"+252":[[6,7,8,9],{"7":[1,6],"8":[1,7]},"7 1123456"],"+597":[[6,7],{"6":[3,3],"7":[3,4]},"741-2345"],"+211":[[9],{"9":[3,3,3]},"977 123 456"],"+239":[[7],{"7":[3,4]},"981 2345"],"+503":[[8],{"8":[4,4]},"7012 3456"],"+963":[[8,9],{"9":[3,3,3]},"944 567 890"],"+268":[[8],{"8":[4,4]},"7612 3456"],"+235":[[8],{"8":[2,2,2,2]},"63 01 23 45"],"+228":[[8],{"8":[2,2,2,2]},"90 11 23 45"],"+66":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"81 234 5678"],"+992":[[9],{"9":[2,3,4]},"91 712 3456"],"+690":[[4,5,6,7],{"4":[4]},"7290"],"+670":[[7,8],{"7":[3,4],"8":[4,4]},"7721 2345"],"+993":[[8],{"8":[2,6]},"66 123456"],"+216":[[8],{"8":[2,3,3]},"20 123 456"],"+676":[[5,7],{"5":[2,3],"7":[3,4]},"771 5123"],"+90":[[10],{"10":[3,3,2,2]},"501 234 56 78"],"+688":[[5,6,7],{"5":[2,3],"6":[2,4]},"90 1234"],"+886":[[8,9],{"9":[3,3,3]},"912 345 678"],"+255":[[9],{"9":[3,3,3]},"621 234 567"],"+380":[[9],{"9":[2,3,4]},"50 123 4567"],"+256":[[9],{"9":[3,6]},"712 345678"],"+598":[[8],{"8":[2,3,3]},"94 231 234"],"+998":[[9],{"9":[2,3,2,2]},"91 234 56 78"],"+58":[[10],{"10":[3,7]},"412-1234567"],"+84":[[9,10],{"10":[3,4,3],"9":[3,3,3]},"912 345 678"],"+678":[[5,7],{"5":[5],"7":[3,4]},"591 2345"],"+681":[[6],{"6":[2,2,2]},"82 12 34"],"+685":[[5,6,7,10],{"5":[5],"7":[2,5]},"72 12345"],"+383":[[8,9,10,11,12],{"8":[2,3,3]},"43 201 234"],"+967":[[7,8,9],{"7":[1,3,3],"9":[3,3,3]},"712 345 678"],"+27":[[5,6,7,8,9],{"9":[2,3,4]},"71 123 4567"],"+260":[[9],{"9":[2,7]},"95 5123456"],"+263":[[9],{"9":[2,3,4]},"71 234 5678"]},"m":{"+61":"AU","+599":"CW","+358":"FI","+44":"GB","+590":"GP","+39":"IT","+212":"MA","+47":"NO","+262":"RE","+7":"RU","+290":"SH","+1":"US"}};
+/* "+961", "71123456" → "71 123 456" in that country's usual grouping; unknown lengths stay as typed */
+var skwPhoneFmt = function(cc, num){ var d = String(num||"").replace(/\D/g, ""), f = SKW_WORLD.p[cc], g = f && f[1][d.length]; if(!g) return d; var o = [], i = 0; g.forEach(function(n){ o.push(d.substr(i, n)); i += n; }); return o.join(" "); };
+/* one entry per dialing code, named after its main country (others sharing the code are listed after it) */
+var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by[r[2]] = by[r[2]] || []).push(r); }); return Object.keys(by).map(function(d){ var l = by[d], mi = SKW_WORLD.m[d], m = l.filter(function(r){ return r[0]===mi; })[0] || l[0], rest = l.filter(function(r){ return r!==m; }).sort(function(a,b){ return (b[0]==="CA") - (a[0]==="CA"); }); return [d, m[1] + (rest.length ? (rest.length <= 2 ? ", " + rest.map(function(r){ return r[1]; }).join(", ") : ", " + rest[0][1] + " & " + (rest.length-1) + " more") : ""), m[0]]; }).sort(function(a,b){ return a[1].localeCompare(b[1]); }); };</script>
+
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=1"></script>
 <style>
@@ -81,6 +88,76 @@ tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
 .cal .cg button.td{box-shadow:inset 0 0 0 1px var(--accent)}.cal .cg button.on{background:var(--accent);color:#fff}
 .cal .cf{display:flex;justify-content:space-between;margin-top:8px}.cal .cf button{border:0;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 6px}
 input[placeholder="dd-mm-yyyy"]{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238d8c98' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+/* ===== same look and behaviour as the back office (portal) ===== */
+:root{--ease:cubic-bezier(.2,.8,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);--bg:#f3f4f8}
+body{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+h1,h2,h3,.brand b{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif}
+/* side menu: Light & Clean, the current squid and wordmark */
+.app{grid-template-columns:280px 1fr}
+.side{background:#fff;color:#64748b;border-right:1px solid #eceef3;padding:16px 12px 24px;overflow:auto}
+.brand.skb{display:flex;flex-direction:row;align-items:center;gap:10px;padding:14px 12px 22px;flex-wrap:wrap}
+.skmark{width:40px;height:47px;flex:none}.skmark svg{width:100%;height:100%;display:block}
+.skword{display:flex;align-items:center}
+.skword b{font-weight:800;font-size:25px;letter-spacing:normal;color:#172554;line-height:1}
+.skhub{display:inline-block;margin-left:5px;font-weight:800;font-size:10px;line-height:1.3;padding:1px 6px;border-radius:6px;background:#c6f432;color:#172554;border:2px solid #172554;transform:translateY(-3px)}
+.skadm{flex-basis:100%;margin:2px 0 0 50px;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+.nav a{height:42px;padding:0 14px;border-radius:10px;gap:13px;font-size:15px;font-weight:500;color:#64748b;transition:background .15s,color .15s}
+.nav a .ico{width:20px;height:20px;stroke-width:1.9}
+.nav a:hover{background:#f5f7fb;color:#1e3a8a}
+.nav a.on{background:#eef2ff;color:#1e3a8a;font-weight:800}
+/* top bar like the back office */
+.top{min-height:68px;padding:12px 32px;background:rgba(255,255,255,.85);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px)}
+.content{padding:24px 32px 60px}
+.card{border-radius:14px}
+.btn{border-radius:10px;transition:background .15s,transform .1s,box-shadow .15s}.btn:active:not(:disabled){transform:scale(.97)}
+input.sel,select.sel,textarea.sel{border-radius:10px;min-height:40px}
+.kpi{transition:box-shadow .2s var(--ease),transform .2s var(--ease)}.kpi:hover{box-shadow:0 8px 24px rgba(20,20,50,.08);transform:translateY(-1px)}
+tbody tr.click{transition:background .12s}
+/* page change: the new page rises in */
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#view.vin{animation:viewIn .32s var(--ease-out)}
+/* dialog: fades in and rises; closes the same way */
+.modal{display:flex!important;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s var(--ease-out),visibility 0s linear .22s;background:rgba(20,16,40,.45)}
+.modal.on{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .22s var(--ease-out)}
+.modal>.dlg{transform:translateY(12px) scale(.975);transition:transform .32s var(--ease-out);border-radius:18px}
+.modal.on>.dlg{transform:none}
+/* messages: red for errors, green when saved */
+#toast{position:fixed;bottom:22px;left:50%;z-index:3000;max-width:min(560px,calc(100% - 32px));padding:12px 18px;border-radius:10px;background:#b42318;color:#fff;font-weight:600;box-shadow:0 12px 32px rgba(23,21,31,.2);pointer-events:none;opacity:0;transform:translate(-50%,14px);transition:opacity .25s var(--ease-out),transform .35s var(--ease-out)}
+#toast.show{opacity:1;transform:translate(-50%,0)}#toast.ok{background:#067647}
+.err:empty{display:none}
+/* question box (in place of the browser's confirm) */
+@keyframes slkAskIn{from{opacity:0}to{opacity:1}}
+@keyframes askUp{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:none}}
+.slk-ask{position:fixed;inset:0;z-index:4000;background:rgba(20,16,40,.45);display:grid;place-items:center;padding:16px;animation:slkAskIn .12s ease-out}
+.slk-ask-b{background:#fff;color:#0c1738;border-radius:14px;box-shadow:0 24px 60px rgba(20,16,40,.28);width:min(520px,100%);overflow:hidden;animation:askUp .26s var(--ease-out)}
+.slk-ask-h{margin:0;padding:20px 24px 4px;font-size:19px;font-weight:600}
+.slk-ask-b p{margin:0;padding:10px 24px 22px;font-size:15px;line-height:1.5;white-space:pre-line;color:#3a3650}
+.slk-ask-f{display:flex;justify-content:flex-end;gap:10px;background:#f0f1f5;padding:14px 24px}
+.slk-ask-f button{min-width:78px;min-height:40px;padding:0 16px;border-radius:9px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.slk-ask-no{background:#fff;border:1px solid #d5d9e6;color:#0c1738}.slk-ask-yes{background:#1e3a8a;border:1px solid #1e3a8a;color:#fff}.slk-ask-yes.bad{background:#b42318;border-color:#b42318}
+/* dropdowns with a search box, like the back office */
+@keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+.msel{position:relative;display:block}
+.msel>.msel-f{display:flex;align-items:center;gap:8px;min-height:40px;width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 12px;cursor:pointer;text-align:left}
+.msel>.msel-f:focus,.msel.open>.msel-f{outline:0;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.15)}
+.msel>.msel-f.dis{background:var(--bg);cursor:not-allowed;opacity:.7}
+.msel-k{margin-left:auto;flex:none;color:var(--muted);transition:transform .2s var(--ease)}.msel.open .msel-k{transform:rotate(180deg)}
+.msel-ph{color:var(--muted)}.msel-v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msel>.msel-p{position:fixed;z-index:1000;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(23,21,31,.16);padding:8px;animation:popIn .16s var(--ease)}
+.msel-q{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;margin-bottom:6px}.msel-q:focus{outline:0;border-color:#1e3a8a}
+.msel-l{display:flex;flex-direction:column;max-height:240px;overflow:auto}
+.msel .msel-o{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:6px;background:none;padding:9px 10px;font:inherit;font-size:14px;text-align:left;cursor:pointer;color:var(--ink);white-space:nowrap}
+.msel .msel-o:hover{background:var(--bg)}.msel .msel-o.on{color:#172d6a;font-weight:600}.msel .msel-o[hidden]{display:none}
+.msel .msel-o::after{content:"";margin-left:auto;width:16px;height:16px;flex:none}
+.msel .msel-o.on::after{background:no-repeat center/16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+.msel-none{padding:12px 10px;color:var(--muted);font-size:13.5px;text-align:center}
+.mselect>select{display:none!important}
+.cal{animation:popIn .16s var(--ease)}
+/* sign in */
+.gate .skword.gw{justify-content:center;margin-top:10px}.gate .skword.gw b{font-size:30px}.gate h1{margin-top:6px;font-size:16px;color:var(--ink2);font-weight:600}
+.gate form{animation:askUp .4s var(--ease-out)}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -94,7 +171,7 @@ const money = (v, cur) => (cur ? cur + " " : "") + Number(v || 0).toLocaleString
 const dmy = d => { if (!d) return "—"; const x = new Date(d); return String(x.getDate()).padStart(2,"0") + "-" + String(x.getMonth()+1).padStart(2,"0") + "-" + x.getFullYear(); };
 const dmyIn = d => d ? dmy(d) : "";
 const parseDmy = v => { const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(String(v).trim()); if (!m) return null; const iso = m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0"); return isNaN(new Date(iso)) ? null : iso; };
-const LOGO = `<svg viewBox="0 0 120 140" width="30" height="34"><g fill="none" stroke="#c6f432" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/></svg>`;
+const LOGO = `<svg viewBox="0 0 120 140" width="30" height="34" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg>`;
 const ICON = {
   companies: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
   invoices: '<path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
@@ -102,8 +179,10 @@ const ICON = {
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
 };
 // countries: name, dialing code, usual currency (Lebanon and Syria price in US dollars by default)
-const COUNTRIES = [["Lebanon","+961","USD"],["United Arab Emirates","+971","AED"],["Saudi Arabia","+966","SAR"],["Qatar","+974","QAR"],["Kuwait","+965","KWD"],["Bahrain","+973","BHD"],["Oman","+968","OMR"],["Jordan","+962","JOD"],["Syria","+963","USD"],["Iraq","+964","IQD"],["Egypt","+20","EGP"],["Turkey","+90","TRY"],["Cyprus","+357","EUR"],["France","+33","EUR"],["Germany","+49","EUR"],["Belgium","+32","EUR"],["Italy","+39","EUR"],["Spain","+34","EUR"],["Greece","+30","EUR"],["United Kingdom","+44","GBP"],["United States","+1","USD"],["Canada","+1","CAD"],["Australia","+61","AUD"],["Brazil","+55","BRL"],["Senegal","+221","XOF"],["Ivory Coast","+225","XOF"],["Nigeria","+234","NGN"],["DR Congo","+243","CDF"],["Ghana","+233","USD"],["India","+91","INR"],["Philippines","+63","PHP"],["Sri Lanka","+94","LKR"],["Bangladesh","+880","BDT"],["Ethiopia","+251","ETB"]];
-const CURRENCIES = [["USD","US Dollar (USD)"],["LBP","Lebanese Pound (LBP)"],["EUR","Euro (EUR)"],["AED","UAE Dirham (AED)"],["SAR","Saudi Riyal (SAR)"],["QAR","Qatari Riyal (QAR)"],["KWD","Kuwaiti Dinar (KWD)"],["BHD","Bahraini Dinar (BHD)"],["OMR","Omani Rial (OMR)"],["JOD","Jordanian Dinar (JOD)"],["SYP","Syrian Pound (SYP)"],["IQD","Iraqi Dinar (IQD)"],["EGP","Egyptian Pound (EGP)"],["TRY","Turkish Lira (TRY)"],["GBP","British Pound (GBP)"],["CAD","Canadian Dollar (CAD)"],["AUD","Australian Dollar (AUD)"],["BRL","Brazilian Real (BRL)"],["XOF","West African CFA Franc (XOF)"],["NGN","Nigerian Naira (NGN)"],["CDF","Congolese Franc (CDF)"],["INR","Indian Rupee (INR)"],["PHP","Philippine Peso (PHP)"],["LKR","Sri Lankan Rupee (LKR)"],["BDT","Bangladeshi Taka (BDT)"],["ETB","Ethiopian Birr (ETB)"]];
+const COUNTRIES = (() => { const L = SKW_WORLD.c.map(([iso, n, d, cur]) => [n, d, iso==="LB"||iso==="SY" ? "USD" : cur]).sort((x, y) => x[0].localeCompare(y[0])); const lb = L.findIndex(x => x[0]==="Lebanon"); if (lb > 0) L.unshift(...L.splice(lb, 1)); return L; })();   // Lebanon first; Lebanon and Syria price in US dollars by default
+const CURRENCIES = (() => { let codes = [...new Set(SKW_WORLD.c.map(c => c[3]).filter(Boolean))]; try { codes = [...new Set([...codes, ...Intl.supportedValuesOf("currency")])]; } catch (e) {}
+  let dn = null; try { dn = new Intl.DisplayNames(["en"], { type: "currency" }); } catch (e) {}
+  return codes.map(k => [k, `${(dn && dn.of(k)) || k} (${k})`]).sort((x, y) => x[1].localeCompare(y[1])); })();
 const countryOpts = sel => `<option value="">Choose…</option>` + COUNTRIES.map(([n]) => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
 const dialOpts = sel => COUNTRIES.map(([n, d]) => `<option value="${n}" ${n===sel?"selected":""}>${n} (${d})</option>`).join("");
 const dialOf = n => (COUNTRIES.find(c => c[0]===n) || [,""])[1];
@@ -117,7 +196,7 @@ function geoLink(form) { const f = form.elements; f.country.onchange = () => { c
   f.category.onchange = () => { f.subcategory.innerHTML = subOpts(f.category.value, ""); f.subcategory.disabled = !f.category.value; }; }
 // "+96170123456" → Lebanon, "70123456" (longest matching code; older numbers with spaces work too)
 const splitPhone = v => { const d = String(v || "").replace(/[^\d+]/g, ""); if (!d.startsWith("+")) return { country: "Lebanon", num: d };
-  const c = [...COUNTRIES].sort((a, b) => b[1].length - a[1].length).find(x => d.startsWith(x[1])); return c ? { country: c[0], num: d.slice(c[1].length) } : { country: "Lebanon", num: d }; };
+  const c = [...COUNTRIES].sort((a, b) => b[1].length - a[1].length || (SKW_WORLD.m[b[1]]===b[0]) - (SKW_WORLD.m[a[1]]===a[0])).find(x => d.startsWith(x[1])); return c ? { country: c[0], num: d.slice(c[1].length) } : { country: "Lebanon", num: d }; };
 const fullPhone = (country, num) => { const dial = dialOf(country); num = String(num || "").replace(/\D/g, "").replace(/^0+/, ""); return num ? dial + num : ""; };   // +96170123456, as the back office saves it
 const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
 const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
@@ -167,14 +246,14 @@ async function rpc(fn, args) { const { data, error } = await sb.rpc(fn, args); i
 function gate(msg = "") {
   $("#root").innerHTML = `<div class="gate"><form id="gf">
     <div style="text-align:center">${LOGO.replace('width="30" height="34"','width="54" height="62"')}</div>
-    <h1>Skwyd Hub Admin</h1><p>Sign in to manage customers and subscriptions</p>
+    <div class="skword gw"><b>skwyd</b><span class="skhub">hub</span></div><h1>Admin</h1><p>Sign in to manage customers and subscriptions</p>
     <label for="ge">Email</label><input id="ge" type="email" autocomplete="username" required>
     <label for="gp">Password</label><input id="gp" type="password" autocomplete="current-password" required>
     <button>Sign In</button><div class="err" id="gerr">${esc(msg)}</div></form></div>`;
   $("#gf").onsubmit = async e => {
-    e.preventDefault(); $("#gerr").textContent = "";
+    e.preventDefault(); 
     const { error } = await sb.auth.signInWithPassword({ email: $("#ge").value.trim(), password: $("#gp").value });
-    if (error) { $("#gerr").textContent = "Wrong email or password."; return; }
+    if (error) { toast("Wrong email or password."); return; }
     boot();
   };
 }
@@ -193,14 +272,14 @@ async function load() { DATA = await rpc("slick_pa_overview"); try { VIEW = awai
 // ---------- shell ----------
 function render() {
   const nav = [["companies","Companies"],["invoices","Invoices"],["prices","Price List"],["settings","Settings"]];
-  $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand">${LOGO}<div><b>skwyd hub</b><small>Admin</small></div></div>
+  $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand skb"><div class="skmark">${LOGO}</div><div class="skword"><b>skwyd</b><span class="skhub">hub</span></div><span class="skadm">Admin</span></div>
     <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
     <div class="main"><div class="top">${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://portal.skwydhub.com/#dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
     <div class="content" id="view"></div></div></div><div class="modal" id="m"><div class="dlg" id="dlg"></div></div>`;
   $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
   if ($("#stopv")) $("#stopv").onclick = async () => { await rpc("slick_stop_view"); await load(); };
-  document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { view = a.dataset.view; render(); });
-  ({ companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view]();
+  document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { if (view === a.dataset.view) return; view = a.dataset.view; VIN = 1; render(); });
+  ({ companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view](); vin();
 }
 
 function stateTag(c) {
@@ -278,7 +357,7 @@ function newCompany() {
   $("#m").classList.add("on");
   $("[data-x]").onclick = close_; $("[data-x2]").onclick = close_; geoLink($("#nf"));
   $("#nf").onsubmit = async e => {
-    e.preventDefault(); const f = e.target, v = n => f.elements[n].value.trim(), err = $("#nerr"); err.textContent = "";
+    e.preventDefault(); const f = e.target, v = n => f.elements[n].value.trim(), err = { set textContent(m) { if (m) toast(m); } };
     const em = v("email"), pw = f.elements.password.value;
     if (pw && !em) { err.textContent = "Add the owner's email for the login."; return; }
     if (em && pw && pw.length < 6) { err.textContent = "The password needs at least 6 characters."; return; }
@@ -296,7 +375,7 @@ function newCompany() {
         else if (su.data?.user && !(su.data.user.identities || []).length) note = "This email already has a Skwyd Hub login: the owner signs in with their existing password.";
       }
       await load(); CO = DATA.companies.find(c => c.id === r.id); INV = []; drawCompany(); $("#m").classList.add("on");
-      if (note) $("#ierr").textContent = note;
+      if (note) toast(note); else toastOk("Business created");
     } catch (ex) { err.textContent = ex.message; $("#nsave").disabled = false; }
   };
 }
@@ -305,7 +384,7 @@ function newCompany() {
 async function viewAs(id) {
   const w = window.open("about:blank", "_blank");   // opened right away so the browser doesn't block it
   try { await rpc("slick_pa_view_as", { p_company: id }); if (w) w.location = "https://portal.skwydhub.com/#dashboard"; else location.href = "https://portal.skwydhub.com/#dashboard"; await load(); }
-  catch (e) { if (w) w.close(); alert(e.message); }
+  catch (e) { if (w) w.close(); toast(e.message); }
 }
 
 // ---------- one company ----------
@@ -373,21 +452,21 @@ function drawCompany() {
   { const f = $("#sf").elements; f.category.onchange = () => { f.subcategory.innerHTML = subOpts(f.category.value, ""); f.subcategory.disabled = !f.category.value; }; }
   $("#sf").onsubmit = async e => {
     e.preventDefault(); const f = e.target, v = n => f.elements[n].value;
-    for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { $("#serr").textContent = "Write dates as dd-mm-yyyy."; return; }
+    for (const n of ["trialEndsAt","paidUntil"]) if (v(n).trim() && !parseDmy(v(n))) { toast("Write dates as dd-mm-yyyy."); return; }
     const p = { status: v("status"), cycle: v("cycle"), posDevices: Number(v("posDevices")) || 0, warehouses: Number(v("warehouses")) || 0, discountPct: Number(v("discountPct")) || 0,
       trialEndsAt: parseDmy(v("trialEndsAt")) ? parseDmy(v("trialEndsAt")) + "T23:59:59" : null, paidUntil: parseDmy(v("paidUntil")) ? parseDmy(v("paidUntil")) + "T23:59:59" : null,
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
       company: { name: v("name").trim(), contactName: (v("firstName").trim() + " " + v("lastName").trim()).trim(), firstName: v("firstName").trim(), lastName: v("lastName").trim(), email: v("email").trim(), phone: fullPhone(v("dial"), v("phone")), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
     const b = e.submitter || f.querySelector(".btn.pri"); window.Motion?.saving(b);
-    try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await window.Motion?.saved(b); await reload(); } catch (err) { window.Motion?.reset(b); $("#serr").textContent = err.message; }
+    try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await window.Motion?.saved(b); await reload(); } catch (err) { window.Motion?.reset(b); toast(err.message); }
   };
   $("#newinv").onclick = () => newInvoiceForm(c);
   document.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => showInvoice(INV.find(x => x.id === b.dataset.inv), c));
   document.querySelectorAll("[data-pay]").forEach(b => b.onclick = () => payForm(b.dataset.pay));
   document.querySelectorAll("[data-void]").forEach(b => b.onclick = async () => {
-    if (!confirm("Void this invoice? It will no longer be owed.")) return;
-    try { await rpc("slick_pa_void_invoice", { p_invoice: b.dataset.void }); await reload(); } catch (err) { $("#ierr").textContent = err.message; }
+    if (!await ask("Void this invoice? It will no longer be owed.", "Void")) return;
+    try { await rpc("slick_pa_void_invoice", { p_invoice: b.dataset.void }); await reload(); toastOk("Invoice voided"); } catch (err) { toast(err.message); }
   });
 }
 function payForm(id) {
@@ -400,8 +479,8 @@ function payForm(id) {
   $("#pfc").onclick = () => $("#payf").innerHTML = "";
   $("#pf").onsubmit = async e => {
     e.preventDefault();
-    try { await rpc("slick_pa_mark_paid", { p_invoice: id, p_method: e.target.elements.method.value, p_reference: e.target.elements.ref.value.trim() || null }); await reload(); }
-    catch (err) { $("#ierr").textContent = err.message; }
+    try { await rpc("slick_pa_mark_paid", { p_invoice: id, p_method: e.target.elements.method.value, p_reference: e.target.elements.ref.value.trim() || null }); await reload(); toastOk("Marked as paid"); }
+    catch (err) { toast(err.message); }
   };
 }
 async function reload() { const id = CO?.id; await load(); if (id) { CO = DATA.companies.find(c => c.id === id); INV = await rpc("slick_pa_invoices", { p_company: id }); drawCompany(); $("#m").classList.add("on"); } }
@@ -423,7 +502,7 @@ function viewPrices() {
     const list = [...document.querySelectorAll("#pl tr[data-id]")].map((tr, i) => ({ id: tr.dataset.id, name: $("[name=name]", tr).value.trim(), unit: $("[name=unit]", tr).value,
       monthly: Number($("[name=monthly]", tr).value) || 0, yearly: Number($("[name=yearly]", tr).value) || 0, required: $("[name=required]", tr).checked, active: $("[name=active]", tr).checked, sort: i + 1 }));
     const b = e.submitter || e.target.querySelector(".btn.pri"); window.Motion?.saving(b);
-    try { DATA.products = await rpc("slick_pa_save_products", { p: list }); await window.Motion?.saved(b); await load(); } catch (err) { window.Motion?.reset(b); $("#perr").textContent = err.message; }
+    try { DATA.products = await rpc("slick_pa_save_products", { p: list }); await window.Motion?.saved(b); await load(); } catch (err) { window.Motion?.reset(b); toast(err.message); }
   };
 }
 
@@ -448,10 +527,10 @@ function newInvoiceForm(c) {
   $("#nif").onsubmit = async e => {
     e.preventDefault(); const f = e.target;
     const extra = [...f.querySelectorAll("#xl > div")].map(d => ({ name: d.querySelector("[name=xname]").value.trim(), amount: Number(d.querySelector("[name=xamt]").value) || 0 })).filter(x => x.name || x.amount);
-    if (extra.some(x => !x.name || !x.amount)) { $("#ierr").textContent = "Each one-off charge needs a name and an amount."; return; }
+    if (extra.some(x => !x.name || !x.amount)) { toast("Each one-off charge needs a name and an amount."); return; }
     $("#nis").disabled = true;
-    try { const inv = await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: Number(f.elements.due.value) || 0, p_extra: extra, p_notes: f.elements.notes.value.trim() || null }); await reload(); if (inv) showInvoice(inv, c); }
-    catch (err) { $("#ierr").textContent = err.message; $("#nis").disabled = false; }
+    try { const inv = await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: Number(f.elements.due.value) || 0, p_extra: extra, p_notes: f.elements.notes.value.trim() || null }); await reload(); toastOk("Invoice created"); if (inv) showInvoice(inv, c); }
+    catch (err) { toast(err.message); $("#nis").disabled = false; }
   };
 }
 let IFILTER = "all", IQ = "";
@@ -514,13 +593,82 @@ function viewSettings() {
     e.preventDefault(); const f = e.target.elements;
     const b = e.submitter || e.target.querySelector(".btn.pri"); window.Motion?.saving(b);
     try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), billingName: f.billingName.value.trim(), billingTaxNo: f.billingTaxNo.value.trim(), billingAddress: f.billingAddress.value.trim(), paymentInstructions: f.paymentInstructions.value.trim(), invoiceFooter: f.invoiceFooter.value.trim(), autoInvoice: f.autoInvoice.value === "1", invoiceDaysBefore: Math.max(0, Number(f.invoiceDaysBefore.value) || 0), supportEmail: f.supportEmail.value.trim() } }); await window.Motion?.saved(b); await load(); }
-    catch (err) { window.Motion?.reset(b); $("#sterr").textContent = err.message; }
+    catch (err) { window.Motion?.reset(b); toast(err.message); }
   };
 }
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && $("#m")?.classList.contains("on")) close_();
 });
+// ---------- same behaviour as the back office ----------
+// messages: red for errors, green when something is saved
+let TT = 0;
+function toastShow(m, ok) { let t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = m; t.classList.toggle("ok", !!ok); void t.offsetWidth; t.classList.add("show"); clearTimeout(TT); TT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
+const toast = m => toastShow(String(m || ""), false), toastOk = m => toastShow(String(m || ""), true);
+// a question box in place of the browser's confirm: Enter answers yes, Esc answers no
+function ask(msg, yes = "Yes", no = "Cancel") {
+  return new Promise(done => {
+    const w = document.createElement("div"); w.className = "slk-ask";
+    w.innerHTML = `<div class="slk-ask-b" role="dialog" aria-modal="true"><h3 class="slk-ask-h">Are you sure?</h3><p>${esc(msg)}</p><div class="slk-ask-f"><button type="button" class="slk-ask-no">${esc(no)}</button><button type="button" class="slk-ask-yes${/void|delete|remove|lock/i.test(yes) ? " bad" : ""}">${esc(yes)}</button></div></div>`;
+    const end = v => { removeEventListener("keydown", key, true); w.remove(); done(v); };
+    const key = e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); end(false); } else if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); end(true); } };
+    w.onclick = e => { if (e.target === w || e.target.closest(".slk-ask-no")) end(false); else if (e.target.closest(".slk-ask-yes")) end(true); };
+    addEventListener("keydown", key, true); document.body.appendChild(w); w.querySelector(".slk-ask-yes").focus();
+  });
+}
+// the page animates in when you move to another menu item
+let VIN = 0;
+function vin() { const v = $("#view"); if (!v || !VIN) return; VIN = 0; v.classList.remove("vin"); void v.offsetWidth; v.classList.add("vin"); }
+// dropdowns with a search box (the real <select> stays underneath, so every form reads it as before)
+const MS_CARET = `<svg class="msel-k" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
+function msPaint(m) { const f = m.querySelector(":scope > .msel-f"), sel = m.querySelector("select"); if (!f || !sel) return;
+  const o = sel.options[sel.selectedIndex], t = o && o.value !== "" ? o.text : "";
+  f.innerHTML = (t ? `<span class="msel-v">${esc(t)}</span>` : `<span class="msel-ph">Choose...</span>`) + MS_CARET; f.classList.toggle("dis", sel.disabled); m.dataset.v = sel.value; m.dataset.n = sel.options.length; }
+function msEnhance(root = document) {
+  root.querySelectorAll("select.sel:not([multiple]):not([data-ms])").forEach(sel => { sel.dataset.ms = "1";
+    const m = document.createElement("div"); m.className = "msel mselect"; if (sel.style.width) m.style.width = sel.style.width; sel.parentNode.insertBefore(m, sel); m.appendChild(sel);
+    const f = document.createElement("div"); f.className = "msel-f"; f.tabIndex = 0; f.setAttribute("role", "button"); f.setAttribute("aria-label", sel.name || "Choose");
+    const p = document.createElement("div"); p.className = "msel-p"; p.hidden = true; p.innerHTML = `<input class="msel-q" placeholder="Type something to start searching" autocomplete="off"><div class="msel-l"></div>`;
+    m.prepend(p); m.prepend(f); msPaint(m); });
+}
+function msPlace(m) { const p = m.querySelector(":scope > .msel-p"), r = m.querySelector(":scope > .msel-f").getBoundingClientRect(), up = innerHeight - r.bottom < 300 && r.top > innerHeight - r.bottom;
+  Object.assign(p.style, { left: r.left + "px", width: "max-content", minWidth: r.width + "px", maxWidth: Math.max(r.width, Math.min(460, innerWidth - 16)) + "px", top: up ? "auto" : (r.bottom + 4) + "px", bottom: up ? (innerHeight - r.top + 4) + "px" : "auto" });
+  const pw = p.getBoundingClientRect().width; if (pw && r.left + pw > innerWidth - 8) p.style.left = Math.max(8, innerWidth - 8 - pw) + "px"; }
+function msClose(except) { document.querySelectorAll(".msel.open").forEach(m => { if (m !== except) { m.classList.remove("open"); m.querySelector(":scope > .msel-p").hidden = true; } }); }
+function msOpen(m) { msClose(m); const sel = m.querySelector("select"); if (sel.disabled) return; const p = m.querySelector(":scope > .msel-p");
+  const opts = [...sel.options].filter(o => !(o.value === "" && /^(choose|select)/i.test(o.text)) && !o.hidden);
+  p.querySelector(".msel-l").innerHTML = (!sel.required && [...sel.options].some(o => o.value === "") ? `<button type="button" class="msel-o${sel.value === "" ? " on" : ""}" data-msv="">None</button>` : "")
+    + opts.map(o => `<button type="button" class="msel-o${o.value === sel.value ? " on" : ""}" data-msv="${esc(o.value)}"${o.disabled ? " disabled" : ""}>${esc(o.text)}</button>`).join("") || `<div class="msel-none">No options</div>`;
+  m.classList.add("open"); p.hidden = false; const q = p.querySelector(".msel-q"); q.value = ""; msPlace(m); p.querySelector(".msel-o.on")?.scrollIntoView({ block: "nearest" }); setTimeout(() => q.focus(), 0); }
+document.addEventListener("click", e => {
+  const f = e.target.closest(".msel-f"); if (f) { e.preventDefault(); const m = f.parentElement; m.classList.contains("open") ? msClose() : msOpen(m); return; }
+  const o = e.target.closest(".mselect .msel-o"); if (o) { e.preventDefault(); const m = o.closest(".msel"), sel = m.querySelector("select"); sel.value = o.dataset.msv;
+    sel.dispatchEvent(new Event("input", { bubbles: true })); sel.dispatchEvent(new Event("change", { bubbles: true })); msClose(); if (document.contains(m)) msPaint(m); m.querySelector(".msel-f")?.focus(); return; }
+  if (e.target.closest(".msel-p")) return;
+  msClose();
+}, true);
+document.addEventListener("input", e => { if (!e.target.classList?.contains("msel-q")) return; const q = e.target.value.trim().toLowerCase(), l = e.target.parentElement.querySelector(".msel-l");
+  l.querySelectorAll(".msel-o").forEach(o => { o.hidden = !!q && !o.textContent.toLowerCase().includes(q); });
+  l.querySelector(".msel-emp")?.remove(); if (![...l.querySelectorAll(".msel-o")].some(o => !o.hidden)) l.insertAdjacentHTML("beforeend", `<div class="msel-none msel-emp">No results</div>`); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.querySelector(".msel.open")) { e.preventDefault(); e.stopPropagation(); msClose(); return; }
+  const f = e.target.closest?.(".msel-f"); if (f && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) { e.preventDefault(); msOpen(f.parentElement); return; }
+  if (e.target.classList?.contains("msel-q") && e.key === "Enter") { e.preventDefault(); [...e.target.parentElement.querySelectorAll(".msel-o")].find(o => !o.hidden)?.click(); }
+}, true);
+addEventListener("scroll", e => { if (e.target.closest?.(".msel-p")) return; document.querySelectorAll(".msel.open").forEach(msPlace); }, true);
+addEventListener("resize", () => document.querySelectorAll(".msel.open").forEach(msPlace));
+// a value or option list changed by code (picking a country fills its currency) shows straight away
+setInterval(() => document.querySelectorAll(".mselect").forEach(m => { const sel = m.querySelector("select"); if (sel && (m.dataset.v !== sel.value || +m.dataset.n !== sel.options.length || m.querySelector(".msel-f").classList.contains("dis") !== sel.disabled)) msPaint(m); }), 300);
+new MutationObserver(() => msEnhance()).observe(document.body, { childList: true, subtree: true });
+// Enter saves the open form (also from a dropdown or checkbox); Esc closes the dialog
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || e.shiftKey || e.isComposing || document.querySelector(".slk-ask, .msel.open, .cal")) return;
+  const t = e.target; if (t.matches?.("textarea, button, a, .msel-q")) return;
+  const form = t.closest?.("form") || ($("#m")?.classList.contains("on") ? $("#sf") : null); if (!form || t.matches?.("input:not([type=checkbox]):not([type=radio])")) return;
+  e.preventDefault(); form.requestSubmit();
+});
+
 boot();
 </script>
 </body>
