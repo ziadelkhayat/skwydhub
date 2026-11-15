@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="911-1794764872">
+<meta name="skwyd-build" content="914-1794767634">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -875,7 +875,6 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
 if(!Date.prototype.dmy) Date.prototype.dmy = function(time){ const p = n => String(n).padStart(2,"0"); return isNaN(this) ? "—" : p(this.getDate()) + "-" + p(this.getMonth()+1) + "-" + this.getFullYear() + (time ? " " + p(this.getHours()) + ":" + p(this.getMinutes()) : ""); };
-const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" + String(s).slice(0,4) : "";
 
 /* ---------- naming: menu "products" are called Items; inventory "items" are called Products ----------
    Done on what's shown, so data and links keep their names. On inventory screens both words swap
@@ -1266,7 +1265,6 @@ function nextOrderNo(){
 // a number taken for an order that then couldn't be saved goes back, so the sequence has no gap
 function giveBackNo(no){ const key = "skwydNo_" + device.branchId; try{ const c = JSON.parse(store.get(key) || "{}"); if(String(c.n)===String(no)){ c.n = +no - 1; store.set(key, JSON.stringify(c)); } }catch(e){} }
 /* ---------- company and app settings (Account settings, Manage → Settings) ---------- */
-const company = () => S.settings.find(x=>x.id==="company") || {};
 const APP_DEF = { requireCustPickup:true, requireCustDelivery:true, requireTable:false, stockAction:"ask", reasonRequired:true, discountApproval:false, rcptInvoice:true, rcptCustomer:true, rcptTax:true, rcptSource:false,
   voidReasons:"", returnReasons:"Customer cancelled" };
 // Manage → Brands → Settings (one set per brand) wins over the older company-wide settings
@@ -1727,12 +1725,6 @@ async function sendOrder(after){   // after: "bill" or "kitchen" = print that ti
   }catch(err){ console.error(err); toast("Couldn't send the order. Try again."); }
 }
 // "−" on an item already sent to the kitchen voids it (manager PIN); on a closed order the item can be returned
-function voidSent(ix){
-  const i = cart[ix], eo = editOrder(); if(!i || !eo) return;
-  const keep = unsentItems(); window.__keep = keep;
-  OV.open = eo.id; openVR(isOpenOrd(eo) ? "void" : "return", "items");
-  if(i.oix!=null && window.__vq){ window.__vq[i.oix] = 1; const el = $("#vq" + i.oix); if(el) el.textContent = 1; }
-}
 
 /* ---------- events ---------- */
 
@@ -2469,29 +2461,6 @@ function openIncoming(){
   if(ovSt){ const mb = $("#modal .mb"); if(mb) mb.scrollTop = ovSt; }
   const q = $("#ovQ"); if(q && document.activeElement?.id!=="ovQ" && OV.q){ /* keep the list where it was */ }
 }
-function openOrderView(id){
-  if(!S.orders.some(x => x.id===id)){ const h = (OV.hist||[]).find(x => x.id===id); if(h) S.orders.push(h); }
-  const o = S.orders.find(x=>x.id===id); if(!o) return; OV.open = id; const t = (+o.total||0) - (+o.tax||0);
-  const acts = [];
-  if(o.status==="pending") acts.push(canAccept() ? `<button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button>` : `<span class="mut">${esc(masterNote())}</span>`);
-  if(o.status==="active"){ acts.push(`<button class="btn bad" data-vr="void:all">Void order</button>`, `<button class="btn" data-vr="void:items">Void items</button>`); if(o.channel!=="pos") acts.push(`<button class="btn pri" data-inc="${esc(o.id)}:closed">Mark done</button>`); }
-  if(o.status==="closed" && !fullyBack(o)) acts.push(`<button class="btn bad" data-vr="return:all">${+o.refundTotal ? "Return the rest" : "Return order"}</button>`, `<button class="btn" data-vr="return:items">Return items</button>`);
-  const src = o.refundOf && S.orders.find(x=>x.id===o.refundOf);
-  S.orders.filter(x => x.refundOf===o.id).forEach(x => acts.push(`<button class="btn" data-ov="${esc(x.id)}">Return ${esc(ordRef(x))}</button>`));
-  if(o.status==="refund" && src) acts.push(`<button class="btn" data-ov="${esc(src.id)}">Open original order</button>`);
-  modal("orderview", `<div class="mh"><h2>Order ${esc(ordRef(o)==="—" && o.ref ? o.ref : ordRef(o))} <span class="spill s-${o.status}">${stLbl(o)}</span></h2></div><div class="mb">
-    <p class="mut">${o.invoiceNo && o.no?`${esc(invNo(o.invoiceNo))} · `:""}${esc(typLbl(o.type))}${o.table?" T"+esc(o.table):""} · <b class="chtag">${o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering"}</b>${o.source && !["POS","Call center"].includes(o.source) ? " · " + esc(o.source) : ""} · ${new Date(o.createdAt).dmy(true)}${o.agent?` · ${esc(o.agent)}`:""}</p>
-    ${o.customerName||o.phone ? `<p><b>${esc(o.customerName||"")}</b> ${o.phone?`<a href="tel:${esc(o.phone)}" style="color:#1e3a8a">${esc(telFmt(o.phone))}</a>`:""}${o.address?`<br><span class="mut">${esc(o.address)}</span>`:""}${o.lat?`<br><a href="https://www.google.com/maps?q=${o.lat},${o.lng}" target="_blank" rel="noopener" style="color:#1e3a8a">📍 Open pinned location</a>`:""}</p>` : ""}
-    <div class="vlines">${(o.items||[]).map(i=>`<div><span>${i.qty} × ${esc(i.name)}${modList(i)}${+i.disc?`<small style="display:block;color:#b45309">Discount −${usd(i.disc)}</small>`:""}</span><b>${usd(lineNet(i))}</b></div>`).join("")}
-      ${(o.voidedItems||[]).map(i=>`<div class="mut"><span><s>${i.qty} × ${esc(i.name)}</s> · voided${i.reason?" ("+esc(i.reason)+")":""}</span><s>${usd((+i.price||0)*(+i.qty||1))}</s></div>`).join("")}
-      ${(o.returnedItems||[]).map(i=>`<div class="mut"><span>${i.qty} × ${esc(i.name)} · returned${i.stock==="waste"?" (waste)":" (to stock)"}</span><span>−${usd(i.refund)}</span></div>`).join("")}</div>
-    <div class="totals" style="border:0;padding:8px 0">${+o.discount?`<div><span>Discount</span><span>−${usd(o.discount)}</span></div>`:""}${(o.charges||[]).filter(c=>+c.amount).map(c=>`<div><span>${esc(c.name)}</span><span>${usd(c.amount)}</span></div>`).join("")}
-      <div><span>Subtotal</span><span>${usd(t)}</span></div><div class="mut"><span>Tax</span><span>${usd(o.tax)}</span></div><div class="g"><span>Total</span><span>${usd(o.total)}</span></div></div>
-    ${o.notes?`<p class="mut">Kitchen: ${esc(o.notes)}</p>`:""}${o.receiptNotes?`<p class="mut">Receipt: ${esc(o.receiptNotes)}</p>`:""}
-    ${o.status==="void"?`<p style="color:#b42318">Voided${o.voidedBy?" by "+esc(o.voidedBy):""}${o.approvedBy?", approved by "+esc(o.approvedBy):""}${o.voidReason?" — "+esc(o.voidReason):""}${o.stockAction?` · ${o.stockAction==="waste"?"wasted":"back to stock"}`:""}</p>`:""}
-    ${o.status==="returned"?`<p style="color:#b42318">Returned${o.returnedBy?" by "+esc(o.returnedBy):""}${o.approvedBy?", approved by "+esc(o.approvedBy):""}${o.returnReason?" — "+esc(o.returnReason):""}${o.stockAction?` · ${o.stockAction==="waste"?"wasted":"back to stock"}`:""}</p>`:""}</div>
-    <div class="mf"><button class="btn" data-ovback>← Back</button>${["pending","declined"].includes(o.status) ? `<span style="margin-right:auto"></span>` : `<button class="btn" data-reprint>Reprint</button><button class="btn" data-kticket style="margin-right:auto">Kitchen ticket</button>`}${acts.join("")}</div>`, true);
-}
 const retLeft = (o, ix) => Math.max(0, +((o.items||[])[ix]?.qty||0) - (o.returnedItems||[]).filter(r => r.ix===ix).reduce((s,r)=>s+(+r.qty||0),0));
 // refund for the picked quantities: each item's price after the order discount, never more than what's left to refund
 const retAmt = (o, qs) => { const gross = (o.items||[]).reduce((s,i)=>s+lineNet(i),0), share = gross ? (+o.total||0) / gross : 1;   // what was paid per unit of items: discount, charges and added tax included
@@ -2612,15 +2581,6 @@ async function doOpenShift(){
   catch(err){ console.error(err); toast("Couldn't open the till"); if(b) b.disabled = false; }
 }
 // a shift left open on any register of the branch (even another tablet) is closed from End of day; the drawer is taken as counted at the expected amount
-async function closeShiftRemote(id){
-  const sh = S.shifts.find(s => s.id===id && !s.closedAt); if(!sh) return openDayEnd();
-  const ok = await approve("pos_endday", "Close this till"); if(!ok) return;
-  const sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
-  const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+o.total,0), expected = +((+sh.openingCash||0)+cash).toFixed(2);
-  try{ await db.collection("shifts").doc(sh.id).update({ closedAt:new Date().toISOString(), orders:sales.filter(o=>o.status==="closed").length, sales:+sales.reduce((a,o)=>a+o.total,0).toFixed(2), expectedCash:expected, countedCash:expected, difference:0 });
-    toast("Till Closed"); setTimeout(openDayEnd, 300); }
-  catch(err){ console.error(err); toast("Couldn't close the till. Check the connection and try again."); }
-}
 async function doCloseShift(){
   const sh = openShift(), sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
   const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+o.total,0), expected = (+sh.openingCash||0)+cash;
@@ -2975,16 +2935,8 @@ document.addEventListener("keydown", e => { if($("#ohPop") && e.key==="Escape"){
 function custPanel(c, ok, det, key, extra = "", noIns = false){
   return `<div class="pdside">${extra}<div class="insbox">${noIns ? "" : insCard(c, ok || [])}${pastHtml(ok, det, key)}</div></div>`;   // customer insights and orders history in one box
 }
-const adShort = a => { const p = addrParts(a); return [p.label, p.street, p.building && "Bldg " + p.building, p.floor && "Floor " + p.floor].filter(Boolean).join(" · ") || a; };
 const pdSide = (extra) => custPanel(PD.cust, PD.past, PD.det, "pddet", extra);
 // a new pickup / delivery order opens on the cart and menu; Add Customer opens the customer window
-async function pdStart(){
-  if(!allowedTypes().some(t => t==="takeaway" || t==="delivery")) return toast("Pickup and delivery aren't enabled on this register", true);
-  if(EDIT) unloadOrder();
-  if(cart.length && !(await askYes("The cart has items. Clear the cart and start this order?", "Clear Cart", true))) return;
-  resetOrder(); otype = allowedTypes().includes("takeaway") ? "takeaway" : "delivery"; cust = { name:"", phone:"", addr:{}, source:"" };
-  closeModal(); cat = ""; renderCart(); renderMenu();
-}
 function pdCancel(){ const ed = PD?.edit; PD = null; if(ed) return closeModal(); openBoard(); }
 // order sources from Manage → Order Sources (POS is a channel, not a source)
 const posSources = () => { const l = S.order_sources.filter(r => !r.deleted && r.active!==false && String(r.name||"").trim() && String(r.name).toUpperCase()!=="POS").sort((a,b) => (a.sort??999)-(b.sort??999) || String(a.name).localeCompare(b.name)).map(r => r.name);

@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="913-1794765869">
+<meta name="skwyd-build" content="914-1794767634">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1627,6 +1627,12 @@ input.dfh{display:none!important}
 .mdd-p .multi .chk{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;border:0!important;background:none}
 .mdd-p .multi .chk:hover{background:#f5f6fa}
 .mdd-p .multi:empty::after{content:attr(data-empty);color:#6b7280;padding:10px;display:block}
+
+.modal .err,#view .err{display:none!important}
+/* build 914: names typed by people keep their spelling in titles; page headers wrap to the right; plain codes in tables */
+h1 .dn,.dn{text-transform:none}
+#view .phead:has(> .sp){justify-content:flex-end}#view .phead:has(> .sp)>h1{margin-right:0}
+#view td>.code:only-child{background:none;padding:0;font-family:inherit;font-size:inherit;color:inherit}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2053,18 +2059,6 @@ async function saveBranchZones(bid, pick){
   for(const z of (S.zones||[]).filter(z => !z.deleted)){
     const on = z.branchId===bid, want = pick.has(z.id);
     if(on!==want) await put("zones", z.id, { branchId: want ? bid : null });
-  }
-}
-async function saveBranchCharges(bid, pick){
-  if(!bid || storeMode!=="db") return;
-  for(const c of (S.charges||[]).filter(c => !c.deleted && c.active!==false)){
-    const ids = (c.branchIds||[]).filter(x => x!=="-"), all = !ids.length, on = all || ids.includes(bid), want = pick.has(c.id);
-    if(on===want) continue;
-    let next;
-    if(want) next = [...ids, bid];
-    else next = all ? branches.filter(b => b.id!==bid).map(b => b.id) : ids.filter(x => x!==bid);
-    if(!next.length) next = ["-"];   // no branch at all
-    await put("charges", c.id, { branchIds: next });
   }
 }
 async function saveBranch(data, id){
@@ -2679,7 +2673,7 @@ function viewBranch(b){
   const card = (title, btn, body) => `<div class="dzsec dzwide"><div class="dzh"><h3>${title}</h3>${btn||""}</div><div class="dzcard dztbl">${body}</div></div>`;
   const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
   const typesOf = c => (c.orderTypes||[]).length ? c.orderTypes.map(t=>esc(TYPE_LBL[t]||t)).join(", ") : "All order types";
-  return `<div class="phead"><a class="btn" href="#branches" data-brback style="text-decoration:none">← Back</a><h1>${esc(b.name)}</h1><div class="sp"></div><button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div><div class="fdet">
+  return `<div class="phead"><a class="btn" href="#branches" data-brback style="text-decoration:none">← Back</a><h1><span class="dn">${esc(b.name)}</span></h1><div class="sp"></div><button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div><div class="fdet">
     <div class="card odet finfo" style="margin-bottom:16px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Reference", esc(b.code || "—"))}${row("Brand", esc(brandName(b.brandId) || "—"))}
       ${more ? row("Opening From", t12o(mon.open || b.open)) + row("Opening To", t12o(mon.close || b.close)) + row("Business day starts", t12o(st.dayStart || "00:00")) + row("Inventory End of Day", t12o(st.invEnd || st.dayStart || "00:00"))
         + row("Tax Group", esc(tg || "—")) + row("Tax Registration Name", esc(st.taxName || "—")) + row("Tax Number", esc(b.taxNumber || "—")) + row("Phone", esc(b.phone || "—")) + row("Address", esc(b.address || "—"))
@@ -2923,7 +2917,7 @@ function viewLocked(){ const s = SUB || {};
     ${(s.invoices||[]).some(i => i.status==="open") ? `<div style="margin-top:14px;text-align:left">${subInvoices(true)}</div>` : ""}
     <p style="margin-top:18px"><button type="button" class="btn" onclick="location.reload()">Check Again</button></p></div>`; }
 function viewNotInPlan(route){ const m = planMod(route), n = MOD_NAME[m] || "This module";
-  return `<div class="phead"><h1>${esc(n)}</h1></div>` + `<div class="card ph"><div><div class="big">${esc(n)} isn't in your plan</div>Add it to your Skwyd Hub subscription to use it.${canOpen("subscription") ? `<br><br><a class="btn pri" href="#subscription">View Plan</a>` : ""}</div></div>`; }
+  return `<div class="phead"><h1><span class="dn">${esc(n)}</span></h1></div>` + `<div class="card ph"><div><div class="big">${esc(n)} isn't in your plan</div>Add it to your Skwyd Hub subscription to use it.${canOpen("subscription") ? `<br><br><a class="btn pri" href="#subscription">View Plan</a>` : ""}</div></div>`; }
 function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
   const route = (HASH().slice(1) || "dashboard");
   renderNav(route); document.body.dataset.route = route; document.body.dataset.sec = navSec(route) || ""; document.body.classList.toggle("noloc", company().localization===false);
@@ -2990,14 +2984,6 @@ function msPaint(m){
 }
 /* Modifier Options filter (like Foodics): name, modifiers, SKU, updated after, allergens */
 const moF = () => state.moF ||= { name:"", mods:[], sku:"", after:"", alg:[] };
-const moFilterN = () => { const f = moF(); return [f.name, f.mods.length, f.sku, f.after, f.alg.length].filter(Boolean).length; };
-function moFilterOk(r){ const f = moF();
-  if(f.name && !String(r.name||"").toLowerCase().includes(f.name.toLowerCase()) && !String(r.nameAr||"").toLowerCase().includes(f.name.toLowerCase())) return false;
-  if(f.mods.length && !f.mods.includes(r.modifierId)) return false;
-  if(f.sku && !String(r.sku||"").toLowerCase().includes(f.sku.toLowerCase())) return false;
-  if(f.after && !(String(r.updatedAt||r.createdAt||"") >= f.after)) return false;
-  if(f.alg.length && !f.alg.some(a => (r.allergens||[]).includes(a))) return false;
-  return true; }
 document.addEventListener("click", e => {
   if(e.target.closest("[data-mofclear]")){ e.preventDefault(); state.moF = null; return render(); }
   if(e.target.closest("[data-mofilter]")){ e.preventDefault(); const f = moF(), box = $("#ccBox"); box.className = "modal sm";
@@ -3175,7 +3161,6 @@ function openForm(id){
     $("#fTables").innerHTML = `<div class="brtbl"><div class="brtbl-l">${tl.length ? secs.map(sc => { const n = tl.filter(t => (t.section||"")===sc).length; return `<span class="brsec"><b>${esc(sc || "No section")}</b><small>${n} table${n===1?"":"s"}</small></span>`; }).join("") : '<span class="note">No sections or tables yet.</span>'}</div>
       <button type="button" class="btn" data-brtables="${esc(b.id)}">${tl.length ? "Edit Sections & Tables" : "Add Sections & Tables"}</button></div>`; }
   else $("#fTables").innerHTML = '<div class="note">Save the branch first, then add its sections and tables.</div>';
-  const chOn = c => !(c.branchIds||[]).length || (b && c.branchIds.includes(b.id));
   timeSel($("#fDayStart"), st.dayStart || company().dayEnd || "00:00", { maxH:12 }); $("#fAutoDay").checked = st.autoDayEnd !== false;
 
   const H = st.hours || {}, o0 = b?.open || "11:00", c0 = b?.close || "23:30";
@@ -3436,7 +3421,6 @@ const bySort = (a,b) => (a.sort??9999)-(b.sort??9999) || String(a.name||"").loca
 const catRank = id => S.categories.find(c => c.id===id)?.sort ?? 9999;
 const branchName = id => branches.find(b => b.id===id)?.name || "—";
 const fmtDate = s => s ? new Date(s).dmy(true).replace(",","") : "—";
-const ago = s => { const m = Math.round((Date.now() - new Date(s))/60000); if(m<1) return "just now"; if(m<60) return m + " minute" + (m>1?"s":"") + " ago"; const h = Math.round(m/60); if(h<24) return (h===1?"an":h) + " hour" + (h>1?"s":"") + " ago"; return Math.round(h/24) + " days ago"; };
 const usd = n => CURJ(SYM(), (+n||0).toLocaleString("en-US",{minimumFractionDigits:DEC(),maximumFractionDigits:DEC()}));
 
 /* ---------- CRUD screens, Foodics-style ---------- */
@@ -3909,6 +3893,8 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
     tryIt();
   }
   addEventListener("popstate", () => { const r = route(), id = RECORD(); if(!id && current(r)) close(r); else if(id) setTimeout(open, 0); });
+  // pressing the section you are already in (its tab or menu link) while a record is open goes back to that section's list
+  document.addEventListener("click", e => { const l = e.target.closest?.('a[href^="#"]'); if(!l || e.defaultPrevented) return; const r = l.getAttribute("href").slice(1).split("?")[0]; if(r && r===route() && current(r)) setTimeout(() => close(r), 0); }, true);
   setInterval(sync, 300);
   if(RECORD()) setTimeout(open, 0);
 })();
@@ -4627,7 +4613,6 @@ const ccGross = () => cart.reduce((a,i)=>a+lineNet(i),0);
 const ccDiscAmt = () => { const g = ccGross(); if(ccDS){ const d = dsList().find(x => x.id===ccDS.id); if(d){ ccDiscType = "amt"; ccDisc = ccDsCalc(d, ccDS.val).amt; } else ccDS = null; } return +Math.min(g, ccDiscType==="amt" ? +ccDisc||0 : g * (+ccDisc||0) / 100).toFixed(2); };
 const ccMayDisc = () => mayDo("bo_cc_discount") && brandSet($("#oBrand")?.value || branches.find(b => b.id===$("#oBranch")?.value)?.brandId || "").ccDiscounts !== false;
 /* ---------- charges (Manage → Charges) and order totals, shared by the call center ---------- */
-const taxIncl = () => !S.taxes.some(x => live(x) && x.inclusive===false);
 const chargeList = (type, brandId, branchId) => S.charges.filter(c => live(c) && c.active!==false && (!(c.orderTypes||[]).length || c.orderTypes.includes(type==="takeaway" ? "pickup" : type))
   && (!(c.brandIds||[]).length || c.brandIds.includes(brandId)) && (!(c.branchIds||[]).length || c.branchIds.includes(branchId))).sort(bySort);
 const ccOpen = {};   // open-amount charges: what the agent entered for this order
@@ -4657,7 +4642,6 @@ function ccCharges(){
   if(zc && !list.some(c => c.id===zc.id)) list.push(zc);
   return { list, picked: list.filter(c => ccChg ? ccChg.has(c.id) : c.id===zc?.id) };
 }
-function ccToDelivery(){ const b = document.querySelector('#oType [data-ot="delivery"]'); if(b && !b.disabled && !b.classList.contains("on")) b.click(); }
 function ccAddrVis(){ const f = $("#oAddrBar"), del = $("#oType .on")?.dataset.ot==="delivery"; if(f){ f.hidden = !del; f.style.display = del ? "" : "none"; } if(!del && $("#oAddrPop")) $("#oAddrPop").hidden = true; ccAddrBar(); }
 // the delivery address lives in its own window: this bar shows the chosen one and opens it
 function ccAddrBar(){ const b = $("#oAddrBar"); if(!b) return; const a = ccAddrGet(), has = !!addrJoin(a);
@@ -5061,7 +5045,7 @@ const devStatus = d => d.activatedAt ? '<span class="tag on">Used</span>' : '<sp
 function viewDevice(d){
   const s = d.settings || {}, row = (k, v) => `<div><span>${k}</span>${v}</div>`, dt = t => t ? new Date(t).dmy(true) : "—";
   const last = S.orders.filter(o => o.deviceId===d.id).reduce((m,o) => o.createdAt > m ? o.createdAt : m, "");
-  return `<div class="phead"><a class="btn" href="#devices" data-devback style="text-decoration:none">← Back</a><h1>${esc(d.name)}</h1><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
+  return `<div class="phead"><a class="btn" href="#devices" data-devback style="text-decoration:none">← Back</a><h1><span class="dn">${esc(d.name)}</span></h1><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
       <button class="btn" data-devsync="${esc(d.id)}">${svgIco("refresh")}Force Sync Data</button><button class="btn" data-devcopy="${esc(d.id)}">${svgIco("copy")}Copy Settings</button><button class="btn" data-devset="${esc(d.id)}">${svgIco("gear")}Device Settings</button><button class="btn pri" data-devedit="${esc(d.id)}">Edit Device</button></div>
     <div class="card odet" style="margin-bottom:16px">${row("Reference", esc(d.reference || "—"))}${row("Type", esc(devType(d.type)))}${row("Branch", esc(branchName(d.branchId)))}${row("Brand", esc(brandName(branches.find(b=>b.id===d.branchId)?.brandId) || "—"))}
       ${row("Status", devStatus(d))}${row("Receives Online Orders", s.master ? "Yes" : "No")}${row("Activated", dt(d.activatedAt))}${row("Last Online", dt(d.lastSeen))}${row("Last Order", dt(last))}</div>
@@ -6021,7 +6005,6 @@ function moduleRoute(route){
   if(route==="inv-levels") return viewInvLevels();
   if(route==="inv-history") return viewInvHistory();
   if(route==="purchasing") return viewPurchasing();
-  if(route==="__old_order_tx") return `<h1>Order Transactions</h1><p class="subt">Consumption, returns and waste created automatically from sales.</p>` + placeholder("Starts with recipes", "Each sold product will deduct its recipe ingredients from the branch stock and show up here (Consumption, Return, Waste). It turns on next, now that products have ingredients (open a product under Menu → Products).");
   return null;
 }
 
@@ -7159,7 +7142,7 @@ function bsField(f, v, b, dis){
 function brandDetail(b){
   const admin = !state.role || state.role==="owner" || state.role==="admin", dis = admin ? "" : "disabled", tab = BS_TABS.find(t => t[0]===state.bsTab) || BS_TABS[0];
   const v = { ...brandSet(b.id), ...(state.bsDraft?.[b.id] || {}) }, row = (k, x) => `<div><span>${k}</span>${x}</div>`, brs = branches.filter(x => x.brandId===b.id);
-  return `<div class="phead"><a href="#brands" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(b.name)}</h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Brand</button></div>
+  return `<div class="phead"><a href="#brands" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(b.name)}</span></h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Brand</button></div>
     <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Branches", brs.length)}${row("Created", b.createdAt ? new Date(b.createdAt).dmy() : "—")}</div>
     <div class="bswrap"><nav class="bsnav"><b>Settings</b>${BS_TABS.map(([k,t])=>`<a href="#brands" data-bstab="${k}" class="${tab[0]===k?"on":""}">${t}</a>`).join("")}</nav>
     <div class="card bsbody" data-bsbrand="${esc(b.id)}"><h3>${tab[2]}</h3>${admin?"":`<div class="banner">Only the owner or an admin can change settings.</div>`}
@@ -7583,7 +7566,7 @@ function dsDetail(d){
   const q = (DS_QUAL.find(x => x[0]===d.qualification)||DS_QUAL[0])[1], ot = { dinein:"Dine In", pickup:"Pick Up", delivery:"Delivery", fast:"Fast Order" };
   const more = true ? [info("Name Localized", esc(d.nameAr||"—")), info("Qualification", esc(q)), info("Discount Amount", dsAmtLbl(d)), info("Minimum Order Price", d.minOrder!=null ? money(d.minOrder) : "—"), info("Minimum Product Price", d.minProduct!=null ? money(d.minProduct) : "—"),
     info("Maximum Discount", d.type!=="fixed" && d.maxDiscount!=null ? money(d.maxDiscount) : "—"), info("Order Types", esc((d.orderTypes||[]).filter(k => k!=="fast").map(k => ot[k]||k).join(", ") || "—")), info("Reference", esc(d.reference||"—")), info("Taxable", d.taxable ? "Yes" : "No")] : [];
-  return `<div class="phead"><a href="#discounts" class="btn" data-dsback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(d.name)}</h1><div class="sp"></div><button class="btn" data-dsedit="${esc(d.id)}">Edit Discount</button></div>
+  return `<div class="phead"><a href="#discounts" class="btn" data-dsback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(d.name)}</span></h1><div class="sp"></div><button class="btn" data-dsedit="${esc(d.id)}">Edit Discount</button></div>
   <div class="card" style="margin-bottom:16px"><div style="display:flex;align-items:center"><b>Details</b></div>
     ${infoGrid([info("Name", esc(d.name)), info("Discount", dsAmtLbl(d)), ...more]).replace('class="card igrid"', 'class="igrid dsinfo"')}</div>
   ${DS_SECS.map(([k, title, btn, hint, head, , row]) => { const ids = d[k]||[], rows = ids.map(row).filter(Boolean);
@@ -7819,7 +7802,7 @@ const ingCost = (it, qty, depth=0) => !it ? 0 : (+qty||0) / (+it.factor || 1) * 
 const recipeCost = (list, depth=0) => (list||[]).reduce((s,l) => s + ingCost(itemOf(l.itemId), l.qty, depth), 0);
 const isFixedCost = p => /fixed/i.test(String(p?.costingMethod||""));
 const productCost = p => isFixedCost(p) ? (+p.cost||0) : recipeCost(p.ingredients);
-const fmtCost = n => CURJ(SYM(), (+n||0).toLocaleString("en-US",{maximumFractionDigits:5}));
+const fmtCost = n => CURJ(SYM(), (+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:5}));
 
 // a stable text form of a value for "did anything change?" checks: object keys sorted, empty values dropped, lists of ids sorted
 const canonJ = v => JSON.stringify((function c(x){ if(Array.isArray(x)) return x.every(y => typeof y==="string") ? [...x].sort() : x.map(c);
@@ -8024,7 +8007,7 @@ function productDetail(p){
   if(old && old.dataset.id===p.id && old.dataset.dirty){ draft = {}; old.querySelectorAll("[id^=cf_]").forEach(el => { const k = el.id.slice(3); if(/_(file|prev|cc|new|dl)$/.test(k)) return;
     if(el.tagName==="DIV"){ if(el.querySelector("[data-nk]")){ const o = {}; el.querySelectorAll("[data-nk]").forEach(i => { if(i.value!=="") o[i.dataset.nk] = +i.value; }); draft[k] = o; } else draft[k] = [...el.querySelectorAll("input:checked")].map(i => i.value); return; }
     draft[k] = el.type==="checkbox" ? el.checked : el.value; }); }
-  let h = `<div class="phead"><a href="#products" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(p.name)}</h1>
+  let h = `<div class="phead"><a href="#products" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(p.name)}</span></h1>
     ${p.deleted ? `<span class="stbadge off">Deleted</span>` : ""}
     <div class="sp"></div><span class="dacts">${p.deleted ? `<button type="button" class="btn" data-detrestore>Restore</button>` : DET.edit || draft ? `<button type="button" class="btn danger" data-detdelete>Delete Product</button><button type="button" class="btn" data-detview>Cancel</button><button type="submit" form="detForm" class="btn pri" id="detSave">Save</button>` : `<button type="button" class="btn pri" data-detedit>Edit Product</button>`}</span></div>`;
   const F = keys => openCrud("products", p.id, keys, draft), vk = varKids(p).length;
@@ -8214,7 +8197,7 @@ function userDetail(u){
   const rs = S.roles.filter(r => userRoleIds(u).includes(r.id)), picked = (u.branchIds||[]).length, brs = picked ? branches.filter(b => u.branchIds.includes(b.id)) : branches.filter(b => b.active!==false);   // "-" alone = no branches yet
   const dt = t => t ? new Date(t).dmy(true) : "—";
   // same layout as every other detail page: header, details card, then the sections
-  let h = `<div class="phead"><a href="#users" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(u.name)}</h1><div class="sp"></div>
+  let h = `<div class="phead"><a href="#users" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(u.name)}</span></h1><div class="sp"></div>
     ${u.userId && state.role!=="owner" ? "" : `<button class="btn" data-usrpw="${esc(u.id)}">${u.userId ? "Change Password" : "Create Password"}</button>`}<button class="btn pri" data-detedit>Edit User</button></div>`;
   h += infoGrid([info("Name", esc(u.name)), info("Email", esc(u.email || "—")), info("Phone", esc(u.phone || "—")), info("Language", u.language==="ar" ? "Arabic" : "English"), info("Display Localized Names", u.displayLocalized ? "Yes" : "No"),
     info("Console Access", u.email ? (u.userId ? "Yes" : "Not created yet") : "No"), info("App Access (PIN)", u.pinHash ? "Yes" : "No"), info("Created", esc(dt(u.createdAt)))]);
@@ -8305,7 +8288,7 @@ function invItemDetail(it){
   const inProducts = S.products.filter(p => live(p) && (p.ingredients||[]).some(l=>l.itemId===it.id));
   const inItems = S.inv_items.filter(x => live(x) && (x.ingredients||[]).some(l=>l.itemId===it.id));
   const stock = DOC.stock && DOC.stock!=="loading" ? locList().map(([k,t]) => [t, DOC.stock[k]?.[it.id]]).filter(x=>x[1]!==undefined) : null;
-  let h = `<div class="phead"><a href="#inv-items" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(it.name)}</h1>
+  let h = `<div class="phead"><a href="#inv-items" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(it.name)}</span></h1>
 <div class="sp"></div>
     <button class="btn pri" data-detedit>Edit Item</button></div>`;
   h += infoGrid([info("Name", esc(it.name)), info("Name Localized", esc(it.nameAr||"—")), info("SKU", `<span class="code">${esc(it.sku||"—")}</span>`),
@@ -8334,7 +8317,7 @@ function supLinkTable(list, side){
 }
 // a warehouse (Foodics): its details, then deleting its inventory or the warehouse itself
 function warehouseDetail(w){
-  let h = `<div class="phead"><a href="#warehouses" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(w.name)}</h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Warehouse</button></div>`;
+  let h = `<div class="phead"><a href="#warehouses" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(w.name)}</span></h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Warehouse</button></div>`;
   h += infoGrid([info("Name", esc(w.name)), info("Reference", esc(w.reference||"—")), info("Address", esc(w.address||"—")), info("Created", fmtDate(w.createdAt))]);
   h += `<div class="supsecs">`;
   h += pdSec("Delete Inventory", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse inventory, all the data will be permanently deleted.</p><button type="button" class="btn danger" data-whdelinv="${esc(w.id)}">Delete Inventory</button>`);
@@ -8353,7 +8336,7 @@ document.addEventListener("click", async e => {
 });
 function supplierDetail(sp){
   const tg = tagsOf("supplier", sp.id), sl = supLinks().filter(l => l.supplierId===sp.id);
-  let h = `<div class="phead"><a href="#suppliers" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(sp.name)}</h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Supplier</button></div>`;
+  let h = `<div class="phead"><a href="#suppliers" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(sp.name)}</span></h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Supplier</button></div>`;
   h += infoGrid([info("Name", esc(sp.name)), info("Contact Name", esc(sp.contactName||"—")), info("Phone", esc(sp.phone||"—")), info("Primary Email", esc(sp.email||"—")), info("Supplier Code", esc(sp.code||"—")), info("Address", esc(sp.address||"—")), info("Notes", esc(sp.notes||"—"))]);
   h += `<div class="supsecs">`;   // the sections line up with the details card above
   h += pdSec("Tags", `<button type="button" class="btn" data-suptags="${esc(sp.id)}">Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<p class="dzempty">Add tags to help you filter and group suppliers easily. You can create tags such as Cash Suppliers, High Quality, etc.</p>`);
@@ -8491,7 +8474,7 @@ const modName = id => S.modifiers.find(m=>m.id===id)?.name || "—";
 const modOptions = id => S.modifier_options.filter(o => live(o) && o.modifierId===id).sort((a,b)=>(a.sort??999)-(b.sort??999) || a.name.localeCompare(b.name));
 function optionDetail(o){
   const cost = productCost(o), price = +o.price || 0;
-  let h = `<div class="phead"><a href="#modifier-options" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(o.name)}</h1>
+  let h = `<div class="phead"><a href="#modifier-options" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(o.name)}</span></h1>
     <div class="sp"></div>
     <button class="btn pri" data-detedit>Edit Option</button></div>`;
   h += infoGrid([info("Name", esc(o.name)), info("Name Localized", esc(o.nameAr||"—")),
@@ -8901,7 +8884,7 @@ function viewInvLevels(){
       <select class="sel" id="ilLoc" aria-label="Location"><option value="">All locations</option>${locs.map(([id,n]) => `<option value="${esc(id)}" ${INV.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
       <select class="sel" id="ilCat" aria-label="Category"><option value="">All categories</option>${invCatNames().map(n => `<option ${INV.cat===n?"selected":""}>${esc(n)}</option>`).join("")}</select>
       <label class="chk" style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="ilLow" ${INV.low?"checked":""}> Low and out of stock only</label>
-      <div class="sp"></div><input class="search" id="ilQ" type="search" placeholder="Search" value="${esc(INV.q)}"></div>`;
+      <div class="sp"></div><input class="sel search" id="ilQ" type="search" placeholder="Search" value="${esc(INV.q)}"></div>`;
   if(loading) h += `<div class="empty">Loading stock…</div>`;
   else if(!rows.length) h += `<div class="empty">${INV.low ? "Nothing is low or out of stock." : "No items."}</div>`;
   else h += `<table><thead><tr><th>Item</th><th>Category</th><th>Unit</th>${per ? locs.map(([,n]) => `<th class="num">${esc(n)}</th>`).join("") : ""}<th class="num">On hand</th><th class="num">Min</th><th class="num">Par</th><th class="num">To order</th><th class="num">Unit cost</th><th class="num">Value</th><th>Status</th></tr></thead><tbody>${rows.map(r => `<tr>
@@ -8999,7 +8982,7 @@ function viewOrderTx(){
   else if(!OT.rows.length) h += `<div class="empty">${OT.loading ? "Loading…" : "No transactions yet"}</div>`;
   else h += `<table><thead><tr><th>Reference</th><th>Branch</th><th>Order</th><th>Type</th><th class="num">Items</th><th class="num">Cost</th><th>Created</th></tr></thead><tbody>${OT.rows.map(r=>`<tr class="click" data-otopen="${esc(r.id)}">
       <td><span class="code">${esc(r.ref)}</span></td><td>${esc(branchName(r.branch_id))}</td><td>#${esc(r.order_no||"")}</td>
-      <td>${r.kind==="return"?'<span class="tag off">Return from order</span>':'<span class="tag on">Consumption from order</span>'}</td><td class="num">${(r.items||[]).length}</td><td class="num">${fmtCost(r.total_cost)}</td><td>${fmtDate(r.created_at)}</td></tr>`).join("")}</tbody></table>`;
+      <td>${r.kind==="return"?"Return From Order":"Consumption From Order"}</td><td class="num">${(r.items||[]).length}</td><td class="num">${fmtCost(r.total_cost)}</td><td>${fmtDate(r.created_at)}</td></tr>`).join("")}</tbody></table>`;
   h += `<div class="pager"><span class="note">${OT.count} transaction${OT.count===1?"":"s"}</span><div class="sp"></div><button class="btn sm" data-otpage="-1" ${OT.page<=1?"disabled":""}>Previous</button><button class="btn sm" data-otpage="1" ${OT.page>=pages?"disabled":""}>Next</button></div></div>`;
   return h;
 }
@@ -9058,10 +9041,7 @@ async function loadStock(force){
 const stockOf = (loc, item) => (DOC.stock && DOC.stock!=="loading" && DOC.stock[loc]) ? DOC.stock[loc][item] : undefined;
 
 // a document belongs to the brand of its branch (from or to); warehouse-only documents show for every brand
-const docBrandOk = d => { if(state.brand==="all") return true; const ids = [d.locationId, d.destId].filter(Boolean), br = ids.map(id => branches.find(b=>b.id===id)).filter(Boolean);
-  return !br.length || br.some(b => b.brandId===state.brand); };
 // branch / warehouse filter on the inventory transaction lists
-const docBrSel = (route, K) => K.kind==="sheet" || K.kind==="cost" ? "" : `<select class="sel" data-docbr="${route}" aria-label="Branch" style="margin-right:8px">${[["", "All Branches"], ...locList()].map(([k,t]) => `<option value="${esc(k)}" ${k===((DOC.br||{})[route]||"")?"selected":""}>${esc(t)}</option>`).join("")}</select>`;
 document.addEventListener("change", e => { const s = e.target.closest?.("[data-docbr]"); if(!s) return; (DOC.br ||= {})[s.dataset.docbr] = s.value; render(); });
 function viewDocs(route){
   const K = DOC_KINDS[route];
@@ -9595,75 +9575,6 @@ document.addEventListener("change", e => {
 
 /* ---------- Inventory Count: enter what's on the shelf; feeds the Inventory dashboard ---------- */
 const IC = { branch:"", levels:{}, loaded:{}, draft:{}, q:"", cat:"", sheet:"", saving:false };
-async function loadLevels(branch, force){
-  if(!branch || storeMode!=="db" || (!force && IC.loaded[branch])) return;
-  IC.loaded[branch] = "loading";
-  const { data, error } = await WOK.sb.rpc("skwyd_stock_levels", { p_branch: branch });
-  if(error){ IC.loaded[branch] = null; toast("Couldn't load the last counts"); console.error(error); return; }
-  IC.levels[branch] = Object.fromEntries((data||[]).map(r => [r.item_id, r])); IC.loaded[branch] = true;
-  if(HASH().slice(1)==="inventory-count") render();
-}
-function viewInventoryCount(){
-  const act = locList();
-  if(!act.length) return `<h1>Inventory Count</h1>` + placeholder("No active branches", "Add a branch first.");
-  if(!act.some(b=>b[0]===IC.branch)) IC.branch = state.branch!=="all" && act.some(b=>b[0]===state.branch) ? state.branch : act[0][0];
-  const sheets = S.inv_docs.filter(x=>x.kind==="sheet" && live(x)), sheet = sheets.find(x=>x.id===IC.sheet), inSheet = sheet ? new Set((sheet.items||[]).map(l=>l.itemId)) : null;
-  loadLevels(IC.branch);
-  const lv = IC.levels[IC.branch] || {}, d = IC.draft[IC.branch] || {};
-  const cats = invCatNames();
-  const q = IC.q.toLowerCase();
-  const items = S.inv_items.filter(live).filter(i => (!inSheet || inSheet.has(i.id)) && (!IC.cat || i.category===IC.cat) && (!q || (i.name+" "+(i.sku||"")).toLowerCase().includes(q)))
-    .sort((a,b)=>(a.category||"").localeCompare(b.category||"") || a.name.localeCompare(b.name));
-  const entered = Object.values(d).filter(v => v!=="" && v!=null).length;
-  const fmtD = t => t ? new Date(t).dmy() : "";
-  return `<div class="phead"><h1>Inventory Count</h1><div class="sp"></div>${scopeBar(false)}</div><p class="subt">Type what's on the shelf for each item, in its storage unit. Leave items blank to skip them. Each save keeps the previous counts as history.</p>
-    <div class="row fbar">
-      <select class="sel" id="icBranch" aria-label="Branch or warehouse">${act.map(([k,t])=>`<option value="${esc(k)}" ${k===IC.branch?"selected":""}>${esc(t)}</option>`).join("")}</select>
-      ${sheets.length?`<select class="sel" id="icSheet" aria-label="Count sheet"><option value="">All items</option>${sheets.map(x=>`<option value="${esc(x.id)}" ${x.id===IC.sheet?"selected":""}>${esc(x.name||x.ref)}</option>`).join("")}</select>`:""}
-      <select class="sel" id="icCat" aria-label="Category"><option value="">All categories</option>${cats.map(c=>`<option ${c===IC.cat?"selected":""}>${esc(c)}</option>`).join("")}</select>
-      <input class="sel" id="icQ" placeholder="Search items" value="${esc(IC.q)}" style="min-width:200px">
-      <span class="sp"></span><span class="note" id="icCount">${entered} item${entered===1?"":"s"} entered</span>
-      <button class="btn" id="icClear" ${entered?"":"disabled"}>Clear</button>
-      <button class="btn pri" id="icSave" ${entered && !IC.saving?"":"disabled"}>${IC.saving?"Saving…":"Save"}</button>
-    </div>
-    ${IC.loaded[IC.branch]==="loading" ? `<p class="note">Loading last counts…</p>` : ""}
-    <div class="card tbl"><table><thead><tr><th>Item</th><th>Category</th><th>Unit</th><th class="num">Last count</th><th class="num">Min</th><th class="num" style="width:150px">Counted now</th></tr></thead><tbody>${
-      items.length ? items.map(i => { const l = lv[i.id], low = l && +i.minLevel>0 && +l.qty < +i.minLevel;
-        return `<tr><td><b>${esc(i.name)}</b> <span class="code">${esc(i.sku||"")}</span></td><td>${esc(i.category||"—")}</td><td>${esc(i.storageUnit||"—")}</td>
-          <td class="num"${low?' style="color:var(--accent-ink);font-weight:600"':""}>${l ? `${(+l.qty).toLocaleString()} <span class="note">· ${fmtD(l.counted_at)}</span>` : '<span class="note">Never</span>'}</td>
-          <td class="num">${+i.minLevel ? (+i.minLevel).toLocaleString() : "—"}</td>
-          <td class="num">${qCell("ic", i.id, "qty", d[i.id], "Counted now", i.name, i.id)}</td></tr>`; }).join("")
-      : `<tr><td colspan="6" class="note">No items match.</td></tr>`
-    }</tbody></table></div>`;
-}
-async function saveCount(){
-  const d = IC.draft[IC.branch] || {}, now = new Date().toISOString(), batch = "cnt_" + Date.now().toString(36);
-  const rows = Object.entries(d).filter(([,v]) => v!=="" && v!=null && !isNaN(+v) && +v>=0).map(([item, v]) => ({ branch_id: IC.branch, item_id: item, qty: +v, counted_at: now, counted_by: state.userName || null, batch }));
-  if(!rows.length) return;
-  IC.saving = true; render();
-  const { error } = await WOK.sb.from("stock_counts").insert(rows);
-  IC.saving = false;
-  if(error){ console.error(error); toast("Couldn't save the count: " + error.message); render(); return; }
-  IC.draft[IC.branch] = {}; DASH.key = ""; toast(`Saved ${rows.length} item${rows.length===1?"":"s"} for ${locName(IC.branch)}`);
-  await loadLevels(IC.branch, true); render();
-}
-$("#view").addEventListener("input", e => {
-  const inp = e.target.closest("[data-ic]");
-  if(inp){ (IC.draft[IC.branch] ||= {})[inp.dataset.ic] = inp.value;
-    const n = Object.values(IC.draft[IC.branch]).filter(v=>v!=="").length;
-    $("#icCount").textContent = `${n} item${n===1?"":"s"} entered`; $("#icSave").disabled = !n; $("#icClear").disabled = !n; return; }
-  if(e.target.id==="icQ"){ IC.q = e.target.value; const pos = e.target.selectionStart; render(); const el = $("#icQ"); el.focus(); el.setSelectionRange(pos,pos); }
-});
-$("#view").addEventListener("change", e => {
-  if(e.target.id==="icBranch"){ IC.branch = e.target.value; render(); }
-  if(e.target.id==="icCat"){ IC.cat = e.target.value; render(); }
-  if(e.target.id==="icSheet"){ IC.sheet = e.target.value; render(); }
-});
-$("#view").addEventListener("click", async e => {
-  if(e.target.id==="icSave") saveCount();
-  if(e.target.id==="icClear" && (await askYes("Clear the quantities you typed for this branch?"))){ IC.draft[IC.branch] = {}; render(); }
-  const cb = e.target.closest("[data-icbranch]"); if(cb) IC.branch = cb.dataset.icbranch;
-});
 
 /* ---------- KPI breakdown ("View Report") ---------- */
 // Foodics-style: "View Report" opens the matching report in Reports, for the dashboard's dates and branch, grouped by hour
@@ -9691,10 +9602,10 @@ window.addEventListener("keydown", e => {
   if(e.key!=="Enter" && e.key!=="Escape") return;
   const shown = [...document.querySelectorAll(".scrim.show")]; if(!shown.length) return;
   const top = shown.find(x => x.id==="confirmScrim") || shown[shown.length - 1];
-  if(e.key==="Escape"){ if(document.querySelector(".msel.open")) return; e.preventDefault(); e.stopImmediatePropagation();
+  if(e.key==="Escape"){ if(document.querySelector(".msel.open")) return; const md = document.querySelector(".mdd.open"); if(md){ e.preventDefault(); e.stopImmediatePropagation(); md.classList.remove("open"); md.querySelector(".mdd-t")?.focus(); return; } e.preventDefault(); e.stopImmediatePropagation();
     const x = top.querySelector("header .x") || top.querySelector("[data-ccclose], [data-cclose], [data-close]"); if(x) x.click(); else top.classList.remove("show"); return; }
-  const t = e.target; if(e.shiftKey || t.tagName==="TEXTAREA" || t.tagName==="BUTTON" || t.tagName==="A" || t.closest?.(".msel-p, .msel-f")) return;
-  if(t!==document.body && !top.contains(t)) return;
+  const t = e.target, inside = top.contains(t); if(e.shiftKey) return;
+  if(inside && (t.tagName==="TEXTAREA" || t.tagName==="BUTTON" || t.tagName==="A" || t.closest?.(".msel-p, .msel-f, .mdd"))) return;   // focus still on the page behind (the button that opened it): Enter saves the dialog
   const b = [...top.querySelectorAll("footer .btn.pri, footer button[type=submit], .btn.pri")].filter(x => !x.disabled && x.offsetParent).pop(); if(!b) return;
   e.preventDefault(); e.stopImmediatePropagation(); b.click();
 }, true);
@@ -9937,5 +9848,16 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   document.addEventListener("click", e => document.querySelectorAll(".mdd.open").forEach(w => { if(!w.contains(e.target)) w.classList.remove("open"); }));
   new MutationObserver(() => { if(document.querySelector(".multi[data-dd]:not([data-mdd])")) enh(); }).observe(document.documentElement, { childList:true, subtree:true });
 })();</script>
+<script>/* build 914: a dialog that opens puts the cursor in its first text field (if nothing inside it has focus yet); dropdowns are left closed */
+(function(){ const first = sc => sc.querySelector('.modal input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([disabled]):not([readonly]), .modal textarea');
+  new MutationObserver(ms => ms.forEach(m => { const sc = m.target; if(!sc.classList?.contains("show") || (m.oldValue||"").split(" ").includes("show")) return;
+    setTimeout(() => { if(sc.contains(document.activeElement)) return; const f = first(sc); if(f && f.offsetParent) f.focus({ preventScroll:true }); }, 60); }))
+  .observe(document.body, { attributes:true, attributeFilter:["class"], attributeOldValue:true, subtree:true }); })();</script>
+<script>/* build 914: a message written into a dialog's error line shows as the red toast, like every other error */
+(function(){ let last = "", at = 0;
+  const show = m => { m = String(m||"").trim(); if(!m) return; const now = Date.now(); if(m===last && now - at < 400) return; last = m; at = now;
+    const t = document.getElementById("toast"); if(!t) return; t.textContent = m; t.classList.remove("ok"); t.classList.add("show"); clearTimeout(window.__errT); window.__errT = setTimeout(() => t.classList.remove("show"), 2600); };
+  new MutationObserver(ms => ms.forEach(m => { const el = m.type==="characterData" ? m.target.parentElement : m.target; if(el && el.classList?.contains("err") && el.closest(".modal, #view")) show(el.textContent); }))
+    .observe(document.body, { childList:true, characterData:true, subtree:true }); })();</script>
 </body>
 </html>
