@@ -1658,7 +1658,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=55"></script>
+<script src="wokdb.js?v=56"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=3"></script>
@@ -1876,7 +1876,7 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["roles","Roles"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["roles","Roles"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -1963,7 +1963,7 @@ const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","payroll":"dollar","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -3333,7 +3333,7 @@ function toastOk(m){ const t = $("#toast"); t.textContent = m; t.classList.add("
 let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return; const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */
-const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests"];
+const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs"];
 const S = {}; COLS.forEach(c => S[c] = []);
 function subscribeAll(){
   COLS.forEach(c => db.collection(c).onSnapshot(snap => {
@@ -3522,7 +3522,7 @@ const CRUD = {
       {k:"hireDate",l:"Hire Date",t:"date"},{k:"birthDate",l:"Date Of Birth",t:"date"},
       {k:"employmentType",l:"Employment Type",t:"select",opts:()=>[["","—"],["full","Full Time"],["part","Part Time"],["temp","Temporary"],["intern","Intern"]]},
       {k:"payType",l:"Pay Type",t:"select",opts:()=>[["","—"],["monthly","Monthly Salary"],["hourly","Hourly Rate"],["daily","Daily Rate"]]},
-      {k:"payRate",l:"Pay Rate (USD)",t:"number",ph:"Per month, hour or day"},{k:"leaveDays",l:"Annual Leave Days",t:"number",ph:"e.g. 15 a year"},
+      {k:"payRate",l:"Pay Rate (USD)",t:"number",ph:"Per month, hour or day"},{k:"leaveDays",l:"Annual Leave Days",t:"number",ph:"e.g. 15 a year"},{k:"socialSecurity",l:"Registered for social security (payroll deducts it)",t:"chk",def:false},
       {k:"@",l:"Emergency Contact"},
       {k:"emergencyName",l:"Contact Name"},{k:"emergencyPhone",l:"Contact Phone",t:"phone",ph:"70 123 456"},
       {k:"notes",l:"Notes",t:"textarea"}],
@@ -6096,9 +6096,85 @@ document.addEventListener("click", async e => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `timesheet-${TC.from}-${TC.to}.csv`; a.click(); return; }
 });
 
+/* ---------- Employee Management → Documents & Onboarding: papers with expiry dates, required documents, onboarding checklist ---------- */
+const SD = { tab:"expiring" };
+const DOC_TYPES = ["ID Card","Passport","Employment Contract","Health Certificate","Work Permit","Residence Permit","Driving License","Criminal Record","CV","Bank Details"];
+const sdSet = () => ({ required:["ID Card","Employment Contract","Health Certificate"], remindDays:30, checklist:["Signed the employment contract","Received the uniform","Food safety training","POS training (PIN and register)","Shown the kitchen and hygiene rules","Added to the team group chat"], ...((S.settings||[]).find(x => x.id==="staff_docs_settings") || {}) });
+const sdLive = () => (S.staff_docs||[]).filter(d => !d.deleted);
+const sdState = d => { if(!d.expiresOn) return "ok"; const e = d10s(d.expiresOn), t = todayStr(); if(e < t) return "expired"; return e <= schAdd(t, +sdSet().remindDays || 30) ? "soon" : "ok"; };
+const sdTag = d => { const s = sdState(d), e = d.expiresOn ? new Date(d10s(d.expiresOn) + "T12:00:00").dmy() : ""; return s==="expired" ? `<span class="tag off" style="background:#fdecec;color:#b42318">Expired ${esc(e)}</span>` : s==="soon" ? `<span class="tag cc">Expires ${esc(e)}</span>` : e ? `<span class="tag on">Valid to ${esc(e)}</span>` : '<span class="note">No expiry</span>'; };
+// compliance: every required type on file and not expired; onboarding: ticked checklist items
+const sdMissing = u => sdSet().required.filter(t => !sdLive().some(d => d.employeeId===u.id && d.docType===t && sdState(d)!=="expired"));
+const obDone = u => { const ck = sdSet().checklist, o = u.onboarding || {}; return [ck.filter(i => o[i]).length, ck.length]; };
+function viewStaffDocs(){
+  const emps = S.users.filter(u => live(u) && !isAdminRow(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
+  const docs = sdLive().sort((a,b) => String(a.expiresOn||"9999").localeCompare(String(b.expiresOn||"9999"))), alert = docs.filter(d => sdState(d)!=="ok");
+  const tabs = [["expiring", `Expiring & Expired (${alert.length})`],["all","All Documents"],["compliance","Compliance"],["onboarding","Onboarding"]];
+  let h = `<div class="phead"><h1>Documents</h1><div class="sp"></div><button type="button" class="btn" id="sdSettings">Settings</button><button type="button" class="btn pri" data-sdadd="">Add Document</button></div>
+    <div class="card tbl"><div class="ttop"><div class="ttabs">${tabs.map(t => `<a role="button" tabindex="0" data-sdtab="${t[0]}" class="${SD.tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div></div>`;
+  if(SD.tab==="compliance"){ const req = sdSet().required;
+    h += `<table><thead><tr><th>Employee</th>${req.map(t => `<th>${esc(t)}</th>`).join("")}<th class="num">Complete</th></tr></thead><tbody>${emps.map(u => { const miss = sdMissing(u);
+      return `<tr><td><a href="#users" style="color:inherit;text-decoration:none" data-sdemp="${esc(u.id)}"><b>${esc(u.name)}</b></a><div class="note">${esc(u.jobTitle||"")}</div></td>${req.map(t => { const d = sdLive().filter(x => x.employeeId===u.id && x.docType===t).sort((a,b) => String(b.expiresOn||"9999").localeCompare(String(a.expiresOn||"9999")))[0]; return `<td>${d ? sdTag(d) : '<span class="tag off" style="background:#fdecec;color:#b42318">Missing</span>'}</td>`; }).join("")}<td class="num"><b>${req.length ? Math.round((req.length - miss.length) / req.length * 100) : 100}%</b></td></tr>`; }).join("") || `<tr><td colspan="${req.length + 2}"><div class="empty">No employees yet.</div></td></tr>`}</tbody></table>
+      <p class="note" style="margin:10px 14px 14px">Required documents are set in Settings. A document counts while it hasn't expired.</p></div>`; return h; }
+  if(SD.tab==="onboarding"){ const ck = sdSet().checklist;
+    h += `<table><thead><tr><th>Employee</th><th>Hire Date</th><th>Progress</th><th>Next Step</th></tr></thead><tbody>${emps.map(u => { const [d, n] = obDone(u), next = ck.find(i => !(u.onboarding||{})[i]);
+      return `<tr><td><a href="#users" style="color:inherit;text-decoration:none" data-sdemp="${esc(u.id)}"><b>${esc(u.name)}</b></a><div class="note">${esc(u.jobTitle||"")}</div></td><td>${u.hireDate ? esc(new Date(d10s(u.hireDate) + "T12:00:00").dmy()) : "—"}</td><td><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;max-width:160px;height:8px;border-radius:4px;background:var(--line);overflow:hidden"><div style="height:100%;width:${n ? d / n * 100 : 100}%;background:${d===n ? "#16a34a" : "#1e3a8a"}"></div></div><span>${d}/${n}</span></div></td><td>${next ? esc(next) : '<span class="tag on">Done</span>'}</td></tr>`; }).join("") || `<tr><td colspan="4"><div class="empty">No employees yet.</div></td></tr>`}</tbody></table>
+      <p class="note" style="margin:10px 14px 14px">Tick the steps on each employee's page. Edit the checklist in Settings.</p></div>`; return h; }
+  const rows = SD.tab==="expiring" ? alert : docs;
+  h += `<table><thead><tr><th>Employee</th><th>Document</th><th>Number</th><th>Issued</th><th>Status</th><th>File</th><th></th></tr></thead><tbody>${rows.map(d => `<tr><td><a href="#users" style="color:inherit;text-decoration:none" data-sdemp="${esc(d.employeeId)}"><b>${esc(byId[d.employeeId]?.name || "—")}</b></a></td><td>${esc(d.docType)}${d.note ? `<div class="note">${esc(d.note)}</div>` : ""}</td><td>${esc(d.number||"—")}</td><td>${d.issuedOn ? esc(new Date(d10s(d.issuedOn) + "T12:00:00").dmy()) : "—"}</td><td>${sdTag(d)}</td><td>${d.filePath ? `<button type="button" class="btn" data-sdview="${esc(d.id)}">View</button>` : '<span class="note">—</span>'}</td><td class="num"><button type="button" class="btn" data-sdedit="${esc(d.id)}">Edit</button></td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">${SD.tab==="expiring" ? `Nothing expiring in the next ${+sdSet().remindDays || 30} days.` : "No documents yet. Add IDs, contracts and health certificates with their expiry dates."}</div></td></tr>`}</tbody></table></div>`;
+  return h;
+}
+function sdForm(id, empId){
+  const d = id ? sdLive().find(x => x.id===id) : null, cur = d || { employeeId: empId || "", docType:"" }, emps = S.users.filter(u => live(u)).sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  const types = [...new Set([...sdSet().required, ...DOC_TYPES])];
+  const box = $("#ccBox"); box.className = "modal";
+  box.innerHTML = `<header><h2>${d ? "Edit Document" : "Add Document"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+  <div class="body"><div class="f"><label for="sdEmp">Employee *</label><select id="sdEmp" ${d ? "disabled" : ""}><option value="">Choose…</option>${emps.map(u => `<option value="${esc(u.id)}" ${u.id===cur.employeeId?"selected":""}>${esc(u.name)}</option>`).join("")}</select></div>
+    <div class="f"><label for="sdType">Document *</label><input id="sdType" list="sdTypes" value="${esc(cur.docType||"")}" placeholder="e.g. Health Certificate"><datalist id="sdTypes">${types.map(t => `<option value="${esc(t)}">`).join("")}</datalist></div>
+    <div class="f"><label for="sdNo">Number</label><input id="sdNo" value="${esc(cur.number||"")}"></div><div class="f"><label for="sdIss">Issued</label><input id="sdIss" type="date" value="${esc(d10s(cur.issuedOn))}"></div>
+    <div class="f"><label for="sdExp">Expires</label><input id="sdExp" type="date" value="${esc(d10s(cur.expiresOn))}"></div>
+    <div class="f"><label for="sdFile">File (PDF or photo, up to 10 MB)</label><input id="sdFile" type="file" accept="image/*,application/pdf">${cur.fileName ? `<div class="note">Now: ${esc(cur.fileName)}</div>` : ""}</div>
+    <div class="f full"><label for="sdNote">Note</label><input id="sdNote" value="${esc(cur.note||"")}"></div><div class="err" id="sdErr" style="grid-column:1/-1"></div></div>
+  <footer>${d ? `<button type="button" class="btn danger" data-sddel="${esc(d.id)}">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-sdsave="${esc(d?.id||"")}">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); }
+let SD_CO = null; const sdCompany = async () => { if(SD_CO) return SD_CO; const r = await WOK.sb.rpc("skwyd_company"); if(r.error || !r.data) throw r.error || new Error("no company"); return SD_CO = r.data; };
+document.addEventListener("click", async e => { const t = e.target; if(!t.closest) return;
+  const tb = t.closest("[data-sdtab]"); if(tb){ SD.tab = tb.dataset.sdtab; return render(); }
+  const em = t.closest("[data-sdemp]"); if(em){ e.preventDefault(); const u = S.users.find(x => x.id===em.dataset.sdemp); if(u) go("users/" + (u.uid || u.id)); return; }
+  const ad = t.closest("[data-sdadd]"); if(ad) return sdForm(null, ad.dataset.sdadd);
+  const ed = t.closest("[data-sdedit]"); if(ed) return sdForm(ed.dataset.sdedit);
+  const vw = t.closest("[data-sdview]"); if(vw){ const d = sdLive().find(x => x.id===vw.dataset.sdview); if(!d?.filePath) return; const w = window.open("", "_blank");
+    try{ const { data, error } = await WOK.sb.storage.from("staff-docs").createSignedUrl(d.filePath, 300); if(error) throw error; if(w) w.location = data.signedUrl; else location.href = data.signedUrl; }catch(er){ console.error(er); w?.close(); toast("Couldn't open the file."); } return; }
+  const sv = t.closest("[data-sdsave]"); if(sv){ const id = sv.dataset.sdsave, err = $("#sdErr"), emp = $("#sdEmp").value, type = $("#sdType").value.trim(), f = $("#sdFile").files[0];
+    if(!emp) return err.textContent = "Choose the employee."; if(!type) return err.textContent = "Name the document."; if(f && f.size > 10485760) return err.textContent = "The file is bigger than 10 MB.";
+    const a = $("#sdIss").value, b = $("#sdExp").value; if(a && b && b < a) return err.textContent = "Expires must be after Issued.";
+    window.Motion?.saving?.(sv);
+    try{ const did = id || "doc_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), data = { employeeId:emp, docType:type, number: $("#sdNo").value.trim() || null, issuedOn: a || null, expiresOn: b || null, note: $("#sdNote").value.trim() || null };
+      if(f){ const path = `${await sdCompany()}/${emp}/${did}-${Date.now().toString(36)}.${(f.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+        const up = await WOK.sb.storage.from("staff-docs").upload(path, f, { contentType: f.type || "application/octet-stream", upsert:false }); if(up.error) throw up.error;
+        const old = id && sdLive().find(x => x.id===id)?.filePath; if(old) WOK.sb.storage.from("staff-docs").remove([old]).catch(() => {});
+        data.filePath = path; data.fileName = f.name; }
+      if(!id) data.deleted = false; await put("staff_docs", did, data); window.Motion?.saved?.(sv); $("#ccScrim").classList.remove("show"); render(); }
+    catch(er){ console.error(er); window.Motion?.reset?.(sv); err.textContent = "Couldn't save. Check your connection."; } return; }
+  const dl = t.closest("[data-sddel]"); if(dl){ if(!(await askYes("Delete this document and its file?"))) return; const d = sdLive().find(x => x.id===dl.dataset.sddel);
+    try{ if(d?.filePath) await WOK.sb.storage.from("staff-docs").remove([d.filePath]); await put("staff_docs", dl.dataset.sddel, { deleted:true, filePath:null }); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); toast("Couldn't delete."); } return; }
+  if(t.closest("#sdSettings")){ const st = sdSet(), box = $("#ccBox"); box.className = "modal";
+    box.innerHTML = `<header><h2>Documents & Onboarding Settings</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+      <div class="body" style="display:block"><div class="f"><label for="ssReq">Required Documents (one per line)</label><textarea id="ssReq" rows="4">${esc(st.required.join("\n"))}</textarea></div>
+        <div class="f"><label for="ssDays">Warn Before Expiry (Days)</label><input id="ssDays" type="number" min="1" value="${+st.remindDays||30}"></div>
+        <div class="f"><label for="ssCk">Onboarding Checklist (one step per line)</label><textarea id="ssCk" rows="7">${esc(st.checklist.join("\n"))}</textarea></div></div>
+      <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="ssSave">Save</button></footer>`;
+    $("#ccScrim").classList.add("show"); return; }
+  const ss = t.closest("#ssSave"); if(ss){ const lines = v => [...new Set(v.split("\n").map(x => x.trim()).filter(Boolean))], doc = { required: lines($("#ssReq").value), remindDays: +$("#ssDays").value || 30, checklist: lines($("#ssCk").value) };
+    try{ await put("settings", "staff_docs_settings", doc); const ex = S.settings.find(x => x.id==="staff_docs_settings"); if(ex) Object.assign(ex, doc); else S.settings.push({ id:"staff_docs_settings", ...doc }); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); toast("Couldn't save."); } return; }
+});
+document.addEventListener("change", async e => { const c = e.target.closest?.("[data-obitem]"); if(!c) return; const [id, ...k] = c.dataset.obitem.split("|"), item = k.join("|"), u = S.users.find(x => x.id===id); if(!u) return;
+  const o = { ...(u.onboarding || {}) }; if(c.checked) o[item] = new Date().toISOString(); else delete o[item];
+  try{ await put("users", id, { onboarding:o }); u.onboarding = o; render(); }catch(er){ console.error(er); c.checked = !c.checked; toast("Couldn't save."); } });
+
 /* ---------- Employee Management → Payroll: a month's pay from clock-ins, overtime and leave, plus bonuses and deductions ---------- */
 const PAY = { month:"", branch:"", edit:null };
-const paySet = () => ({ otAfter:8, otRate:1.5, workDays:26, ...((S.settings||[]).find(x => x.id==="payroll_settings") || {}) });
+const paySet = () => ({ otAfter:8, otRate:1.5, workDays:26, ssEmp:0, ssEr:0, ssCap:0, taxRate:0, taxFree:0, ...((S.settings||[]).find(x => x.id==="payroll_settings") || {}) });
 const payDoc = m => (S.settings||[]).find(x => x.id==="payroll_" + m) || null;
 const payMonthDays = m => { const [y, mo] = m.split("-").map(Number); return [m + "-01", m + "-" + String(new Date(y, mo, 0).getDate()).padStart(2, "0")]; };
 const payMoney = v => "$" + (+v||0).toFixed(2);
@@ -6113,7 +6189,10 @@ function payCompute(m){
     const base = t==="hourly" ? r * (hrs - ot) : t==="daily" ? r * days : t==="monthly" ? Math.max(0, r - unpaid * r / wd) : 0;
     const otPay = hourly * otR * ot, leavePay = t==="hourly" ? paidLeave * otA * r : t==="daily" ? paidLeave * r : 0;
     const j = adj[u.id] || {}, bonus = +j.bonus || 0, deduction = +j.deduction || 0, advance = +j.advance || 0, gross = base + otPay + leavePay + bonus;
-    return { id:u.id, name:u.name, no:u.employeeNo || "", job:u.jobTitle || "", type:t, rate:r, days, hrs, ot, paidLeave, unpaid, base, otPay, leavePay, bonus, deduction, advance, note:j.note || "", gross, net: gross - deduction - advance, br:p.br }; });
+    // social security (registered employees) on pay up to the cap; income tax on what is left after it and the tax-free amount
+    const ssBase = u.socialSecurity ? (+st.ssCap > 0 ? Math.min(gross, +st.ssCap) : gross) : 0, ssE = ssBase * (+st.ssEmp||0) / 100, ssR = ssBase * (+st.ssEr||0) / 100;
+    const tax = Math.max(0, gross - ssE - (+st.taxFree||0)) * (+st.taxRate||0) / 100;
+    return { id:u.id, name:u.name, no:u.employeeNo || "", job:u.jobTitle || "", type:t, rate:r, days, hrs, ot, paidLeave, unpaid, base, otPay, leavePay, bonus, deduction, advance, note:j.note || "", gross, ssE, ssR, tax, cost: gross + ssR, net: gross - ssE - tax - deduction - advance, br:p.br }; });
 }
 function viewPayroll(){
   if(!PAY.month){ const t = todayStr(); PAY.month = t.slice(0,7); }
@@ -6130,14 +6209,14 @@ function viewPayroll(){
       <button type="button" class="btn" id="paySettings">Settings</button><button type="button" class="btn" id="payCsv">Export CSV</button>
       ${closed ? `<button type="button" class="btn" id="payReopen">Reopen Month</button>` : `<button type="button" class="btn pri" id="payClose" ${lines.length ? "" : "disabled"}>Close Month</button>`}</div></div>
     ${closed ? `<div class="card" style="padding:12px 16px;margin-bottom:14px;background:#f0fdf4;border-color:#bbf7d0">Closed by ${esc(doc.closedBy || "—")} on ${esc(new Date(doc.closedAt).dmy())}. The figures are frozen; Reopen Month to change them.</div>` : ""}
-    <div class="card igrid">${[["Employees", lines.length], ["Hours", tot("hrs").toFixed(1)], ["Overtime Hours", tot("ot").toFixed(1)], ["Gross Pay", payMoney(tot("gross"))], ["Deductions & Advances", payMoney(tot("deduction") + tot("advance"))], ["Net Pay", "<b>" + payMoney(tot("net")) + "</b>"]].map(([k, v]) => `<div><span class="note">${k}</span><div>${v}</div></div>`).join("")}</div>
-    <div class="card tbl"><div class="ttop"><b>Employees</b></div><div class="schwrap"><table style="min-width:1150px"><thead><tr><th>Employee</th><th>Pay</th><th class="num">Days</th><th class="num">Hours</th><th class="num">Overtime</th><th class="num">Base</th><th class="num">Overtime Pay</th><th class="num">Paid Leave</th><th class="num">Bonus</th><th class="num">Deductions</th><th class="num">Advance</th><th class="num">Net Pay</th><th></th></tr></thead>
+    <div class="card igrid">${[["Employees", lines.length], ["Hours", tot("hrs").toFixed(1)], ["Overtime Hours", tot("ot").toFixed(1)], ["Gross Pay", payMoney(tot("gross"))], ["Social Security & Tax", payMoney(tot("ssE") + tot("tax"))], ["Deductions & Advances", payMoney(tot("deduction") + tot("advance"))], ["Net Pay", "<b>" + payMoney(tot("net")) + "</b>"], ["Employer Cost", payMoney(tot("cost") || tot("gross"))]].map(([k, v]) => `<div><span class="note">${k}</span><div>${v}</div></div>`).join("")}</div>
+    <div class="card tbl"><div class="ttop"><b>Employees</b></div><div class="schwrap"><table style="min-width:1400px"><thead><tr><th>Employee</th><th>Pay</th><th class="num">Days</th><th class="num">Hours</th><th class="num">Overtime</th><th class="num">Base</th><th class="num">Overtime Pay</th><th class="num">Paid Leave</th><th class="num">Bonus</th><th class="num">Gross</th><th class="num">Social Sec.</th><th class="num">Tax</th><th class="num">Deductions</th><th class="num">Advance</th><th class="num">Net Pay</th><th></th></tr></thead>
       <tbody>${lines.map(l => `<tr><td><b>${esc(l.name)}</b>${l.no ? ` <span class="note">#${esc(l.no)}</span>` : ""}<div class="note">${esc(l.job)}</div></td><td>${l.type ? payMoney(l.rate) + " " + (TY[l.type]||"").toLowerCase() : `<span class="note">No pay rate</span>`}${l.unpaid ? `<div class="note">${l.unpaid} unpaid day${l.unpaid===1?"":"s"}</div>` : ""}</td>
         <td class="num">${l.days}</td><td class="num">${(+l.hrs).toFixed(1)}</td><td class="num">${l.ot ? (+l.ot).toFixed(1) : "—"}</td><td class="num">${payMoney(l.base)}</td><td class="num">${l.otPay ? payMoney(l.otPay) : "—"}</td><td class="num">${l.leavePay ? payMoney(l.leavePay) : (l.paidLeave ? l.paidLeave + "d" : "—")}</td>
-        <td class="num">${l.bonus ? payMoney(l.bonus) : "—"}</td><td class="num">${l.deduction ? "−" + payMoney(l.deduction) : "—"}</td><td class="num">${l.advance ? "−" + payMoney(l.advance) : "—"}</td><td class="num"><b>${payMoney(l.net)}</b></td>
-        <td class="num" style="white-space:nowrap">${closed ? "" : `<button type="button" class="btn" data-pradj="${esc(l.id)}">Adjust</button> `}<button type="button" class="btn" data-prslip="${esc(l.id)}">Payslip</button></td></tr>`).join("") || `<tr><td colspan="13"><div class="empty">Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app.</div></td></tr>`}</tbody>
-      ${lines.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${tot("hrs").toFixed(1)}</th><th class="num">${tot("ot").toFixed(1)}</th><th class="num">${payMoney(tot("base"))}</th><th class="num">${payMoney(tot("otPay"))}</th><th class="num">${payMoney(tot("leavePay"))}</th><th class="num">${payMoney(tot("bonus"))}</th><th class="num">−${payMoney(tot("deduction"))}</th><th class="num">−${payMoney(tot("advance"))}</th><th class="num">${payMoney(tot("net"))}</th><th></th></tr></tfoot>` : ""}</table></div>
-      <p class="note" style="margin:10px 14px 14px">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ ${+st.workDays||26}). Overtime is hours over ${+st.otAfter||8} a day at ${+st.otRate||1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at ${+st.otAfter||8} hours a day for hourly and daily staff.</p></div>
+        <td class="num">${l.bonus ? payMoney(l.bonus) : "—"}</td><td class="num">${payMoney(l.gross)}</td><td class="num">${l.ssE ? "−" + payMoney(l.ssE) : "—"}</td><td class="num">${l.tax ? "−" + payMoney(l.tax) : "—"}</td><td class="num">${l.deduction ? "−" + payMoney(l.deduction) : "—"}</td><td class="num">${l.advance ? "−" + payMoney(l.advance) : "—"}</td><td class="num"><b>${payMoney(l.net)}</b></td>
+        <td class="num" style="white-space:nowrap">${closed ? "" : `<button type="button" class="btn" data-pradj="${esc(l.id)}">Adjust</button> `}<button type="button" class="btn" data-prslip="${esc(l.id)}">Payslip</button></td></tr>`).join("") || `<tr><td colspan="16"><div class="empty">Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app.</div></td></tr>`}</tbody>
+      ${lines.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${tot("hrs").toFixed(1)}</th><th class="num">${tot("ot").toFixed(1)}</th><th class="num">${payMoney(tot("base"))}</th><th class="num">${payMoney(tot("otPay"))}</th><th class="num">${payMoney(tot("leavePay"))}</th><th class="num">${payMoney(tot("bonus"))}</th><th class="num">${payMoney(tot("gross"))}</th><th class="num">−${payMoney(tot("ssE"))}</th><th class="num">−${payMoney(tot("tax"))}</th><th class="num">−${payMoney(tot("deduction"))}</th><th class="num">−${payMoney(tot("advance"))}</th><th class="num">${payMoney(tot("net"))}</th><th></th></tr></tfoot>` : ""}</table></div>
+      <p class="note" style="margin:10px 14px 14px">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ ${+st.workDays||26}). Overtime is hours over ${+st.otAfter||8} a day at ${+st.otRate||1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at ${+st.otAfter||8} hours a day for hourly and daily staff. ${+st.ssEmp || +st.taxRate ? `Social security: ${+st.ssEmp||0}% employee, ${+st.ssEr||0}% employer${+st.ssCap ? ` on pay up to ${payMoney(st.ssCap)}` : ""}, for employees marked as registered. Tax: ${+st.taxRate||0}% above ${payMoney(st.taxFree)}.` : "Social security and tax are off: set their rates in Settings."}</p></div>
     <div class="card tbl"><div class="ttop"><b>Cost By Branch</b></div><table><thead><tr><th>Branch</th><th class="num">Gross Pay</th><th class="num">Share</th></tr></thead><tbody>${Object.entries(byBr).sort((x, y) => y[1] - x[1]).map(([b, v]) => `<tr><td>${b ? esc(branchNameOf(b)) : '<span class="note">No clock-ins (salary only)</span>'}</td><td class="num">${payMoney(v)}</td><td class="num">${tot("gross") ? (v / tot("gross") * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("") || `<tr><td colspan="3"><div class="empty">—</div></td></tr>`}</tbody></table>
       <p class="note" style="margin:10px 14px 14px">Each employee's gross pay is split across branches by the hours they clocked at each.</p></div>`;
   return h;
@@ -6151,7 +6230,7 @@ function paySlip(l, m){
     <div class="top"><div><h1>Payslip</h1><div>${esc(ml)}</div></div><div style="text-align:right"><b>${esc(co.name || state.companyName || "")}</b></div></div>
     <h2>Employee</h2><table>${row("Name", esc(l.name))}${l.no ? row("Employee Number", esc(l.no)) : ""}${l.job ? row("Job Title", esc(l.job)) : ""}${row("Days Worked", l.days)}${row("Hours", (+l.hrs).toFixed(2))}${l.ot ? row("Overtime Hours", (+l.ot).toFixed(2)) : ""}${l.paidLeave ? row("Paid Leave Days", l.paidLeave) : ""}${l.unpaid ? row("Unpaid Leave Days", l.unpaid) : ""}</table>
     <h2>Earnings</h2><table>${row("Base Pay", payMoney(l.base))}${l.otPay ? row("Overtime", payMoney(l.otPay)) : ""}${l.leavePay ? row("Paid Leave", payMoney(l.leavePay)) : ""}${l.bonus ? row("Bonus", payMoney(l.bonus)) : ""}${row("Gross Pay", payMoney(l.gross), 1)}</table>
-    ${l.deduction || l.advance ? `<h2>Deductions</h2><table>${l.deduction ? row("Deductions", "−" + payMoney(l.deduction)) : ""}${l.advance ? row("Advance", "−" + payMoney(l.advance)) : ""}</table>` : ""}
+    ${l.deduction || l.advance || l.ssE || l.tax ? `<h2>Deductions</h2><table>${l.ssE ? row("Social Security", "−" + payMoney(l.ssE)) : ""}${l.tax ? row("Income Tax", "−" + payMoney(l.tax)) : ""}${l.deduction ? row("Deductions", "−" + payMoney(l.deduction)) : ""}${l.advance ? row("Advance", "−" + payMoney(l.advance)) : ""}</table>` : ""}
     <div class="net"><span>Net Pay</span><b>${payMoney(l.net)}</b></div>${l.note ? `<p style="color:#6b6879">${esc(l.note)}</p>` : ""}
     <p style="margin-top:40px;display:flex;justify-content:space-between;color:#6b6879"><span>Employee signature ____________</span><span>Date ____________</span></p><button onclick="print()" style="margin-top:16px;padding:10px 18px;border-radius:10px;border:0;background:#1e3a8a;color:#fff;font-size:14px">Print</button></body></html>`);
   w.document.close(); }
@@ -6172,10 +6251,16 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
   if(t.closest("#paySettings")){ const st = paySet(), box = $("#ccBox"); box.className = "modal";
     box.innerHTML = `<header><h2>Payroll Settings</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
       <div class="body"><div class="f"><label for="psA">Overtime After (Hours A Day)</label><input id="psA" type="number" min="1" step="any" value="${+st.otAfter}"></div><div class="f"><label for="psR">Overtime Rate (×)</label><input id="psR" type="number" min="1" step="0.05" value="${+st.otRate}"></div>
-        <div class="f"><label for="psW">Working Days A Month</label><input id="psW" type="number" min="1" max="31" value="${+st.workDays}"></div><div class="f"><label>&nbsp;</label><div class="note">Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime).</div></div></div>
+        <div class="f"><label for="psW">Working Days A Month</label><input id="psW" type="number" min="1" max="31" value="${+st.workDays}"></div><div class="f"><label>&nbsp;</label><div class="note">Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime).</div></div>
+        <div class="f full fsec"><h3>Social Security</h3></div>
+        <div class="f"><label for="psSe">Employee Share (%)</label><input id="psSe" type="number" min="0" step="any" value="${+st.ssEmp||""}" placeholder="0"></div><div class="f"><label for="psSr">Employer Share (%)</label><input id="psSr" type="number" min="0" step="any" value="${+st.ssEr||""}" placeholder="0"></div>
+        <div class="f"><label for="psSc">Monthly Pay Cap (USD)</label><input id="psSc" type="number" min="0" step="any" value="${+st.ssCap||""}" placeholder="No cap"></div><div class="f"><label>&nbsp;</label><div class="note">Only for employees ticked "Registered for social security" on Edit Employee.</div></div>
+        <div class="f full fsec"><h3>Income Tax</h3></div>
+        <div class="f"><label for="psT">Tax Rate (%)</label><input id="psT" type="number" min="0" step="any" value="${+st.taxRate||""}" placeholder="0"></div><div class="f"><label for="psTf">Tax-Free Amount A Month (USD)</label><input id="psTf" type="number" min="0" step="any" value="${+st.taxFree||""}" placeholder="0"></div>
+        <div class="f full"><div class="note">Rates change by law; check them with your accountant. Leave at 0 to turn a deduction off.</div></div></div>
       <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="psSave">Save</button></footer>`;
     $("#ccScrim").classList.add("show"); return; }
-  const ps = t.closest("#psSave"); if(ps){ const doc = { otAfter: +$("#psA").value || 8, otRate: +$("#psR").value || 1.5, workDays: +$("#psW").value || 26 };
+  const ps = t.closest("#psSave"); if(ps){ const doc = { otAfter: +$("#psA").value || 8, otRate: +$("#psR").value || 1.5, workDays: +$("#psW").value || 26, ssEmp: +$("#psSe").value || 0, ssEr: +$("#psSr").value || 0, ssCap: +$("#psSc").value || 0, taxRate: +$("#psT").value || 0, taxFree: +$("#psTf").value || 0 };
     try{ await put("settings", "payroll_settings", doc); const ex = S.settings.find(x => x.id==="payroll_settings"); if(ex) Object.assign(ex, doc); else S.settings.push({ id:"payroll_settings", ...doc }); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); toast("Couldn't save."); } return; }
   if(t.closest("#payClose")){ const lines = payCompute(PAY.month); if(!lines.length) return;
     if(!(await askYes(`Close ${new Date(PAY.month + "-15T12:00:00").toLocaleDateString("en-GB", { month:"long", year:"numeric" })}? The pay of ${lines.length} employee${lines.length===1?"":"s"} (net ${payMoney(lines.reduce((s, l) => s + l.net, 0))}) is frozen so later timesheet edits don't change it.`))) return;
@@ -6183,7 +6268,7 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
   if(t.closest("#payReopen")){ if(!(await askYes("Reopen this month? Its figures are worked out again from the timesheets."))) return;
     try{ await paySaveDoc(PAY.month, { status:"draft", snapshot:null }); render(); }catch(er){ console.error(er); toast("Couldn't reopen."); } return; }
   if(t.closest("#payCsv")){ const doc = payDoc(PAY.month), lines = doc?.status==="closed" && doc.snapshot ? doc.snapshot : payCompute(PAY.month), q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const csv = [["Employee","Employee Number","Job Title","Pay Type","Rate","Days","Hours","Overtime Hours","Base","Overtime Pay","Paid Leave","Bonus","Deductions","Advance","Gross","Net","Note"], ...lines.map(l => [l.name, l.no, l.job, l.type, l.rate, l.days, (+l.hrs).toFixed(2), (+l.ot).toFixed(2), (+l.base).toFixed(2), (+l.otPay).toFixed(2), (+l.leavePay).toFixed(2), l.bonus, l.deduction, l.advance, (+l.gross).toFixed(2), (+l.net).toFixed(2), l.note])].map(r => r.map(q).join(",")).join("\n");
+    const csv = [["Employee","Employee Number","Job Title","Pay Type","Rate","Days","Hours","Overtime Hours","Base","Overtime Pay","Paid Leave","Bonus","Gross","Social Security (Employee)","Income Tax","Deductions","Advance","Net","Social Security (Employer)","Employer Cost","Note"], ...lines.map(l => [l.name, l.no, l.job, l.type, l.rate, l.days, (+l.hrs).toFixed(2), (+l.ot).toFixed(2), (+l.base).toFixed(2), (+l.otPay).toFixed(2), (+l.leavePay).toFixed(2), l.bonus, (+l.gross).toFixed(2), (+(l.ssE||0)).toFixed(2), (+(l.tax||0)).toFixed(2), l.deduction, l.advance, (+l.net).toFixed(2), (+(l.ssR||0)).toFixed(2), (+(l.cost||l.gross)).toFixed(2), l.note])].map(r => r.map(q).join(",")).join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `payroll-${PAY.month}.csv`; a.click(); return; }
 });
 
@@ -6409,6 +6494,7 @@ function moduleRoute(route){
   if(route==="schedule") return viewSchedule();
   if(route==="requests") return viewRequests();
   if(route==="payroll") return viewPayroll();
+  if(route==="documents") return viewStaffDocs();
   if(CRUD[route]) return crudView(route);
   if(route==="call-center") return viewCallCenter();
   if(route==="devices") return viewDevices();
@@ -8637,6 +8723,10 @@ function userDetail(u){
       info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
       info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
     const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
+    { const ds = sdLive().filter(d => d.employeeId===u.id), miss = sdMissing(u);
+      h += pdSec("Documents", `<button type="button" class="btn" data-sdadd="${esc(u.id)}">Add Document</button>`, `<div style="width:100%;flex:1 1 100%">` + (miss.length ? `<p class="note" style="color:#b42318;margin:0 0 10px">Missing: ${esc(miss.join(", "))}</p>` : "") + (ds.length ? `<table><thead><tr><th>Document</th><th>Number</th><th>Status</th><th></th></tr></thead><tbody>${ds.map(d => `<tr><td>${esc(d.docType)}</td><td>${esc(d.number||"—")}</td><td>${sdTag(d)}</td><td class="num" style="white-space:nowrap">${d.filePath ? `<button type="button" class="btn" data-sdview="${esc(d.id)}">View</button> ` : ""}<button type="button" class="btn" data-sdedit="${esc(d.id)}">Edit</button></td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No documents yet</p>`) + `</div>`);
+      const ck = sdSet().checklist, ob = u.onboarding || {}, [dn, nn] = obDone(u);
+      h += pdSec(`Onboarding <span class="note">${dn}/${nn}</span>`, "", ck.length ? `<div style="display:grid;gap:8px">${ck.map(i => `<label class="chk"><input type="checkbox" data-obitem="${esc(u.id)}|${esc(i)}" ${ob[i] ? "checked" : ""}> ${esc(i)}${ob[i] ? ` <span class="note">${esc(new Date(ob[i]).dmy())}</span>` : ""}</label>`).join("")}</div>` : `<p class="dzempty">No checklist yet (Documents → Settings)</p>`); }
     h += pdSec("Attendance", `<a class="btn" href="#time-clock" data-tcfor="${esc(u.id)}" style="text-decoration:none">Time Clock</a>`, rows.length ? `<table><thead><tr><th>Date</th><th>Branch</th><th>Clock In</th><th>Clock Out</th><th class="num">Hours</th></tr></thead><tbody>${rows.map(x => `<tr><td>${esc(new Date(x.in).dmy())}</td><td>${esc(branchNameOf(x.branchId))}</td><td>${esc(tcTime(x.in))}</td><td>${esc(tcTime(x.out))}</td><td class="num">${tcHrs(x).toFixed(2)}</td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No clock-ins yet. Employees clock in and out on the cashier app with their PIN.</p>`); }
   h += pdSec("Roles", `<button type="button" class="btn" data-usrroles="${esc(u.id)}">Roles</button>`, rs.length ? `<div class="dzchips">${rs.map(r => `<span class="dzchip" style="padding-right:14px">${esc(r.name)}</span>`).join("")}</div>` : `<p class="dzempty">No roles</p>`);
   h += pdSec("Branches", `<button type="button" class="btn" data-usrbr="${esc(u.id)}">Branches</button>`, picked ? (brs.length ? `<table><thead><tr><th>Name</th><th>Reference</th></tr></thead><tbody>${brs.map(b => `<tr><td>${esc(b.name)}</td><td>${esc(b.code||"—")}</td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No branches yet</p>`)

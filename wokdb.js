@@ -12,8 +12,9 @@
     : { auth: { persistSession: true, autoRefreshToken: true } });
 
   // app collection -> table, and which columns each table accepts
-  const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users", work_shifts: "staff_shifts", work_requests: "staff_requests" };
+  const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users", work_shifts: "staff_shifts", work_requests: "staff_requests", staff_docs: "staff_documents" };
   const COLS = {
+    staff_documents: "id employee_id doc_type number issued_on expires_on file_path file_name note deleted created_at",
     staff_requests: "id employee_id kind leave_type from_day to_day shift_id swap_with note status decided_by decided_at decision_note branch_id deleted created_at",
     staff_shifts: "id employee_id branch_id day start_time end_time break_min job_title note published deleted created_at",
     brands: "id name name_ar active deleted created_at slug",
@@ -35,7 +36,7 @@
     payment_methods: "id name name_ar type code open_drawer active sort deleted created_at",
     roles: "id name name_ar description permissions deleted created_at",
     day_closes: "id branch_id business_date closed_at closed_by device_id orders sales created_at",
-    staff_users: "id name email phone employee_no job_title hire_date birth_date employment_type pay_type pay_rate leave_days emergency_name emergency_phone notes role role_id role_ids language display_localized branch_ids pin_hash active user_id deleted created_at",
+    staff_users: "id name email phone employee_no job_title hire_date birth_date employment_type pay_type pay_rate leave_days onboarding social_security emergency_name emergency_phone notes role role_id role_ids language display_localized branch_ids pin_hash active user_id deleted created_at",
     modifier_options: "id modifier_id name name_ar sku price tax_group costing_method cost calories ingredients custom_prices inactive_branch_ids out_of_stock_branch_ids sort active deleted created_at nutrition allergens",
     orders: "id brand_id no channel source type status branch_id device_id shift_id zone_id customer_name phone address lat lng table_no notes items subtotal discount_pct discount delivery_fee tax invoice_no total payment agent handled_by accepted_at done_at void_reason voided_at voided_by created_at charges charges_total receipt_notes guests voided_items returned_items refund_total stock_action return_reason returned_at returned_by approved_by refund_of return_no discount_type updated_at closed_at scheduled_at edit_request",
     charges: "id name name_ar type value order_types auto tax_group brand_ids branch_ids active sort deleted created_at",
