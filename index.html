@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="916-1794775047">
+<meta name="skwyd-build" content="917-1794775322">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -6377,7 +6377,7 @@ function drpQRange(v){ const t = todayStr(), d = new Date(t + "T12:00:00"), iso 
   const partner = el => { const m = (el.id || "").match(/^(.*?)(from|From)$/); if(!m) return null; const p = document.getElementById(m[1] + (m[2]==="from" ? "to" : "To")); return p && p.type==="date" ? p : null; };
   const fire = el => { el.dispatchEvent(new Event("input", { bubbles:true })); el.dispatchEvent(new Event("change", { bubbles:true })); };
   const paint = b => { const f = b._f.value, t = b._t?.value || "", has = b._t ? (f || t) : f;
-    const txt = has ? (b._t ? (f && t && f!==t ? dmyS(f) + " – " + dmyS(t) : dmyS(f || t)) : dmyS(f)) : (b._ph || "Choose Date");
+    const txt = has ? (b._t ? (f && t && f!==t ? dmyS(f) + " – " + dmyS(t) : dmyS(f || t)) : dmyS(f)) : (b._ph ?? "Choose Date");
     const key = txt + "|" + !!has; if(b._k === key) return; b._k = key;
     b.innerHTML = `${svgIco("calendar")}<span class="${has ? "" : "dfph"}">${esc(txt)}</span>${has && !b._req ? `<i class="dfclr" role="button" aria-label="Clear date">×</i>` : ""}`; };
   // the hint inside an empty field is the field's own name (Business Date, Updated After, Due Date…)
@@ -6394,7 +6394,7 @@ function drpQRange(v){ const t = todayStr(), d = new Date(t + "T12:00:00"), iso 
       if(inp.required){ b._req = true; inp.required = false; } if(to?.required) to.required = false;   // a hidden field can't show the browser's "fill this in" bubble
       const hide = el => { el.classList.add("dfh"); el.style.setProperty("display", "none", "important"); };
       hide(inp); if(to){ hide(to); const w = to.closest(".f") || to.closest("label"); if(w && !w.contains(inp)) w.style.display = "none"; relabel(inp); }
-      b._ph = labelOf(inp); inp.after(b); paint(b);
+      b._ph = labelOf(inp) ? "" : null; inp.after(b); paint(b);   // a field with its name written above it stays empty inside (just the calendar icon)
     });
     document.querySelectorAll(".dfx").forEach(paint);
   }
