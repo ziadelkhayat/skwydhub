@@ -1545,6 +1545,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="wokdb.js?v=48"></script>
 <script src="modpick.js?v=31"></script>
+<script src="invoice-doc.js?v=1"></script>
 </head>
 <body>
 <div id="splash" style="position:fixed;inset:0;z-index:2147483600;background:#f3f4f8;display:grid;place-items:center;transition:opacity .25s"><div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:66px;height:77px;animation:splashPulse 1.2s ease-in-out infinite"><svg style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><div id="splashMsg" style="font:500 14px Inter,system-ui,sans-serif;color:#8d8c98;min-height:18px"></div></div></div>
@@ -2777,14 +2778,15 @@ function paintSubBar(){ const el = $("#subBar"); if(!el) return; const s = SUB, 
 function subInvoices(onlyOpen){ const l = (SUB?.invoices || []).filter(i => !onlyOpen || i.status==="open");
   if(!l.length) return `<div class="card empty">No invoices yet.</div>`;
   const st = i => i.status==="paid" ? `<span class="tag on">Paid</span>` : new Date(i.dueAt) < new Date() ? `<span class="tag" style="background:#fee2e2;color:#b91c1c">Overdue</span>` : `<span class="tag">Open</span>`;
-  return `<div class="card" style="padding:0;overflow:auto"><table style="width:100%"><thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th class="num">Total</th><th>Status</th><th>Paid</th></tr></thead><tbody>${l.map(i =>
-    `<tr><td><b>${esc(i.number)}</b></td><td>${subDate(i.periodStart)} – ${subDate(i.periodEnd)}</td><td>${subDate(i.dueAt)}</td><td class="num">${subMoney(i.total, i.currency)}</td><td>${st(i)}</td><td>${i.paidAt ? subDate(i.paidAt) + (i.method ? " · " + esc(i.method[0].toUpperCase() + i.method.slice(1)) : "") : "—"}</td></tr>`).join("")}</tbody></table></div>`; }
+  return `<div class="card" style="padding:0;overflow:auto"><table style="width:100%"><thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th class="num">Total</th><th>Status</th><th>Paid</th><th></th></tr></thead><tbody>${l.map(i =>
+    `<tr><td><b>${esc(i.number)}</b></td><td>${subDate(i.periodStart)} – ${subDate(i.periodEnd)}</td><td>${subDate(i.dueAt)}</td><td class="num">${subMoney(i.total, i.currency)}</td><td>${st(i)}</td><td>${i.paidAt ? subDate(i.paidAt) + (i.method ? " · " + esc(i.method[0].toUpperCase() + i.method.slice(1)) : "") : "—"}</td><td class="num"><button type="button" class="btn sm" onclick="subShowInv('${esc(i.id)}')">View</button></td></tr>`).join("")}</tbody></table></div>`; }
 function subPlanTable(q){ if(!q) return "";
   const unit = l => l.unit==="device" ? " per device" : l.unit==="warehouse" ? " per warehouse" : l.unit==="branch" ? " per branch" : "";
   return `<table style="width:100%"><thead><tr><th>Item</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${(q.lines||[]).map(l =>
     `<tr><td>${esc(l.name)}</td><td class="num">${(+l.qty||0).toLocaleString("en-US")}</td><td class="num">${subMoney(l.price, q.currency)}<span class="note">${unit(l)}</span></td><td class="num">${subMoney(l.amount, q.currency)}</td></tr>`).join("")}</tbody>
     <tfoot>${+q.discount ? `<tr><td colspan="3" class="num">Subtotal</td><td class="num">${subMoney(q.subtotal, q.currency)}</td></tr><tr><td colspan="3" class="num">Discount</td><td class="num">−${subMoney(q.discount, q.currency)}</td></tr>` : ""}
     <tr><td colspan="3" class="num"><b>Total per ${q.cycle==="yearly" ? "year" : "month"}</b></td><td class="num"><b>${subMoney(q.total, q.currency)}</b></td></tr></tfoot></table>`; }
+function subShowInv(id){ const i = (SUB?.invoices||[]).find(x => x.id===id); if(i && window.skwydInvoice) window.skwydInvoice(i, SUB.billing || {}, SUB.company || {}); }
 function viewSubscription(){
   let h = `<div class="phead"><h1>Subscription</h1></div>`;
   if(!SUB){ setTimeout(subLoad, 0); return h + `<div class="card ph"><div>Loading your plan…</div></div>`; }

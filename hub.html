@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20140%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M40%2086%20Q36%20108%2018%20124%22/%3E%3Cpath%20d%3D%22M50%2090%20Q48%20112%2042%20129%22/%3E%3Cpath%20d%3D%22M60%2091%20V131%22/%3E%3Cpath%20d%3D%22M70%2090%20Q72%20112%2078%20129%22/%3E%3Cpath%20d%3D%22M80%2086%20Q84%20108%20102%20124%22/%3E%3C/g%3E%3Cpath%20d%3D%22M60%209C33%209%2018%2037%2018%2061c0%2022%2016%2031%2042%2031s42-9%2042-31C102%2037%2087%209%2060%209z%22%20fill%3D%22%23c6f432%22%20stroke%3D%22%23172554%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="invoice-doc.js?v=1"></script>
 <style>
 :root{--bg:#f7f7f9;--surface:#fff;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--accent-soft:#eef1fa;--accent-ink:#172d6a;
   --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#c6f432;--radius:10px}
@@ -95,6 +96,7 @@ const parseDmy = v => { const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(S
 const LOGO = `<svg viewBox="0 0 120 140" width="30" height="34"><g fill="none" stroke="#c6f432" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/></svg>`;
 const ICON = {
   companies: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
+  invoices: '<path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
   prices: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
 };
@@ -189,7 +191,7 @@ async function load() { DATA = await rpc("slick_pa_overview"); try { VIEW = awai
 
 // ---------- shell ----------
 function render() {
-  const nav = [["companies","Companies"],["prices","Price List"],["settings","Settings"]];
+  const nav = [["companies","Companies"],["invoices","Invoices"],["prices","Price List"],["settings","Settings"]];
   $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand">${LOGO}<div><b>skwyd hub</b><small>Admin</small></div></div>
     <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
     <div class="main"><div class="top">${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://portal.skwydhub.com/#dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
@@ -197,7 +199,7 @@ function render() {
   $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
   if ($("#stopv")) $("#stopv").onclick = async () => { await rpc("slick_stop_view"); await load(); };
   document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { view = a.dataset.view; render(); });
-  ({ companies: viewCompanies, prices: viewPrices, settings: viewSettings })[view]();
+  ({ companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view]();
 }
 
 function stateTag(c) {
@@ -356,12 +358,12 @@ function drawCompany() {
     <div class="err" id="serr"></div>
     <div style="display:flex;justify-content:flex-end"><button class="btn pri">Save</button></div>
   </form>
-  <div class="sec" style="display:flex;align-items:center">Invoices<span style="flex:1"></span><button class="btn sm" id="newinv" ${st.complimentary?"disabled":""}>Create Invoice For Next Period</button></div>
+  <div class="sec" style="display:flex;align-items:center">Invoices<span style="flex:1"></span><button class="btn sm" id="newinv" ${st.complimentary?"disabled":""}>Create Invoice</button></div>
   <div class="card">${INV.length ? `<table><thead><tr><th>Number</th><th>Period</th><th class="num">Total</th><th>Status</th><th>Due</th><th>Paid</th><th></th></tr></thead><tbody>
     ${INV.map(i => `<tr><td><b>${esc(i.number)}</b></td><td>${dmy(i.period_start)} → ${dmy(i.period_end)}<div class="note">${(i.lines||[]).map(l => esc(l.name) + " × " + l.qty).join(" · ")}</div></td>
       <td class="num">${money(i.total, i.currency)}</td><td><span class="tag t-${i.status}">${i.status[0].toUpperCase() + i.status.slice(1)}</span></td>
       <td>${dmy(i.due_at)}</td><td>${i.paid_at ? dmy(i.paid_at) + `<div class="note">${esc(i.method || "")}${i.reference ? " · " + esc(i.reference) : ""}</div>` : "—"}</td>
-      <td class="num">${i.status === "open" ? `<button class="btn sm" data-pay="${i.id}">Mark Paid</button> <button class="btn sm danger" data-void="${i.id}">Void</button>` : ""}</td></tr>`).join("")}
+      <td class="num" style="white-space:nowrap"><button class="btn sm" data-inv="${i.id}">View</button> ${i.status === "open" ? `<button class="btn sm" data-pay="${i.id}">Mark Paid</button> <button class="btn sm danger" data-void="${i.id}">Void</button>` : ""}</td></tr>`).join("")}
   </tbody></table>` : `<div class="empty">No invoices yet.</div>`}</div>
   <div id="payf"></div><div class="err" id="ierr"></div></div>`;
 
@@ -378,9 +380,8 @@ function drawCompany() {
       company: { name: v("name").trim(), contactName: (v("firstName").trim() + " " + v("lastName").trim()).trim(), firstName: v("firstName").trim(), lastName: v("lastName").trim(), email: v("email").trim(), phone: fullPhone(v("dial"), v("phone")), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
     try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
   };
-  $("#newinv").onclick = async () => {
-    try { await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: 7 }); await reload(); } catch (err) { $("#ierr").textContent = err.message; }
-  };
+  $("#newinv").onclick = () => newInvoiceForm(c);
+  document.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => showInvoice(INV.find(x => x.id === b.dataset.inv), c));
   document.querySelectorAll("[data-pay]").forEach(b => b.onclick = () => payForm(b.dataset.pay));
   document.querySelectorAll("[data-void]").forEach(b => b.onclick = async () => {
     if (!confirm("Void this invoice? It will no longer be owed.")) return;
@@ -424,6 +425,66 @@ function viewPrices() {
 }
 
 // ---------- settings ----------
+// ---------- invoices ----------
+const billFrom = () => DATA.settings || {};
+const billTo = c => ({ name: c?.name, accountNo: c?.account_no ?? c?.accountNo, email: c?.email, phone: c?.phone, country: c?.country });
+function showInvoice(inv, c) { if (inv) window.skwydInvoice(inv, billFrom(), billTo(c || DATA.companies.find(x => x.id === inv.company_id) || { name: inv.company, accountNo: inv.accountNo })); }
+// create the next invoice: the plan's lines, plus one-off charges and a note
+function newInvoiceForm(c) {
+  const row = () => `<div class="grid xl" style="grid-template-columns:2fr 1fr auto;margin-bottom:6px"><input class="sel" name="xname" placeholder="Setup fee"><input class="sel" name="xamt" type="number" step="0.01" placeholder="0.00" style="text-align:right"><button type="button" class="btn sm" data-xdel aria-label="Remove line">×</button></div>`;
+  $("#payf").innerHTML = `<form id="nif" class="card" style="margin-top:12px;padding:14px"><b>New Invoice For ${esc(c.name)}</b>
+    <p class="note" style="margin:6px 0 10px">It bills the plan for the next ${(c.subscription?.cycle || "monthly") === "yearly" ? "year" : "month"} (${money(c.quote?.total || 0, c.quote?.currency)}). Add one-off charges below if needed.</p>
+    <div class="fld"><label>One-Off Charges</label><div id="xl">${row()}</div><button type="button" class="btn sm" id="xadd">Add Charge</button></div>
+    <div class="grid" style="grid-template-columns:1fr 2fr;margin-top:10px"><div class="fld"><label>Due In (Days)</label><input class="sel" name="due" type="number" min="0" step="1" value="7"></div>
+      <div class="fld"><label>Note On The Invoice</label><input class="sel" name="notes" placeholder="Includes setup and training"></div></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px"><button type="button" class="btn" id="nic">Cancel</button><button class="btn pri" id="nis">Create Invoice</button></div></form>`;
+  const wire = () => document.querySelectorAll("[data-xdel]").forEach(b => b.onclick = () => b.parentElement.remove());
+  wire(); $("#xadd").onclick = () => { $("#xl").insertAdjacentHTML("beforeend", row()); wire(); };
+  $("#nic").onclick = () => $("#payf").innerHTML = "";
+  $("#nif").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  $("#nif").onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    const extra = [...f.querySelectorAll("#xl > div")].map(d => ({ name: d.querySelector("[name=xname]").value.trim(), amount: Number(d.querySelector("[name=xamt]").value) || 0 })).filter(x => x.name || x.amount);
+    if (extra.some(x => !x.name || !x.amount)) { $("#ierr").textContent = "Each one-off charge needs a name and an amount."; return; }
+    $("#nis").disabled = true;
+    try { const inv = await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: Number(f.elements.due.value) || 0, p_extra: extra, p_notes: f.elements.notes.value.trim() || null }); await reload(); if (inv) showInvoice(inv, c); }
+    catch (err) { $("#ierr").textContent = err.message; $("#nis").disabled = false; }
+  };
+}
+let IFILTER = "all", IQ = "";
+async function viewInvoices() {
+  $("#view").innerHTML = `<h1>Invoices</h1><p class="subt">Every invoice of every business.</p><div class="card"><div class="empty">Loading…</div></div>`;
+  let all; try { all = await rpc("slick_pa_all_invoices"); } catch (e) { $("#view").querySelector(".card").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  const cur = DATA.settings?.currency || "USD", now = new Date();
+  const overdue = i => i.status === "open" && new Date(i.due_at) < now;
+  const sum = l => l.reduce((a, i) => a + Number(i.total || 0), 0);
+  const month = all.filter(i => i.status === "paid" && new Date(i.paid_at).getMonth() === now.getMonth() && new Date(i.paid_at).getFullYear() === now.getFullYear());
+  const draw = () => {
+    const q = IQ.trim().toLowerCase();
+    const rows = all.filter(i => (IFILTER === "all" || (IFILTER === "overdue" ? overdue(i) : i.status === IFILTER)) && (!q || [i.number, i.company, i.accountNo].some(v => String(v || "").toLowerCase().includes(q))));
+    $("#ilist").innerHTML = rows.length ? `<table><thead><tr><th>Number</th><th>Business</th><th>Period</th><th>Due</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(i => `<tr>
+      <td><b>${esc(i.number)}</b>${i.auto ? `<div class="note">Automatic</div>` : ""}</td><td><a href="#" data-co="${esc(i.company_id)}" style="color:var(--accent);font-weight:600;text-decoration:none">${esc(i.company)}</a><div class="note">${esc(i.accountNo || "")}</div></td>
+      <td>${dmy(i.period_start)} → ${dmy(i.period_end)}</td><td>${dmy(i.due_at)}</td><td class="num">${money(i.total, i.currency)}</td>
+      <td>${overdue(i) ? `<span class="tag t-locked">Overdue</span>` : `<span class="tag t-${i.status}">${i.status[0].toUpperCase() + i.status.slice(1)}</span>`}</td>
+      <td class="num" style="white-space:nowrap"><button class="btn sm" data-iv="${i.id}">View</button>${i.status === "open" ? ` <button class="btn sm" data-ipay="${i.id}" data-c="${esc(i.company_id)}">Mark Paid</button>` : ""}</td></tr>`).join("")}</tbody></table>`
+      : `<div class="empty">No invoices${IFILTER === "all" && !q ? " yet. They're created automatically before each period ends, or from a company's window." : " match."}</div>`;
+    document.querySelectorAll("[data-iv]").forEach(b => b.onclick = () => showInvoice(all.find(x => x.id === b.dataset.iv)));
+    document.querySelectorAll("#ilist [data-co]").forEach(a => a.onclick = e => { e.preventDefault(); openCompany(a.dataset.co); });
+    document.querySelectorAll("[data-ipay]").forEach(b => b.onclick = async () => { await openCompany(b.dataset.c); payForm(b.dataset.ipay); $("#pf")?.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+  };
+  $("#view").innerHTML = `<h1>Invoices</h1><p class="subt">Every invoice of every business. New ones are created automatically ${DATA.settings?.invoiceDaysBefore ?? 7} days before each period ends.</p>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card kpi"><span>Open</span><b>${money(sum(all.filter(i => i.status === "open")), cur)}</b></div>
+    <div class="card kpi"><span>Overdue</span><b>${money(sum(all.filter(overdue)), cur)}</b></div>
+    <div class="card kpi"><span>Paid This Month</span><b>${money(sum(month), cur)}</b></div>
+    <div class="card kpi"><span>Invoices</span><b>${all.length}</b></div></div>
+  <div class="card"><div class="bar"><input class="sel" id="iq" placeholder="Search number or business" value="${esc(IQ)}" style="max-width:280px">
+    <select class="sel" id="ifl" style="max-width:170px">${[["all","All"],["open","Open"],["overdue","Overdue"],["paid","Paid"],["void","Void"]].map(([k,t]) => `<option value="${k}" ${IFILTER===k?"selected":""}>${t}</option>`).join("")}</select><div class="sp"></div></div>
+  <div id="ilist"></div></div>`;
+  $("#iq").oninput = e => { IQ = e.target.value; draw(); }; $("#ifl").onchange = e => { IFILTER = e.target.value; draw(); };
+  draw();
+}
+
 function viewSettings() {
   const s = DATA.settings || {};
   $("#view").innerHTML = `<h1>Settings</h1><p class="subt">How trials and late payments work for every company.</p>
@@ -435,10 +496,20 @@ function viewSettings() {
     <div class="fld"><label>Support Phone</label><input class="sel" name="supportPhone" value="${esc(s.supportPhone || "")}"></div>
     <div class="fld"><label>Support Email</label><input class="sel" name="supportEmail" type="email" value="${esc(s.supportEmail || "")}"></div>
   </div><p class="note">Restaurants see the support phone and email on their Subscription page and lock screen, to pay or change their plan.</p><p class="note">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
+  <div class="sec" style="margin-top:6px">Invoices</div>
+  <div class="grid" style="grid-template-columns:repeat(2,1fr)">
+    <div class="fld"><label>Billing Name</label><input class="sel" name="billingName" value="${esc(s.billingName || "")}" placeholder="Skwyd Hub S.A.R.L"></div>
+    <div class="fld"><label>Tax Number</label><input class="sel" name="billingTaxNo" value="${esc(s.billingTaxNo || "")}"></div>
+    <div class="fld" style="grid-column:span 2"><label>Address</label><textarea class="sel" name="billingAddress" rows="2">${esc(s.billingAddress || "")}</textarea></div>
+    <div class="fld" style="grid-column:span 2"><label>How To Pay</label><textarea class="sel" name="paymentInstructions" rows="3" placeholder="Bank transfer to … · IBAN … · or Whish to …">${esc(s.paymentInstructions || "")}</textarea></div>
+    <div class="fld" style="grid-column:span 2"><label>Invoice Footer</label><input class="sel" name="invoiceFooter" value="${esc(s.invoiceFooter || "")}" placeholder="Thank you for running your business on skwyd hub."></div>
+    <div class="fld"><label>Create Invoices Automatically</label><select class="sel" name="autoInvoice"><option value="1" ${s.autoInvoice !== false ? "selected" : ""}>Yes</option><option value="0" ${s.autoInvoice === false ? "selected" : ""}>No</option></select></div>
+    <div class="fld"><label>Days Before The Period Ends</label><input class="sel" name="invoiceDaysBefore" type="number" min="0" max="60" step="1" value="${s.invoiceDaysBefore ?? 7}"></div>
+  </div><p class="note">Every morning, each business whose trial or paid period ends within these days gets its next invoice, due the day the period ends. The billing name, address, tax number and how to pay are printed on every invoice.</p>
   <div style="display:flex;align-items:center;gap:10px"><div class="err" id="sterr"></div><span style="flex:1"></span><button class="btn pri">Save</button></div></form>`;
   $("#stf").onsubmit = async e => {
     e.preventDefault(); const f = e.target.elements;
-    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), supportEmail: f.supportEmail.value.trim() } }); await load(); }
+    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), billingName: f.billingName.value.trim(), billingTaxNo: f.billingTaxNo.value.trim(), billingAddress: f.billingAddress.value.trim(), paymentInstructions: f.paymentInstructions.value.trim(), invoiceFooter: f.invoiceFooter.value.trim(), autoInvoice: f.autoInvoice.value === "1", invoiceDaysBefore: Math.max(0, Number(f.invoiceDaysBefore.value) || 0), supportEmail: f.supportEmail.value.trim() } }); await load(); }
     catch (err) { $("#sterr").textContent = err.message; }
   };
 }
