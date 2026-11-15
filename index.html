@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="915-1794774701">
+<meta name="skwyd-build" content="916-1794775047">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1617,6 +1617,7 @@ input.dfh{display:none!important}
 #ccBox footer .btn.keep[data-ccclose]:not(.pri):not(.danger),.modal footer .btn.keep[data-ccclose]:not(.pri):not(.danger){display:inline-flex!important}
 
 .modal .err,#view .err{display:none!important}
+.olslug{display:flex;align-items:center;border:1px solid #d6dae3;border-radius:10px;overflow:hidden;background:#fff}.olslug>span{padding:0 4px 0 14px;color:#6b7280;white-space:nowrap;font-size:15px}.olslug>input.sel{border:0!important;box-shadow:none!important;padding-left:0!important;flex:1;min-width:0;font-size:15px}
 /* build 914: names typed by people keep their spelling in titles; page headers wrap to the right; plain codes in tables */
 h1 .dn,.dn{text-transform:none}
 #view .phead:has(> .sp){justify-content:flex-end}#view .phead:has(> .sp)>h1{margin-right:0}
@@ -1625,7 +1626,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=51"></script>
+<script src="wokdb.js?v=52"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=3"></script>
@@ -5188,7 +5189,7 @@ function olBrand(){ const l = brandList(); if(state.olBrand && l.some(b=>b.id===
 function onlineCfg(){ const id = "online_" + olBrand(); return S.settings.find(s=>s.id===id) || { id }; }
 function viewOnline(){
   if(!olBrand()) return `<div class="phead"><h1>Web Ordering</h1></div><div class="card empty">Each brand has its own ordering page.<br>Choose a brand in the selector at the top${brandList().length?"":", or create one in Manage → Brands"}.</div>`;
-  const saved = onlineCfg(), c = (state.olDraft && state.olDraft.brand===olBrand()) ? state.olDraft.cfg : saved, bc = c.branches || {}, link = new URL("order.html?brand=" + encodeURIComponent(olBrand()), location.href.split("#")[0]).href;
+  const saved = onlineCfg(), c = (state.olDraft && state.olDraft.brand===olBrand()) ? state.olDraft.cfg : saved, bc = c.branches || {}, slug = olSlug(), link = slug ? ORDER_HOST + slug : new URL("order.html?brand=" + encodeURIComponent(olBrand()), location.href.split("#")[0]).href;
   const th = c.theme || {}, so = c.social || {}, co = c.checkout || {}, sh = c.show || {}, tab = state.olTab || "store";
   const modes = [["delivery","Delivery"],["takeaway","Pickup"],["dinein","Dine-in (table QR)"]];
   const tg = (id, on, label, note) => `<label class="oltg"><span><b>${label}</b>${note ? `<small>${note}</small>` : ""}</span><span class="toggle"><input type="checkbox" id="${id}" ${on?"checked":""}><span class="trk"></span></span></label>`;
@@ -5208,6 +5209,7 @@ function viewOnline(){
   <div class="olpane${tab==="store"?" on":""}" data-olpane="store">
     <div class="card olcard"><div class="olhead"><div><h3 class="ct">${esc(brandName(olBrand()))}</h3><p class="note">The page always carries the brand name. Rename it in Manage → Brands.</p></div><span class="tag ${c.enabled?"on":""}">${c.enabled?"Live":"Off"}</span></div>
       ${tg("olOn", c.enabled, "Accept web orders", "Turn off to show a “closed” page.")}
+      <div class="f" style="margin-top:12px"><label for="olSlug">Web Address *</label><div class="olslug"><span>${esc(ORDER_HOST.replace(/^https:\/\//, ""))}</span><input id="olSlug" class="sel" value="${esc(slug || olSlugGuess())}" autocomplete="off" spellcheck="false" maxlength="40"></div><p class="note" style="margin:6px 0 0">Letters, numbers and dashes. Each business has its own address; no one else can take it.</p></div>
       <div class="f" style="margin-top:12px"><label>Ordering link</label><div class="ollink"><span>${esc(link)}</span><button type="button" class="btn sm" data-olcopy="${esc(link)}">${svgIco("copy")} Copy</button></div></div>
       ${inp("olCuis","Tags under the brand name",c.cuisines,"e.g. Noodles, Rice Bowls, Asian (separate with commas)")}
       ${inp("olTag","Tagline",c.tagline,"e.g. Fresh wok dishes, delivered hot")}
@@ -5265,7 +5267,7 @@ function viewOnline(){
         <div class="olchips">${bt("delivery","Delivery")}${bt("takeaway","Pickup")}${bt("dinein","Dine-in")}</div>
         <div class="olgrid3">${bv("prep","Pickup ready in (min)","20","number")}${bv("minPickup","Pickup minimum ("+esc(SYM())+")","0","number")}${bv("phone","Branch phone","+961 …","tel")}${bv("whatsapp","Branch WhatsApp","+961 …","tel")}${bv("address","Address","Street, area")}${bv("note","Message to customers","e.g. Parking available")}</div>
         <div class="olbrf"><div class="f"><label>Tables for QR</label><input type="number" min="0" class="sel" style="width:90px" data-oltables="${id}" value="${x.tables??""}"></div>
-          <div class="olqr">${x.tables ? Array.from({length:Math.min(+x.tables,40)},(_,i)=>`<a class="lnk" target="_blank" rel="noopener" href="order.html?brand=${encodeURIComponent(olBrand())}&branch=${encodeURIComponent(b.id)}&table=${i+1}">T${i+1}</a>`).join("") : '<span class="note">Set the number of tables to get a QR link for each.</span>'}</div></div></div>`; }).join("")}
+          <div class="olqr">${x.tables ? Array.from({length:Math.min(+x.tables,40)},(_,i)=>`<a class="lnk" target="_blank" rel="noopener" href="${esc(olLinkTo(b.id, i+1))}">T${i+1}</a>`).join("") : '<span class="note">Set the number of tables to get a QR link for each.</span>'}</div></div></div>`; }).join("")}
   </div>
   </div>
   <aside class="olprev"><div class="olpbar"><span class="dots"><i></i><i></i><i></i></span><span>Live preview</span><span class="sp"></span><button type="button" class="${!state.olDev||state.olDev==="phone"?"on":""}" data-oldev="phone" title="Phone">${svgIco("mobile")}</button><button type="button" class="${state.olDev==="tab"?"on":""}" data-oldev="tab" title="Tablet">${svgIco("tablet")}</button><button type="button" class="${state.olDev==="desk"?"on":""}" data-oldev="desk" title="Desktop">${svgIco("monitor")}</button></div>
@@ -5301,7 +5303,18 @@ function olFit(){ const fr = document.querySelector(".olframe"), ifr = fr?.query
 addEventListener("resize", () => setTimeout(olFit, 50));
 new MutationObserver(() => { const fr = document.querySelector(".olframe"); if(fr && !fr.dataset.fit){ fr.dataset.fit = 1; setTimeout(olFit, 0); } }).observe(document.body, { childList:true, subtree:true });
 function olPreview(){ clearTimeout(olT); olT = setTimeout(() => { if(!$("#olOn")) return; const cfg = olCollect(); state.olDraft = { brand:olBrand(), cfg }; $("#olFrame")?.contentWindow?.postMessage({ type:"skwyd-web-cfg", cfg }, location.origin); }, 120); }
+const ORDER_HOST = "https://order.skwydhub.com/", SLUG_RESERVED = new Set(["order","hub","admin","portal","api","www","app","help","login","signup","pos","skwyd","skwydhub"]);
+const olSlug = () => S.brands.find(b => b.id===olBrand())?.slug || "";
+const olSlugGuess = () => String(brandName(olBrand()) || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+const olLinkTo = (branch, table) => { const s = olSlug(); return (s ? ORDER_HOST + s + "?" : "order.html?brand=" + encodeURIComponent(olBrand()) + "&") + "branch=" + encodeURIComponent(branch) + "&table=" + table; };
 async function saveOnline(){
+  const sl = $("#olSlug") ? $("#olSlug").value.trim().toLowerCase() : null;
+  if(sl!==null && sl!==olSlug()){
+    if(!/^[a-z0-9]([a-z0-9-]{1,38}[a-z0-9])?$/.test(sl)) return toast("The web address must be 3 to 40 letters, numbers or dashes.");
+    if(SLUG_RESERVED.has(sl)) return toast("That web address is not available. Choose another one.");
+    try{ await put("brands", olBrand(), { slug: sl }); const b = S.brands.find(x => x.id===olBrand()); if(b) b.slug = sl; }
+    catch(err){ console.error(err); return toast(/duplicate|unique/i.test(err?.message||"") ? "That web address is already taken. Choose another one." : "Couldn't save the web address."); }
+  }
   const data = olCollect();
   try{ await put("settings", "online_" + olBrand(), data); state.olDraft = null; toast("Web ordering saved"); } catch(err){ console.error(err); toast("Couldn't save settings"); }
 }

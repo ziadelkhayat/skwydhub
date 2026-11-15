@@ -14,7 +14,7 @@
   // app collection -> table, and which columns each table accepts
   const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users" };
   const COLS = {
-    brands: "id name name_ar active deleted created_at",
+    brands: "id name name_ar active deleted created_at slug",
     branches: "id brand_id name code address city phone open_time close_time active call_center production created_at name_ar tax_number lat lng settings",
     categories: "id brand_id name name_ar reference sort deleted created_at inactive_branch_ids channel product_ids image_url",
     products: "id brand_id name name_ar sku category_id price tax_group description image_url channels branch_ids active deleted created_at ingredients pricing_method costing_method selling_method cost barcode prep_time calories custom_prices inactive_branch_ids out_of_stock_branch_ids modifiers sort variant_set_id variants variant_recipes nutrition allergens description_ar",
