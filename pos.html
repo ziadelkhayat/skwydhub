@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="916-1794775047">
+<meta name="skwyd-build" content="922-1794776026">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -89,6 +89,7 @@ button[data-npk="C"],button[data-kp="C"]{font-weight:700;color:#e5484d!important
 .pdts[hidden]{display:none!important}
 .insbox{border:1px solid var(--line);border-radius:16px;background:#f8f9fb;overflow:hidden}.insbox .cins{border:0!important;border-radius:0!important;background:none!important}
 .insbox .cpastw>.adbar{border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;margin:0!important}.insbox .cpastw{gap:0}
+.dman{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px;margin-bottom:6px}.dseg{display:flex;gap:6px;background:#f3f4f8;border-radius:10px;padding:4px}.dseg button{flex:1;border:0;background:none;border-radius:8px;padding:10px;font:inherit;font-size:15px;cursor:pointer;color:#4b5563}.dseg button.on{background:#fff;color:#172554;font-weight:600;box-shadow:0 1px 3px rgba(20,16,40,.12)}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2005,11 +2006,14 @@ function openCharges(){
     posChg = pick; posOpen = vals; $("#modal").oninput = null; closeModal(); renderCart(); };
 }
 function openDiscount(){
-  if(!can("pos_discount")) return deny("discounts");
-  // only the discounts created in the back office (Marketing → Discounts) for this branch and order type
-  const sets = dsHere();
-  modal("disc", `<div class="mh"><h2>Discount</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
-    ${sets.length ? `<div class="dsets">${sets.map(d => { const c = d.open ? { amt:1 } : dsCalc(d); return `<button type="button" class="dset${DSET?.id===d.id?" on":""}" data-dset="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"}><b>${esc(d.name)}</b><span>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</span></button>`; }).join("")}</div>
+  const cA = can("pos_disc_amount"), cP = can("pos_disc_pct"), cS = can("pos_discount");
+  if(!cA && !cP && !cS) return deny("discounts");
+  // built in first: an amount or a percentage off the order (each with its own permission in Roles), then the discounts made in Marketing → Discounts
+  const sets = cS ? dsHere() : [], first = (discType==="amt" && cA) || !cP ? "amt" : "pct";
+  const man = cA || cP ? `<div class="dman"><div class="dseg">${cA ? `<button type="button" data-dt="amt" class="${first==="amt"?"on":""}">Amount (${esc(SYM())})</button>` : ""}${cP ? `<button type="button" data-dt="pct" class="${first==="pct"?"on":""}">Percentage (%)</button>` : ""}</div>
+    <div style="display:flex;gap:8px;margin-top:10px"><input id="discVal" inputmode="decimal" placeholder="0" value="${!DSET && +discount ? esc(discount) : ""}" style="flex:1"><button type="button" class="btn pri" id="discApply">Apply</button></div><div class="mut" id="discNote" style="font-size:13px;color:var(--bad,#e5484d);min-height:16px;margin-top:4px"></div></div>` : "";
+  modal("disc", `<div class="mh"><h2>Discount</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">${man}${man && cS ? `<div class="mut" style="font-size:13px;font-weight:600;margin:6px 0 8px">Discounts</div>` : ""}
+    ${!cS ? "" : sets.length ? `<div class="dsets">${sets.map(d => { const c = d.open ? { amt:1 } : dsCalc(d); return `<button type="button" class="dset${DSET?.id===d.id?" on":""}" data-dset="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"}><b>${esc(d.name)}</b><span>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</span></button>`; }).join("")}</div>
     <div id="dsOpen" hidden style="margin-top:14px"><div class="mut" id="dsOpenL" style="font-size:13px;margin-bottom:6px"></div><div style="display:flex;gap:8px"><input id="dsOpenV" inputmode="decimal" style="flex:1"><button type="button" class="btn pri" id="dsOpenGo">Apply</button></div><div class="mut" id="dsOpenN" style="font-size:13px;color:var(--bad,#e5484d);min-height:16px;margin-top:4px"></div></div>` : `<div class="mut" style="text-align:center;padding:26px 10px;font-size:14px">No discounts available</div>`}</div>`);
 }
 document.addEventListener("change", e => { const sl = e.target.closest?.("[data-ofsel]"); if(!sl) return; OV[sl.dataset.ofsel] = sl.value; openIncoming(); });
@@ -2027,7 +2031,7 @@ $("#modal").addEventListener("click", async e => {
     if(appSet().discountApproval && !(await approve("pos_discount", "Approve discount"))) return;
     DSET = { id:d.id, name:d.name }; discType = "amt"; discount = c.amt; closeModal(); renderCart(); return; }
   const dt = e.target.closest("[data-dt]"); if(dt){ document.querySelectorAll("[data-dt]").forEach(b => b.classList.toggle("on", b===dt)); if($("#discUnit")) $("#discUnit").textContent = dt.dataset.dt==="amt" ? "USD" : "%"; $("#discVal").focus(); return; }
-  if(e.target.closest("#discApply")){ const ty = document.querySelector("[data-dt].on")?.dataset.dt || "pct", v = +String($("#discVal").value).replace(",", "."), sub = totals().sub;
+  if(e.target.closest("#discApply")){ const ty = document.querySelector("[data-dt].on")?.dataset.dt || "pct"; if(!can(ty==="amt" ? "pos_disc_amount" : "pos_disc_pct")) return deny("this discount"); const v = +String($("#discVal").value).replace(",", "."), sub = totals().sub;
     if(!(v >= 0) || $("#discVal").value.trim()==="") { $("#discNote").textContent = "Enter a number."; return; }
     if(ty==="pct" && v > 100){ $("#discNote").textContent = "A percentage can't be more than 100."; return; }
     if(ty==="amt" && v > sub){ $("#discNote").textContent = `The discount can't be more than the subtotal (${usd(sub)}).`; return; }
