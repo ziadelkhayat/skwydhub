@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="919-1794775548">
+<meta name="skwyd-build" content="920-1794775651">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -5069,9 +5069,7 @@ function viewDevices(){
   const od = state.devOpen && S.devices.find(x => x.id===state.devOpen && live(x)); if(od) return viewDevice(od);
   const dt = state.devTab || "all", all = S.devices.filter(live), list = all.filter(d => dt==="all" || d.type===dt).filter(crudFltOk("devices")).sort((a,b)=>branchName(a.branchId).localeCompare(branchName(b.branchId))||a.name.localeCompare(b.name));
   const dsel = (state.devSel ||= new Set()); [...dsel].forEach(id => { if(!list.some(d => d.id===id)) dsel.delete(id); });
-  let h = `<div class="phead"><h1>Devices</h1><div class="sp"></div><button class="btn pri" id="devNew">Create Device</button></div>
-  <div class="card setup"><div><h3>Set up a POS tablet</h3><ol class="steps"><li>Download the <b>skwyd hub POS</b> APK on the Android tablet and install it (allow "install from this source" when asked).</li><li>Create a device here and choose its branch and type.</li><li>Open the app, sign in with a staff account, then enter the device's 6-digit activation code.</li><li>The tablet downloads its branch, menu, prices and printers, then it's ready to take orders.</li></ol></div>
-  <div class="apk"><a class="btn pri" href="https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk" download>${svgIco("download")}Download POS APK</a><span class="lnk">After every POS update, download the new APK and install it over the old one. The sign-in and data stay.</span></div></div><div style="height:16px"></div>`;
+  let h = `<div class="phead"><h1>Devices</h1><div class="sp"></div><a class="btn" href="https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk" download title="Install it over the old one after every POS update: the sign-in and data stay">${svgIco("download")}Download POS APK</a><button class="btn pri" id="devNew">Create Device</button></div>`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: devices won't be saved.</div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${[["all","All"], ...DEV_TYPES].map(([k,t]) => `<a href="#devices" data-devtab="${k}" class="${dt===k?"on":""}">${t}</a>`).join("")}</div><div class="sp"></div>${crudFltBtn("devices")}</div>${list.length ? `<table><thead><tr><th class="noedit bkc"><input type="checkbox" data-devall ${list.every(d => dsel.has(d.id))?"checked":""} aria-label="Select all"></th>${dsel.size
       ? `<th colspan="4" class="bkbar"><b>${dsel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" data-devacts>Actions ▾</button><span class="ddmenu" id="devActM" hidden><button type="button" data-devbulk="add">Add Tags</button><button type="button" data-devbulk="del">Remove Tags</button><button type="button" data-devbulk="sync">Force Sync Data</button></span></span></th>`
