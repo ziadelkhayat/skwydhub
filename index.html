@@ -6,7 +6,7 @@
 // clean addresses: portal.skwydhub.com/orders instead of /#orders. HASH() gives "#orders" like before, go("orders") moves there,
 // links written href="#orders" still work, and old /#orders links are turned into /orders.
 // the address says what the screen says: menu products are "items", inventory items are "products"
-const URL_OUT = { "products":"items", "inv-items":"products" }, URL_IN = { "items":"products", "products":"inv-items" };
+const URL_OUT = { "products":"items", "inv-items":"products", "users":"employees" }, URL_IN = { "items":"products", "products":"inv-items", "employees":"users" };
 const urlSeg = r => String(r).replace(/^[^/?]+/, m => URL_OUT[m] || m);
 const HASH = () => { const sg = location.pathname.replace(/^\/+|\/?index\.html$/g, "").split("/"), p = sg[0] && (sg[0]==="products" && /^prd_/.test(sg[1]||"") ? "products" : (URL_IN[sg[0]] || sg[0])); return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
 const RECORD = () => decodeURIComponent(location.pathname.replace(/^\/+/, "").split("/")[1] || "");
@@ -495,6 +495,7 @@ tr.chg td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 @media(max-width:700px){#who{display:none}}
 a.btn{text-decoration:none}
 .bform{grid-template-columns:repeat(2,minmax(0,1fr));max-height:72vh;overflow:auto}.bform .fsec{grid-column:1/-1;margin:10px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:capitalize;color:var(--ink3,#8d8c98);border-top:1px solid var(--line);padding-top:12px}
+.modal .body .fsec h3{margin:6px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3,#8d8c98);text-transform:uppercase;border-top:1px solid var(--line);padding-top:14px}.modal .body .fsec:first-child h3{border-top:0;padding-top:0;margin-top:0}
 .bform .fsec:first-child{border-top:0;padding-top:0;margin-top:0}
 .hours{display:flex;flex-direction:column;gap:6px}.hrow{display:grid;grid-template-columns:100px 140px 22px 140px 1fr;gap:10px;align-items:center}.hrow input[type=time]{padding:6px 8px}
 @media(max-width:700px){.bform{grid-template-columns:1fr}.hrow{grid-template-columns:80px 1fr 22px 1fr;}.hrow .chk{grid-column:1/-1}}
@@ -1627,7 +1628,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=52"></script>
+<script src="wokdb.js?v=53"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=3"></script>
@@ -1845,7 +1846,8 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Manage",i:"gear",tabs:1,kids:[["users","Users"],["roles","Roles"],["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["time-clock","Time Clock"]]},
+  {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
   {id:"subscription",t:"Subscription",i:"card"}
@@ -1931,7 +1933,7 @@ const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","roles":"shield","time-clock":"clock","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -1962,7 +1964,7 @@ new MutationObserver(() => { if(decorate.q) return; decorate.q = SOON(() => { de
 
 
 // sidebar: filled black icons, like Foodics
-const NAVI_P = {"dash": "M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z", "orders": "M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z", "phone": "M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z", "users": "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z", "chart": "M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z", "box": "M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 4c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2zm2-6c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm4 6c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2z", "book": "M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z", "globe": "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z", "gear": "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z", "tag": "M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z", "store": "M13 13v8h8v-8h-8zM3 21h8v-8H3v8zM3 3v8h8V3H3zm13.66-1.31L11 7.34 16.66 13l5.66-5.66-5.66-5.65z"};
+const NAVI_P = {"badge": "M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM9 8c1.4 0 2.5 1.1 2.5 2.5S10.4 13 9 13s-2.5-1.1-2.5-2.5S7.6 8 9 8zm5 9H4v-.8C4 14.6 7.3 14 9 14s5 .6 5 2.2V17zm6-4h-4v-2h4v2zm0-4h-4V7h4v2z", "dash": "M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z", "orders": "M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z", "phone": "M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z", "users": "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z", "chart": "M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z", "box": "M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 4c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2zm2-6c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm4 6c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2z", "book": "M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z", "globe": "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z", "gear": "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z", "tag": "M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z", "store": "M13 13v8h8v-8h-8zM3 21h8v-8H3v8zM3 3v8h8V3H3zm13.66-1.31L11 7.34 16.66 13l5.66-5.66-5.66-5.65z"};
 const NAVI_C = { dash:"#1e3a8a", orders:"#0ea5e9", phone:"#10b981", users:"#f59e0b", chart:"#ef4444", book:"#f97316", box:"#8b5cf6", globe:"#06b6d4", gear:"#64748b", tag:"#ec4899", store:"#6366f1" };
 // sidebar (style C): a white filled glyph on a coloured rounded tile, a colour per section
 const navSec = route => { const r = ROUTE_PARENT[route] || route, n = NAV.find(n => n.id===r || (n.kids||[]).some(k => k[0]===r) || (n.side||[]).some(k => k[0]===r)); return n ? n.i : ""; };
@@ -1972,7 +1974,7 @@ const navSubIco = (k, c) => NAVL[k] ? navLine(k) : svgIco(k);
 const tabIco = (ico, sec) => `<span class="tti" style="--c:${NAVI_C[sec] || "#1e3a8a"}">${svgIco(ico)}</span>`;
 // empty states: the box icon in the page's section colour, on the same outline ring tile
 (() => { const st = document.createElement("style"); st.textContent = Object.keys(NAVI_C).map(k => [k, "#1e3a8a"]).map(([k, c]) => `body[data-sec="${k}"] #view .empty::before{background:#fff url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26' fill='none' stroke='${c}' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><path d='M3 7l9-4 9 4v10l-9 4-9-4z'/><path d='M3 7l9 4 9-4M12 11v10'/></svg>`)}") no-repeat center!important;border:0!important;box-shadow:none!important;box-sizing:border-box}`).join(""); document.head.appendChild(st); })();
-const NAVL = {"card": "<rect x=\"2.5\" y=\"5\" width=\"19\" height=\"14\" rx=\"2\"/><path d=\"M2.5 10h19M6.5 15h4\"/>", "dash": "<rect x=\"3\" y=\"3\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\" rx=\"1.5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\" rx=\"1.5\"/>", "orders": "<circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/>", "phone": "<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\"/>", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>", "chart": "<path d=\"M3 3v18h18\"/><path d=\"M7 15l4-4 3 3 6-6\"/>", "book": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7\"/>", "box": "<path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"/><path d=\"M3.3 7L12 12l8.7-5\"/><path d=\"M12 22V12\"/>", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20\"/><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/>", "gear": "<path d=\"M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6\"/>", "tag": "<path d=\"M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z\"/><circle cx=\"7.5\" cy=\"7.5\" r=\"1\"/>", "store": "<path d=\"M3 9l1.5-5h15L21 9\"/><path d=\"M4 9v11h16V9\"/><path d=\"M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0\"/><path d=\"M10 20v-5h4v5\"/>", "layers": "<path d=\"M12 2L2 7l10 5 10-5-10-5z\"/><path d=\"M2 17l10 5 10-5\"/><path d=\"M2 12l10 5 10-5\"/>", "channels": "<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/>"};   // sidebar: white line icons on the navy menu
+const NAVL = {"badge": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><circle cx=\"9\" cy=\"10\" r=\"2.5\"/><path d=\"M5.5 16.5a3.5 3.5 0 0 1 7 0\"/><path d=\"M15 9h3M15 13h3\"/>", "card": "<rect x=\"2.5\" y=\"5\" width=\"19\" height=\"14\" rx=\"2\"/><path d=\"M2.5 10h19M6.5 15h4\"/>", "dash": "<rect x=\"3\" y=\"3\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\" rx=\"1.5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\" rx=\"1.5\"/>", "orders": "<circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/>", "phone": "<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\"/>", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>", "chart": "<path d=\"M3 3v18h18\"/><path d=\"M7 15l4-4 3 3 6-6\"/>", "book": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7\"/>", "box": "<path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"/><path d=\"M3.3 7L12 12l8.7-5\"/><path d=\"M12 22V12\"/>", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20\"/><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/>", "gear": "<path d=\"M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6\"/>", "tag": "<path d=\"M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z\"/><circle cx=\"7.5\" cy=\"7.5\" r=\"1\"/>", "store": "<path d=\"M3 9l1.5-5h15L21 9\"/><path d=\"M4 9v11h16V9\"/><path d=\"M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0\"/><path d=\"M10 20v-5h4v5\"/>", "layers": "<path d=\"M12 2L2 7l10 5 10-5-10-5z\"/><path d=\"M2 17l10 5 10-5\"/><path d=\"M2 12l10 5 10-5\"/>", "channels": "<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/>"};   // sidebar: white line icons on the navy menu
 const navLine = k => `<span class="nti nln"><svg class="nls" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAVL[k]}</svg></span>`;
 const navIco = k => NAVL[k] ? navLine(k) : svgIco(k);
 function renderNav(route){
@@ -2933,7 +2935,7 @@ function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout
   paintSubBar();
   if(subLocked()){ $("#nav").innerHTML = ""; v.innerHTML = viewLocked(); if(!SUB) subLoad(); return; }   // subscription ended: nothing else opens until it's paid
   if(!planHas(route)){ v.innerHTML = viewNotInPlan(route); return; }
-  if(!canOpen(route)){ v.innerHTML = `<h1>${esc(TITLES[route]||"")}</h1>` + placeholder("No access", "Your role doesn't include this area. Ask the owner to change your role under Manage → Roles."); return; }
+  if(!canOpen(route)){ v.innerHTML = `<h1>${esc(TITLES[route]||"")}</h1>` + placeholder("No access", "Your role doesn't include this area. Ask the owner to change your role under Employee Management → Roles."); return; }
   if(RPT_HUB[route]) v.innerHTML = viewReports(route);
   else if(route==="marketplace") v.innerHTML = viewMarketplace();
   else if(route==="dashboard") v.innerHTML = viewDashboard();
@@ -3400,7 +3402,7 @@ function myPerms(){
   if(!rs.length) return state.role==="admin" ? null : ["bo_dashboard","bo_orders","bo_callcenter","bo_customers"];
   return [...new Set(rs.flatMap(r => r.permissions || []))];
 }
-const NAV_PERM = { "marketplace":"bo_manage", "subscription":"bo_manage", "dashboard":"bo_dashboard", "orders":"bo_orders", "call-center":"bo_callcenter", "customers":"bo_customers", "Reports":"bo_reports", "Inventory":"bo_inventory", "Menu":"bo_menu", "Manage":"bo_manage", "Web Ordering":"bo_manage", "Marketing":"bo_marketing" };
+const NAV_PERM = { "marketplace":"bo_manage", "subscription":"bo_manage", "dashboard":"bo_dashboard", "orders":"bo_orders", "call-center":"bo_callcenter", "customers":"bo_customers", "Reports":"bo_reports", "Inventory":"bo_inventory", "Menu":"bo_menu", "Manage":"bo_manage", "Employee Management":"bo_manage", "Web Ordering":"bo_manage", "Marketing":"bo_marketing" };
 // may the signed-in person do this back-office action? (the owner and admins always may)
 const mayDo = perm => { const p = myPerms(); return !p || p.includes(perm) || p.includes("bo_manage"); };
 function canOpen(route){
@@ -3459,31 +3461,41 @@ const CRUD = {
   roles: {
     col:"roles", title:"Roles", one:"Role", hardDelete:1,
     tabs:[["all","All",live]],
-    canDelete: r => { const n = S.users.filter(u => !u.deleted && userRoleIds(u).includes(r.id)).length; return n ? `This role is used by ${n} user${n===1?"":"s"}. Remove it from ${n===1?"that user":"those users"} first (Manage → Users).` : ""; },
+    canDelete: r => { const n = S.users.filter(u => !u.deleted && userRoleIds(u).includes(r.id)).length; return n ? `This role is used by ${n} employee${n===1?"":"s"}. Remove it from ${n===1?"that employee":"those employees"} first (Employee Management → Employees).` : ""; },
     sort:(a,b)=>a.name.localeCompare(b.name), search:r=>r.name,
     cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.nameAr?` <span class="note">${esc(r.nameAr)}</span>`:""}${r.description?`<div class="note">${esc(r.description)}</div>`:""}`],
       ["Back office",r=>{ const n = (r.permissions||[]).filter(p=>p.startsWith("bo_")).length; return n ? (r.permissions.includes("bo_manage") ? '<span class="tag on">Full admin</span>' : n+" areas") : '<span class="note">No access</span>'; }],
       ["POS",r=>{ const n = (r.permissions||[]).filter(p=>p.startsWith("pos_")).length; return n ? n+" permissions"+((r.permissions||[]).some(p=>p==="pos_void"||p==="pos_return") ? ' <span class="tag cc">Approves voids/returns</span>' : "") : '<span class="note">No access</span>'; }],
-      ["Users",r=>S.users.filter(u=>live(u)&&!isAdminRow(u)&&u.roleId===r.id).length,"num"]],
+      ["Employees",r=>S.users.filter(u=>live(u)&&!isAdminRow(u)&&userRoleIds(u).includes(r.id)).length,"num"]],
     fields:[{k:"name",l:"Name",req:1,ph:"The name of the role in the organization."},{k:"nameAr",l:"Name Localized",ph:"The localized name in a 2nd language"},
       {k:"permissions",l:"Authorities",t:"multi",toggle:1,opts:()=>PERMS}],
     unique:"name"
   },
   users: {
-    col:"users", title:"Users", one:"User", addLbl:"Add", detail: r => userDetail(r),
+    col:"users", title:"Employees", one:"Employee", addLbl:"Add", detail: r => userDetail(r),
     tabs:[["all","All",r=>live(r)&&!isAdminRow(r)],["deleted","Deleted",r=>r.deleted&&!isAdminRow(r)]],   // users are created, deleted and restored (no active / inactive)
-    sort:(a,b)=>a.name.localeCompare(b.name), search:r=>r.name+" "+(r.email||"")+" "+(r.phone||""),
-    cols:[["Name",r=>`<b>${esc(r.name)}</b>`],
+    sort:(a,b)=>a.name.localeCompare(b.name), search:r=>r.name+" "+(r.email||"")+" "+(r.phone||"")+" "+(r.employeeNo||"")+" "+(r.jobTitle||""),
+    cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.employeeNo?` <span class="note">#${esc(r.employeeNo)}</span>`:""}`],["Job Title",r=>esc(r.jobTitle||"—")],
+      ["Status",r=>tcOpenOf(r) ? '<span class="tag on">Clocked In</span>' : '<span class="note">Off</span>'],
       ["Console Access",r=>r.email ? (r.userId ? '<span class="tag on">Active</span>' : '<span class="tag off">Invited</span>') : '<span class="tag off">Inactive</span>'],
       ["App Access",r=>r.pinHash ? '<span class="tag on">Active</span>' : '<span class="tag off">Inactive</span>'],
       ["Roles",r=>esc(userRolesTxt(r))]],
-    fields:[{k:"name",l:"Name",req:1,ph:"The user's name."},
+    fields:[{k:"@",l:"Account"},{k:"name",l:"Name",req:1,ph:"The employee's full name."},
       {k:"language",l:"Language",t:"select",opts:()=>[["en","English"],["ar","Arabic"]],def:"en"},
       {k:"phone",l:"Phone Number",t:"phone",ph:"70 123 456",full:1},
       {k:"email",l:"Email",ph:"Needed only to log in to the back office"},
       {k:"password",l:"Password",t:"password",hideIf:r=>!!r.userId,hideNew:1,note:"Only for users who work in the back office. They sign in with their email and this password. At least 8 characters. Once set, they change it themselves with Forgot password."},
       {k:"pin",l:"Login PIN",t:"pin",note:"A unique 5-digit PIN the user types to sign in on the cashier app. Generate a random PIN for better security."},
-      {k:"displayLocalized",l:"Display localized names",t:"chk",def:false}],
+      {k:"displayLocalized",l:"Display localized names",t:"chk",def:false},
+      {k:"@",l:"Employment"},
+      {k:"employeeNo",l:"Employee Number",ph:"e.g. 1024"},{k:"jobTitle",l:"Job Title",t:"list",opts:()=>[...new Set(S.users.map(u=>u.jobTitle).filter(Boolean).concat(["Cashier","Waiter","Cook","Chef","Driver","Branch Manager","Supervisor","Cleaner"]))],ph:"e.g. Cashier"},
+      {k:"hireDate",l:"Hire Date",t:"date"},{k:"birthDate",l:"Date Of Birth",t:"date"},
+      {k:"employmentType",l:"Employment Type",t:"select",opts:()=>[["","—"],["full","Full Time"],["part","Part Time"],["temp","Temporary"],["intern","Intern"]]},
+      {k:"payType",l:"Pay Type",t:"select",opts:()=>[["","—"],["monthly","Monthly Salary"],["hourly","Hourly Rate"],["daily","Daily Rate"]]},
+      {k:"payRate",l:"Pay Rate (USD)",t:"number",ph:"Per month, hour or day"},
+      {k:"@",l:"Emergency Contact"},
+      {k:"emergencyName",l:"Contact Name"},{k:"emergencyPhone",l:"Contact Phone",t:"phone",ph:"70 123 456"},
+      {k:"notes",l:"Notes",t:"textarea"}],
     note:"POS users sign in on the tablet with their PIN. For back-office access, add their email and a password: they sign in with them.",
     prep: async (data, id) => {
       const pin = data.pin, pw = data.password || ""; delete data.pin; delete data.password;
@@ -3970,6 +3982,8 @@ function openCrud(key, id, inline, draft){
     if(f.hideIf && (r ? f.hideIf(r) : f.hideNew)) return "";
     if(f.editOnly && !r) return "";
     if(f.inline && !inline) return "";   // shown on the item page only
+    if(f.k==="@") return `<div class="f full fsec"><h3>${esc(f.l)}</h3></div>`;   // a section title inside the form
+    if(f.t==="date") return `<div class="f"><label for="cf_${f.k}">${curL(f.l)}${f.req?" *":""}</label><input id="cf_${f.k}" type="date" value="${esc(String(val(f)||"").slice(0,10))}"></div>`;
     const v = val(f), idA = "cf_"+f.k, full = f.full||f.t==="textarea"||(f.t==="multi" && !f.half) ? " full" : "";
     if(f.t==="nutr"){ const o = v || {}; return `<div class="f full"><div class="nutr" id="cf_${f.k}">${NUTR.map(([k,l,u]) => `<label class="nrow"><span>${l}</span><input type="number" step="any" min="0" data-nk="${k}" value="${esc(o[k] ?? "")}" placeholder="–" aria-label="${l} (${u})"><i>${u}</i></label>`).join("")}</div></div>`; }   // e.g. price and tax of a product with variants: each variant has its own
     if(f.t==="polygon") return `<div class="f full"><label>${curL(f.l)}</label><div class="note">Click the map to add corners around the area this branch delivers to. Drag a corner to adjust it.</div><div id="zoneMap" class="zmap"></div><div class="row" style="margin:8px 0 0"><button type="button" class="btn sm" id="zUndo">Undo last point</button><button type="button" class="btn sm" id="zClear">Clear</button><span class="note" id="zInfo"></span></div></div>`;
@@ -4293,6 +4307,7 @@ async function submitCrud(e){
   if(!crudEdit || !CRUD[crudEdit.key]) return;
   const cfg = CRUD[crudEdit.key], data = {};
   for(const f of cfg.fields){
+    if(f.k==="@") continue;
     const el = CQ("#cf_"+f.k);
     if(!el && f.t!=="polygon") continue;   // not shown on this form
     if(f.when && (CQ("#cf_"+f.when.k)?.value || "") !== f.when.is) continue;   // hidden: not asked, not changed
@@ -4302,6 +4317,7 @@ async function submitCrud(e){
     else if(f.t==="multi"){ data[f.k] = [...el.querySelectorAll("input:checked:not([data-mall]):not([data-mgall])")].map(i=>i.value); if(f.req && !data[f.k].length){ CQ("#cErr").textContent = f.l + " is required."; return; } }
     else if(f.t==="items"){ const pending = (CQ("#cf_"+f.k+"_new")?.value || "").trim(); data[f.k] = [...el.querySelectorAll("[data-item]")].map(i => i.value.trim()).filter(Boolean); if(pending) data[f.k].push(pending); if(f.req && !data[f.k].length){ CQ("#cErr").textContent = f.l + " is required."; return; } continue; }
     else if(f.t==="number") data[f.k] = el.value==="" ? null : +el.value;
+    else if(f.t==="date") data[f.k] = el.value || null;
     else if(f.t==="phone"){ const n = el.value.replace(/[^\d]/g, "").replace(/^0+/, ""); data[f.k] = n ? (CQ("#cf_"+f.k+"_cc")?.value || "+961") + " " + n : ""; }
     else if(f.t==="password") data[f.k] = el.value;
     else if(f.yesno) data[f.k] = el.value==="yes";
@@ -5958,25 +5974,94 @@ $("#view").addEventListener("click", async e => {
     bmItems().filter(r => (BM.kind==="options" ? modName(r.modifierId) : catName(r.categoryId))===g).forEach(r => bmSet(r.id, "on", on)); render(); return bmAuto(); }
 });
 
+/* ---------- Employee Management → Time Clock: clock-ins from the cashier app (PIN → Clock In / Out) ---------- */
+const tcDocBo = () => (S.settings||[]).find(x => x.id==="timeclock") || {};
+const tcLog = () => (tcDocBo().log || []).filter(x => x && x.in);
+const tcOpenOf = u => (tcDocBo().open || {})[u?.id] || null;
+const tcTime = t => t ? new Date(t).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }) : "—";
+const tcHrs = x => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000);
+const branchNameOf = id => branches.find(b => b.id===id)?.name || "—";
+const tcDayOf = t => { const d = new Date(t); return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const TC = { tab:"now", from:"", to:"", branch:"", emp:"" };
+function viewTimeClock(){
+  if(!TC.from){ const t = todayStr(), d = new Date(t + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); TC.from = d.toISOString().slice(0,10); TC.to = t; }
+  const emps = S.users.filter(u => live(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
+  const open = Object.entries(tcDocBo().open || {}).map(([userId, o]) => ({ userId, ...o })).filter(o => !TC.branch || o.branchId===TC.branch);
+  const brSel = `<select class="sel" id="tcBranch"><option value="">All Branches</option>${branches.filter(b => b.active!==false).map(b => `<option value="${esc(b.id)}" ${TC.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>`;
+  let h = `<div class="phead"><h1>Time Clock</h1><div class="sp"></div><div class="ordtools">${brSel}${TC.tab==="sheet" ? `<button type="button" class="sel drpbtn" id="tcRange">${svgIco("calendar")}<span>${esc(drpLabel(TC.from, TC.to))}</span></button>` : ""}</div>${TC.tab==="sheet" ? `<button class="btn" id="tcCsv">Export CSV</button>` : ""}</div>
+`;
+  const tabsH = extra => `<div class="ttop"><div class="ttabs"><a role="button" tabindex="0" data-tctab="now" class="${TC.tab==="now"?"on":""}">Clocked In Now (${open.length})</a><a role="button" tabindex="0" data-tctab="sheet" class="${TC.tab==="sheet"?"on":""}">Timesheets</a></div><div class="sp"></div>${extra||""}</div>`;
+  if(TC.tab==="now"){
+    h += `<div class="card tbl">${tabsH()}<table><thead><tr><th>Employee</th><th>Job Title</th><th>Branch</th><th>Clocked In</th><th class="num">Hours So Far</th><th></th></tr></thead><tbody>${open.sort((a,b) => String(a.at).localeCompare(String(b.at))).map(o => { const u = byId[o.userId];
+      return `<tr><td><b>${esc(u?.name || o.name || "—")}</b></td><td>${esc(u?.jobTitle || "—")}</td><td>${esc(branchNameOf(o.branchId))}</td><td>${esc(new Date(o.at).dmy())} ${esc(tcTime(o.at))}</td><td class="num">${tcHrs({ in:o.at }).toFixed(2)}</td><td class="num"><button type="button" class="btn" data-tcout="${esc(o.userId)}">Clock Out</button></td></tr>`; }).join("") || `<tr><td colspan="6"><div class="empty">Nobody is clocked in${TC.branch ? " at this branch" : ""}. Employees clock in on the cashier app: they type their PIN, then Clock In.</div></td></tr>`}</tbody></table></div>`;
+    return h; }
+  const rows = tcLog().map((x, i) => ({ ...x, i })).filter(x => { const d = tcDayOf(x.in); return d >= TC.from && d <= TC.to && (!TC.branch || x.branchId===TC.branch) && (!TC.emp || x.userId===TC.emp); }).sort((a,b) => String(b.in).localeCompare(String(a.in)));
+  // totals per employee: hours, overtime over 8 h a day, estimated pay for hourly / daily rates
+  const tot = {}; rows.forEach(x => { const t = tot[x.userId] ||= { hrs:0, days:{} }; const hh = tcHrs(x); t.hrs += hh; const d = tcDayOf(x.in); t.days[d] = (t.days[d]||0) + hh; });
+  const pay = (u, t) => { if(!u || u.payRate==null || u.payRate==="") return null; const r = +u.payRate; return u.payType==="hourly" ? r * t.hrs : u.payType==="daily" ? r * Object.keys(t.days).length : null; };
+  const empSel = `<select class="sel" id="tcEmp"><option value="">All Employees</option>${emps.map(u => `<option value="${esc(u.id)}" ${TC.emp===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}</select>`;
+  const sumRows = Object.entries(tot).map(([id, t]) => { const u = byId[id], ot = Object.values(t.days).reduce((s, v) => s + Math.max(0, v - 8), 0), p = pay(u, t);
+    return { name: u?.name || rows.find(r => r.userId===id)?.name || "—", job: u?.jobTitle || "—", days: Object.keys(t.days).length, hrs: t.hrs, ot, p }; }).sort((a,b) => a.name.localeCompare(b.name));
+  const totPay = sumRows.reduce((s, r) => s + (r.p || 0), 0);
+  h += `<div class="card tbl">${tabsH(empSel)}<table><thead><tr><th>Employee</th><th>Job Title</th><th class="num">Days</th><th class="num">Hours</th><th class="num">Overtime</th><th class="num">Estimated Pay</th></tr></thead><tbody>${sumRows.map(r => `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.job)}</td><td class="num">${r.days}</td><td class="num">${r.hrs.toFixed(2)}</td><td class="num">${r.ot ? r.ot.toFixed(2) : "—"}</td><td class="num">${r.p != null ? "$" + r.p.toFixed(2) : "—"}</td></tr>`).join("") || `<tr><td colspan="6"><div class="empty">No clock-ins in this period.</div></td></tr>`}</tbody>${sumRows.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${sumRows.reduce((s,r)=>s+r.hrs,0).toFixed(2)}</th><th class="num">${sumRows.reduce((s,r)=>s+r.ot,0).toFixed(2)}</th><th class="num">${totPay ? "$" + totPay.toFixed(2) : "—"}</th></tr></tfoot>` : ""}</table>
+    <p class="note" style="margin:10px 14px 14px">Overtime counts hours over 8 in a day. Estimated pay uses each employee's hourly or daily rate (Edit Employee → Pay).</p></div>
+    <div class="card tbl"><div class="ttop"><b>Entries</b></div><table><thead><tr><th>Employee</th><th>Branch</th><th>Date</th><th>Clock In</th><th>Clock Out</th><th class="num">Hours</th><th></th></tr></thead><tbody>${rows.map(x => `<tr><td><b>${esc(byId[x.userId]?.name || x.name || "—")}</b>${x.editedBy ? ` <span class="note" title="Edited by ${esc(x.editedBy)}">edited</span>` : ""}</td><td>${esc(branchNameOf(x.branchId))}</td><td>${esc(new Date(x.in).dmy())}</td><td>${esc(tcTime(x.in))}</td><td>${esc(tcTime(x.out))}</td><td class="num">${tcHrs(x).toFixed(2)}</td><td class="num"><button type="button" class="btn" data-tcedit="${x.i}">Edit</button></td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">No clock-ins in this period.</div></td></tr>`}</tbody></table></div>`;
+  return h;
+}
+async function tcSave(next){ const d = tcDocBo(), doc = { open: { ...(d.open||{}) }, log: [...(d.log||[])], ...next };
+  await put("settings", "timeclock", doc); const ex = S.settings.find(x => x.id==="timeclock"); if(ex) Object.assign(ex, doc); else S.settings.push({ id:"timeclock", ...doc }); }
+const tcWho = () => state.fullName || state.email || "Back office";
+function tcEditForm(i){
+  const x = tcLog()[i] !== undefined ? (tcDocBo().log||[])[i] : null; if(!x) return; const loc = t => { if(!t) return ""; const d = new Date(t); return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,16); };
+  const box = $("#ccBox"); box.className = "modal sm";
+  box.innerHTML = `<header><h2>Edit Clock-In</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+    <div class="body" style="display:block"><p class="note" style="margin:0 0 12px">${esc(S.users.find(u => u.id===x.userId)?.name || x.name || "")} · ${esc(branchNameOf(x.branchId))}</p>
+      <div class="f"><label for="tcIn">Clock In *</label><input id="tcIn" type="datetime-local" value="${loc(x.in)}"></div>
+      <div class="f"><label for="tcOut">Clock Out *</label><input id="tcOut" type="datetime-local" value="${loc(x.out)}"></div><div class="err" id="tcErr"></div></div>
+    <footer><button type="button" class="btn danger" data-tcdel="${i}">Delete</button><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-tcsave="${i}">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); }
+document.addEventListener("change", e => {
+  if(e.target.id==="tcBranch"){ TC.branch = e.target.value; render(); }
+  if(e.target.id==="tcEmp"){ TC.emp = e.target.value; render(); } });
+document.addEventListener("click", async e => {
+  const tb = e.target.closest("[data-tctab]"); if(tb){ TC.tab = tb.dataset.tctab; return render(); }
+  const tf = e.target.closest("[data-tcfor]"); if(tf){ TC.tab = "sheet"; TC.emp = tf.dataset.tcfor; TC.from = ""; }
+  const rb = e.target.closest("#tcRange"); if(rb){ if(DRP.el) return drpClose(); drpOpen(rb, TC.from, TC.to, (f, t) => { TC.from = f; TC.to = t || f; render(); }); return; }
+  const oc = e.target.closest("[data-tcout]"); if(oc){ const id = oc.dataset.tcout, d = tcDocBo(), o = (d.open||{})[id]; if(!o) return; const u = S.users.find(x => x.id===id);
+    if(!(await askYes(`Clock out ${u?.name || o.name || "this employee"} now?`))) return;
+    const open = { ...d.open }; delete open[id]; const log = [...(d.log||[]), { userId:id, name:u?.name || o.name, branchId:o.branchId, deviceId:o.deviceId, in:o.at, out:new Date().toISOString(), editedBy:tcWho() }];
+    try{ await tcSave({ open, log: log.slice(-2000) }); render(); }catch(err){ console.error(err); toast("Couldn't clock out. Check your connection."); } return; }
+  const ed = e.target.closest("[data-tcedit]"); if(ed) return tcEditForm(+ed.dataset.tcedit);
+  const sv = e.target.closest("[data-tcsave]"); if(sv){ const i = +sv.dataset.tcsave, a = $("#tcIn").value, b = $("#tcOut").value, err = $("#tcErr");
+    if(!a || !b) return err.textContent = "Enter both times."; const ia = new Date(a).toISOString(), ib = new Date(b).toISOString(); if(ib <= ia) return err.textContent = "Clock Out must be after Clock In.";
+    const log = [...(tcDocBo().log||[])]; log[i] = { ...log[i], in:ia, out:ib, editedBy:tcWho() };
+    window.Motion?.saving?.(sv); try{ await tcSave({ log }); window.Motion?.saved?.(sv); $("#ccScrim").classList.remove("show"); render(); }catch(err2){ console.error(err2); window.Motion?.reset?.(sv); err.textContent = "Couldn't save."; } return; }
+  const dl = e.target.closest("[data-tcdel]"); if(dl){ const i = +dl.dataset.tcdel; if(!(await askYes("Delete this clock-in? Its hours are removed from the timesheet."))) return;
+    const log = [...(tcDocBo().log||[])]; log.splice(i, 1); try{ await tcSave({ log }); $("#ccScrim").classList.remove("show"); render(); }catch(err){ console.error(err); toast("Couldn't delete."); } return; }
+  if(e.target.closest("#tcCsv")){ const byId = Object.fromEntries(S.users.map(u => [u.id, u])); const rows = tcLog().filter(x => { const d = tcDayOf(x.in); return d >= TC.from && d <= TC.to && (!TC.branch || x.branchId===TC.branch) && (!TC.emp || x.userId===TC.emp); });
+    const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`, csv = [["Employee","Employee Number","Branch","Date","Clock In","Clock Out","Hours"], ...rows.map(x => [byId[x.userId]?.name || x.name, byId[x.userId]?.employeeNo || "", branchNameOf(x.branchId), new Date(x.in).dmy(), tcTime(x.in), tcTime(x.out), tcHrs(x).toFixed(2)])].map(r => r.map(q).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `timesheet-${TC.from}-${TC.to}.csv`; a.click(); return; }
+});
+
 /* ---------- wiring ---------- */
 /* Roles (like Foodics): one card per role; the card opens the role, ⋮ adds it to or removes it from users */
 function viewRoles(){
   const rs = (S.roles||[]).filter(live).sort((a,b) => a.name.localeCompare(b.name)), q = (state.q?.roles || "").trim().toLowerCase(), shown = rs.filter(r => !q || r.name.toLowerCase().includes(q));
   return `<div class="phead"><h1>Roles</h1><div class="sp"></div><button type="button" class="btn pri" data-rlnew>Create Role</button></div>
     <div class="rlgrid">${shown.map(r => { const n = S.users.filter(u => live(u) && !isAdminRow(u) && userRoleIds(u).includes(r.id)).length;
-      return `<div class="rlcard" data-rlopen="${esc(r.id)}" role="button" tabindex="0"><div><b>${esc(r.name)}</b><small>${n} user${n===1?"":"s"}</small></div>
-        <div class="ddwrap"><button type="button" class="rldots" data-rlmenu="${esc(r.id)}" aria-label="Role actions">⋮</button><div class="ddmenu" hidden><button type="button" data-rlusers="${esc(r.id)}|add">Add To Users</button><button type="button" data-rlusers="${esc(r.id)}|del">Remove From Users</button></div></div></div>`; }).join("") || `<div class="empty">No roles yet.</div>`}</div>`; }
+      return `<div class="rlcard" data-rlopen="${esc(r.id)}" role="button" tabindex="0"><div><b>${esc(r.name)}</b><small>${n} employee${n===1?"":"s"}</small></div>
+        <div class="ddwrap"><button type="button" class="rldots" data-rlmenu="${esc(r.id)}" aria-label="Role actions">⋮</button><div class="ddmenu" hidden><button type="button" data-rlusers="${esc(r.id)}|add">Add To Employees</button><button type="button" data-rlusers="${esc(r.id)}|del">Remove From Employees</button></div></div></div>`; }).join("") || `<div class="empty">No roles yet.</div>`}</div>`; }
 document.addEventListener("click", async e => {
   if(e.target.closest("[data-rlnew]")){ e.preventDefault(); return openCrud("roles"); }
   const mb = e.target.closest("[data-rlmenu]"); if(mb){ e.stopPropagation(); const m = mb.nextElementSibling, open = m.hidden; document.querySelectorAll(".rlcard .ddmenu").forEach(x => x.hidden = true); m.hidden = !open; return; }
   const ub = e.target.closest("[data-rlusers]"); if(ub){ e.stopPropagation(); ub.closest(".ddmenu").hidden = true; const [rid, mode] = ub.dataset.rlusers.split("|"), r = S.roles.find(x => x.id===rid); if(!r) return;
     const us = S.users.filter(u => live(u) && !isAdminRow(u) && (mode==="add" ? !userRoleIds(u).includes(rid) : userRoleIds(u).includes(rid))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
     const box = $("#ccBox"); box.className = "modal sm";
-    box.innerHTML = `<header><h2>${mode==="add" ? "Add To Users" : "Remove From Users"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
-      <div class="body" style="display:block"><div class="f"><label>Users</label>${us.length ? `<div class="multi" id="rlUserList">${us.map(u => `<label class="chk"><input type="checkbox" value="${esc(u.id)}"> ${esc(u.name)}</label>`).join("")}</div>` : `<p class="note">${mode==="add" ? "Every user already has this role." : "No users have this role."}</p>`}</div></div>
+    box.innerHTML = `<header><h2>${mode==="add" ? "Add To Employees" : "Remove From Employees"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+      <div class="body" style="display:block"><div class="f"><label>Employees</label>${us.length ? `<div class="multi" id="rlUserList">${us.map(u => `<label class="chk"><input type="checkbox" value="${esc(u.id)}"> ${esc(u.name)}</label>`).join("")}</div>` : `<p class="note">${mode==="add" ? "Every employee already has this role." : "No employees have this role."}</p>`}</div></div>
       <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button>${us.length ? `<button type="button" class="btn pri" id="rlUserSave" data-rl="${esc(rid)}|${mode}">Save</button>` : ""}</footer>`;
     $("#ccScrim").classList.add("show"); return; }
-  const sv = e.target.closest("#rlUserSave"); if(sv){ const [rid, mode] = sv.dataset.rl.split("|"), ids = [...document.querySelectorAll("#rlUserList input:checked")].map(i => i.value); if(!ids.length) return toast("Choose at least one user");
+  const sv = e.target.closest("#rlUserSave"); if(sv){ const [rid, mode] = sv.dataset.rl.split("|"), ids = [...document.querySelectorAll("#rlUserList input:checked")].map(i => i.value); if(!ids.length) return toast("Choose at least one employee");
     sv.disabled = true;
     try{ for(const id of ids){ const u = S.users.find(x => x.id===id); if(!u) continue; const cur = userRoleIds(u), next = mode==="add" ? [...new Set([...cur, rid])] : cur.filter(x => x!==rid);
         await put("users", id, { roleIds: next, roleId: next[0] || null }); }
@@ -5987,6 +6072,7 @@ document.addEventListener("click", async e => {
 function moduleRoute(route){
   if(route==="roles") setTimeout(purgeDeletedRoles, 1500);
   if(route==="roles") return viewRoles();
+  if(route==="time-clock") return viewTimeClock();
   if(CRUD[route]) return crudView(route);
   if(route==="call-center") return viewCallCenter();
   if(route==="devices") return viewDevices();
@@ -6924,7 +7010,7 @@ async function saveAccount(){
   try{ const { error } = await WOK.sb.from("staff").update({ name }).eq("user_id", state.userId); if(error) throw error;
     await WOK.sb.from("staff_users").update({ name }).eq("user_id", state.userId);
     state.fullName = name; state.userName = name.split(" ")[0]; $("#avatar").textContent = name.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase(); paintAcct(); toast("Account saved"); }
-  catch(e){ console.error(e); $("#acErr").textContent = "Couldn't save your name. Only the owner can change account names; ask them under Manage → Users."; }
+  catch(e){ console.error(e); $("#acErr").textContent = "Couldn't save your name. Only the owner can change account names; ask them under Employee Management → Employees."; }
 }
 document.addEventListener("click", async e => {
   const at = e.target.closest("[data-actab]"); if(at){ e.preventDefault(); state.acTab = at.dataset.actab; return render(); }
@@ -8207,9 +8293,16 @@ function userDetail(u){
   const dt = t => t ? new Date(t).dmy(true) : "—";
   // same layout as every other detail page: header, details card, then the sections
   let h = `<div class="phead"><a href="#users" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(u.name)}</span></h1><div class="sp"></div>
-    ${u.userId && state.role!=="owner" ? "" : `<button class="btn" data-usrpw="${esc(u.id)}">${u.userId ? "Change Password" : "Create Password"}</button>`}<button class="btn pri" data-detedit>Edit User</button></div>`;
+    ${u.userId && state.role!=="owner" ? "" : `<button class="btn" data-usrpw="${esc(u.id)}">${u.userId ? "Change Password" : "Create Password"}</button>`}<button class="btn pri" data-detedit>Edit Employee</button></div>`;
   h += infoGrid([info("Name", esc(u.name)), info("Email", esc(u.email || "—")), info("Phone", esc(u.phone || "—")), info("Language", u.language==="ar" ? "Arabic" : "English"), info("Display Localized Names", u.displayLocalized ? "Yes" : "No"),
     info("Console Access", u.email ? (u.userId ? "Yes" : "Not created yet") : "No"), info("App Access (PIN)", u.pinHash ? "Yes" : "No"), info("Created", esc(dt(u.createdAt)))]);
+  { const ET = { full:"Full Time", part:"Part Time", temp:"Temporary", intern:"Intern" }, PT = { monthly:"/ month", hourly:"/ hour", daily:"/ day" }, d10 = x => x ? new Date(String(x).slice(0,10) + "T12:00:00").dmy() : "—";
+    const o = tcOpenOf(u);
+    h += pdSec("Employment", "", (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Employee Number", esc(u.employeeNo || "—")), info("Job Title", esc(u.jobTitle || "—")), info("Employment Type", ET[u.employmentType] || "—"),
+      info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
+      info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
+    const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
+    h += pdSec("Attendance", `<a class="btn" href="#time-clock" data-tcfor="${esc(u.id)}" style="text-decoration:none">Time Clock</a>`, rows.length ? `<table><thead><tr><th>Date</th><th>Branch</th><th>Clock In</th><th>Clock Out</th><th class="num">Hours</th></tr></thead><tbody>${rows.map(x => `<tr><td>${esc(new Date(x.in).dmy())}</td><td>${esc(branchNameOf(x.branchId))}</td><td>${esc(tcTime(x.in))}</td><td>${esc(tcTime(x.out))}</td><td class="num">${tcHrs(x).toFixed(2)}</td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No clock-ins yet. Employees clock in and out on the cashier app with their PIN.</p>`); }
   h += pdSec("Roles", `<button type="button" class="btn" data-usrroles="${esc(u.id)}">Roles</button>`, rs.length ? `<div class="dzchips">${rs.map(r => `<span class="dzchip" style="padding-right:14px">${esc(r.name)}</span>`).join("")}</div>` : `<p class="dzempty">No roles</p>`);
   h += pdSec("Branches", `<button type="button" class="btn" data-usrbr="${esc(u.id)}">Branches</button>`, picked ? (brs.length ? `<table><thead><tr><th>Name</th><th>Reference</th></tr></thead><tbody>${brs.map(b => `<tr><td>${esc(b.name)}</td><td>${esc(b.code||"—")}</td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No branches yet</p>`)
     : `<p class="dzempty">Applied on all existing and new branches</p>`);
@@ -8250,7 +8343,7 @@ function openUserRoles(id){
   const u = S.users.find(x => x.id===id); if(!u) return; const cur = new Set(userRoleIds(u)), list = S.roles.filter(r => live(r) || cur.has(r.id));
   const box = $("#ccBox"); box.className = "modal";
   box.innerHTML = `<header><h2>Edit Roles</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
-  <div class="body" style="display:block"><div class="f"><label>Roles</label><div class="multi" id="urList" data-empty="No roles">${list.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${cur.has(r.id)?"checked":""}> ${esc(r.name)}</label>`).join("")}</div>${list.length ? "" : `<p class="note">Roles are created in Manage → Roles.</p>`}</div><div class="err" id="urErr"></div></div>
+  <div class="body" style="display:block"><div class="f"><label>Roles</label><div class="multi" id="urList" data-empty="No roles">${list.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${cur.has(r.id)?"checked":""}> ${esc(r.name)}</label>`).join("")}</div>${list.length ? "" : `<p class="note">Roles are created in Employee Management → Roles.</p>`}</div><div class="err" id="urErr"></div></div>
   <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-urapply="${esc(id)}">Apply</button></footer>`;
   $("#ccScrim").classList.add("show");
 }
