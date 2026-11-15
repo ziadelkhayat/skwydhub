@@ -171,7 +171,7 @@ async function welcome() {
   $("#card").innerHTML = HEAD(`Welcome, ${esc(d.company.name)}`, `Your free trial is on${d.daysLeft ? ` for ${d.daysLeft} days` : ""}.`) +
     `<div class="acct"><span>Your Account Number</span><b>${esc(d.company.accountNo || "—")}</b></div>
      <p class="ok">Keep it: you and your staff sign in with it, together with your email and password.</p>
-     <button class="pri" onclick="location.href='/#dashboard'">Open My Back Office</button>`;
+     <button class="pri" onclick="location.href='/dashboard'">Open My Back Office</button>`;
 }
 
 // ---------- same behaviour as the back office ----------

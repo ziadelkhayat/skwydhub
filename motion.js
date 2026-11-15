@@ -270,8 +270,8 @@ td.empty::before,.empty.inline::before{display:none}
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
 
   // ---- page changes: the new page's blocks fade up
-  let lastRoute = location.hash;
-  addEventListener("hashchange", () => { const r = location.hash.split("?")[0]; if (r === lastRoute) return; lastRoute = r; setTimeout(() => Motion.enter(document.getElementById("view")), 0); });
+  let lastRoute = location.pathname;
+  addEventListener("hashchange", () => { const r = location.pathname; if (r === lastRoute) return; lastRoute = r; setTimeout(() => Motion.enter(document.getElementById("view")), 0); });
   document.addEventListener("click", e => { if (e.target.closest?.("[data-view]")) setTimeout(() => Motion.enter(document.getElementById("view")), 0); }, true);
 
   // ---- scrolling: the top bar lifts, and a back-to-top button appears on long pages (not on the POS)

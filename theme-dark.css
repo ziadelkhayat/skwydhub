@@ -515,6 +515,7 @@ html[data-theme=dark] body .app aside.side a:hover svg.nls, html[data-theme=dark
 html[data-theme=dark] body .app aside.side a.on{background:#161924!important;color:#96abe8!important}
 html[data-theme=dark] body .app aside.side a.on svg, html[data-theme=dark] body .app aside.side a.on .ico, html[data-theme=dark] body .app aside.side a.on svg.nls{color:#96abe8!important;stroke:#96abe8!important}
 html[data-theme=dark] body .app aside.side .nav .grp.open > button, html[data-theme=dark] body .app aside.side .nav .grp.open > button svg.nls{color:#96abe8!important;stroke:#96abe8!important}
+html[data-theme=dark] body .brand.skb .skmark.f2 svg g{stroke:#b5c1eb!important}
 html[data-theme=dark] body .dalbl .lnk{color:#7ca1f3}
 html[data-theme=dark] body .fltbtn .fltx:hover{color:#b5b5b7}
 html[data-theme=dark] body{color:#dcdcde}
