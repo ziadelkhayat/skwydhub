@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
+<base href="/">
+<script>
+// clean addresses: portal.skwydhub.com/orders instead of /#orders. HASH() gives "#orders" like before, go("orders") moves there,
+// links written href="#orders" still work, and old /#orders links are turned into /orders.
+const HASH = () => { const p = location.pathname.replace(/^\/+|\/?index\.html$/g, ""); return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
+function go(r, replace){ r = String(r || "").replace(/^#?\/*/, ""); const url = "/" + r; if(url === location.pathname + location.search) return; history[replace ? "replaceState" : "pushState"](null, "", url); dispatchEvent(new HashChangeEvent("hashchange")); }
+(() => {
+  if(/^#\/?[a-z][^=&]*$/i.test(location.hash)) history.replaceState(null, "", "/" + location.hash.replace(/^#\/*/, ""));   // old link with #
+  addEventListener("popstate", () => dispatchEvent(new HashChangeEvent("hashchange")));
+  document.addEventListener("click", e => { const a = e.target.closest?.('a[href^="#"]'); if(!a || e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const h = a.getAttribute("href"); if(h === "#" || h.length < 2) return; e.preventDefault(); go(h); });
+})();
+/* skwyd hub: carry over what this browser saved under the old Slick names */try{for(const S of [localStorage,sessionStorage]){for(let i=0;i<S.length;i++){const k=S.key(i);if(/^(slick|Slick)/.test(k)){const n=k.replace(/^slick/,"skwyd").replace(/^Slick/,"Skwyd");if(S.getItem(n)===null)S.setItem(n,S.getItem(k));}}}}catch(e){}</script>
 <script>/* skwyd hub: every country with its dialing code, currency and phone number format (from Google's libphonenumber data) */
 var SKW_WORLD = {"c":[["AF","Afghanistan","+93","AFN"],["AL","Albania","+355","ALL"],["DZ","Algeria","+213","DZD"],["AS","American Samoa","+1","USD"],["AD","Andorra","+376","EUR"],["AO","Angola","+244","AOA"],["AI","Anguilla","+1","XCD"],["AG","Antigua and Barbuda","+1","XCD"],["AR","Argentina","+54","ARS"],["AM","Armenia","+374","AMD"],["AW","Aruba","+297","AWG"],["AU","Australia","+61","AUD"],["AT","Austria","+43","EUR"],["AZ","Azerbaijan","+994","AZN"],["BS","Bahamas","+1","BSD"],["BH","Bahrain","+973","BHD"],["BD","Bangladesh","+880","BDT"],["BB","Barbados","+1","BBD"],["BY","Belarus","+375","BYN"],["BE","Belgium","+32","EUR"],["BZ","Belize","+501","BZD"],["BJ","Benin","+229","XOF"],["BM","Bermuda","+1","BMD"],["BT","Bhutan","+975","BTN"],["BO","Bolivia","+591","BOB"],["BA","Bosnia and Herzegovina","+387","BAM"],["BW","Botswana","+267","BWP"],["BR","Brazil","+55","BRL"],["IO","British Indian Ocean Territory","+246","USD"],["VG","British Virgin Islands","+1","USD"],["BN","Brunei","+673","BND"],["BG","Bulgaria","+359","EUR"],["BF","Burkina Faso","+226","XOF"],["BI","Burundi","+257","BIF"],["KH","Cambodia","+855","KHR"],["CM","Cameroon","+237","XAF"],["CA","Canada","+1","CAD"],["CV","Cape Verde","+238","CVE"],["BQ","Caribbean Netherlands","+599","USD"],["KY","Cayman Islands","+1","KYD"],["CF","Central African Republic","+236","XAF"],["TD","Chad","+235","XAF"],["CL","Chile","+56","CLP"],["CN","China","+86","CNY"],["CX","Christmas Island","+61","AUD"],["CC","Cocos (Keeling) Islands","+61","AUD"],["CO","Colombia","+57","COP"],["KM","Comoros","+269","KMF"],["CG","Congo","+242","XAF"],["CK","Cook Islands","+682","CKD"],["CR","Costa Rica","+506","CRC"],["HR","Croatia","+385","EUR"],["CU","Cuba","+53","CUP"],["CW","Curaçao","+599","XCG"],["CY","Cyprus","+357","EUR"],["CZ","Czechia","+420","CZK"],["CD","DR Congo","+243","CDF"],["DK","Denmark","+45","DKK"],["DJ","Djibouti","+253","DJF"],["DM","Dominica","+1","XCD"],["DO","Dominican Republic","+1","DOP"],["EC","Ecuador","+593","USD"],["EG","Egypt","+20","EGP"],["SV","El Salvador","+503","USD"],["GQ","Equatorial Guinea","+240","XAF"],["ER","Eritrea","+291","ERN"],["EE","Estonia","+372","EUR"],["SZ","Eswatini","+268","SZL"],["ET","Ethiopia","+251","ETB"],["FK","Falkland Islands","+500","FKP"],["FO","Faroe Islands","+298","DKK"],["FJ","Fiji","+679","FJD"],["FI","Finland","+358","EUR"],["FR","France","+33","EUR"],["GF","French Guiana","+594","EUR"],["PF","French Polynesia","+689","XPF"],["GA","Gabon","+241","XAF"],["GM","Gambia","+220","GMD"],["GE","Georgia","+995","GEL"],["DE","Germany","+49","EUR"],["GH","Ghana","+233","GHS"],["GI","Gibraltar","+350","GIP"],["GR","Greece","+30","EUR"],["GL","Greenland","+299","DKK"],["GD","Grenada","+1","XCD"],["GP","Guadeloupe","+590","EUR"],["GU","Guam","+1","USD"],["GT","Guatemala","+502","GTQ"],["GG","Guernsey","+44","GBP"],["GN","Guinea","+224","GNF"],["GW","Guinea-Bissau","+245","XOF"],["GY","Guyana","+592","GYD"],["HT","Haiti","+509","HTG"],["HN","Honduras","+504","HNL"],["HK","Hong Kong","+852","HKD"],["HU","Hungary","+36","HUF"],["IS","Iceland","+354","ISK"],["IN","India","+91","INR"],["ID","Indonesia","+62","IDR"],["IR","Iran","+98","IRR"],["IQ","Iraq","+964","IQD"],["IE","Ireland","+353","EUR"],["IM","Isle of Man","+44","GBP"],["IL","Israel","+972","ILS"],["IT","Italy","+39","EUR"],["CI","Ivory Coast","+225","XOF"],["JM","Jamaica","+1","JMD"],["JP","Japan","+81","JPY"],["JE","Jersey","+44","GBP"],["JO","Jordan","+962","JOD"],["KZ","Kazakhstan","+7","KZT"],["KE","Kenya","+254","KES"],["KI","Kiribati","+686","AUD"],["XK","Kosovo","+383","EUR"],["KW","Kuwait","+965","KWD"],["KG","Kyrgyzstan","+996","KGS"],["LA","Laos","+856","LAK"],["LV","Latvia","+371","EUR"],["LB","Lebanon","+961","LBP"],["LS","Lesotho","+266","LSL"],["LR","Liberia","+231","LRD"],["LY","Libya","+218","LYD"],["LI","Liechtenstein","+423","CHF"],["LT","Lithuania","+370","EUR"],["LU","Luxembourg","+352","EUR"],["MO","Macau","+853","MOP"],["MG","Madagascar","+261","MGA"],["MW","Malawi","+265","MWK"],["MY","Malaysia","+60","MYR"],["MV","Maldives","+960","MVR"],["ML","Mali","+223","XOF"],["MT","Malta","+356","EUR"],["MH","Marshall Islands","+692","USD"],["MQ","Martinique","+596","EUR"],["MR","Mauritania","+222","MRU"],["MU","Mauritius","+230","MUR"],["YT","Mayotte","+262","EUR"],["MX","Mexico","+52","MXN"],["FM","Micronesia","+691","USD"],["MD","Moldova","+373","MDL"],["MC","Monaco","+377","EUR"],["MN","Mongolia","+976","MNT"],["ME","Montenegro","+382","EUR"],["MS","Montserrat","+1","XCD"],["MA","Morocco","+212","MAD"],["MZ","Mozambique","+258","MZN"],["MM","Myanmar","+95","MMK"],["NA","Namibia","+264","NAD"],["NR","Nauru","+674","AUD"],["NP","Nepal","+977","NPR"],["NL","Netherlands","+31","EUR"],["NC","New Caledonia","+687","XPF"],["NZ","New Zealand","+64","NZD"],["NI","Nicaragua","+505","NIO"],["NE","Niger","+227","XOF"],["NG","Nigeria","+234","NGN"],["NU","Niue","+683","NZD"],["NF","Norfolk Island","+672","AUD"],["KP","North Korea","+850","KPW"],["MK","North Macedonia","+389","MKD"],["MP","Northern Mariana Islands","+1","USD"],["NO","Norway","+47","NOK"],["OM","Oman","+968","OMR"],["PK","Pakistan","+92","PKR"],["PW","Palau","+680","USD"],["PS","Palestine","+970","EGP"],["PA","Panama","+507","PAB"],["PG","Papua New Guinea","+675","PGK"],["PY","Paraguay","+595","PYG"],["PE","Peru","+51","PEN"],["PH","Philippines","+63","PHP"],["PL","Poland","+48","PLN"],["PT","Portugal","+351","EUR"],["PR","Puerto Rico","+1","USD"],["QA","Qatar","+974","QAR"],["RO","Romania","+40","RON"],["RU","Russia","+7","RUB"],["RW","Rwanda","+250","RWF"],["RE","Réunion","+262","EUR"],["BL","Saint Barthélemy","+590","EUR"],["SH","Saint Helena, Ascension and Tristan da Cunha","+290","GBP"],["KN","Saint Kitts and Nevis","+1","XCD"],["LC","Saint Lucia","+1","XCD"],["MF","Saint Martin","+590","EUR"],["PM","Saint Pierre and Miquelon","+508","EUR"],["VC","Saint Vincent and the Grenadines","+1","XCD"],["WS","Samoa","+685","WST"],["SM","San Marino","+378","EUR"],["SA","Saudi Arabia","+966","SAR"],["SN","Senegal","+221","XOF"],["RS","Serbia","+381","RSD"],["SC","Seychelles","+248","SCR"],["SL","Sierra Leone","+232","SLE"],["SG","Singapore","+65","SGD"],["SX","Sint Maarten","+1","XCG"],["SK","Slovakia","+421","EUR"],["SI","Slovenia","+386","EUR"],["SB","Solomon Islands","+677","SBD"],["SO","Somalia","+252","SOS"],["ZA","South Africa","+27","ZAR"],["KR","South Korea","+82","KRW"],["SS","South Sudan","+211","SSP"],["ES","Spain","+34","EUR"],["LK","Sri Lanka","+94","LKR"],["SD","Sudan","+249","SDG"],["SR","Suriname","+597","SRD"],["SJ","Svalbard and Jan Mayen","+47","NOK"],["SE","Sweden","+46","SEK"],["CH","Switzerland","+41","CHF"],["SY","Syria","+963","SYP"],["ST","São Tomé and Príncipe","+239","STN"],["TW","Taiwan","+886","TWD"],["TJ","Tajikistan","+992","TJS"],["TZ","Tanzania","+255","TZS"],["TH","Thailand","+66","THB"],["TL","Timor-Leste","+670","USD"],["TG","Togo","+228","XOF"],["TK","Tokelau","+690","NZD"],["TO","Tonga","+676","TOP"],["TT","Trinidad and Tobago","+1","TTD"],["TN","Tunisia","+216","TND"],["TR","Turkey","+90","TRY"],["TM","Turkmenistan","+993","TMT"],["TC","Turks and Caicos Islands","+1","USD"],["TV","Tuvalu","+688","AUD"],["UG","Uganda","+256","UGX"],["UA","Ukraine","+380","UAH"],["AE","United Arab Emirates","+971","AED"],["GB","United Kingdom","+44","GBP"],["US","United States","+1","USD"],["VI","United States Virgin Islands","+1","USD"],["UY","Uruguay","+598","UYU"],["UZ","Uzbekistan","+998","UZS"],["VU","Vanuatu","+678","VUV"],["VA","Vatican City","+39","EUR"],["VE","Venezuela","+58","VES"],["VN","Vietnam","+84","VND"],["WF","Wallis and Futuna","+681","XPF"],["EH","Western Sahara","+212","DZD"],["YE","Yemen","+967","YER"],["ZM","Zambia","+260","ZMW"],["ZW","Zimbabwe","+263","BWP"],["AX","Åland Islands","+358","EUR"]],"p":{"+247":[[5],{"5":[5]},"40123"],"+376":[[6,9],{"6":[3,3]},"312 345"],"+971":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"50 123 4567"],"+93":[[9],{"9":[2,3,4]},"70 123 4567"],"+1":[[10],{"10":[3,3,4]},"201-555-0123"],"+355":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"67 212 3456"],"+374":[[8],{"8":[2,6]},"77 123456"],"+244":[[9],{"9":[3,3,3]},"923 123 456"],"+54":[[10,11],{"10":[2,4,4],"11":[1,2,4,4]},"9 11 2345-6789"],"+43":[[4,5,6,7,8,9,10,11,12,13],{"10":[1,9],"9":[3,6]},"664 123456"],"+61":[[9],{"9":[3,3,3]},"412 345 678"],"+297":[[7],{"7":[3,4]},"560 1234"],"+358":[[5,6,7,8,9,10],{"9":[2,7]},"41 2345678"],"+994":[[9],{"9":[2,3,2,2]},"40 123 45 67"],"+387":[[8,9],{"8":[2,3,3]},"61 123 456"],"+880":[[6,7,8,9,10],{"8":[1,7],"10":[4,6]},"1812-345678"],"+32":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"450 00 12 34"],"+226":[[8],{"8":[2,2,2,2]},"70 12 34 56"],"+359":[[6,7,8,9],{"7":[1,3,3],"8":[2,3,3]},"43 012 345"],"+973":[[8],{"8":[4,4]},"3600 1234"],"+257":[[8],{"8":[2,2,2,2]},"79 56 12 34"],"+229":[[10],{"10":[2,2,2,2,2]},"01 95 12 34 56"],"+590":[[9],{"9":[3,2,2,2]},"690 00 12 34"],"+673":[[7],{"7":[3,4]},"712 3456"],"+591":[[8],{"8":[8]},"71234567"],"+599":[[7,8],{"8":[1,3,4]},"9 518 1234"],"+55":[[10,11],{"10":[2,4,4],"11":[2,5,4]},"11 96123-4567"],"+975":[[7,8],{"7":[1,3,3],"8":[2,2,2,2]},"17 12 34 56"],"+267":[[7,8],{"7":[3,4],"8":[2,3,3]},"71 123 456"],"+375":[[9],{"9":[2,3,2,2]},"29 491-19-11"],"+501":[[7],{"7":[3,4]},"622-1234"],"+243":[[7,8,9,10],{"7":[2,5],"9":[3,3,3]},"991 234 567"],"+236":[[8],{"8":[2,2,2,2]},"70 01 23 45"],"+242":[[9],{"9":[2,3,4]},"06 123 4567"],"+41":[[9],{"9":[2,3,2,2]},"78 123 45 67"],"+225":[[10],{"10":[2,2,2,4]},"01 23 45 6789"],"+682":[[5],{"5":[2,3]},"71 234"],"+56":[[9],{"9":[1,4,4]},"2 2123 4567"],"+237":[[9],{"9":[1,2,2,2,2]},"6 71 23 45 67"],"+86":[[7,8,9,10,11],{"10":[2,4,4],"11":[3,4,4]},"131 2345 6789"],"+57":[[8,10],{"10":[3,7]},"321 1234567"],"+506":[[8],{"8":[4,4]},"8312 3456"],"+53":[[6,7,8,10],{"8":[1,7]},"5 1234567"],"+238":[[7],{"7":[3,2,2]},"991 12 34"],"+357":[[8],{"8":[2,6]},"96 123456"],"+420":[[9],{"9":[3,3,3]},"601 123 456"],"+49":[[5,6,7,8,9,10,11,12,13,14,15],{"8":[2,6],"11":[4,7]},"1512 3456789"],"+253":[[8],{"8":[2,2,2,2]},"77 83 10 01"],"+45":[[8],{"8":[2,2,2,2]},"34 41 23 45"],"+213":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"551 23 45 67"],"+593":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"99 123 4567"],"+372":[[7,8],{"7":[3,4],"8":[4,4]},"5123 4567"],"+20":[[8,9,10],{"9":[1,8],"10":[2,8]},"10 01234567"],"+212":[[9],{"9":[1,2,2,2,2]},"6 50 12 34 56"],"+291":[[7],{"7":[1,3,3]},"7 123 456"],"+34":[[9],{"9":[3,2,2,2]},"612 34 56 78"],"+251":[[9],{"9":[2,3,4]},"91 123 4567"],"+679":[[7],{"7":[3,4]},"701 2345"],"+500":[[5],{"5":[5]},"51234"],"+691":[[7],{"7":[3,4]},"350 1234"],"+298":[[6],{"6":[2,2,2]},"21 12 34"],"+33":[[9],{"9":[1,2,2,2,2]},"6 12 34 56 78"],"+241":[[7,8],{"8":[2,2,2,2]},"06 03 12 34"],"+44":[[9,10],{"10":[4,6]},"7400 123456"],"+995":[[9],{"9":[3,2,2,2]},"555 12 34 56"],"+594":[[9],{"9":[3,2,2,2]},"694 20 12 34"],"+233":[[9],{"9":[2,3,4]},"23 123 4567"],"+350":[[8],{"8":[8]},"57123456"],"+299":[[6],{"6":[2,2,2]},"22 12 34"],"+220":[[7,9],{"7":[3,4]},"301 2345"],"+224":[[8,9],{"8":[2,2,2,2],"9":[3,2,2,2]},"601 12 34 56"],"+240":[[9],{"9":[3,3,3]},"222 123 456"],"+30":[[10],{"10":[3,3,4]},"691 234 5678"],"+502":[[8],{"8":[4,4]},"5123 4567"],"+245":[[9],{"9":[3,3,3]},"955 012 345"],"+592":[[7],{"7":[3,4]},"609 1234"],"+852":[[8],{"8":[4,4]},"5123 4567"],"+504":[[8],{"8":[4,4]},"9123-4567"],"+385":[[8,9],{"8":[1,4,3],"9":[2,3,4]},"92 123 4567"],"+509":[[8],{"8":[2,2,4]},"34 10 1234"],"+36":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"20 123 4567"],"+62":[[7,8,9,10,11,12],{"9":[3,3,3]},"812-345-678"],"+353":[[7,8,9,10],{"7":[2,5],"9":[2,3,4]},"85 012 3456"],"+972":[[8,9,11,12],{"8":[1,3,4],"9":[2,3,4]},"50-234-5678"],"+91":[[10],{"10":[5,5]},"81234 56789"],"+246":[[7],{"7":[3,4]},"380 1234"],"+964":[[8,9,10],{"8":[1,3,4],"10":[3,3,4]},"791 234 5678"],"+98":[[6,7,10],{"10":[3,3,4]},"912 345 6789"],"+354":[[7,9],{"7":[3,4]},"611 1234"],"+39":[[6,7,8,9,10,11,12],{"10":[3,3,4]},"312 345 6789"],"+962":[[8,9],{"8":[1,3,4],"9":[1,4,4]},"7 9012 3456"],"+81":[[9,10],{"9":[1,4,4],"10":[2,4,4]},"90-1234-5678"],"+254":[[7,8,9],{"9":[3,6]},"712 123456"],"+996":[[9],{"9":[3,3,3]},"700 123 456"],"+855":[[8,9],{"8":[2,3,3]},"91 234 567"],"+686":[[5,8],{"5":[5],"8":[8]},"72001234"],"+269":[[7],{"7":[3,2,2]},"321 23 45"],"+850":[[8,10],{"8":[1,3,4],"10":[3,3,4]},"192 123 4567"],"+82":[[5,6,8,9,10],{"8":[1,3,4],"10":[2,4,4]},"10-2000-0000"],"+965":[[8],{"8":[3,5]},"500 12345"],"+7":[[10],{"10":[3,3,2,2]},"912 345-67-89"],"+856":[[8,9,10],{"8":[2,3,3],"10":[2,2,3,3]},"20 23 123 456"],"+961":[[7,8],{"7":[1,3,3],"8":[2,3,3]},"71 123 456"],"+423":[[7,9],{"7":[3,2,2],"9":[3,3,3]},"660 234 567"],"+94":[[9],{"9":[2,3,4]},"71 234 5678"],"+231":[[7,8,9],{"8":[2,3,3],"9":[2,3,4]},"77 012 3456"],"+266":[[8],{"8":[4,4]},"5012 3456"],"+370":[[8],{"8":[3,5]},"612 34567"],"+352":[[4,5,6,7,8,9,10,11],{"8":[2,2,2,2],"9":[3,3,3]},"628 123 456"],"+371":[[8],{"8":[2,3,3]},"21 234 567"],"+218":[[9],{"9":[2,7]},"91-2345678"],"+377":[[8,9],{"8":[2,2,2,2],"9":[1,2,2,2,2]},"6 12 34 56 78"],"+373":[[8],{"8":[3,2,3]},"621 12 345"],"+382":[[8],{"8":[2,3,3]},"60 123 456"],"+261":[[9],{"9":[2,2,3,2]},"32 12 345 67"],"+692":[[7],{"7":[3,4]},"235-1234"],"+389":[[8],{"8":[2,3,3]},"72 345 678"],"+223":[[8],{"8":[2,2,2,2]},"65 01 23 45"],"+95":[[6,7,8,9,10],{"7":[1,3,3],"8":[1,3,4]},"9 212 3456"],"+976":[[8,9,10],{"8":[4,4]},"8812 3456"],"+853":[[8],{"8":[4,4]},"6612 3456"],"+596":[[9],{"9":[3,2,2,2]},"696 20 12 34"],"+222":[[8],{"8":[2,2,2,2]},"22 12 34 56"],"+356":[[8],{"8":[4,4]},"9696 1234"],"+230":[[7,8],{"8":[4,4]},"5251 2345"],"+960":[[7],{"7":[3,4]},"771-2345"],"+265":[[7,9],{"7":[1,3,3],"9":[3,2,2,2]},"991 23 45 67"],"+52":[[10],{"10":[3,3,4]},"222 123 4567"],"+60":[[8,9,10],{"9":[2,3,4]},"12-345 6789"],"+258":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"82 123 4567"],"+264":[[8,9],{"8":[2,3,3],"9":[2,3,4]},"81 123 4567"],"+687":[[6],{"6":[2,2,2]},"75.12.34"],"+227":[[8],{"8":[2,2,2,2]},"93 12 34 56"],"+672":[[6],{"6":[1,5]},"3 81234"],"+234":[[10],{"10":[3,3,4]},"802 123 4567"],"+505":[[8],{"8":[4,4]},"8123 4567"],"+31":[[9,11],{"9":[1,8]},"6 12345678"],"+47":[[8],{"8":[2,2,2,2]},"40 61 23 45"],"+977":[[8,10],{"8":[1,7],"10":[3,7]},"984-1234567"],"+674":[[7],{"7":[3,4]},"555 1234"],"+683":[[4,7],{"4":[4],"7":[3,4]},"888 4012"],"+64":[[8,9,10],{"8":[1,3,4],"9":[2,3,4]},"21 123 4567"],"+968":[[8],{"8":[4,4]},"9212 3456"],"+507":[[7,8],{"7":[3,4],"8":[4,4]},"6123-4567"],"+51":[[8,9],{"8":[1,7],"9":[3,3,3]},"912 345 678"],"+689":[[8],{"8":[2,2,2,2]},"87 12 34 56"],"+675":[[7,8],{"7":[3,4],"8":[4,4]},"7012 3456"],"+63":[[6,8,9,10],{"9":[1,4,4],"10":[3,3,4]},"905 123 4567"],"+92":[[9,10],{"10":[3,7]},"301 2345678"],"+48":[[7,9],{"9":[3,3,3]},"512 345 678"],"+508":[[6,9],{"6":[2,2,2]},"55 12 34"],"+970":[[8,9],{"8":[1,3,4],"9":[3,3,3]},"599 123 456"],"+351":[[9],{"9":[3,3,3]},"912 345 678"],"+680":[[7],{"7":[3,4]},"620 1234"],"+595":[[7,8,9],{"9":[3,6]},"961 456789"],"+974":[[8],{"8":[4,4]},"3312 3456"],"+262":[[9],{"9":[3,2,2,2]},"692 12 34 56"],"+40":[[6,9],{"9":[3,3,3]},"712 034 567"],"+381":[[7,8,9,10,11,12],{"8":[2,6],"9":[2,7]},"60 1234567"],"+250":[[8,9],{"9":[3,3,3]},"720 123 456"],"+966":[[9],{"9":[2,3,4]},"51 234 5678"],"+677":[[5,7],{"5":[5],"7":[2,5]},"74 21234"],"+248":[[7],{"7":[1,3,3]},"2 510 123"],"+249":[[9],{"9":[2,3,4]},"91 123 1234"],"+46":[[7,8,9],{"7":[1,2,2,2],"9":[2,3,2,2]},"70 123 45 67"],"+65":[[8],{"8":[4,4]},"8123 4567"],"+290":[[4,5],{"5":[5]},"51234"],"+386":[[8],{"8":[2,3,3]},"31 234 567"],"+421":[[6,7,9],{"9":[3,3,3]},"912 123 456"],"+232":[[8],{"8":[2,6]},"25 123456"],"+378":[[8,10],{"10":[4,6],"8":[2,2,2,2]},"66 66 12 12"],"+221":[[9],{"9":[2,3,2,2]},"70 123 45 67"],"+252":[[6,7,8,9],{"7":[1,6],"8":[1,7]},"7 1123456"],"+597":[[6,7],{"6":[3,3],"7":[3,4]},"741-2345"],"+211":[[9],{"9":[3,3,3]},"977 123 456"],"+239":[[7],{"7":[3,4]},"981 2345"],"+503":[[8],{"8":[4,4]},"7012 3456"],"+963":[[8,9],{"9":[3,3,3]},"944 567 890"],"+268":[[8],{"8":[4,4]},"7612 3456"],"+235":[[8],{"8":[2,2,2,2]},"63 01 23 45"],"+228":[[8],{"8":[2,2,2,2]},"90 11 23 45"],"+66":[[8,9],{"8":[1,3,4],"9":[2,3,4]},"81 234 5678"],"+992":[[9],{"9":[2,3,4]},"91 712 3456"],"+690":[[4,5,6,7],{"4":[4]},"7290"],"+670":[[7,8],{"7":[3,4],"8":[4,4]},"7721 2345"],"+993":[[8],{"8":[2,6]},"66 123456"],"+216":[[8],{"8":[2,3,3]},"20 123 456"],"+676":[[5,7],{"5":[2,3],"7":[3,4]},"771 5123"],"+90":[[10],{"10":[3,3,2,2]},"501 234 56 78"],"+688":[[5,6,7],{"5":[2,3],"6":[2,4]},"90 1234"],"+886":[[8,9],{"9":[3,3,3]},"912 345 678"],"+255":[[9],{"9":[3,3,3]},"621 234 567"],"+380":[[9],{"9":[2,3,4]},"50 123 4567"],"+256":[[9],{"9":[3,6]},"712 345678"],"+598":[[8],{"8":[2,3,3]},"94 231 234"],"+998":[[9],{"9":[2,3,2,2]},"91 234 56 78"],"+58":[[10],{"10":[3,7]},"412-1234567"],"+84":[[9,10],{"10":[3,4,3],"9":[3,3,3]},"912 345 678"],"+678":[[5,7],{"5":[5],"7":[3,4]},"591 2345"],"+681":[[6],{"6":[2,2,2]},"82 12 34"],"+685":[[5,6,7,10],{"5":[5],"7":[2,5]},"72 12345"],"+383":[[8,9,10,11,12],{"8":[2,3,3]},"43 201 234"],"+967":[[7,8,9],{"7":[1,3,3],"9":[3,3,3]},"712 345 678"],"+27":[[5,6,7,8,9],{"9":[2,3,4]},"71 123 4567"],"+260":[[9],{"9":[2,7]},"95 5123456"],"+263":[[9],{"9":[2,3,4]},"71 234 5678"]},"m":{"+61":"AU","+599":"CW","+358":"FI","+44":"GB","+590":"GP","+39":"IT","+212":"MA","+47":"NO","+262":"RE","+7":"RU","+290":"SH","+1":"US"}};
 /* "+961", "71123456" → "71 123 456" in that country's usual grouping; unknown lengths stay as typed */
@@ -1618,7 +1630,7 @@ input.dfh{display:none!important}
 <script src="wokdb.js?v=50"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
-<script src="motion.js?v=2"></script>
+<script src="motion.js?v=3"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
@@ -1737,7 +1749,7 @@ function nmText(t, inv){
     return inv ? nmCase(m, pl ? "products" : "product") : m; });
 }
 function nmApply(root){
-  const inv = INV_ROUTES.has(location.hash.slice(1).split("?")[0]);
+  const inv = INV_ROUTES.has(HASH().slice(1).split("?")[0]);
   const skip = el => !el || el.closest?.("#nav, script, style, textarea, [contenteditable], .nm-keep");
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const fix = n => { if(skip(n.parentElement)) return; const was = NM_SEEN.get(n); if(was === n.data) return; const v = nmText(n.data, inv); if(v !== n.data) n.data = v; NM_SEEN.set(n, n.data); };
@@ -1840,8 +1852,8 @@ const NAV = [
 ];
 // Modifiers list: "Options (n)" opens its options, "Products (n)" the items that use it
 document.addEventListener("click", e => { const t = e.target; if(!t.closest) return;
-  const mo = t.closest("[data-modopts]"); if(mo){ e.preventDefault(); e.stopImmediatePropagation(); const id = mo.dataset.modopts; location.hash = "modifier-options"; setTimeout(() => { state.modFilter = id; (state.cflt ||= {})["modifier-options"] = { mod:id }; state.tabs["modifier-options"] = "all"; state.page["modifier-options"] = 1; render(); }, 60); return; }
-  const mp = t.closest("[data-modprods]"); if(mp){ e.preventDefault(); e.stopImmediatePropagation(); const id = mp.dataset.modprods; location.hash = "products"; setTimeout(() => { (state.cflt ||= {}).products = { mod:id }; state.tabs.products = "all"; state.page.products = 1; render(); }, 60); return; }
+  const mo = t.closest("[data-modopts]"); if(mo){ e.preventDefault(); e.stopImmediatePropagation(); const id = mo.dataset.modopts; go("modifier-options"); setTimeout(() => { state.modFilter = id; (state.cflt ||= {})["modifier-options"] = { mod:id }; state.tabs["modifier-options"] = "all"; state.page["modifier-options"] = 1; render(); }, 60); return; }
+  const mp = t.closest("[data-modprods]"); if(mp){ e.preventDefault(); e.stopImmediatePropagation(); const id = mp.dataset.modprods; go("products"); setTimeout(() => { (state.cflt ||= {}).products = { mod:id }; state.tabs.products = "all"; state.page.products = 1; render(); }, 60); return; }
   if(t.closest("[data-clearpm]")){ e.preventDefault(); state.prodMod = ""; render(); } }, true);
 // references (everywhere): small letters, numbers and dashes
 const refClean = v => String(v||"").toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-{2,}/g, "-");
@@ -1945,7 +1957,7 @@ function decorate(route){
   v.querySelectorAll(".kpi .kh h3").forEach(h3 => { if(h3.dataset.deco) return; h3.dataset.deco = 1; const m = KPI_ICONS.find(([re]) => re.test(h3.textContent));
     h3.style.display = "flex"; h3.style.alignItems = "center"; h3.insertAdjacentHTML("afterbegin", `<span class="kicon">${svgIco(m ? m[1] : "chart")}</span>`); });
 }
-new MutationObserver(() => { if(decorate.q) return; decorate.q = SOON(() => { decorate.q = 0; decorate(location.hash.slice(1) || "dashboard"); }); }).observe(document.getElementById("view"), { childList:true, subtree:true });
+new MutationObserver(() => { if(decorate.q) return; decorate.q = SOON(() => { decorate.q = 0; decorate(HASH().slice(1) || "dashboard"); }); }).observe(document.getElementById("view"), { childList:true, subtree:true });
 
 
 
@@ -2190,7 +2202,7 @@ async function loadDash(force){
     [DASH.cur, DASH.prev].forEach(D => { if(D && D.refunds) D.returns = D.refunds; });
     if(DASH.cur && rr[0]) DASH.cur.active = rr[0];
   }catch(e){ console.error("dashboard", e); if(DASH.key===key) DASH.err = e.message || "Couldn't load the numbers"; }
-  finally{ if(DASH.key===key){ DASH.loading = false; if((location.hash.slice(1)||"dashboard")==="dashboard") render(); } }
+  finally{ if(DASH.key===key){ DASH.loading = false; if((HASH().slice(1)||"dashboard")==="dashboard") render(); } }
 }
 // returned (voided) orders in the period: count, amount and the tax inside them
 // orders not closed yet (waiting for the branch or in the kitchen) in the period: how many and how much
@@ -2205,7 +2217,7 @@ async function dashActive(pr){
 function dashKind(){ if(state.dashTab==="kitchen") state.dashTab = "general"; return state.dashTab==="inventory" ? "inventory" : "sales"; }
 const mins = v => v==null ? "—" : (+v).toFixed(1) + " min";
 function dashSoon(){ clearTimeout(DASH.t); DASH.t = setTimeout(() => loadDash(true), 1500); }   // new/changed orders → refresh
-setInterval(() => { if((location.hash.slice(1)||"dashboard")==="dashboard" && !document.hidden && !state.dateSet) loadDash(true); }, 60000);
+setInterval(() => { if((HASH().slice(1)||"dashboard")==="dashboard" && !document.hidden && !state.dateSet) loadDash(true); }, 60000);
 const hours24 = (rows, f) => { const a = Array(24).fill(0), sh = dayStartH(); (rows||[]).forEach(r => a[(r.h - sh + 24) % 24] = +r[f]||0); return a; };   // starts at the business day's first hour
 const TYPE_LBL = { dinein:"Dine-in", pickup:"Pickup", takeaway:"Pickup", delivery:"Delivery", fast:"Fast Order", other:"Other" };
 const CH_LBL = { pos:"POS", online:"Web ordering", callcenter:"Call center", other:"Other" };
@@ -2638,7 +2650,7 @@ function viewReports(route){
     ${RPT.err ? `<div class="banner">Couldn't load the report: ${esc(RPT.err)}</div>` : B ? rptTable(B.head, B.rows, B.foot) : `<div class="card"><p class="note" style="padding:24px;text-align:center">Loading report…</p></div>`}`;
 }
 document.addEventListener("click", e => {
-  const r = e.target.closest("[data-rpt]"); if(r){ e.preventDefault(); RPT.key = r.dataset.rpt; RPT.hub = location.hash.slice(1); RPT.loaded = ""; render(); window.scrollTo(0,0); return; }
+  const r = e.target.closest("[data-rpt]"); if(r){ e.preventDefault(); RPT.key = r.dataset.rpt; RPT.hub = HASH().slice(1); RPT.loaded = ""; render(); window.scrollTo(0,0); return; }
   if(e.target.closest("[data-rptback]")){ e.preventDefault(); RPT.key = ""; render(); return; }
   const rr = e.target.closest("#rptRange"); if(rr){ if(DRP.el) return drpClose(); drpOpen(rr, RPT.from, RPT.to, (f, t) => { RPT.from = f; RPT.to = t; render(); }); return; }
   if(e.target.closest("#rptCsv")){ const B = rptBuild(), strip = v => String(v).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
@@ -2814,7 +2826,7 @@ addEventListener("scroll", () => { if(ibBub){ ibPin = null; ibHide(); } }, true)
 /* re-drawing a page keeps every scroll where it was (the page, lists, drawers, table boxes) */
 const KEEP_SCROLL = "#view .bmdbody, #view .tscroll, #view .bmdtw, #view .mmcats, #view .mmtbl, #view .mm, #view .mmside, #view .mmmain, #view .rswrap, #view .bswrap, #view [data-keepscroll]";
 let RENDER_ROUTE = "";
-function render(){ const route = location.hash.slice(1) || "dashboard", same = route===RENDER_ROUTE; RENDER_ROUTE = route;
+function render(){ const route = HASH().slice(1) || "dashboard", same = route===RENDER_ROUTE; RENDER_ROUTE = route;
   const wy = SCRY(), keep = same ? [...document.querySelectorAll(KEEP_SCROLL)].map((el, i) => [i, el.scrollTop, el.scrollLeft]).filter(x => x[1] || x[2]) : [];
   const H = document.documentElement; if(same){ H.classList.add("rr"); clearTimeout(render.t); render.t = setTimeout(() => H.classList.remove("rr"), 450); }   // redraws of the same page don't replay entrance animations (no blinking)
   const r = render0.apply(this, arguments);
@@ -2827,7 +2839,7 @@ document.addEventListener("click", async e => { const b = e.target.closest?.("[d
   render(); }, true);
 // a page that fails to draw never leaves the screen blank: the menu stays and a short message offers a reload
 setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(this, arguments); }catch(e){ console.error("render", e);
-  try{ renderNav((location.hash.slice(1) || "dashboard")); }catch(_){}
+  try{ renderNav((HASH().slice(1) || "dashboard")); }catch(_){}
   const v = document.getElementById("view"); if(v) v.innerHTML = `<div class="card empty" style="margin-top:20px">This page couldn't be shown. <button class="btn" onclick="location.reload()">Reload</button></div>`; } }; }, 0);
 // the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
 function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); void top; t.style.maxHeight = ""; const tb = t.querySelector("table"), box = tb && (tb.closest(".tscroll") || t); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= box.clientWidth) break; t.classList.add(c); } } }
@@ -2851,7 +2863,7 @@ function subContact(){ const b = SUB?.billing || {}, l = [];
   if(b.supportPhone) l.push(`<a class="lnk" href="tel:${esc(b.supportPhone.replace(/\s+/g,""))}">${esc(b.supportPhone)}</a>`);
   if(b.supportEmail) l.push(`<a class="lnk" href="mailto:${esc(b.supportEmail)}">${esc(b.supportEmail)}</a>`);
   return l.length ? l.join(" · ") : "Skwyd Hub support"; }
-function paintSubBar(){ const el = $("#subBar"); if(!el) return; const s = SUB, route = location.hash.slice(1) || "dashboard";
+function paintSubBar(){ const el = $("#subBar"); if(!el) return; const s = SUB, route = HASH().slice(1) || "dashboard";
   let h = "", warn = false; const va = window.WOK?.viewAs?.();
   if(va){ el.hidden = false; el.className = "subbar warn"; el.innerHTML = `<span>You're viewing <b>${esc(va.name)}</b> (account ${esc(va.accountNo||"")}) as Skwyd Hub admin. Changes you make here are saved to this business.</span><span class="sp"></span><button type="button" class="btn" onclick="WOK.stopView()">Exit</button>`; return; }
   if(s && !s.complimentary && !subLocked() && route!=="subscription"){
@@ -2909,7 +2921,7 @@ function viewLocked(){ const s = SUB || {};
 function viewNotInPlan(route){ const m = planMod(route), n = MOD_NAME[m] || "This module";
   return `<div class="phead"><h1>${esc(n)}</h1></div>` + `<div class="card ph"><div><div class="big">${esc(n)} isn't in your plan</div>Add it to your Skwyd Hub subscription to use it.${canOpen("subscription") ? `<br><br><a class="btn pri" href="#subscription">View Plan</a>` : ""}</div></div>`; }
 function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout(() => typeof bmBarSync==="function" && bmBarSync(), 0);
-  const route = (location.hash.slice(1) || "dashboard");
+  const route = (HASH().slice(1) || "dashboard");
   renderNav(route); document.body.dataset.route = route; document.body.dataset.sec = navSec(route) || ""; document.body.classList.toggle("noloc", company().localization===false);
   if(!state.dateSet){ const p = periodOf(dmode(), todayStr()); state.date = p.to; state.days = p.n; state.anchor = todayStr(); }   // follows the business day (end time comes from Company settings)
   // branch selector
@@ -3009,7 +3021,7 @@ function viewMarketplace(){
       return `<div class="card mktc"><span class="mkti">${esc(a.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase())}</span><div class="mktn"><b>${esc(a)}</b><small>${u.length ? `Connected · ${u.length} branch${u.length===1 ? "" : "es"}` : live ? "Not connected" : "Coming soon"}</small></div>
         ${live ? `<button type="button" class="btn${u.length ? "" : " pri"}" data-mktgo>${u.length ? "Manage" : "Set Up"}</button>` : `<button type="button" class="btn" disabled>Coming Soon</button>`}</div>`; }).join("")}</div></div>`).join("");
 }
-document.addEventListener("click", e => { if(e.target.closest("[data-mktgo]")){ e.preventDefault(); BM.open1 = false; BM.exp = new Set(); location.hash = "branch-menu"; } });
+document.addEventListener("click", e => { if(e.target.closest("[data-mktgo]")){ e.preventDefault(); BM.open1 = false; BM.exp = new Set(); go("branch-menu"); } });
 function msEnhance(){
   // close buttons: a drawn × so it sits exactly in the middle of the circle
   document.querySelectorAll("button.x:not([data-xi]),button.mmdx:not([data-xi])").forEach(b => { if(b.textContent.trim()!=="×") return; b.dataset.xi = "1"; b.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`; });
@@ -3094,15 +3106,15 @@ function stickHead(v){
 
 document.addEventListener("click", e => { const b = e.target.closest?.("[data-bmcex]"); if(!b) return; e.stopPropagation(); e.preventDefault(); const ex = (BM.cex ||= new Set()), id = b.dataset.bmcex; ex.has(id) ? ex.delete(id) : ex.add(id); render(); }, true);
 /* ---------- events ---------- */
-let lastRoute = location.hash.slice(1) || "dashboard";
+let lastRoute = HASH().slice(1) || "dashboard";
 // phone/tablet: slide-in menu
 $("#menuBtn").addEventListener("click", e => { e.stopPropagation(); document.body.classList.toggle("navopen"); });
 document.addEventListener("click", e => { if(document.body.classList.contains("navopen") && (!e.target.closest(".side") || e.target.closest(".side a"))) document.body.classList.remove("navopen"); });
 // clicking the menu entry of the page you're already on does nothing (no reload, no blink)
 document.addEventListener("click", e => { const a = e.target.closest('#nav a[href^="#"], .ptabs a[href^="#"]'); if(!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
-  const to = a.getAttribute("href").slice(1) || "dashboard", cur = location.hash.slice(1) || "dashboard"; if(to !== cur) return;
+  const to = a.getAttribute("href").slice(1) || "dashboard", cur = HASH().slice(1) || "dashboard"; if(to !== cur) return;
   e.preventDefault(); });   // already on this page: nothing to reopen
-window.addEventListener("hashchange", () => { const r = location.hash.slice(1) || "dashboard"; if(r !== lastRoute){ resetPageFilters(); if(typeof OT!=="undefined") OT.open = null; lastRoute = r; document.querySelectorAll(".scrim.show").forEach(x => x.classList.remove("show")); } render(); window.scrollTo(0,0); });
+window.addEventListener("hashchange", () => { const r = HASH().slice(1) || "dashboard"; if(r !== lastRoute){ resetPageFilters(); if(typeof OT!=="undefined") OT.open = null; lastRoute = r; document.querySelectorAll(".scrim.show").forEach(x => x.classList.remove("show")); } render(); window.scrollTo(0,0); });
 $("#view").addEventListener("change", async e => {
   const bp = e.target.closest?.("[data-brpay]"); if(bp){ const [bid, mid] = bp.dataset.brpay.split(":"), b = branches.find(x => x.id===bid); if(!b) return;
     const cur = new Set(b.settings?.inactivePayments || []); bp.checked ? cur.add(mid) : cur.delete(mid);
@@ -3137,7 +3149,7 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest("[data-brback]")){ e.preventDefault(); state.brOpen = null; render(); return; }
   if(e.target.closest("[data-brmore]")){ state.brMore = !state.brMore; render(); return; }
   const bdl = e.target.closest("[data-brdel]"); if(bdl){ editing = bdl.dataset.brdel; $("#delBtn").click(); return; }
-  const dg = e.target.closest("[data-devgo]"); if(dg){ e.preventDefault(); location.hash = "devices"; setTimeout(() => { state.devOpen = dg.dataset.devgo; render(); }, 60); return; }
+  const dg = e.target.closest("[data-devgo]"); if(dg){ e.preventDefault(); go("devices"); setTimeout(() => { state.devOpen = dg.dataset.devgo; render(); }, 60); return; }
   const ed = e.target.closest("[data-edit]"); if(ed){ e.preventDefault(); openForm(ed.dataset.edit); const sec = ed.dataset.sec; if(sec) setTimeout(() => $("#"+sec)?.scrollIntoView({ block:"center" }), 120); }
 });
 
@@ -3250,7 +3262,7 @@ function lpMount(box, latSel, lngSel, opts = {}){
 // which delivery zone a point falls in (ray casting over the zone polygon)
 const inPoly = (p, poly) => { let x = p[0], y = p[1], ins = false; for(let i = 0, j = poly.length-1; i < poly.length; j = i++){ const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1]; if(((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins; } return ins; };
 const zoneAt = (lat, lng) => (S.zones||[]).find(z => live(z) && z.active!==false && Array.isArray(z.polygon) && z.polygon.length >= 3 && inPoly([lat,lng], z.polygon)) || null;
-$("#branchForm").addEventListener("click", e => { const t = e.target.closest("[data-brtables]"); if(!t) return; e.preventDefault(); state.tblBranch = t.dataset.brtables; closeForm(); location.hash = "tables"; render(); });
+$("#branchForm").addEventListener("click", e => { const t = e.target.closest("[data-brtables]"); if(!t) return; e.preventDefault(); state.tblBranch = t.dataset.brtables; closeForm(); go("tables"); render(); });
 $("#branchForm").addEventListener("change", e => { if(e.target.dataset.h==="closed"){ e.target.closest(".hrow").querySelectorAll("select[data-h]").forEach(i => i.disabled = e.target.checked); } });
 $("#branchForm").addEventListener("click", e => { if(e.target.id==="fHoursAll"){ const rows = [...document.querySelectorAll("#fHours .hrow")], m = rows[0];
   rows.slice(1).forEach(r => { ["open","close"].forEach(k => { r.querySelector(`[data-h="${k}"]`).value = m.querySelector(`[data-h="${k}"]`).value; }); const c = m.querySelector('[data-h="closed"]').checked; r.querySelector('[data-h="closed"]').checked = c; r.querySelectorAll("select[data-h]").forEach(i => i.disabled = c); }); } });
@@ -3314,7 +3326,7 @@ function subscribeAll(){
     if(c==="orders"){ try{ ccEditWatch(); }catch(_){} }
     if(c==="orders" && DASH.key) dashSoon();
     if(c==="orders" && ORD.key) ordSoon();
-    if(c==="orders" && CUS.key && location.hash.slice(1)==="customers"){ clearTimeout(CUS.t); CUS.t = setTimeout(()=>loadCustomers(true), 2000); }
+    if(c==="orders" && CUS.key && HASH().slice(1)==="customers"){ clearTimeout(CUS.t); CUS.t = setTimeout(()=>loadCustomers(true), 2000); }
     if(c==="users") ensureAdminPin();
     softRender();
   }, err => console.error("load " + c, err)));
@@ -3915,7 +3927,7 @@ async function createStaffLogin(email, password){
   try{
     const cfg = WOK.cfg || {}, url = cfg.url, key = cfg.key; if(!url || !key) return { error:"Couldn't reach the login service. Reload and try again." };
     const tmp = window.supabase.createClient(url, key, { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false, storageKey:"skwyd-staff-signup" } });
-    const { data, error } = await tmp.auth.signUp({ email, password, options:{ emailRedirectTo: location.href.split("#")[0] } });
+    const { data, error } = await tmp.auth.signUp({ email, password, options:{ emailRedirectTo: location.origin + "/" } });
     if(error) return { error: /registered|exists/i.test(error.message) ? "This email already has a login. They sign in with it (or use Forgot password)." : "Couldn't create the login: " + error.message };
     if(data?.user && !(data.user.identities||[]).length) return { error:"This email already has a login. They sign in with it (or use Forgot password)." };
     return { userId: data?.user?.id || null, confirm: !data?.session };
@@ -4227,7 +4239,7 @@ function customerImport(){
   });
 }
 document.addEventListener("click", e => { const m = e.target.closest("[data-brmenu]"); if(!m) return; e.preventDefault(); const b = branches.find(x=>x.id===m.dataset.brmenu);
-  location.hash = "branch-menu"; setTimeout(() => { if(b){ state.brand = brandList().length ? (b.brandId || "all") : "all"; BM.branch = b.id; BM.kind = "products"; BM.draft = {}; } render(); }, 60); });
+  go("branch-menu"); setTimeout(() => { if(b){ state.brand = brandList().length ? (b.brandId || "all") : "all"; BM.branch = b.id; BM.kind = "products"; BM.draft = {}; } render(); }, 60); });
 // Toggle All and group checkboxes (roles' authorities): tick or untick a whole group, and show when a group is fully ticked
 function mlistSync(box){ if(!box) return; const items = [...box.querySelectorAll(".mitem input")];
   box.querySelectorAll("[data-mgall]").forEach(g => { const ins = items.filter(i => i.closest(".mitem").dataset.grp===g.dataset.mgrp); g.checked = ins.length > 0 && ins.every(i => i.checked); g.indeterminate = !g.checked && ins.some(i => i.checked); });
@@ -4422,7 +4434,7 @@ function ccNote(o, er){
   box.prepend(el); while(box.children.length > 5) box.lastChild.remove();
 }
 document.addEventListener("click", e => { const n = e.target.closest && e.target.closest(".ccn"); if(!n) return; const id = n.dataset.ccnOrder; n.remove(); if(e.target.closest(".ccnx")) return;
-  if(document.body.dataset.route==="call-center"){ try{ openOrder(id); }catch(_){} } else { location.hash = "#/call-center"; setTimeout(() => { try{ openOrder(id); }catch(_){} }, 600); } });
+  if(document.body.dataset.route==="call-center"){ try{ openOrder(id); }catch(_){} } else { go("#/call-center"); setTimeout(() => { try{ openOrder(id); }catch(_){} }, 600); } });
 window.addEventListener("hashchange", () => setTimeout(() => { try{ ccEditWatch(); }catch(_){} }, 400));
 // Customer Details: Enter saves, Esc cancels (same as ×)
 document.addEventListener("keydown", e => { const cx = $("#ccX"); if(!cx || !cx.classList.contains("s1") || !$("#ccScrim")?.classList.contains("show")) return;
@@ -5483,7 +5495,7 @@ function bmDrawer(br, ch, types){
 }
 $("#view").addEventListener("click", e => { const o = e.target.closest("[data-bmitem]"); if(o && !e.target.closest("label,input,button,.sctypes,.bmgrip,.ddwrap,.toggle")){ e.preventDefault(); BM.item = o.dataset.bmitem; return render(); }
   if(e.target.closest("[data-bmclose]")){ e.preventDefault(); BM.item = ""; render(); } });
-document.addEventListener("keydown", e => { if(e.key==="Escape" && BM.item && location.hash==="#branch-menu"){ BM.item = ""; render(); } });
+document.addEventListener("keydown", e => { if(e.key==="Escape" && BM.item && HASH()==="#branch-menu"){ BM.item = ""; render(); } });
 // Sales Channels: everything on one page. A brand opens to its branches, a branch to its channels; a channel opens its own page
 function scTree(list){
   const ex = BM.exp ||= new Set();   // all closed when you come in; a brand / branch opens when pressed
@@ -5506,7 +5518,7 @@ document.addEventListener("click", e => {
   const ch = e.target.closest("[data-scch]"); if(ch){ e.preventDefault(); const [code, b] = ch.dataset.scch.split("|"); BM.branch = b; bmMenusRefresh(); BM.menu = code; BM.open1 = true; BM.brOpen = true; BM.draft = {}; BM.q = ""; BM.item = ""; render(); window.scrollTo(0,0); return; }
   const nb = e.target.closest("[data-scnewb]"); if(nb){ e.preventDefault(); BM.branch = nb.dataset.scnewb; bmMenusRefresh(); return scDialog(""); }
 });
-window.addEventListener("hashchange", () => { if(location.hash.slice(1).split("?")[0]==="branch-menu"){ BM.exp = new Set(); BM.open1 = false; BM.item = ""; setTimeout(render, 0); } });   // entering Sales Channels: everything collapsed
+window.addEventListener("hashchange", () => { if(HASH().slice(1).split("?")[0]==="branch-menu"){ BM.exp = new Set(); BM.open1 = false; BM.item = ""; setTimeout(render, 0); } });   // entering Sales Channels: everything collapsed
 // (older pages, kept for reference)
 document.addEventListener("click", async e => {
   const bd = e.target.closest("[data-scbrand]"); if(bd){ e.preventDefault(); BM.brand = bd.dataset.scbrand; BM.brOpen = false; BM.open1 = false; render(); window.scrollTo(0,0); return; }
@@ -5997,7 +6009,7 @@ function viewTables(){
 }
 document.addEventListener("click", async e => {
   const t = e.target; if(!t.closest || !t.closest("#view")) return;
-  const bk = t.closest("[data-tbback]"); if(bk){ e.preventDefault(); location.hash = "branches"; setTimeout(() => openForm(bk.dataset.tbback), 80); return; }
+  const bk = t.closest("[data-tbback]"); if(bk){ e.preventDefault(); go("branches"); setTimeout(() => openForm(bk.dataset.tbback), 80); return; }
   const br = t.closest("[data-tbbr]"); if(br){ state.tblBranch = br.dataset.tbbr; render(); return; }
   if(t.closest("#tbSecAdd")){ const b = tblBranchId(), n = $("#tbSecNew").value.trim(), secs = tblSecs(b); if(!n){ $("#tbSecNew").focus(); return; }
     if(secs.some(x => x.toLowerCase()===n.toLowerCase())){ $("#tbErr").textContent = "That section already exists."; return; }
@@ -6142,10 +6154,10 @@ async function loadOrders(force){
     const per = {}; ORD_ALLST.forEach((st, i) => per[st] = (cs[i] && cs[i].count) || 0);
     ORD.counts = { all: Object.values(per).reduce((a,b)=>a+b,0) }; Object.entries(ORD_GRP).forEach(([k, l]) => ORD.counts[k] = l.reduce((a,st)=>a+(per[st]||0),0)); ORD.loaded = key;
   }catch(e){ console.error("orders", e); if(ORD.key===key) ORD.err = e.message || "Couldn't load orders"; }
-  finally{ if(ORD.key===key){ ORD.loading = false; if(location.hash.slice(1)==="orders") render(); } }
+  finally{ if(ORD.key===key){ ORD.loading = false; if(HASH().slice(1)==="orders") render(); } }
 }
 const fromRowO = r => { const o = {}; for(const [k,v] of Object.entries(r)) o[k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase())] = v; if(o.tableNo!=null) o.table = o.tableNo; return o; };
-function ordSoon(){ if(location.hash.slice(1)!=="orders") return; clearTimeout(ORD.t); ORD.t = setTimeout(() => { loadOrders(true); if(ORD.open) openOrderDetail(ORD.open, true); }, 1200); }
+function ordSoon(){ if(HASH().slice(1)!=="orders") return; clearTimeout(ORD.t); ORD.t = setTimeout(() => { loadOrders(true); if(ORD.open) openOrderDetail(ORD.open, true); }, 1200); }
 const srcOf = o => o.source && o.source.toUpperCase()!=="POS" && !(o.source==="Website" && (o.channel==="online" || o.channel==="web")) ? o.source : "";   // POS and the website are channels, not sources
 const ordSources = () => [...new Set([...S.order_sources.filter(r => String(r.name||"").toUpperCase()!=="POS").filter(r=>live(r)).sort(bySort).map(r=>r.name), "Table QR", ...ORD.rows.map(srcOf).filter(Boolean)])];
 const ordPays = () => [...new Set([...S.payment_methods.filter(r=>live(r)).sort(bySort).map(r=>r.name), "Cash", "Card", "Other"])];
@@ -6488,7 +6500,7 @@ async function loadCustomers(force){
   if(error){ console.error(error); CUS.err = error.message; }
   else if(adv){ CUS.all = (data?.rows||[]).filter(cusMatch); CUS.count = CUS.all.length; CUS.summary = data.summary; }
   else { CUS.all = null; CUS.rows = data?.rows || []; CUS.count = data?.count || 0; CUS.summary = data?.summary; }
-  if(location.hash.slice(1)==="customers" && !CUS.open) render();
+  if(HASH().slice(1)==="customers" && !CUS.open) render();
 }
 function viewCustomers(){
   if(storeMode!=="db") return `<h1>Customers</h1>` + placeholder("Customers", "Sign in to see customers.");
@@ -7172,7 +7184,7 @@ const curNow = () => ({ ...company(), ...(state.curDraft||{}) });   // what the 
 const qtCode = k => k==1 ? (curNow().currency || "USD") : (curNow().currency2 || "");
 const qtDec = k => k==1 ? Math.min(2, +(curNow().priceDecimals ?? 2)) : (+curNow().decimals2 || 0);
 /* unsaved picks on the Currency page survive a redraw (adding an amount, opening a panel); choosing the second currency shows its amounts straight away */
-addEventListener("hashchange", () => { if(!/^#currency\b/.test(location.hash)) state.curDraft = {}; });
+addEventListener("hashchange", () => { if(!/^#currency\b/.test(HASH())) state.curDraft = {}; });
 const CUR_F = ["currency","currencySymbol","priceDecimals","currency2","currencySymbol2","rate2","decimals2"];
 document.addEventListener("input", e => { const id = e.target.id || ""; if(!id.startsWith("co_") || document.body.dataset.route!=="currency") return; const k = id.slice(3); if(!CUR_F.includes(k)) return;
   state.curDraft = { ...(state.curDraft||{}), [k]: k==="priceDecimals" || k==="decimals2" ? +e.target.value : k==="rate2" ? (e.target.value==="" ? null : +e.target.value) : e.target.value }; });
@@ -8383,8 +8395,8 @@ document.addEventListener("click", async e => {
     if(sku && S.products.some(x => live(x) && x.id!==k.id && x.sku===sku)) return $("#pvErr").textContent = `SKU ${sku} is already used.`;
     const upd = { price:+pr, taxGroup:$("#pv_tax").value || null, sku:sku || null };
     try{ await put("products", k.id, upd); Object.assign(k, upd); $("#ccScrim").classList.remove("show"); toast("Variant saved"); render(); }catch(err){ console.error(err); $("#pvErr").textContent = "Couldn't save."; } return; }
-  const dop = t.closest("[data-detopen]"); if(dop){ e.preventDefault(); const [k, id] = dop.dataset.detopen.split(":"), rt = k==="modifier-options" ? "modifiers" : k; if(location.hash.slice(1)!==rt){ location.hash = rt; setTimeout(()=>openDetail(k, id), 60); } else openDetail(k, id); return; }
-  const np = t.closest("[data-newprod]"); if(np){ e.preventDefault(); const id = np.dataset.newprod; location.hash = "production"; setTimeout(() => { newDoc("production"); docAddItems([id]); render(); }, 60); return; }
+  const dop = t.closest("[data-detopen]"); if(dop){ e.preventDefault(); const [k, id] = dop.dataset.detopen.split(":"), rt = k==="modifier-options" ? "modifiers" : k; if(HASH().slice(1)!==rt){ go(rt); setTimeout(()=>openDetail(k, id), 60); } else openDetail(k, id); return; }
+  const np = t.closest("[data-newprod]"); if(np){ e.preventDefault(); const id = np.dataset.newprod; go("production"); setTimeout(() => { newDoc("production"); docAddItems([id]); render(); }, 60); return; }
   if(!DET.id) return;
   if(t.closest("[data-detback]")){ e.preventDefault(); if(detChanged() && !(await askYes("Leave without saving your changes?"))) return; closeDetail(); return render(); }
   if(t.closest("[data-detedit]")) return openCrud(DET.key, DET.id);   // every record (items too) edits in the dialog
@@ -8500,7 +8512,7 @@ const modDirty = () => { DET.dirtyMods = true; const b = $("[data-modsave]"); if
 document.addEventListener("click", e => {
   const t = e.target;
   const ao = t.closest("[data-modaddopt]"); if(ao){ state.newOptMod = ao.dataset.modaddopt; openCrud("modifier-options"); state.newOptMod = ""; return; }
-  const al = t.closest("[data-modallopts]"); if(al){ e.preventDefault(); const id = al.dataset.modallopts; location.hash = "modifier-options"; setTimeout(() => { state.modFilter = id; render(); }, 60); return; }
+  const al = t.closest("[data-modallopts]"); if(al){ e.preventDefault(); const id = al.dataset.modallopts; go("modifier-options"); setTimeout(() => { state.modFilter = id; render(); }, 60); return; }
   const cm = t.closest("[data-clearmod]"); if(cm){ state.modFilter = ""; return render(); }
   if(!DET.id || DET.key!=="products") return;
   if(t.closest("[data-modsave]")){ const pp = DET.key==="products" && S.products.find(x=>x.id===DET.id); if(pp && (pp.variants||[]).some(v=>v.productId)) return toast("This product has variants: set modifiers on each variant"); return saveModLinks(); }
@@ -8779,7 +8791,7 @@ async function flowAction(action){
 document.addEventListener("click", e => {
   const t = e.target;
   const f = t.closest("[data-flow]"); if(f && DOC.open) return flowAction(f.dataset.flow);
-  const l = t.closest("[data-doclink]"); if(l){ e.preventDefault(); const [r, id] = l.dataset.doclink.split(":"); location.hash = r; setTimeout(() => openDoc(r, id), 80); }
+  const l = t.closest("[data-doclink]"); if(l){ e.preventDefault(); const [r, id] = l.dataset.doclink.split(":"); go(r); setTimeout(() => openDoc(r, id), 80); }
 });
 document.addEventListener("input", e => {
   const r = e.target.closest("[data-docrecv]"); if(!r || !DOC.recv) return;
@@ -8798,7 +8810,7 @@ async function loadOT(){
   const { data, error, count } = await q;
   OT.loading = false;
   if(error){ OT.err = error.message; console.error(error); } else { OT.rows = data || []; OT.count = count || 0; OT.err = ""; }
-  if(location.hash.slice(1)==="order-transactions") render();
+  if(HASH().slice(1)==="order-transactions") render();
 }
 /* ---------- Inventory reports: levels (stock on hand, value, low stock), history (every movement), purchasing ---------- */
 const INV = { loc:"", cat:"", q:"", low:false, hist:{ rows:null, loading:false, err:"", key:"", from:"", to:"", loc:"", item:"", type:"" }, pur:{ from:"", to:"", loc:"" } };
@@ -8874,7 +8886,7 @@ async function loadInvHistory(){
   H.loading = false;
   if(error){ console.error(error); H.rows = []; H.err = /skwyd_inv_history/.test(error.message||"") ? "Inventory history needs a database update first." : "Couldn't load the history: " + error.message; }
   else H.rows = data || [];
-  if(location.hash.slice(1)==="inv-history") render();
+  if(HASH().slice(1)==="inv-history") render();
 }
 function viewInvHistory(){
   const H = INV.hist; H.from ||= invDay(-6); H.to ||= invDay(0); loadInvHistory();
@@ -9547,7 +9559,7 @@ async function loadLevels(branch, force){
   const { data, error } = await WOK.sb.rpc("skwyd_stock_levels", { p_branch: branch });
   if(error){ IC.loaded[branch] = null; toast("Couldn't load the last counts"); console.error(error); return; }
   IC.levels[branch] = Object.fromEntries((data||[]).map(r => [r.item_id, r])); IC.loaded[branch] = true;
-  if(location.hash.slice(1)==="inventory-count") render();
+  if(HASH().slice(1)==="inventory-count") render();
 }
 function viewInventoryCount(){
   const act = locList();
@@ -9616,11 +9628,11 @@ $("#view").addEventListener("click", async e => {
 function dashToReport(title){
   if(/^orders$/i.test(title)){   // Orders: the orders list for the dashboard's dates, brand and branch
     Object.assign(ORD, { keep:true, tab:"all", q:"", from:dashFrom(), to:state.date, channel:"", type:"", pay:"", source:"", brand: state.brand==="all" ? "" : state.brand, branch: state.branch==="all" ? "" : state.branch, page:1, key:"", open:null });
-    location.hash = "orders"; setTimeout(() => { render(); window.scrollTo(0,0); }, 0); return; }
+    go("orders"); setTimeout(() => { render(); window.scrollTo(0,0); }, 0); return; }
   const pay = /payment/i.test(title), from = dashFrom(), to = state.date;
   Object.assign(RPT, { keep:true, key: pay ? "payments" : "sales", hub:"sales-reports", from, to, branch: state.branch==="all" ? "" : state.branch, brand: state.brand==="all" ? "" : state.brand, loaded:"", rows:null });
   if(!pay){ RPT.dim = "branch"; RPT.group = from===to ? "hour" : "day"; }
-  location.hash = "sales-reports"; setTimeout(() => { render(); window.scrollTo(0,0); }, 0);
+  go("sales-reports"); setTimeout(() => { render(); window.scrollTo(0,0); }, 0);
 }
 function downloadReportCsv(){
   const r = window.__rep; if(!r) return;
@@ -9665,7 +9677,7 @@ document.addEventListener("click", async e => {
   if(e.target.closest("[data-detrevert]")){ const fm = $("#detForm"); if(fm) delete fm.dataset.dirty; DCHG.clear(); return render(); }
   if(e.target.closest("[data-detdelete]") || e.target.closest("[data-detrestore]")){ const cfg = CRUD[DET.key], r = S[cfg.col].find(x => x.id===DET.id); if(!r) return;
     const del = !!e.target.closest("[data-detdelete]"); if(del){ const msg = cfg.canDelete?.(r); if(msg) return toast(msg); if(!(await askYes("Are you sure you want to delete this?"))) return; }
-    try{ await put(cfg.col, r.id, { deleted: del }); toast(del ? cfg.one + " moved to Deleted" : cfg.one + " restored"); if(del){ closeDetail(); location.hash = DET.key || "products"; render(); } }catch(err){ console.error(err); toast("Couldn't save"); } }
+    try{ await put(cfg.col, r.id, { deleted: del }); toast(del ? cfg.one + " moved to Deleted" : cfg.one + " restored"); if(del){ closeDetail(); go(DET.key || "products"); render(); } }catch(err){ console.error(err); toast("Couldn't save"); } }
 });
 $("#crudScrim").addEventListener("click", async e => {
   if(e.target.id==="crudScrim" || e.target.closest("[data-cclose]")) return closeCrud();
@@ -9721,9 +9733,9 @@ $("#view").addEventListener("click", async e => {
   const cr = t.closest("[data-create]"); if(cr) return openCrud(cr.dataset.create);
   const op = t.closest("[data-open]"); if(op && !t.closest("a") && !t.closest(".noedit")){ const i = op.dataset.open.indexOf(":"), k = op.dataset.open.slice(0,i), id = op.dataset.open.slice(i+1); return CRUD[k].detail ? openDetail(k, id) : openCrud(k, id); }
   const pg = t.closest("[data-page]"); if(pg){ const [k,v] = pg.dataset.page.split(":"); state.page[k] = +v; render(); window.scrollTo(0,0); return; }
-  const cf = t.closest("[data-catfilter]"); if(cf){ e.preventDefault(); const id = cf.dataset.catfilter, c = S.categories.find(x=>x.id===id); location.hash = "products";
+  const cf = t.closest("[data-catfilter]"); if(cf){ e.preventDefault(); const id = cf.dataset.catfilter, c = S.categories.find(x=>x.id===id); go("products");
     setTimeout(() => { (state.cflt ||= {}).products = { cat:id }; state.tabs.products = "all"; state.page.products = 1; render(); }, 60); return; }
-  const ic = t.closest("[data-invcat]"); if(ic){ e.preventDefault(); const n = ic.dataset.invcat; location.hash = "inv-items";
+  const ic = t.closest("[data-invcat]"); if(ic){ e.preventDefault(); const n = ic.dataset.invcat; go("inv-items");
     setTimeout(() => { state.invCat = n; state.tabs["inv-items"] = "all"; state.page["inv-items"] = 1; render(); }, 60); return; }
   if(t.closest("[data-clearcat]")){ state.catFilter = ""; render(); return; }
   if(t.closest("#ccNew")) return openOrder();

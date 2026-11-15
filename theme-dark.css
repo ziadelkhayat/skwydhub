@@ -534,6 +534,13 @@ html[data-theme=dark] .drp .dd.in{background:#28292d}
 html[data-theme=dark] .drp .dd.ed.st{background:linear-gradient(90deg,transparent 50%,#28292d 50%)}
 html[data-theme=dark] .drp .dd.ed.en{background:linear-gradient(90deg,#28292d 50%,transparent 50%)}
 html[data-theme=dark] .dfx svg{color:#a7a5b6}
+html[data-theme=dark] .mdd-t{border:1px solid #333b4b;background:#101420}
+html[data-theme=dark] .mdd-t .ph{color:#a5aab4}
+html[data-theme=dark] .mdd-t svg{color:#a5aab4}
+html[data-theme=dark] .mdd-t .chip{background:#181c26;color:#b5c1eb}
+html[data-theme=dark] .mdd-p{background:#101420;border:1px solid #333843;box-shadow:0 12px 30px rgba(0,0,0,0.264)}
+html[data-theme=dark] .mdd-p .multi .chk:hover{background:#171922}
+html[data-theme=dark] .mdd-p .multi:empty::after{color:#a5aab4}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d0cde6}
 html[data-theme=dark] h2{border-bottom:1px solid #31374d}
@@ -579,6 +586,7 @@ html[data-theme=dark] [style*="background:#ededf2"]{background:#1e1e24!important
 html[data-theme=dark] [style*="background:#edeff5"]{background:#1b1d25!important}
 html[data-theme=dark] [style*="background:#eee"]{background:#171c2c!important}
 html[data-theme=dark] [style*="background:#eef0f5"]{background:#1b1e24!important}
+html[data-theme=dark] [style*="background:#eef1f8"]{background:#181c26!important}
 html[data-theme=dark] [style*="background:#eef2fc"]{background:#161b25!important}
 html[data-theme=dark] [style*="background:#eef2ff"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#eef4ff"]{background:#161b24!important}
@@ -704,6 +712,7 @@ html[data-theme=dark] [style*="color:#64748b"]{color:#9ea9b9!important}
 html[data-theme=dark] [style*="color:#666"]{color:#b5b5b5!important}
 html[data-theme=dark] [style*="color:#6b6880"]{color:#a7a5b6!important}
 html[data-theme=dark] [style*="color:#6b6a75"]{color:#adacb4!important}
+html[data-theme=dark] [style*="color:#6b7280"]{color:#a5aab4!important}
 html[data-theme=dark] [style*="color:#6f6b85"]{color:#a5a2b4!important}
 html[data-theme=dark] [style*="color:#77738c"]{color:#a19eb0!important}
 html[data-theme=dark] [style*="color:#7a7689"]{color:#a3a0ae!important}
