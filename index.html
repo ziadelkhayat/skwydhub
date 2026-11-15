@@ -5,7 +5,8 @@
 <script>
 // clean addresses: portal.skwydhub.com/orders instead of /#orders. HASH() gives "#orders" like before, go("orders") moves there,
 // links written href="#orders" still work, and old /#orders links are turned into /orders.
-const HASH = () => { const p = location.pathname.replace(/^\/+|\/?index\.html$/g, ""); return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
+const HASH = () => { const p = location.pathname.replace(/^\/+|\/?index\.html$/g, "").split("/")[0]; return p ? "#" + decodeURI(p) + location.search : (/^#[^=&]*$/.test(location.hash) ? location.hash : ""); };
+const RECORD = () => decodeURIComponent(location.pathname.replace(/^\/+/, "").split("/")[1] || "");
 function go(r, replace){ r = String(r || "").replace(/^#?\/*/, ""); const url = "/" + r; if(url === location.pathname + location.search) return; history[replace ? "replaceState" : "pushState"](null, "", url); dispatchEvent(new HashChangeEvent("hashchange")); }
 (() => {
   if(/^#\/?[a-z][^=&]*$/i.test(location.hash)) history.replaceState(null, "", "/" + location.hash.replace(/^#\/*/, ""));   // old link with #
@@ -3870,6 +3871,44 @@ document.addEventListener("drop", async e => { const t = e.target.closest?.("[da
   try{ for(const [n, id] of ids.entries()){ const r = S[cfg.col].find(x => x.id===id); if(r && r.sort !== n+1){ await put(cfg.col, id, { sort:n+1 }); r.sort = n+1; } } toast("Order saved · all screens updated"); render(); }
   catch(err){ console.error(err); toast("Couldn't save the new order"); render(); } });
 document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.branch = e.target.value; ORD.page = 1; render(); } });
+// every opened record has its own address: /orders/<id>, /customers/<id>, /products/<id>, /purchase-orders/<id>…
+// so a link opens that exact record, and Back closes it
+(() => {
+  const route = () => HASH().slice(1).split("?")[0];
+  const scrimOpen = () => $("#ccScrim")?.classList.contains("show");
+  const current = r => r==="orders" ? (ORD.open && scrimOpen() ? ORD.open : "") : r==="customers" ? (CUS.open || "")
+    : DOC.open && DOC.open.route===r && DOC.open.id ? DOC.open.id : DET.key===r && DET.id ? DET.id : "";
+  let last = null, opening = null;
+  function sync(){
+    const r = route(); if(!r || opening) return; const rec = current(r), want = "/" + r + (rec ? "/" + encodeURIComponent(rec) : "") + location.search;
+    if(location.pathname + location.search === want){ last = rec; return; }
+    if(rec && rec !== last && !RECORD()) history.pushState(null, "", want);   // opened: Back will close it
+    else history.replaceState(null, "", want);
+    last = rec;
+  }
+  function close(r){ if(r==="orders"){ ORD.open = null; $("#ccScrim")?.classList.remove("show"); } else if(r==="customers"){ CUS.open = null; CUS.det = null; }
+    else if(DOC.open?.route===r){ DOC.open = null; DOC.edit = null; } else if(DET.key===r){ closeDetail(); } render(); }
+  // open the record in the address (a shared link, a refresh, Back/Forward), once its data is there
+  function open(){
+    const r = route(), id = RECORD(); if(!r || !id || current(r)===id) return;
+    let n = 0; opening = id;
+    const tryIt = async () => { n++;
+      try{
+        if(storeMode==="db" || storeMode==="local"){
+          if(r==="orders"){ await openOrderDetail(id, true); }
+          else if(r==="customers"){ await openCustomer(id); }
+          else if(typeof DOC_KINDS!=="undefined" && DOC_KINDS[r] && S.inv_docs?.some(x => x.id===id)){ openDoc(r, id); }
+          else if(CRUD[r] && S[CRUD[r].col]?.some(x => x.id===id)){ openDetail(r, id); }
+        }
+      }catch(e){ console.error(e); }
+      if(current(r)===id || n > 40){ opening = null; last = current(r); if(current(r)!==id) history.replaceState(null, "", "/" + r + location.search); return; }
+      setTimeout(tryIt, 300); };
+    tryIt();
+  }
+  addEventListener("popstate", () => { const r = route(), id = RECORD(); if(!id && current(r)) close(r); else if(id) setTimeout(open, 0); });
+  setInterval(sync, 300);
+  if(RECORD()) setTimeout(open, 0);
+})();
 // list pages on a phone or tablet: hold a row, drag it, let go on the row it should take the place of
 (() => { let hold = null, drag = null;
   document.addEventListener("pointerdown", e => { if(e.pointerType==="mouse") return; const t = e.target.closest?.("[data-rowdrag]"); if(!t || e.target.closest("button,a,input,select,label")) return;
