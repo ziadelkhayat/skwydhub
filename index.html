@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="922-1794776026">
+<meta name="skwyd-build" content="923-1794776128">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -7467,8 +7467,7 @@ function dcForm(ids){
   const one = ids.length===1 ? S.zones.find(z => z.id===ids[0]) : null, cur = one ? dcChargeOf(one) : null, chs = dcCharges(), box = $("#ccBox"); box.className = "modal";
   box.innerHTML = `<header><h2>${one ? "Assign Delivery Charge" : `Assign Charge to ${ids.length} Zones`}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
   <div class="body" style="display:block">${one ? `<div class="note" style="margin-bottom:14px">${esc(branchName(one.branchId))} → ${esc(one.name)}</div>` : ""}
-    <div id="dcPick"><div class="f"><label for="dcCh">Charge *</label><select id="dcCh" class="sel"><option value="">Choose a charge</option>${chs.map(c => `<option value="${esc(c.id)}" ${cur?.id===c.id?"selected":""}>${esc(c.name)} · ${money(+c.value||0)}</option>`).join("")}</select></div>
-      ${chs.length ? "" : `<div class="note" style="margin-top:6px">No delivery charges yet: a delivery charge is a fixed amount that applies to Delivery orders only. Create one in <a href="#charges" class="lnk" data-ccclose>Manage → Charges</a>.</div>`}</div>
+    <div id="dcPick"><div class="f"><label for="dcCh">Charge *</label><select id="dcCh" class="sel"><option value="">Choose a charge</option>${chs.map(c => `<option value="${esc(c.id)}" ${cur?.id===c.id?"selected":""}>${esc(c.name)} · ${money(+c.value||0)}</option>`).join("")}</select></div></div>
     <div id="dcNew" hidden><div class="f" style="margin-bottom:14px"><label for="dcN">Name *</label><input id="dcN" placeholder="e.g. Delivery Charge Zone 1"></div>
       <div class="f" style="margin-bottom:14px"><label for="dcNAr">Name Localized</label><input id="dcNAr"></div>
       <div class="f"><label for="dcV">Value (${esc(SYM())}) *</label><input id="dcV" type="number" min="0" step="any" inputmode="decimal"></div></div>
