@@ -3,6 +3,6 @@
 # The POS is not on the web: it ships as an Android app (built by the GitHub workflow).
 set -euo pipefail
 rm -rf web && mkdir -p web
-cp index.html order.html hub.html signup.html invoice-doc.js wokdb.js modpick.js sw.js web/
+cp index.html order.html hub.html signup.html invoice-doc.js motion.js wokdb.js modpick.js sw.js web/
 cp cloudflare/_redirects cloudflare/_headers web/
 echo "Built web/: $(ls web | tr '\n' ' ')"

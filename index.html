@@ -1546,6 +1546,7 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 <script src="wokdb.js?v=48"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
+<script src="motion.js?v=1"></script>
 </head>
 <body>
 <div id="splash" style="position:fixed;inset:0;z-index:2147483600;background:#f3f4f8;display:grid;place-items:center;transition:opacity .25s"><div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:66px;height:77px;animation:splashPulse 1.2s ease-in-out infinite"><svg style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><div id="splashMsg" style="font:500 14px Inter,system-ui,sans-serif;color:#8d8c98;min-height:18px"></div></div></div>
@@ -4181,8 +4182,9 @@ async function submitCrud(e){
   const old = crudEdit.id ? { ...S[cfg.col].find(r=>r.id===crudEdit.id) } : null;
   const tgIds = TAG_KEY[crudEdit.key] ? tagPickGet("cf__tags") : null; if(tgIds && !crudEdit.id && !data.id) data.id = uid(cfg.col.slice(0,3));
   const newId = !crudEdit.id && data.id ? data.id : null; delete data.id;
-  try{ await put(cfg.col, crudEdit.id || newId, data); if(tgIds) await tagSetFor(TAG_KEY[crudEdit.key], crudEdit.id || newId, tgIds); if(cfg.after) await cfg.after(old, data); if(cfg.saved) await cfg.saved(old, data); toast(cfg.one + " saved"); closeCrud(); }
-  catch(err){ console.error(err); CQ("#cErr").textContent = /Your plan includes|subscription/i.test(err?.message || "") ? err.message : "Couldn't save. You may not have edit access."; }
+  const svBtn = e.submitter || CQ("#crudBox footer .btn.pri"); window.Motion?.saving(svBtn);
+  try{ await put(cfg.col, crudEdit.id || newId, data); if(tgIds) await tagSetFor(TAG_KEY[crudEdit.key], crudEdit.id || newId, tgIds); if(cfg.after) await cfg.after(old, data); if(cfg.saved) await cfg.saved(old, data); toast(cfg.one + " saved"); await window.Motion?.saved(svBtn); closeCrud(); }
+  catch(err){ console.error(err); window.Motion?.reset(svBtn); CQ("#cErr").textContent = /Your plan includes|subscription/i.test(err?.message || "") ? err.message : "Couldn't save. You may not have edit access."; }
 }
 async function softDelete(flag){
   const cfg = CRUD[crudEdit.key];

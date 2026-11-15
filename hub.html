@@ -10,6 +10,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20140%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M40%2086%20Q36%20108%2018%20124%22/%3E%3Cpath%20d%3D%22M50%2090%20Q48%20112%2042%20129%22/%3E%3Cpath%20d%3D%22M60%2091%20V131%22/%3E%3Cpath%20d%3D%22M70%2090%20Q72%20112%2078%20129%22/%3E%3Cpath%20d%3D%22M80%2086%20Q84%20108%20102%20124%22/%3E%3C/g%3E%3Cpath%20d%3D%22M60%209C33%209%2018%2037%2018%2061c0%2022%2016%2031%2042%2031s42-9%2042-31C102%2037%2087%209%2060%209z%22%20fill%3D%22%23c6f432%22%20stroke%3D%22%23172554%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2258%22%20r%3D%227%22%20fill%3D%22%23172554%22/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="invoice-doc.js?v=1"></script>
+<script src="motion.js?v=1"></script>
 <style>
 :root{--bg:#f7f7f9;--surface:#fff;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--accent-soft:#eef1fa;--accent-ink:#172d6a;
   --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#c6f432;--radius:10px}
@@ -378,7 +379,8 @@ function drawCompany() {
       graceDays: v("graceDays") === "" ? null : Number(v("graceDays")), modules: [...f.querySelectorAll("[name=mod]:checked")].map(x => x.value),
       locked: f.elements.locked.checked, complimentary: f.elements.complimentary.checked, notes: v("notes"),
       company: { name: v("name").trim(), contactName: (v("firstName").trim() + " " + v("lastName").trim()).trim(), firstName: v("firstName").trim(), lastName: v("lastName").trim(), email: v("email").trim(), phone: fullPhone(v("dial"), v("phone")), category: v("category"), subcategory: v("subcategory"), country: v("country"), currency: v("currency") } };
-    try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await reload(); } catch (err) { $("#serr").textContent = err.message; }
+    const b = e.submitter || f.querySelector(".btn.pri"); window.Motion?.saving(b);
+    try { await rpc("slick_pa_update_subscription", { p_company: c.id, p }); await window.Motion?.saved(b); await reload(); } catch (err) { window.Motion?.reset(b); $("#serr").textContent = err.message; }
   };
   $("#newinv").onclick = () => newInvoiceForm(c);
   document.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => showInvoice(INV.find(x => x.id === b.dataset.inv), c));
@@ -420,7 +422,8 @@ function viewPrices() {
     e.preventDefault();
     const list = [...document.querySelectorAll("#pl tr[data-id]")].map((tr, i) => ({ id: tr.dataset.id, name: $("[name=name]", tr).value.trim(), unit: $("[name=unit]", tr).value,
       monthly: Number($("[name=monthly]", tr).value) || 0, yearly: Number($("[name=yearly]", tr).value) || 0, required: $("[name=required]", tr).checked, active: $("[name=active]", tr).checked, sort: i + 1 }));
-    try { DATA.products = await rpc("slick_pa_save_products", { p: list }); await load(); } catch (err) { $("#perr").textContent = err.message; }
+    const b = e.submitter || e.target.querySelector(".btn.pri"); window.Motion?.saving(b);
+    try { DATA.products = await rpc("slick_pa_save_products", { p: list }); await window.Motion?.saved(b); await load(); } catch (err) { window.Motion?.reset(b); $("#perr").textContent = err.message; }
   };
 }
 
@@ -509,8 +512,9 @@ function viewSettings() {
   <div style="display:flex;align-items:center;gap:10px"><div class="err" id="sterr"></div><span style="flex:1"></span><button class="btn pri">Save</button></div></form>`;
   $("#stf").onsubmit = async e => {
     e.preventDefault(); const f = e.target.elements;
-    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), billingName: f.billingName.value.trim(), billingTaxNo: f.billingTaxNo.value.trim(), billingAddress: f.billingAddress.value.trim(), paymentInstructions: f.paymentInstructions.value.trim(), invoiceFooter: f.invoiceFooter.value.trim(), autoInvoice: f.autoInvoice.value === "1", invoiceDaysBefore: Math.max(0, Number(f.invoiceDaysBefore.value) || 0), supportEmail: f.supportEmail.value.trim() } }); await load(); }
-    catch (err) { $("#sterr").textContent = err.message; }
+    const b = e.submitter || e.target.querySelector(".btn.pri"); window.Motion?.saving(b);
+    try { DATA.settings = await rpc("slick_pa_save_settings", { p: { trialDays: Number(f.trialDays.value) || 0, graceDays: Number(f.graceDays.value) || 0, currency: f.currency.value, supportPhone: f.supportPhone.value.trim(), billingName: f.billingName.value.trim(), billingTaxNo: f.billingTaxNo.value.trim(), billingAddress: f.billingAddress.value.trim(), paymentInstructions: f.paymentInstructions.value.trim(), invoiceFooter: f.invoiceFooter.value.trim(), autoInvoice: f.autoInvoice.value === "1", invoiceDaysBefore: Math.max(0, Number(f.invoiceDaysBefore.value) || 0), supportEmail: f.supportEmail.value.trim() } }); await window.Motion?.saved(b); await load(); }
+    catch (err) { window.Motion?.reset(b); $("#sterr").textContent = err.message; }
   };
 }
 
