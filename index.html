@@ -3877,7 +3877,7 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
   const route = () => HASH().slice(1).split("?")[0];
   const scrimOpen = () => $("#ccScrim")?.classList.contains("show");
   const current = r => r==="orders" ? (ORD.open && scrimOpen() ? ORD.open : "") : r==="customers" ? (CUS.open || "")
-    : DOC.open && DOC.open.route===r && DOC.open.id ? DOC.open.id : DET.key===r && DET.id ? DET.id : "";
+    : DOC.open && DOC.open.route===r && DOC.open.id ? DOC.open.id : DET.key===r && DET.id ? (S[CRUD[r]?.col]?.find(x => x.id===DET.id)?.uid || DET.id) : "";   // menu and inventory items: their random ID, not the SKU-based one
   let last = null, opening = null;
   function sync(){
     const r = route(); if(!r || opening) return; const rec = current(r), want = "/" + r + (rec ? "/" + encodeURIComponent(rec) : "") + location.search;
@@ -3898,7 +3898,7 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
           if(r==="orders"){ await openOrderDetail(id, true); }
           else if(r==="customers"){ await openCustomer(id); }
           else if(typeof DOC_KINDS!=="undefined" && DOC_KINDS[r] && S.inv_docs?.some(x => x.id===id)){ openDoc(r, id); }
-          else if(CRUD[r] && S[CRUD[r].col]?.some(x => x.id===id)){ openDetail(r, id); }
+          else if(CRUD[r]){ const rec = S[CRUD[r].col]?.find(x => x.uid===id || x.id===id); if(rec) openDetail(r, rec.id); }
         }
       }catch(e){ console.error(e); }
       if(current(r)===id || n > 40){ opening = null; last = current(r); if(current(r)!==id) history.replaceState(null, "", "/" + r + location.search); return; }
