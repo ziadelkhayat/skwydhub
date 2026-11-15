@@ -1876,7 +1876,7 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["roles","Roles"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["roles","Roles"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -1963,7 +1963,7 @@ const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","payroll":"dollar","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -6096,6 +6096,97 @@ document.addEventListener("click", async e => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `timesheet-${TC.from}-${TC.to}.csv`; a.click(); return; }
 });
 
+/* ---------- Employee Management → Payroll: a month's pay from clock-ins, overtime and leave, plus bonuses and deductions ---------- */
+const PAY = { month:"", branch:"", edit:null };
+const paySet = () => ({ otAfter:8, otRate:1.5, workDays:26, ...((S.settings||[]).find(x => x.id==="payroll_settings") || {}) });
+const payDoc = m => (S.settings||[]).find(x => x.id==="payroll_" + m) || null;
+const payMonthDays = m => { const [y, mo] = m.split("-").map(Number); return [m + "-01", m + "-" + String(new Date(y, mo, 0).getDate()).padStart(2, "0")]; };
+const payMoney = v => "$" + (+v||0).toFixed(2);
+function payCompute(m){
+  const st = paySet(), [a, b] = payMonthDays(m), doc = payDoc(m) || {}, adj = doc.lines || {}, wd = +st.workDays || 26, otA = +st.otAfter || 8, otR = +st.otRate || 1.5;
+  const per = {}; tcLog().forEach(x => { const d = tcDayOf(x.in); if(d < a || d > b) return; const p = per[x.userId] ||= { days:{}, br:{} }; const h = tcHrs(x); p.days[d] = (p.days[d]||0) + h; p.br[x.branchId||""] = (p.br[x.branchId||""]||0) + h; });
+  const leaveIn = (id, type) => rqLive().filter(r => r.status==="approved" && r.kind==="time_off" && r.employeeId===id && r.leaveType===type).reduce((s, r) => { let n = 0; for(let d = d10s(r.fromDay); d <= d10s(r.toDay || r.fromDay); d = schAdd(d, 1)) if(d >= a && d <= b) n++; return s + n; }, 0);
+  const emps = S.users.filter(u => live(u) && ((u.payRate!=null && u.payRate!=="") || per[u.id])).sort((x, y) => String(x.name).localeCompare(String(y.name)));
+  return emps.map(u => { const p = per[u.id] || { days:{}, br:{} }, hrs = Object.values(p.days).reduce((s, v) => s + v, 0), ot = Object.values(p.days).reduce((s, v) => s + Math.max(0, v - otA), 0), days = Object.keys(p.days).length;
+    const r = +u.payRate || 0, t = u.payType || "", paidLeave = leaveIn(u.id, "annual") + leaveIn(u.id, "sick"), unpaid = leaveIn(u.id, "unpaid");
+    const hourly = t==="hourly" ? r : t==="daily" ? r / otA : t==="monthly" ? r / wd / otA : 0;
+    const base = t==="hourly" ? r * (hrs - ot) : t==="daily" ? r * days : t==="monthly" ? Math.max(0, r - unpaid * r / wd) : 0;
+    const otPay = hourly * otR * ot, leavePay = t==="hourly" ? paidLeave * otA * r : t==="daily" ? paidLeave * r : 0;
+    const j = adj[u.id] || {}, bonus = +j.bonus || 0, deduction = +j.deduction || 0, advance = +j.advance || 0, gross = base + otPay + leavePay + bonus;
+    return { id:u.id, name:u.name, no:u.employeeNo || "", job:u.jobTitle || "", type:t, rate:r, days, hrs, ot, paidLeave, unpaid, base, otPay, leavePay, bonus, deduction, advance, note:j.note || "", gross, net: gross - deduction - advance, br:p.br }; });
+}
+function viewPayroll(){
+  if(!PAY.month){ const t = todayStr(); PAY.month = t.slice(0,7); }
+  const m = PAY.month, doc = payDoc(m), closed = doc?.status==="closed", st = paySet();
+  let lines = closed && doc.snapshot ? doc.snapshot : payCompute(m);
+  if(PAY.branch) lines = lines.filter(l => (l.br||{})[PAY.branch]);
+  const tot = k => lines.reduce((s, l) => s + (+l[k]||0), 0), ml = new Date(m + "-15T12:00:00").toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+  const TY = { hourly:"Hourly", daily:"Daily", monthly:"Monthly" };
+  // cost by branch: each person's gross split by the hours they worked at each branch
+  const byBr = {}; lines.forEach(l => { const h = Object.values(l.br||{}).reduce((s, v) => s + v, 0); if(!h){ byBr[""] = (byBr[""]||0) + l.gross; return; } Object.entries(l.br).forEach(([b, v]) => byBr[b] = (byBr[b]||0) + l.gross * v / h); });
+  let h = `<div class="phead"><h1>Payroll</h1><div class="sp"></div><div class="schbar">
+      <select class="sel" id="payBranch"><option value="">All Branches</option>${branches.filter(b => b.active!==false).map(b => `<option value="${esc(b.id)}" ${PAY.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+      <div class="wkn"><button type="button" class="btn" data-prm="-1" aria-label="Previous month">‹</button><b style="min-width:150px">${esc(ml)}</b><button type="button" class="btn" data-prm="1" aria-label="Next month">›</button></div>
+      <button type="button" class="btn" id="paySettings">Settings</button><button type="button" class="btn" id="payCsv">Export CSV</button>
+      ${closed ? `<button type="button" class="btn" id="payReopen">Reopen Month</button>` : `<button type="button" class="btn pri" id="payClose" ${lines.length ? "" : "disabled"}>Close Month</button>`}</div></div>
+    ${closed ? `<div class="card" style="padding:12px 16px;margin-bottom:14px;background:#f0fdf4;border-color:#bbf7d0">Closed by ${esc(doc.closedBy || "—")} on ${esc(new Date(doc.closedAt).dmy())}. The figures are frozen; Reopen Month to change them.</div>` : ""}
+    <div class="card igrid">${[["Employees", lines.length], ["Hours", tot("hrs").toFixed(1)], ["Overtime Hours", tot("ot").toFixed(1)], ["Gross Pay", payMoney(tot("gross"))], ["Deductions & Advances", payMoney(tot("deduction") + tot("advance"))], ["Net Pay", "<b>" + payMoney(tot("net")) + "</b>"]].map(([k, v]) => `<div><span class="note">${k}</span><div>${v}</div></div>`).join("")}</div>
+    <div class="card tbl"><div class="ttop"><b>Employees</b></div><div class="schwrap"><table style="min-width:1150px"><thead><tr><th>Employee</th><th>Pay</th><th class="num">Days</th><th class="num">Hours</th><th class="num">Overtime</th><th class="num">Base</th><th class="num">Overtime Pay</th><th class="num">Paid Leave</th><th class="num">Bonus</th><th class="num">Deductions</th><th class="num">Advance</th><th class="num">Net Pay</th><th></th></tr></thead>
+      <tbody>${lines.map(l => `<tr><td><b>${esc(l.name)}</b>${l.no ? ` <span class="note">#${esc(l.no)}</span>` : ""}<div class="note">${esc(l.job)}</div></td><td>${l.type ? payMoney(l.rate) + " " + (TY[l.type]||"").toLowerCase() : `<span class="note">No pay rate</span>`}${l.unpaid ? `<div class="note">${l.unpaid} unpaid day${l.unpaid===1?"":"s"}</div>` : ""}</td>
+        <td class="num">${l.days}</td><td class="num">${(+l.hrs).toFixed(1)}</td><td class="num">${l.ot ? (+l.ot).toFixed(1) : "—"}</td><td class="num">${payMoney(l.base)}</td><td class="num">${l.otPay ? payMoney(l.otPay) : "—"}</td><td class="num">${l.leavePay ? payMoney(l.leavePay) : (l.paidLeave ? l.paidLeave + "d" : "—")}</td>
+        <td class="num">${l.bonus ? payMoney(l.bonus) : "—"}</td><td class="num">${l.deduction ? "−" + payMoney(l.deduction) : "—"}</td><td class="num">${l.advance ? "−" + payMoney(l.advance) : "—"}</td><td class="num"><b>${payMoney(l.net)}</b></td>
+        <td class="num" style="white-space:nowrap">${closed ? "" : `<button type="button" class="btn" data-pradj="${esc(l.id)}">Adjust</button> `}<button type="button" class="btn" data-prslip="${esc(l.id)}">Payslip</button></td></tr>`).join("") || `<tr><td colspan="13"><div class="empty">Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app.</div></td></tr>`}</tbody>
+      ${lines.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${tot("hrs").toFixed(1)}</th><th class="num">${tot("ot").toFixed(1)}</th><th class="num">${payMoney(tot("base"))}</th><th class="num">${payMoney(tot("otPay"))}</th><th class="num">${payMoney(tot("leavePay"))}</th><th class="num">${payMoney(tot("bonus"))}</th><th class="num">−${payMoney(tot("deduction"))}</th><th class="num">−${payMoney(tot("advance"))}</th><th class="num">${payMoney(tot("net"))}</th><th></th></tr></tfoot>` : ""}</table></div>
+      <p class="note" style="margin:10px 14px 14px">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ ${+st.workDays||26}). Overtime is hours over ${+st.otAfter||8} a day at ${+st.otRate||1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at ${+st.otAfter||8} hours a day for hourly and daily staff.</p></div>
+    <div class="card tbl"><div class="ttop"><b>Cost By Branch</b></div><table><thead><tr><th>Branch</th><th class="num">Gross Pay</th><th class="num">Share</th></tr></thead><tbody>${Object.entries(byBr).sort((x, y) => y[1] - x[1]).map(([b, v]) => `<tr><td>${b ? esc(branchNameOf(b)) : '<span class="note">No clock-ins (salary only)</span>'}</td><td class="num">${payMoney(v)}</td><td class="num">${tot("gross") ? (v / tot("gross") * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("") || `<tr><td colspan="3"><div class="empty">—</div></td></tr>`}</tbody></table>
+      <p class="note" style="margin:10px 14px 14px">Each employee's gross pay is split across branches by the hours they clocked at each.</p></div>`;
+  return h;
+}
+async function paySaveDoc(m, patch){ const cur = payDoc(m) || { month:m, lines:{}, status:"draft" }, doc = { ...cur, ...patch }; delete doc.id; delete doc.updatedAt; delete doc.createdAt;
+  await put("settings", "payroll_" + m, doc); const ex = S.settings.find(x => x.id==="payroll_" + m); if(ex) Object.assign(ex, doc); else S.settings.push({ id:"payroll_" + m, ...doc }); }
+function paySlip(l, m){
+  const co = coSet(), ml = new Date(m + "-15T12:00:00").toLocaleDateString("en-GB", { month:"long", year:"numeric" }), row = (k, v, b) => `<tr><td>${k}</td><td style="text-align:right">${b ? "<b>" + v + "</b>" : v}</td></tr>`;
+  const w = window.open("", "_blank"); if(!w) return toast("Allow pop-ups to open the payslip");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Payslip ${esc(l.name)} ${esc(m)}</title><style>body{font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1d1b29;max-width:640px;margin:32px auto;padding:0 20px}h1{font-size:22px;margin:0}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#6b6879;margin:24px 0 6px}table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid #eee}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1e3a8a;padding-bottom:14px}.net{background:#1e3a8a;color:#fff;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;font-size:18px;margin-top:20px}@media print{button{display:none}}</style></head><body>
+    <div class="top"><div><h1>Payslip</h1><div>${esc(ml)}</div></div><div style="text-align:right"><b>${esc(co.name || state.companyName || "")}</b></div></div>
+    <h2>Employee</h2><table>${row("Name", esc(l.name))}${l.no ? row("Employee Number", esc(l.no)) : ""}${l.job ? row("Job Title", esc(l.job)) : ""}${row("Days Worked", l.days)}${row("Hours", (+l.hrs).toFixed(2))}${l.ot ? row("Overtime Hours", (+l.ot).toFixed(2)) : ""}${l.paidLeave ? row("Paid Leave Days", l.paidLeave) : ""}${l.unpaid ? row("Unpaid Leave Days", l.unpaid) : ""}</table>
+    <h2>Earnings</h2><table>${row("Base Pay", payMoney(l.base))}${l.otPay ? row("Overtime", payMoney(l.otPay)) : ""}${l.leavePay ? row("Paid Leave", payMoney(l.leavePay)) : ""}${l.bonus ? row("Bonus", payMoney(l.bonus)) : ""}${row("Gross Pay", payMoney(l.gross), 1)}</table>
+    ${l.deduction || l.advance ? `<h2>Deductions</h2><table>${l.deduction ? row("Deductions", "−" + payMoney(l.deduction)) : ""}${l.advance ? row("Advance", "−" + payMoney(l.advance)) : ""}</table>` : ""}
+    <div class="net"><span>Net Pay</span><b>${payMoney(l.net)}</b></div>${l.note ? `<p style="color:#6b6879">${esc(l.note)}</p>` : ""}
+    <p style="margin-top:40px;display:flex;justify-content:space-between;color:#6b6879"><span>Employee signature ____________</span><span>Date ____________</span></p><button onclick="print()" style="margin-top:16px;padding:10px 18px;border-radius:10px;border:0;background:#1e3a8a;color:#fff;font-size:14px">Print</button></body></html>`);
+  w.document.close(); }
+document.addEventListener("change", e => { if(e.target.id==="payBranch"){ PAY.branch = e.target.value; render(); } });
+document.addEventListener("click", async e => { const t = e.target; if(!t.closest) return;
+  const mb = t.closest("[data-prm]"); if(mb){ const [y, mo] = PAY.month.split("-").map(Number), d = new Date(y, mo - 1 + +mb.dataset.prm, 15); PAY.month = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); return render(); }
+  const sl = t.closest("[data-prslip]"); if(sl){ const doc = payDoc(PAY.month), lines = doc?.status==="closed" && doc.snapshot ? doc.snapshot : payCompute(PAY.month), l = lines.find(x => x.id===sl.dataset.prslip); if(l) paySlip(l, PAY.month); return; }
+  const aj = t.closest("[data-pradj]"); if(aj){ const id = aj.dataset.pradj, u = S.users.find(x => x.id===id), j = (payDoc(PAY.month)?.lines || {})[id] || {};
+    const box = $("#ccBox"); box.className = "modal";
+    box.innerHTML = `<header><h2>Adjust · ${esc(u?.name || "")}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+      <div class="body"><div class="f"><label for="paB">Bonus (USD)</label><input id="paB" type="number" min="0" step="any" value="${esc(j.bonus ?? "")}"></div><div class="f"><label for="paD">Deductions (USD)</label><input id="paD" type="number" min="0" step="any" value="${esc(j.deduction ?? "")}"></div>
+        <div class="f"><label for="paA">Advance Paid (USD)</label><input id="paA" type="number" min="0" step="any" value="${esc(j.advance ?? "")}"></div><div class="f"><label for="paN">Note</label><input id="paN" value="${esc(j.note || "")}" placeholder="Shown on the payslip"></div></div>
+      <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-prajsave="${esc(id)}">Save</button></footer>`;
+    $("#ccScrim").classList.add("show"); return; }
+  const as = t.closest("[data-prajsave]"); if(as){ const id = as.dataset.prajsave, lines = { ...(payDoc(PAY.month)?.lines || {}) }, n = v => v==="" ? 0 : Math.max(0, +v || 0);
+    lines[id] = { bonus: n($("#paB").value), deduction: n($("#paD").value), advance: n($("#paA").value), note: $("#paN").value.trim() };
+    window.Motion?.saving?.(as); try{ await paySaveDoc(PAY.month, { lines }); window.Motion?.saved?.(as); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); window.Motion?.reset?.(as); toast("Couldn't save. Check your connection."); } return; }
+  if(t.closest("#paySettings")){ const st = paySet(), box = $("#ccBox"); box.className = "modal";
+    box.innerHTML = `<header><h2>Payroll Settings</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
+      <div class="body"><div class="f"><label for="psA">Overtime After (Hours A Day)</label><input id="psA" type="number" min="1" step="any" value="${+st.otAfter}"></div><div class="f"><label for="psR">Overtime Rate (×)</label><input id="psR" type="number" min="1" step="0.05" value="${+st.otRate}"></div>
+        <div class="f"><label for="psW">Working Days A Month</label><input id="psW" type="number" min="1" max="31" value="${+st.workDays}"></div><div class="f"><label>&nbsp;</label><div class="note">Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime).</div></div></div>
+      <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="psSave">Save</button></footer>`;
+    $("#ccScrim").classList.add("show"); return; }
+  const ps = t.closest("#psSave"); if(ps){ const doc = { otAfter: +$("#psA").value || 8, otRate: +$("#psR").value || 1.5, workDays: +$("#psW").value || 26 };
+    try{ await put("settings", "payroll_settings", doc); const ex = S.settings.find(x => x.id==="payroll_settings"); if(ex) Object.assign(ex, doc); else S.settings.push({ id:"payroll_settings", ...doc }); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); toast("Couldn't save."); } return; }
+  if(t.closest("#payClose")){ const lines = payCompute(PAY.month); if(!lines.length) return;
+    if(!(await askYes(`Close ${new Date(PAY.month + "-15T12:00:00").toLocaleDateString("en-GB", { month:"long", year:"numeric" })}? The pay of ${lines.length} employee${lines.length===1?"":"s"} (net ${payMoney(lines.reduce((s, l) => s + l.net, 0))}) is frozen so later timesheet edits don't change it.`))) return;
+    try{ await paySaveDoc(PAY.month, { status:"closed", snapshot: lines, closedAt: new Date().toISOString(), closedBy: state.fullName || state.email || "Back office" }); window.Motion?.celebrate?.(); render(); }catch(er){ console.error(er); toast("Couldn't close the month."); } return; }
+  if(t.closest("#payReopen")){ if(!(await askYes("Reopen this month? Its figures are worked out again from the timesheets."))) return;
+    try{ await paySaveDoc(PAY.month, { status:"draft", snapshot:null }); render(); }catch(er){ console.error(er); toast("Couldn't reopen."); } return; }
+  if(t.closest("#payCsv")){ const doc = payDoc(PAY.month), lines = doc?.status==="closed" && doc.snapshot ? doc.snapshot : payCompute(PAY.month), q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [["Employee","Employee Number","Job Title","Pay Type","Rate","Days","Hours","Overtime Hours","Base","Overtime Pay","Paid Leave","Bonus","Deductions","Advance","Gross","Net","Note"], ...lines.map(l => [l.name, l.no, l.job, l.type, l.rate, l.days, (+l.hrs).toFixed(2), (+l.ot).toFixed(2), (+l.base).toFixed(2), (+l.otPay).toFixed(2), (+l.leavePay).toFixed(2), l.bonus, l.deduction, l.advance, (+l.gross).toFixed(2), (+l.net).toFixed(2), l.note])].map(r => r.map(q).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `payroll-${PAY.month}.csv`; a.click(); return; }
+});
+
 /* ---------- Employee Management → Requests: time off and shift swaps (asked on the POS or added here), approved here ---------- */
 const RQ = { tab:"pending", year: new Date().getFullYear() };
 const LEAVE_T = { annual:"Annual Leave", sick:"Sick Leave", unpaid:"Unpaid Leave", other:"Other" };
@@ -6317,6 +6408,7 @@ function moduleRoute(route){
   if(route==="time-clock") return viewTimeClock();
   if(route==="schedule") return viewSchedule();
   if(route==="requests") return viewRequests();
+  if(route==="payroll") return viewPayroll();
   if(CRUD[route]) return crudView(route);
   if(route==="call-center") return viewCallCenter();
   if(route==="devices") return viewDevices();
