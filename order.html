@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="927-1794777313">
+<meta name="skwyd-build" content="929-1794777433">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -811,7 +811,7 @@ function gmLoad(){ if(gmP) return gmP; const k = GMK(); if(!k) return Promise.re
 /* ---------- header: brand name, logo, tagline, open status, contact links ---------- */
 function renderHead(){
   const t = cfg.theme || {}; applyTheme(t);
-  $("#brand").textContent = brand.name; document.title = brand.name + " · Order online";
+  $("#brand").textContent = brand.name; document.title = brand.name + " · Order online"; try{ let fl = document.querySelector('link[rel="icon"]'); if(!fl){ fl = document.createElement("link"); fl.rel = "icon"; document.head.appendChild(fl); } fl.href = appIcon(64); }catch(e){}   // the browser tab shows the brand's logo (or its letter)
   $("#logo").innerHTML = t.logo ? `<img src="${esc(t.logo)}" alt="${esc(brand.name)}">` : esc(brand.name.trim()[0]?.toUpperCase() || "·");
   $("#sub").hidden = !cfg.tagline; $("#sub").innerHTML = String(cfg.tagline || "").split(/\s*[·•|]\s*/).filter(Boolean).map(esc).join('<i class="dot"></i>');
   const b = branches.find(x => x.id === curBranch()), anyOpen = branches.some(x => brOpenNow(x) && !bcfg(x.id).paused);
