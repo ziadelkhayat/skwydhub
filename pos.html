@@ -757,6 +757,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 @media (max-height:760px){#lock .lkpad{grid-template-columns:repeat(3,80px)!important}#lock .lkpad button{height:76px!important}#lock .lksync{width:264px;height:60px}#lock .lkmark{font-size:38px}}
 #lock .lkwelc{display:none}#lock.welc .lkwelc{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:40px}
 #lock.welc .lksub,#lock.welc .lkbox,#lock.welc #pinErr,#lock.welc .lkpad,#lock.welc .lksync{display:none!important}
+#lock .lkdot{display:inline-flex;min-width:20px;height:20px;border-radius:10px;background:#c6f432;color:#1e3a8a;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-left:6px;padding:0 6px}
 #lock .lkshifts{margin-top:8px;min-width:280px;background:#fff;border:1px solid #ecebf3;border-radius:14px;padding:12px 16px;font-size:13.5px;color:#3a3846}#lock .lkshifts>b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#8a8799;margin-bottom:6px}#lock .lkshifts>div{display:grid;grid-template-columns:90px 1fr;gap:0 10px;padding:6px 0;border-top:1px solid #f1f0f6}#lock .lkshifts small{grid-column:2;color:#8a8799;font-size:12px}
 #lock .lkhi{font-size:22px;color:#3a3846;margin:0}#lock .lkst{font-size:14px;color:var(--mut,#8a8799);margin:-10px 0 8px}
 #lock .lkbtn{width:312px;height:80px;border:0;border-radius:10px;background:#eaecf2;font:inherit;font-size:24px;color:#3a3846;cursor:pointer}#lock .lkbtn:active{background:var(--accs,#edf1fc)}#lock .lkbtn:disabled{opacity:.45;cursor:not-allowed}
@@ -947,7 +948,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
 <script src="motion.js?v=2"></script>
-<script src="wokdb.js?v=54"></script>
+<script src="wokdb.js?v=55"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1032,7 +1033,7 @@ const toast = (m, err) => { if(QUIET.test(String(m||""))) return; const t=$("#to
 const store = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
 let db = null;
-const S = { brands:[], devices:[], branches:[], categories:[], products:[], orders:[], shifts:[], modifiers:[], modifier_options:[], taxes:[], tax_groups:[], payment_methods:[], roles:[], users:[], settings:[], day_closes:[], charges:[], order_sources:[], work_shifts:[] };
+const S = { brands:[], devices:[], branches:[], categories:[], products:[], orders:[], shifts:[], modifiers:[], modifier_options:[], taxes:[], tax_groups:[], payment_methods:[], roles:[], users:[], settings:[], day_closes:[], charges:[], order_sources:[], work_shifts:[], work_requests:[] };
 let posChg = null, posOpen = {};   // posOpen: amounts the cashier entered for open-amount charges   // null = the charges that apply automatically; otherwise the ids the cashier kept
 let GUESTS = 0, orderNote = "", kitchenNote = "", SEEN = new Set(), SEEN_READY = false;   // pending call-center / web orders already announced   // order-level note, printed on the receipt (not the kitchen ticket)
 let EDIT = null;   // an order opened from the Orders list into the billing section: { id }
@@ -1232,6 +1233,7 @@ function paintWelcome(){
   $("#lkWel").innerHTML = `<p class="lkhi">Welcome, ${esc(u.name)}!</p><p class="lkst">${o ? "Clocked in since " + esc(new Date(o.at).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })) : "Not clocked in"}</p>
     <button type="button" class="lkbtn" id="lkClock">${o ? "Clock Out" : "Clock In"}</button>
     <button type="button" class="lkbtn" id="lkGo" ${canReg ? "" : "disabled title=\"Your role doesn't allow using the register\""}>Access Register</button>
+    <button type="button" class="lkbtn" id="lkReq">Requests${(() => { const n = (S.work_requests||[]).filter(r => r.employeeId===u.id && !r.deleted && r.status!=="pending" && r.decidedAt && Date.now() - +new Date(r.decidedAt) < 3*86400000).length; return n ? ` <span class="lkdot">${n}</span>` : ""; })()}</button>
     <button type="button" class="lkbtn lkexit" id="lkExit">Exit</button>${shiftsHtml(u)}`;
 }
 async function tcToggle(){
@@ -1250,7 +1252,45 @@ async function tcToggle(){
   try{ await db.collection("settings").doc("timeclock").set(next); }catch(e){ console.warn("time clock", e); toast("Saved on this tablet · will sync when online"); }
   toast((o ? `${u.name} clocked out` : `${u.name} clocked in`) + note); paintWelcome();
 }
+
+// ---------- Requests: time off and shift swaps, approved in the portal (Employee Management → Requests) ----------
+const RQT = { annual:"Annual Leave", sick:"Sick Leave", unpaid:"Unpaid Leave", other:"Other" };
+const rqDmy = x => { const d = String(x||"").slice(0,10).split("-"); return d.length===3 ? d[2] + "-" + d[1] + "-" + d[0] : ""; };
+function openRequests(u, view){
+  document.querySelector("#rqScrim")?.remove();
+  const el = document.createElement("div"); el.className = "scrim show"; el.id = "rqScrim"; el.style.zIndex = "60";
+  const mine = (S.work_requests||[]).filter(r => r.employeeId===u.id && !r.deleted).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 8);
+  const st = r => r.status==="approved" ? '<b style="color:#15803d">Approved</b>' : r.status==="declined" ? '<b style="color:#b42318">Declined</b>' : r.status==="cancelled" ? "Cancelled" : '<b style="color:#b45309">Pending</b>';
+  const what = r => { if(r.kind==="swap"){ const sh = (S.work_shifts||[]).find(x => x.id===r.shiftId), w = S.users.find(x => x.id===r.swapWith); return `Swap ${sh ? rqDmy(sh.day) + " " + String(sh.startTime).slice(0,5) + "–" + String(sh.endTime).slice(0,5) : "shift"}${w ? " with " + esc(w.name) : ""}`; }
+    return `${RQT[r.leaveType] || "Time Off"} · ${rqDmy(r.fromDay)}${r.toDay && String(r.toDay).slice(0,10)!==String(r.fromDay).slice(0,10) ? " – " + rqDmy(r.toDay) : ""}`; };
+  const today = shDay(), up = myShifts(u).filter(x => shSpan(x)[0] > Date.now()), mates = S.users.filter(x => x.id!==u.id && !x.deleted && x.active!==false).sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  const fld = (l, h) => `<label style="display:grid;gap:6px;margin:0 0 12px;font-size:13px;color:#6b6879">${l}${h}</label>`, inp = 'style="height:44px;border:1px solid #e3e2ea;border-radius:10px;padding:0 12px;font-size:15px;background:#fff;color:#2b2938;width:100%"';
+  let body;
+  if(view==="off") body = fld("Type", `<select id="rqT" ${inp}>${Object.entries(RQT).map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select>`) + `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${fld("From", `<input id="rqA" type="date" min="${today}" value="${today}" ${inp}>`)}${fld("To", `<input id="rqB" type="date" min="${today}" value="${today}" ${inp}>`)}</div>` + fld("Note", `<input id="rqN" placeholder="Optional" ${inp}>`);
+  else if(view==="swap") body = up.length ? fld("Your shift", `<select id="rqS" ${inp}>${up.map(x => `<option value="${esc(x.id)}">${rqDmy(x.day)} · ${String(x.startTime).slice(0,5)} – ${String(x.endTime).slice(0,5)}${x.jobTitle ? " · " + esc(x.jobTitle) : ""}</option>`).join("")}</select>`) + fld("Give it to", `<select id="rqW" ${inp}><option value="">Choose a colleague…</option>${mates.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>`) + fld("Note", `<input id="rqN" placeholder="Optional" ${inp}>`)
+    : `<p style="color:#8a8799;margin:8px 0 16px">You have no upcoming published shifts to swap.</p>`;
+  else body = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px"><button type="button" class="btn pri" data-rqv="off" style="height:52px">Ask For Time Off</button><button type="button" class="btn" data-rqv="swap" style="height:52px">Swap A Shift</button></div>
+    ${mine.length ? `<div style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#8a8799;margin:0 0 6px">Your requests</div>${mine.map(r => `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid #f1f0f6;font-size:14px"><div style="flex:1">${what(r)}${r.decisionNote ? `<div style="color:#8a8799;font-size:12.5px">${esc(r.decisionNote)}</div>` : ""}</div><div>${st(r)}</div></div>`).join("")}` : `<p style="color:#8a8799;margin:0">No requests yet.</p>`}`;
+  el.innerHTML = `<div class="modal"><div class="mh">${view ? `<button class="adback" data-rqv="" aria-label="Back">‹</button>` : ""}<h2>${view==="off" ? "Ask For Time Off" : view==="swap" ? "Swap A Shift" : "Requests · " + esc(u.name)}</h2><button class="x" data-rqx aria-label="Close">×</button></div>
+    <div class="mb" style="padding:16px 20px">${body}<div id="rqE" style="color:#b42318;font-size:13px;min-height:16px"></div></div>
+    ${view && (view==="off" || up.length) ? `<div class="mf"><button class="btn" data-rqv="">Cancel</button><button class="btn pri" data-rqsend="${view}">Send Request</button></div>` : ""}</div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click", async e => {
+    if(e.target===el || e.target.closest("[data-rqx]")) return el.remove();
+    const v = e.target.closest("[data-rqv]"); if(v) return openRequests(u, v.dataset.rqv);
+    const go = e.target.closest("[data-rqsend]"); if(!go) return; const er = el.querySelector("#rqE"), id = "req_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    let r = { employeeId:u.id, branchId:device.branchId, status:"pending", deleted:false, note: el.querySelector("#rqN")?.value.trim() || null, createdAt: new Date().toISOString() };
+    if(go.dataset.rqsend==="off"){ const a = el.querySelector("#rqA").value, b = el.querySelector("#rqB").value || a; if(!a) return er.textContent = "Pick the dates."; if(b < a) return er.textContent = "To must be on or after From.";
+      r = { ...r, kind:"time_off", leaveType: el.querySelector("#rqT").value, fromDay:a, toDay:b }; }
+    else { const sh = el.querySelector("#rqS").value, w = el.querySelector("#rqW").value; if(!w) return er.textContent = "Choose who takes the shift.";
+      if((S.work_requests||[]).some(x => x.shiftId===sh && x.status==="pending" && !x.deleted)) return er.textContent = "This shift already has a swap waiting for approval.";
+      r = { ...r, kind:"swap", shiftId:sh, swapWith:w }; }
+    go.disabled = true;
+    try{ await db.collection("work_requests").doc(id).set(r); (S.work_requests ||= []).push({ ...r, id }); toast("Request sent · your manager will approve it"); openRequests(u, ""); }
+    catch(err){ console.warn("request", err); go.disabled = false; er.textContent = "Couldn't send. Check the connection and try again."; } });
+}
 document.addEventListener("click", e => {
+  if(e.target.closest("#lkReq")){ if(WELC) openRequests(WELC, ""); return; }
   if(e.target.closest("#lkClock")) return tcToggle();
   if(e.target.closest("#lkGo")){ const u = WELC; if(!u) return; WELC = null; cashier = u; $("#lock").classList.remove("welc"); $("#lock").classList.add("hide"); paintCashier(); toast("Signed in as " + u.name); return; }
   if(e.target.closest("#lkExit")){ WELC = null; $("#lock").classList.remove("welc"); lock(); }
