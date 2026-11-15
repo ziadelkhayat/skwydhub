@@ -757,6 +757,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 @media (max-height:760px){#lock .lkpad{grid-template-columns:repeat(3,80px)!important}#lock .lkpad button{height:76px!important}#lock .lksync{width:264px;height:60px}#lock .lkmark{font-size:38px}}
 #lock .lkwelc{display:none}#lock.welc .lkwelc{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:40px}
 #lock.welc .lksub,#lock.welc .lkbox,#lock.welc #pinErr,#lock.welc .lkpad,#lock.welc .lksync{display:none!important}
+#lock .lkshifts{margin-top:8px;min-width:280px;background:#fff;border:1px solid #ecebf3;border-radius:14px;padding:12px 16px;font-size:13.5px;color:#3a3846}#lock .lkshifts>b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#8a8799;margin-bottom:6px}#lock .lkshifts>div{display:grid;grid-template-columns:90px 1fr;gap:0 10px;padding:6px 0;border-top:1px solid #f1f0f6}#lock .lkshifts small{grid-column:2;color:#8a8799;font-size:12px}
 #lock .lkhi{font-size:22px;color:#3a3846;margin:0}#lock .lkst{font-size:14px;color:var(--mut,#8a8799);margin:-10px 0 8px}
 #lock .lkbtn{width:312px;height:80px;border:0;border-radius:10px;background:#eaecf2;font:inherit;font-size:24px;color:#3a3846;cursor:pointer}#lock .lkbtn:active{background:var(--accs,#edf1fc)}#lock .lkbtn:disabled{opacity:.45;cursor:not-allowed}
 #lock .lkexit{margin-top:56px}
@@ -1031,7 +1032,7 @@ const toast = (m, err) => { if(QUIET.test(String(m||""))) return; const t=$("#to
 const store = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
 let db = null;
-const S = { brands:[], devices:[], branches:[], categories:[], products:[], orders:[], shifts:[], modifiers:[], modifier_options:[], taxes:[], tax_groups:[], payment_methods:[], roles:[], users:[], settings:[], day_closes:[], charges:[], order_sources:[] };
+const S = { brands:[], devices:[], branches:[], categories:[], products:[], orders:[], shifts:[], modifiers:[], modifier_options:[], taxes:[], tax_groups:[], payment_methods:[], roles:[], users:[], settings:[], day_closes:[], charges:[], order_sources:[], work_shifts:[] };
 let posChg = null, posOpen = {};   // posOpen: amounts the cashier entered for open-amount charges   // null = the charges that apply automatically; otherwise the ids the cashier kept
 let GUESTS = 0, orderNote = "", kitchenNote = "", SEEN = new Set(), SEEN_READY = false;   // pending call-center / web orders already announced   // order-level note, printed on the receipt (not the kitchen ticket)
 let EDIT = null;   // an order opened from the Orders list into the billing section: { id }
@@ -1212,22 +1213,42 @@ async function tryPin(){
 let WELC = null;
 const tcDoc = () => S.settings.find(x => x.id==="timeclock") || {};
 const tcOpen = u => (tcDoc().open || {})[u.id] || null;   // { at, branchId, deviceId } while clocked in
+// published shifts (Employee Management → Schedule): shown after the PIN, and used to flag late / unscheduled clock-ins
+const LATE_MIN = 5;
+const shMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(t||""); return m ? +m[1]*60 + +m[2] : 0; };
+const shSpan = x => { const a = shMin(x.startTime); let b = shMin(x.endTime); if(b <= a) b += 1440; const d0 = +new Date(x.day + "T00:00:00"); return [d0 + a*60000, d0 + b*60000]; };
+const shDay = (t = new Date()) => { const d = new Date(t); return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const myShifts = u => (S.work_shifts||[]).filter(x => !x.deleted && x.published && x.employeeId===u.id).sort((a,b) => shSpan(a)[0] - shSpan(b)[0]);
+// the shift this clock-in belongs to: one that is on now, or starts within 3 hours, at this branch first
+function shiftFor(u, at = Date.now()){ const list = myShifts(u).filter(x => { const [a, b] = shSpan(x); return at >= a - 3*3600000 && at <= b; });
+  return list.find(x => x.branchId===device.branchId) || list[0] || null; }
+const hm = t => new Date(t).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+function shiftsHtml(u){ const now = Date.now(), up = myShifts(u).filter(x => shSpan(x)[1] >= now).slice(0, 4); if(!up.length) return `<p class="lkst">No upcoming shifts</p>`;
+  const bn = id => (S.branches.find(b => b.id===id)||{}).name || ""; const dl = x => x.day===shDay() ? "Today" : x.day===shDay(now + 86400000) ? "Tomorrow" : new Date(x.day + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"2-digit", month:"2-digit" }).replace(/\//g, "-");
+  return `<div class="lkshifts"><b>Your Shifts</b>${up.map(x => `<div><span>${esc(dl(x))}</span><span>${esc(String(x.startTime).slice(0,5))} – ${esc(String(x.endTime).slice(0,5))}</span><small>${esc([x.jobTitle, x.branchId!==device.branchId ? bn(x.branchId) : ""].filter(Boolean).join(" · "))}</small></div>`).join("")}</div>`; }
 function paintWelcome(){
   const u = WELC; if(!u) return; const o = tcOpen(u), canReg = isAdminUser(u) || userPerms(u).includes("pos_access");
   $("#lock").classList.add("welc");
   $("#lkWel").innerHTML = `<p class="lkhi">Welcome, ${esc(u.name)}!</p><p class="lkst">${o ? "Clocked in since " + esc(new Date(o.at).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })) : "Not clocked in"}</p>
     <button type="button" class="lkbtn" id="lkClock">${o ? "Clock Out" : "Clock In"}</button>
     <button type="button" class="lkbtn" id="lkGo" ${canReg ? "" : "disabled title=\"Your role doesn't allow using the register\""}>Access Register</button>
-    <button type="button" class="lkbtn lkexit" id="lkExit">Exit</button>`;
+    <button type="button" class="lkbtn lkexit" id="lkExit">Exit</button>${shiftsHtml(u)}`;
 }
 async function tcToggle(){
   const u = WELC; if(!u) return; const d = tcDoc(), open = { ...(d.open || {}) }, log = [...(d.log || [])], now = new Date().toISOString(), o = open[u.id];
-  if(o){ log.push({ userId:u.id, name:u.name, branchId:o.branchId, deviceId:o.deviceId, in:o.at, out:now }); delete open[u.id]; }
-  else open[u.id] = { at:now, branchId:device.branchId, deviceId:device.id, name:u.name };
+  let note = "";
+  if(o){ const e = { userId:u.id, name:u.name, branchId:o.branchId, deviceId:o.deviceId, in:o.at, out:now };
+    ["shiftId","late","unscheduled"].forEach(k => { if(o[k] != null) e[k] = o[k]; });
+    const sh = o.shiftId && (S.work_shifts||[]).find(x => x.id===o.shiftId); if(sh){ const early = Math.round((shSpan(sh)[1] - Date.now()) / 60000); if(early > LATE_MIN){ e.earlyOut = early; note = ` · ${early} min early`; } }
+    log.push(e); delete open[u.id]; }
+  else { const sh = shiftFor(u), n = { at:now, branchId:device.branchId, deviceId:device.id, name:u.name };
+    if(sh){ n.shiftId = sh.id; const late = Math.round((Date.now() - shSpan(sh)[0]) / 60000); if(late > LATE_MIN){ n.late = late; note = ` · ${late} min late`; } }
+    else { n.unscheduled = true; note = " · no shift scheduled"; }
+    open[u.id] = n; }
   const next = { open, log: log.slice(-2000) };
   const ex = S.settings.find(x => x.id==="timeclock"); if(ex) Object.assign(ex, next); else S.settings.push({ id:"timeclock", ...next });
   try{ await db.collection("settings").doc("timeclock").set(next); }catch(e){ console.warn("time clock", e); toast("Saved on this tablet · will sync when online"); }
-  toast(o ? `${u.name} clocked out` : `${u.name} clocked in`); paintWelcome();
+  toast((o ? `${u.name} clocked out` : `${u.name} clocked in`) + note); paintWelcome();
 }
 document.addEventListener("click", e => {
   if(e.target.closest("#lkClock")) return tcToggle();
