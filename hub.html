@@ -17,7 +17,7 @@ var skwPhoneFmt = function(cc, num){ var d = String(num||"").replace(/\D/g, ""),
 var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by[r[2]] = by[r[2]] || []).push(r); }); return Object.keys(by).map(function(d){ var l = by[d], mi = SKW_WORLD.m[d], m = l.filter(function(r){ return r[0]===mi; })[0] || l[0], rest = l.filter(function(r){ return r!==m; }).sort(function(a,b){ return (b[0]==="CA") - (a[0]==="CA"); }); return [d, m[1] + (rest.length ? (rest.length <= 2 ? ", " + rest.map(function(r){ return r[1]; }).join(", ") : ", " + rest[0][1] + " & " + (rest.length-1) + " more") : ""), m[0]]; }).sort(function(a,b){ return a[1].localeCompare(b[1]); }); };</script>
 
 <script src="invoice-doc.js?v=1"></script>
-<script src="motion.js?v=1"></script>
+<script src="motion.js?v=2"></script>
 <style>
 :root{--bg:#f7f7f9;--surface:#fff;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--accent-soft:#eef1fa;--accent-ink:#172d6a;
   --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#c6f432;--radius:10px}

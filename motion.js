@@ -37,6 +37,26 @@ ${Array.from({ length: 12 }, (_, i) => `.m-rows tr:nth-child(${i + 1}),.m-rows>l
 .m-bump{animation:m-bump .35s cubic-bezier(.3,1.6,.5,1)}@keyframes m-bump{40%{transform:scale(1.25)}}
 button,.btn,.prod{-webkit-tap-highlight-color:transparent}
 .btn:active:not(:disabled),.prod:active:not(:disabled){transform:scale(.97)}
+#view div[style*="var(--chart)"][style*="width"]{transform-origin:left;animation:m-grow .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes m-grow{from{transform:scaleX(0)}}
+.nav .grp.open .sub{animation:m-sub .22s ease both}@keyframes m-sub{from{opacity:0;transform:translateY(-6px)}}
+.nav .grp .chev{display:inline-block;transition:transform .2s}.nav .grp.open .chev{transform:rotate(90deg)}
+.m-tabs{position:relative}.m-tabs>a.on,.m-tabs>button.on{border-bottom-color:transparent!important}
+.m-tabbar{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:#1e3a8a;pointer-events:none;transition:left .25s cubic-bezier(.2,.8,.2,1),width .25s cubic-bezier(.2,.8,.2,1)}
+.empty:not(:has(.m-skel))::before{content:"";display:block;width:46px;height:52px;margin:0 auto 10px;opacity:.85;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 34'%3E%3Cpath d='M15 2c6.6 0 11 4.6 11 10.6 0 3.2-1.2 5.6-3 7.4l1.6 9.2c.2 1-.9 1.6-1.6.9l-3.4-3.6-1.6 5.6c-.3 1-1.7 1-2 0L15 25.6l-1 6.5c-.3 1-1.7 1-2 0l-1.6-5.6-3.4 3.6c-.7.7-1.8.1-1.6-.9L7 20C5.2 18.2 4 15.8 4 12.6 4 6.6 8.4 2 15 2z' fill='%23eef7c8' stroke='%23a3c92a' stroke-width='1'/%3E%3Ccircle cx='11.2' cy='12.4' r='1.6' fill='%23172554'/%3E%3Ccircle cx='18.8' cy='12.4' r='1.6' fill='%23172554'/%3E%3C/svg%3E") center/contain no-repeat;animation:m-float 3s ease-in-out infinite}
+td.empty::before,.empty.inline::before{display:none}
+@keyframes m-float{50%{transform:translateY(-4px)}}
+.m-fly{position:fixed;z-index:2147483600;width:22px;height:22px;border-radius:50%;background:#c6f432;box-shadow:0 0 0 3px rgba(30,58,138,.25);pointer-events:none}
+.m-swl{animation:m-swl .26s ease}.m-swr{animation:m-swr .26s ease}
+@keyframes m-swl{from{opacity:.3;transform:translateX(40px)}}@keyframes m-swr{from{opacity:.3;transform:translateX(-40px)}}
+.m-undo{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;z-index:2147483500;display:flex;align-items:center;gap:14px;background:#172554;color:#fff;border-radius:12px;padding:10px 12px 10px 16px;font-size:14px;box-shadow:0 12px 32px rgba(20,20,50,.28);transition:transform .25s cubic-bezier(.2,.9,.3,1),opacity .2s;overflow:hidden}
+.m-undo.on{transform:translate(-50%,0);opacity:1}.m-undo button{border:0;background:#c6f432;color:#172554;font-weight:700;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px}
+.m-undo i{position:absolute;left:0;bottom:0;height:3px;background:#c6f432;animation:m-tb 6s linear forwards;width:100%;transform-origin:left}
+.m-ptr{display:flex;align-items:center;justify-content:center;gap:8px;height:0;overflow:hidden;color:#5b5a66;font-size:13px;font-weight:600}
+.m-ptr svg{width:18px;height:18px;transition:transform .2s}.m-ptr.ready svg{transform:rotate(180deg)}
+.m-confetti{position:fixed;inset:0;pointer-events:none;z-index:2147483646}
+.m-cele{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px) scale(.9);opacity:0;z-index:2147483647;background:#172554;color:#fff;border-radius:16px;padding:14px 22px;font-size:18px;font-weight:700;box-shadow:0 16px 40px rgba(20,20,50,.3);transition:all .3s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:center}
+.m-cele.on{opacity:1;transform:translate(-50%,0) scale(1)}.m-cele small{display:block;font-size:13px;font-weight:500;color:#c6f432;margin-top:2px}
 @media (prefers-reduced-motion:reduce){.m-tap,.m-enter>*,.m-rows tr,.m-rows>li,.m-new,.m-bump,.m-shake{animation:none!important}}`;
   const st = document.createElement("style"); st.id = "motion-css"; st.textContent = css; document.head.appendChild(st);
 
@@ -61,7 +81,7 @@ button,.btn,.prod{-webkit-tap-highlight-color:transparent}
   };
 
   // ---- dashboard numbers count up when they change (a re-render with the same number stays still)
-  const NUMS = ".kpi .v,.kpi>b,.kpi b.kv,[data-countup]", seen = new Map();
+  const NUMS = ".kpi .v,.kpi>b,.kpi b.kv,[data-countup]" + (POS ? ",#totals .g span:last-child" : ""), seen = new Map();
   function keyOf(el) { const k = el.closest(".kpi"); return (k?.querySelector("h3,span,.kh")?.textContent || "") + "|" + [...(k?.parentElement?.children || [])].indexOf(k); }
   function countUp(el) {
     const txt = el.textContent.trim(); if (el._mDone === txt) return;
@@ -71,7 +91,7 @@ button,.btn,.prod{-webkit-tap-highlight-color:transparent}
     const pm = prev && prev.match(/[\d,]+(?:\.\d+)?/), from = pm ? parseFloat(pm[0].replace(/,/g, "")) || 0 : 0;
     if (from === to) return;
     const fmt = v => v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec, useGrouping: comma });
-    const t0 = performance.now(), dur = 650;
+    const t0 = performance.now(), dur = el.closest("#totals") ? 280 : 650;
     (function f(t) { if (!el.isConnected) return; const p = Math.min(1, (t - t0) / dur), v = from + (to - from) * (1 - Math.pow(1 - p, 3));
       el.textContent = m[1] + m[2] + fmt(v) + m[5]; el._mDone = el.textContent.trim(); if (p < 1) requestAnimationFrame(f); else { el.textContent = txt; el._mDone = txt; } })(t0);
   }
@@ -107,6 +127,133 @@ button,.btn,.prod{-webkit-tap-highlight-color:transparent}
     L._mN = n;
   }
 
+
+  // ---- tabs: the underline slides to the chosen tab
+  const tabPos = new Map();
+  function tabs() {
+    document.querySelectorAll(".tabs").forEach((t, i) => {
+      const on = t.querySelector(":scope > a.on, :scope > button.on"); if (!on || getComputedStyle(t).display.includes("inline")) return;
+      t.classList.add("m-tabs"); let bar = t.querySelector(":scope > .m-tabbar"); const key = (t.closest("#view,.scrim,.dlg")?.id || "") + i + "|" + t.children.length;
+      const L = on.offsetLeft, W = on.offsetWidth; if (!W) return;
+      if (!bar) { bar = document.createElement("span"); bar.className = "m-tabbar"; t.appendChild(bar); const p = tabPos.get(key); if (p && !RM) { bar.style.transition = "none"; bar.style.left = p[0] + "px"; bar.style.width = p[1] + "px"; void bar.offsetWidth; bar.style.transition = ""; } }
+      if (bar.style.left !== L + "px" || bar.style.width !== W + "px") { bar.style.left = L + "px"; bar.style.width = W + "px"; }
+      tabPos.set(key, [L, W]);
+    });
+  }
+
+  // ---- count badges bump when their number goes up (new orders waiting, items, …)
+  const badgeSeen = new Map();
+  function badges() {
+    document.querySelectorAll(".cnt,.badge,.nbadge,.bcount,sup").forEach(b => {
+      const n = parseFloat(b.textContent.replace(/[^\d.]/g, "")); if (isNaN(n)) return;
+      const k = (b.parentElement?.textContent || "").replace(/[\d.,]+/g, "") + "|" + b.className; const was = badgeSeen.get(k); badgeSeen.set(k, n);
+      if (was !== undefined && n > was) Motion.bump(b);
+    });
+  }
+
+  // ---- after a save, the edited row lights up for a moment
+  let flashId = null, flashAt = 0;
+  Motion.flash = id => { flashId = id; flashAt = Date.now(); };
+  function flashRow() {
+    if (!flashId || Date.now() - flashAt > 4000) return; const v = document.getElementById("view"); if (!v) return;
+    const q = `"${CSS.escape(flashId).replace(/\\/g, "")}"`; const row = [...v.querySelectorAll("tr,.card,li")].find(r => r.outerHTML.length < 6000 && r.outerHTML.includes(q));
+    if (row) { row.classList.remove("m-new"); void row.offsetWidth; row.classList.add("m-new"); flashId = null; }
+  }
+
+  // ---- charts: lines draw themselves in
+  function charts() {
+    if (RM) return;
+    document.querySelectorAll("#view svg polyline:not([data-m]),#view svg path[fill=none]:not([data-m])").forEach(l => {
+      l.dataset.m = 1; let len = 0; try { len = l.getTotalLength(); } catch (e) {} if (!len || len < 30) return;
+      l.style.strokeDasharray = len; l.style.strokeDashoffset = len; l.getBoundingClientRect();
+      l.style.transition = "stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"; requestAnimationFrame(() => l.style.strokeDashoffset = "0");
+      setTimeout(() => { l.style.strokeDasharray = ""; l.style.strokeDashoffset = ""; l.style.transition = ""; }, 900);
+    });
+  }
+
+  // ---- undo bar: shows for 6 seconds after something is deleted
+  Motion.undo = (text, onUndo) => {
+    document.querySelector(".m-undo")?.remove(); const u = document.createElement("div"); u.className = "m-undo"; u.setAttribute("role", "status");
+    u.innerHTML = `<span></span><button type="button">Undo</button><i></i>`; u.firstChild.textContent = text; document.body.appendChild(u);
+    requestAnimationFrame(() => u.classList.add("on"));
+    const bye = () => { u.classList.remove("on"); setTimeout(() => u.remove(), 260); };
+    const t = setTimeout(bye, 6000);
+    u.querySelector("button").onclick = async () => { clearTimeout(t); u.querySelector("button").disabled = true; try { await onUndo(); } finally { bye(); } };
+  };
+
+  // ---- celebration: confetti for the first sale of the day and for a big sale
+  Motion.celebrate = (title, sub) => {
+    if (RM) return; buzz([30, 60, 30]);
+    const c = document.createElement("canvas"); c.className = "m-confetti"; c.width = innerWidth; c.height = innerHeight; document.body.appendChild(c);
+    const g = c.getContext("2d"), cols = ["#c6f432", "#1e3a8a", "#ffffff", "#60a5fa", "#a3e635"];
+    const P = Array.from({ length: 120 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .35, vx: (Math.random() - .5) * 14, vy: -Math.random() * 12 - 4, s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[Math.random() * cols.length | 0] }));
+    const t0 = performance.now();
+    (function f(t) { const k = (t - t0) / 1800; g.clearRect(0, 0, c.width, c.height);
+      P.forEach(p => { p.vy += .35; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.globalAlpha = Math.max(0, 1 - k); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); });
+      if (k < 1) requestAnimationFrame(f); else c.remove(); })(t0);
+    const b = document.createElement("div"); b.className = "m-cele"; b.innerHTML = `<span></span><small></small>`; b.firstChild.textContent = title; b.lastChild.textContent = sub || ""; document.body.appendChild(b);
+    requestAnimationFrame(() => b.classList.add("on")); setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 320); }, 2200);
+  };
+  Motion.sale = total => {
+    const d = new Date().toDateString(); let st; try { st = JSON.parse(localStorage.getItem("skwyd_sales_day") || "{}"); } catch (e) { st = {}; }
+    if (st.d !== d) st = { d, n: 0, sum: 0, max: 0 };
+    const avg = st.n ? st.sum / st.n : 0;
+    if (st.n === 0) Motion.celebrate("First sale of the day", "Have a great shift");
+    else if (st.n >= 5 && total >= avg * 3 && total > st.max) Motion.celebrate("Big sale", "The biggest one today so far");
+    st.n++; st.sum += +total || 0; st.max = Math.max(st.max, +total || 0); try { localStorage.setItem("skwyd_sales_day", JSON.stringify(st)); } catch (e) {}
+  };
+
+  if (POS) {
+    // ---- the item flies from the menu into the order
+    document.addEventListener("click", e => {
+      const t = e.target.closest?.("#grid [data-add]:not(:disabled)"); if (!t || RM) return; const dest = document.getElementById("lines") || document.querySelector(".cart"); if (!dest) return;
+      const a = t.getBoundingClientRect(), d = dest.getBoundingClientRect(), dot = document.createElement("span"); dot.className = "m-fly";
+      const x0 = a.left + a.width / 2 - 11, y0 = a.top + a.height / 2 - 11, x1 = d.left + Math.min(d.width / 2, 60), y1 = d.top + Math.min(d.height - 30, 40 + (dest.children.length * 44));
+      dot.style.left = x0 + "px"; dot.style.top = y0 + "px"; document.body.appendChild(dot);
+      dot.animate([{ transform: "translate(0,0) scale(1)" }, { transform: `translate(${(x1 - x0) / 2}px,${Math.min(y1, y0) - y0 - 60}px) scale(1.15)`, offset: .45 }, { transform: `translate(${x1 - x0}px,${y1 - y0}px) scale(.4)`, opacity: .2 }], { duration: 480, easing: "cubic-bezier(.2,.7,.3,1)" }).onfinish = () => dot.remove();
+    }, true);
+
+    // ---- swipe left or right on the menu to change category
+    let sw = null;
+    document.addEventListener("pointerdown", e => { if (e.target.closest?.("#grid")) sw = { x: e.clientX, y: e.clientY, t: Date.now() }; }, { passive: true });
+    document.addEventListener("pointerup", e => {
+      if (!sw) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y, dt = Date.now() - sw.t; sw = null;
+      if (Math.abs(dx) < 80 || Math.abs(dy) > 50 || dt > 700) return;
+      const cats = [...document.querySelectorAll("#mcats .mcat")], i = cats.findIndex(c => c.classList.contains("on")); if (i < 0) return;
+      const nx = cats[i + (dx < 0 ? 1 : -1)]; if (!nx) return;
+      const block = ev => { ev.stopPropagation(); ev.preventDefault(); }; document.addEventListener("click", block, { capture: true, once: true }); setTimeout(() => document.removeEventListener("click", block, { capture: true }), 50);
+      nx.click(); nx.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      const g = document.getElementById("grid"); if (g && !RM) { g.classList.remove("m-swl", "m-swr"); void g.offsetWidth; g.classList.add(dx < 0 ? "m-swl" : "m-swr"); }
+      buzz(10);
+    }, { passive: true });
+
+    // ---- order board: cards glide to their new column instead of jumping
+    const cardPos = new Map();
+    Motion._board = () => {
+      const board = document.querySelector(".oboard"); if (!board) { cardPos.clear(); return; }
+      const b = board.getBoundingClientRect(), now = new Map();
+      board.querySelectorAll(".ocard[data-ov]").forEach(c => { const r = c.getBoundingClientRect(); const p = [r.left - b.left, r.top - b.top]; now.set(c.dataset.ov, p);
+        const o = cardPos.get(c.dataset.ov); if (!o || RM) return; const dx = o[0] - p[0], dy = o[1] - p[1];
+        if (Math.abs(dx) > 30) c.animate([{ transform: `translate(${dx}px,${dy}px)`, boxShadow: "0 10px 26px rgba(20,20,50,.2)" }, { transform: "none", boxShadow: "none" }], { duration: 380, easing: "cubic-bezier(.2,.8,.2,1)" }); });
+      [...now.keys()].filter(k => !cardPos.has(k) && cardPos.size).forEach(k => board.querySelector(`.ocard[data-ov="${CSS.escape(k)}"]`)?.animate([{ opacity: 0, transform: "scale(.94)" }, { opacity: 1, transform: "none" }], { duration: 300, easing: "ease-out" }));
+      cardPos.clear(); now.forEach((v, k) => cardPos.set(k, v));
+    };
+
+    // ---- pull down on the order board to refresh it
+    let pull = null;
+    const scroller = el => el.closest(".mb") || el.closest(".oboard")?.parentElement;
+    document.addEventListener("pointerdown", e => {
+      if (e.pointerType === "mouse") return; const bd = e.target.closest?.(".oboard"); if (!bd) return; const sc = scroller(bd); if (!sc || sc.scrollTop > 0) return;
+      let ind = sc.querySelector(":scope > .m-ptr"); if (!ind) { ind = document.createElement("div"); ind.className = "m-ptr"; ind.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Pull to refresh</span>'; sc.prepend(ind); }
+      pull = { y: e.clientY, sc, ind, h: 0 };
+    }, { passive: true });
+    document.addEventListener("pointermove", e => { if (!pull) return; const h = Math.max(0, Math.min(80, (e.clientY - pull.y) * .5)); if (pull.sc.scrollTop > 0) { pull.h = 0; return; } pull.h = h; pull.ind.style.height = h + "px"; pull.ind.classList.toggle("ready", h > 54); pull.ind.querySelector("span").textContent = h > 54 ? "Release to refresh" : "Pull to refresh"; }, { passive: true });
+    const endPull = () => { if (!pull) return; const { ind, h } = pull; pull = null; ind.style.transition = "height .2s ease";
+      if (h > 54) { buzz(20); ind.style.height = "44px"; ind.querySelector("span").textContent = "Refreshing"; try { window.WOK?.refreshAll?.(); } catch (e) {} setTimeout(() => { ind.style.height = "0"; }, 900); }
+      else ind.style.height = "0"; setTimeout(() => { ind.style.transition = ""; }, 220); };
+    document.addEventListener("pointerup", endPull); document.addEventListener("pointercancel", endPull);
+  }
+
   let queued = false;
   const mo = new MutationObserver(muts => {
     if (queued) return; queued = true;
@@ -114,7 +261,8 @@ button,.btn,.prod{-webkit-tap-highlight-color:transparent}
       queued = false;
       skeleton(document); errors(document);
       document.querySelectorAll(NUMS).forEach(countUp);
-      if (POS) posLines();
+      if (POS) { posLines(); Motion._board?.(); }
+      tabs(); badges(); flashRow(); charts();
       if (rowsNext && Date.now() - rowsNext < 1500) { rowsNext = 0; document.querySelectorAll("#view tbody,#view .list,#ilist tbody").forEach(Motion.rows); }
     });
   });
