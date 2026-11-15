@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="917-1794775322">
+<meta name="skwyd-build" content="918-1794775413">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1618,6 +1618,7 @@ input.dfh{display:none!important}
 
 .modal .err,#view .err{display:none!important}
 .olslug{display:flex;align-items:center;border:1px solid #d6dae3;border-radius:10px;overflow:hidden;background:#fff}.olslug>span{padding:0 4px 0 14px;color:#6b7280;white-space:nowrap;font-size:15px}.olslug>input.sel{border:0!important;box-shadow:none!important;padding-left:0!important;flex:1;min-width:0;font-size:15px}
+.nav .grp.open.stay .sub{animation:none!important}
 /* build 914: names typed by people keep their spelling in titles; page headers wrap to the right; plain codes in tables */
 h1 .dn,.dn{text-transform:none}
 #view .phead:has(> .sp){justify-content:flex-end}#view .phead:has(> .sp)>h1{margin-right:0}
@@ -1976,7 +1977,8 @@ const navLine = k => `<span class="nti nln"><svg class="nls" viewBox="0 0 24 24"
 const navIco = k => NAVL[k] ? navLine(k) : svgIco(k);
 function renderNav(route){
   route = ROUTE_PARENT[route] || route;
-  $("#nav").innerHTML = NAV.map((n,gi) => {
+  const nav = $("#nav"), wasOpen = new Set([...nav.querySelectorAll(".grp.open")].map(g => g.dataset.g));
+  const html = NAV.map((n,gi) => {
     if(!canOpen(n.id || n.kids.find(k=>!k[0].startsWith("@"))?.[0])) return "";
     if(n.id) return `<a href="#${n.id}" class="${route===n.id?"on":""}">${navIco(n.i)}${n.t}</a>`;
     if(n.tabs && n.side){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0], inTabs = n.kids.some(k=>k[0]===route), open = inTabs || n.side.some(k=>k[0]===route);   // Menu: its builder screens are tabs on the page, Sales Channels sits beside them in the sidebar
@@ -1987,6 +1989,9 @@ function renderNav(route){
       n.kids.map(k => k[0].startsWith("@") ? `<div class="lbl">${k[0].slice(1)}</div>` : `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")
     }</div></div>`;
   }).join("");
+  // redrawn only when something changed, and a group that was already open doesn't play its opening slide again (it stays still while you move between its pages)
+  if(nav._h === html) return; nav._h = html; nav.innerHTML = html;
+  nav.querySelectorAll(".grp.open").forEach(g => { if(wasOpen.has(g.dataset.g)) g.classList.add("stay"); });
 }
 $("#nav").addEventListener("click", e => {
   const b = e.target.closest(".grp > button"); if(!b) return;
