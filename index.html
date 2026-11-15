@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="914-1794767634">
+<meta name="skwyd-build" content="915-1794774701">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1612,21 +1612,9 @@ input.dfh{display:none!important}
 .ordtools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ordtools .sel{height:40px;width:auto;min-width:160px}.ordtools .drpbtn{gap:10px;min-width:220px;justify-content:flex-start}.ordtools .drpbtn span{flex:1;text-align:left}
 @media(max-width:760px){.ordtools{width:100%}.ordtools .sel,.ordtools .drpbtn{flex:1;min-width:0}}
 
-/* build 911: hidden fields stay hidden; Close kept where asked; multi-pick dropdown (Foodics "Choose…") */
+/* build 911: hidden fields stay hidden; Close kept where asked */
 .f[hidden],.dapane[hidden]{display:none!important}
 #ccBox footer .btn.keep[data-ccclose]:not(.pri):not(.danger),.modal footer .btn.keep[data-ccclose]:not(.pri):not(.danger){display:inline-flex!important}
-.mdd{position:relative;width:100%}
-.mdd-t{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;border:1px solid #d6dae3;border-radius:10px;padding:7px 12px 7px 14px;background:#fff;font:inherit;font-size:16px;color:inherit;cursor:pointer;text-align:left}
-.mdd-t:hover,.mdd.open .mdd-t{border-color:#1e3a8a}
-.mdd-t .ph{color:#6b7280}.mdd-t svg{flex:none;width:16px;height:16px;color:#6b7280;transition:transform .15s}.mdd.open .mdd-t svg{transform:rotate(180deg)}
-.mdd-t .chips{display:flex;flex-wrap:wrap;gap:6px}.mdd-t .chip{background:#eef1f8;color:#172554;border-radius:8px;padding:3px 9px;font-size:14px;line-height:1.3}
-.mdd-p{display:none;margin-top:6px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 30px rgba(20,16,40,.12);padding:8px}
-.mdd.open .mdd-p{display:block}
-.mdd-p .mdd-q{width:100%;margin:0 0 6px;min-height:40px}
-.mdd-p .multi{max-height:260px;overflow:auto;display:flex!important;flex-direction:column;gap:2px;border:0!important;padding:0!important;margin:0;background:none!important;box-shadow:none!important}
-.mdd-p .multi .chk{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;border:0!important;background:none}
-.mdd-p .multi .chk:hover{background:#f5f6fa}
-.mdd-p .multi:empty::after{content:attr(data-empty);color:#6b7280;padding:10px;display:block}
 
 .modal .err,#view .err{display:none!important}
 /* build 914: names typed by people keep their spelling in titles; page headers wrap to the right; plain codes in tables */
@@ -2840,8 +2828,8 @@ setTimeout(() => { const _r = render; render = function(){ try{ return _r.apply(
   try{ renderNav((HASH().slice(1) || "dashboard")); }catch(_){}
   const v = document.getElementById("view"); if(v) v.innerHTML = `<div class="card empty" style="margin-top:20px">This page couldn't be shown. <button class="btn" onclick="location.reload()">Reload</button></div>`; } }; }, 0);
 // the orders table fills the screen below the tabs and scrolls inside, so its column headers stay in view
-function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); void top; t.style.maxHeight = ""; const tb = t.querySelector("table"), box = tb && (tb.closest(".tscroll") || t); if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= box.clientWidth) break; t.classList.add(c); } } }
-addEventListener("resize", () => fitOtbl());
+function fitOtbl(){ const t = document.querySelector("#view .card.otbl"); if(!t) return; const m = document.querySelector(".main"), top = t.getBoundingClientRect().top + (m ? m.scrollTop : 0) - (m ? m.getBoundingClientRect().top : 0); void top; t.style.maxHeight = ""; const tb = t.querySelector("table"), box = tb && (tb.closest(".tscroll") || t); t.dataset.fit = "1"; if(tb){ t.classList.remove("ofit1","ofit2"); for(const c of ["ofit1","ofit2"]){ if(tb.scrollWidth <= box.clientWidth) break; t.classList.add(c); } } }
+addEventListener("resize", () => fitOtbl()); window.fitOtbl = fitOtbl;
 /* ---------- Skwyd Hub subscription: the plan, the trial/overdue banner, the lock screen and Manage → Subscription ---------- */
 let SUB = null;   // slick_my_subscription(): state trial/active/grace/locked, daysLeft, modules, invoices…
 async function subLoad(){ try{ if(!window.WOK?.subscription) return; const d = await window.WOK.subscription(); if(d){ SUB = d; render(); } }catch(e){ console.error(e); } }
@@ -3863,8 +3851,10 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
 (() => {
   const route = () => HASH().slice(1).split("?")[0];
   const scrimOpen = () => $("#ccScrim")?.classList.contains("show");
-  const current = r => r==="orders" ? (ORD.open && scrimOpen() ? ORD.open : "") : r==="customers" ? (CUS.open || "")
-    : DOC.open && DOC.open.route===r && DOC.open.id ? DOC.open.id : DET.key===r && DET.id ? (S[CRUD[r]?.col]?.find(x => x.id===DET.id)?.uid || DET.id) : "";   // menu and inventory items: their random ID, not the SKU-based one
+  // every record is addressed by its random unique ID (uid), not its internal or SKU-based ID; old links with the internal ID still open
+  const isUid = v => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(v||""));
+  const current = r => r==="orders" ? (ORD.open && scrimOpen() ? (ORD.openUid || S.orders?.find(x => x.id===ORD.open)?.uid || ORD.open) : "") : r==="customers" ? (CUS.open ? (CUS.openUid || CUS.open) : "")
+    : DOC.open && DOC.open.route===r && DOC.open.id ? (S.inv_docs?.find(x => x.id===DOC.open.id)?.uid || DOC.open.id) : DET.key===r && DET.id ? (S[CRUD[r]?.col]?.find(x => x.id===DET.id)?.uid || DET.id) : "";
   let last = null, opening = null;
   function sync(){
     const r = route(); if(!r || opening) return; const rec = current(r), want = "/" + urlSeg(r) + (rec ? "/" + encodeURIComponent(rec) : "") + location.search;
@@ -3883,8 +3873,8 @@ document.addEventListener("change", e => { if(e.target.id==="ordBranch"){ ORD.br
       try{
         if(storeMode==="db" || storeMode==="local"){
           if(r==="orders"){ await openOrderDetail(id, true); }
-          else if(r==="customers"){ await openCustomer(id); }
-          else if(typeof DOC_KINDS!=="undefined" && DOC_KINDS[r] && S.inv_docs?.some(x => x.id===id)){ openDoc(r, id); }
+          else if(r==="customers"){ let cid = id; if(isUid(id)){ const { data } = await WOK.sb.from("customers").select("id").eq("uid", id).maybeSingle(); cid = data?.id; } if(cid) await openCustomer(cid); }
+          else if(typeof DOC_KINDS!=="undefined" && DOC_KINDS[r]){ const d = S.inv_docs?.find(x => x.uid===id || x.id===id); if(d) openDoc(r, d.id); }
           else if(CRUD[r]){ const rec = S[CRUD[r].col]?.find(x => x.uid===id || x.id===id); if(rec) openDetail(r, rec.id); }
         }
       }catch(e){ console.error(e); }
@@ -6212,9 +6202,10 @@ function viewOrders(){
   <div class="pager"><span class="note">${a}–${b} of ${ORD.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="ordPrev" ${ORD.page<=1?"disabled":""}>Previous</button><span class="note">Page ${ORD.page} of ${pages}</span><button class="btn" id="ordNext" ${ORD.page>=pages?"disabled":""}>Next</button></div></div>`;
 }
 async function openOrderDetail(id, quiet){
-  const { data, error } = await WOK.sb.from("orders").select("*").eq("id", id).maybeSingle();
+  const byUid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id||""));
+  const { data, error } = await WOK.sb.from("orders").select("*").eq(byUid ? "uid" : "id", id).maybeSingle();
   if(error || !data){ if(!quiet) toast("Couldn't open this order"); return; }
-  const o = fromRowO(data); ORD.open = id;
+  id = data.id; const o = fromRowO(data); ORD.open = id; ORD.openUid = data.uid || null;
   const dt = t => t ? new Date(t).dmy(true) : "—";
   const mins = (a,b) => a && b ? Math.round((new Date(b)-new Date(a))/60000) + " min" : "";
   const admin = ["owner","admin"].includes(state.role);
@@ -6555,12 +6546,12 @@ function viewCustomers(){
 // ---- customer page ----
 async function openCustomer(id){
   if(!id) return openCustomerEdit(null);
-  CUS.open = id; CUS.det = null; CUS.more = false; render(); window.scrollTo(0, 0);
+  CUS.open = id; CUS.openUid = null; CUS.det = null; CUS.more = false; render(); window.scrollTo(0, 0);
   const [r1, r2] = await Promise.all([WOK.sb.from("customers").select("*").eq("id", id).maybeSingle(),
     WOK.sb.from("orders").select("id,ref,no,invoice_no,return_no,created_at,branch_id,channel,type,table_no,source,payment,status,total,discount,items,address").eq("customer_id", id).order("created_at", { ascending:false }).limit(500)]);
   if(CUS.open!==id) return;
   if(r1.error || !r1.data){ CUS.open = null; render(); return toast("Couldn't open this customer"); }
-  const c = r1.data; c.__orders = r2.data || []; c.addresses = c.addresses || []; c.tags = c.tags || [];
+  const c = r1.data; CUS.openUid = c.uid || null; c.__orders = r2.data || []; c.addresses = c.addresses || []; c.tags = c.tags || [];
   const r3 = await WOK.sb.from("house_account_txns").select("*").eq("customer_id", id).order("created_at", { ascending:false }).limit(500); c.__ha = r3.error ? [] : r3.data || [];
   if(CUS.open!==id) return;
   CUS.det = c; window.__cus = c; render();
@@ -8443,8 +8434,8 @@ document.addEventListener("click", async e => {
     const avail = S.inv_items.filter(i => live(i) && !used.has(i.id) && i.id!==DET.id).sort((a,b) => a.name.localeCompare(b.name)), box = $("#ccBox"); box.className = "modal sm";
     const tg = tagList("inventory");
     box.innerHTML = `<header><h2>Add Items</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:block">
-      <div class="f" id="igByItems"><label style="display:flex;justify-content:space-between"><span>Items</span>${tg.length ? `<a href="#" class="lnk" data-igmode="tags">Select by tags ?</a>` : ""}</label><div class="multi" id="igItems" data-dd data-empty="No inventory items to add">${avail.map(i => `<label class="chk"><input type="checkbox" value="${esc(i.id)}"> ${esc(i.name)}${i.sku ? " (" + esc(i.sku) + ")" : ""}</label>`).join("")}</div></div>
-      ${tg.length ? `<div class="f" id="igByTags" hidden><label style="display:flex;justify-content:space-between"><span>Tags</span><a href="#" class="lnk" data-igmode="items">Select items ?</a></label><div class="multi" id="igTags" data-dd>${tg.map(t => `<label class="chk"><input type="checkbox" value="${esc(t.id)}"> ${esc(t.name)}</label>`).join("")}</div></div>` : ""}
+      <div class="f" id="igByItems"><label style="display:flex;justify-content:space-between"><span>Items</span>${tg.length ? `<a href="#" class="lnk" data-igmode="tags">Select by tags ?</a>` : ""}</label><div class="multi" id="igItems" data-empty="No inventory items to add">${avail.map(i => `<label class="chk"><input type="checkbox" value="${esc(i.id)}"> ${esc(i.name)}${i.sku ? " (" + esc(i.sku) + ")" : ""}</label>`).join("")}</div></div>
+      ${tg.length ? `<div class="f" id="igByTags" hidden><label style="display:flex;justify-content:space-between"><span>Tags</span><a href="#" class="lnk" data-igmode="items">Select items ?</a></label><div class="multi" id="igTags">${tg.map(t => `<label class="chk"><input type="checkbox" value="${esc(t.id)}"> ${esc(t.name)}</label>`).join("")}</div></div>` : ""}
       <div class="err" id="igErr"></div></div>
       <footer><span style="flex:1"></span><button type="button" class="btn pri" id="igSave">Add</button></footer>`;
     $("#ccScrim").classList.add("show"); return; }
@@ -8612,7 +8603,7 @@ function viewProductionList(route, K, all, list){
     <p class="subt" style="margin-top:-6px">${esc(K.intro)}</p>
     <div class="card tbl"><div class="ttop"><div class="ttabs">${tabs.map(t=>`<a href="#${route}" data-doctab="${route}:${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div><div class="sp"></div>
     ${docFltBtn(route, K)}</div>`;
-  h += rows.length ? `<table><thead><tr><th>Reference</th><th>Branch</th><th>Type</th><th>Status</th><th>Business Date</th><th>Created</th></tr></thead><tbody>${rows.map(x => `<tr class="click" data-docopen="${route}:${esc(x.d.id)}${x.v ? ":" + x.v : ""}">
+  h += rows.length ? `<table><thead><tr><th>Reference</th><th>Destination</th><th>Type</th><th>Status</th><th>Business Date</th><th>Created</th></tr></thead><tbody>${rows.map(x => `<tr class="click" data-docopen="${route}:${esc(x.d.id)}${x.v ? ":" + x.v : ""}">
       <td>${x.ref}</td><td>${esc(locName(x.d.locationId))}</td><td>${x.type}</td><td>${x.st}</td><td>${x.bd}</td><td>${fmtDate(x.at)}</td></tr>`).join("")}</tbody></table>`
     : `<div class="empty">${all.length ? "Nothing here." : `No ${K.plural.toLowerCase()} yet.`}</div>`;
   return h + `</div>`;
@@ -8973,19 +8964,21 @@ document.addEventListener("click", e => { const t = e.target;
 function viewOrderTx(){
   loadOT();
   const cur = OT.open && OT.rows.find(x => x.id===OT.open); if(cur) return otDetail(cur);
-  const tabs = [["","All"],["consumption","Consumption"],["return","Return"]];
   const pages = Math.max(1, Math.ceil(OT.count/OT.per));
-  let h = `<div class="phead"><h1>Order Transactions</h1><div class="sp"></div>${scopeBar(true)}</div>
+  let h = `<div class="phead"><h1>Order Transactions</h1><div class="sp"></div><button class="btn" id="otCsv" ${OT.rows.length?"":"disabled"}>Export</button></div>
     <p class="subt" style="margin-top:-6px">Every completed sale takes its recipe ingredients (product and options, for its order type) out of the branch stock. Voided sales put them back.</p>
-    <div class="card tbl"><div class="ttop"><div class="ttabs">${tabs.map(t=>`<a href="#order-transactions" data-ottab="${t[0]}" class="${OT.kind===t[0]?"on":""}">${t[1]}</a>`).join("")}</div><div class="sp"></div><span class="note">${OT.loading?"Loading…":""}</span></div>`;
+    <div class="card tbl">`;   // as in Foodics: one list, no tabs
   if(OT.err) h += `<div class="empty">${esc(OT.err)}</div>`;
   else if(!OT.rows.length) h += `<div class="empty">${OT.loading ? "Loading…" : "No transactions yet"}</div>`;
-  else h += `<table><thead><tr><th>Reference</th><th>Branch</th><th>Order</th><th>Type</th><th class="num">Items</th><th class="num">Cost</th><th>Created</th></tr></thead><tbody>${OT.rows.map(r=>`<tr class="click" data-otopen="${esc(r.id)}">
-      <td><span class="code">${esc(r.ref)}</span></td><td>${esc(branchName(r.branch_id))}</td><td>#${esc(r.order_no||"")}</td>
-      <td>${r.kind==="return"?"Return From Order":"Consumption From Order"}</td><td class="num">${(r.items||[]).length}</td><td class="num">${fmtCost(r.total_cost)}</td><td>${fmtDate(r.created_at)}</td></tr>`).join("")}</tbody></table>`;
+  else h += `<table><thead><tr><th>Reference</th><th>Branch</th><th>Order Reference</th><th>Type</th><th>Business Date</th><th>Created</th></tr></thead><tbody>${OT.rows.map(r=>`<tr class="click" data-otopen="${esc(r.id)}">
+      <td>${esc(r.ref)}</td><td>${esc(branchName(r.branch_id))}</td><td>${esc(r.order_no||"—")}</td>
+      <td>${r.kind==="return"?"Return From Order":"Consumption From Order"}</td><td>${esc(otBizDate(r))}</td><td>${fmtDate(r.created_at)}</td></tr>`).join("")}</tbody></table>`;
   h += `<div class="pager"><span class="note">${OT.count} transaction${OT.count===1?"":"s"}</span><div class="sp"></div><button class="btn sm" data-otpage="-1" ${OT.page<=1?"disabled":""}>Previous</button><button class="btn sm" data-otpage="1" ${OT.page>=pages?"disabled":""}>Next</button></div></div>`;
   return h;
 }
+const otBizDate = r => { const d = r.business_date || bizDate(r.created_at, r.branch_id) || String(r.created_at||"").slice(0,10); return d ? String(d).slice(0,10).split("-").reverse().join("-") : "—"; };
+document.addEventListener("click", e => { if(e.target.closest?.("#otCsv")) csvDownload("order-transactions.csv", [["Reference","Branch","Order Reference","Type","Business Date","Created"],
+  ...OT.rows.map(r => [r.ref, branchName(r.branch_id), r.order_no||"", r.kind==="return"?"Return From Order":"Consumption From Order", otBizDate(r), fmtDate(r.created_at)])]); });
 // a transaction opens as its own page: details, then the items it took out of (or put back into) stock
 function openOT(id){ if(!OT.rows.some(x => x.id===id)) return; OT.open = id; render(); scrollTo(0, 0); }
 function otDetail(r){
@@ -8993,9 +8986,8 @@ function otDetail(r){
   const dt = t => t ? new Date(t).dmy(true) : "—";
   let h = `<div class="phead"><a href="#order-transactions" class="btn" data-otback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${ret ? "Return" : "Consumption"} from order (${esc(r.ref)})</h1><span style="margin-left:8px">${docStatusTag({ status:"closed" })}</span><div class="sp"></div><button class="btn" data-otprint>Print</button></div>`;
   h += infoGrid([info("Branch", esc(branchName(r.branch_id))), info("Business Date", esc(r.business_date || (o ? bizDate(o.createdAt, o.branchId) : bizDate(r.created_at, r.branch_id)) || String(r.created_at||"").slice(0,10) || "—")), info("Submitted At", esc(dt(r.created_at))), info("Order Reference", esc(o ? ccRef(o) : (r.order_no ? "#" + r.order_no : "—"))), info("Created At", esc(dt(o?.createdAt || r.created_at))), info("Total Cost", esc(fmtCost(r.total_cost)))]);
-  h += `<div class="dzsec dzwide"><div class="dzh"><h3>Items</h3></div><div class="card tbl" style="margin:0"><table><thead><tr><th>Name</th><th>SKU</th><th class="num">Quantity</th><th class="num">Unit Cost</th><th class="num">Total Cost</th></tr></thead><tbody>${(r.items||[]).map(x => { const it = itemOf(x.itemId) || {};
-      return `<tr><td>${esc(it.name||"(deleted item)")}</td><td style="white-space:nowrap">${it.sku ? `<span class="code">${esc(it.sku)}</span>` : "—"}</td><td class="num">${n2(x.qty)} ${esc(it.storageUnit||"")}</td><td class="num">${fmtCost(x.cost)}</td><td class="num">${fmtCost(x.qty*x.cost)}</td></tr>`; }).join("")}</tbody>
-    <tfoot><tr><td colspan="4"><b>Total</b></td><td class="num"><b>${fmtCost(r.total_cost)}</b></td></tr></tfoot></table></div></div>`;
+  h += `<div class="dzsec dzwide"><div class="dzh"><h3>Items</h3></div><div class="card tbl" style="margin:0"><table><thead><tr><th>Name</th><th class="num">Quantity</th></tr></thead><tbody>${(r.items||[]).map(x => { const it = itemOf(x.itemId) || {};
+      return `<tr><td>${esc(it.name||"(deleted item)")}</td><td class="num">${n2(x.qty)} ${esc(it.storageUnit||"")}</td></tr>`; }).join("")}</tbody></table></div></div>`;
   return h;
 }
 document.addEventListener("click", e => {
@@ -9011,7 +9003,7 @@ document.addEventListener("click", e => {
 /* ---------- Inventory documents: quantity & cost adjustments, spot checks, count sheets (Foodics "More") ---------- */
 const DOC_KINDS = {
   "quantity-adjustments": { kind:"quantity", title:"Quantity Adjustment", plural:"Quantity Adjustment", loc:1, intro:"Deduct waste, expired or damaged stock, or add stock found. Submitting updates the stock level of each item at the chosen branch or warehouse." },
-  "cost-adjustments":     { kind:"cost", title:"Cost Adjustment", plural:"Cost Adjustment", intro:"Adjust your inventory value here by creating a cost adjustment transaction with the new cost of your inventory items." },
+  "cost-adjustments":     { kind:"cost", title:"Cost Adjustment", plural:"Cost Adjustment", loc:1, intro:"Adjust your inventory value here by creating a cost adjustment transaction with the new cost of your inventory items." },
   "inventory-count":      { kind:"spot", count:1, title:"Inventory Count", plural:"Inventory Count", loc:1, intro:"Count the stock of a branch or warehouse. Submitting sets the stock level of each counted item there to the counted quantity." },
   "spot-check":           { kind:"spot", title:"Inventory Spot Check", plural:"Inventory Spot Check", loc:1, intro:"The spot check captures the count of items made by the audit team. It does not change the stock levels and is only used as a reference." },
   "po":                   { kind:"purchase", po:1, title:"Purchase Order", plural:"Purchase Orders", loc:1, flow:1, intro:"Order stock from a supplier. Submit it for approval; once approved, create the purchasing from it to receive the goods when they arrive." },
@@ -9055,7 +9047,7 @@ function viewDocs(route){
   if(K.kind==="transfer") return viewTransferList(route, K, all, S.inv_docs.filter(d => docOf(K)(d) && live(d)).filter(docFltOk(route, K)));
   if(K.flow) return viewFlowList(route, K, tabs, all, list);
   const cols = K.kind==="sheet" ? [["Reference",d=>esc(d.ref||"…")],["Name",d=>`<b>${esc(d.name||"—")}</b>`],["Created At",d=>fmtDate(d.createdAt)]]
-    : [["Reference",d=>d.status==="draft" || !d.ref ? "—" : esc(d.ref)], ...(K.loc?[["Branch",d=>esc(locName(d.locationId))]]:[]), ...(K.kind==="quantity"?[["Reason",d=>esc(d.reason||"—")+(d.direction==="add"?" (added)":"")]]:[]),
+    : [["Reference",d=>d.status==="draft" || !d.ref ? "—" : esc(d.ref)], ...(K.loc?[["Destination",d=>esc(locName(d.locationId))]]:[]), ...(K.kind==="quantity"?[["Reason",d=>esc(d.reason||"—")+(d.direction==="add"?" (added)":"")]]:[]),
        ...(K.kind==="cost"?[["Products",d=>{ const n = (d.items||[]).map(l => itemOf(l.itemId)?.name).filter(Boolean); return n.length ? esc(n.slice(0,2).join(", ")) + (n.length > 2 ? ` <span class="note">+${n.length-2} more</span>` : "") : "—"; }]]:[]),
        ["Status",d=>d.status==="closed"?"Closed":"Draft"],["Business Date",d=>d.status==="draft" ? "—" : esc(d.businessDate||"—")],["Created",d=>fmtDate(d.createdAt)]];
   let h = `<div class="phead"><h1>${K.plural}</h1><div class="sp"></div>${docExpMenu(route, K)}<button class="btn pri" data-docnew="${route}">New ${K.title}</button></div>
@@ -9079,13 +9071,13 @@ function docNewDialog(route){
   const PUR = K.kind==="purchase" && !K.po, locF = lbl => sel("dnLoc", lbl, locs, defLoc, "No branches or warehouses");
   if(K.loc && !PUR){ const bl = brandList(), cur = state.brand!=="all" ? state.brand : (bl.length===1 ? bl[0].id : "");
     f.push(`<div class="f"><label for="dnBrand">Brand</label><select id="dnBrand" class="sel"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${b.id===cur?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div>`); }
-  if(K.kind==="purchase") f.push(...(K.po ? [locF("Destination"), sel("dnSup", "Supplier", sups, "", "No suppliers")] : [sel("dnSup", "Supplier", sups, "", "No suppliers"), locF("Branch")]));   // Foodics: New Purchase = Supplier, Branch; New Purchase Order = Brand, Destination, Supplier…
+  if(K.kind==="purchase") f.push(...(K.po ? [locF("Destination"), sel("dnSup", "Supplier", sups, "", "No suppliers")] : [sel("dnSup", "Supplier", sups, "", "No suppliers"), locF("Destination")]));   // Foodics: New Purchase = Supplier, Branch; New Purchase Order = Brand, Destination, Supplier…
   else if(K.kind==="transfer") f.push(`<div class="f"><label for="dnTType">Type *</label><select id="dnTType" class="sel"><option value="">Transfer</option><option value="return">Transfer Return</option></select></div>`,
     sel("dnLoc", "Source", locs, defLoc, "No branches or warehouses"), sel("dnDest", "Destination", locs, "", "No branches or warehouses"),
     `<div class="f"><label for="dnDue">Receiving Due Date</label><input id="dnDue" class="sel" type="date"></div>`);
   else if(K.kind==="torder") f.push(sel("dnDest", "Source", locs, "", "No warehouses"), sel("dnLoc", "Destination", locs, defLoc, "No branches"));   // from: the warehouse that sends; to: the branch that receives
   else if(K.kind==="sheet") f.push(`<div class="f"><label for="dnName">Name *</label><input id="dnName" class="sel"></div>`);
-  else if(K.loc) f.push(locF("Branch"));
+  else if(K.loc) f.push(locF("Destination"));   // the branch or warehouse the document is for
   if(K.po) f.push(delFields("dn", null));
   if(K.po || (K.kind==="spot" && !K.count)) f.push(`<div class="f"><label for="dnNotes">Notes</label><textarea id="dnNotes" class="sel" rows="3"></textarea></div>`);   // as in Foodics
   if(K.kind==="quantity") f.push(`<div class="f"><label for="dnReason">Reason *</label><select id="dnReason" class="sel">${opts(QA_REASONS_L().map(r => [r, r]), "")}</select></div>`);
@@ -9154,13 +9146,13 @@ function viewDoc(route){
   DOC.form = ro ? "" : docForm(d, K, loc);
   if(true){
     h += `<div class="card dinfo" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:16px">
-      ${K.flow ? flowInfo(d, K, info) : `${K.kind==="sheet"?info("Name", esc(d.name||"—"))+info("Reference", esc(d.ref||"—")):""}${K.loc?info("Branch", esc(locName(loc))):""}${K.kind==="quantity"?info("Reason", esc(d.reason||"—")+(d.direction==="add"?" (added)":" (deducted)")):""}
+      ${K.flow ? flowInfo(d, K, info) : `${K.kind==="sheet"?info("Name", esc(d.name||"—"))+info("Reference", esc(d.ref||"—")):""}${K.loc?info("Destination", esc(locName(loc))):""}${K.kind==="quantity"?info("Reason", esc(d.reason||"—")+(d.direction==="add"?" (added)":" (deducted)")):""}
       ${K.kind!=="sheet"?info("Business Date", ro ? esc(d.businessDate||"—") : "—")+info("Creator", esc(d.createdBy||"—"))+(ro?info("Submitter", esc(d.submittedBy||"—"))+info("Submitted At", fmtDate(d.submittedAt)):""):""}${info("Created At", fmtDate(d.createdAt))}${K.kind==="production" && pv!=="pw" ? info("Total Cost", fmtCost(prodCost())) : ""}${info("Number of Items", pv==="pc" ? (d.consumed||[]).length : pv==="pw" ? d.items.filter(l => +l.waste > 0).length : d.items.length)}${d.notes?info("Notes", esc(d.notes)):""}`}</div>`;
   }
   function docForm(d, K, loc){ return `<div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
       ${K.kind==="sheet" ? `<div class="f"><label for="dName">Name *</label><input id="dName" class="sel" value="${esc(d.name||"")}" placeholder="e.g. Branch Count Sheet"></div>` : ""}
       ${K.kind==="purchase" ? `<div class="f"><label for="dSup">Supplier *</label><select id="dSup" class="sel"><option value="">Choose…</option>${S.suppliers.filter(live).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${esc(x.id)}" ${x.id===d.supplierId?"selected":""}>${esc(x.name)}</option>`).join("")}</select>${S.suppliers.filter(live).length?"":'<div class="note">Add suppliers under Inventory → Suppliers.</div>'}</div>` : ""}
-      ${K.loc ? `<div class="f"><label for="dLoc">${K.kind==="purchase"?"Deliver to":K.kind==="torder"?"Destination":K.kind==="transfer"?"Source":"Branch / warehouse"} *</label><select id="dLoc" class="sel"><option value="">Choose…</option>${locList().map(([k,t])=>`<option value="${esc(k)}" ${k===loc?"selected":""}>${esc(t)}</option>`).join("")}</select></div>` : ""}
+      ${K.loc ? `<div class="f"><label for="dLoc">${K.kind==="purchase"?"Destination":K.kind==="torder"?"Destination":K.kind==="transfer"?"Source":"Destination"} *</label><select id="dLoc" class="sel"><option value="">Choose…</option>${locList().map(([k,t])=>`<option value="${esc(k)}" ${k===loc?"selected":""}>${esc(t)}</option>`).join("")}</select></div>` : ""}
       ${K.kind==="transfer"||K.kind==="torder" ? `<div class="f"><label for="dDest">${K.kind==="torder"?"Source":"Destination"} *</label><select id="dDest" class="sel"><option value="">Choose…</option>${locList().filter(([k])=>k!==loc).map(([k,t])=>`<option value="${esc(k)}" ${k===d.destId?"selected":""}>${esc(t)}</option>`).join("")}</select></div>` : ""}
       ${K.kind==="quantity" ? `<div class="f"><label for="dReason">Reason</label><input id="dReason" class="sel" list="dReasonL" value="${esc(d.reason||"")}"><datalist id="dReasonL">${QA_REASONS_L().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></div>
         <div class="f"><label for="dDir">Type</label><select id="dDir" class="sel"><option value="deduct" ${d.direction!=="add"?"selected":""}>Deduct from stock</option><option value="add" ${d.direction==="add"?"selected":""}>Add to stock</option></select></div>` : ""}
@@ -9201,11 +9193,11 @@ function viewDoc(route){
     return `<tr>${base}<td>${esc(storUnit(it))}</td><td>${esc(ingUnit(it))}</td>${del}</tr>`;
   });
   const head = K.flow ? flowHead(d, K, ro, recv) : K.kind==="production" ? ["Name","SKU","Quantity","Unit cost","Total cost"] : K.kind==="quantity" ? ["Name","SKU",...(ro?[]:["Current qty"]),d.direction==="add"?"Added qty":"Deducted qty",...(ro?[]:["New qty"]),"Unit cost","Total cost"]
-    : K.kind==="cost" ? ["Name","SKU",ro?"Old cost":"Current cost","New cost"]
+    : K.kind==="cost" ? ["Name","SKU",ro?"Original Cost":"Current Cost","New Cost"]
     : K.count && ro ? ["Name","SKU","Entered qty","Original qty","Variance qty","Variance %","Variance cost"]
     : K.kind==="spot" && !K.count ? ["Name","SKU","Quantity"]
     : K.kind==="spot" ? ["Name","SKU","System qty","Counted qty","Variance"] : ["Name","SKU","Storage UOM","Ingredients UOM"];
-  const numCols = new Set(["Current qty","Deducted qty","Added qty","New qty","Unit cost","Total cost","Current cost","Old cost","New cost","Available Quantity","Cost Per Unit","Quantity","Total Cost","System qty","Counted qty","Variance","Entered qty","Original qty","Variance qty","Variance %","Variance cost","Quantity","Ordered","Sent","Requested","Received","In stock at source"]);
+  const numCols = new Set(["Current qty","Deducted qty","Added qty","New qty","Unit cost","Total cost","Current cost","Old cost","New cost","Current Cost","Original Cost","New Cost","Available Quantity","Cost Per Unit","Quantity","Total Cost","System qty","Counted qty","Variance","Entered qty","Original qty","Variance qty","Variance %","Variance cost","Quantity","Ordered","Sent","Requested","Received","In stock at source"]);
   if(pv==="pc") return h + prodUsage(d, true, loc, true);
   if(pv==="pw"){ const w = d.items.filter(l => +l.waste > 0);
     return h + `<div class="card tbl"><div class="ttop"><b>Items</b><span class="note" style="margin-left:8px">${w.length}</span></div>${w.length ? `<table><thead><tr><th>Name</th><th>SKU</th><th class="num">Deducted Quantity</th></tr></thead><tbody>${w.map(l => { const it = itemOf(l.itemId) || {}; return `<tr><td><b>${esc(it.name||"(deleted item)")}</b></td><td>${esc(it.sku||"")}</td><td class="num">${n2(+l.waste)} ${esc(storUnit(it)||"")}</td></tr>`; }).join("")}</tbody></table>` : `<div class="empty">Nothing was wasted.</div>`}</div>`; }
@@ -9548,8 +9540,8 @@ document.addEventListener("click", e => {
     const links = cur => `<span>${cur!=="items" ? lnk("items","Select items ?") : ""}${cur!=="tags" ? lnk("tags","Select by tags ?") : ""}${sheetOn && cur!=="sheet" ? lnk("sheet", cur==="items" ? "Or count sheet ?" : "Count sheet ?") : ""}</span>`;
     const none = t => `<div class="note" style="padding:10px 0">${t}</div>`;
     box.innerHTML = `<header><h2>Add Items</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:block">
-      <div class="f dapane" id="daByItems"><label class="dalbl"><span>Items</span>${links("items")}</label><div class="multi" id="daItems" data-dd data-empty="${DOC.addProd ? "No items with a recipe to add" : "No items to add"}">${items.map(i => `<label class="chk"><input type="checkbox" value="${esc(i.id)}"> ${esc(i.name)}${i.sku ? " (" + esc(i.sku) + ")" : ""}</label>`).join("")}</div></div>
-      <div class="f dapane" id="daByTags" hidden><label class="dalbl"><span>Tags</span>${links("tags")}</label>${tg.length ? `<div class="multi" id="daTags" data-dd>${tg.map(t => `<label class="chk"><input type="checkbox" value="${esc(t.id)}"> ${esc(t.name)}</label>`).join("")}</div>` : none("No inventory tags yet. Create them in Manage → Tags.")}</div>
+      <div class="f dapane" id="daByItems"><label class="dalbl"><span>Items</span>${links("items")}</label><div class="multi" id="daItems" data-empty="${DOC.addProd ? "No items with a recipe to add" : "No items to add"}">${items.map(i => `<label class="chk"><input type="checkbox" value="${esc(i.id)}"> ${esc(i.name)}${i.sku ? " (" + esc(i.sku) + ")" : ""}</label>`).join("")}</div></div>
+      <div class="f dapane" id="daByTags" hidden><label class="dalbl"><span>Tags</span>${links("tags")}</label>${tg.length ? `<div class="multi" id="daTags">${tg.map(t => `<label class="chk"><input type="checkbox" value="${esc(t.id)}"> ${esc(t.name)}</label>`).join("")}</div>` : none("No inventory tags yet. Create them in Manage → Tags.")}</div>
       ${sheetOn ? `<div class="f dapane" id="daBySheet" hidden><label class="dalbl" for="daSheet"><span>Count Sheet</span>${links("sheet")}</label>${shs.length ? `<select id="daSheet" class="sel"><option value="">Choose…</option>${shs.map(x => `<option value="${esc(x.id)}">${esc(x.name||x.ref)}</option>`).join("")}</select>` : none("No count sheets yet. Create them in Inventory → More → Count Sheet.")}</div>` : ""}
       <div class="err" id="daErr"></div></div>
       <footer><span style="flex:1"></span><button type="button" class="btn keep" data-ccclose>Close</button><button type="button" class="btn pri" id="daSave">Save</button></footer>`;
@@ -9602,10 +9594,10 @@ window.addEventListener("keydown", e => {
   if(e.key!=="Enter" && e.key!=="Escape") return;
   const shown = [...document.querySelectorAll(".scrim.show")]; if(!shown.length) return;
   const top = shown.find(x => x.id==="confirmScrim") || shown[shown.length - 1];
-  if(e.key==="Escape"){ if(document.querySelector(".msel.open")) return; const md = document.querySelector(".mdd.open"); if(md){ e.preventDefault(); e.stopImmediatePropagation(); md.classList.remove("open"); md.querySelector(".mdd-t")?.focus(); return; } e.preventDefault(); e.stopImmediatePropagation();
+  if(e.key==="Escape"){ if(document.querySelector(".msel.open")) return; e.preventDefault(); e.stopImmediatePropagation();
     const x = top.querySelector("header .x") || top.querySelector("[data-ccclose], [data-cclose], [data-close]"); if(x) x.click(); else top.classList.remove("show"); return; }
   const t = e.target, inside = top.contains(t); if(e.shiftKey) return;
-  if(inside && (t.tagName==="TEXTAREA" || t.tagName==="BUTTON" || t.tagName==="A" || t.closest?.(".msel-p, .msel-f, .mdd"))) return;   // focus still on the page behind (the button that opened it): Enter saves the dialog
+  if(inside && (t.tagName==="TEXTAREA" || t.tagName==="BUTTON" || t.tagName==="A" || t.closest?.(".msel-p, .msel-f"))) return;   // focus still on the page behind (the button that opened it): Enter saves the dialog
   const b = [...top.querySelectorAll("footer .btn.pri, footer button[type=submit], .btn.pri")].filter(x => !x.disabled && x.offsetParent).pop(); if(!b) return;
   e.preventDefault(); e.stopImmediatePropagation(); b.click();
 }, true);
@@ -9815,7 +9807,7 @@ if(!window.__tsw){window.__tsw=1;document.addEventListener("wheel",e=>{const w=e
 /* the scrolling box ends at the bottom of the screen: its sideways scrollbar and the pager under it stay in view */
 {const mn=document.querySelector(".main");if(mn&&!(typeof DET!=="undefined"&&DET.key&&DET.id)){const mt=mn.getBoundingClientRect().top;document.querySelectorAll("#view > .card > .tscroll").forEach(w=>{const c=w.parentElement,wr=w.getBoundingClientRect();const top=wr.top+mn.scrollTop-mt,after=Math.max(0,c.getBoundingClientRect().bottom-wr.bottom);const stk=[mn.querySelector(".top"),...document.querySelectorAll("#view .ostick, #view > .card > .ttop, #view > .phead")].filter(x=>x&&/sticky|fixed/.test(getComputedStyle(x).position)).reduce((a,x)=>a+x.offsetHeight+Math.min(0,parseFloat(getComputedStyle(x).top)||0),0);const h=Math.max(300,Math.round(mn.clientHeight-stk-after-20))+"px";if(w.style.maxHeight!==h)w.style.maxHeight=h;});}}
 document.querySelectorAll(".card.tbl").forEach(c=>{const tb=c.querySelector(":scope>table");if(!tb||!tb.tHead)return;c.classList.remove("tfit");let sc=false;for(let el=tb;el&&el!==document.body;el=el.parentElement){if(el===c)continue;const o=getComputedStyle(el);if(/(auto|scroll|hidden|clip)/.test(o.overflowY+o.overflowX)){sc=true;break;}}if(!sc&&tb.scrollWidth<=c.clientWidth+1){c.classList.add("tfit");const o=getComputedStyle(c);if(o.overflowX!=="visible"||o.overflowY!=="visible")c.classList.remove("tfit");}});};
-let tq=0;new MutationObserver(()=>{if(!tq){tq=1;SOON(()=>{tq=0;thFit();});}}).observe(document.body,{subtree:true,childList:true});addEventListener("resize",()=>setTimeout(thFit,60));
+let tq=0;new MutationObserver(()=>{/* a list that was just redrawn is put in its scrolling box before the screen is painted, so it never flashes at another size */if(document.querySelector("#view > .card.tbl:not(.secbox) > table, #view > .card.otbl > table"))thFit();if(window.fitOtbl&&document.querySelector("#view .card.otbl:not([data-fit])"))window.fitOtbl();if(!tq){tq=1;SOON(()=>{tq=0;thFit();});}}).observe(document.body,{subtree:true,childList:true});addEventListener("resize",()=>setTimeout(thFit,60));
 document.addEventListener("wheel",e=>{if(!H.classList.contains("mlock"))return;const t=e.target;if(t.classList&&(t.classList.contains("scrim")||t.classList.contains("bmdscrim")))e.preventDefault();},{passive:false});
 document.addEventListener("touchmove",e=>{const t=e.target;if(H.classList.contains("mlock")&&t.classList&&(t.classList.contains("scrim")||t.classList.contains("bmdscrim")))e.preventDefault();},{passive:false});})();
 </script>
@@ -9830,24 +9822,6 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
 (() => { let t = 0; const run = () => { t = 0; document.querySelectorAll("label, legend, .adph, h4, th, .msel-ph").forEach(el => { [...el.childNodes].forEach(n => { if(n.nodeType!==3) return; const m = n.nodeValue.match(/^([\s\S]*?)\s?\*(\s*)$/); if(!m || !m[1].trim()) return; n.nodeValue = m[1] + " "; const s = document.createElement("span"); s.className = "reqst"; s.textContent = "*"; n.after(s); if(m[2]) s.after(document.createTextNode(m[2])); }); }); };
   new MutationObserver(() => { if(!t) t = SOON(run); }).observe(document.documentElement, { childList:true, subtree:true, characterData:true }); run(); })();
 </script>
-<script>/* build 911: multi-pick dropdown: a .multi[data-dd] checkbox list opens from a "Choose…" field, with search (Foodics) */
-(function(){
-  const ex = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
-  const chev = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
-  function enh(){ document.querySelectorAll(".multi[data-dd]:not([data-mdd])").forEach(m => { m.dataset.mdd = "1";
-    const w = document.createElement("div"), t = document.createElement("button"), p = document.createElement("div"), q = document.createElement("input");
-    w.className = "mdd"; t.type = "button"; t.className = "mdd-t"; p.className = "mdd-p"; q.type = "search"; q.className = "sel mdd-q"; q.placeholder = "Search";
-    m.parentNode.insertBefore(w, m); w.append(t, p); p.append(q, m);
-    const upd = () => { const on = [...m.querySelectorAll("input:checked")].map(i => (i.closest("label")||i).textContent.trim());
-      t.innerHTML = (on.length ? `<span class="chips">${on.slice(0, 8).map(x => `<span class="chip">${ex(x)}</span>`).join("")}${on.length > 8 ? `<span class="chip">+${on.length - 8}</span>` : ""}</span>` : `<span class="ph">Choose…</span>`) + chev; };
-    upd(); m.addEventListener("change", upd);
-    t.addEventListener("click", () => { const o = !w.classList.contains("open"); document.querySelectorAll(".mdd.open").forEach(x => x.classList.remove("open")); if(o){ w.classList.add("open"); q.focus(); } });
-    q.addEventListener("input", () => { const v = q.value.trim().toLowerCase(); m.querySelectorAll("label").forEach(l => l.style.display = !v || l.textContent.toLowerCase().includes(v) ? "" : "none"); });
-    q.addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); const f = [...m.querySelectorAll("label")].find(l => l.style.display!=="none")?.querySelector("input"); if(f){ f.checked = !f.checked; f.dispatchEvent(new Event("change", { bubbles:true })); } }
-      if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); w.classList.remove("open"); t.focus(); } }); }); }
-  document.addEventListener("click", e => document.querySelectorAll(".mdd.open").forEach(w => { if(!w.contains(e.target)) w.classList.remove("open"); }));
-  new MutationObserver(() => { if(document.querySelector(".multi[data-dd]:not([data-mdd])")) enh(); }).observe(document.documentElement, { childList:true, subtree:true });
-})();</script>
 <script>/* build 914: a dialog that opens puts the cursor in its first text field (if nothing inside it has focus yet); dropdowns are left closed */
 (function(){ const first = sc => sc.querySelector('.modal input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([disabled]):not([readonly]), .modal textarea');
   new MutationObserver(ms => ms.forEach(m => { const sc = m.target; if(!sc.classList?.contains("show") || (m.oldValue||"").split(" ").includes("show")) return;
