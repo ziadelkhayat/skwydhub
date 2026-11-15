@@ -1575,12 +1575,12 @@ html body .dinfo>div>div:last-child{font-size:16px;font-weight:400}
 .drp .dn{display:none}
 .pkpop .pkg button.on{background:var(--accent)!important;color:#fff!important;border-radius:6px}
 /* every date field: one button that shows 15-11-2026 and opens the picker */
-.dfx{display:inline-flex!important;align-items:center;gap:10px;width:100%;height:42px!important;min-height:0!important;max-height:42px;align-self:start;text-align:left;cursor:pointer;white-space:nowrap}
-.dfx span{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:left}.dfx .ph{color:#9b98a8}
+.dfx{display:inline-flex!important;align-items:center;justify-content:flex-start!important;gap:10px;width:100%;height:42px!important;min-height:0!important;max-height:42px;align-self:start;text-align:left;cursor:pointer;white-space:nowrap}
+.dfx span{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:left}.dfph{color:#9b98a8}
 .dfx svg{width:18px;height:18px;flex:none;color:#6b6880}.dfx .dfclr{border:0;background:none;padding:0 2px;color:#9b98a8;font-size:16px;line-height:1;cursor:pointer}
 input.dfh{display:none!important}
 .dmyw:has(.dfx)>.dmyo{display:none!important}.dfx,.dfx span{text-transform:none!important}
-.ordtools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ordtools .sel{height:40px;width:auto;min-width:160px}.ordtools .drpbtn{gap:10px;min-width:220px;justify-content:flex-start}.ordtools .drpbtn .ph{color:#9b98a8}.ordtools .drpbtn span{flex:1;text-align:left}
+.ordtools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ordtools .sel{height:40px;width:auto;min-width:160px}.ordtools .drpbtn{gap:10px;min-width:220px;justify-content:flex-start}.ordtools .drpbtn span{flex:1;text-align:left}
 @media(max-width:760px){.ordtools{width:100%}.ordtools .sel,.ordtools .drpbtn{flex:1;min-width:0}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -6127,7 +6127,7 @@ function viewOrders(){
     ["channel","Sales channel","All sales channels", Object.entries(CHL)], ["type","Order type","All order types", Object.entries(TYL)],
     ["source","Order source","All order sources", ordSources().map(x=>[x,x])], ["pay","Payment Type","All payment types", ordPays().map(x=>[x,x])]];
   return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
-    <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "ph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
+    <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "dfph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
   <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div></div></div>
   <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
@@ -6301,9 +6301,13 @@ function drpQRange(v){ const t = todayStr(), d = new Date(t + "T12:00:00"), iso 
   const partner = el => { const m = (el.id || "").match(/^(.*?)(from|From)$/); if(!m) return null; const p = document.getElementById(m[1] + (m[2]==="from" ? "to" : "To")); return p && p.type==="date" ? p : null; };
   const fire = el => { el.dispatchEvent(new Event("input", { bubbles:true })); el.dispatchEvent(new Event("change", { bubbles:true })); };
   const paint = b => { const f = b._f.value, t = b._t?.value || "", has = b._t ? (f || t) : f;
-    const txt = b._t ? (has ? (f && t && f!==t ? dmyS(f) + " – " + dmyS(t) : dmyS(f || t)) : "Any date") : (f ? dmyS(f) : "dd-mm-yyyy");
+    const txt = has ? (b._t ? (f && t && f!==t ? dmyS(f) + " – " + dmyS(t) : dmyS(f || t)) : dmyS(f)) : (b._ph || "Choose Date");
     const key = txt + "|" + !!has; if(b._k === key) return; b._k = key;
-    b.innerHTML = `<span class="${has ? "" : "ph"}">${txt}</span>${has && !b._req ? `<i class="dfclr" role="button" aria-label="Clear date">×</i>` : ""}${svgIco("calendar")}`; };
+    b.innerHTML = `${svgIco("calendar")}<span class="${has ? "" : "dfph"}">${esc(txt)}</span>${has && !b._req ? `<i class="dfclr" role="button" aria-label="Clear date">×</i>` : ""}`; };
+  // the hint inside an empty field is the field's own name (Business Date, Updated After, Due Date…)
+  const labelOf = inp => { const l = (inp.id && document.querySelector(`label[for="${CSS.escape(inp.id)}"]`)) || inp.closest("label") || inp.closest(".f")?.querySelector("label");
+    const t = l ? [...l.childNodes].filter(n => n.nodeType===3).map(n => n.textContent).join(" ").replace(/\*|\(.*?\)|\bFrom\b|\bTo\b/gi, "").replace(/\s+/g, " ").trim() : "";
+    return t && t.length < 32 ? t.replace(/\b\w/g, c => c.toUpperCase()) : ""; };
   const relabel = (inp) => { const l = (inp.id && document.querySelector(`label[for="${CSS.escape(inp.id)}"]`)) || inp.closest("label"); if(!l) return;
     [...l.childNodes].forEach(n => { if(n.nodeType===3) n.textContent = n.textContent.replace(/\s*\(?\bFrom\b\)?\s*/i, " ").replace(/\s+\*/, " *").replace(/^\s+$/, ""); }); };
   function enhance(){
@@ -6314,7 +6318,7 @@ function drpQRange(v){ const t = todayStr(), d = new Date(t + "T12:00:00"), iso 
       if(inp.required){ b._req = true; inp.required = false; } if(to?.required) to.required = false;   // a hidden field can't show the browser's "fill this in" bubble
       const hide = el => { el.classList.add("dfh"); el.style.setProperty("display", "none", "important"); };
       hide(inp); if(to){ hide(to); const w = to.closest(".f") || to.closest("label"); if(w && !w.contains(inp)) w.style.display = "none"; relabel(inp); }
-      inp.after(b); paint(b);
+      b._ph = labelOf(inp); inp.after(b); paint(b);
     });
     document.querySelectorAll(".dfx").forEach(paint);
   }

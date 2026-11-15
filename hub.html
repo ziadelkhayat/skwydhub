@@ -87,7 +87,7 @@ tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
 .cal .cg button:hover{background:var(--accent-soft)}.cal .cg button.out{color:#c4c3cc}
 .cal .cg button.td{box-shadow:inset 0 0 0 1px var(--accent)}.cal .cg button.on{background:var(--accent);color:#fff}
 .cal .cf{display:flex;justify-content:space-between;margin-top:8px}.cal .cf button{border:0;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 6px}
-input[placeholder="dd-mm-yyyy"]{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238d8c98' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+input[data-cal]{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238d8c98' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:38px!important}
 /* ===== same look and behaviour as the back office (portal) ===== */
 :root{--ease:cubic-bezier(.2,.8,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);--bg:#f3f4f8}
 body{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
@@ -228,7 +228,7 @@ function calDraw() {
     <div class="cf"><button type="button" data-clear>Clear</button><button type="button" data-d="${today}">Today</button></div>`;
   calPlace();
 }
-document.addEventListener("focusin", e => { const t = e.target; if (t.matches?.('input[placeholder="dd-mm-yyyy"]')) calOpen(t); else if (CAL.el && !CAL.el.contains(t)) calClose(); });
+document.addEventListener("focusin", e => { const t = e.target; if (t.matches?.('input[data-cal]')) calOpen(t); else if (CAL.el && !CAL.el.contains(t)) calClose(); });
 document.addEventListener("mousedown", e => {
   if (!CAL.el) return;
   if (CAL.el.contains(e.target)) { e.preventDefault();   // keep the field focused
@@ -350,7 +350,7 @@ function newCompany() {
       <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
       <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="2"></div>
       <div class="fld"><label>Warehouses</label><input class="sel" name="warehouses" type="number" min="0" step="1" value="1"></div>
-      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy"></div>
+      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="Paid Until" data-cal></div>
       <div class="fld" style="grid-column:span 2"><label>Modules</label><div class="mods">${MODULES.map(([k,t]) => `<label class="chk"><input type="checkbox" name="mod" value="${k}" checked>${t}</label>`).join("")}</div></div>
       <div class="fld"><label class="chk" style="margin-top:20px"><input type="checkbox" name="complimentary">Free (Never Billed)</label></div>
     </div>
@@ -429,8 +429,8 @@ function drawCompany() {
       <div class="fld"><label>Billing</label><select class="sel" name="cycle"><option value="monthly" ${s.cycle!=="yearly"?"selected":""}>Monthly</option><option value="yearly" ${s.cycle==="yearly"?"selected":""}>Yearly</option></select></div>
       <div class="fld"><label>POS Devices</label><input class="sel" name="posDevices" type="number" min="0" step="1" value="${s.pos_devices ?? 1}"></div>
       <div class="fld"><label>Warehouses</label><input class="sel" name="warehouses" type="number" min="0" step="1" value="${s.warehouses ?? 1}"></div>
-      <div class="fld"><label>Trial Ends</label><input class="sel" name="trialEndsAt" placeholder="dd-mm-yyyy" value="${dmyIn(s.trial_ends_at)}"></div>
-      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="dd-mm-yyyy" value="${dmyIn(s.paid_until)}"></div>
+      <div class="fld"><label>Trial Ends</label><input class="sel" name="trialEndsAt" placeholder="Trial Ends" data-cal value="${dmyIn(s.trial_ends_at)}"></div>
+      <div class="fld"><label>Paid Until</label><input class="sel" name="paidUntil" placeholder="Paid Until" data-cal value="${dmyIn(s.paid_until)}"></div>
       <div class="fld"><label>Grace Days</label><input class="sel" name="graceDays" type="number" min="0" step="1" placeholder="Default (${DATA.settings?.graceDays ?? 7})" value="${s.grace_days ?? ""}"></div>
       <div class="fld"><label>Discount %</label><input class="sel" name="discountPct" type="number" min="0" max="100" step="0.01" value="${s.discount_pct ?? 0}"></div>
       <div class="fld" style="grid-column:span 2"><label>Modules</label><div class="mods">${MODULES.map(([k,t]) => `<label class="chk"><input type="checkbox" name="mod" value="${k}" ${mods.includes(k)?"checked":""}>${t}</label>`).join("")}</div></div>
