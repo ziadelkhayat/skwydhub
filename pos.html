@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="938-1794860420">
+<meta name="skwyd-build" content="939-1794861002">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -46,7 +46,8 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
   window.__rect = function(el){ var q = el.getBoundingClientRect(); var z = H.hasAttribute("data-pc") ? (+H.style.zoom || 1) : 1; if(z !== 1) return { left: q.left / z, top: q.top / z, width: q.width / z, height: q.height / z, right: q.right / z, bottom: q.bottom / z, x: q.left / z, y: q.top / z };   /* on a computer the app is zoomed: work in its own 1280 x 800 frame */
     if(!H.hasAttribute("data-rot")) return q; var b = d.body.getBoundingClientRect(); return { left: q.top - b.top, top: b.right - q.right, width: q.height, height: q.width, right: q.top - b.top + q.height, bottom: b.right - q.right + q.width }; };
   window.__stage = function(){ var b = d.body.getBoundingClientRect(), z = H.hasAttribute("data-pc") ? (+H.style.zoom || 1) : 1; if(z !== 1) return { l:b.left / z, t:b.top / z, w:b.width / z, h:b.height / z }; return H.hasAttribute("data-rot") ? { l:0, t:0, w:b.height, h:b.width } : { l:b.left, t:b.top, w:b.width, h:b.height }; }; })();</script>
-<style>html{overflow:hidden!important;height:100%}
+<style>
+.logo.skl{background:#fff!important;box-shadow:0 4px 14px rgba(23,37,84,.12)!important;padding:8px;box-sizing:border-box}.logo.skl svg{width:100%;height:100%;display:block}.chead .logo.skl{padding:4px;border:1px solid #e6e8f0}html{overflow:hidden!important;height:100%}
 html[data-pc]{background:#d9dce6}
 html[data-stage] body{position:fixed!important;left:var(--sl,0)!important;top:var(--st,0)!important;width:var(--sw,100vw)!important;height:var(--sh,100vh)!important;min-height:0!important;margin:0!important;overflow:hidden!important;transform:translate(0,0);contain:layout}html[data-stage][data-rot] body{transform:rotate(90deg)!important;transform-origin:50% 50%}/* one tile format for the orders history and the pickup & delivery board */
 .ohtile,.ocard.tl{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;text-align:left;text-transform:none}
@@ -758,7 +759,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 @media (max-height:760px){#lock .lkpad{grid-template-columns:repeat(3,80px)!important}#lock .lkpad button{height:76px!important}#lock .lksync{width:264px;height:60px}#lock .lkmark{font-size:38px}}
 #lock .lkwelc{display:none}#lock.welc .lkwelc{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:40px}
 #lock.welc .lksub,#lock.welc .lkbox,#lock.welc #pinErr,#lock.welc .lkpad,#lock.welc .lksync{display:none!important}
-#lock .lkdot{display:inline-flex;min-width:20px;height:20px;border-radius:10px;background:#c6f432;color:#1e3a8a;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-left:6px;padding:0 6px}
+#lock .lkdot{display:inline-flex;min-width:20px;height:20px;border-radius:10px;background:#6d28d9;color:#fff;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-left:6px;padding:0 6px}
 #lock .lkshifts{margin-top:8px;min-width:280px;background:#fff;border:1px solid #ecebf3;border-radius:14px;padding:12px 16px;font-size:13.5px;color:#3a3846}#lock .lkshifts>b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#8a8799;margin-bottom:6px}#lock .lkshifts>div{display:grid;grid-template-columns:90px 1fr;gap:0 10px;padding:6px 0;border-top:1px solid #f1f0f6}#lock .lkshifts small{grid-column:2;color:#8a8799;font-size:12px}
 #lock .lkhi{font-size:22px;color:#3a3846;margin:0}#lock .lkst{font-size:14px;color:var(--mut,#8a8799);margin:-10px 0 8px}
 #lock .lkbtn{width:312px;height:80px;border:0;border-radius:10px;background:#eaecf2;font:inherit;font-size:24px;color:#3a3846;cursor:pointer}#lock .lkbtn:active{background:var(--accs,#edf1fc)}#lock .lkbtn:disabled{opacity:.45;cursor:not-allowed}
@@ -874,7 +875,7 @@ input,textarea,[contenteditable],code,pre,td,p,.note,.receipt,.receipt *,.rpaper
 .rti{flex:none;width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;box-sizing:border-box}
 #abar .abtn.abtn .rti svg{width:22px!important;height:22px!important}#abar .abtn.abtn .rti svg,#abar .abtn.abtn .rti svg *{color:#fff!important;stroke:#fff!important}
 .bnav .rti svg,.bnav button .rti svg{width:22px!important;height:22px!important;color:#1e3a8a!important;stroke:#1e3a8a!important}
-.sklk{flex-direction:column!important;gap:6px!important;font-family:var(--f-ui,inherit)!important;letter-spacing:-1px!important}.sklk .skmark{width:58px;height:68px;display:block}.sklk .skmark svg,.skmark svg{width:100%;height:100%;display:block}.sklk .skw{font-weight:800;font-size:36px;color:#172554;line-height:1}.skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:13px;letter-spacing:0;line-height:1.3;padding:1px 7px;border-radius:7px;background:#c6f432;color:#172554;border:2px solid #172554;transform:translateY(-2px)}
+.sklk{flex-direction:column!important;gap:6px!important;font-family:var(--f-ui,inherit)!important;letter-spacing:-1px!important}.sklk .skmark{width:62px;height:64px;display:block}.sklk .skmark svg,.skmark svg{width:100%;height:100%;display:block}.sklk .skw{display:flex;flex-direction:column;align-items:center;gap:5px;line-height:1}.sklk .skwm{width:150px;height:auto;display:block}.skpos{font:800 12px/1 var(--f-ui,inherit);letter-spacing:.32em;color:#6d28d9;padding-left:.32em}.skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:13px;letter-spacing:0;line-height:1.3;padding:1px 7px;border-radius:7px;background:#6d28d9;color:#fff;border:2px solid #172554;transform:translateY(-2px)}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -948,15 +949,15 @@ window.SKWYD_OFFLINE = true;</script>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
-<script src="motion.js?v=2"></script>
+<script src="motion.js?v=4"></script>
 <script src="wokdb.js?v=59"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
-<div id="boot" class="center"><div class="panel"><div class="skmark" style="width:54px;height:62px;margin:0 auto 10px"><svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></div><h1>skwyd hub POS</h1><p>Connecting…</p></div></div>
+<div id="boot" class="center"><div class="panel"><div class="skmark" style="width:58px;height:60px;margin:0 auto 10px"><svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></div><h1>SKWYD POS</h1><p>Connecting…</p></div></div>
 
 <div id="activate" class="center hide"><form class="panel" id="actForm">
-  <div class="logo">S</div><h1>Activate this device</h1>
+  <div class="logo skl"><svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></div><h1>Activate this device</h1>
   <p>Enter the 6-digit activation code</p>
   <input class="codein" id="code" inputmode="none" maxlength="6" autocomplete="off" aria-label="Activation code">
   <div class="pinpad npad" data-npfor="code"><button type="button" data-npk="1" aria-label="1">1</button><button type="button" data-npk="2" aria-label="2">2</button><button type="button" data-npk="3" aria-label="3">3</button><button type="button" data-npk="4" aria-label="4">4</button><button type="button" data-npk="5" aria-label="5">5</button><button type="button" data-npk="6" aria-label="6">6</button><button type="button" data-npk="7" aria-label="7">7</button><button type="button" data-npk="8" aria-label="8">8</button><button type="button" data-npk="9" aria-label="9">9</button><span></span><button type="button" data-npk="0" aria-label="0">0</button><button type="button" data-npk="⌫" aria-label="Delete">⌫</button></div>
@@ -965,7 +966,7 @@ window.SKWYD_OFFLINE = true;</script>
 </form></div>
 
 <div id="lock" class="center hide" style="position:fixed;inset:0;z-index:50;background:var(--bg,#f3f4f8)"><div class="panel">
-  <div class="lkmark sklk" aria-label="skwyd hub"><span class="skmark"><svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="7" stroke-linecap="round"><path d="M40 86 Q36 108 18 124"/><path d="M50 90 Q48 112 42 129"/><path d="M60 91 V131"/><path d="M70 90 Q72 112 78 129"/><path d="M80 86 Q84 108 102 124"/></g><path d="M60 9C33 9 18 37 18 61c0 22 16 31 42 31s42-9 42-31C102 37 87 9 60 9z" fill="#c6f432" stroke="#172554" stroke-width="6"/><circle cx="46" cy="58" r="7" fill="#172554"/><circle cx="74" cy="58" r="7" fill="#172554"/><circle cx="48" cy="55.5" r="2.2" fill="#fff"/><circle cx="76" cy="55.5" r="2.2" fill="#fff"/></svg></span><span class="skw">skwyd<span class="skhub">hub</span></span></div><p id="lockSub" class="lksub">Enter Your Login PIN</p><h1 id="lockTitle" hidden>Sign in</h1>
+  <div class="lkmark sklk" aria-label="SKWYD POS"><span class="skmark"><svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></span><span class="skw"><svg class="skwm" viewBox="0 0 543.6 100" aria-hidden="true"><g fill="none" stroke="#172554" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"><path d="M63 21 C56 13 47 9.5 37.5 9.5 C22 9.5 12 17 12 29.5 C12 42 23 45.5 37 48.5 C52 51.5 64 55.5 64 70 C64 83 52.5 90.5 37 90.5 C26 90.5 16 86 9.5 77"/><path d="M111.3 9.5 V90.5 M111.3 49 H144.5 A20.5 20.5 0 0 0 165 28.5 V9.5 M111.3 49 H150.5 A21.7 21.7 0 0 1 172.2 70.7 V90.5"/><path d="M219.5 9.5 V69 A22.5 21.5 0 0 0 264.5 69 V9.5 M264.5 69 A22.5 21.5 0 0 0 309.5 69 V9.5"/><path d="M358.5 9.5 V29 A31.5 31.5 0 0 0 421.5 29 V9.5 M390 60.5 V90.5"/><path d="M469.7 9.5 H492.5 A40.5 40.5 0 0 1 492.5 90.5 H469.7 Z"/></g></svg><span class="skpos">POS</span></span></div><p id="lockSub" class="lksub">Enter Your Login PIN</p><h1 id="lockTitle" hidden>Sign in</h1>
   <div class="pindots lkbox" id="pinDots"><i></i><i></i><i></i><i></i><i></i></div><div class="err" id="pinErr" style="min-height:20px;color:#b42318"></div>
   <div class="pinpad lkpad"><button data-pin="1">1</button><button data-pin="2">2</button><button data-pin="3">3</button><button data-pin="4">4</button><button data-pin="5">5</button><button data-pin="6">6</button><button data-pin="7">7</button><button data-pin="8">8</button><button data-pin="9">9</button><button data-pin="0">0</button><button data-pin="c" class="lkc" aria-label="Clear">C</button></div>
   <button type="button" class="lksync" id="lkSync">Sync Users</button>
@@ -975,7 +976,7 @@ window.SKWYD_OFFLINE = true;</script>
   <div class="main">
     <aside class="cart">
       <div class="chead">
-        <div class="logo">S</div><div class="cinfo"><b id="tBranch">—</b><div class="mut" id="tDevice">—</div></div>
+        <div class="logo skl"><svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></div><div class="cinfo"><b id="tBranch">—</b><div class="mut" id="tDevice">—</div></div>
         <div class="cpills"><span class="pill" id="shiftPill">Till Closed</span>
         <span class="sync" id="syncPill" role="status" title="Connection status">Online</span>
         <span class="lockb who hide" id="lockBtn" title="Tap to log out" role="button" style="cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span id="cashierName"></span></span></div>
@@ -1128,7 +1129,7 @@ document.addEventListener("wok:activate", e => actGate(e.detail?.msg));
 // the restaurant's Skwyd Hub subscription is locked: the register stops selling until it's paid (it stays activated)
 function subLock(){ if(document.getElementById("subLock")) return; const d = document.createElement("div"); d.id = "subLock";
   d.style.cssText = "position:fixed;inset:0;z-index:99999;background:#172554;color:#fff;display:grid;place-items:center;text-align:center;padding:24px;font-family:inherit";
-  d.innerHTML = `<div style="max-width:420px"><div style="font-size:22px;font-weight:700;margin-bottom:10px">This register is paused</div><div style="opacity:.85;line-height:1.5">The restaurant's Skwyd Hub subscription has ended. Ask the owner to renew it from the back office (Manage → Subscription). The register starts again by itself once it's paid.</div><button type="button" style="margin-top:22px;padding:12px 26px;border-radius:10px;border:0;background:#c6f432;color:#172554;font-weight:700;font-size:15px" onclick="location.reload()">Check Again</button></div>`;
+  d.innerHTML = `<div style="max-width:420px"><div style="font-size:22px;font-weight:700;margin-bottom:10px">This register is paused</div><div style="opacity:.85;line-height:1.5">The restaurant's Skwyd Hub subscription has ended. Ask the owner to renew it from the back office (Manage → Subscription). The register starts again by itself once it's paid.</div><button type="button" style="margin-top:22px;padding:12px 26px;border-radius:10px;border:0;background:#6d28d9;color:#fff;font-weight:700;font-size:15px" onclick="location.reload()">Check Again</button></div>`;
   document.body.appendChild(d); }
 document.addEventListener("wok:locked", subLock);
 // sound for new online and call-center orders: on or off for this tablet

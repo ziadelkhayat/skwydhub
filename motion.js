@@ -9,7 +9,7 @@
   const CK = '<svg class="m-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
   const css = `
-.m-tap{position:fixed;z-index:2147483600;pointer-events:none;border-radius:50%;background:#c6f432;opacity:.45;transform:translate(-50%,-50%) scale(.2);animation:m-tap .45s ease-out forwards}
+.m-tap{position:fixed;z-index:2147483600;pointer-events:none;border-radius:50%;background:#6d28d9;opacity:.45;transform:translate(-50%,-50%) scale(.2);animation:m-tap .45s ease-out forwards}
 @keyframes m-tap{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
 .m-busy{pointer-events:none}.m-spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-right:8px;vertical-align:-2px;animation:m-sp .7s linear infinite}
 @keyframes m-sp{to{transform:rotate(360deg)}}
@@ -43,20 +43,20 @@ button,.btn,.prod{-webkit-tap-highlight-color:transparent}
 .nav .grp .chev{display:inline-block;transition:transform .2s}.nav .grp.open .chev{transform:rotate(90deg)}
 .m-tabs{position:relative}.m-tabs>a.on,.m-tabs>button.on{border-bottom-color:transparent!important}
 .m-tabbar{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:#1e3a8a;pointer-events:none;transition:left .25s cubic-bezier(.2,.8,.2,1),width .25s cubic-bezier(.2,.8,.2,1)}
-.empty:not(:has(.m-skel))::before{content:"";display:block;width:46px;height:52px;margin:0 auto 10px;opacity:.85;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 34'%3E%3Cpath d='M15 2c6.6 0 11 4.6 11 10.6 0 3.2-1.2 5.6-3 7.4l1.6 9.2c.2 1-.9 1.6-1.6.9l-3.4-3.6-1.6 5.6c-.3 1-1.7 1-2 0L15 25.6l-1 6.5c-.3 1-1.7 1-2 0l-1.6-5.6-3.4 3.6c-.7.7-1.8.1-1.6-.9L7 20C5.2 18.2 4 15.8 4 12.6 4 6.6 8.4 2 15 2z' fill='%23eef7c8' stroke='%23a3c92a' stroke-width='1'/%3E%3Ccircle cx='11.2' cy='12.4' r='1.6' fill='%23172554'/%3E%3Ccircle cx='18.8' cy='12.4' r='1.6' fill='%23172554'/%3E%3C/svg%3E") center/contain no-repeat;animation:m-float 3s ease-in-out infinite}
+.empty:not(:has(.m-skel))::before{content:"";display:block;width:46px;height:52px;margin:0 auto 10px;opacity:.85;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 124'%3E%3Cg fill='none' stroke='%23c3c9dc' stroke-width='9' stroke-linecap='round'%3E%3Cpath d='M24 82V62C24 32 41 12 60 12s36 20 36 50v20'/%3E%3Cpath d='M24 82q0 24-10 32M48 84q0 20-6 32M72 84q0 20 6 32M96 82q0 24 10 32'/%3E%3C/g%3E%3Ccircle cx='47' cy='52' r='8.5' fill='%23c4b5fd'/%3E%3Ccircle cx='73' cy='52' r='8.5' fill='%23c4b5fd'/%3E%3C/svg%3E") center/contain no-repeat;animation:m-float 3s ease-in-out infinite}
 td.empty::before,.empty.inline::before{display:none}
 @keyframes m-float{50%{transform:translateY(-4px)}}
-.m-fly{position:fixed;z-index:2147483600;width:22px;height:22px;border-radius:50%;background:#c6f432;box-shadow:0 0 0 3px rgba(30,58,138,.25);pointer-events:none}
+.m-fly{position:fixed;z-index:2147483600;width:22px;height:22px;border-radius:50%;background:#6d28d9;box-shadow:0 0 0 3px rgba(30,58,138,.25);pointer-events:none}
 .m-swl{animation:m-swl .26s ease}.m-swr{animation:m-swr .26s ease}
 @keyframes m-swl{from{opacity:.3;transform:translateX(40px)}}@keyframes m-swr{from{opacity:.3;transform:translateX(-40px)}}
 .m-undo{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;z-index:2147483500;display:flex;align-items:center;gap:14px;background:#172554;color:#fff;border-radius:12px;padding:10px 12px 10px 16px;font-size:14px;box-shadow:0 12px 32px rgba(20,20,50,.28);transition:transform .25s cubic-bezier(.2,.9,.3,1),opacity .2s;overflow:hidden}
-.m-undo.on{transform:translate(-50%,0);opacity:1}.m-undo button{border:0;background:#c6f432;color:#172554;font-weight:700;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px}
-.m-undo i{position:absolute;left:0;bottom:0;height:3px;background:#c6f432;animation:m-tb 6s linear forwards;width:100%;transform-origin:left}
+.m-undo.on{transform:translate(-50%,0);opacity:1}.m-undo button{border:0;background:#6d28d9;color:#172554;font-weight:700;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px}
+.m-undo i{position:absolute;left:0;bottom:0;height:3px;background:#6d28d9;animation:m-tb 6s linear forwards;width:100%;transform-origin:left}
 .m-ptr{display:flex;align-items:center;justify-content:center;gap:8px;height:0;overflow:hidden;color:#5b5a66;font-size:13px;font-weight:600}
 .m-ptr svg{width:18px;height:18px;transition:transform .2s}.m-ptr.ready svg{transform:rotate(180deg)}
 .m-confetti{position:fixed;inset:0;pointer-events:none;z-index:2147483646}
 .m-cele{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px) scale(.9);opacity:0;z-index:2147483647;background:#172554;color:#fff;border-radius:16px;padding:14px 22px;font-size:18px;font-weight:700;box-shadow:0 16px 40px rgba(20,20,50,.3);transition:all .3s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:center}
-.m-cele.on{opacity:1;transform:translate(-50%,0) scale(1)}.m-cele small{display:block;font-size:13px;font-weight:500;color:#c6f432;margin-top:2px}
+.m-cele.on{opacity:1;transform:translate(-50%,0) scale(1)}.m-cele small{display:block;font-size:13px;font-weight:500;color:#6d28d9;margin-top:2px}
 @media (prefers-reduced-motion:reduce){.m-tap,.m-enter>*,.m-rows tr,.m-rows>li,.m-new,.m-bump,.m-shake{animation:none!important}}`;
   const st = document.createElement("style"); st.id = "motion-css"; st.textContent = css; document.head.appendChild(st);
 
@@ -185,7 +185,7 @@ td.empty::before,.empty.inline::before{display:none}
   Motion.celebrate = (title, sub) => {
     if (RM) return; buzz([30, 60, 30]);
     const c = document.createElement("canvas"); c.className = "m-confetti"; c.width = innerWidth; c.height = innerHeight; document.body.appendChild(c);
-    const g = c.getContext("2d"), cols = ["#c6f432", "#1e3a8a", "#ffffff", "#60a5fa", "#a3e635"];
+    const g = c.getContext("2d"), cols = ["#6d28d9", "#1e3a8a", "#ffffff", "#60a5fa", "#a3e635"];
     const P = Array.from({ length: 120 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .35, vx: (Math.random() - .5) * 14, vy: -Math.random() * 12 - 4, s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[Math.random() * cols.length | 0] }));
     const t0 = performance.now();
     (function f(t) { const k = (t - t0) / 1800; g.clearRect(0, 0, c.width, c.height);

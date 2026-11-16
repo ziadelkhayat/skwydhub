@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="938-1794860419">
+<meta name="skwyd-build" content="939-1794861002">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1405,7 +1405,7 @@ html body{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-sy
 .ccvseg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ccvseg button{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:14.5px;color:var(--ink);cursor:pointer}.ccvseg button.on{border-color:var(--accent);background:#eef2fc;color:var(--accent-ink)}
 .ccvrs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ccvrs button{min-height:46px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:14px;color:var(--ink);cursor:pointer}.ccvrs button.on{border-color:var(--accent);background:#eef2fc;color:var(--accent-ink)}
 /* wide but short (phones on their side): the cart column scrolls with the page, the menu stays in view */
-@media(min-width:701px) and (max-height:560px){.ccx.s2{overflow-y:auto!important;grid-template-columns:minmax(270px,37%) minmax(0,1fr)!important;grid-template-rows:max-content max-content!important;align-content:start}.ccx.s2>.cccart{min-height:auto;display:block}.ccx.s2 .cccart .cart{display:block}.ccx.s2 .cccart .clist{overflow:visible;max-height:none}.ccx.s2>.ccmenu{position:sticky;top:0;align-self:start;height:calc(100dvh - 24px)!important}.ccx.s2 .cctool{width:64px;height:64px;font-size:11.5px;gap:3px}.ccx.s2 .ccprods{gap:8px}.ccx.s2 .ccacts .btn.pri{min-height:52px}}
+@media(min-width:701px) and (max-height:560px){.ccx.s2{overflow-y:auto!important;grid-template-columns:minmax(270px,37%) minmax(0,1fr)!important;grid-template-rows:max-content minmax(max-content,1fr)!important}.ccx.s2>.cccart{min-height:auto;display:flex;flex-direction:column}.ccx.s2 .cccart .cart{display:flex;flex-direction:column;flex:1 0 auto}.ccx.s2 .cccart .clist{flex:1 0 auto}.ccx.s2 .cccart .clist{overflow:visible;max-height:none}.ccx.s2>.ccmenu{position:sticky;top:0;align-self:start;height:calc(100dvh - 24px)!important}.ccx.s2 .cctool{width:64px;height:64px;font-size:11.5px;gap:3px}.ccx.s2 .ccprods{gap:8px}.ccx.s2 .ccacts .btn.pri{min-height:52px}}
 /* phones upright: one column and the page scrolls */
 @media(max-width:700px){.ccx.s2{display:block!important;overflow-y:auto!important}.ccx.s2{position:relative}.ccx .ccxbtn{position:absolute;top:24px;right:24px;width:40px;height:40px;z-index:3}.ccx.s2 .ccctxh{padding-right:48px}.ccx.s2>.ccside{border-radius:22px!important;border-bottom:0!important;padding-bottom:12px!important;margin-bottom:12px}.ccx.s2>.cccart{display:block;min-height:auto;margin-top:12px;border-radius:22px!important;padding-top:12px!important}.ccx.s2 .cccart .cart{display:block}.ccx.s2 .cccart .clist{max-height:38vh}.ccx.s2 .ccprods{height:auto}.ccx.s2 #oProducts{overflow:visible!important;flex:none}.ccx.s2 .cctools{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}.ccx.s2 .cctool{width:auto;height:auto;aspect-ratio:1/1}}
 .ptr{position:fixed;top:-46px;left:50%;z-index:9999;width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(27,24,48,.22);display:grid;place-items:center;color:var(--ink2);pointer-events:none;transform:translate(-50%,0)}.ptr svg{width:20px;height:20px}.ptr.go{color:var(--accent)}.ptr.spin{animation:ptrspin .7s linear infinite}@keyframes ptrspin{to{rotate:360deg}}
@@ -1532,7 +1532,7 @@ html body .tti svg,html body .hico.hnt svg{color:#1e3a8a!important;stroke:#1e3a8
 html body aside.side .nav .grp.open > button,html body aside.side .nav .grp > button{color:#fff!important}html body aside.side .nav .ico,html body aside.side .nav .sub a .ico{color:#fff!important}
 html body #view .card.otbl{max-height:calc(100dvh - 200px);overflow:auto;margin-bottom:0!important;overscroll-behavior:contain}html body #view .card.otbl.obody>table>thead>tr>th{position:sticky!important;top:0!important;z-index:3;background:#f8f9fb!important;box-shadow:inset 0 -1px 0 #ebecf0}
 html body .lyset{padding:22px 24px}html body .lyset .lyon{font-size:16px;margin-bottom:6px}html body .lysum{background:#f4f6fb;border-radius:12px;padding:14px 16px;margin:14px 0 18px;line-height:1.6;color:#3a3846}html body .lysum p{margin:0 0 6px}html body .lysum p:last-child{margin:0}html body .lysum b{color:#1e3a8a}html body .lygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin-bottom:14px}@media(max-width:700px){html body .lygrid{grid-template-columns:1fr}}html body .lyfoot{display:flex;align-items:center;justify-content:flex-end;gap:12px;border-top:1px solid #ecedf1;margin:18px -24px -22px;padding:14px 24px}
-html body aside.side .brand.skb{flex-direction:column!important;align-items:center!important;gap:6px!important;padding:14px 12px 24px!important}html body .skmark{width:46px;height:54px}html body .skmark svg{width:100%;height:100%;display:block}html body aside.side .skword b{font-weight:800!important;font-size:25px!important;letter-spacing:-.6px;color:#fff!important;line-height:1}html body .skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:10px;line-height:1.3;padding:1px 6px;border-radius:6px;background:#c6f432;color:#172554;border:2px solid #fff;transform:translateY(-3px)}
+html body aside.side .brand.skb{flex-direction:column!important;align-items:center!important;gap:6px!important;padding:14px 12px 24px!important}html body .skmark{width:46px;height:54px}html body .skmark svg{width:100%;height:100%;display:block}html body aside.side .skword b{font-weight:800!important;font-size:25px!important;letter-spacing:-.6px;color:#fff!important;line-height:1}html body .skhub{display:inline-block;margin-left:5px;vertical-align:top;font-weight:800;font-size:10px;line-height:1.3;padding:1px 6px;border-radius:6px;background:#6d28d9;color:#fff;border:2px solid #fff;transform:translateY(-3px)}
 html body aside.side #coLogo,html body aside.side #coSub{display:none!important}html body aside.side .skword{display:flex!important;align-items:flex-start;white-space:nowrap}
 html body #view .card.otbl.obody th,html body #view .card.otbl.obody td{padding:10px 8px!important;font-size:14px!important;word-break:normal;overflow-wrap:anywhere}html body #view .card.otbl.obody th{white-space:normal!important;overflow-wrap:normal!important;min-width:56px}html body #view .card.otbl::-webkit-scrollbar{height:10px;width:10px}html body #view .card.otbl::-webkit-scrollbar-thumb{background:#c9cfdb;border-radius:8px;border:2px solid #fff}html body #view .card.otbl::-webkit-scrollbar-track{background:#f4f5f8}
 html body #view .card.otbl.obody.ofit1 th,html body #view .card.otbl.obody.ofit1 td{padding:9px 6px!important;font-size:13px!important}
@@ -1673,7 +1673,7 @@ h1 .dn,.dn{text-transform:none}
 <script src="wokdb.js?v=59"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
-<script src="motion.js?v=3"></script>
+<script src="motion.js?v=4"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
@@ -4475,7 +4475,7 @@ function viewCallCenter(){
 `;
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
   const ccCols = CC_COLS.filter(([k]) => k!=="review" || webToCC() || list.some(o => o.status==="review"));
-  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span><span class="sp"></span><span class="info" title="${d}">i</span></div>
+  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
     ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
 }
