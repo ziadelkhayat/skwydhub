@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="941-1794863114">
+<meta name="skwyd-build" content="942-1794863859">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -164,6 +164,7 @@ button{cursor:pointer}
 #modal.full{width:var(--sw,100vw)!important;height:var(--sh,100vh);max-width:none;max-height:none;border-radius:0;display:flex;flex-direction:column}.scrim.fullscr{padding:0!important}.modal.full .mb{flex:1;overflow:auto}
 .modal.full{background:#f3f3f9}.modal.full .mh{background:var(--s)}
 .oboard{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px;align-items:start;min-height:100%}
+@media(min-width:901px){.oboard:has(> .ocol:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}}
 .ocol{display:flex;flex-direction:column;gap:10px}.ochead{display:flex;align-items:center;gap:8px;background:var(--s);border-radius:14px;padding:12px 16px;box-shadow:0 1px 3px rgba(21,19,31,.06)}.ochead b{font-size:16px}.ochead .cnt{background:#ececf3;border-radius:999px;padding:1px 9px;font-size:13px}
 .oempty{background:#e9e8f1;border-radius:14px;padding:30px 14px;text-align:center;color:#5b5a66}
 .ocard{display:flex;flex-direction:column;gap:7px;text-align:left;background:var(--s);border:1px solid transparent;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(21,19,31,.08);font:inherit;color:inherit;cursor:pointer}
