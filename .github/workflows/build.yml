@@ -111,12 +111,29 @@ jobs:
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-team.apk
+      - name: Build Android Driver app (APK)
+        run: |
+          rm -rf android www
+          mkdir -p www && sed 's#<head>#<head><script>window.SKWYD_APP="driver"</script>#' team.html > www/index.html && cp pos-icon-192.png www/
+          grep -q 'SKWYD_APP="driver"' www/index.html
+          cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
+          printf '{ "appId": "com.skwydhub.driver", "appName": "SKWYD Driver", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
+          npx cap add android
+          for f in android-icons/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          # location for clock in and live tracking, camera for the pickup photo
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.location.gps" android:required="false" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />#' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          grep -q android.permission.CAMERA android/app/src/main/AndroidManifest.xml
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-driver.apk
       - name: Prepare website
         run: |
           mkdir -p site   # GitHub Pages only hosts the POS app file: the POS is not on the web
           printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://portal.skwydhub.com/">' > site/index.html
           cp skwydhub-pos.apk site/skwydhub-pos.apk
           cp skwyd-team.apk site/skwyd-team.apk
+          cp skwyd-driver.apk site/skwyd-driver.apk
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
