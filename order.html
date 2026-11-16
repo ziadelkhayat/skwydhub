@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="933-1794778487">
+<meta name="skwyd-build" content="935-1794854209">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1558,7 +1558,7 @@ document.addEventListener("click", e => { let t;
 
 /* ---------- past orders: from the account (skwyd_my_orders), else the ones placed on this device ---------- */
 const OHK = () => "skwyd_orders_" + brandId;
-const OST = { pending:["Waiting for the branch","w"], active:["Being prepared","a"], closed:["Completed","c"], done:["Completed","c"], void:["Cancelled","bad"], voided:["Cancelled","bad"], declined:["Declined","bad"], returned:["Returned","bad"] };
+const OST = { review:["Waiting for confirmation","w"], pending:["Waiting for the branch","w"], active:["Being prepared","a"], closed:["Completed","c"], done:["Completed","c"], void:["Cancelled","bad"], voided:["Cancelled","bad"], declined:["Declined","bad"], returned:["Returned","bad"] };
 async function openOrders(){
   const sh = $("#sheet"); sh.className = "sheet locsheet acsheet";
   const head = `<div class="grab"></div><div class="lshead"><span></span><h3>Your orders</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
@@ -1571,7 +1571,7 @@ async function openOrders(){
   sh.innerHTML = head + (list.length ? `<div class="olist">${list.map((o, i) => { const st = OST[o.status] || [o.status ? o.status[0].toUpperCase() + o.status.slice(1) : "Placed", "w"], d = new Date(o.created_at), its = (o.items||[]);
       return `<div class="ocard"><div class="otop"><div><b>${esc(branches.find(b => b.id===o.branch_id)?.name || brand.name)}</b><small>${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}${o.no ? " · #" + esc(o.no) : ""}</small></div><span class="ost ${st[1]}">${esc(st[0])}</span></div>
         <div class="oits">${its.slice(0, 4).map(it => `<span>${+it.qty||1}× ${esc(it.name)}</span>`).join("")}${its.length > 4 ? `<span>+${its.length - 4} more</span>` : ""}</div>
-        <div class="obot"><b>${usd(+o.total||0)}</b>${o.id ? `<button type="button" class="reord trkbtn" data-track="${esc(o.id)}">${ic("clock")}${["pending","active"].includes(o.status) ? "Track" : "Details"}</button>` : ""}<button type="button" class="reord" data-reorder="${i}">${ic("plus")}Reorder</button></div></div>`; }).join("")}</div>`
+        <div class="obot"><b>${usd(+o.total||0)}</b>${o.id ? `<button type="button" class="reord trkbtn" data-track="${esc(o.id)}">${ic("clock")}${["review","pending","active"].includes(o.status) ? "Track" : "Details"}</button>` : ""}<button type="button" class="reord" data-reorder="${i}">${ic("plus")}Reorder</button></div></div>`; }).join("")}</div>`
     : `<div class="fvempty"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>No orders yet</b>Your orders will show here after you place one.</div><button type="button" class="primary" data-nav="order" style="margin-top:18px">Browse the menu</button>`);
 }
 const OHL = { list:[] };
@@ -1727,7 +1727,7 @@ function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order #" + o.no + " 
 async function trkPoll(){ if(!TK){ setTimeout(trkPoll, 0); return; }   // called during start-up, before the tracker is set up
   clearTimeout(TK.timer); if(!USER || PREVIEW) return trkPill();
   const list = await tkFetch(), day = Date.now() - 864e5;
-  list.forEach(o => { if(!o.id) return; const was = TK.seen[o.id]; if(was && was !== o.status && new Date(o.created_at) > day) tkNotify(o); TK.seen[o.id] = o.status; });
+  list.forEach(o => { if(!o.id) return; const was = TK.seen[o.id]; if(was && was !== o.status && !(was==="review" && o.status==="pending") && new Date(o.created_at) > day) tkNotify(o); TK.seen[o.id] = o.status; });
   lsSet("skwyd_trk_" + brandId, Object.fromEntries(Object.entries(TK.seen).slice(-60)));
   trkPill(); if(TK.id && $("#trk")?.classList.contains("show")) trkDraw();
   const live = list.some(o => tkLive(o) && new Date(o.created_at) > day);
