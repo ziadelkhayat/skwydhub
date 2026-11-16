@@ -8,7 +8,7 @@
   const lsRaw = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
   const DEVKEY = window.SKWYD_OFFLINE ? lsRaw("skwyd_devkey") : null, DEVTOPIC = DEVKEY ? lsRaw("skwyd_devtopic") : null;
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, DEVKEY
-    ? { auth: { persistSession: false, autoRefreshToken: false, storageKey: "skwyd-device-noauth" }, global: { headers: { "x-skwyd-device": DEVKEY } } }
+    ? { auth: { persistSession: false, autoRefreshToken: false, storageKey: "skwyd-device-noauth" }, global: { headers: { "x-skwyd-device": DEVKEY, "x-slick-device": DEVKEY } } }
     : { auth: { persistSession: true, autoRefreshToken: true } });
 
   // app collection -> table, and which columns each table accepts
