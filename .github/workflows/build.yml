@@ -95,11 +95,28 @@ jobs:
           JAVA
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - name: Build Android Team app (APK)
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk skwydhub-pos.apk   # keep the POS app before building the next one
+          rm -rf android www
+          mkdir -p www && cp team.html www/index.html && cp pos-icon-192.png www/
+          cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
+          printf '{ "appId": "com.skwydhub.team", "appName": "SKWYD Team", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
+          npx cap add android
+          for f in android-icons/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          # clock in checks the phone's location at the branch
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-feature android:name="android.hardware.location.gps" android:required="false" />#' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          grep -q ACCESS_FINE_LOCATION android/app/src/main/AndroidManifest.xml
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-team.apk
       - name: Prepare website
         run: |
           mkdir -p site   # GitHub Pages only hosts the POS app file: the POS is not on the web
           printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://portal.skwydhub.com/">' > site/index.html
-          cp android/app/build/outputs/apk/debug/app-debug.apk site/skwydhub-pos.apk
+          cp skwydhub-pos.apk site/skwydhub-pos.apk
+          cp skwyd-team.apk site/skwyd-team.apk
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
