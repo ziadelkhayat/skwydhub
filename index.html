@@ -506,6 +506,7 @@ a.btn{text-decoration:none}
 .schg thead th.today{box-shadow:inset 0 3px 0 #1e3a8a}
 .schg .dst{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-top:6px;font-weight:500;font-size:11.5px;color:var(--muted)}.schg .dst b{color:var(--ink);font-weight:600}
 .schg .emp b{display:block;font-size:14px}.schg .emp small{display:block;color:var(--muted);font-size:12px}
+@media (max-width:900px),(hover:none){.schg th:first-child,.schg td:first-child{position:static;width:140px}.schg{min-width:960px}}
 .schg td.cell{height:64px;cursor:pointer;position:relative;transition:background .15s}
 .schg td.cell:hover{background:rgba(30,58,138,.04)}
 .schg td.cell:hover:empty::after,.schg td.cell .add{content:"+";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#1e3a8a;font-size:20px;opacity:.5}
@@ -689,7 +690,8 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .mlist{display:flex;flex-direction:column}.mlist .chk{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px}.mlist .mall{margin-bottom:6px}.mlist .mgh{margin-top:14px}.mlist .mgh b,.mlist .mall b{font-weight:600}.mlist .mitem .ib{margin-left:4px}
 .mlist.rl{gap:12px;padding:0;margin:0}.rls input,.rls input:focus{box-shadow:none!important;border:0!important;outline:0!important;min-height:0}.mlist.rl .chk{padding:0;gap:10px}.mlist.rl input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none;margin:0;cursor:pointer}
 .rlbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#fafcfc;position:sticky;top:-1px;z-index:2}
-.rlbar::before{content:"";position:absolute;left:-16px;right:-16px;bottom:100%;height:60px;background:#fff;pointer-events:none}   /* hides the rows that scroll up behind the bar (the dialog padding above it) */
+.rlbar::before{content:"";position:absolute;left:-16px;right:-16px;bottom:calc(100% + 1px);height:24px;background:#fff;pointer-events:none}
+.f.full:has(>.mlist.rl)>label{display:none}   /* hides the rows that scroll up behind the bar (the dialog padding above it) */
 .rlbar .mall{margin:0}.rlcnt{font-size:12.5px;color:var(--muted)}
 .rls{margin-left:auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:0 10px;min-width:200px}.rls svg{width:14px;height:14px;color:var(--muted);flex:none}.rls input{border:0;outline:0;background:transparent;font:inherit;font-size:13px;padding:7px 0;width:100%}
 .rlg{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface,#fff)}.rlg[hidden],.rlg .mitem[hidden]{display:none}
@@ -6571,7 +6573,7 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
 });
 
 /* ---------- Employee Management → Schedule: a week of shifts per branch (draft → publish), labor cost vs sales ---------- */
-const SCH = { branch:"", week:"", sales:{}, salesAt:{} };
+const SCH = { brand:"", branch:"", week:"", sales:{}, salesAt:{} };
 const schIso = d => new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 const schMon = iso => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return schIso(d); };
 const schAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return schIso(d); };
@@ -6584,20 +6586,21 @@ const schCost = x => { const u = x.employeeId && S.users.find(e => e.id===x.empl
   return u.payType==="hourly" ? r * schHrs(x) : u.payType==="daily" ? r : u.payType==="monthly" ? r / 26 : 0; };
 const schLive = () => (S.work_shifts||[]).filter(x => !x.deleted);
 const schClash = x => x.employeeId && schLive().some(y => y.id!==x.id && y.employeeId===x.employeeId && (() => { const [a1,b1] = schSpan(x), [a2,b2] = schSpan(y); return a1 < b2 && a2 < b1; })());
-async function schLoadSales(br, wk){ const k = br + "|" + wk; if(SCH.salesAt[k] && Date.now() - SCH.salesAt[k] < 300000) return; SCH.salesAt[k] = Date.now();
+async function schLoadSales(br, wk){ const k = br + "|" + wk + "|" + SCH.brand, brand = SCH.brand; if(SCH.salesAt[k] && Date.now() - SCH.salesAt[k] < 300000) return; SCH.salesAt[k] = Date.now();
   try{ const t0 = new Date(wk + "T00:00:00"), t1 = new Date(schAdd(wk, 7) + "T00:00:00");
-    const { data, error } = await WOK.sb.from("orders").select("total,status,created_at").eq("branch_id", br).in("status", ["closed","returned"]).gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()).limit(10000);
-    if(error) throw error; const m = {}; (data||[]).forEach(o => { const d = schIso(new Date(o.created_at)); m[d] = (m[d]||0) + (+o.total||0); }); SCH.sales[k] = m;
+    const { data, error } = await WOK.sb.from("orders").select("total,status,created_at,brand_id").eq("branch_id", br).in("status", ["closed","returned"]).gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()).limit(10000);
+    if(error) throw error; const m = {}; (data||[]).filter(o => !brand || o.brand_id===brand).forEach(o => { const d = schIso(new Date(o.created_at)); m[d] = (m[d]||0) + (+o.total||0); }); SCH.sales[k] = m;
     if(HASH().slice(1)==="schedule") render(); }catch(e){ console.warn("schedule sales", e); } }
 function viewSchedule(){
-  const brs = branches.filter(b => b.active!==false && !b.deleted); if(!brs.length) return `<div class="phead"><h1>Schedule</h1></div>` + placeholder("No branches yet", "Add a branch first (Manage → Branches).");
+  const bl = brandList(); if(SCH.brand && !bl.some(b => b.id===SCH.brand)) SCH.brand = "";
+  const brs = branches.filter(b => b.active!==false && !b.deleted && (!SCH.brand || !b.brandId || b.brandId===SCH.brand)); if(!brs.length) return `<div class="phead"><h1>Schedule</h1></div>` + placeholder("No branches yet", "Add a branch first (Manage → Branches).");
   if(!brs.some(b => b.id===SCH.branch)) SCH.branch = (state.branch && state.branch!=="all" && brs.some(b => b.id===state.branch)) ? state.branch : brs[0].id;
   if(!SCH.week) SCH.week = schMon(todayStr());
   const br = SCH.branch, wk = SCH.week, days = [...Array(7)].map((_, i) => schAdd(wk, i)), today = todayStr();
   const week = schLive().filter(x => x.branchId===br && x.day >= days[0] && x.day <= days[6]);
   const drafts = week.filter(x => !x.published).length;
   const emps = S.users.filter(u => live(u) && ((!(u.branchIds||[]).length && !isAdminRow(u)) || (u.branchIds||[]).includes(br) || week.some(x => x.employeeId===u.id))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
-  if(WOK?.sb) schLoadSales(br, wk); const sales = SCH.sales[br + "|" + wk] || {};
+  if(WOK?.sb) schLoadSales(br, wk); const sales = SCH.sales[br + "|" + wk + "|" + SCH.brand] || {};
   const worked = {}, wflag = {}; const addW = (uid, x, inAt) => { if(x.branchId && x.branchId!==br) return; const d = tcDayOf(inAt); if(d < days[0] || d > days[6]) return; const k = uid + "|" + d; worked[k] = (worked[k]||0) + tcHrs({ in:inAt, out:x.out }); if(x.late || x.unscheduled) wflag[k] = (wflag[k] ? wflag[k] + ", " : "") + (x.late ? `late ${+x.late}m` : "unscheduled"); };
   tcLog().forEach(x => addW(x.userId, x, x.in)); Object.entries(tcDocBo().open || {}).forEach(([id, o]) => addW(id, o, o.at));
   const money = v => "$" + (+v||0).toFixed(0);
@@ -6612,6 +6615,7 @@ function viewSchedule(){
   const wHrs = week.reduce((s, x) => s + schHrs(x), 0), wCost = week.reduce((s, x) => s + schCost(x), 0), wSales = Object.values(sales).reduce((s, v) => s + v, 0);
   const wl = new Date(days[0] + "T12:00:00").dmy().slice(0,5) + " – " + new Date(days[6] + "T12:00:00").dmy();
   return `<div class="phead"><h1>Schedule</h1><div class="sp"></div><div class="schbar">
+      ${bl.length > 1 ? `<select class="sel" id="schBrand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${b.id===SCH.brand?"selected":""}>${esc(b.name)}</option>`).join("")}</select>` : ""}
       <select class="sel" id="schBranch">${brs.map(b => `<option value="${esc(b.id)}" ${b.id===br?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
       <div class="wkn"><button type="button" class="btn" data-schwk="-7" aria-label="Previous week">‹</button><b>${esc(wl)}</b><button type="button" class="btn" data-schwk="7" aria-label="Next week">›</button>${wk!==schMon(today) ? `<button type="button" class="btn" data-schwk="0">This Week</button>` : ""}</div>
       <button type="button" class="btn" id="schCopy">Copy Last Week</button><button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` (${drafts})` : ""}</button></div></div>
@@ -6643,6 +6647,7 @@ function schLen(){ const el = $("#shLen"); if(!el) return; const h = schHrs({ st
 document.addEventListener("input", e => { if(e.target.closest?.("#shStart,#shEnd,#shBreak")) schLen(); });
 document.addEventListener("change", e => {
   if(e.target.id==="schBranch"){ SCH.branch = e.target.value; render(); }
+  if(e.target.id==="schBrand"){ SCH.brand = e.target.value; render(); }
   if(e.target.id==="shEmp"){ const u = S.users.find(x => x.id===e.target.value), j = $("#shJob"); if(u?.jobTitle && j && !j.value) j.value = u.jobTitle; } });
 document.addEventListener("click", async e => {
   const t = e.target; if(!t.closest) return;
