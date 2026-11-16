@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="937-1794858373">
+<meta name="skwyd-build" content="948-1794870168">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -906,7 +906,7 @@ async function loadProf(){
   PROF = null; if(!USER) return;
   let r = await sb.from("web_customers").select("*").eq("id", USER.id).maybeSingle();
   if(!r.error && !r.data){ const m = USER.user_metadata || {};
-    r = await sb.from("web_customers").insert({ id:USER.id, first_name:m.first_name||null, last_name:m.last_name||null, nickname:m.nickname||null, dob:m.dob||null, phone:m.phone||null, email:USER.email, addresses:lsGet(AK, []) }).select().single(); }
+    r = await sb.from("web_customers").insert({ id:USER.id, first_name:m.first_name||null, last_name:m.last_name||null, nickname:m.nickname||null, dob:m.dob||null, phone:m.phone||(USER.phone ? "+" + USER.phone : null), email:USER.email||null, addresses:lsGet(AK, []) }).select().single(); }
   if(r.error) console.warn(r.error);
   PROF = r.data || { id:USER.id, email:USER.email, addresses:[] };
   if(!Array.isArray(PROF.addresses)) PROF.addresses = [];
@@ -936,56 +936,51 @@ function bdSel(id, val){ const [y, m, d] = String(val||"").slice(0,10).split("-"
 document.addEventListener("change", e => { const w = e.target.closest?.(".bdsel"); if(!w) return; const g = k => w.querySelector(`[data-bd="${k}"]`).value, d = g("d"), m = g("m"), y = g("y");
   w.querySelector("input[type=hidden]").value = d && m && y ? `${y}-${m}-${d}` : ""; });
 function openAuth(view, then, msg){ if(lmap){ lmap.remove(); lmap = null; } AU.view = view || "in"; if(then !== undefined) AU.then = then; if(msg !== undefined) AU.msg = msg; drawAuth(); $("#scrim").classList.add("show"); }
+// customers sign in and sign up with their phone number and a code on WhatsApp: no password; email is optional
 function drawAuth(){
-  const sh = $("#sheet"), v = AU.view, back = v==="forgot";
+  const sh = $("#sheet"), v = AU.view, back = v==="code" || v==="email" || v==="ecode";
   sh.className = "sheet locsheet acsheet";
   const head = t => `<div class="grab"></div><div class="lshead">${back ? `<button type="button" class="x" data-av="in" aria-label="Back">‹</button>` : "<span></span>"}<h3>${t}</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
   const fld = (id, lbl, type, ac, val, ph) => `<div class="f"><label for="${id}">${lbl}</label><input id="${id}" type="${type||"text"}"${ac ? ` autocomplete="${ac}"` : ""} value="${esc(val||"")}"${ph ? ` placeholder="${esc(ph)}"` : ""}></div>`;
   const btn = t => `<div class="err" id="aErr"></div><button class="primary" id="aGo">${t}</button>`;
-  if(v==="check"){ sh.innerHTML = head("") + `<div class="done"><div class="ok">${ic("mail")}</div><h3>Verify your email</h3><p>We sent a code to <b>${esc(AU.email)}</b>. Enter it below, or open the link in the email.</p></div>
-    <form id="vfF" novalidate><div class="f"><label for="vfCode">Verification code</label><input id="vfCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="6-digit code" style="letter-spacing:.3em;text-align:center;font-size:20px"></div>
-    <div class="err" id="vfErr"></div><button class="primary" id="vfGo">Verify</button></form>
-    <p class="info" style="text-align:center;margin-top:12px">Didn't get it? <button type="button" class="lnk2" data-vfresend>Send again</button></p>`; setTimeout(() => $("#vfCode")?.focus(), 60); return; }
-  if(v==="up"){ sh.innerHTML = head("Create your account") + `<form id="auF" novalidate>
-      <div class="f2">${fld("aFirst","First name *","text","given-name")}${fld("aLast","Last name *","text","family-name")}</div>
-      <div class="f"><label>Date of birth</label>${bdSel("aDob")}</div>
-      ${fld("aEmail","Email *","email","email",AU.email)}${phField("aPhone","Phone number *","")}${fld("aPw","Password *","password","new-password","","At least 6 characters")}
-      ${btn("Create account")}</form><div class="aswitch">Already have an account? <button type="button" class="lnk2" data-av="in">Sign in</button></div>`; return; }
-  if(v==="forgot"){ sh.innerHTML = head("Reset password") + `<p class="info" style="margin:-4px 0 14px">Enter your email and we'll send you a link to set a new password.</p><form id="auF" novalidate>${fld("aEmail","Email","email","email",AU.email)}${btn("Send reset link")}</form>`; return; }
-  if(v==="reset"){ sh.innerHTML = head("Set a new password") + `<form id="auF" novalidate>${fld("aPw","New password","password","new-password","","At least 6 characters")}${fld("aPw2","Confirm new password","password","new-password")}${btn("Save password")}</form>`; return; }
-  sh.innerHTML = head("Sign in") + (AU.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AU.msg)}</p>` : "") + `<form id="auF" novalidate>${fld("aEmail","Email","email","email",AU.email)}${fld("aPw","Password","password","current-password")}${btn("Sign in")}</form>
-    <button type="button" class="lnk2 aforgot" data-av="forgot">Forgot password?</button><div class="aswitch">New here? <button type="button" class="lnk2" data-av="up">Create an account</button></div>`;
+  const codeF = `<div class="f"><label for="aCode">Code</label><input id="aCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 digits" style="letter-spacing:.3em;text-align:center;font-size:20px"></div>`;
+  if(v==="code"){ sh.innerHTML = head("Enter the code") + `<p class="info" style="margin:-4px 0 14px">We sent a code on WhatsApp to <b>${esc(AU.phone)}</b>.</p><form id="auF" novalidate>${codeF}${btn("Continue")}</form>
+      <p class="info" style="text-align:center;margin-top:12px">Didn't get it? <button type="button" class="lnk2" data-aresend>Send again</button></p>`; setTimeout(() => $("#aCode")?.focus(), 60); return; }
+  if(v==="up"){ sh.innerHTML = head("Complete your account") + `<p class="info" style="margin:-4px 0 14px">Welcome! Tell us your name so the restaurant knows who's ordering.</p><form id="auF" novalidate>
+      <div class="f2">${fld("aFirst","First name *","text","given-name",PROF?.first_name)}${fld("aLast","Last name *","text","family-name",PROF?.last_name)}</div>
+      <div class="f"><label>Date of birth</label>${bdSel("aDob", PROF?.dob)}</div>
+      ${fld("aEmail","Email (optional)","email","email",PROF?.email || "")}
+      ${btn("Save")}</form>`; return; }
+  if(v==="email"){ sh.innerHTML = head("Older account") + `<p class="info" style="margin:-4px 0 14px">If you made your account with an email, we'll send a sign-in code to it. Then add your phone number in Profile.</p><form id="auF" novalidate>${fld("aEmail","Email","email","email",AU.email)}${btn("Send code")}</form>`; return; }
+  if(v==="ecode"){ sh.innerHTML = head("Enter the code") + `<p class="info" style="margin:-4px 0 14px">We sent a code to <b>${esc(AU.email)}</b>.</p><form id="auF" novalidate>${codeF}${btn("Sign in")}</form>`; setTimeout(() => $("#aCode")?.focus(), 60); return; }
+  sh.innerHTML = head("Sign in or sign up") + (AU.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AU.msg)}</p>` : "") + `<form id="auF" novalidate>${phField("aPhone","Phone number", AU.phone || "")}<p class="info" style="margin:-4px 0 4px">We'll send you a code on WhatsApp. New here? Your account is made with the same code.</p>${btn("Send code on WhatsApp")}</form>
+    <div class="aswitch">Made your account with an email? <button type="button" class="lnk2" data-av="email">Sign in with email</button></div>`;
 }
+const phE164 = v => "+" + String(v || "").replace(/\D/g, "");
+async function sendPhoneCode(){ const { error } = await sb.auth.signInWithOtp({ phone: phE164(AU.phone), options: { channel: "whatsapp", data: { phone: AU.phone } } }); return error; }
+const otpErr = m => /rate|seconds/i.test(m) ? "Please wait a minute, then try again." : /provider|unsupported|disabled/i.test(m) ? "Sign in by phone isn't available right now. Please try again later." : /expired|invalid/i.test(m) ? "That code is wrong or expired. Send a new one." : m;
 async function authSubmit(){
   const v = id => ($("#" + id)?.value || "").trim(), err = t => { $("#aErr").textContent = t; }, go = $("#aGo"), label = go.textContent, busy = t => { go.disabled = !!t; go.textContent = t || label; };
-  const email = v("aEmail").toLowerCase(), pw = $("#aPw")?.value || "";
-  if(AU.view!=="reset"){ if(!/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email."); AU.email = email; }
-  if(AU.view==="in"){
-    if(!pw) return err("Enter your password."); busy("Signing in…");
-    const { data, error } = await sb.auth.signInWithPassword({ email, password:pw });
-    if(error){ busy(); if(/confirm/i.test(error.message)){ await sb.auth.resend({ type:"signup", email, options:{ emailRedirectTo: backUrl() } }).catch(() => {}); AU.view = "check"; return drawAuth(); } return err(/invalid/i.test(error.message) ? "Wrong email or password." : error.message); }
-    USER = data.user; return afterAuth(); }
-  if(AU.view==="up"){
-    const m = { first_name:v("aFirst"), last_name:v("aLast"), dob:v("aDob")||null, phone:phVal("aPhone") };
-    if(!m.first_name || !m.last_name) return err("Enter your first and last name.");
-    if(m.phone.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
-    if(pw.length < 6) return err("Use a password of at least 6 characters.");
-    busy("Creating your account…");
-    const { data, error } = await sb.auth.signUp({ email, password:pw, options:{ data:m, emailRedirectTo:backUrl() } });
-    if(error){ busy(); return err(/registered|exists/i.test(error.message) ? "This email already has an account. Sign in instead." : error.message); }
-    if(data.session){ USER = data.user; return afterAuth(); }
-    if(data.user && Array.isArray(data.user.identities) && !data.user.identities.length){ busy(); return err("This email already has an account. Sign in instead."); }
-    AU.view = "check"; return drawAuth(); }
-  if(AU.view==="forgot"){
-    busy("Sending…"); const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo:backUrl() });
-    if(error){ busy(); return err(error.message); }
-    AU.view = "in"; AU.msg = "We emailed you a link to set a new password."; return drawAuth(); }
-  if(AU.view==="reset"){
-    if(pw.length < 6) return err("Use a password of at least 6 characters."); if(pw !== ($("#aPw2")?.value || "")) return err("The passwords don't match.");
-    busy("Saving…"); const { error } = await sb.auth.updateUser({ password:pw });
-    if(error){ busy(); return err(error.message); }
+  if(AU.view==="in"){ const ph = phVal("aPhone"); if(ph.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
+    AU.phone = ph; busy("Sending…"); const e = await sendPhoneCode(); busy(); if(e) return err(otpErr(e.message)); AU.view = "code"; return drawAuth(); }
+  if(AU.view==="code" || AU.view==="ecode"){ const k = v("aCode").replace(/\D/g, ""); if(k.length < 6) return err("Enter the 6-digit code.");
+    busy("Checking…"); const { data, error } = AU.view==="code" ? await sb.auth.verifyOtp({ phone: phE164(AU.phone), token: k, type: "sms" }) : await sb.auth.verifyOtp({ email: AU.email, token: k, type: "email" });
+    if(error){ busy(); return err(otpErr(error.message)); }
+    USER = data.user; await loadProf();
+    if(!PROF?.first_name || !PROF?.last_name){ AU.view = "up"; return drawAuth(); }
     return afterAuth(); }
+  if(AU.view==="up"){ const m = { first_name:v("aFirst"), last_name:v("aLast"), dob:v("aDob")||null }, email = v("aEmail").toLowerCase();
+    if(!m.first_name || !m.last_name) return err("Enter your first and last name.");
+    if(email && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email, or leave it empty.");
+    busy("Saving…"); const r = await sb.from("web_customers").update({ ...m, email: email || null, updated_at: new Date().toISOString() }).eq("id", USER.id).select().single();
+    if(r.error){ busy(); return err("We couldn't save your details. Please try again."); }
+    return afterAuth(); }
+  if(AU.view==="email"){ const email = v("aEmail").toLowerCase(); if(!/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email.");
+    AU.email = email; busy("Sending…"); const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); busy();
+    if(error) return err(/not found|signups not allowed/i.test(error.message) ? "We couldn't find an account with this email." : otpErr(error.message)); AU.view = "ecode"; return drawAuth(); }
 }
+$("#sheet").addEventListener("input", e => { if(e.target.id==="aCode" && e.target.value.replace(/\D/g, "").length === 6) $("#auF")?.requestSubmit(); });
+$("#sheet").addEventListener("click", async e => { if(!e.target.closest("[data-aresend]")) return; const er = await sendPhoneCode(), el = $("#aErr"); if(el){ el.style.color = er ? "" : "#1f7a3d"; el.textContent = er ? otpErr(er.message) : "We sent a new code."; } });
 async function openAcct(view){
   if(!USER) return openAuth("in", null, "");
   if(lmap){ lmap.remove(); lmap = null; }
@@ -1000,7 +995,7 @@ function drawAcct(){
   if(v==="profile"){ sh.innerHTML = head("Profile") + (AC.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AC.msg)}</p>` : "") + `<form id="acF" novalidate>
       <div class="f2">${fld("pFirst","First name *","text","given-name",p.first_name)}${fld("pLast","Last name *","text","family-name",p.last_name)}</div>
       <div class="f"><label>Date of birth</label>${bdSel("pDob", p.dob)}</div>
-      ${fld("pEmail","Email *","email","email",USER.email)}${phField("pPhone","Phone number *",p.phone)}
+      ${fld("pEmail","Email (optional)","email","email",p.email || USER.email || "")}${USER.phone ? `<div class="f"><label>Phone number</label><input value="${esc(p.phone || "+" + USER.phone)}" disabled></div><p class="info" style="margin:-6px 0 10px">You sign in with this number.</p>` : phField("pPhone","Phone number *",p.phone)}
       <div class="aok" id="acOk"></div><div class="err" id="acErr"></div><button class="primary" id="acGo">Save changes</button></form>`; return; }
   if(v==="loyal"){ sh.innerHTML = head("Loyalty") + `<div class="ptscard"><div><small>Your points</small><b id="acPts">${AC.pts==null ? "…" : AC.pts.toLocaleString("en-US")}</b></div><span>${ic("star")}</span><p>Points are added to your account when your order is completed.</p></div>
       <div class="lyhow"><div><i>1</i><span><b>Order online</b><small>Sign in and place your order from this page.</small></span></div><div><i>2</i><span><b>Earn points</b><small>You earn 1 point for every ${esc(PUB.currency || "USD")} 1 you spend on completed orders.</small></span></div><div><i>3</i><span><b>Enjoy rewards</b><small>Your points add up with every order.</small></span></div></div>`; return; }
@@ -1009,10 +1004,9 @@ function drawAcct(){
   if(v==="addrs"){ sh.innerHTML = head("Addresses") + `<div class="laddrs">${addrs.map(a => `<div class="laddr"><div class="lpick"><span class="li">${ic(a.label==="Home" ? "home" : a.label==="Work" ? "work" : "pin")}</span><span><b>${esc(a.label || "Address")}</b><small>${esc(addrLine(a))}</small></span></div>
       <button type="button" class="lmore" data-aedit="${esc(a.id)}" aria-label="Edit ${esc(a.label || "address")}">${ic("edit")}</button><button type="button" class="lmore bad2" data-adel="${esc(a.id)}" aria-label="Delete ${esc(a.label || "address")}">${ic("trash")}</button></div>`).join("") || `<div class="info">No saved addresses yet.</div>`}</div>
       <button type="button" class="primary" data-aadd style="margin-top:16px">${ic("plus")}Add new address</button>`; return; }
-  sh.innerHTML = head("My account") + `<div class="ahero"><span class="av">${esc(inits())}</span><div><b>${esc(p.nickname || fullName() || "Welcome")}</b><small>${esc(USER.email || "")}</small></div></div>
+  sh.innerHTML = head("My account") + `<div class="ahero"><span class="av">${esc(inits())}</span><div><b>${esc(p.nickname || fullName() || "Welcome")}</b><small>${esc(p.phone || (USER.phone ? "+" + USER.phone : "") || USER.email || "")}</small></div></div>
     <div class="lopts"><button type="button" data-acv="profile"><span class="li">${ic("user")}</span><span><b>Profile</b><small>Name, birthday, email and phone</small></span><i>›</i></button>
     <button type="button" data-acv="addrs"><span class="li">${ic("pin")}</span><span><b>Addresses</b><small>${addrs.length ? addrs.length + " saved" : "Add a delivery address"}</small></span><i>›</i></button>
-    <button type="button" data-acv="pw"><span class="li">${ic("lock")}</span><span><b>Password</b><small>Change your password</small></span><i>›</i></button>
     <button type="button" data-acout><span class="li">${ic("out")}</span><span><b>Sign out</b></span><i>›</i></button></div>`;
 }
 async function acctSubmit(){
@@ -1022,18 +1016,15 @@ async function acctSubmit(){
     if(pw.length < 6) return err("Use a password of at least 6 characters."); if(pw !== $("#pPw2").value) return err("The passwords don't match.");
     busy("Saving…"); const { error } = await sb.auth.updateUser({ password:pw }); busy();
     if(error) return err(error.message); $("#pPw").value = $("#pPw2").value = ""; return ok("Your password is changed."); }
-  const m = { first_name:v("pFirst"), last_name:v("pLast"), dob:v("pDob")||null, phone:phVal("pPhone") }, email = v("pEmail").toLowerCase();
+  const m = { first_name:v("pFirst"), last_name:v("pLast"), dob:v("pDob")||null, phone: USER.phone ? (PROF?.phone || "+" + USER.phone) : phVal("pPhone") }, email = v("pEmail").toLowerCase();
   if(!m.first_name || !m.last_name) return err("Enter your first and last name.");
   if(m.phone.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
-  if(!/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email.");
+  if(email && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email, or leave it empty.");
+  m.email = email || null;
   busy("Saving…");
   const r = await sb.from("web_customers").update({ ...m, updated_at:new Date().toISOString() }).eq("id", USER.id).select().single();
   if(r.error){ busy(); return err("We couldn't save your profile. Please try again."); }
   PROF = { ...PROF, ...r.data, addresses:addrs };
-  if(email !== String(USER.email || "").toLowerCase()){
-    const x = await sb.auth.updateUser({ email }, { emailRedirectTo:backUrl() }); busy();
-    if(x.error) return err(x.error.message);
-    renderTop(); return ok("Saved. Open the link we sent to " + email + " to confirm your new email."); }
   busy(); renderTop(); ok("Saved.");
   if(AC.then){ const t = AC.then; AC.then = null; AC.msg = ""; setTimeout(t, 400); }
 }

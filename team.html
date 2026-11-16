@@ -153,20 +153,41 @@ const DRIVER = window.SKWYD_APP === "driver";   // the SKWYD Driver app: the sam
 const S = { me:null, tab: DRIVER ? "deliv" : "clock", week: mon(new Date()), hwk: mon(new Date()), shifts:[], reqs:[], mates:null, sheet:[], rqTab:"all" };
 
 /* ---------- sign in ---------- */
+// sign in with the phone number the manager saved on the employee: a 6-digit code comes on WhatsApp
+const CCS = [["+961","Lebanon"],["+971","UAE"],["+966","Saudi Arabia"],["+974","Qatar"],["+965","Kuwait"],["+973","Bahrain"],["+968","Oman"],["+962","Jordan"],["+20","Egypt"],["+90","Turkey"],["+33","France"],["+44","UK"],["+1","USA / Canada"]];
 function loginView(msg){
+  const last = LS.get("skwyd_team_phone", { cc:"+961", n:"" });
   app.innerHTML = `<div class="login"><div class="brand">${MARK}${WORD}<div class="sub">${DRIVER ? "DRIVER" : "TEAM"}</div></div>
-    <form id="lf" autocomplete="on"><div class="f"><label for="lu">Username <b>*</b></label><input class="in" id="lu" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
-    <div class="f"><label for="lp">Password <b>*</b></label><input class="in" id="lp" type="password" autocomplete="current-password" required></div>
-    <div class="err" id="le">${esc(msg || "")}</div><button class="btn" id="lb">Sign In</button></form>
-    <p class="note" style="text-align:center;margin-top:18px">Your manager gives you your username and password.</p></div>`;
-  $("#lf").addEventListener("submit", async e => { e.preventDefault(); const u = $("#lu").value.trim().toLowerCase(), p = $("#lp").value, b = $("#lb");
-    if(!u || !p){ $("#le").textContent = "Enter your username and password."; return; }
+    <form id="lf" autocomplete="on"><div class="f"><label for="lu">Phone Number <b>*</b></label><div style="display:flex;gap:8px"><select class="in" id="lc" style="flex:0 0 118px" aria-label="Country code">${CCS.map(([c,n]) => `<option value="${c}" ${c===last.cc ? "selected" : ""}>${c} ${n}</option>`).join("")}</select><input class="in" id="lu" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="70 123 456" value="${esc(last.n)}" required style="flex:1;min-width:0"></div></div>
+    <div class="err" id="le">${esc(msg || "")}</div><button class="btn" id="lb">Send Code On WhatsApp</button></form>
+    <p class="note" style="text-align:center;margin-top:18px">Use the phone number your manager saved for you.</p></div>`;
+  $("#lf").addEventListener("submit", async e => { e.preventDefault(); const cc = $("#lc").value, n = $("#lu").value.replace(/\D/g, "").replace(/^0+/, ""), b = $("#lb");
+    if(n.length < 6){ $("#le").textContent = "Enter your phone number."; return; }
+    if(!navigator.onLine){ $("#le").textContent = "No internet connection."; return; }
     b.disabled = true; b.innerHTML = `<span class="spin"></span>`; $("#le").textContent = "";
-    const email = u.includes("@") ? u : u + "@" + DOMAIN;
-    const { error } = await sb.auth.signInWithPassword({ email, password: p });
-    if(error){ b.disabled = false; b.textContent = "Sign In"; $("#le").textContent = /invalid/i.test(error.message) ? "Wrong username or password." : !navigator.onLine ? "No internet connection." : error.message; return; }
-    boot(); });
+    const phone = cc + n; LS.set("skwyd_team_phone", { cc, n });
+    const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "whatsapp", shouldCreateUser: false } });
+    if(error){ b.disabled = false; b.textContent = "Send Code On WhatsApp"; $("#le").textContent = /not found|signups not allowed|user/i.test(error.message) ? "This number has no app login. Ask your manager to turn it on." : /provider|unsupported|disabled/i.test(error.message) ? "Sign-in by phone isn't set up yet. Ask your manager." : /rate|seconds/i.test(error.message) ? "Wait a minute, then try again." : error.message; return; }
+    codeView(phone); });
   setTimeout(() => $("#lu")?.focus(), 50);
+}
+function codeView(phone){
+  app.innerHTML = `<div class="login"><div class="brand">${MARK}${WORD}<div class="sub">${DRIVER ? "DRIVER" : "TEAM"}</div></div>
+    <form id="cf" autocomplete="one-time-code"><p style="text-align:center;margin:0 0 14px;color:var(--ink2)">We sent a code on WhatsApp to<br><b style="color:var(--ink)">${esc(phone)}</b></p>
+    <div class="f"><label for="lk">Code <b>*</b></label><input class="in" id="lk" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 digits" style="text-align:center;letter-spacing:.4em;font-size:22px;font-weight:700"></div>
+    <div class="err" id="le"></div><button class="btn" id="lb">Sign In</button>
+    <div style="display:flex;justify-content:space-between;margin-top:14px"><button type="button" class="out" id="lback">Change Number</button><button type="button" class="out" id="lre" disabled>Send Again</button></div></form></div>`;
+  let t = 30; const re = $("#lre"), tick = setInterval(() => { t--; if(!re.isConnected) return clearInterval(tick); re.textContent = t > 0 ? `Send Again (${t})` : "Send Again"; re.disabled = t > 0; if(t <= 0) clearInterval(tick); }, 1000);
+  $("#lback").onclick = () => loginView();
+  re.onclick = async () => { re.disabled = true; const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "whatsapp", shouldCreateUser: false } }); if(error){ $("#le").textContent = error.message; re.disabled = false; return; } toast("Code sent"); t = 30; };
+  const go_ = async () => { const k = $("#lk").value.replace(/\D/g, ""), b = $("#lb"); if(k.length < 6){ $("#le").textContent = "Enter the 6-digit code."; return; }
+    b.disabled = true; b.innerHTML = `<span class="spin"></span>`; $("#le").textContent = "";
+    const { error } = await sb.auth.verifyOtp({ phone, token: k, type: "sms" });
+    if(error){ b.disabled = false; b.textContent = "Sign In"; $("#le").textContent = /expired|invalid/i.test(error.message) ? "Wrong or expired code." : error.message; return; }
+    clearInterval(tick); boot(); };
+  $("#cf").addEventListener("submit", e => { e.preventDefault(); go_(); });
+  $("#lk").addEventListener("input", e => { if(e.target.value.replace(/\D/g, "").length === 6) go_(); });
+  setTimeout(() => $("#lk")?.focus(), 50);
 }
 
 /* ---------- app shell ---------- */

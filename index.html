@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="947-1794869812">
+<meta name="skwyd-build" content="948-1794870168">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1675,7 +1675,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=62"></script>
+<script src="wokdb.js?v=63"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=4"></script>
@@ -1813,31 +1813,18 @@ window.addEventListener("hashchange", () => setTimeout(() => nmApply(document.bo
 document.addEventListener("DOMContentLoaded", () => nmApply(document.body));
 
 /* ---------- SKWYD Team app login (Employee → Set Login): username + password, made by the team-account server function ---------- */
-function teamLoginDlg(u){
-  const esc2 = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
-  const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
-  const sug = u.username || String(u.name || "").trim().toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "").slice(0, 30);
-  w.innerHTML = `<div class="slk-ask-b"><h3 class="slk-ask-h">SKWYD Team App Login</h3><p>${esc2(u.name)} signs in to the SKWYD Team app with this username and password.</p>
-    <label class="tlbl">Username <span style="color:#d92d20">*</span></label><input class="slk-ask-i" id="tlU" value="${esc2(sug)}" autocomplete="off" autocapitalize="none" spellcheck="false">
-    <label class="tlbl">${u.username ? "New Password" : "Password"} ${u.username ? "" : `<span style="color:#d92d20">*</span>`}</label><input class="slk-ask-i" id="tlP" type="text" autocomplete="off" placeholder="${u.username ? "Leave empty to keep the current password" : "At least 6 characters"}">
-    <div class="tlerr" id="tlE"></div><div class="slk-ask-f"><button type="button" class="slk-ask-no">Cancel</button><button type="button" class="slk-ask-yes" id="tlS">Save</button></div></div>`;
-  const done = () => { document.removeEventListener("keydown", key, true); w.remove(); };
-  const save = async () => { const b = w.querySelector("#tlS"), e = w.querySelector("#tlE"), username = w.querySelector("#tlU").value.trim().toLowerCase(), password = w.querySelector("#tlP").value;
-    if(!username) return e.textContent = "Enter a username."; if(!u.username && password.length < 6) return e.textContent = "Password: at least 6 characters.";
-    b.disabled = true; e.textContent = "";
-    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, username, password } });
-      let msg = data?.error; if(error && !msg){ try{ msg = (await error.context?.json?.())?.error; }catch(_){} msg = msg || "Couldn't save the login."; }
-      if(msg){ e.textContent = msg; b.disabled = false; return; }
-      u.username = username; done(); toastOk("App login saved"); render(); }
-    catch(err){ console.error(err); e.textContent = "Couldn't save the login."; b.disabled = false; } };
-  const key = ev => { if(ev.key === "Escape"){ ev.preventDefault(); ev.stopPropagation(); done(); } else if(ev.key === "Enter"){ ev.preventDefault(); ev.stopPropagation(); save(); } };
-  w.addEventListener("click", ev => { if(ev.target === w || ev.target.closest(".slk-ask-no")) done(); else if(ev.target.closest("#tlS")) save(); });
-  document.addEventListener("keydown", key, true); document.body.appendChild(w); setTimeout(() => w.querySelector(u.username ? "#tlP" : "#tlU")?.focus(), 0);
+// app login = the employee's phone number; the code comes on WhatsApp. The same login opens the portal for employees who have portal access.
+async function teamAccount(u, body){ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, ...body } });
+  let msg = data?.error; if(error && !msg){ try{ msg = (await error.context?.json?.())?.error; }catch(_){} msg = msg || "Couldn't save the login."; } if(msg) throw new Error(msg); return data; }
+async function teamLoginDlg(u){
+  if(!u.phone) return toast("Add the employee's phone number first (Edit Employee).", true);
+  if(!(await askYes(`Turn on the app login for ${u.name}? They sign in with ${u.phone} and a code sent on WhatsApp.`, "Turn On"))) return;
+  try{ await teamAccount(u, {}); u.appUid = "on"; u.username = null; toastOk("App login turned on"); render(); }catch(err){ console.error(err); toast(err.message, true); }
 }
 document.addEventListener("click", async e => {
   const t = e.target.closest?.("[data-teamlogin]"); if(t){ const u = S.users.find(x => x.id===t.dataset.teamlogin); if(u) teamLoginDlg(u); return; }
-  const o = e.target.closest?.("[data-teamoff]"); if(o){ const u = S.users.find(x => x.id===o.dataset.teamoff); if(!u || !(await askYes(`Turn off the SKWYD Team app login for ${u.name}? They won't be able to sign in.`))) return;
-    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, remove: true } }); if(error || data?.error) throw error || new Error(data.error); u.username = null; toastOk("App login turned off"); render(); }
+  const o = e.target.closest?.("[data-teamoff]"); if(o){ const u = S.users.find(x => x.id===o.dataset.teamoff); if(!u || !(await askYes(`Turn off the app login for ${u.name}? They won't be able to sign in to the SKWYD apps.`))) return;
+    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, remove: true } }); if(error || data?.error) throw error || new Error(data.error); u.username = null; u.appUid = null; toastOk("App login turned off"); render(); }
     catch(err){ console.error(err); toast("Couldn't turn off the login", true); } }
 });
 /* ---------- skwyd hub's own Yes / No message (instead of the browser's) ---------- */
@@ -3596,6 +3583,9 @@ const CRUD = {
       const pin = data.pin, pw = data.password || ""; delete data.pin; delete data.password;
       if(pw){ if(!data.email) return "Add the user's email: they sign in to the back office with their email and password.";
         if(pw.length < 8) return "The password needs at least 8 characters."; }
+      const pn = v => String(v||"").replace(/\D/g, "");
+      if(data.phone && S.users.some(x => live(x) && x.id!==id && pn(x.phone)===pn(data.phone))) return "Another employee has this phone number. Each employee signs in with their own number.";
+      { const old = id && S.users.find(x => x.id===id); if(old && (old.userId || old.appUid) && old.phone !== data.phone) setTimeout(() => teamAccount(old, { sync:true }).catch(er => toast(er.message, true)), 1500); }   // their login follows the new number
       // roles are picked on the user's page (Edit Roles), not in this form
       if(id) delete data.roleIds; else { data.roleIds = []; data.roleId = null; data.active = true; data.branchIds = ["-"]; }   // a new user has no branches until they are picked (Branches on the user's page)
       if(data.email) data.email = data.email.toLowerCase();
@@ -8984,8 +8974,8 @@ function userDetail(u){
       info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
       info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
     const drv = S.roles.some(x => userRoleIds(u).includes(x.id) && live(x) && (x.permissions||[]).includes("drv_app")) || /driver|delivery|rider/i.test(u.jobTitle||"");
-    h += pdSec(drv ? "SKWYD Driver App" : "SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/${drv ? "skwyd-driver" : "skwyd-team"}.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.username ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : ""}<button type="button" class="btn" data-teamlogin="${esc(u.id)}">${u.username ? "Change Login" : "Set Login"}</button>`,
-      (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Username", u.username ? esc(u.username) : "Not set"), info("Used For", "Clock in / out, schedule, shift swaps and requests")]));
+    h += pdSec(drv ? "SKWYD Driver App" : "SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/${drv ? "skwyd-driver" : "skwyd-team"}.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.appUid ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : `<button type="button" class="btn pri" data-teamlogin="${esc(u.id)}">Turn On Login</button>`}`,
+      (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Login", u.appUid ? `Phone number ${esc(u.phone || "—")} · code sent on WhatsApp` : u.username ? "Old username login: press Turn Off, then Turn On Login to switch to the phone number" : "Off"), info("Used For", "Clock in / out, schedule, chat, guides, requests" + (drv ? " and deliveries" : ""))]));
     const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
     { const ds = sdLive().filter(d => d.employeeId===u.id), miss = sdMissing(u);
       h += pdSec("Documents", `<button type="button" class="btn" data-sdadd="${esc(u.id)}">Add Document</button>`, `<div style="width:100%;flex:1 1 100%">` + (miss.length ? `<p class="note" style="color:#b42318;margin:0 0 10px">Missing: ${esc(miss.join(", "))}</p>` : "") + (ds.length ? `<table><thead><tr><th>Document</th><th>Number</th><th>Status</th><th></th></tr></thead><tbody>${ds.map(d => `<tr><td>${esc(d.docType)}</td><td>${esc(d.number||"—")}</td><td>${sdTag(d)}</td><td class="num" style="white-space:nowrap">${d.filePath ? `<button type="button" class="btn" data-sdview="${esc(d.id)}">View</button> ` : ""}<button type="button" class="btn" data-sdedit="${esc(d.id)}">Edit</button></td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No documents yet</p>`) + `</div>`);
