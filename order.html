@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="936-1794856342">
+<meta name="skwyd-build" content="937-1794858373">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1714,8 +1714,8 @@ var TK = { id:null, list:[], timer:0, seen: lsGet("skwyd_trk_" + brandId, {}) };
 const TFIN = ["closed","done"], TBAD = ["void","voided","declined","returned","refund"];
 const tkLive = o => o && !TFIN.includes(o.status) && !TBAD.includes(o.status);
 function tkSteps(o){ const t = o.type || "delivery", last = t==="delivery" ? ["Delivered","Enjoy your meal!"] : t==="pickup" ? ["Picked up","Thanks for ordering with us"] : ["Served","Enjoy your meal!"];
-  return [["Order placed", o.status==="review" ? "Waiting for the restaurant to confirm your order" : "Waiting for the restaurant to accept"],["Accepted","The kitchen is preparing your order"],[t==="delivery" ? "On its way" : t==="pickup" ? "Ready for pickup" : "Ready", t==="delivery" ? "Your order is ready and heading to you" : "Your order is ready"],last]; }
-function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? (o.ready || o.dispatched_at ? 2 : 1) : 0; }
+  return [["Order placed", o.status==="review" ? "Waiting for the restaurant to confirm your order" : "Waiting for the restaurant to accept"],["Preparing","The kitchen is preparing your order"],[t==="delivery" ? "On its way" : t==="pickup" ? "Ready for pickup" : "Ready", t==="delivery" ? "Your order is ready and heading to you" : "Your order is ready"],last]; }
+function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? ((o.type==="delivery" ? o.dispatched_at : o.ready) ? 2 : 1) : 0; }
 const tkTitle = o => TBAD.includes(o.status) ? (o.status==="declined" ? "Order declined" : "Order cancelled") : tkSteps(o)[tkStep(o)][0];
 async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
   if(!r.error && Array.isArray(r.data)){ const tmp = TK.id==="_new" ? TK.list.find(x => x.id==="_new") : null; TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); if(tmp) TK.list.unshift(tmp); } return TK.list; }

@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="935-1794854209">
+<meta name="skwyd-build" content="937-1794858373">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -223,7 +223,7 @@ html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.b
 
 
 .chtag{display:inline-block;font-size:12px;font-weight:700;color:#1e3a8a;background:#edf0fa;padding:1px 9px;border-radius:999px}
-.spill{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:500}.s-pending{background:#e8f0fd;color:#2c5fb8}.s-active{background:var(--warns);color:var(--warn)}
+.spill{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:500}.s-pending{background:#e8f0fd;color:#2c5fb8}.s-active{background:var(--warns);color:var(--warn)}.s-out{background:#f3e8ff;color:#6d28d9}
 .mut{color:var(--mut);font-size:13px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;opacity:0;transition:opacity .2s;z-index:20;pointer-events:none}.toast.show{opacity:1}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.stats div{background:var(--bg);border-radius:10px;padding:12px}.stats b{display:block;font-size:20px;margin-top:2px}
@@ -335,6 +335,7 @@ body{-webkit-font-smoothing:antialiased}
 .modal.full .mb>*{flex-shrink:0}.otabs2{flex-shrink:0;overflow-x:auto;overflow-y:hidden}.otabs2 button{min-height:52px}
 .lrow.ol5{grid-template-columns:.9fr .9fr .5fr 1.1fr .75fr .85fr .7fr .8fr .85fr 1.15fr .7fr .8fr}.lrow.lhead{cursor:default;padding-top:10px;padding-bottom:10px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:capitalize;color:#8d8c98}.lrow.lhead:hover{background:none}
 
+.drvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.drv{display:grid;gap:2px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card,#fff);cursor:pointer}.drv b{font-size:15px}.drv small{color:var(--mut);font-size:12px}.drv.on{border-color:#1e3a8a;background:#eff4ff}
 .lst-pending{color:#2c5fb8}.lst-active{color:var(--warn)}.lst-closed{color:var(--good)}.lst-void,.lst-refund,.lst-declined,.lst-returned{color:var(--bad)}
 @media(max-width:800px){.lrow{grid-template-columns:80px 1fr 110px}.lrow .lc2{display:none}}@media(max-width:800px){.lrow.ol5{grid-template-columns:1fr 1fr .6fr 1fr .8fr .9fr}}
 /* tables */
@@ -948,7 +949,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
 <script src="motion.js?v=2"></script>
-<script src="wokdb.js?v=57"></script>
+<script src="wokdb.js?v=58"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1712,6 +1713,7 @@ function renderCart(){
   if(!eo) b = [...(otype==="fast" ? [] : [`<button data-act="send" ${ok0?"":"disabled"}>Save</button>`]), `<button class="pay" data-act="pay" ${ok0?"":"disabled"}>Total</button>`];
   else if(eo.status==="pending") b = canAccept() ? [`<button class="decl" data-incc="${esc(eo.id)}:declined">Decline</button>`, `<button class="pay" data-incc="${esc(eo.id)}:active">Accept</button>`] : [];   // an order waiting to be accepted can't be saved or paid yet: accept or decline it first
   else if(erPending(eo)) b = [`<button class="decl" data-er="${esc(eo.id)}:0">Reject</button>`, `<button class="pay" data-er="${esc(eo.id)}:1">Approve</button>`];   // the call center asked to change this order: approve or reject it first
+  else if(eo.status==="active" && eo.type==="delivery" && !eo.dispatchedAt) b = [`<button data-act="send" ${unsent || VOID_CHG===eo.id ? "" : "disabled"}>Save</button>`, `<button data-act="driver">${eo.driverName ? esc(eo.driverName) : "Add Driver"}</button>`, `<button class="pay" data-act="dispatch" ${cart.length && !unsent ? "" : "disabled"}>Dispatch</button>`];   // delivery: dispatch first (with a driver), then Total
   else if(isOpenOrd(eo)) b = [...(otype==="fast" ? [] : [`<button data-act="send" ${unsent || VOID_CHG===eo.id ? "" : "disabled"}>Save</button>`]), `<button class="pay" data-act="pay" ${cart.length?"":"disabled"}>Total</button>`];
   else b = [];
   acts.style.setProperty("--n", b.length + 1); acts.innerHTML = b.join(""); acts.classList.toggle("hide", !b.length);
@@ -1953,6 +1955,8 @@ $("#acts").addEventListener("click", e => { const b = e.target.closest("[data-ac
   if(a==="disc") return openDiscount();
   if(a==="pay") return openPay();
   if(a==="send") return sendOrder();
+  if(a==="driver") return openDriver(eo);
+  if(a==="dispatch") return dispatchOrder(eo);
   if(a==="unload") return unloadOrder();
   if(a==="voidall"){ OV.open = eo.id; window.__keep = null; return openVR("void", "all"); }
   if(a==="retitems"){ OV.open = eo.id; return openVR("return", "items"); }
@@ -1971,6 +1975,24 @@ $("#totals").addEventListener("click", e => { if(e.target.closest("[data-discx]"
 $("#extra").addEventListener("change", e => { if(e.target.id==="tbl") tableNo = e.target.value; });
 $("#extra").addEventListener("input", e => { if(e.target.id==="tbl") tableNo = e.target.value; if(e.target.id==="cPhone") cust.phone = e.target.value; if(e.target.id==="cName") cust.name = e.target.value; if(e.target.id.startsWith("cA_")) cust.addr[e.target.id.slice(3)] = e.target.value; });
 function resetOrder(){ SPL = null; SPLD = null; EDIT = null; VOID_CHG = null; orderNote = ""; kitchenNote = ""; GUESTS = 0; otype = defaultType(); cart = []; discount = 0; discType = "pct"; DSET = null; posChg = null; posOpen = {}; posTags = null; posCustTags = null; tableNo = ""; cust = { name:"", phone:"", addr:{} }; renderCart(); }
+
+/* ---------- delivery: driver and dispatch ---------- */
+// drivers: this branch's employees whose job title says driver; if there are none, everyone working at this branch
+function driverList(){ const here = S.users.filter(u => live(u) && u.active!==false && !isAdminUser(u) && (!(u.branchIds||[]).length || u.branchIds.includes(device.branchId)));
+  const d = here.filter(u => /driver|delivery|rider/i.test(u.jobTitle||"")); return (d.length ? d : here).sort((a,b) => String(a.name).localeCompare(String(b.name))); }
+function openDriver(eo){ if(!eo || eo.dispatchedAt) return; const l = driverList();
+  modal("driver", `<div class="mh"><h2>Driver</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
+    ${l.length ? `<div class="drvl">${l.map(u => `<button type="button" class="drv ${eo.driverId===u.id?"on":""}" data-drv="${esc(u.id)}"><b>${esc(u.name)}</b>${u.jobTitle ? `<small>${esc(u.jobTitle)}</small>` : ""}</button>`).join("")}</div>` : `<p class="mut">No employees at this branch yet. Add drivers in the back office: Employee Management → Employees, with the job title Driver.</p>`}</div>
+    <div class="mf"><button class="btn" data-close>Cancel</button>${eo.driverId ? `<button class="btn" data-drv="">Remove Driver</button>` : ""}</div>`);
+  DRV_O = eo.id; }
+let DRV_O = null;
+document.addEventListener("click", async e => { const b = e.target.closest("#modal [data-drv]"); if(!b || modalKind!=="driver" || !DRV_O) return; const eo = S.orders.find(x => x.id===DRV_O); if(!eo) return; const u = S.users.find(x => x.id===b.dataset.drv);
+    try{ await db.collection("orders").doc(eo.id).update({ driverId: u ? u.id : null, driverName: u ? u.name : null, updatedAt: new Date().toISOString() }); closeModal(); toast(u ? "Driver: " + u.name : "Driver removed"); renderCart(); }
+    catch(err){ console.error(err); toast("Couldn't save the driver"); } });
+async function dispatchOrder(eo){ if(!eo || eo.dispatchedAt) return;
+  try{ await db.collection("orders").doc(eo.id).update({ dispatchedAt: new Date().toISOString(), dispatchedBy: cashier?.name || device.name, updatedAt: new Date().toISOString() });
+    toast("Order " + ordRef(eo) + " dispatched" + (eo.driverName ? " with " + eo.driverName : "")); renderCart(); }
+  catch(err){ console.error(err); toast("Couldn't dispatch the order"); } }
 
 /* ---------- modals ---------- */
 let modalKind = null;
@@ -2412,7 +2434,8 @@ function approve(perm, title){
 
 /* ---------- orders: list, delivery & pickup management, void (active) and return (closed) ---------- */
 let OV = { tab:"all", q:"", open:null, view:"list", filt:false, ft:"", fc:"", fs:"", fp:"" };
-const stLbl = o => ({ review:"Call center review", refund:"Returned", pending:"Waiting for you", active:"Active", closed:"Done", void:"Void", returned:"Returned", declined:"Declined", draft:"Draft" }[o.status] || o.status);
+const outDel = o => o && o.status==="active" && o.type==="delivery" && !!o.dispatchedAt;   // a delivery order that left with the driver
+const stLbl = o => outDel(o) ? "Dispatched" : ({ review:"Call center review", refund:"Returned", pending:"Waiting for you", active:"Preparing", closed:"Done", void:"Void", returned:"Returned", declined:"Declined", draft:"Draft" }[o.status] || o.status);
 const typLbl = t => t==="fast" ? "Fast Order" : t==="dinein" ? "Dine-in" : t==="pickup"||t==="takeaway" ? "Pickup" : t==="delivery" ? "Delivery" : (t||"—");
 const invNo = n => n ? "INV-" + String(n).padStart(6,"0") : "";   // invoice number as shown and printed
 const ordRef = o => o.status==="refund" ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? "#" + o.no : o.invoiceNo ? invNo(o.invoiceNo) : "—";
@@ -2457,8 +2480,9 @@ function boardOrders(col, pd){
     && (pd || !OV.fs || String(o.source||"").toLowerCase()===OV.fs.toLowerCase()) && (pd || !OV.fp || String(o.payment?.method||"").toLowerCase()===OV.fp.toLowerCase());
   if(!pd){ const all = ovAll().filter(o => o.status!=="draft" && ovInRange(o) && m(o)), by = (a,b) => String(b.createdAt).localeCompare(String(a.createdAt));
     return (col==="all" ? all : col==="active" ? all.filter(o => ["active","pending"].includes(o.status)) : col==="closed" ? all.filter(o => o.status==="closed") : col==="void" ? all.filter(o => o.status==="void") : col==="returns" ? all.filter(o => ["returned","refund"].includes(o.status)) : all.filter(o => o.status===col)).sort(by); }
-  if(col==="all") return (pd ? ["pending","active","closed","void"] : ["active","closed","void"]).flatMap(k => boardOrders(k, pd)).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const l = col==="pending" ? mine.filter(o => (o.status==="pending" || (pd && erPending(o))) && onDay(o)) : col==="active" ? mine.filter(o => o.status==="active" && !(pd && erPending(o)) && onDay(o))
+  if(col==="all") return (pd ? ["pending","active","out","closed","void"] : ["active","closed","void"]).flatMap(k => boardOrders(k, pd)).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const l = col==="pending" ? mine.filter(o => (o.status==="pending" || (pd && erPending(o))) && onDay(o)) : col==="active" ? mine.filter(o => o.status==="active" && !(pd && erPending(o)) && !(pd && outDel(o)) && onDay(o))
+    : col==="out" ? mine.filter(o => outDel(o) && !erPending(o) && onDay(o))
     : col==="closed" ? mine.filter(o => (pd ? ["closed","void","returned"].includes(o.status) : o.status==="closed") && bizDate(o.createdAt)===day)   // pickup & delivery: Done keeps every closed order
     : col==="declined" ? mine.filter(o => o.status==="declined" && bizDate(o.updatedAt || o.createdAt)===day)
     : mine.filter(o => ["void","returned","refund"].includes(o.status) && bizDate(anyDay ? (o.updatedAt || o.createdAt) : o.createdAt)===day);
@@ -2822,12 +2846,12 @@ function openBoard(){
   const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web";
   const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(Boolean).map(esc).join(" / ");
   // the same tile as the orders history: reference, status, invoice / order, customer / phone, address (delivery), created, modified, total, type / source, channel / user
-  const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
-    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order #" + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}
+  const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : outDel(o) ? "out" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
+    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order #" + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}
     ${sm("Created " + t(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + t(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
     ${sm(jn([typLbl(o.type), o.source && o.source!=="Website" && String(o.source).toUpperCase()!=="POS" ? o.source : ""]))}${sm(jn([chn(o), o.agent || ""]))}${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`;
   const q = OV.q; OV.q = BQ;
-  const PD_COLS = [...OV_COLS.slice(0,3), ["declined","Declined","Declined today"]];   // pickup & delivery: no void / returns column
+  const PD_COLS = [...OV_COLS.slice(0,2), ["out","Dispatched","Delivery orders on the way with their driver"], OV_COLS[2], ["declined","Declined","Declined today"]];   // pickup & delivery: no void / returns column
   const cols = PD_COLS.map(([k,title,tip]) => [k, title, tip, boardOrders(k, true)]); OV.q = q;
   modal("board", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px;letter-spacing:.03em">Pickup & Delivery</b><span class="sp"></span>${allowedTypes().some(t => t==="takeaway"||t==="delivery") ? `<button class="hbtn" data-pdnewt>New Order</button>` : ""}</div>
     <div class="mb"><div class="oboard">${cols.map(([k,title,tip,l]) => `<div class="ocol"><div class="ochead" title="${esc(tip)}"><b>${title}</b><span class="cnt">${l.length}</span></div>${l.length ? l.map(card).join("") : `<div class="oempty">You don't have ${title.toLowerCase()} orders</div>`}</div>`).join("")}</div></div>`, true);
