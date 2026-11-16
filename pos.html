@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="939-1794861002">
+<meta name="skwyd-build" content="940-1794862345">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1072,13 +1072,15 @@ let device = null, branch = null, cat = "", otype = "dinein", cart = [], discoun
   try{ db = window.claude && await window.claude.use("db"); }catch(e){ db = null; }
   clearTimeout(timer);
   if(!db){ $("#boot p").textContent = "Sign in with your staff account to continue."; return; }
-  Object.keys(S).forEach(c => db.collection(c).onSnapshot(snap => { S[c] = snap.docs.map(d => ({ ...d.data(), id:d.id })); onData(c); }, e => console.error(c, e)));
+  Object.keys(S).forEach(c => db.collection(c).onSnapshot(snap => { S[c] = snap.docs.map(d => ({ ...d.data(), id:d.id })); onData(c, !!snap.metadata?.fromCache); }, e => console.error(c, e)));
 })();
 let started = false;
-function onData(c){
+function onData(c, cached){
   if(c==="settings" && device) try{ paintLockInfo(); }catch(e){}
   if(c==="orders" && !window.__ordSnap){ window.__ordSnap = true; }
-  if(c==="devices" && !started){ started = true; const id = store.get("wokDevice"); if(id && S.devices.some(d=>d.id===id && !d.deleted && d.activatedAt)) startApp(id); else { store.set("wokDevice", null); show("activate"); $("#code").focus(); } return; }
+  if(c==="devices" && !started){ const id = store.get("wokDevice"), ok = id && S.devices.some(d=>d.id===id && !d.deleted && d.activatedAt);
+    if(!ok && cached && id && navigator.onLine) return;   // the copy saved on this tablet can be older than the activation: wait for the server
+    started = true; if(ok) startApp(id); else { store.set("wokDevice", null); show("activate"); $("#code").focus(); } return; }
   if(!device) return;
   device = S.devices.find(d => d.id===device.id) || device;
   if(device.deleted){ store.set("wokDevice", null); location.reload(); return; }
