@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="944-1794864517">
+<meta name="skwyd-build" content="945-1794866914">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -952,7 +952,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
 <script src="motion.js?v=4"></script>
-<script src="wokdb.js?v=60"></script>
+<script src="wokdb.js?v=61"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1236,8 +1236,7 @@ function shiftsHtml(u){ const now = Date.now(), up = myShifts(u).filter(x => shS
 function paintWelcome(){
   const u = WELC; if(!u) return; const o = tcOpen(u), canReg = isAdminUser(u) || userPerms(u).includes("pos_access");
   $("#lock").classList.add("welc");
-  $("#lkWel").innerHTML = `<p class="lkhi">Welcome, ${esc(u.name)}!</p><p class="lkst">${o ? "Clocked in since " + esc(new Date(o.at).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })) : "Not clocked in"}</p>
-    <button type="button" class="lkbtn" id="lkClock">${o ? "Clock Out" : "Clock In"}</button>
+  $("#lkWel").innerHTML = `<p class="lkhi">Welcome, ${esc(u.name)}!</p>${o ? `<p class="lkst">Clocked in since ${esc(new Date(o.at).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }))}</p>` : ""}
     <button type="button" class="lkbtn" id="lkGo" ${canReg ? "" : "disabled title=\"Your role doesn't allow using the register\""}>Access Register</button>
     
     <button type="button" class="lkbtn lkexit" id="lkExit">Exit</button>${shiftsHtml(u)}`;

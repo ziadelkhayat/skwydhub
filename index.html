@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="941-1794863114">
+<meta name="skwyd-build" content="945-1794866914">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -753,7 +753,8 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .tbl table th,.tbl table td{white-space:nowrap}.tbl table td.wrap,.tbl table td .note{white-space:normal}
 .phrow{display:flex;gap:8px}.phrow select{flex:0 1 210px;max-width:45%;min-width:0}.phrow input{flex:1;min-width:0}
 .slk-ask{position:fixed;inset:0;z-index:2147483000;background:rgba(20,16,40,.45);display:grid;place-items:center;padding:16px;animation:slkAskIn .12s ease-out}
-.slk-ask-b{background:#fff;color:#0c1738;border-radius:14px;box-shadow:0 24px 60px rgba(20,16,40,.28);width:min(520px,100%);padding:0;font:inherit;overflow:hidden}
+.tch{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;height:calc(100vh - 220px);min-height:420px}.tchl{background:#fff;border:1px solid var(--line);border-radius:16px;overflow-y:auto;padding:6px}.tchg{display:grid;grid-template-columns:1fr auto;gap:2px 8px;width:100%;text-align:left;border:0;background:none;padding:12px;border-radius:12px;cursor:pointer;font:inherit;color:inherit}.tchg small{grid-column:1/-1;color:var(--ink3,#8d8c98);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tchg em{font-style:normal;font-size:12px;color:var(--ink3,#8d8c98)}.tchg.on{background:#eef2fc}.tchm{background:#fff;border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-height:0}.tchh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}.tchh small{display:block;color:var(--ink3,#8d8c98);font-size:12.5px}.tchb{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f7f8fb}.tchmsg{max-width:72%;align-self:flex-start;display:grid;gap:3px}.tchmsg span{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:14px 14px 14px 4px;white-space:pre-wrap;word-break:break-word}.tchmsg span b{display:block;font-size:12px;color:#6d28d9;margin-bottom:2px}.tchmsg small{font-size:11px;color:var(--ink3,#8d8c98)}.tchmsg.me{align-self:flex-end;text-align:right}.tchmsg.me span{background:#1e3a8a;color:#fff;border-color:#1e3a8a;border-radius:14px 14px 4px 14px;text-align:left}.tchf{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}.tchf input{flex:1}.tchpick{display:grid;gap:6px;max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:10px}@media(max-width:800px){.tch{grid-template-columns:1fr;height:auto}.tchl{max-height:220px}.tchm{height:60vh}}
+.tlbl{display:block;text-align:left;font-size:13px;font-weight:600;margin:10px 0 4px}.tlerr{color:#d92d20;font-size:13px;min-height:18px;margin-top:8px;text-align:left}.slk-ask-b{background:#fff;color:#0c1738;border-radius:14px;box-shadow:0 24px 60px rgba(20,16,40,.28);width:min(520px,100%);padding:0;font:inherit;overflow:hidden}
 .slk-ask-h{margin:0;padding:20px 24px 4px;font-size:19px;font-weight:600}
 .slk-ask-b p{margin:0;padding:10px 24px 22px;font-size:15px;line-height:1.5;white-space:pre-line;color:#3a3650}
 .slk-ask-b .slk-ask-i{margin:-8px 24px 20px;width:calc(100% - 48px)}
@@ -1670,7 +1671,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=60"></script>
+<script src="wokdb.js?v=61"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=4"></script>
@@ -1807,6 +1808,34 @@ new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") NM
 window.addEventListener("hashchange", () => setTimeout(() => nmApply(document.body), 0));
 document.addEventListener("DOMContentLoaded", () => nmApply(document.body));
 
+/* ---------- SKWYD Team app login (Employee → Set Login): username + password, made by the team-account server function ---------- */
+function teamLoginDlg(u){
+  const esc2 = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
+  const sug = u.username || String(u.name || "").trim().toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "").slice(0, 30);
+  w.innerHTML = `<div class="slk-ask-b"><h3 class="slk-ask-h">SKWYD Team App Login</h3><p>${esc2(u.name)} signs in to the SKWYD Team app with this username and password.</p>
+    <label class="tlbl">Username <span style="color:#d92d20">*</span></label><input class="slk-ask-i" id="tlU" value="${esc2(sug)}" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <label class="tlbl">${u.username ? "New Password" : "Password"} ${u.username ? "" : `<span style="color:#d92d20">*</span>`}</label><input class="slk-ask-i" id="tlP" type="text" autocomplete="off" placeholder="${u.username ? "Leave empty to keep the current password" : "At least 6 characters"}">
+    <div class="tlerr" id="tlE"></div><div class="slk-ask-f"><button type="button" class="slk-ask-no">Cancel</button><button type="button" class="slk-ask-yes" id="tlS">Save</button></div></div>`;
+  const done = () => { document.removeEventListener("keydown", key, true); w.remove(); };
+  const save = async () => { const b = w.querySelector("#tlS"), e = w.querySelector("#tlE"), username = w.querySelector("#tlU").value.trim().toLowerCase(), password = w.querySelector("#tlP").value;
+    if(!username) return e.textContent = "Enter a username."; if(!u.username && password.length < 6) return e.textContent = "Password: at least 6 characters.";
+    b.disabled = true; e.textContent = "";
+    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, username, password } });
+      let msg = data?.error; if(error && !msg){ try{ msg = (await error.context?.json?.())?.error; }catch(_){} msg = msg || "Couldn't save the login."; }
+      if(msg){ e.textContent = msg; b.disabled = false; return; }
+      u.username = username; done(); toastOk("App login saved"); render(); }
+    catch(err){ console.error(err); e.textContent = "Couldn't save the login."; b.disabled = false; } };
+  const key = ev => { if(ev.key === "Escape"){ ev.preventDefault(); ev.stopPropagation(); done(); } else if(ev.key === "Enter"){ ev.preventDefault(); ev.stopPropagation(); save(); } };
+  w.addEventListener("click", ev => { if(ev.target === w || ev.target.closest(".slk-ask-no")) done(); else if(ev.target.closest("#tlS")) save(); });
+  document.addEventListener("keydown", key, true); document.body.appendChild(w); setTimeout(() => w.querySelector(u.username ? "#tlP" : "#tlU")?.focus(), 0);
+}
+document.addEventListener("click", async e => {
+  const t = e.target.closest?.("[data-teamlogin]"); if(t){ const u = S.users.find(x => x.id===t.dataset.teamlogin); if(u) teamLoginDlg(u); return; }
+  const o = e.target.closest?.("[data-teamoff]"); if(o){ const u = S.users.find(x => x.id===o.dataset.teamoff); if(!u || !(await askYes(`Turn off the SKWYD Team app login for ${u.name}? They won't be able to sign in.`))) return;
+    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, remove: true } }); if(error || data?.error) throw error || new Error(data.error); u.username = null; toastOk("App login turned off"); render(); }
+    catch(err){ console.error(err); toast("Couldn't turn off the login", true); } }
+});
 /* ---------- skwyd hub's own Yes / No message (instead of the browser's) ---------- */
 function askDlg(o){
   return new Promise(res => {
@@ -1888,7 +1917,7 @@ const NAV = [
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["team-chat","Team Chat"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"],["settings","Settings"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -1975,7 +2004,7 @@ const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","team-chat":"message","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -3345,7 +3374,7 @@ function toastOk(m){ const t = $("#toast"); t.textContent = m; t.classList.add("
 let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return; const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */
-const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs"];
+const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages"];
 const S = {}; COLS.forEach(c => S[c] = []);
 function subscribeAll(){
   COLS.forEach(c => db.collection(c).onSnapshot(snap => {
@@ -3408,7 +3437,7 @@ const PERMS = [
   ["@Customer Authorities"],["bo_customers","Read Customers","Allows the user to view customers data in the console."],["bo_customers_insights","Read Customers Insights","Allows the user to view customers loyalty, house account credit, etc..."],["bo_customers_edit","Manage Customers","Allows the user to edit or delete customers."],["bo_import","Import / Export","Allows the user to import and export lists (products, customers…)."],
   ["@Inventory Authorities"],["bo_inventory","Read Inventory Items","Allows the user to view inventory items and transactions."],["inv_manage","Manage Inventory Items","Allows the user to edit or delete inventory items."],["inv_suppliers","Manage Suppliers","Allows the user to edit or delete suppliers."],["inv_po","Create Purchase Orders","Allows the user to create a PO and save as draft."],["inv_po_submit","Submit Purchase Orders","Allows the user to submit draft POs to be approved."],["inv_po_approve","Approve Purchase Orders","Allows the user to approve submitted POs."],["inv_transfer","Create Transfers","Allows the user to create a transfer from one branch/warehouse to other locations."],["inv_transfer_send","Send & Receive Transfers","Allows the user to submit draft transfer transactions."],["inv_purchasing","Create Purchasing","Allows the user to create a purchasing transaction and save as draft."],["inv_purchasing_submit","Submit Purchasing","Allows the user to submit draft purchasing transactions."],["inv_production","Create Production","Allows the user to create draft production transactions."],["inv_production_submit","Submit Production","Allows the user to submit draft production transactions."],["inv_qa","Create Quantity Adjustment","Allows the user to create draft QA transactions."],["inv_qa_submit","Submit Quantity Adjustment","Allows the user to submit draft QA transactions."],["inv_count","Create Inventory Count","Allows the user to create draft count transactions."],["inv_count_submit","Submit Inventory Count","Allows the user to submit draft count transactions."],["inv_order_tx","Read Order Transactions","Allows the user to view inventory transactions made from orders."],
   ["@Menu Authorities"],["bo_menu","Read Menu","Allows the user to view menu items in the console."],["menu_manage","Manage Menu","Allows the user to edit and manage menu items in the console."],["menu_hide","Hide Items","Allows the user to deactivate menu items in selected branches to hide them from the menu."],["menu_oos","Mark Items Out of Stock","Allows the user to set menu items as Out of Stock in selected branches."],["menu_ingredients","Manage Ingredients","Allows the user to edit menu ingredients."],["menu_costs","Manage Costs","Allows the user to edit menu items costs."],
-  ["@Admin Authorities"],["bo_manage","Manage Settings","Allows the user to open Manage: branches, devices, users, roles, taxes, payment methods, charges, reasons, delivery zones, web ordering and other settings."],["bo_marketing","Manage Marketing","Allows the user to create and edit discounts, coupons, gift cards and promotions."],
+  ["@Admin Authorities"],["bo_staff","Access Employee Management","Allows the user to open Employee Management: employees, roles, schedule, time clock, requests, payroll, documents and team chat."],["bo_manage","Manage Settings","Allows the user to open Manage: branches, devices, users, roles, taxes, payment methods, charges, reasons, delivery zones, web ordering and other settings."],["bo_marketing","Manage Marketing","Allows the user to create and edit discounts, coupons, gift cards and promotions."],
   ["@Reports Authorities"],["bo_reports","View Sales Reports","Allows the user to view and export all reports."],
   ["@Dashboard Authorities"],["bo_dashboard","Access General Dashboard","Allows the user to view the general dashboard and graphs."],
   ["@Call Center Authorities"],["bo_callcenter","Access Call Center","Allows the user to take call center orders."],["bo_cc_edit","Edit Online Orders","Allows the user to edit placed call center orders (order source, order type, items)."],["bo_cc_disc_amount","Apply Amount Discount in Call Center","Allows the user to take a fixed amount off a call center order."],["bo_cc_disc_pct","Apply Percentage Discount in Call Center","Allows the user to take a percentage off a call center order."],["bo_cc_discount","Apply Marketing Discounts in Call Center","Allows the user to apply the discounts created in Marketing → Discounts on call center orders."],
@@ -3444,14 +3473,14 @@ function myPerms(){
   if(!rs.length) return state.role==="admin" ? null : ["bo_dashboard","bo_orders","bo_callcenter","bo_customers"];
   return [...new Set(rs.flatMap(r => r.permissions || []))];
 }
-const NAV_PERM = { "marketplace":"bo_manage", "subscription":"bo_manage", "dashboard":"bo_dashboard", "orders":"bo_orders", "call-center":"bo_callcenter", "customers":"bo_customers", "Reports":"bo_reports", "Inventory":"bo_inventory", "Menu":"bo_menu", "Manage":"bo_manage", "Employee Management":"bo_manage", "Web Ordering":"bo_manage", "Marketing":"bo_marketing" };
+const NAV_PERM = { "marketplace":"bo_manage", "subscription":"bo_manage", "dashboard":"bo_dashboard", "orders":"bo_orders", "call-center":"bo_callcenter", "customers":"bo_customers", "Reports":"bo_reports", "Inventory":"bo_inventory", "Menu":"bo_menu", "Manage":"bo_manage", "Employee Management":"bo_staff", "Web Ordering":"bo_manage", "Marketing":"bo_marketing" };
 // may the signed-in person do this back-office action? (the owner and admins always may)
 const mayDo = perm => { const p = myPerms(); return !p || p.includes(perm) || p.includes("bo_manage"); };
 function canOpen(route){
   if(!planHas(route)) return false;
   const p = myPerms(); if(!p) return true; route = ROUTE_PARENT[route] || route;
   const n = NAV.find(x => x.id===route || (x.kids||[]).some(k=>k[0]===route) || (x.side||[]).some(k=>k[0]===route)); if(!n) return true;
-  const need = NAV_PERM[n.id || n.t]; return !need || p.includes(need);
+  const need = NAV_PERM[n.id || n.t]; return !need || p.includes(need) || (need==="bo_staff" && p.includes("bo_manage"));   // Manage Settings also opened Employee Management before it had its own permission
 }
 
 /* one sort order everywhere: back office, POS, call center and web ordering all read the same "sort" field */
@@ -6317,6 +6346,61 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `payroll-${PAY.month}.csv`; a.click(); return; }
 });
 
+/* ---------- Employee Management → Team Chat: groups of chosen employees, read and answered in the SKWYD Team app ---------- */
+const TCH = { sel:"", q:"" };
+const chGroups = () => (S.chat_groups||[]).filter(g => !g.deleted).sort((a,b) => String(chLast(b)?.createdAt || b.createdAt).localeCompare(String(chLast(a)?.createdAt || a.createdAt)));
+const chMsgs = id => (S.chat_messages||[]).filter(m => m.groupId===id && !m.deleted).sort((a,b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+const chLast = g => { const l = chMsgs(g.id); return l[l.length - 1] || null; };
+const chTime = t => { const d = new Date(t), today = new Date().toDateString()===d.toDateString(); return today ? d.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }) : d.dmy() + " " + d.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }); };
+function viewTeamChat(){
+  const gs = chGroups(); if(!gs.some(g => g.id===TCH.sel)) TCH.sel = gs[0]?.id || "";
+  const g = gs.find(x => x.id===TCH.sel), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
+  const list = gs.map(x => { const l = chLast(x); return `<button type="button" class="tchg ${x.id===TCH.sel ? "on" : ""}" data-tchsel="${esc(x.id)}"><b>${esc(x.name)}</b><small>${l ? esc((l.fromOffice ? "You: " : (l.senderName || "") + ": ") + l.body) : (x.memberIds||[]).length + " members"}</small>${l ? `<em>${esc(chTime(l.createdAt))}</em>` : ""}</button>`; }).join("");
+  const msgs = g ? chMsgs(g.id) : [];
+  return `<div class="phead"><h1>Team Chat</h1><div class="sp"></div><button class="btn pri" data-tchnew>${svgIco("plus")} New Group</button></div>
+    <p class="subt" style="margin-top:-6px">Group chats with the employees you choose. They read and answer in the SKWYD Team app.</p>
+    <div class="tch"><aside class="tchl">${list || `<p class="dzempty" style="padding:18px">No groups yet</p>`}</aside>
+    <section class="tchm">${g ? `<header class="tchh"><div><b>${esc(g.name)}</b><small>${(g.memberIds||[]).map(id => esc(byId[id]?.name || "—")).join(", ") || "No members"}</small></div><span class="sp"></span><button type="button" class="btn" data-tchedit="${esc(g.id)}">Edit Group</button></header>
+      <div class="tchb" id="tchB">${msgs.length ? msgs.map(m => `<div class="tchmsg ${m.fromOffice ? "me" : ""}"><span>${m.fromOffice ? "" : `<b>${esc(m.senderName || "—")}</b>`}${esc(m.body)}</span><small>${m.fromOffice && m.senderName ? esc(m.senderName) + " · " : ""}${esc(chTime(m.createdAt))}</small></div>`).join("") : `<p class="dzempty" style="margin:auto">No messages yet. Say hello!</p>`}</div>
+      <form class="tchf" id="tchF"><input class="sel" id="tchI" placeholder="Write a message…" autocomplete="off" maxlength="2000" value="${esc(TCH.draft || "")}"><button class="btn pri">Send</button></form>`
+      : `<p class="dzempty" style="margin:auto">Create a group to start chatting.</p>`}</section></div>`;
+}
+function tchGroupDlg(g){
+  const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), on = new Set(g?.memberIds || []);
+  const box = $("#ccBox"); box.className = "modal";
+  box.innerHTML = `<header><h2>${g ? "Edit Group" : "New Group"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body">
+    <div class="f"><label for="tchN">Group Name <span style="color:#d92d20">*</span></label><input id="tchN" class="sel" value="${esc(g?.name || "")}" placeholder="e.g. Mar Mikhael Kitchen"></div>
+    <div class="f"><label>Members <span style="color:#d92d20">*</span></label><div class="row" style="gap:8px;margin-bottom:6px"><input id="tchQ" class="sel" placeholder="Search employees" style="flex:1"><button type="button" class="btn" data-tchall>All</button><button type="button" class="btn" data-tchnone>None</button></div>
+      <div class="tchpick" id="tchP">${emps.map(u => `<label class="chk" data-nm="${esc(String(u.name).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${on.has(u.id) ? "checked" : ""}> ${esc(u.name)}${u.jobTitle ? ` <span class="note">${esc(u.jobTitle)}</span>` : ""}${u.username ? "" : ` <span class="note" title="No SKWYD Team app login yet">· no app login</span>`}</label>`).join("")}</div></div>
+    <div class="err" id="tchE"></div></div>
+    <footer>${g ? `<button type="button" class="btn danger" data-tchdel="${esc(g.id)}">Delete Group</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tchSave">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#tchN")?.focus(), 30);
+  $("#tchQ").addEventListener("input", e => { const q = e.target.value.trim().toLowerCase(); document.querySelectorAll("#tchP .chk").forEach(l => l.hidden = q && !l.dataset.nm.includes(q)); });
+  box.onclick = async e => {
+    if(e.target.closest("[data-tchall]")) return document.querySelectorAll("#tchP .chk:not([hidden]) input").forEach(i => i.checked = true);
+    if(e.target.closest("[data-tchnone]")) return document.querySelectorAll("#tchP input").forEach(i => i.checked = false);
+    const del = e.target.closest("[data-tchdel]"); if(del){ if(!(await askYes(`Delete the group ${g.name}? Its messages are removed for everyone.`))) return; try{ await put("chat_groups", g.id, { deleted:true }); $("#ccScrim").classList.remove("show"); toastOk("Group deleted"); TCH.sel = ""; render(); }catch(err){ console.error(err); $("#tchE").textContent = "Couldn't delete the group."; } return; }
+    if(e.target.closest("#tchSave")){ const name = $("#tchN").value.trim(), memberIds = [...document.querySelectorAll("#tchP input:checked")].map(i => i.value);
+      if(!name) return $("#tchE").textContent = "Enter a group name."; if(!memberIds.length) return $("#tchE").textContent = "Choose at least one employee.";
+      try{ const id = g?.id || "cg_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        await put("chat_groups", id, g ? { name, memberIds } : { name, memberIds, createdBy: state.fullName || state.userName || "Manager", deleted:false });
+        $("#ccScrim").classList.remove("show"); toastOk(g ? "Group saved" : "Group created"); TCH.sel = id; render(); }
+      catch(err){ console.error(err); $("#tchE").textContent = "Couldn't save the group."; } }
+  };
+}
+document.addEventListener("click", e => { if(document.body.dataset.route!=="team-chat") return;
+  const s = e.target.closest("[data-tchsel]"); if(s){ TCH.sel = s.dataset.tchsel; render(); return; }
+  if(e.target.closest("[data-tchnew]")) return tchGroupDlg(null);
+  const ed = e.target.closest("[data-tchedit]"); if(ed) return tchGroupDlg(S.chat_groups.find(g => g.id===ed.dataset.tchedit));
+});
+document.addEventListener("submit", async e => { if(e.target.id!=="tchF") return; e.preventDefault(); const i = $("#tchI"), body = i.value.trim(); if(!body || !TCH.sel) return;
+  i.value = ""; TCH.draft = ""; try{ await put("chat_messages", "cm_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), { groupId: TCH.sel, body, fromOffice:true, senderName: state.fullName || state.userName || "Manager", deleted:false }); }
+  catch(err){ console.error(err); i.value = body; toast("Couldn't send the message"); } });
+// keep the newest message in view
+document.addEventListener("input", e => { if(e.target.id==="tchI") TCH.draft = e.target.value; });
+document.addEventListener("focusin", e => { TCH.focus = e.target.id==="tchI"; });
+new MutationObserver(() => { const b = document.getElementById("tchB"); if(b && !b.dataset.sc){ b.dataset.sc = "1"; b.scrollTop = b.scrollHeight; const i = document.getElementById("tchI"); if(TCH.focus && i && document.activeElement!==i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } }).observe(document.documentElement, { childList:true, subtree:true });
+
 /* ---------- Employee Management → Requests: time off and shift swaps (asked on the POS or added here), approved here ---------- */
 const RQ = { tab:"pending", year: new Date().getFullYear() };
 const LEAVE_T = { annual:"Annual Leave", sick:"Sick Leave", unpaid:"Unpaid Leave", other:"Other" };
@@ -6538,6 +6622,7 @@ function moduleRoute(route){
   if(route==="time-clock") return viewTimeClock();
   if(route==="schedule") return viewSchedule();
   if(route==="requests") return viewRequests();
+  if(route==="team-chat") return viewTeamChat();
   if(route==="payroll") return viewPayroll();
   if(route==="documents") return viewStaffDocs();
   if(CRUD[route]) return crudView(route);
@@ -8788,6 +8873,8 @@ function userDetail(u){
     h += pdSec("Employment", "", (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Employee Number", esc(u.employeeNo || "—")), info("Job Title", esc(u.jobTitle || "—")), info("Employment Type", ET[u.employmentType] || "—"),
       info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
       info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
+    h += pdSec("SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.username ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : ""}<button type="button" class="btn" data-teamlogin="${esc(u.id)}">${u.username ? "Change Login" : "Set Login"}</button>`,
+      (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Username", u.username ? esc(u.username) : "Not set"), info("Used For", "Clock in / out, schedule, shift swaps and requests")]));
     const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
     { const ds = sdLive().filter(d => d.employeeId===u.id), miss = sdMissing(u);
       h += pdSec("Documents", `<button type="button" class="btn" data-sdadd="${esc(u.id)}">Add Document</button>`, `<div style="width:100%;flex:1 1 100%">` + (miss.length ? `<p class="note" style="color:#b42318;margin:0 0 10px">Missing: ${esc(miss.join(", "))}</p>` : "") + (ds.length ? `<table><thead><tr><th>Document</th><th>Number</th><th>Status</th><th></th></tr></thead><tbody>${ds.map(d => `<tr><td>${esc(d.docType)}</td><td>${esc(d.number||"—")}</td><td>${sdTag(d)}</td><td class="num" style="white-space:nowrap">${d.filePath ? `<button type="button" class="btn" data-sdview="${esc(d.id)}">View</button> ` : ""}<button type="button" class="btn" data-sdedit="${esc(d.id)}">Edit</button></td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No documents yet</p>`) + `</div>`);

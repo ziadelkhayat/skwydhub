@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#172554">
+<title>SKWYD Team</title>
+<link rel="icon" href="pos-icon-192.png">
+<style>
+:root{--ink:#172554;--ink2:#475069;--mut:#8a90a6;--line:#e6e8f0;--bg:#f4f5fa;--card:#fff;--acc:#1e3a8a;--acc2:#6d28d9;--ok:#15803d;--oks:#e7f6ec;--bad:#d92d20;--bads:#fdecec;--warn:#b45309;--warns:#fff4e5;--r:18px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+/* sign in */
+.login{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px calc(32px + env(safe-area-inset-bottom))}
+.brand{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:28px}
+.brand svg.m{width:64px;height:66px}.brand svg.w{width:150px;height:auto}
+.brand .sub{font-weight:800;font-size:12px;letter-spacing:.32em;color:var(--acc2);padding-left:.32em}
+.f{display:grid;gap:6px;margin-bottom:14px}.f label{font-size:13px;font-weight:600;color:var(--ink2)}.f label b{color:var(--bad)}
+.in{width:100%;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:#fff;outline:none;font-size:16px}
+.in:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(30,58,138,.12)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:0;border-radius:14px;background:var(--acc);color:#fff;font-weight:700;font-size:16px}
+.btn:disabled{opacity:.55}.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.sm{width:auto;padding:9px 14px;font-size:14px;border-radius:11px}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin:4px 0 10px;text-align:center}
+/* app */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(14px + env(safe-area-inset-top)) 18px 10px;display:flex;align-items:center;gap:12px}
+.top .mk{width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(23,37,84,.08)}.top .mk svg{width:26px;height:27px}
+.top .who{flex:1;min-width:0}.top .who b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top .who small{color:var(--mut);font-size:13px}
+.top .out{border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--ink2)}
+main{flex:1;padding:6px 16px calc(96px + env(safe-area-inset-bottom))}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 2px 10px rgba(23,37,84,.05);margin-bottom:14px}
+h2{font-size:18px;margin:4px 2px 12px}
+.note{color:var(--mut);font-size:13px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.tabs div{display:flex;width:100%;max-width:560px}
+.tabs button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;font-size:12px;font-weight:600;color:var(--mut);border-radius:12px}
+.tabs button svg{width:22px;height:22px}.tabs button.on{color:var(--acc);background:#eef2fc}
+/* clock */
+.clock{text-align:center;padding:24px 18px}
+.clock .now{font-size:44px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.clock .date{color:var(--mut);margin-bottom:18px}
+.cbtn{width:190px;height:190px;border-radius:50%;border:0;margin:6px auto 14px;display:grid;place-items:center;align-content:center;gap:6px;color:#fff;font-weight:800;font-size:20px;background:radial-gradient(circle at 30% 25%,#2f4fb3,#172554);box-shadow:0 14px 34px rgba(23,37,84,.32),inset 0 -6px 0 rgba(0,0,0,.12);transition:transform .15s}
+.cbtn:active{transform:scale(.97)}.cbtn svg{width:40px;height:40px}.cbtn.outb{background:radial-gradient(circle at 30% 25%,#e35d50,#b42318);box-shadow:0 14px 34px rgba(180,35,24,.3),inset 0 -6px 0 rgba(0,0,0,.12)}
+.cbtn:disabled{opacity:.6}
+.st{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-weight:600;font-size:14px;background:var(--bads);color:var(--bad)}.st.on{background:var(--oks);color:var(--ok)}.st i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.loc{margin-top:12px;font-size:13px;color:var(--mut)}
+.row{display:flex;align-items:center;gap:12px}.row .sp{flex:1}
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.kv:last-child{border-bottom:0}.kv span{color:var(--ink2)}
+/* schedule */
+.wk{display:flex;align-items:center;gap:8px;margin-bottom:12px}.wk b{flex:1;text-align:center}.wk button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:18px}
+.day{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}.day:last-child{border-bottom:0}
+.day .d{width:48px;text-align:center;flex:none}.day .d b{display:block;font-size:20px}.day .d small{color:var(--mut);font-size:12px;text-transform:uppercase}
+.day.today .d b{color:var(--acc2)}
+.day .s{flex:1;display:grid;gap:8px}.sh{background:#f2f4fb;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}.sh .t{flex:1}.sh .t b{display:block}.sh .t small{color:var(--ink2)}
+.off{color:var(--mut);padding-top:4px}
+/* requests */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#eef0f6;padding:4px;border-radius:13px;margin-bottom:14px}.seg button{border:0;background:none;padding:9px;border-radius:10px;font-weight:600;font-size:14px;color:var(--ink2)}.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rq{padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}.rq:last-child{border-bottom:0}.rq .t{flex:1}.rq .t b{display:block}.rq .t small{color:var(--ink2);display:block}
+.pill{align-self:flex-start;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--warns);color:var(--warn)}.pill.approved{background:var(--oks);color:var(--ok)}.pill.declined{background:var(--bads);color:var(--bad)}
+.bal{display:flex;gap:10px}.bal div{flex:1;background:#f2f4fb;border-radius:14px;padding:12px;text-align:center}.bal b{display:block;font-size:22px}.bal small{color:var(--ink2);font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select.in{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a90a6' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/18px;padding-right:38px}
+/* hours */
+.big{font-size:34px;font-weight:800}.ent{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.ent:last-child{border-bottom:0}.ent .t{flex:1}.ent .t small{color:var(--ink2);display:block}.ent b.h{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;background:var(--bads);color:var(--bad)}
+/* chat */
+.tabs button{position:relative}.dot{position:absolute;top:4px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--bad)}
+.chg{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:12px;border-radius:14px;text-align:left}.chg:active{background:#f2f4fb}
+.chg .av{width:44px;height:44px;border-radius:50%;background:#eef2fc;color:var(--acc);display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.chg .t{flex:1;min-width:0}.chg .t b{display:block}.chg .t small{display:block;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chg em{font-style:normal;font-size:12px;color:var(--mut);align-self:flex-start;margin-top:3px}.chg .ud{width:10px;height:10px;border-radius:50%;background:var(--acc2);flex:none}
+.cht{display:flex;flex-direction:column;height:calc(100vh - 190px - env(safe-area-inset-bottom));min-height:360px}
+.chh{display:flex;align-items:center;gap:10px;padding:2px 2px 10px}.chh b{font-size:17px}.chh small{color:var(--mut);margin-left:auto}
+.chb{flex:1;overflow-y:auto;background:#fff;border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 2px 10px rgba(23,37,84,.05)}
+.msg{max-width:80%;align-self:flex-start;display:grid;gap:3px}.msg span{background:#f2f4fb;padding:9px 12px;border-radius:16px 16px 16px 4px;white-space:pre-wrap;word-break:break-word}.msg span b{display:block;font-size:12px;color:var(--acc2);margin-bottom:2px}.msg small{font-size:11px;color:var(--mut);padding:0 4px}
+.msg.me{align-self:flex-end;text-align:right}.msg.me span{background:var(--acc);color:#fff;border-radius:16px 16px 4px 16px;text-align:left}
+.chf{display:flex;gap:8px;padding-top:10px}.chf .in{flex:1}
+/* sheet */
+.scrim{position:fixed;inset:0;z-index:20;background:rgba(15,20,40,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;animation:up .2s ease}
+.sheet h3{margin:0 0 14px;font-size:18px}@keyframes up{from{transform:translateY(30px);opacity:0}}
+.sheet .acts{display:flex;gap:10px;margin-top:6px}.sheet .acts .btn{flex:1}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;z-index:40;background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;transition:.25s;max-width:92vw;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
+.empty{color:var(--mut);text-align:center;padding:22px 8px}
+.spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+<script src="supabase.js"></script>
+<script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
+<script>
+(() => {
+const URL_ = "https://akrezmxgtorkuwxxctyk.supabase.co", KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh", DOMAIN = "team.skwydhub.com";
+const sb = window.supabase.createClient(URL_, KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: "skwyd-team" } });
+const $ = s => document.querySelector(s), app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const MARK = `<svg class="m" viewBox="0 0 120 124" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg>`;
+const WORD = `<svg class="w" viewBox="0 0 543.6 100" aria-label="SKWYD"><g fill="none" stroke="#172554" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"><path d="M63 21 C56 13 47 9.5 37.5 9.5 C22 9.5 12 17 12 29.5 C12 42 23 45.5 37 48.5 C52 51.5 64 55.5 64 70 C64 83 52.5 90.5 37 90.5 C26 90.5 16 86 9.5 77"/><path d="M111.3 9.5 V90.5 M111.3 49 H144.5 A20.5 20.5 0 0 0 165 28.5 V9.5 M111.3 49 H150.5 A21.7 21.7 0 0 1 172.2 70.7 V90.5"/><path d="M219.5 9.5 V69 A22.5 21.5 0 0 0 264.5 69 V9.5 M264.5 69 A22.5 21.5 0 0 0 309.5 69 V9.5"/><path d="M358.5 9.5 V29 A31.5 31.5 0 0 0 421.5 29 V9.5 M390 60.5 V90.5"/><path d="M469.7 9.5 H492.5 A40.5 40.5 0 0 1 492.5 90.5 H469.7 Z"/></g></svg>`;
+const IC = {
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  req:'<path d="M5 4h14v16l-7-4-7 4z"/>', chat:'<path d="M4 5h16v11H8l-4 4z"/>', send:'<path d="M4 12l16-8-6 16-2-7z"/>', back:'<path d="M15 18l-6-6 6-6"/>', hrs:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  in:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/>', out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>', swap:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>'
+};
+const ic = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||""}</svg>`;
+let tt = 0; const toast = (m, kind) => { const t = $("#toast"); t.textContent = m; t.className = "toast show" + (kind ? " " + kind : ""); clearTimeout(tt); tt = setTimeout(() => t.className = "toast", 3200); };
+const p2 = n => String(n).padStart(2, "0");
+const ymd = d => d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate());
+const dmy = v => { if(!v) return "—"; const d = typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? new Date(v + "T12:00:00") : new Date(v); return p2(d.getDate()) + "-" + p2(d.getMonth() + 1) + "-" + d.getFullYear(); };
+const hm = v => { const d = new Date(v); return p2(d.getHours()) + ":" + p2(d.getMinutes()); };
+const t5 = s => String(s || "").slice(0, 5);
+const mon = d => { const x = new Date(d); x.setHours(12, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const LEAVE = { annual:"Annual Leave", sick:"Sick Leave", unpaid:"Unpaid Leave", other:"Other" };
+const ST = { pending:"Pending", approved:"Approved", declined:"Declined" };
+const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args || {}); if(error) throw error; return data; };
+
+const LS = { get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(_){ return d; } }, set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(_){} } };
+const isNet = e => !navigator.onLine || /fetch|network|Failed to fetch|Load failed|timeout/i.test(String(e?.message || e || ""));
+// clock punches made without internet wait here (time + GPS from the phone) and are sent in order when the connection is back
+const Q = () => LS.get("skwyd_team_q", []), setQ = q => { LS.set("skwyd_team_q", q); paintQ(); };
+const meCache = m => { if(m) LS.set("skwyd_team_me", m); return m; };
+const distM = (a, b, c, d) => { const r = x => x * Math.PI / 180, h = Math.sin(r(c - a)/2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(r(d - b)/2) ** 2; return 6371000 * 2 * Math.asin(Math.sqrt(h)); };
+// clocked in right now? the server's answer, then any punches still waiting to be sent
+const openNow = () => { let o = S.me?.open || null; Q().forEach(p => { o = p.in ? { at:p.at, branchId:p.branchId, pending:true } : null; }); return o; };
+function paintQ(){ const n = Q().length, el = $("#cq"); if(el){ el.hidden = !n; el.textContent = n ? `${n} punch${n > 1 ? "es" : ""} saved on this phone · ${navigator.onLine ? "sending…" : "will sync when you're online"}` : ""; } }
+let syncing = false;
+async function sync(){
+  if(syncing || !navigator.onLine || !Q().length) return; syncing = true; let changed = false;
+  try{ while(Q().length){ const p = Q()[0]; let r;
+      try{ r = await rpc("skwyd_team_punch", { p_lat:p.lat, p_lng:p.lng, p_acc:p.acc, p_at:p.at, p_in:p.in }); }
+      catch(e){ if(isNet(e)) break; r = { error: e.message || "Couldn't send a saved punch.", drop:true }; }
+      if(r?.error){ toast(`Saved ${p.in ? "clock in" : "clock out"} at ${hm(p.at)}: ${r.error}`, "bad"); }
+      setQ(Q().slice(1)); changed = true; }
+    if(changed){ S.me = meCache(await rpc("skwyd_team_me")) || S.me; if(S.tab==="clock") viewClock(); else if(S.tab==="hrs") viewHrs(); if(!Q().length) toast("Saved punches synced", "ok"); } }
+  catch(_){} finally{ syncing = false; }
+}
+addEventListener("online", () => { paintQ(); sync(); }); addEventListener("offline", paintQ); setInterval(sync, 30000);
+const S = { me:null, tab:"clock", week: mon(new Date()), hwk: mon(new Date()), shifts:[], reqs:[], mates:null, sheet:[], rqTab:"all" };
+
+/* ---------- sign in ---------- */
+function loginView(msg){
+  app.innerHTML = `<div class="login"><div class="brand">${MARK}${WORD}<div class="sub">TEAM</div></div>
+    <form id="lf" autocomplete="on"><div class="f"><label for="lu">Username <b>*</b></label><input class="in" id="lu" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+    <div class="f"><label for="lp">Password <b>*</b></label><input class="in" id="lp" type="password" autocomplete="current-password" required></div>
+    <div class="err" id="le">${esc(msg || "")}</div><button class="btn" id="lb">Sign In</button></form>
+    <p class="note" style="text-align:center;margin-top:18px">Your manager gives you your username and password.</p></div>`;
+  $("#lf").addEventListener("submit", async e => { e.preventDefault(); const u = $("#lu").value.trim().toLowerCase(), p = $("#lp").value, b = $("#lb");
+    if(!u || !p){ $("#le").textContent = "Enter your username and password."; return; }
+    b.disabled = true; b.innerHTML = `<span class="spin"></span>`; $("#le").textContent = "";
+    const email = u.includes("@") ? u : u + "@" + DOMAIN;
+    const { error } = await sb.auth.signInWithPassword({ email, password: p });
+    if(error){ b.disabled = false; b.textContent = "Sign In"; $("#le").textContent = /invalid/i.test(error.message) ? "Wrong username or password." : !navigator.onLine ? "No internet connection." : error.message; return; }
+    boot(); });
+  setTimeout(() => $("#lu")?.focus(), 50);
+}
+
+/* ---------- app shell ---------- */
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession(); if(!session) return loginView();
+  let net = true; try{ S.me = meCache(await rpc("skwyd_team_me")); }catch(e){ console.error(e); net = false; S.me = LS.get("skwyd_team_me", null);   // offline: the copy saved on this phone
+    if(!S.me){ app.innerHTML = `<div class="login"><div class="brand">${MARK}</div><p class="empty">No internet connection.<br><button class="btn sm" style="margin:14px auto 0" onclick="location.reload()">Try Again</button></p></div>`; return; } }
+  if(!S.me){ await sb.auth.signOut(); return loginView("This login isn't active. Ask your manager."); }
+  if(net) sync();
+  shell(); go(S.tab); if(net) chatDot();
+}
+function shell(){
+  app.innerHTML = `<div class="top"><div class="mk">${MARK}</div><div class="who"><b>${esc(S.me.name)}</b><small>${esc([S.me.jobTitle, S.me.company].filter(Boolean).join(" · "))}</small></div><button class="out" id="so">Sign Out</button></div>
+    <main id="main"></main>
+    <nav class="tabs"><div>${[["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["hrs","Hours","hrs"]].map(([k,t,i]) => `<button data-tab="${k}">${ic(i)}${t}${k==="chat" ? `<span class="dot" id="cdot" hidden></span>` : ""}</button>`).join("")}</div></nav>`;
+  $("#so").onclick = async () => { if(Q().length) return toast("Connect to the internet first: some punches haven't synced yet.", "bad"); if(!confirm("Sign out?")) return; await sb.auth.signOut(); S.me = null; loginView(); };
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => go(b.dataset.tab));
+}
+function go(tab){ S.tab = tab; clearInterval(chatT); S.chat = null; document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab===tab)); window.scrollTo(0, 0);
+  ({ clock:viewClock, sched:viewSched, chat:viewChats, reqs:viewReqs, hrs:viewHrs })[tab](); }
+const main = () => $("#main");
+
+/* ---------- clock in / out (GPS at the branch) ---------- */
+let clk = 0;
+async function viewClock(){
+  clearInterval(clk);
+  const o = openNow(), br = o ? (S.me.branches.find(b => b.id===o.branchId)?.name || "") : "";
+  let next = null; try{ const today = new Date(); const l = await rpc("skwyd_team_shifts", { p_from: ymd(today), p_to: ymd(addD(today, 14)) }); next = l.find(x => new Date(x.day + "T" + t5(x.end) + ":00") > new Date() || x.day > ymd(today)) || null; }catch(_){}
+  main().innerHTML = `<div class="card clock"><div class="now" id="cnow">${hm(new Date())}</div><div class="date">${new Date().toLocaleDateString("en-GB", { weekday:"long" })} · ${dmy(new Date())}</div>
+      <button class="cbtn ${o ? "outb" : ""}" id="cb">${ic(o ? "out" : "in")}${o ? "Clock Out" : "Clock In"}</button>
+      <div><span class="st ${o ? "on" : ""}"><i></i>${o ? `Clocked in since ${hm(o.at)}${br ? " · " + esc(br) : ""}` : "Not clocked in"}</span></div>
+      <div class="loc" id="cq" style="color:var(--warn);font-weight:600" hidden></div><div class="loc" id="cloc">${ic("pin").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"')} Your location is checked when you press the button</div></div>
+    <div class="card"><h2 style="margin-top:0">Next Shift</h2>${next ? `<div class="kv"><span>Day</span><b>${next.day===ymd(new Date()) ? "Today" : new Date(next.day + "T12:00:00").toLocaleDateString("en-GB", { weekday:"long" }) + " " + dmy(next.day)}</b></div><div class="kv"><span>Time</span><b>${t5(next.start)} – ${t5(next.end)}</b></div><div class="kv"><span>Branch</span><b>${esc(next.branch || "—")}</b></div>${next.jobTitle ? `<div class="kv"><span>Job</span><b>${esc(next.jobTitle)}</b></div>` : ""}` : `<p class="empty" style="padding:6px">No upcoming shifts</p>`}</div>`;
+  clk = setInterval(() => { const n = $("#cnow"); if(n) n.textContent = hm(new Date()); else clearInterval(clk); }, 10000);
+  $("#cb").onclick = clockPress; paintQ();
+}
+function here(){ return new Promise((res, rej) => { if(!navigator.geolocation) return rej(new Error("Location isn't available on this phone."));
+  navigator.geolocation.getCurrentPosition(p => res(p.coords), e => rej(new Error(e.code === 1 ? "Allow location for SKWYD Team to clock in (phone Settings → Apps → SKWYD Team → Permissions)." : e.code === 3 ? "Couldn't get your location in time. Go near a window and try again." : "Couldn't get your location. Turn on Location and try again.")),
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }); }); }
+async function clockPress(){
+  const b = $("#cb"), goIn = !openNow(); b.disabled = true; const lbl = b.innerHTML; b.innerHTML = `<span class="spin"></span><span style="font-size:14px">Checking location…</span>`;
+  const fail = m => { toast(m, "bad"); b.disabled = false; b.innerHTML = lbl; const l = $("#cloc"); if(l) l.textContent = m; };
+  let c; try{ c = await here(); }catch(e){ return fail(e.message); }   // GPS works without internet
+  // check the distance on the phone too, so an offline punch isn't saved from the wrong place
+  const near = (S.me.branches||[]).filter(x => x.lat != null && x.lng != null).map(x => ({ ...x, m: distM(c.latitude, c.longitude, +x.lat, +x.lng) })).sort((a, z) => a.m - z.m)[0];
+  if(!near) return fail("Your branch has no location yet. Ask your manager to set it in Manage → Branches.");
+  if(near.m > 150 + Math.min(c.accuracy || 0, 100)) return fail(`You are ${Math.round(near.m)} m from ${near.name}. Clock in at the branch.`);
+  const punch = { lat:c.latitude, lng:c.longitude, acc:c.accuracy, at:new Date().toISOString(), in:goIn, branchId:near.id };
+  const save = () => { setQ([...Q(), punch]); toast(`${goIn ? "Clocked in" : "Clocked out"} at ${hm(punch.at)} · saved on this phone, will sync when you're online`, "ok"); viewClock(); };
+  if(!navigator.onLine || Q().length) return save();   // offline, or older punches still waiting: keep the order
+  try{ const r = await rpc("skwyd_team_punch", { p_lat:punch.lat, p_lng:punch.lng, p_acc:punch.acc, p_at:punch.at, p_in:punch.in });
+    if(r?.error) return fail(r.error);
+    toast(r.clockedIn ? `Clocked in at ${r.branch}${r.late ? " · " + r.late + " min late" : ""}` : `Clocked out · ${r.branch}`, "ok");
+    S.me = meCache(await rpc("skwyd_team_me")); viewClock(); }
+  catch(e){ if(isNet(e)) return save(); fail(e.message || "Something went wrong"); }
+}
+
+/* ---------- schedule + shift swaps ---------- */
+async function viewSched(){
+  const a = S.week, z = addD(a, 6), today = ymd(new Date());
+  main().innerHTML = `<div class="wk"><button id="wp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="wn" aria-label="Next week">›</button></div><div class="card" id="sc"><p class="empty">Loading…</p></div>`;
+  $("#wp").onclick = () => { S.week = addD(S.week, -7); viewSched(); }; $("#wn").onclick = () => { S.week = addD(S.week, 7); viewSched(); };
+  try{ S.shifts = await rpc("skwyd_team_shifts", { p_from: ymd(a), p_to: ymd(z) }); }catch(e){ $("#sc").innerHTML = `<p class="empty">Couldn't load your schedule.</p>`; return; }
+  try{ if(!S.reqs.length) S.reqs = await rpc("skwyd_team_requests"); }catch(_){}
+  const pend = new Set(S.reqs.filter(r => r.kind==="swap" && r.status==="pending").map(r => r.shiftId));
+  $("#sc").innerHTML = [...Array(7)].map((_, i) => { const d = addD(a, i), k = ymd(d), l = S.shifts.filter(x => x.day===k);
+    return `<div class="day ${k===today ? "today" : ""}"><div class="d"><small>${d.toLocaleDateString("en-GB", { weekday:"short" })}</small><b>${d.getDate()}</b></div><div class="s">${l.length ? l.map(x => `<div class="sh"><div class="t"><b>${t5(x.start)} – ${t5(x.end)}</b><small>${esc([x.branch, x.jobTitle].filter(Boolean).join(" · "))}${x.breakMin ? " · " + x.breakMin + " min break" : ""}</small></div>${k >= today ? (pend.has(x.id) ? `<span class="pill">Swap pending</span>` : `<button class="btn ghost sm" data-swap="${esc(x.id)}">${ic("swap").replace("<svg", '<svg style="width:16px;height:16px"')}Swap</button>`) : ""}</div>`).join("") : `<div class="off">Off</div>`}</div></div>`; }).join("");
+  document.querySelectorAll("[data-swap]").forEach(b => b.onclick = () => swapSheet(S.shifts.find(x => x.id===b.dataset.swap)));
+}
+async function swapSheet(x){
+  if(!x) return; if(!S.mates){ try{ S.mates = await rpc("skwyd_team_colleagues"); }catch(_){ S.mates = []; } }
+  sheet(`<h3>Swap Shift</h3><p class="note" style="margin-top:-6px">${dmy(x.day)} · ${t5(x.start)} – ${t5(x.end)}${x.branch ? " · " + esc(x.branch) : ""}</p>
+    <div class="f"><label for="sw">Give it to <b>*</b></label><select class="in" id="sw"><option value="">Choose a colleague…</option>${S.mates.map(m => `<option value="${esc(m.id)}">${esc(m.name)}${m.jobTitle ? " · " + esc(m.jobTitle) : ""}</option>`).join("")}</select></div>
+    <div class="f"><label for="sn">Note</label><input class="in" id="sn" placeholder="Optional"></div><div class="err" id="se"></div>
+    <div class="acts"><button class="btn ghost" data-x>Cancel</button><button class="btn" id="ss">Send Request</button></div>`);
+  $("#ss").onclick = async () => { const w = $("#sw").value; if(!w) return $("#se").textContent = "Choose a colleague.";
+    $("#ss").disabled = true; try{ const r = await rpc("skwyd_team_request", { p: { kind:"swap", shiftId:x.id, swapWith:w, note:$("#sn").value } }); if(r?.error){ $("#se").textContent = r.error; $("#ss").disabled = false; return; }
+      closeSheet(); toast("Swap request sent", "ok"); S.reqs = await rpc("skwyd_team_requests"); viewSched(); }catch(e){ $("#se").textContent = "Couldn't send the request."; $("#ss").disabled = false; } };
+}
+
+/* ---------- requests & leave ---------- */
+async function viewReqs(){
+  const left = S.me.leaveDays != null ? Math.max(0, +S.me.leaveDays - +S.me.leaveUsed) : null;
+  main().innerHTML = `<div class="card"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Leave</h2><span class="sp"></span><button class="btn sm" id="nr">+ New Request</button></div>
+      <div class="bal"><div><b>${left != null ? left : "—"}</b><small>Days left</small></div><div><b>${+S.me.leaveUsed || 0}</b><small>Used this year</small></div><div><b>${S.me.leaveDays != null ? +S.me.leaveDays : "—"}</b><small>Per year</small></div></div></div>
+    <div class="seg">${[["all","All"],["pending","Pending"],["done","Answered"]].map(([k,t]) => `<button data-rt="${k}" class="${S.rqTab===k ? "on" : ""}">${t}</button>`).join("")}</div>
+    <div class="card" id="rl"><p class="empty">Loading…</p></div>`;
+  $("#nr").onclick = newReq; document.querySelectorAll("[data-rt]").forEach(b => b.onclick = () => { S.rqTab = b.dataset.rt; viewReqs(); });
+  try{ S.reqs = await rpc("skwyd_team_requests"); }catch(e){ $("#rl").innerHTML = `<p class="empty">Couldn't load your requests.</p>`; return; }
+  const l = S.reqs.filter(r => S.rqTab==="all" || (S.rqTab==="pending" ? r.status==="pending" : r.status!=="pending"));
+  $("#rl").innerHTML = l.length ? l.map(r => `<div class="rq"><div class="t"><b>${r.kind==="leave" ? esc(LEAVE[r.leaveType] || "Time Off") : r.kind==="swap" ? "Shift Swap" : "Request"}</b>
+      <small>${r.kind==="swap" ? `${dmy(r.from)} · with ${esc(r.swapWith || "—")}` : r.from ? dmy(r.from) + (r.to && r.to!==r.from ? " → " + dmy(r.to) : "") : "Sent " + dmy(r.createdAt)}</small>
+      ${r.note ? `<small>${esc(r.note)}</small>` : ""}${r.decisionNote ? `<small><b style="display:inline">Manager:</b> ${esc(r.decisionNote)}</small>` : ""}</div><span class="pill ${esc(r.status)}">${ST[r.status] || esc(r.status)}</span></div>`).join("") : `<p class="empty">No requests</p>`;
+}
+function newReq(){
+  const t = ymd(new Date());
+  sheet(`<h3>New Request</h3><div class="seg" style="grid-template-columns:1fr 1fr" id="rk"><button data-k="leave" class="on">Time Off</button><button data-k="other">Other</button></div>
+    <div id="rlv"><div class="f"><label for="rt">Type <b>*</b></label><select class="in" id="rt">${Object.entries(LEAVE).map(([k,v]) => `<option value="${k}">${v}</option>`).join("")}</select></div>
+      <div class="two"><div class="f"><label for="rf">From <b>*</b></label><input class="in" id="rf" type="date" value="${t}" min="${t}"></div><div class="f"><label for="rto">To <b>*</b></label><input class="in" id="rto" type="date" value="${t}" min="${t}"></div></div></div>
+    <div class="f"><label for="rn" id="rnl">Note</label><textarea class="in" id="rn" rows="3" placeholder="Optional"></textarea></div><div class="err" id="re"></div>
+    <div class="acts"><button class="btn ghost" data-x>Cancel</button><button class="btn" id="rs">Send Request</button></div>`);
+  let k = "leave";
+  document.querySelectorAll("#rk button").forEach(b => b.onclick = () => { k = b.dataset.k; document.querySelectorAll("#rk button").forEach(x => x.classList.toggle("on", x===b)); $("#rlv").hidden = k!=="leave"; $("#rnl").innerHTML = k==="other" ? "Request <b style=\"color:var(--bad)\">*</b>" : "Note"; $("#rn").placeholder = k==="other" ? "What do you need?" : "Optional"; });
+  $("#rf").onchange = () => { if($("#rto").value < $("#rf").value) $("#rto").value = $("#rf").value; $("#rto").min = $("#rf").value; };
+  $("#rs").onclick = async () => { const e = $("#re"); e.textContent = "";
+    const p = k==="leave" ? { kind:"leave", leaveType:$("#rt").value, from:$("#rf").value, to:$("#rto").value, note:$("#rn").value } : { kind:"other", note:$("#rn").value };
+    if(k==="other" && !p.note.trim()) return e.textContent = "Write your request.";
+    if(k==="leave" && (!p.from || !p.to)) return e.textContent = "Choose the dates.";
+    $("#rs").disabled = true; try{ const r = await rpc("skwyd_team_request", { p }); if(r?.error){ e.textContent = r.error; $("#rs").disabled = false; return; }
+      closeSheet(); toast("Request sent", "ok"); S.rqTab = "all"; viewReqs(); }catch(err){ e.textContent = "Couldn't send the request."; $("#rs").disabled = false; } };
+}
+
+/* ---------- hours (my timesheet) ---------- */
+async function viewHrs(){
+  const a = S.hwk, z = addD(a, 6);
+  main().innerHTML = `<div class="wk"><button id="hp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="hn" aria-label="Next week">›</button></div><div id="hc"><div class="card"><p class="empty">Loading…</p></div></div>`;
+  $("#hp").onclick = () => { S.hwk = addD(S.hwk, -7); viewHrs(); }; $("#hn").onclick = () => { S.hwk = addD(S.hwk, 7); viewHrs(); };
+  let l = []; try{ l = await rpc("skwyd_team_timesheet", { p_from: ymd(a), p_to: ymd(z) }); }catch(e){ $("#hc").innerHTML = `<div class="card"><p class="empty">Couldn't load your hours.</p></div>`; return; }
+  const on = openNow(), o = on && new Date(on.at) >= a && new Date(on.at) <= addD(z, 1) ? { in:on.at, out:null, branch: S.me.branches.find(b => b.id===on.branchId)?.name, late: on.late } : null;
+  const all = [...(o ? [o] : []), ...l], hrs = x => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000), tot = all.reduce((s, x) => s + hrs(x), 0);
+  const days = {}; all.forEach(x => { const d = ymd(new Date(x.in)); days[d] = (days[d]||0) + hrs(x); }), ot = Object.values(days).reduce((s, v) => s + Math.max(0, v - 8), 0);
+  $("#hc").innerHTML = `<div class="card"><div class="row"><div><div class="note">Total this week</div><div class="big">${tot.toFixed(2)} h</div></div><span class="sp"></span><div style="text-align:right"><div class="note">Days</div><b style="font-size:20px">${Object.keys(days).length}</b>${ot ? `<div class="note" style="margin-top:4px">Overtime ${ot.toFixed(2)} h</div>` : ""}</div></div></div>
+    <div class="card">${all.length ? all.map(x => `<div class="ent"><div class="t"><b>${new Date(x.in).toLocaleDateString("en-GB", { weekday:"short" })} ${dmy(x.in)}${x.late ? `<span class="tag">Late ${+x.late}m</span>` : ""}</b><small>${hm(x.in)} – ${x.out ? hm(x.out) : "now"}${x.branch ? " · " + esc(x.branch) : ""}</small></div><b class="h">${hrs(x).toFixed(2)} h</b></div>`).join("") : `<p class="empty">No hours this week</p>`}</div>`;
+}
+
+/* ---------- team chat: groups made by the manager in Employee Management → Team Chat ---------- */
+let chatT = 0;
+const seen = () => LS.get("skwyd_team_seen", {}), markSeen = (id, at) => { const s = seen(); s[id] = at; LS.set("skwyd_team_seen", s); };
+const unread = g => g.last && !g.last.mine && (!seen()[g.id] || g.last.at > seen()[g.id]);
+async function chatDot(){ try{ const l = await rpc("skwyd_team_chats"); S.chats = l; const d = $("#cdot"); if(d) d.hidden = !l.some(unread); return l; }catch(_){ return S.chats || []; } }
+async function viewChats(){
+  main().innerHTML = `<h2>Chat</h2><div class="card" id="chl" style="padding:6px"><p class="empty">Loading…</p></div>`;
+  const l = await chatDot();
+  $("#chl").innerHTML = l.length ? l.map(g => `<button class="chg" data-chat="${esc(g.id)}"><span class="av">${esc((g.name || "?").trim()[0] || "?").toUpperCase()}</span><span class="t"><b>${esc(g.name)}</b><small>${g.last ? esc((g.last.mine ? "You: " : (g.last.by || "") + ": ") + g.last.body) : g.members + " members"}</small></span>${g.last ? `<em>${chT(g.last.at)}</em>` : ""}${unread(g) ? `<i class="ud"></i>` : ""}</button>`).join("") : `<p class="empty">No chats yet. Your manager adds you to group chats.</p>`;
+  document.querySelectorAll("[data-chat]").forEach(b => b.onclick = () => openChat(l.find(g => g.id===b.dataset.chat)));
+}
+const chT = t => { const d = new Date(t); return d.toDateString()===new Date().toDateString() ? hm(d) : dmy(d); };
+async function openChat(g){
+  if(!g) return; S.chat = { id:g.id, msgs:[], after:null };
+  main().innerHTML = `<div class="cht"><div class="chh"><button class="out" id="cbk">${ic("back").replace("<svg", '<svg style="width:18px;height:18px;vertical-align:-4px"')}</button><b>${esc(g.name)}</b><small>${g.members} members</small></div>
+    <div class="chb" id="chb"><p class="empty">Loading…</p></div>
+    <form class="chf" id="chf"><input class="in" id="chi" placeholder="Message" autocomplete="off" maxlength="2000"><button class="btn sm" aria-label="Send">${ic("send").replace("<svg", '<svg style="width:20px;height:20px"')}</button></form></div>`;
+  $("#cbk").onclick = () => go("chat");
+  const paint = () => { const b = $("#chb"); if(!b) return; const near = b.scrollHeight - b.scrollTop - b.clientHeight < 80;
+    b.innerHTML = S.chat.msgs.length ? S.chat.msgs.map(m => `<div class="msg ${m.mine ? "me" : ""}"><span>${m.mine ? "" : `<b>${esc(m.office ? (m.by || "Manager") + " · Manager" : m.by)}</b>`}${esc(m.body)}</span><small>${chT(m.at)}</small></div>`).join("") : `<p class="empty">No messages yet. Say hello!</p>`;
+    if(near || !b.dataset.d){ b.scrollTop = b.scrollHeight; b.dataset.d = "1"; } };
+  const pull = async () => { if(!S.chat || S.chat.id!==g.id) return clearInterval(chatT);
+    try{ const n = await rpc("skwyd_team_messages", { p_group: g.id, p_after: S.chat.after }); if(n.length || !S.chat.after){ S.chat.msgs = S.chat.after ? [...S.chat.msgs, ...n] : n; S.chat.after = S.chat.msgs.length ? S.chat.msgs[S.chat.msgs.length - 1].at : null; paint(); markSeen(g.id, S.chat.after || new Date().toISOString()); const d = $("#cdot"); if(d && S.chats) d.hidden = !S.chats.some(unread); } }catch(_){} };
+  await pull(); clearInterval(chatT); chatT = setInterval(pull, 4000);
+  $("#chf").onsubmit = async e => { e.preventDefault(); const i = $("#chi"), body = i.value.trim(); if(!body) return; if(!navigator.onLine) return toast("No internet connection.", "bad");
+    i.value = ""; try{ const r = await rpc("skwyd_team_send", { p_group: g.id, p_body: body }); if(r?.error){ toast(r.error, "bad"); i.value = body; return; } pull(); }catch(err){ toast("Couldn't send the message.", "bad"); i.value = body; } };
+}
+setInterval(() => { if(S.me && navigator.onLine && S.tab!=="chat") chatDot(); }, 30000);
+
+/* ---------- bottom sheet ---------- */
+function sheet(html){ closeSheet(); const w = document.createElement("div"); w.className = "scrim"; w.id = "scrim"; w.innerHTML = `<div class="sheet">${html}</div>`;
+  w.addEventListener("click", e => { if(e.target===w || e.target.closest("[data-x]")) closeSheet(); }); document.body.appendChild(w); }
+function closeSheet(){ $("#scrim")?.remove(); }
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); });
+document.addEventListener("visibilitychange", async () => { if(!document.hidden && S.me && S.tab==="clock"){ try{ S.me = await rpc("skwyd_team_me"); viewClock(); }catch(_){} } });
+sb.auth.onAuthStateChange((ev) => { if(ev==="SIGNED_OUT" && S.me){ S.me = null; loginView(); } });
+boot();
+})();
+</script>
+</body>
+</html>

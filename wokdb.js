@@ -15,6 +15,8 @@
   const TABLE = { inv_items: "inventory_items", zones: "delivery_zones", inv_categories: "inventory_categories", inv_docs: "inventory_docs", users: "staff_users", work_shifts: "staff_shifts", work_requests: "staff_requests", staff_docs: "staff_documents" };
   const COLS = {
     staff_documents: "id employee_id doc_type number issued_on expires_on file_path file_name note deleted created_at",
+    chat_groups: "id name member_ids created_by deleted created_at",
+    chat_messages: "id group_id sender_id sender_name from_office body deleted created_at",
     staff_requests: "id employee_id kind leave_type from_day to_day shift_id swap_with note status decided_by decided_at decision_note branch_id deleted created_at",
     staff_shifts: "id employee_id branch_id day start_time end_time break_min job_title note published deleted created_at",
     brands: "id name name_ar active deleted created_at slug",
@@ -109,6 +111,7 @@
     let q = sb.from(t).select((DEVKEY && DEVCOLS[t]) || "*");
     if(t === "orders") q = q.gte("created_at", new Date(Date.now() - 3*86400000).toISOString()).order("created_at", { ascending:false }).limit(1000);
     else if(t === "staff_requests") q = q.gte("created_at", new Date(Date.now() - 400*86400000).toISOString()).limit(5000);
+    else if(t === "chat_messages") q = q.gte("created_at", new Date(Date.now() - 60*86400000).toISOString()).order("created_at", { ascending:false }).limit(3000);
     else if(t === "staff_shifts") q = q.gte("day", new Date(Date.now() - 120*86400000).toISOString().slice(0,10)).limit(5000);
     else if(t === "shifts") q = q.gte("opened_at", new Date(Date.now() - 7*86400000).toISOString()).limit(1000);
     else q = q.limit(5000);
