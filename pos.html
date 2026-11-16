@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="943-1794864152">
+<meta name="skwyd-build" content="944-1794864517">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -47,6 +47,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
     if(!H.hasAttribute("data-rot")) return q; var b = d.body.getBoundingClientRect(); return { left: q.top - b.top, top: b.right - q.right, width: q.height, height: q.width, right: q.top - b.top + q.height, bottom: b.right - q.right + q.width }; };
   window.__stage = function(){ var b = d.body.getBoundingClientRect(), z = H.hasAttribute("data-pc") ? (+H.style.zoom || 1) : 1; if(z !== 1) return { l:b.left / z, t:b.top / z, w:b.width / z, h:b.height / z }; return H.hasAttribute("data-rot") ? { l:0, t:0, w:b.height, h:b.width } : { l:b.left, t:b.top, w:b.width, h:b.height }; }; })();</script>
 <style>
+.splbs{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}.splb.splx{color:#d92d20!important}
 .logo.skl{background:#fff!important;box-shadow:0 4px 14px rgba(23,37,84,.12)!important;padding:8px;box-sizing:border-box}.logo.skl svg{width:100%;height:100%;display:block}.chead .logo.skl{padding:4px;border:1px solid #e6e8f0}html{overflow:hidden!important;height:100%}
 html[data-pc]{background:#d9dce6}
 html[data-stage] body{position:fixed!important;left:var(--sl,0)!important;top:var(--st,0)!important;width:var(--sw,100vw)!important;height:var(--sh,100vh)!important;min-height:0!important;margin:0!important;overflow:hidden!important;transform:translate(0,0);contain:layout}html[data-stage][data-rot] body{transform:rotate(90deg)!important;transform-origin:50% 50%}/* one tile format for the orders history and the pickup & delivery board */
@@ -1238,7 +1239,7 @@ function paintWelcome(){
   $("#lkWel").innerHTML = `<p class="lkhi">Welcome, ${esc(u.name)}!</p><p class="lkst">${o ? "Clocked in since " + esc(new Date(o.at).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })) : "Not clocked in"}</p>
     <button type="button" class="lkbtn" id="lkClock">${o ? "Clock Out" : "Clock In"}</button>
     <button type="button" class="lkbtn" id="lkGo" ${canReg ? "" : "disabled title=\"Your role doesn't allow using the register\""}>Access Register</button>
-    <button type="button" class="lkbtn" id="lkReq">Requests${(() => { const n = (S.work_requests||[]).filter(r => r.employeeId===u.id && !r.deleted && r.status!=="pending" && r.decidedAt && Date.now() - +new Date(r.decidedAt) < 3*86400000).length; return n ? ` <span class="lkdot">${n}</span>` : ""; })()}</button>
+    
     <button type="button" class="lkbtn lkexit" id="lkExit">Exit</button>${shiftsHtml(u)}`;
 }
 async function tcToggle(){
@@ -2126,6 +2127,7 @@ $("#modal").addEventListener("click", async e => {
     if(v > 0 && appSet().discountApproval && !(await approve("pos_discount", "Approve discount"))) return;
     DSET = null; discount = +v.toFixed(2); discType = ty; closeModal(); renderCart(); return; }
   if(e.target.closest("[data-split]")) return openSplit();
+  if(e.target.closest("[data-splitx]")){ if(SPL?.paid.length) return toast("A part is already paid, so the split can't be cancelled", true); SPL = null; SPLD = null; toast("Split cancelled"); return openPay(); }
   if(e.target.closest("[data-splback]")) return openPay();
   if(e.target.closest("#splGo")) return splGo();
   { const b = e.target.closest("[data-splm]"); if(b){ SPLD.mode = b.dataset.splm; return openSplit(); } }
@@ -2234,7 +2236,7 @@ function openPay(){
   const due = payAmt(), last = !SPL || SPL.i >= SPL.parts.length - 1;
   KP = true;   // the first key typed replaces the prefilled amount
   HA = null; const pmIco = m => ico(m.type==="cash" ? "cash" : m.type==="card" ? "card" : "wallet");
-  modal("pay", `<div class="payx"><div class="payl"><div class="ptop"><div><div class="dlbl">${SPL ? `${SPL.lbl} ${SPL.i + 1} of ${SPL.parts.length}` : "Amount due"}</div><div class="damt">${usd(due)}</div>${usd2(due) ? `<div class="d2">≈ ${usd2(due)}</div>` : ""}</div>${SPL?.paid.length ? "" : `<button type="button" class="btn splb" data-split>Split Check</button>`}</div>
+  modal("pay", `<div class="payx"><div class="payl"><div class="ptop"><div><div class="dlbl">${SPL ? `${SPL.lbl} ${SPL.i + 1} of ${SPL.parts.length}` : "Amount due"}</div><div class="damt">${usd(due)}</div>${usd2(due) ? `<div class="d2">≈ ${usd2(due)}</div>` : ""}</div>${SPL?.paid.length ? "" : `<span class="splbs">${SPL ? `<button type="button" class="btn splb splx" data-splitx>Cancel Split</button>` : ""}<button type="button" class="btn splb" data-split>${SPL ? "Change Split" : "Split Check"}</button></span>`}</div>
       ${SPL ? `<div class="splparts">${SPL.parts.map((a,g) => { const pd = SPL.paid[g]; return `<div class="${g===SPL.i ? "on" : pd ? "pd" : ""}"><span>${SPL.lbl} ${g + 1}</span><b>${usd(a)}</b><small>${pd ? "Paid · " + esc(pd.method) : SPL.items ? esc(SPL.items[g].map(u => u.lbl).join(", ")) : ""}</small></div>`; }).join("")}</div>` : ""}
       <div class="paym">${pms.map((m,i)=>`<button data-pm="${esc(m.id)}" class="${i?"":"on"}">${pmIco(m)}${esc(m.name)}</button>`).join("")}</div>
       </div>
