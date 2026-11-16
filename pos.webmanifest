@@ -1,7 +1,7 @@
 {
  "id": "skwyd-pos",
- "name": "skwyd hub POS",
- "short_name": "skwyd hub",
+ "name": "SKWYD POS",
+ "short_name": "SKWYD POS",
  "description": "The Wok point of sale",
  "start_url": "pos.html",
  "scope": "./",

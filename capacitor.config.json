@@ -1,1 +1,1 @@
-{ "appId": "com.skwydhub.pos", "appName": "skwyd hub POS", "webDir": "www", "server": { "androidScheme": "https" } }
+{ "appId": "com.skwydhub.pos", "appName": "SKWYD POS", "webDir": "www", "server": { "androidScheme": "https" } }
