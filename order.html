@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="935-1794854209">
+<meta name="skwyd-build" content="936-1794856342">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -569,7 +569,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))!important}
 .trkh .x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--s);color:var(--acc);font-size:22px;line-height:1}
 .trkb{max-width:var(--colw,560px);margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:16px}
 .trkhero{text-align:center;padding:10px 0 4px}.trki{width:76px;height:76px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 12%,transparent);color:var(--acc)}
-.trki svg{width:36px;height:36px}.trkhero.ok .trki{background:#e7f6ec;color:#1f8a4c}.trkhero.bad .trki{background:#fde8e8;color:#c62828}
+.trki svg{width:36px;height:36px}.trkdrv{display:inline-flex;align-items:center;gap:6px;margin:2px 0 6px;padding:5px 12px;border-radius:999px;background:color-mix(in srgb,var(--acc) 10%,transparent);color:var(--ink);font-size:14px}.trkdrv svg{width:16px;height:16px;color:var(--acc)}.trkhero.ok .trki{background:#e7f6ec;color:#1f8a4c}.trkhero.bad .trki{background:#fde8e8;color:#c62828}
 .trkhero h2{margin:0 0 6px;font-size:22px;font-weight:800}.trkhero p{margin:0;color:var(--ink2);font-size:14.5px}
 .trkno{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;background:var(--s);border:1px solid var(--line);font-weight:700;font-size:13px}
 .trks{list-style:none;margin:0;padding:16px;background:var(--s);border:1px solid var(--line);border-radius:16px}
@@ -1701,9 +1701,11 @@ async function placeOrder(e){
     addrs = own ? addrs.map(x => x.id===sa.id ? sa : x) : [sa, ...addrs]; saveAddrs(); addr = sa; lsSet(AK + "_sel", sa.id); renderTop(); }
   const bn = bb?.name || "", wa = String(bcfg(b).whatsapp || (cfg.social||{}).whatsapp || "").replace(/[^\d]/g, "");
   const waText = encodeURIComponent(`Hi ${brand.name}! I just placed an order on your website.\n${cart.map(i => `${i.qty} × ${i.name}`).join("\n")}\nTotal: ${usd(grand())}\nName: ${row.customer_name}`);
-  setTimeout(trkAfterPlace, 600, row.total);
-  $("#sheet").innerHTML = `<div class="done"><div class="ok">${ic("check")}</div><h3>Order received</h3><p>${esc(bn)} has your order and will confirm it shortly.</p><p class="info">${later ? "We'll have it ready for " + esc(dayLbl(at)) + " at " + esc(timeLbl(at)) + "." : mode==="delivery"?"We'll call you if we need directions.":mode==="takeaway"?"We'll have it ready for pickup" + (bcfg(b).prep ? " in about " + esc(bcfg(b).prep) + " min" : "") + ".":"We'll bring it to your table."}</p>
-    <button class="primary" data-trkplaced>${ic("clock")}Track your order</button><button class="ghost" data-close>Back to the menu</button>${CO().whatsapp && wa ? `<a class="ghost" href="https://wa.me/${esc(wa)}?text=${waText}" target="_blank" rel="noopener">${ic("chat")}Send it on WhatsApp</a>` : ""}</div>`;
+  // straight to the order status page: shown from what was just sent, then followed live once the order is on the server
+  TK.list = [{ id:"_new", status:"pending", type:row.type, branch_id:b, created_at:new Date().toISOString(), items:JSON.parse(JSON.stringify(cart)), total:row.total, scheduled_at:row.scheduled_at }, ...TK.list.filter(x => x.id!=="_new")];
+  TK.wa = CO().whatsapp && wa ? `https://wa.me/${wa}?text=${waText}` : "";
+  $("#scrim").classList.remove("show"); trkOpen("_new"); setTimeout(trkAfterPlace, 600, row.total);
+  if("Notification" in window && Notification.permission==="default") setTimeout(() => Notification.requestPermission().then(() => trkDraw()).catch(() => {}), 1200);
   cart = []; renderMenu();
 }
 
@@ -1712,11 +1714,11 @@ var TK = { id:null, list:[], timer:0, seen: lsGet("skwyd_trk_" + brandId, {}) };
 const TFIN = ["closed","done"], TBAD = ["void","voided","declined","returned","refund"];
 const tkLive = o => o && !TFIN.includes(o.status) && !TBAD.includes(o.status);
 function tkSteps(o){ const t = o.type || "delivery", last = t==="delivery" ? ["Delivered","Enjoy your meal!"] : t==="pickup" ? ["Picked up","Thanks for ordering with us"] : ["Served","Enjoy your meal!"];
-  return [["Order placed","Waiting for the restaurant to accept"],["Accepted","The kitchen is preparing your order"],[t==="delivery" ? "On its way" : t==="pickup" ? "Ready for pickup" : "Ready", t==="delivery" ? "Your order is ready and heading to you" : "Your order is ready"],last]; }
-function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? (o.ready ? 2 : 1) : 0; }
+  return [["Order placed", o.status==="review" ? "Waiting for the restaurant to confirm your order" : "Waiting for the restaurant to accept"],["Accepted","The kitchen is preparing your order"],[t==="delivery" ? "On its way" : t==="pickup" ? "Ready for pickup" : "Ready", t==="delivery" ? "Your order is ready and heading to you" : "Your order is ready"],last]; }
+function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? (o.ready || o.dispatched_at ? 2 : 1) : 0; }
 const tkTitle = o => TBAD.includes(o.status) ? (o.status==="declined" ? "Order declined" : "Order cancelled") : tkSteps(o)[tkStep(o)][0];
 async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
-  if(!r.error && Array.isArray(r.data)) TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); return TK.list; }
+  if(!r.error && Array.isArray(r.data)){ const tmp = TK.id==="_new" ? TK.list.find(x => x.id==="_new") : null; TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); if(tmp) TK.list.unshift(tmp); } return TK.list; }
 function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order #" + o.no + " · " : "") + (TBAD.includes(o.status) ? "Please contact the restaurant for details." : tkSteps(o)[Math.max(0, tkStep(o))][1]);
   try{ navigator.vibrate?.([180, 90, 180]); }catch(e){}
   try{ const a = new (window.AudioContext || window.webkitAudioContext)(), g = a.createGain(); g.connect(a.destination); [880, 1175].forEach((f, i) => { const os = a.createOscillator(); os.frequency.value = f; os.connect(g); g.gain.setValueAtTime(.08, a.currentTime); os.start(a.currentTime + i * .18); os.stop(a.currentTime + i * .18 + .15); }); }catch(e){}
@@ -1736,7 +1738,7 @@ document.addEventListener("visibilitychange", () => { if(!document.hidden && USE
 function trkPill(){ const el = $("#trkPill"); if(!el || !TK) return; const day = Date.now() - 864e5, o = TK.list.find(x => tkLive(x) && new Date(x.created_at) > day);
   el.hidden = !o; if(!o) return; el.innerHTML = `<button type="button" data-track="${esc(o.id)}"><span class="tpd"></span><span><b>${esc(tkTitle(o))}</b><small>${o.no ? "Order #" + esc(o.no) + " · " : ""}Tap to track your order</small></span><i>›</i></button>`; }
 function trkOpen(id){ TK.id = id; let el = $("#trk"); if(!el){ el = document.createElement("div"); el.id = "trk"; el.className = "trk"; el.setAttribute("role","dialog"); document.body.appendChild(el); }
-  if(location.hash !== "#track=" + id) history.replaceState(null, "", "#track=" + id);
+  if(id!=="_new" && location.hash !== "#track=" + id) history.replaceState(null, "", "#track=" + id);
   trkDraw(); requestAnimationFrame(() => el.classList.add("show")); document.documentElement.classList.add("trkon"); trkPoll(); }
 function trkClose(){ const el = $("#trk"); if(el) el.classList.remove("show"); document.documentElement.classList.remove("trkon"); TK.id = null; if(/^#track=/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search); }
 function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find(x => String(x.id)===String(TK.id));
@@ -1747,16 +1749,17 @@ function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find
   const np = "Notification" in window ? Notification.permission : "unsupported";
   el.innerHTML = head + `<div class="trkb">
     <div class="trkhero ${bad ? "bad" : st===3 ? "ok" : ""}"><div class="trki">${ic(bad ? "out" : st===3 ? "check" : o.type==="delivery" && st===2 ? "bike" : st===0 ? "clock" : "dine")}</div>
-      <h2>${esc(tkTitle(o))}</h2><p>${bad ? "Sorry, the restaurant couldn't take this order. Please contact them for details." : esc(steps[st][1])}</p>
+      <h2>${esc(tkTitle(o))}</h2>${o.type==="delivery" && o.driver_name && st===2 ? `<p class="trkdrv">${ic("bike")}Your driver: <b>${esc(o.driver_name)}</b></p>` : ""}<p>${bad ? "Sorry, the restaurant couldn't take this order. Please contact them for details." : esc(steps[st][1])}</p>
       ${o.no ? `<span class="trkno">Order #${esc(o.no)}</span>` : ""}</div>
     ${bad ? "" : `<ol class="trks">${steps.map((x, i) => `<li class="${i < st ? "done" : i===st ? "now" : ""}"><span class="dt">${i < st || st===3 ? ic("check") : ""}</span><div><b>${esc(x[0])}</b>${i===st && st < 3 ? `<small>${esc(x[1])}</small>` : ""}</div></li>`).join("")}</ol>`}
     ${tkLive(o) && np !== "granted" && np !== "unsupported" ? `<button type="button" class="trknot" data-trknot>${ic("mega")}<span><b>Turn on notifications</b><small>We'll let you know as soon as your order status changes</small></span></button>` : tkLive(o) && np==="granted" ? `<div class="trkon1">${ic("check")}Notifications are on for this order</div>` : ""}
     <div class="trkc"><div class="trkr"><span>${ic(o.type==="delivery" ? "bike" : o.type==="pickup" ? "bag" : "dine")}</span><div><b>${esc(br?.name || brand.name)}</b><small>${o.type==="delivery" ? "Delivery" : o.type==="pickup" ? "Pickup" : "Dine-in"} · ${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}</small></div>${ph ? `<a class="trkcall" href="tel:${esc(ph)}" aria-label="Call the restaurant">${ic("phone")}</a>` : ""}</div>
       <div class="trkits">${its.map(it => `<div><span>${+it.qty||1}×</span><b>${esc(it.name)}</b><em>${usd((+it.price||0) * (+it.qty||1))}</em></div>`).join("")}</div>
       <div class="trktot"><span>Total</span><b>${usd(+o.total||0)}</b></div></div>
+    ${TK.wa && (o.id==="_new" || o.id===TK.placed) ? `<a class="ghost" href="${esc(TK.wa)}" target="_blank" rel="noopener">${ic("chat")}Send it on WhatsApp</a>` : ""}
     <button type="button" class="ghost" data-trkx>Back to the menu</button></div>`; }
 async function trkAfterPlace(total){ const list = await tkFetch(), o = list.find(x => Math.abs((+x.total||0) - (+total||0)) < .01 && Date.now() - new Date(x.created_at) < 6e5) || list[0];
-  if(o?.id){ TK.seen[o.id] = o.status; TK.placed = o.id; } trkPill(); trkPoll(); }
+  if(o?.id){ TK.seen[o.id] = o.status; TK.placed = o.id; if(TK.id==="_new"){ TK.id = o.id; history.replaceState(null, "", "#track=" + o.id); } } trkPill(); trkPoll(); }
 document.addEventListener("click", async e => { let t;
   if(t = e.target.closest("[data-track]")){ e.preventDefault(); $("#scrim").classList.remove("show"); return trkOpen(t.dataset.track); }
   if(e.target.closest("[data-trkplaced]")){ $("#scrim").classList.remove("show"); if(!TK.placed) await trkAfterPlace(); if(TK.placed) trkOpen(TK.placed); else openOrders(); if("Notification" in window && Notification.permission==="default") Notification.requestPermission().then(() => trkDraw()); return; }

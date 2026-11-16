@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="935-1794854209">
+<meta name="skwyd-build" content="936-1794856342">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -4443,7 +4443,7 @@ const CC_COLS = [["review","Web","Web orders waiting for the call center to acce
   ["active","Preparing","Orders that are currently being prepared in the branch"],["closed","Done","Orders that are completed, voided, joined or returned"],
   ["declined","Declined","Orders that have been declined from the branch or the call center"]];
 // the Done column keeps every closed order: done, voided or returned
-const CC_SUB = { review:"Waiting for call center", draft:"Draft", pending:"Sent to branch", active:"Sent To Kitchen", declined:"Declined", closed:"Done", void:"Void", returned:"Returned", refund:"Refund" };
+const CC_SUB = { review:"Waiting for call center", draft:"Draft", pending:"Sent to branch", active:"Preparing", declined:"Declined", closed:"Done", void:"Void", returned:"Returned", refund:"Refund" };
 const SOURCES_DEF = ["Phone","Toters","NokNok","Talabat","WhatsApp","Walk-in"];
 function sourceList(cur){ const l = S.order_sources.filter(r=>live(r)&&r.active!==false&&String(r.name||"").toUpperCase()!=="POS").sort(CRUD["order-sources"].sort).map(r=>r.name); const out = l.length ? l : SOURCES_DEF; return cur && !out.includes(cur) ? [cur, ...out] : out; }
 state.ccBranch = "all"; state.ccAgent = "all"; state.ccTab = "today"; state.ccDate = "";   // "" = the current business date
@@ -4486,8 +4486,8 @@ const invNo = n => n ? "INV-" + String(n).padStart(6,"0") : "";   // invoice num
 const ccTime = t => { if(!t) return "—"; const d = new Date(t), today = bizDate()===bizDate(d); return d.toLocaleString("en-GB", today ? { hour:"2-digit", minute:"2-digit" } : { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }); };
 // the same tile as the orders history: reference, status, customer / phone, address (delivery), created, modified, total, brand / branch, type / source / user
 const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(x => x && x!=="—").map(esc).join(" / ");
-  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status}">${CC_SUB[o.status]}</span>
-  ${sm(jn([o.customerName || "Guest", telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.lat ? `<div class="oline">${mapLink(o)}</div>` : ""}
+  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>
+  ${sm(jn([o.customerName || "Guest", telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}${o.type==="delivery" && o.lat ? `<div class="oline">${mapLink(o)}</div>` : ""}
   ${sm("Created " + ccTime(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + ccTime(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
   ${sm(jn([brandName(o.brandId), branchName(o.branchId)]))}${sm(jn([ordTypeLbl(o.type), srcOf(o) || o.source || "", o.agent || ""]))}${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
 
