@@ -28,6 +28,8 @@ jobs:
           mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js www/
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
           npx cap add android
+          # app icon: the skwyd mascot (android-icons/<density>__<file>.png -> res/mipmap-<density>/<file>.png)
+          for f in android-icons/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="fullSensor"/' android/app/src/main/AndroidManifest.xml   # POS turns with the tablet: landscape and portrait
           # direct printing: a small native plugin sends raw ESC/POS bytes to network printers (Devices → Printers, port 9100)
           mkdir -p android/app/src/main/java/com/skwydhub/pos
