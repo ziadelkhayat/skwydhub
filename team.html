@@ -319,7 +319,7 @@ const seen = () => LS.get("skwyd_team_seen", {}), markSeen = (id, at) => { const
 const unread = g => g.last && !g.last.mine && (!seen()[g.id] || g.last.at > seen()[g.id]);
 async function chatDot(){ try{ const l = await rpc("skwyd_team_chats"); S.chats = l; const d = $("#cdot"); if(d) d.hidden = !l.some(unread); return l; }catch(_){ return S.chats || []; } }
 async function viewChats(){
-  main().innerHTML = `<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1">Chat</h2>${S.me.canChat || S.me.canGroup ? `<button class="btn sm" id="chn">${ic("plus").replace("<svg", '<svg style="width:16px;height:16px;vertical-align:-3px"')} New</button>` : ""}</div><div class="card" id="chl" style="padding:6px"><p class="empty">Loading…</p></div>`;
+  main().innerHTML = `<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1">Chat</h2>${S.me.canChat || S.me.canGroup || S.me.canChannel ? `<button class="btn sm" id="chn">${ic("plus").replace("<svg", '<svg style="width:16px;height:16px;vertical-align:-3px"')} New</button>` : ""}</div><div class="card" id="chl" style="padding:6px"><p class="empty">Loading…</p></div>`;
   const nb = $("#chn"); if(nb) nb.onclick = newChat;
   const l = await chatDot();
   $("#chl").innerHTML = l.length ? l.map(g => `<button class="chg" data-chat="${esc(g.id)}"><span class="av">${esc((g.name || "?").trim()[0] || "?").toUpperCase()}</span><span class="t"><b>${esc(g.name)}</b><small>${g.last ? esc((g.last.mine ? "You: " : (g.last.by || "") + ": ") + g.last.body) : g.direct ? "Private chat" : (g.channel ? "Channel · " : "") + g.members + " members"}</small></span>${g.last ? `<em>${chT(g.last.at)}</em>` : ""}${unread(g) ? `<i class="ud"></i>` : ""}</button>`).join("") : `<p class="empty">No chats yet.${S.me.canChat ? " Press New Chat to message a coworker." : " Your manager adds you to group chats."}</p>`;
@@ -334,7 +334,7 @@ async function newChat(){
   if(!navigator.onLine) return toast("No internet connection.", "bad");
   main().innerHTML = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><button class="out" id="cbk" aria-label="Back">${ic("back").replace("<svg", '<svg style="width:18px;height:18px;vertical-align:-4px"')}</button><h2 style="margin:0">Add New</h2></div>
     <input class="in" id="pq" placeholder="Search name or number" style="margin-bottom:12px">
-    ${S.me.canGroup ? `<div class="card" style="padding:6px"><button class="chg" id="ngr"><span class="av" style="background:var(--ink);color:#fff">${ic("grp")}</span><span class="t"><b>New Group</b></span></button><button class="chg" id="nch"><span class="av" style="background:var(--ink);color:#fff">${ic("mega")}</span><span class="t"><b>New Channel</b></span></button></div>` : ""}
+    ${S.me.canGroup || S.me.canChannel ? `<div class="card" style="padding:6px">${S.me.canGroup ? `<button class="chg" id="ngr"><span class="av" style="background:var(--ink);color:#fff">${ic("grp")}</span><span class="t"><b>New Group</b></span></button>` : ""}${S.me.canChannel ? `<button class="chg" id="nch"><span class="av" style="background:var(--ink);color:#fff">${ic("mega")}</span><span class="t"><b>New Channel</b></span></button>` : ""}</div>` : ""}
     ${S.me.canChat ? `<h3 class="sech">Contacts</h3><div class="card" id="pl" style="padding:6px"><p class="empty">Loading…</p></div>` : ""}`;
   $("#cbk").onclick = () => go("chat");
   const g1 = $("#ngr"); if(g1) g1.onclick = () => newGroup(); const g2 = $("#nch"); if(g2) g2.onclick = () => newGroup(true);
