@@ -101,9 +101,12 @@
     const snap = { docs: rows.map(r => { const { id, ...d } = r; return { id, data: () => ({ ...d }) }; }), metadata:{ fromCache: !!fromCache, hasPendingWrites: outbox.some(o => o.col === col) } };
     (listeners[col]||[]).forEach(l => l.next(snap));
   }
+  const DEVCOLS = { products: "id,name,name_ar,sku,category_id,price,tax_group,description,image_url,channels,branch_ids,active,deleted,created_at,brand_id,pricing_method,selling_method,calories,custom_prices,inactive_branch_ids,out_of_stock_branch_ids,modifiers,sort,variant_set_id,variants",
+    modifiers: "id,name,name_ar,deleted,sort", modifier_options: "id,modifier_id,name,name_ar,price,custom_prices,inactive_branch_ids,out_of_stock_branch_ids,sort,active,deleted" };
   async function fetchAll(col){
     const t = tableOf(col);
-    let q = sb.from(t).select("*");
+    // a register (device key, no login) may only read the menu columns the public can see: cost, recipes etc. stay hidden
+    let q = sb.from(t).select((DEVKEY && DEVCOLS[t]) || "*");
     if(t === "orders") q = q.gte("created_at", new Date(Date.now() - 3*86400000).toISOString()).order("created_at", { ascending:false }).limit(1000);
     else if(t === "staff_requests") q = q.gte("created_at", new Date(Date.now() - 400*86400000).toISOString()).limit(5000);
     else if(t === "staff_shifts") q = q.gte("day", new Date(Date.now() - 120*86400000).toISOString().slice(0,10)).limit(5000);
