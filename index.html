@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="945-1794866914">
+<meta name="skwyd-build" content="946-1794869145">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -689,6 +689,7 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .mlist{display:flex;flex-direction:column}.mlist .chk{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px}.mlist .mall{margin-bottom:6px}.mlist .mgh{margin-top:14px}.mlist .mgh b,.mlist .mall b{font-weight:600}.mlist .mitem .ib{margin-left:4px}
 .mlist.rl{gap:12px;padding:0;margin:0}.rls input,.rls input:focus{box-shadow:none!important;border:0!important;outline:0!important;min-height:0}.mlist.rl .chk{padding:0;gap:10px}.mlist.rl input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none;margin:0;cursor:pointer}
 .rlbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#fafcfc;position:sticky;top:-1px;z-index:2}
+.rlbar::before{content:"";position:absolute;left:-16px;right:-16px;bottom:100%;height:60px;background:#fff;pointer-events:none}   /* hides the rows that scroll up behind the bar (the dialog padding above it) */
 .rlbar .mall{margin:0}.rlcnt{font-size:12.5px;color:var(--muted)}
 .rls{margin-left:auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:0 10px;min-width:200px}.rls svg{width:14px;height:14px;color:var(--muted);flex:none}.rls input{border:0;outline:0;background:transparent;font:inherit;font-size:13px;padding:7px 0;width:100%}
 .rlg{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface,#fff)}.rlg[hidden],.rlg .mitem[hidden]{display:none}
@@ -753,6 +754,9 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .tbl table th,.tbl table td{white-space:nowrap}.tbl table td.wrap,.tbl table td .note{white-space:normal}
 .phrow{display:flex;gap:8px}.phrow select{flex:0 1 210px;max-width:45%;min-width:0}.phrow input{flex:1;min-width:0}
 .slk-ask{position:fixed;inset:0;z-index:2147483000;background:rgba(20,16,40,.45);display:grid;place-items:center;padding:16px;animation:slkAskIn .12s ease-out}
+.kbcats{display:flex;flex-wrap:wrap;gap:6px}.kbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:14px}.kbcard{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;padding:18px}.kbcard small{color:var(--acc2,#6d28d9);font-weight:600}.kbcard b{font-size:16px}.kbcard p{margin:0;color:var(--mut,#667085);font-size:13px;flex:1}
+.kbv{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}.kbart{padding:24px}.kbtx{line-height:1.6}.kbtx h3,.kbtx h4{margin:14px 0 6px}.kbfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.kbside{padding:18px}.kbwho{margin-top:8px;max-height:420px;overflow:auto}.kbwho div{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)}
+@media(max-width:900px){.kbv{grid-template-columns:1fr}}
 .tch{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;height:calc(100vh - 220px);min-height:420px}.tchl{background:#fff;border:1px solid var(--line);border-radius:16px;overflow-y:auto;padding:6px}.tchg{display:grid;grid-template-columns:1fr auto;gap:2px 8px;width:100%;text-align:left;border:0;background:none;padding:12px;border-radius:12px;cursor:pointer;font:inherit;color:inherit}.tchg small{grid-column:1/-1;color:var(--ink3,#8d8c98);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tchg em{font-style:normal;font-size:12px;color:var(--ink3,#8d8c98)}.tchg.on{background:#eef2fc}.tchm{background:#fff;border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-height:0}.tchh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}.tchh small{display:block;color:var(--ink3,#8d8c98);font-size:12.5px}.tchb{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f7f8fb}.tchmsg{max-width:72%;align-self:flex-start;display:grid;gap:3px}.tchmsg span{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:14px 14px 14px 4px;white-space:pre-wrap;word-break:break-word}.tchmsg span b{display:block;font-size:12px;color:#6d28d9;margin-bottom:2px}.tchmsg small{font-size:11px;color:var(--ink3,#8d8c98)}.tchmsg.me{align-self:flex-end;text-align:right}.tchmsg.me span{background:#1e3a8a;color:#fff;border-color:#1e3a8a;border-radius:14px 14px 4px 14px;text-align:left}.tchf{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}.tchf input{flex:1}.tchpick{display:grid;gap:6px;max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:10px}@media(max-width:800px){.tch{grid-template-columns:1fr;height:auto}.tchl{max-height:220px}.tchm{height:60vh}}
 .tlbl{display:block;text-align:left;font-size:13px;font-weight:600;margin:10px 0 4px}.tlerr{color:#d92d20;font-size:13px;min-height:18px;margin-top:8px;text-align:left}.slk-ask-b{background:#fff;color:#0c1738;border-radius:14px;box-shadow:0 24px 60px rgba(20,16,40,.28);width:min(520px,100%);padding:0;font:inherit;overflow:hidden}
 .slk-ask-h{margin:0;padding:20px 24px 4px;font-size:19px;font-weight:600}
@@ -1671,7 +1675,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=61"></script>
+<script src="wokdb.js?v=62"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=4"></script>
@@ -1913,11 +1917,11 @@ const NAV = [
   {id:"orders",t:"Orders",i:"orders"},
   {id:"call-center",t:"Call Center",i:"phone"},
   {id:"customers",t:"Customers",i:"users"},
-  {t:"Reports",i:"chart",tabs:1,kids:[["sales-reports","Sales Reports"],["inventory-reports","Inventory Reports"],["business-reports","Business Reports"],["analysis-reports","Analysis Reports"]]},
+  {t:"Reports",i:"chart",tabs:1,kids:[["sales-reports","Sales Reports"],["inventory-reports","Inventory Reports"],["business-reports","Business Reports"],["analysis-reports","Analysis Reports"],["employee-reports","Employee Reports"]]},
   {t:"Menu",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["team-chat","Team Chat"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["team-chat","Chats"],["knowledge","Knowledge Base"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"],["settings","Settings"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -1958,6 +1962,7 @@ Object.assign(I, {
   truck:'<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
   cart:'<path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="17" cy="20" r="1"/>',
   swap:'<path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/>',
+  bookk:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7M8 11h5"/>',
   clipboard:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/>',
   factory:'<path d="M3 21V10l6 4V10l6 4V6l6 3v12z"/><path d="M7 17h2M12 17h2M17 17h2"/>',
   sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
@@ -2000,11 +2005,11 @@ Object.assign(I, {
 });
 // one icon per screen
 const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card",
-  "sales-reports":"bars","inventory-reports":"pie","business-reports":"chart","analysis-reports":"layout",
+  "sales-reports":"bars","inventory-reports":"pie","business-reports":"chart","analysis-reports":"layout","employee-reports":"user",
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","team-chat":"message","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","team-chat":"message","knowledge":"bookk","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -2525,6 +2530,7 @@ const RPT_HUB = {
   "sales-reports": ["Sales Reports", [["sales","Sales Reports","Sales by branch, product, category, order type, order source, cashier and time"],["payments","Payment Reports","Payments by method, with returns taken off"]]],
   "inventory-reports": ["Inventory Reports", [["#inv-levels","Inventory Levels","Stock on hand at each branch"],["#inv-history","Inventory History","Every stock movement"],["#purchase-orders","Purchase Orders",""],["#transfers","Transfers",""],["#purchasing","Purchasing","Purchases received by item and supplier"]]],
   "business-reports": ["Business Reports", [["taxes","Taxes","Tax collected per branch and day"],["days","Business Days","Every ended business day"],["shifts","Shifts","Opened and closed shifts with cash count"],["voids","Voids & Returns","Voided orders and items, and returns"]]],
+  "employee-reports": ["Employee Reports", [["employees","Employee Sales","Sales, orders and average order per employee"],["drivers","Driver Deliveries","Deliveries, totals, cash collected, delivery time and ratings per driver"]]],
   "analysis-reports": ["Analysis Reports", [["menu","Menu Engineering","Products by quantity sold and net sales"],["trend","Branches Trend","Net sales of each branch, day by day"],["speed","Speed Of Service","Minutes from placing to accepting and to done"]]]
 };
 const RPT = { key:"", hub:"", from:"", to:"", branch:"", dim:"branch", group:"", rows:null, loading:false, err:"", loaded:"" };
@@ -2557,8 +2563,8 @@ async function loadReport(force){
   RPT.loading = key; RPT.err = ""; RPT.rows = null;
   try{
     let rows;
-    if(["sales","payments","taxes","voids","menu","trend","speed"].includes(RPT.key))
-      rows = (await rptFetch("orders", "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of", "created_at")).map(camelRow);
+    if(["sales","payments","taxes","voids","menu","trend","speed","employees","drivers"].includes(RPT.key))
+      rows = (await rptFetch("orders", "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of,driver_id,driver_name,driver_status,driver_assigned_at,picked_at,delivered_at,rating_driver,rating_order", "created_at")).map(camelRow);
     else if(RPT.key==="days") rows = (await rptFetch("day_closes", "*", "closed_at")).map(camelRow);
     else if(RPT.key==="shifts") rows = (await rptFetch("shifts", "*", "opened_at")).map(camelRow);
     else rows = [];
@@ -2693,6 +2699,24 @@ function rptBuild(){
       if(o.acceptedAt){ r.acc += (new Date(o.acceptedAt) - new Date(o.createdAt))/60000; r.na++; } if(o.doneAt){ r.done += (new Date(o.doneAt) - new Date(o.createdAt))/60000; r.nd++; } m.set(k, r); });
     const list = [...m.values()];
     return { title:"Speed Of Service", head:[["Branch"],["Orders",0,1],["Avg. Minutes to Accept",0,1],["Avg. Minutes to Done",0,1]], rows: list.map(r => [esc(r.b), r.n, r.na ? (r.acc/r.na).toFixed(1) : "—", r.nd ? (r.done/r.nd).toFixed(1) : "—"]) };
+  }
+  if(RPT.key==="employees"){
+    const m = new Map(); R.filter(o => isSale(o) || o.status==="refund").forEach(o => { const k = cashierOf(o); const r = m.get(k) || { e:k, br:new Set(), n:0, net:0, tot:0, ret:0, disc:0 };
+      r.br.add(branchName(o.branchId)||"—"); if(o.status==="refund") r.ret += -(+o.total||0); else { r.n++; r.disc += +o.discount||0; } r.tot += +o.total||0; r.net += (+o.total||0) - (+o.tax||0); m.set(k, r); });
+    const list = [...m.values()].sort((a,b) => b.net - a.net);
+    return { title:"Employee Sales", head:[["Employee"],["Branches"],["Orders",0,1],["Net Sales",0,1],["Net Sales With Tax",0,1],["Average Order",0,1],["Discounts",0,1],["Returns",0,1]],
+      rows: list.map(r => [esc(r.e), esc([...r.br].join(", ")), r.n, money(r.net), money(r.tot), money(r.n ? r.net/r.n : 0), money(r.disc), money(r.ret)]),
+      foot:["Total","", list.reduce((a,r)=>a+r.n,0), money(list.reduce((a,r)=>a+r.net,0)), money(list.reduce((a,r)=>a+r.tot,0)), money((n => n ? list.reduce((a,r)=>a+r.net,0)/n : 0)(list.reduce((a,r)=>a+r.n,0))), money(list.reduce((a,r)=>a+r.disc,0)), money(list.reduce((a,r)=>a+r.ret,0))] };
+  }
+  if(RPT.key==="drivers"){
+    const m = new Map(); R.filter(o => o.type==="delivery" && o.driverName && isSale(o)).forEach(o => { const k = o.driverName; const r = m.get(k) || { d:k, n:0, tot:0, cash:0, mins:0, nm:0, rd:0, nrd:0, ro:0, nro:0 };
+      r.n++; r.tot += +o.total||0; if(o.deliveredAt || o.driverStatus==="delivered") r.cash += +o.total||0;
+      if(o.pickedAt && o.deliveredAt){ r.mins += (new Date(o.deliveredAt) - new Date(o.pickedAt))/60000; r.nm++; }
+      if(+o.ratingDriver){ r.rd += +o.ratingDriver; r.nrd++; } if(+o.ratingOrder){ r.ro += +o.ratingOrder; r.nro++; } m.set(k, r); });
+    const list = [...m.values()].sort((a,b) => b.n - a.n), avg = (s, n) => n ? (s/n).toFixed(1) : "—";
+    return { title:"Driver Deliveries", head:[["Driver"],["Deliveries",0,1],["Orders Total",0,1],["Collected In The App",0,1],["Avg. Minutes On The Way",0,1],["Driver Rating",0,1],["Order Rating",0,1],["Ratings",0,1]],
+      rows: list.map(r => [esc(r.d), r.n, money(r.tot), money(r.cash), avg(r.mins, r.nm), avg(r.rd, r.nrd), avg(r.ro, r.nro), r.nrd]),
+      foot:["Total", list.reduce((a,r)=>a+r.n,0), money(list.reduce((a,r)=>a+r.tot,0)), money(list.reduce((a,r)=>a+r.cash,0)), avg(list.reduce((a,r)=>a+r.mins,0), list.reduce((a,r)=>a+r.nm,0)), avg(list.reduce((a,r)=>a+r.rd,0), list.reduce((a,r)=>a+r.nrd,0)), avg(list.reduce((a,r)=>a+r.ro,0), list.reduce((a,r)=>a+r.nro,0)), list.reduce((a,r)=>a+r.nrd,0)] };
   }
   return { title:"Report", head:[], rows:[] };
 }
@@ -3374,7 +3398,7 @@ function toastOk(m){ const t = $("#toast"); t.textContent = m; t.classList.add("
 let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return; const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */
-const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages"];
+const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages","kb_articles","kb_reads"];
 const S = {}; COLS.forEach(c => S[c] = []);
 function subscribeAll(){
   COLS.forEach(c => db.collection(c).onSnapshot(snap => {
@@ -3437,11 +3461,11 @@ const PERMS = [
   ["@Customer Authorities"],["bo_customers","Read Customers","Allows the user to view customers data in the console."],["bo_customers_insights","Read Customers Insights","Allows the user to view customers loyalty, house account credit, etc..."],["bo_customers_edit","Manage Customers","Allows the user to edit or delete customers."],["bo_import","Import / Export","Allows the user to import and export lists (products, customers…)."],
   ["@Inventory Authorities"],["bo_inventory","Read Inventory Items","Allows the user to view inventory items and transactions."],["inv_manage","Manage Inventory Items","Allows the user to edit or delete inventory items."],["inv_suppliers","Manage Suppliers","Allows the user to edit or delete suppliers."],["inv_po","Create Purchase Orders","Allows the user to create a PO and save as draft."],["inv_po_submit","Submit Purchase Orders","Allows the user to submit draft POs to be approved."],["inv_po_approve","Approve Purchase Orders","Allows the user to approve submitted POs."],["inv_transfer","Create Transfers","Allows the user to create a transfer from one branch/warehouse to other locations."],["inv_transfer_send","Send & Receive Transfers","Allows the user to submit draft transfer transactions."],["inv_purchasing","Create Purchasing","Allows the user to create a purchasing transaction and save as draft."],["inv_purchasing_submit","Submit Purchasing","Allows the user to submit draft purchasing transactions."],["inv_production","Create Production","Allows the user to create draft production transactions."],["inv_production_submit","Submit Production","Allows the user to submit draft production transactions."],["inv_qa","Create Quantity Adjustment","Allows the user to create draft QA transactions."],["inv_qa_submit","Submit Quantity Adjustment","Allows the user to submit draft QA transactions."],["inv_count","Create Inventory Count","Allows the user to create draft count transactions."],["inv_count_submit","Submit Inventory Count","Allows the user to submit draft count transactions."],["inv_order_tx","Read Order Transactions","Allows the user to view inventory transactions made from orders."],
   ["@Menu Authorities"],["bo_menu","Read Menu","Allows the user to view menu items in the console."],["menu_manage","Manage Menu","Allows the user to edit and manage menu items in the console."],["menu_hide","Hide Items","Allows the user to deactivate menu items in selected branches to hide them from the menu."],["menu_oos","Mark Items Out of Stock","Allows the user to set menu items as Out of Stock in selected branches."],["menu_ingredients","Manage Ingredients","Allows the user to edit menu ingredients."],["menu_costs","Manage Costs","Allows the user to edit menu items costs."],
-  ["@Admin Authorities"],["bo_staff","Access Employee Management","Allows the user to open Employee Management: employees, roles, schedule, time clock, requests, payroll, documents and team chat."],["bo_manage","Manage Settings","Allows the user to open Manage: branches, devices, users, roles, taxes, payment methods, charges, reasons, delivery zones, web ordering and other settings."],["bo_marketing","Manage Marketing","Allows the user to create and edit discounts, coupons, gift cards and promotions."],
+  ["@Admin Authorities"],["bo_staff","Access Employee Management","Allows the user to open Employee Management: employees, roles, schedule, time clock, requests, payroll, documents, chats and knowledge base."],["bo_manage","Manage Settings","Allows the user to open Manage: branches, devices, users, roles, taxes, payment methods, charges, reasons, delivery zones, web ordering and other settings."],["bo_marketing","Manage Marketing","Allows the user to create and edit discounts, coupons, gift cards and promotions."],
   ["@Reports Authorities"],["bo_reports","View Sales Reports","Allows the user to view and export all reports."],
   ["@Dashboard Authorities"],["bo_dashboard","Access General Dashboard","Allows the user to view the general dashboard and graphs."],
   ["@Call Center Authorities"],["bo_callcenter","Access Call Center","Allows the user to take call center orders."],["bo_cc_edit","Edit Online Orders","Allows the user to edit placed call center orders (order source, order type, items)."],["bo_cc_disc_amount","Apply Amount Discount in Call Center","Allows the user to take a fixed amount off a call center order."],["bo_cc_disc_pct","Apply Percentage Discount in Call Center","Allows the user to take a percentage off a call center order."],["bo_cc_discount","Apply Marketing Discounts in Call Center","Allows the user to apply the discounts created in Marketing → Discounts on call center orders."],
-  ["@Cashier & Waiter Apps Authorities"],["pos_access","Access Cash Register","Allows the user to sign in with their PIN and sell on the cashier."],["pos_settings","Access Devices Management","Allows the user to open device settings in the cashier."],["pos_reports","Access Reports","Allows the user to access sales and till reports in the cashier."],["pos_disc_amount","Apply Amount Discount","Allows the user to take a fixed amount off an order on the cashier."],["pos_disc_pct","Apply Percentage Discount","Allows the user to take a percentage off an order on the cashier."],["pos_discount","Apply Marketing Discounts","Allows the user to apply the discounts created in Marketing → Discounts on orders."],["pos_item_discount","Apply Item Discounts","Allows the user to apply discounts on products."],["pos_charges","Add Open Charge","Allows the user to add or remove charges on an order."],["pos_shift","Access Drawer Operations","Allows the user to open and close shifts and the cash drawer."],["pos_endday","Perform End of Day","Allows the user to end the day and generate EOD reports."],["pos_reprint","Print Receipt","Allows the user to reprint a receipt of a closed order."],["pos_print_check","Print Active Order Invoice","Allows the user to print the invoice (bill) of an active order."],["pos_reprint_kitchen","Reprint Kitchen Receipt","Allows the user to reprint the kitchen receipt of an active order."],["pos_return","Return Order","Allows the user to return a closed order and refund the customer."],["pos_orders","View Done Orders","Allows the user to view done orders history."],["pos_void","Void Orders and Products","Allows the user to cancel orders and products for a reason."],["pos_incoming","Accept Online Orders","Allows the user to accept, decline and complete call center and web orders."],["pos_open_price","Add Open Price Product","Allows the user to sell open price products."]];
+  ["@SKWYD Team, Driver & Manager Apps"],["app_chat","Chat With Coworkers In The App","Lets the employee start private chats with other employees who also have this permission, in the SKWYD Team, Driver and Manager apps. Every chat can be read in Employee Management → Chats."],["app_groups","Create Groups And Channels In The App","Lets the employee create group chats and announcement channels with coworkers in the SKWYD Team, Driver and Manager apps."],["drv_app","Use Driver App","Makes this employee a driver: delivery orders can be assigned to them on the cashier, and they accept and deliver them in the SKWYD Driver app."],["@Cashier & Waiter Apps Authorities"],["pos_access","Access Cash Register","Allows the user to sign in with their PIN and sell on the cashier."],["pos_settings","Access Devices Management","Allows the user to open device settings in the cashier."],["pos_reports","Access Reports","Allows the user to access sales and till reports in the cashier."],["pos_disc_amount","Apply Amount Discount","Allows the user to take a fixed amount off an order on the cashier."],["pos_disc_pct","Apply Percentage Discount","Allows the user to take a percentage off an order on the cashier."],["pos_discount","Apply Marketing Discounts","Allows the user to apply the discounts created in Marketing → Discounts on orders."],["pos_item_discount","Apply Item Discounts","Allows the user to apply discounts on products."],["pos_charges","Add Open Charge","Allows the user to add or remove charges on an order."],["pos_shift","Access Drawer Operations","Allows the user to open and close shifts and the cash drawer."],["pos_endday","Perform End of Day","Allows the user to end the day and generate EOD reports."],["pos_reprint","Print Receipt","Allows the user to reprint a receipt of a closed order."],["pos_print_check","Print Active Order Invoice","Allows the user to print the invoice (bill) of an active order."],["pos_reprint_kitchen","Reprint Kitchen Receipt","Allows the user to reprint the kitchen receipt of an active order."],["pos_return","Return Order","Allows the user to return a closed order and refund the customer."],["pos_orders","View Done Orders","Allows the user to view done orders history."],["pos_void","Void Orders and Products","Allows the user to cancel orders and products for a reason."],["pos_incoming","Accept Online Orders","Allows the user to accept, decline and complete call center and web orders."],["pos_open_price","Add Open Price Product","Allows the user to sell open price products."]];
 const PERM_KEYS = PERMS.filter(p=>!p[0].startsWith("@")).map(p=>p[0]);
 const roleName = id => S.roles.find(r=>r.id===id)?.name || "—";
 const userRoleIds = u => (u?.roleIds||[]).length ? u.roleIds : (u?.roleId ? [u.roleId] : []);
@@ -6346,51 +6370,130 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); a.download = `payroll-${PAY.month}.csv`; a.click(); return; }
 });
 
+/* ---------- Employee Management → Knowledge Base: policies, guides, recipes and training, read in the SKWYD Team, Driver and Manager apps ---------- */
+const KB = { q:"", cat:"", open:"" };
+const KB_CATS = ["Policies","Guides","Recipes","Training","Safety","Other"];
+const kbList = () => (S.kb_articles||[]).filter(a => !a.deleted);
+const kbAud = a => { const rs = a.roleIds||[], bs = a.branchIds||[]; return S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u) && (!rs.length || userRoleIds(u).some(r => rs.includes(r))) && (!bs.length || !(u.branchIds||[]).length || (u.branchIds||[]).some(b => bs.includes(b)))); };
+const kbReads = id => (S.kb_reads||[]).filter(r => r.articleId===id);
+const kbBody = t => esc(t||"").replace(/^### (.*)$/gm, "<h4>$1</h4>").replace(/^## (.*)$/gm, "<h3>$1</h3>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/^- (.*)$/gm, "<li>$1</li>").replace(/\n/g, "<br>");
+function viewKB(){
+  const all = kbList(), q = KB.q.trim().toLowerCase(), cats = [...new Set([...KB_CATS, ...all.map(a => a.category).filter(Boolean)])];
+  const l = all.filter(a => (!KB.cat || a.category===KB.cat) && (!q || (a.title + " " + (a.body||"")).toLowerCase().includes(q))).sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0) || String(b.updatedAt||b.createdAt).localeCompare(String(a.updatedAt||a.createdAt)));
+  const o = all.find(a => a.id===KB.open);
+  if(o){ const aud = kbAud(o), rd = kbReads(o.id), byId = Object.fromEntries(rd.map(r => [r.staffId, r]));
+    return `<div class="phead"><a class="btn" href="#knowledge" data-kbback style="text-decoration:none">← Back</a><h1>${esc(o.title)}</h1><div class="sp"></div><button class="btn pri" data-kbedit="${esc(o.id)}">Edit Article</button></div>
+      <div class="kbv"><article class="card kbart"><div class="note" style="margin-bottom:10px">${esc(o.category||"Other")}${o.pinned ? " · Pinned" : ""} · Updated ${esc(new Date(o.updatedAt||o.createdAt).dmy())}</div><div class="kbtx">${kbBody(o.body)}</div>
+        ${(o.files||[]).length ? `<div class="kbfiles">${o.files.map((f,i) => `<button type="button" class="btn" data-kbfile="${esc(o.id)}:${i}">${svgIco("download")} ${esc(f.name)}</button>`).join("")}</div>` : ""}</article>
+      <aside class="card kbside"><b>Who sees it</b><p class="note">${(o.roleIds||[]).length ? (o.roleIds).map(id => esc(roleName(id))).join(", ") : "All roles"} · ${(o.branchIds||[]).length ? o.branchIds.map(id => esc(branchName(id))).join(", ") : "All branches"}</p>
+        ${o.ack ? `<b>Read & acknowledged ${aud.filter(u => byId[u.id]).length} / ${aud.length}</b>` : `<b>Opened by ${aud.filter(u => byId[u.id]).length} / ${aud.length}</b>`}
+        <div class="kbwho">${aud.map(u => `<div><span>${esc(u.name)}</span>${byId[u.id] ? `<span class="tag on">${esc(new Date(byId[u.id].readAt).dmy())}</span>` : `<span class="note">Not yet</span>`}</div>`).join("") || '<p class="note">Nobody yet</p>'}</div></aside></div>`; }
+  return `<div class="phead"><h1>Knowledge Base</h1><div class="sp"></div><button class="btn pri" data-kbnew>${svgIco("plus")} New Article</button></div>
+    <p class="subt" style="margin-top:-6px">Policies, guides, recipes and training. Employees read them in the SKWYD Team, Driver and Manager apps.</p>
+    <div class="row fbar"><input class="sel" id="kbQ" placeholder="Search articles" value="${esc(KB.q)}" style="min-width:240px"><div class="kbcats"><button type="button" class="chip ${KB.cat ? "" : "on"}" data-kbcat="">All</button>${cats.map(c => `<button type="button" class="chip ${KB.cat===c ? "on" : ""}" data-kbcat="${esc(c)}">${esc(c)} <span class="note">${all.filter(a => a.category===c).length}</span></button>`).join("")}</div></div>
+    <div class="kbgrid">${l.map(a => { const aud = kbAud(a), n = kbReads(a.id).filter(r => aud.some(u => u.id===r.staffId)).length;
+      return `<a class="card kbcard" href="#knowledge" data-kbopen="${esc(a.id)}"><small>${esc(a.category||"Other")}${a.pinned ? " · Pinned" : ""}</small><b>${esc(a.title)}</b><p>${esc(String(a.body||"").replace(/[#*\-]/g,"").slice(0,140))}</p><span class="note">${(a.files||[]).length ? (a.files.length + " file" + (a.files.length>1?"s":"") + " · ") : ""}${a.ack ? "Acknowledged" : "Opened"} ${n}/${aud.length}</span></a>`; }).join("") || `<div class="card"><p class="dzempty" style="padding:24px">${all.length ? "No articles match." : "No articles yet. Add your first policy, guide or recipe."}</p></div>`}</div>`;
+}
+function kbDlg(a){
+  const roles = S.roles.filter(r => live(r)).sort((x,y) => String(x.name).localeCompare(String(y.name))), ron = new Set(a?.roleIds||[]), bon = new Set(a?.branchIds||[]);
+  let files = [...(a?.files||[])]; const box = $("#ccBox"); box.className = "modal wide";
+  const fl = () => files.map((f,i) => `<span class="dzchip">${esc(f.name)}<button type="button" data-kbrmf="${i}" aria-label="Remove">×</button></span>`).join("");
+  box.innerHTML = `<header><h2>${a ? "Edit Article" : "New Article"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body">
+    <div class="row" style="gap:12px"><div class="f" style="flex:2"><label for="kbT">Title <span style="color:#d92d20">*</span></label><input id="kbT" class="sel" maxlength="160" value="${esc(a?.title||"")}" placeholder="e.g. Opening checklist"></div>
+      <div class="f" style="flex:1"><label for="kbC">Category</label><input id="kbC" class="sel" list="kbCl" value="${esc(a?.category||"Policies")}"><datalist id="kbCl">${KB_CATS.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div></div>
+    <div class="f"><label for="kbB">Content <span style="color:#d92d20">*</span></label><textarea id="kbB" class="sel" rows="12" style="min-height:220px;font:inherit" placeholder="Write the article. Use ## for a heading, - for a list item and **bold**.">${esc(a?.body||"")}</textarea></div>
+    <div class="f"><label>Files</label><div class="dzchips" id="kbFl">${fl()}</div><input type="file" id="kbF" multiple accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx" style="margin-top:6px"><p class="note">PDF, pictures or short videos, up to 10 MB each.</p></div>
+    <div class="row" style="gap:12px;align-items:flex-start"><div class="f" style="flex:1"><label>Roles <span class="note">(none = everyone)</span></label><div class="tchpick" id="kbR" style="max-height:150px">${roles.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${ron.has(r.id) ? "checked" : ""}> ${esc(r.name)}</label>`).join("") || '<p class="note">No roles</p>'}</div></div>
+      <div class="f" style="flex:1"><label>Branches <span class="note">(none = all)</span></label><div class="tchpick" id="kbBr" style="max-height:150px">${activeBranches().map(b => `<label class="chk"><input type="checkbox" value="${esc(b.id)}" ${bon.has(b.id) ? "checked" : ""}> ${esc(b.name)}</label>`).join("")}</div></div></div>
+    <label class="chk"><input type="checkbox" id="kbP" ${a?.pinned ? "checked" : ""}> Pin to the top</label>
+    <label class="chk"><input type="checkbox" id="kbA" ${a?.ack ? "checked" : ""}> Employees must confirm they read it</label>
+    <div class="err" id="kbE"></div></div>
+    <footer>${a ? `<button type="button" class="btn danger" data-kbdel="${esc(a.id)}">Delete Article</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="kbSave">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#kbT")?.focus(), 30);
+  $("#kbF").onchange = async e => { for(const f of e.target.files){ if(f.size > 10485760){ toast(`${f.name} is larger than 10 MB`); continue; }
+      const path = `${await sdCompany()}/kb/${Date.now().toString(36)}-${f.name.replace(/[^\w.\-]+/g, "_")}`;
+      $("#kbE").textContent = "Uploading " + f.name + "…"; const up = await WOK.sb.storage.from("kb").upload(path, f, { contentType: f.type || "application/octet-stream" });
+      if(up.error){ console.error(up.error); $("#kbE").textContent = "Couldn't upload " + f.name; return; } files.push({ name: f.name, path, type: f.type, size: f.size }); }
+    $("#kbE").textContent = ""; e.target.value = ""; $("#kbFl").innerHTML = fl(); };
+  box.onclick = async e => {
+    const rm = e.target.closest("[data-kbrmf]"); if(rm){ files.splice(+rm.dataset.kbrmf, 1); $("#kbFl").innerHTML = fl(); return; }
+    const del = e.target.closest("[data-kbdel]"); if(del){ if(!(await askYes(`Delete the article ${a.title}?`))) return; try{ await put("kb_articles", a.id, { deleted:true }); $("#ccScrim").classList.remove("show"); KB.open = ""; toastOk("Article deleted"); render(); }catch(er){ console.error(er); toast("Couldn't delete the article."); } return; }
+    if(e.target.closest("#kbSave")){ const title = $("#kbT").value.trim(), body = $("#kbB").value.trim(), category = $("#kbC").value.trim() || "Other";
+      if(!title) return $("#kbE").textContent = "Enter a title."; if(!body && !files.length) return $("#kbE").textContent = "Write the content or add a file.";
+      const d = { title, body, category, files, roleIds: [...document.querySelectorAll("#kbR input:checked")].map(i => i.value), branchIds: [...document.querySelectorAll("#kbBr input:checked")].map(i => i.value), pinned: $("#kbP").checked, ack: $("#kbA").checked };
+      try{ const id = a?.id || "kb_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        await put("kb_articles", id, a ? d : { ...d, createdBy: state.fullName || state.userName || "Manager", deleted:false });
+        $("#ccScrim").classList.remove("show"); toastOk(a ? "Article saved" : "Article published"); KB.open = id; render(); }
+      catch(er){ console.error(er); $("#kbE").textContent = "Couldn't save the article."; } }
+  };
+}
+document.addEventListener("click", async e => { if(document.body.dataset.route!=="knowledge") return;
+  const c = e.target.closest("[data-kbcat]"); if(c){ KB.cat = c.dataset.kbcat; render(); return; }
+  const o = e.target.closest("[data-kbopen]"); if(o){ e.preventDefault(); KB.open = o.dataset.kbopen; render(); window.scrollTo(0,0); return; }
+  if(e.target.closest("[data-kbback]")){ e.preventDefault(); KB.open = ""; render(); return; }
+  if(e.target.closest("[data-kbnew]")) return kbDlg(null);
+  const ed = e.target.closest("[data-kbedit]"); if(ed) return kbDlg(kbList().find(a => a.id===ed.dataset.kbedit));
+  const f = e.target.closest("[data-kbfile]"); if(f){ const [id, i] = f.dataset.kbfile.split(":"), x = kbList().find(a => a.id===id)?.files?.[+i]; if(!x) return; const w = window.open("", "_blank");
+    try{ const { data, error } = await WOK.sb.storage.from("kb").createSignedUrl(x.path, 600); if(error) throw error; if(w) w.location = data.signedUrl; else location.href = data.signedUrl; }catch(er){ console.error(er); w?.close(); toast("Couldn't open the file."); } }
+});
+document.addEventListener("input", e => { if(e.target.id!=="kbQ") return; KB.q = e.target.value; const p = e.target.selectionStart; render(); const i = $("#kbQ"); if(i){ i.focus(); i.setSelectionRange(p, p); } });
+
 /* ---------- Employee Management → Team Chat: groups of chosen employees, read and answered in the SKWYD Team app ---------- */
-const TCH = { sel:"", q:"" };
+const TCH = { sel:"", q:"", kind:"" };
+const chDirect = g => g.kind==="direct";
+const chName = g => chDirect(g) ? (g.memberIds||[]).map(id => S.users.find(u => u.id===id)?.name || "—").join(" & ") : g.name;
 const chGroups = () => (S.chat_groups||[]).filter(g => !g.deleted).sort((a,b) => String(chLast(b)?.createdAt || b.createdAt).localeCompare(String(chLast(a)?.createdAt || a.createdAt)));
 const chMsgs = id => (S.chat_messages||[]).filter(m => m.groupId===id && !m.deleted).sort((a,b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+const chMembers = g => { const ids = new Set(g.memberIds || []), rs = g.roleIds || [], bs = g.branchIds || []; return S.users.filter(u => live(u) && u.active!==false && (ids.has(u.id) || (rs.length && userRoleIds(u).some(r => rs.includes(r))) || (bs.length && (u.branchIds||[]).some(b => bs.includes(b))))); };
 const chLast = g => { const l = chMsgs(g.id); return l[l.length - 1] || null; };
 const chTime = t => { const d = new Date(t), today = new Date().toDateString()===d.toDateString(); return today ? d.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }) : d.dmy() + " " + d.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" }); };
 function viewTeamChat(){
-  const gs = chGroups(); if(!gs.some(g => g.id===TCH.sel)) TCH.sel = gs[0]?.id || "";
+  const all = chGroups(), gs = all.filter(g => !TCH.kind || (TCH.kind==="direct") === chDirect(g)); if(!gs.some(g => g.id===TCH.sel)) TCH.sel = gs[0]?.id || "";
   const g = gs.find(x => x.id===TCH.sel), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
-  const list = gs.map(x => { const l = chLast(x); return `<button type="button" class="tchg ${x.id===TCH.sel ? "on" : ""}" data-tchsel="${esc(x.id)}"><b>${esc(x.name)}</b><small>${l ? esc((l.fromOffice ? "You: " : (l.senderName || "") + ": ") + l.body) : (x.memberIds||[]).length + " members"}</small>${l ? `<em>${esc(chTime(l.createdAt))}</em>` : ""}</button>`; }).join("");
+  const list = gs.map(x => { const l = chLast(x); return `<button type="button" class="tchg ${x.id===TCH.sel ? "on" : ""}" data-tchsel="${esc(x.id)}"><b>${esc(chName(x))}${chDirect(x) ? ` <span class="tag">Private</span>` : x.kind==="channel" ? ` <span class="tag">Channel</span>` : ""}</b><small>${l ? esc((l.fromOffice ? "You: " : (l.senderName || "") + ": ") + l.body) : chMembers(x).length + " members"}</small>${l ? `<em>${esc(chTime(l.createdAt))}</em>` : ""}</button>`; }).join("");
   const msgs = g ? chMsgs(g.id) : [];
-  return `<div class="phead"><h1>Team Chat</h1><div class="sp"></div><button class="btn pri" data-tchnew>${svgIco("plus")} New Group</button></div>
-    <p class="subt" style="margin-top:-6px">Group chats with the employees you choose. They read and answer in the SKWYD Team app.</p>
-    <div class="tch"><aside class="tchl">${list || `<p class="dzempty" style="padding:18px">No groups yet</p>`}</aside>
-    <section class="tchm">${g ? `<header class="tchh"><div><b>${esc(g.name)}</b><small>${(g.memberIds||[]).map(id => esc(byId[id]?.name || "—")).join(", ") || "No members"}</small></div><span class="sp"></span><button type="button" class="btn" data-tchedit="${esc(g.id)}">Edit Group</button></header>
+  const tab = (k, t) => `<button type="button" class="chip ${TCH.kind===k ? "on" : ""}" data-tchkind="${k}">${t} <span class="note">${all.filter(x => !k || (k==="direct") === chDirect(x)).length}</span></button>`;
+  return `<div class="phead"><h1>Chats</h1><div class="sp"></div><button class="btn" data-tchnew="channel">${svgIco("plus")} New Channel</button><button class="btn pri" data-tchnew>${svgIco("plus")} New Group</button></div>
+    <p class="subt" style="margin-top:-6px">Channels (only admins post), group chats with the branches, roles and employees you choose, and the private chats between employees. Everyone answers in the SKWYD apps.</p>
+    <div class="row" style="gap:6px;margin-bottom:10px">${tab("", "All")}${tab("group", "Groups & Channels")}${tab("direct", "Private")}</div>
+    <div class="tch"><aside class="tchl">${list || `<p class="dzempty" style="padding:18px">No chats yet</p>`}</aside>
+    <section class="tchm">${g && chDirect(g) ? `<header class="tchh"><div><b>${esc(chName(g))}</b><small>Private chat between two employees · read only</small></div></header>
+      <div class="tchb" id="tchB">${msgs.length ? msgs.map(m => `<div class="tchmsg ${m.senderId===(g.memberIds||[])[0] ? "me" : ""}"><span><b>${esc(m.senderName || "—")}</b>${esc(m.body)}</span><small>${esc(chTime(m.createdAt))}</small></div>`).join("") : `<p class="dzempty" style="margin:auto">No messages yet.</p>`}</div>`
+      : g ? `<header class="tchh"><div><b>${esc(g.name)}</b><small>${[...(g.branchIds||[]).map(id => branchName(id)).filter(Boolean).map(n => "Branch: " + esc(n)), ...(g.roleIds||[]).map(id => S.roles.find(r => r.id===id)?.name).filter(Boolean).map(n => "Role: " + esc(n)), ...(g.memberIds||[]).map(id => esc(byId[id]?.name || "—"))].join(", ") || "No members"} · ${chMembers(g).length} members</small></div><span class="sp"></span><button type="button" class="btn" data-tchedit="${esc(g.id)}">${g.kind==="channel" ? "Edit Channel" : "Edit Group"}</button></header>
       <div class="tchb" id="tchB">${msgs.length ? msgs.map(m => `<div class="tchmsg ${m.fromOffice ? "me" : ""}"><span>${m.fromOffice ? "" : `<b>${esc(m.senderName || "—")}</b>`}${esc(m.body)}</span><small>${m.fromOffice && m.senderName ? esc(m.senderName) + " · " : ""}${esc(chTime(m.createdAt))}</small></div>`).join("") : `<p class="dzempty" style="margin:auto">No messages yet. Say hello!</p>`}</div>
       <form class="tchf" id="tchF"><input class="sel" id="tchI" placeholder="Write a message…" autocomplete="off" maxlength="2000" value="${esc(TCH.draft || "")}"><button class="btn pri">Send</button></form>`
-      : `<p class="dzempty" style="margin:auto">Create a group to start chatting.</p>`}</section></div>`;
+      : `<p class="dzempty" style="margin:auto">${TCH.kind==="direct" ? "No private chats yet. Give a role the permission “Chat With Coworkers In The App”." : "Create a group to start chatting."}</p>`}</section></div>`;
 }
-function tchGroupDlg(g){
-  const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), on = new Set(g?.memberIds || []);
+function tchGroupDlg(g, kind){ const chan = g ? g.kind==="channel" : kind==="channel", T = chan ? "Channel" : "Group";
+  const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), on = new Set(g?.memberIds || []), ron = new Set(g?.roleIds || []), bon = new Set(g?.branchIds || []);
+  const roles = S.roles.filter(r => live(r)).sort((a,b) => String(a.name).localeCompare(String(b.name)));
   const box = $("#ccBox"); box.className = "modal";
-  box.innerHTML = `<header><h2>${g ? "Edit Group" : "New Group"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body">
-    <div class="f"><label for="tchN">Group Name <span style="color:#d92d20">*</span></label><input id="tchN" class="sel" value="${esc(g?.name || "")}" placeholder="e.g. Mar Mikhael Kitchen"></div>
-    <div class="f"><label>Members <span style="color:#d92d20">*</span></label><div class="row" style="gap:8px;margin-bottom:6px"><input id="tchQ" class="sel" placeholder="Search employees" style="flex:1"><button type="button" class="btn" data-tchall>All</button><button type="button" class="btn" data-tchnone>None</button></div>
+  box.innerHTML = `<header><h2>${g ? "Edit " + T : "New " + T}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body">
+    <div class="f">${chan ? `<p class="note" style="margin-top:0">Only the back office and the channel's creator can post. Members read the announcements in the app.</p>` : ""}<label for="tchN">${T} Name <span style="color:#d92d20">*</span></label><input id="tchN" class="sel" value="${esc(g?.name || "")}" placeholder="e.g. Mar Mikhael Kitchen"></div>
+    <div class="f"><label>Branches <span class="note">(everyone working there)</span></label><div class="tchpick" id="tchBr" style="max-height:140px">${activeBranches().map(b => `<label class="chk"><input type="checkbox" value="${esc(b.id)}" ${bon.has(b.id) ? "checked" : ""}> ${esc(b.name)}</label>`).join("")}</div></div>
+    <div class="f"><label>Roles</label><div class="tchpick" id="tchR" style="max-height:160px">${roles.length ? roles.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${ron.has(r.id) ? "checked" : ""}> ${esc(r.name)} <span class="note">· everyone with this role, now and later</span></label>`).join("") : `<span class="note">No roles yet</span>`}</div></div>
+    <div class="f"><label>Employees</label><div class="row" style="gap:8px;margin-bottom:6px"><input id="tchQ" class="sel" placeholder="Search employees" style="flex:1"><button type="button" class="btn" data-tchall>All</button><button type="button" class="btn" data-tchnone>None</button></div>
       <div class="tchpick" id="tchP">${emps.map(u => `<label class="chk" data-nm="${esc(String(u.name).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${on.has(u.id) ? "checked" : ""}> ${esc(u.name)}${u.jobTitle ? ` <span class="note">${esc(u.jobTitle)}</span>` : ""}${u.username ? "" : ` <span class="note" title="No SKWYD Team app login yet">· no app login</span>`}</label>`).join("")}</div></div>
     <div class="err" id="tchE"></div></div>
-    <footer>${g ? `<button type="button" class="btn danger" data-tchdel="${esc(g.id)}">Delete Group</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tchSave">Save</button></footer>`;
+    <footer>${g ? `<button type="button" class="btn danger" data-tchdel="${esc(g.id)}">Delete ${T}</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tchSave">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#tchN")?.focus(), 30);
   $("#tchQ").addEventListener("input", e => { const q = e.target.value.trim().toLowerCase(); document.querySelectorAll("#tchP .chk").forEach(l => l.hidden = q && !l.dataset.nm.includes(q)); });
   box.onclick = async e => {
     if(e.target.closest("[data-tchall]")) return document.querySelectorAll("#tchP .chk:not([hidden]) input").forEach(i => i.checked = true);
     if(e.target.closest("[data-tchnone]")) return document.querySelectorAll("#tchP input").forEach(i => i.checked = false);
     const del = e.target.closest("[data-tchdel]"); if(del){ if(!(await askYes(`Delete the group ${g.name}? Its messages are removed for everyone.`))) return; try{ await put("chat_groups", g.id, { deleted:true }); $("#ccScrim").classList.remove("show"); toastOk("Group deleted"); TCH.sel = ""; render(); }catch(err){ console.error(err); $("#tchE").textContent = "Couldn't delete the group."; } return; }
-    if(e.target.closest("#tchSave")){ const name = $("#tchN").value.trim(), memberIds = [...document.querySelectorAll("#tchP input:checked")].map(i => i.value);
-      if(!name) return $("#tchE").textContent = "Enter a group name."; if(!memberIds.length) return $("#tchE").textContent = "Choose at least one employee.";
+    if(e.target.closest("#tchSave")){ const name = $("#tchN").value.trim(), memberIds = [...document.querySelectorAll("#tchP input:checked")].map(i => i.value), roleIds = [...document.querySelectorAll("#tchR input:checked")].map(i => i.value), branchIds = [...document.querySelectorAll("#tchBr input:checked")].map(i => i.value);
+      if(!name) return $("#tchE").textContent = `Enter a ${T.toLowerCase()} name.`; if(!memberIds.length && !roleIds.length && !branchIds.length) return $("#tchE").textContent = "Choose at least one branch, role or employee.";
       try{ const id = g?.id || "cg_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-        await put("chat_groups", id, g ? { name, memberIds } : { name, memberIds, createdBy: state.fullName || state.userName || "Manager", deleted:false });
-        $("#ccScrim").classList.remove("show"); toastOk(g ? "Group saved" : "Group created"); TCH.sel = id; render(); }
+        await put("chat_groups", id, g ? { name, memberIds, roleIds, branchIds } : { name, kind: chan ? "channel" : "group", memberIds, roleIds, branchIds, createdBy: state.fullName || state.userName || "Manager", deleted:false });
+        $("#ccScrim").classList.remove("show"); toastOk(g ? T + " saved" : T + " created"); TCH.sel = id; render(); }
       catch(err){ console.error(err); $("#tchE").textContent = "Couldn't save the group."; } }
   };
 }
 document.addEventListener("click", e => { if(document.body.dataset.route!=="team-chat") return;
   const s = e.target.closest("[data-tchsel]"); if(s){ TCH.sel = s.dataset.tchsel; render(); return; }
-  if(e.target.closest("[data-tchnew]")) return tchGroupDlg(null);
+  const k = e.target.closest("[data-tchkind]"); if(k){ TCH.kind = k.dataset.tchkind; TCH.sel = ""; render(); return; }
+  const nw = e.target.closest("[data-tchnew]"); if(nw) return tchGroupDlg(null, nw.dataset.tchnew);
   const ed = e.target.closest("[data-tchedit]"); if(ed) return tchGroupDlg(S.chat_groups.find(g => g.id===ed.dataset.tchedit));
 });
 document.addEventListener("submit", async e => { if(e.target.id!=="tchF") return; e.preventDefault(); const i = $("#tchI"), body = i.value.trim(); if(!body || !TCH.sel) return;
@@ -6623,6 +6726,7 @@ function moduleRoute(route){
   if(route==="schedule") return viewSchedule();
   if(route==="requests") return viewRequests();
   if(route==="team-chat") return viewTeamChat();
+  if(route==="knowledge") return viewKB();
   if(route==="payroll") return viewPayroll();
   if(route==="documents") return viewStaffDocs();
   if(CRUD[route]) return crudView(route);
@@ -8873,7 +8977,8 @@ function userDetail(u){
     h += pdSec("Employment", "", (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Employee Number", esc(u.employeeNo || "—")), info("Job Title", esc(u.jobTitle || "—")), info("Employment Type", ET[u.employmentType] || "—"),
       info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
       info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
-    h += pdSec("SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.username ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : ""}<button type="button" class="btn" data-teamlogin="${esc(u.id)}">${u.username ? "Change Login" : "Set Login"}</button>`,
+    const drv = S.roles.some(x => userRoleIds(u).includes(x.id) && live(x) && (x.permissions||[]).includes("drv_app")) || /driver|delivery|rider/i.test(u.jobTitle||"");
+    h += pdSec(drv ? "SKWYD Driver App" : "SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/${drv ? "skwyd-driver" : "skwyd-team"}.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.username ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : ""}<button type="button" class="btn" data-teamlogin="${esc(u.id)}">${u.username ? "Change Login" : "Set Login"}</button>`,
       (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Username", u.username ? esc(u.username) : "Not set"), info("Used For", "Clock in / out, schedule, shift swaps and requests")]));
     const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
     { const ds = sdLive().filter(d => d.employeeId===u.id), miss = sdMissing(u);

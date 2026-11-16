@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="945-1794866914">
+<meta name="skwyd-build" content="946-1794869146">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -339,6 +339,9 @@ body{-webkit-font-smoothing:antialiased}
 .lrow.ol5{grid-template-columns:.9fr .9fr .5fr 1.1fr .75fr .85fr .7fr .8fr .85fr 1.15fr .7fr .8fr}.lrow.lhead{cursor:default;padding-top:10px;padding-bottom:10px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:capitalize;color:#8d8c98}.lrow.lhead:hover{background:none}
 
 .drvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.drv{display:grid;gap:2px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card,#fff);cursor:pointer}.drv b{font-size:15px}.drv small{color:var(--mut);font-size:12px}.drv.on{border-color:#1e3a8a;background:#eff4ff}
+.drvsum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.drvsum div{background:#fff;border-radius:14px;padding:12px 14px}.drvsum small{display:block;color:var(--mut)}.drvsum b{font-size:22px}
+.drvc{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:12px}.drvh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.drvh .sp{flex:1}
+.drl{display:grid;grid-template-columns:90px 1fr auto 90px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}.drl em{font-style:normal;text-align:right;font-weight:700}
 .lst-pending{color:#2c5fb8}.lst-active{color:var(--warn)}.lst-closed{color:var(--good)}.lst-void,.lst-refund,.lst-declined,.lst-returned{color:var(--bad)}
 @media(max-width:800px){.lrow{grid-template-columns:80px 1fr 110px}.lrow .lc2{display:none}}@media(max-width:800px){.lrow.ol5{grid-template-columns:1fr 1fr .6fr 1fr .8fr .9fr}}
 /* tables */
@@ -952,7 +955,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
 <script src="motion.js?v=4"></script>
-<script src="wokdb.js?v=61"></script>
+<script src="wokdb.js?v=62"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -1214,7 +1217,9 @@ async function tryPin(){
   if(!u && pin.length < 5) return;
   pinBuf = ""; paintPin();
   if(!u){ $("#pinErr").textContent = "Wrong PIN. Try again."; return; }
-  WELC = u; paintWelcome();   // the welcome screen: Clock In / Out, Access Register, Exit
+  // straight to the register (clocking in is done in the SKWYD Team app); a role without register access gets a message instead
+  if(!(isAdminUser(u) || userPerms(u).includes("pos_access"))){ $("#pinErr").textContent = `${u.name}, your role doesn't allow using the register.`; return; }
+  WELC = null; cashier = u; $("#lock").classList.remove("welc"); $("#lock").classList.add("hide"); paintCashier(); toast("Signed in as " + u.name);
 }
 // ---------- welcome screen after the PIN (time clock) ----------
 let WELC = null;
@@ -1717,7 +1722,7 @@ function renderCart(){
   if(!eo) b = [...(otype==="fast" ? [] : [`<button data-act="send" ${ok0?"":"disabled"}>Save</button>`]), `<button class="pay" data-act="pay" ${ok0?"":"disabled"}>Total</button>`];
   else if(eo.status==="pending") b = canAccept() ? [`<button class="decl" data-incc="${esc(eo.id)}:declined">Decline</button>`, `<button class="pay" data-incc="${esc(eo.id)}:active">Accept</button>`] : [];   // an order waiting to be accepted can't be saved or paid yet: accept or decline it first
   else if(erPending(eo)) b = [`<button class="decl" data-er="${esc(eo.id)}:0">Reject</button>`, `<button class="pay" data-er="${esc(eo.id)}:1">Approve</button>`];   // the call center asked to change this order: approve or reject it first
-  else if(eo.status==="active" && eo.type==="delivery" && !eo.dispatchedAt) b = [`<button data-act="send" ${unsent || VOID_CHG===eo.id ? "" : "disabled"}>Save</button>`, `<button data-act="driver">${eo.driverName ? esc(eo.driverName) : "Add Driver"}</button>`, `<button class="pay" data-act="dispatch" ${cart.length && !unsent ? "" : "disabled"}>Dispatch</button>`];   // delivery: dispatch first (with a driver), then Total
+  else if(eo.status==="active" && eo.type==="delivery" && !eo.dispatchedAt) b = [`<button data-act="send" ${unsent || VOID_CHG===eo.id ? "" : "disabled"}>Save</button>`, `<button data-act="driver">${eo.driverId && eo.driverName ? `${esc(eo.driverName)}<small style="display:block;font-size:11px;font-weight:500;opacity:.75">${esc(DRV_ST[eo.driverStatus] || "")}</small>` : eo.driverStatus==="declined" ? `Add Driver<small style="display:block;font-size:11px;font-weight:500;color:#d92d20">${esc(String(eo.driverName||"").replace(" (declined)",""))} declined</small>` : "Add Driver"}</button>`, `<button class="pay" data-act="dispatch" ${cart.length && !unsent ? "" : "disabled"}>Dispatch</button>`];   // delivery: dispatch first (with a driver), then Total
   else if(isOpenOrd(eo)) b = [...(otype==="fast" ? [] : [`<button data-act="send" ${unsent || VOID_CHG===eo.id ? "" : "disabled"}>Save</button>`]), `<button class="pay" data-act="pay" ${cart.length?"":"disabled"}>Total</button>`];
   else b = [];
   acts.style.setProperty("--n", b.length + 1); acts.innerHTML = b.join(""); acts.classList.toggle("hide", !b.length);
@@ -1982,8 +1987,11 @@ function resetOrder(){ SPL = null; SPLD = null; EDIT = null; VOID_CHG = null; or
 
 /* ---------- delivery: driver and dispatch ---------- */
 // drivers: this branch's employees whose job title says driver; if there are none, everyone working at this branch
+// drivers: this branch's employees whose role has "Use Driver App" (or the job title Driver); if there are none, everyone working at this branch
+const isDriver = u => userPerms(u).includes("drv_app") || /driver|delivery|rider/i.test(u.jobTitle||"");
 function driverList(){ const here = S.users.filter(u => live(u) && u.active!==false && !isAdminUser(u) && (!(u.branchIds||[]).length || u.branchIds.includes(device.branchId)));
-  const d = here.filter(u => /driver|delivery|rider/i.test(u.jobTitle||"")); return (d.length ? d : here).sort((a,b) => String(a.name).localeCompare(String(b.name))); }
+  const d = here.filter(isDriver); return (d.length ? d : here).sort((a,b) => String(a.name).localeCompare(String(b.name))); }
+const DRV_ST = { assigned:"waiting for the driver", accepted:"accepted", declined:"declined", picked:"on the way", delivered:"delivered" };
 function openDriver(eo){ if(!eo || eo.dispatchedAt) return; const l = driverList();
   modal("driver", `<div class="mh"><h2>Driver</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
     ${l.length ? `<div class="drvl">${l.map(u => `<button type="button" class="drv ${eo.driverId===u.id?"on":""}" data-drv="${esc(u.id)}"><b>${esc(u.name)}</b>${u.jobTitle ? `<small>${esc(u.jobTitle)}</small>` : ""}</button>`).join("")}</div>` : `<p class="mut">No employees at this branch yet. Add drivers in the back office: Employee Management → Employees, with the job title Driver.</p>`}</div>
@@ -1991,12 +1999,31 @@ function openDriver(eo){ if(!eo || eo.dispatchedAt) return; const l = driverList
   DRV_O = eo.id; }
 let DRV_O = null;
 document.addEventListener("click", async e => { const b = e.target.closest("#modal [data-drv]"); if(!b || modalKind!=="driver" || !DRV_O) return; const eo = S.orders.find(x => x.id===DRV_O); if(!eo) return; const u = S.users.find(x => x.id===b.dataset.drv);
-    try{ await db.collection("orders").doc(eo.id).update({ driverId: u ? u.id : null, driverName: u ? u.name : null, updatedAt: new Date().toISOString() }); closeModal(); toast(u ? "Driver: " + u.name : "Driver removed"); renderCart(); }
+    const now = new Date().toISOString();   // the driver gets it in the SKWYD Driver app to accept or decline
+    try{ await db.collection("orders").doc(eo.id).update({ driverId: u ? u.id : null, driverName: u ? u.name : null, driverStatus: u ? "assigned" : null, driverAssignedAt: u ? now : null, driverAcceptedAt: null, updatedAt: now }); closeModal(); toast(u ? `Sent to ${u.name} · waiting for them to accept` : "Driver removed"); renderCart(); }
     catch(err){ console.error(err); toast("Couldn't save the driver"); } });
 async function dispatchOrder(eo){ if(!eo || eo.dispatchedAt) return;
   try{ await db.collection("orders").doc(eo.id).update({ dispatchedAt: new Date().toISOString(), dispatchedBy: cashier?.name || device.name, updatedAt: new Date().toISOString() });
     toast("Order " + ordRef(eo) + " dispatched" + (eo.driverName ? " with " + eo.driverName : "")); renderCart(); }
   catch(err){ console.error(err); toast("Couldn't dispatch the order"); } }
+
+/* ---------- Drivers: today's delivery orders per driver, with totals ---------- */
+function openDrivers(){
+  const day = bizDate(), mine = S.orders.filter(o => o.branchId===device.branchId && o.type==="delivery" && bizDate(o.createdAt)===day && !["void","declined"].includes(o.status));
+  const byDrv = {}; mine.filter(o => o.driverId).forEach(o => { (byDrv[o.driverId] ||= { name: o.driverName, l: [] }).l.push(o); });
+  driverList().forEach(u => { if(!byDrv[u.id]) byDrv[u.id] = { name: u.name, l: [] }; });
+  const none = mine.filter(o => !o.driverId && o.status!=="closed");
+  const rows = Object.entries(byDrv).sort((a,b) => b[1].l.length - a[1].l.length || String(a[1].name).localeCompare(String(b[1].name)));
+  const tot = l => l.reduce((s,o) => s + (+o.total||0), 0), cash = l => l.filter(o => o.driverStatus==="delivered" || (o.status==="closed" && o.payment?.by==="driver")).reduce((s,o) => s + (+o.total||0), 0);
+  const line = o => `<div class="drl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span>${esc(o.customerName || "—")}</span><span class="spill s-${o.driverStatus==="picked" ? "out" : o.status}">${esc(o.status==="closed" ? "Delivered" : DRV_ST[o.driverStatus] ? DRV_ST[o.driverStatus][0].toUpperCase() + DRV_ST[o.driverStatus].slice(1) : stLbl(o))}</span><em>${usd(o.total)}</em></div>`;
+  modal("drivers", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px">Drivers · Today</b><span class="sp"></span></div><div class="mb">
+    <div class="drvsum"><div><small>Delivery orders</small><b>${mine.length}</b></div><div><small>Total</small><b>${usd(tot(mine))}</b></div><div><small>Without a driver</small><b>${none.length}</b></div></div>
+    ${rows.map(([id, d]) => `<div class="drvc"><div class="drvh"><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Collected</span><b>${usd(cash(d.l))}</b></div>
+      ${d.l.length ? d.l.sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(line).join("") : `<p class="mut" style="margin:6px 0 0">No orders today</p>`}</div>`).join("") || `<p class="mut">No drivers yet. Give employees a role with "Use Driver App" in the back office.</p>`}
+    ${none.length ? `<div class="drvc"><div class="drvh"><b>Waiting for a driver</b></div>${none.map(line).join("")}</div>` : ""}</div>`, true);
+  $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr");
+}
+document.addEventListener("click", e => { if(e.target.closest("[data-drvlist]")) openDrivers(); });
 
 /* ---------- modals ---------- */
 let modalKind = null;
@@ -2852,13 +2879,13 @@ function openBoard(){
   const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(Boolean).map(esc).join(" / ");
   // the same tile as the orders history: reference, status, invoice / order, customer / phone, address (delivery), created, modified, total, type / source, channel / user
   const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : outDel(o) ? "out" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
-    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order #" + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}
+    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order #" + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "")) : ""}
     ${sm("Created " + t(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + t(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
     ${sm(jn([typLbl(o.type), o.source && o.source!=="Website" && String(o.source).toUpperCase()!=="POS" ? o.source : ""]))}${sm(jn([chn(o), o.agent || ""]))}${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`;
   const q = OV.q; OV.q = BQ;
   const PD_COLS = [...OV_COLS.slice(0,2), ["out","Dispatched","Delivery orders on the way with their driver"], OV_COLS[2], ["declined","Declined","Declined today"]];   // pickup & delivery: no void / returns column
   const cols = PD_COLS.map(([k,title,tip]) => [k, title, tip, boardOrders(k, true)]); OV.q = q;
-  modal("board", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px;letter-spacing:.03em">Pickup & Delivery</b><span class="sp"></span>${allowedTypes().some(t => t==="takeaway"||t==="delivery") ? `<button class="hbtn" data-pdnewt>New Order</button>` : ""}</div>
+  modal("board", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px;letter-spacing:.03em">Pickup & Delivery</b><span class="sp"></span><button class="hbtn ghost" data-drvlist>Drivers</button>${allowedTypes().some(t => t==="takeaway"||t==="delivery") ? `<button class="hbtn" data-pdnewt>New Order</button>` : ""}</div>
     <div class="mb"><div class="oboard">${cols.map(([k,title,tip,l]) => `<div class="ocol"><div class="ochead" title="${esc(tip)}"><b>${title}</b><span class="cnt">${l.length}</span></div>${l.length ? l.map(card).join("") : `<div class="oempty">You don't have ${title.toLowerCase()} orders</div>`}</div>`).join("")}</div></div>`, true);
   $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr"); withNav(); requestAnimationFrame(() => { const bd = $("#modal .oboard"); if(bd) eqTiles(bd, ".ocard"); });   // every tile as tall as the tallest
 }
@@ -3193,7 +3220,7 @@ function reportData(){
   const gross = sum(sales, o => o.total), ref = -sum(refunds, o => o.total);
   return { sh, all, sales, refunds, voids, gross, ref, net: +(gross - ref).toFixed(2), tax: +(sum(sales, o => o.tax) + sum(refunds, o => o.tax)).toFixed(2), disc: sum(sales, o => o.discount), chg: sum(sales, o => o.chargesTotal),
     pay: grp([...sales, ...refunds], o => o.payment?.method, o => o.total), types: grp(sales, o => typLbl(o.type), o => o.total), chans: grp(sales, o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering", o => o.total),
-    staff: grp(sales, o => o.handledBy || o.agent, o => o.total), prodRows, catRows, voidTotal: sum(voids, o => o.total), voidItemsTotal: +voidItems.reduce((s,i) => s + (+i.price||0)*(+i.qty||1), 0).toFixed(2), voidItemsN: voidItems.reduce((s,i) => s + (+i.qty||1), 0) };
+    staff: grp(sales, o => o.handledBy || o.agent, o => o.total), drivers: grp(sales.filter(o => o.type==="delivery" && o.driverId && o.driverName), o => o.driverName, o => o.total), prodRows, catRows, voidTotal: sum(voids, o => o.total), voidItemsTotal: +voidItems.reduce((s,i) => s + (+i.price||0)*(+i.qty||1), 0).toFixed(2), voidItemsN: voidItems.reduce((s,i) => s + (+i.qty||1), 0) };
 }
 const RP_L = { shift:"This shift", device:"Today · this register", branch:"Today · whole branch" };
 function openReports(){
@@ -3213,7 +3240,7 @@ function reportHtml(d){
   const sec = (h, rows, money = true) => `<div class="rh">${h}</div>${rows.length ? rows.map(([k,c]) => r(k, money ? m(c.v) : esc(c.v), c.n)).join("") : `<div class="rl rmut"><span>Nothing yet</span></div>`}`;
   return `<div class="rc"><b class="rt">${esc(branch?.name || "")}</b><div>Report · ${esc(RP_L[RP])}</div><div>${esc(device.name)}${RP==="branch" ? "" : ""}</div><div>${head}</div><div>Printed ${new Date().dmy(true)}</div></div>
     <div class="rh">Summary</div>${r("Orders", cnt)}${r("Gross sales", m(d.gross))}${r("Returns", m(-d.ref))}${r("Net sales (after returns)", m(d.net))}${r("Tax", m(d.tax))}${r("Discounts", m(d.disc))}${r("Charges", m(d.chg))}${r("Average order", m(cnt ? d.gross / cnt : 0))}${r("Voided orders", m(d.voidTotal), d.voids.length)}${r("Voided items", m(d.voidItemsTotal), d.voidItemsN)}
-    ${sec("Payments", d.pay)}${sec("Order types", d.types)}${sec("Channels", d.chans)}${sec("Categories", d.catRows)}${sec("Top products", d.prodRows.slice(0, 15))}${sec("Staff", d.staff)}<div class="rend">— End of report —</div>`;
+    ${sec("Payments", d.pay)}${sec("Order types", d.types)}${sec("Channels", d.chans)}${sec("Categories", d.catRows)}${sec("Top products", d.prodRows.slice(0, 15))}${sec("Employees", d.staff)}${sec("Drivers", d.drivers || [])}<div class="rend">— End of report —</div>`;
 }
 const RP_CSS = `.rc{text-align:center;display:flex;flex-direction:column;gap:2px;padding-bottom:8px;border-bottom:1px dashed #999}.rc .rt{font-size:16px}
 .rh{margin:10px 0 4px;padding-bottom:3px;border-bottom:1px dashed #999;font-weight:800;text-transform:capitalize;letter-spacing:.04em;font-size:12px}

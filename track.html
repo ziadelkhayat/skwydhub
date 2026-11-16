@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<meta name="robots" content="noindex">
+<title>Track Your Order</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--ink:#172554;--ink2:#475069;--mut:#8a90a6;--line:#e6e8f0;--bg:#f4f5fa;--acc:#1e3a8a;--acc2:#6d28d9;--ok:#15803d;--oks:#e7f6ec;--bad:#d92d20}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.w{max-width:560px;margin:0 auto;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(23,37,84,.06);margin-bottom:14px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mut);margin:0}
+.hero{text-align:center}.hero .ic{width:72px;height:72px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#eef2fc;color:var(--acc)}.hero .ic svg{width:34px;height:34px}
+.hero.ok .ic{background:var(--oks);color:var(--ok)}
+.steps{list-style:none;margin:0;padding:0}.steps li{display:flex;gap:12px;padding:8px 0;align-items:center;color:var(--mut)}.steps li i{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+.steps li.done{color:var(--ink)}.steps li.done i{background:var(--acc);border-color:var(--acc)}.steps li.done i::after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}.steps li.now{color:var(--ink);font-weight:700}.steps li.now i{border-color:var(--acc2);box-shadow:0 0 0 4px rgba(109,40,217,.15)}
+#map{height:300px;border-radius:16px;overflow:hidden;margin-top:6px}
+.drv{display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--ink2)}.drv b{color:var(--ink)}
+.stars{display:flex;gap:8px;justify-content:center;margin:8px 0 16px}.stars button{border:0;background:none;padding:2px;cursor:pointer;color:#d6d9e4}.stars button.on{color:#f5a524}.stars svg{width:38px;height:38px}
+.lbl{font-weight:700;text-align:center;margin-top:6px}
+textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;font:inherit;min-height:84px;resize:vertical}
+.btn{display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer}.btn:disabled{opacity:.5}
+.err{color:var(--bad);text-align:center;min-height:20px;margin-top:8px}.note{color:var(--mut);font-size:13px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}.chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}.chips button.on{border-color:var(--acc);background:#eef2fc;color:var(--acc)}
+.brand{text-align:center;color:var(--mut);font-size:12px;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="w" id="app"><div class="card"><p class="sub" style="text-align:center">Loading your order…</p></div></div>
+<script>
+(() => {
+const URL_ = "https://akrezmxgtorkuwxxctyk.supabase.co", KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh";
+const token = (location.pathname.split("/track/")[1] || new URLSearchParams(location.search).get("t") || "").replace(/[^0-9a-f-]/gi, "");
+const app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const rpc = (fn, body) => fetch(`${URL_}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:KEY, Authorization:"Bearer " + KEY, "Content-Type":"application/json" }, body: JSON.stringify(body) }).then(r => r.json());
+const hm = t => { const d = new Date(t); return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); };
+const STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
+const BIKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M15 6h3l2 6M5.5 17l3-7h7l3 7M8.5 10 7 6H5"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+const TAGS = ["Fast delivery", "Friendly driver", "Food was hot", "Well packed", "Late delivery", "Missing item", "Food was cold"];
+let O = null, map = null, mk = null, home = null, R = { d:0, o:0, tags:new Set() }, timer = 0, rated = false;
+async function load(){
+  if(!token){ app.innerHTML = `<div class="card"><p class="sub" style="text-align:center">This tracking link isn't valid.</p></div>`; return; }
+  try{ O = await rpc("skwyd_track", { p_token: token }); }catch(e){ if(!O){ app.innerHTML = `<div class="card"><p class="sub" style="text-align:center">No internet connection. Pull to refresh.</p></div>`; } return; }
+  if(!O || O.code){ app.innerHTML = `<div class="card"><p class="sub" style="text-align:center">We couldn't find this order.</p></div>`; return; }
+  draw(); clearTimeout(timer); if(!O.rated && !(O.deliveredAt && O.canRate) && O.status !== "void" && O.status !== "declined") timer = setTimeout(load, O.driverStatus === "picked" ? 10000 : 30000);
+}
+function step(){ const d = O.driverStatus; if(O.deliveredAt || d === "delivered") return 3; if(d === "picked") return 2; if(O.status === "active") return 1; return 0; }
+function draw(){
+  const s = step(), bad = ["void","declined"].includes(O.status);
+  const title = bad ? "Order cancelled" : ["Order received", "Preparing your order", "On its way", "Delivered"][s];
+  const steps = ["Order received", "Preparing", "On its way", "Delivered"];
+  let h = `<div class="card hero ${s===3 ? "ok" : ""}"><div class="ic">${s===3 ? CHECK : BIKE}</div><h1>${esc(title)}</h1><p class="sub">${esc(O.brand || "")}${O.no ? " · Order #" + esc(O.no) : ""}</p>
+    ${O.driver && s >= 1 && s < 3 ? `<div class="drv" style="justify-content:center">${BIKE.replace("<svg", '<svg style="width:20px;height:20px"')}<span>Your driver <b>${esc(O.driver)}</b>${s===2 && O.pickedAt ? " · left at " + hm(O.pickedAt) : ""}</span></div>` : ""}</div>`;
+  if(!bad) h += `<div class="card"><ol class="steps">${steps.map((t, i) => `<li class="${i < s || s===3 ? "done" : i===s ? "now" : ""}"><i></i>${t}</li>`).join("")}</ol></div>`;
+  if(s === 2 && O.driverLat != null) h += `<div class="card"><b>Live location</b><div id="map"></div><p class="note" style="margin-top:8px">${O.driverAt ? "Updated " + hm(O.driverAt) : ""}</p></div>`;
+  if(s === 3 && !O.rated && !rated){
+    if(O.canRate) h += `<div class="card"><h1 style="text-align:center;font-size:19px">How was it?</h1>
+      <div class="lbl">Your driver${O.driver ? ", " + esc(O.driver) : ""}</div><div class="stars" data-r="d">${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}" aria-label="${n} stars">${STAR}</button>`).join("")}</div>
+      <div class="lbl">Your order</div><div class="stars" data-r="o">${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}" aria-label="${n} stars">${STAR}</button>`).join("")}</div>
+      <div class="chips">${TAGS.map(t => `<button type="button" data-tag="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+      <textarea id="rn" placeholder="Suggestions (optional)" maxlength="900"></textarea><div class="err" id="re"></div><button class="btn" id="rs" disabled>Send Rating</button></div>`;
+    else h += `<div class="card"><p class="sub" style="text-align:center">Enjoy your meal! You can rate your driver and order from ${hm(O.rateAt)}.</p></div>`;
+  }
+  if(O.rated || rated) h += `<div class="card"><p class="sub" style="text-align:center">Thank you for your rating!</p></div>`;
+  h += `<div class="brand">Powered by SKWYD</div>`;
+  app.innerHTML = h;
+  if(s === 2 && O.driverLat != null && window.L){ const el = document.getElementById("map"); map = L.map(el, { zoomControl:false, attributionControl:false }); L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:19 }).addTo(map);
+    const d = [O.driverLat, O.driverLng]; mk = L.circleMarker(d, { radius:10, color:"#fff", weight:3, fillColor:"#6d28d9", fillOpacity:1 }).addTo(map).bindTooltip("Driver", { permanent:false });
+    if(O.lat != null){ home = L.circleMarker([O.lat, O.lng], { radius:8, color:"#fff", weight:3, fillColor:"#1e3a8a", fillOpacity:1 }).addTo(map); map.fitBounds([d, [O.lat, O.lng]], { padding:[40, 40], maxZoom:16 }); } else map.setView(d, 15); }
+  document.querySelectorAll(".stars").forEach(g => g.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if(!b) return; R[g.dataset.r] = +b.dataset.v;
+    g.querySelectorAll("button").forEach(x => x.classList.toggle("on", +x.dataset.v <= R[g.dataset.r])); document.getElementById("rs").disabled = !(R.d && R.o); }));
+  document.querySelectorAll("[data-tag]").forEach(b => b.onclick = () => { const t = b.dataset.tag; R.tags.has(t) ? R.tags.delete(t) : R.tags.add(t); b.classList.toggle("on"); });
+  const rs = document.getElementById("rs"); if(rs) rs.onclick = async () => { rs.disabled = true; const note = [...R.tags].join(", ") + (document.getElementById("rn").value.trim() ? (R.tags.size ? " · " : "") + document.getElementById("rn").value.trim() : "");
+    const r = await rpc("skwyd_rate", { p_token: token, p_driver: R.d, p_order: R.o, p_note: note }).catch(() => ({ error:"No internet connection." }));
+    if(r?.error){ document.getElementById("re").textContent = r.error; rs.disabled = false; return; } rated = true; draw(); };
+}
+load();
+document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>
