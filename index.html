@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="948-1794870168">
+<meta name="skwyd-build" content="949-1794870598">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1812,21 +1812,17 @@ new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") NM
 window.addEventListener("hashchange", () => setTimeout(() => nmApply(document.body), 0));
 document.addEventListener("DOMContentLoaded", () => nmApply(document.body));
 
-/* ---------- SKWYD Team app login (Employee → Set Login): username + password, made by the team-account server function ---------- */
+/* ---------- SKWYD logins: made by the team-account server function ---------- */
 // app login = the employee's phone number; the code comes on WhatsApp. The same login opens the portal for employees who have portal access.
 async function teamAccount(u, body){ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, ...body } });
   let msg = data?.error; if(error && !msg){ try{ msg = (await error.context?.json?.())?.error; }catch(_){} msg = msg || "Couldn't save the login."; } if(msg) throw new Error(msg); return data; }
-async function teamLoginDlg(u){
-  if(!u.phone) return toast("Add the employee's phone number first (Edit Employee).", true);
-  if(!(await askYes(`Turn on the app login for ${u.name}? They sign in with ${u.phone} and a code sent on WhatsApp.`, "Turn On"))) return;
-  try{ await teamAccount(u, {}); u.appUid = "on"; u.username = null; toastOk("App login turned on"); render(); }catch(err){ console.error(err); toast(err.message, true); }
+// logins follow the employees list: everyone with a phone number has one, deleted employees lose theirs (runs once when Employees opens)
+let TL_DONE = false;
+async function teamLoginsSync(force){
+  if(!force && TL_DONE) return; if(!["owner","admin"].includes(state.role)) return; TL_DONE = true;
+  if(!force && !S.users.some(u => !isAdminRow(u) && ((live(u) && u.phone && (!u.appUid || u.username)) || (u.deleted && u.appUid)))) return;
+  try{ const r = await teamAccount({ id:"" }, { all:true }); const er = Object.entries(r?.errors || {}); if(er.length) toast(`Login not set for ${er.map(([n, m]) => n + " (" + m + ")").join(", ")}`, true); }catch(err){ console.error(err); }
 }
-document.addEventListener("click", async e => {
-  const t = e.target.closest?.("[data-teamlogin]"); if(t){ const u = S.users.find(x => x.id===t.dataset.teamlogin); if(u) teamLoginDlg(u); return; }
-  const o = e.target.closest?.("[data-teamoff]"); if(o){ const u = S.users.find(x => x.id===o.dataset.teamoff); if(!u || !(await askYes(`Turn off the app login for ${u.name}? They won't be able to sign in to the SKWYD apps.`))) return;
-    try{ const { data, error } = await window.WOK.sb.functions.invoke("team-account", { body: { employeeId: u.id, remove: true } }); if(error || data?.error) throw error || new Error(data.error); u.username = null; u.appUid = null; toastOk("App login turned off"); render(); }
-    catch(err){ console.error(err); toast("Couldn't turn off the login", true); } }
-});
 /* ---------- skwyd hub's own Yes / No message (instead of the browser's) ---------- */
 function askDlg(o){
   return new Promise(res => {
@@ -3555,6 +3551,7 @@ const CRUD = {
   },
   users: {
     col:"users", title:"Employees", one:"Employee", addLbl:"Add", detail: r => userDetail(r),
+    saved: async (old, data) => { if(!old) return setTimeout(() => teamLoginsSync(true), 1500); if(old.phone !== data.phone) teamAccount(old, {}).catch(er => toast(er.message, true)); },   // every employee signs in with their phone number
     tabs:[["all","All",r=>live(r)&&!isAdminRow(r)],["deleted","Deleted",r=>r.deleted&&!isAdminRow(r)]],   // users are created, deleted and restored (no active / inactive)
     sort:(a,b)=>a.name.localeCompare(b.name), search:r=>r.name+" "+(r.email||"")+" "+(r.phone||"")+" "+(r.employeeNo||"")+" "+(r.jobTitle||""),
     cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.employeeNo?` <span class="note">#${esc(r.employeeNo)}</span>`:""}`],["Job Title",r=>esc(r.jobTitle||"—")],
@@ -3585,7 +3582,6 @@ const CRUD = {
         if(pw.length < 8) return "The password needs at least 8 characters."; }
       const pn = v => String(v||"").replace(/\D/g, "");
       if(data.phone && S.users.some(x => live(x) && x.id!==id && pn(x.phone)===pn(data.phone))) return "Another employee has this phone number. Each employee signs in with their own number.";
-      { const old = id && S.users.find(x => x.id===id); if(old && (old.userId || old.appUid) && old.phone !== data.phone) setTimeout(() => teamAccount(old, { sync:true }).catch(er => toast(er.message, true)), 1500); }   // their login follows the new number
       // roles are picked on the user's page (Edit Roles), not in this form
       if(id) delete data.roleIds; else { data.roleIds = []; data.roleId = null; data.active = true; data.branchIds = ["-"]; }   // a new user has no branches until they are picked (Branches on the user's page)
       if(data.email) data.email = data.email.toLowerCase();
@@ -6725,6 +6721,7 @@ function moduleRoute(route){
   if(route==="knowledge") return viewKB();
   if(route==="payroll") return viewPayroll();
   if(route==="documents") return viewStaffDocs();
+  if(route==="users") setTimeout(() => teamLoginsSync(), 1200);
   if(CRUD[route]) return crudView(route);
   if(route==="call-center") return viewCallCenter();
   if(route==="devices") return viewDevices();
@@ -8974,8 +8971,8 @@ function userDetail(u){
       info("Hire Date", d10(u.hireDate)), info("Date Of Birth", d10(u.birthDate)), info("Pay", u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"),
       info("Emergency Contact", esc([u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—")), info("Now", o ? `Clocked in since ${esc(tcTime(o.at))}` : "Not clocked in")]) + (u.notes ? `<p class="note" style="margin:10px 0 0;white-space:pre-wrap">${esc(u.notes)}</p>` : ""));
     const drv = S.roles.some(x => userRoleIds(u).includes(x.id) && live(x) && (x.permissions||[]).includes("drv_app")) || /driver|delivery|rider/i.test(u.jobTitle||"");
-    h += pdSec(drv ? "SKWYD Driver App" : "SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/${drv ? "skwyd-driver" : "skwyd-team"}.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>${u.appUid ? `<button type="button" class="btn" data-teamoff="${esc(u.id)}">Turn Off</button>` : `<button type="button" class="btn pri" data-teamlogin="${esc(u.id)}">Turn On Login</button>`}`,
-      (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Login", u.appUid ? `Phone number ${esc(u.phone || "—")} · code sent on WhatsApp` : u.username ? "Old username login: press Turn Off, then Turn On Login to switch to the phone number" : "Off"), info("Used For", "Clock in / out, schedule, chat, guides, requests" + (drv ? " and deliveries" : ""))]));
+    h += pdSec(drv ? "SKWYD Driver App" : "SKWYD Team App", `<a class="btn" href="https://ziadelkhayat.github.io/skwydhub/${drv ? "skwyd-driver" : "skwyd-team"}.apk" download style="text-decoration:none">${svgIco("download")} Download App</a>`,
+      (cells => `<div class="igrid dsinfo" style="width:100%;flex:1 1 100%;grid-column:1/-1;margin:0">${cells.join("")}</div>`)([info("Login", u.phone ? `Phone number ${esc(u.phone)} · code sent on WhatsApp` : "Add a phone number to sign in"), info("Used For", "Clock in / out, schedule, chat, guides, requests" + (drv ? " and deliveries" : ""))]));
     const rows = tcLog().filter(x => x.userId===u.id).sort((a,b) => String(b.in).localeCompare(String(a.in))).slice(0, 10);
     { const ds = sdLive().filter(d => d.employeeId===u.id), miss = sdMissing(u);
       h += pdSec("Documents", `<button type="button" class="btn" data-sdadd="${esc(u.id)}">Add Document</button>`, `<div style="width:100%;flex:1 1 100%">` + (miss.length ? `<p class="note" style="color:#b42318;margin:0 0 10px">Missing: ${esc(miss.join(", "))}</p>` : "") + (ds.length ? `<table><thead><tr><th>Document</th><th>Number</th><th>Status</th><th></th></tr></thead><tbody>${ds.map(d => `<tr><td>${esc(d.docType)}</td><td>${esc(d.number||"—")}</td><td>${sdTag(d)}</td><td class="num" style="white-space:nowrap">${d.filePath ? `<button type="button" class="btn" data-sdview="${esc(d.id)}">View</button> ` : ""}<button type="button" class="btn" data-sdedit="${esc(d.id)}">Edit</button></td></tr>`).join("")}</tbody></table>` : `<p class="dzempty">No documents yet</p>`) + `</div>`);
