@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="948-1794870168">
+<meta name="skwyd-build" content="950-1794870741">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -938,7 +938,7 @@ document.addEventListener("change", e => { const w = e.target.closest?.(".bdsel"
 function openAuth(view, then, msg){ if(lmap){ lmap.remove(); lmap = null; } AU.view = view || "in"; if(then !== undefined) AU.then = then; if(msg !== undefined) AU.msg = msg; drawAuth(); $("#scrim").classList.add("show"); }
 // customers sign in and sign up with their phone number and a code on WhatsApp: no password; email is optional
 function drawAuth(){
-  const sh = $("#sheet"), v = AU.view, back = v==="code" || v==="email" || v==="ecode";
+  const sh = $("#sheet"), v = AU.view, back = v==="code";
   sh.className = "sheet locsheet acsheet";
   const head = t => `<div class="grab"></div><div class="lshead">${back ? `<button type="button" class="x" data-av="in" aria-label="Back">‹</button>` : "<span></span>"}<h3>${t}</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
   const fld = (id, lbl, type, ac, val, ph) => `<div class="f"><label for="${id}">${lbl}</label><input id="${id}" type="${type||"text"}"${ac ? ` autocomplete="${ac}"` : ""} value="${esc(val||"")}"${ph ? ` placeholder="${esc(ph)}"` : ""}></div>`;
@@ -951,10 +951,7 @@ function drawAuth(){
       <div class="f"><label>Date of birth</label>${bdSel("aDob", PROF?.dob)}</div>
       ${fld("aEmail","Email (optional)","email","email",PROF?.email || "")}
       ${btn("Save")}</form>`; return; }
-  if(v==="email"){ sh.innerHTML = head("Older account") + `<p class="info" style="margin:-4px 0 14px">If you made your account with an email, we'll send a sign-in code to it. Then add your phone number in Profile.</p><form id="auF" novalidate>${fld("aEmail","Email","email","email",AU.email)}${btn("Send code")}</form>`; return; }
-  if(v==="ecode"){ sh.innerHTML = head("Enter the code") + `<p class="info" style="margin:-4px 0 14px">We sent a code to <b>${esc(AU.email)}</b>.</p><form id="auF" novalidate>${codeF}${btn("Sign in")}</form>`; setTimeout(() => $("#aCode")?.focus(), 60); return; }
-  sh.innerHTML = head("Sign in or sign up") + (AU.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AU.msg)}</p>` : "") + `<form id="auF" novalidate>${phField("aPhone","Phone number", AU.phone || "")}<p class="info" style="margin:-4px 0 4px">We'll send you a code on WhatsApp. New here? Your account is made with the same code.</p>${btn("Send code on WhatsApp")}</form>
-    <div class="aswitch">Made your account with an email? <button type="button" class="lnk2" data-av="email">Sign in with email</button></div>`;
+  sh.innerHTML = head("Sign in or sign up") + (AU.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AU.msg)}</p>` : "") + `<form id="auF" novalidate>${phField("aPhone","Phone number", AU.phone || "")}<p class="info" style="margin:-4px 0 4px">We'll send you a code on WhatsApp. New here? Your account is made with the same code.</p>${btn("Send code on WhatsApp")}</form>`;
 }
 const phE164 = v => "+" + String(v || "").replace(/\D/g, "");
 async function sendPhoneCode(){ const { error } = await sb.auth.signInWithOtp({ phone: phE164(AU.phone), options: { channel: "whatsapp", data: { phone: AU.phone } } }); return error; }
@@ -963,8 +960,8 @@ async function authSubmit(){
   const v = id => ($("#" + id)?.value || "").trim(), err = t => { $("#aErr").textContent = t; }, go = $("#aGo"), label = go.textContent, busy = t => { go.disabled = !!t; go.textContent = t || label; };
   if(AU.view==="in"){ const ph = phVal("aPhone"); if(ph.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
     AU.phone = ph; busy("Sending…"); const e = await sendPhoneCode(); busy(); if(e) return err(otpErr(e.message)); AU.view = "code"; return drawAuth(); }
-  if(AU.view==="code" || AU.view==="ecode"){ const k = v("aCode").replace(/\D/g, ""); if(k.length < 6) return err("Enter the 6-digit code.");
-    busy("Checking…"); const { data, error } = AU.view==="code" ? await sb.auth.verifyOtp({ phone: phE164(AU.phone), token: k, type: "sms" }) : await sb.auth.verifyOtp({ email: AU.email, token: k, type: "email" });
+  if(AU.view==="code"){ const k = v("aCode").replace(/\D/g, ""); if(k.length < 6) return err("Enter the 6-digit code.");
+    busy("Checking…"); const { data, error } = await sb.auth.verifyOtp({ phone: phE164(AU.phone), token: k, type: "sms" });
     if(error){ busy(); return err(otpErr(error.message)); }
     USER = data.user; await loadProf();
     if(!PROF?.first_name || !PROF?.last_name){ AU.view = "up"; return drawAuth(); }
@@ -975,9 +972,6 @@ async function authSubmit(){
     busy("Saving…"); const r = await sb.from("web_customers").update({ ...m, email: email || null, updated_at: new Date().toISOString() }).eq("id", USER.id).select().single();
     if(r.error){ busy(); return err("We couldn't save your details. Please try again."); }
     return afterAuth(); }
-  if(AU.view==="email"){ const email = v("aEmail").toLowerCase(); if(!/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email.");
-    AU.email = email; busy("Sending…"); const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); busy();
-    if(error) return err(/not found|signups not allowed/i.test(error.message) ? "We couldn't find an account with this email." : otpErr(error.message)); AU.view = "ecode"; return drawAuth(); }
 }
 $("#sheet").addEventListener("input", e => { if(e.target.id==="aCode" && e.target.value.replace(/\D/g, "").length === 6) $("#auF")?.requestSubmit(); });
 $("#sheet").addEventListener("click", async e => { if(!e.target.closest("[data-aresend]")) return; const er = await sendPhoneCode(), el = $("#aErr"); if(el){ el.style.color = er ? "" : "#1f7a3d"; el.textContent = er ? otpErr(er.message) : "We sent a new code."; } });
