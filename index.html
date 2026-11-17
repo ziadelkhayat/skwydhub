@@ -2063,6 +2063,56 @@ html body #ccBox .ccx .cctools .cctool *{color:#0E1530!important}
 html body #ccBox .ccx .cctools .cctool svg,html body #ccBox .ccx .cctools .cctool svg *{color:var(--accent)!important;stroke:var(--accent)!important}
 html body #ccBox .ccx .ccacts .btn *{text-transform:none!important}
 @media (max-width:760px){html,body{overflow-x:hidden}}
+/* detail pages: navy hero header (template) */
+html body .app #view .phead.hero{background:#0B1330;border-radius:24px;padding:18px 22px!important;gap:14px!important;margin-bottom:16px;flex-wrap:wrap;color:#AEB6D1}
+.phead.hero .hback{width:40px;height:40px;border-radius:12px;background:#141E44;border:1px solid #22305F;color:#FFFFFF;display:grid;place-items:center;font-size:22px;text-decoration:none;flex:none}
+.phead.hero .htile{width:48px;height:48px;border-radius:14px;background:#C6F432;color:#0B1330;display:grid;place-items:center;flex:none}
+.phead.hero .htile svg{width:22px;height:22px;stroke:#0B1330!important;color:#0B1330!important}
+.phead.hero .hh{display:flex;flex-direction:column;gap:3px;min-width:0}
+html body .app #view .phead.hero h1{color:#FFFFFF!important;font-size:24px!important;margin:0!important;display:flex;align-items:center;gap:10px}
+.phead.hero .hcode{font:700 12px Inter,sans-serif;background:#22305F;color:#AEB6D1;border-radius:8px;padding:3px 8px;letter-spacing:0}
+.phead.hero .hmeta{font-size:13px;color:#AEB6D1;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hdot{width:8px;height:8px;border-radius:50%;background:#8C96B8;display:inline-block}.hdot.on{background:#C6F432;box-shadow:0 0 0 3px rgba(198,244,50,.2)}
+html body .app #view .phead.hero .btn{background:#141E44!important;border-color:#22305F!important;color:#FFFFFF!important;box-shadow:none!important}
+html body .app #view .phead.hero .btn svg{stroke:#FFFFFF!important;color:#FFFFFF!important}
+html body .app #view .phead.hero .btn.pri{background:#C6F432!important;border-color:#C6F432!important;color:#0B1330!important}
+html body .app #view .phead.hero .btn.pri svg{stroke:#0B1330!important;color:#0B1330!important}
+html body .app #view .phead.hero .hico{display:none!important}
+.phead.hero .acode{background:#22305F!important;color:#C6F432!important;border:0!important}
+/* edit device dialog (template) */
+.dvh .dvt{display:flex;flex-direction:column;flex:1;min-width:0}.dvh .dvt h2{margin:0}.dvh .dvt span{font-size:12.5px;color:#6B7392}
+.dvform{grid-template-columns:1fr 1fr}
+.dvref{display:flex;gap:8px}.dvref input{flex:1;min-width:0}
+html body .modal .icob{width:46px;min-width:46px;padding:0!important;justify-content:center}
+.dvtypes{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.dvtypes button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1px solid #E6E8F2;border-radius:14px;background:#FFFFFF;cursor:pointer;text-align:left;font:inherit}
+.dvtypes button svg{width:20px;height:20px;color:#4A5272;margin-bottom:4px}.dvtypes button b{font-size:13.5px;color:#0E1530}.dvtypes button span{font-size:11.5px;color:#6B7392}
+.dvtypes button.on{border:2px solid #1E3A8A;background:#F5F7FF;padding:11px}.dvtypes button.on svg,.dvtypes button.on b{color:#1E3A8A}
+.dvrow{display:flex!important;flex-direction:row!important;align-items:center;gap:12px;border:1px solid #E6E8F2;border-radius:16px;padding:12px 14px;cursor:pointer}
+.dvri{width:34px;height:34px;border-radius:10px;background:#F2FBD6;color:#3F5A00;display:grid;place-items:center;flex:none}.dvri svg{width:18px;height:18px}
+.dvrt{flex:1;display:flex;flex-direction:column}.dvrt b{font-size:13.5px;color:#0E1530}.dvrt span{font-size:12px;color:#6B7392}
+.sw{position:relative;flex:none}.sw input{position:absolute;opacity:0;width:44px;height:26px;margin:0;cursor:pointer}
+.sw i{display:block;width:44px;height:26px;border-radius:999px;background:#D3D7E5;transition:background .2s;position:relative}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.sw input:checked + i{background:#1E3A8A}.sw input:checked + i::after{transform:translateX(18px)}
+.dvcode{display:flex!important;flex-direction:row!important;align-items:center;justify-content:space-between;background:#F4F5FA;border-radius:16px;padding:14px 16px}
+.dvcode > span{display:flex;flex-direction:column}.dvcode b{font-size:13.5px;color:#0E1530}.dvcode > span span{font-size:12px;color:#6B7392}
+.dvcode em{font:800 24px "Plus Jakarta Sans",Inter,sans-serif;font-style:normal;letter-spacing:.12em;color:#1E3A8A}
+@media (max-width:760px){.dvform{grid-template-columns:1fr}.phead.hero{border-radius:20px}}
+/* call center order screen: customer | menu | order (template) */
+@media (min-width:1100px){
+  html body #ccBox .ccx.s2{grid-template-columns:300px minmax(0,1fr) 360px!important;grid-template-rows:auto minmax(0,1fr)!important;gap:12px 16px!important;padding:16px!important;background:#F4F5FA!important}
+  html body #ccBox .ccx.s2>.ccside{grid-column:1!important;grid-row:1!important;border-radius:22px!important;border:1px solid #E6E8F2!important;border-bottom:1px solid #E6E8F2!important;padding:16px!important}
+  html body #ccBox .ccx.s2>.ccleft{display:flex!important;flex-direction:column;grid-column:1!important;grid-row:2!important;min-height:0;overflow:auto;background:#FFFFFF!important;border:1px solid #E6E8F2!important;border-radius:22px!important;padding:16px!important}
+  html body #ccBox .ccx.s2>.ccleft .cc1top,html body #ccBox .ccx.s2>.ccleft .cc1a,html body #ccBox .ccx.s2>.ccleft .ccnext{display:none!important}
+  html body #ccBox .ccx.s2>.ccleft .cc1{display:block!important;padding:0!important}
+  html body #ccBox .ccx.s2>.ccleft .cc1b{display:flex!important;flex-direction:column;gap:12px;width:auto!important;border:0!important;padding:0!important;background:none!important}
+  html body #ccBox .ccx.s2>.ccmenu{grid-column:2!important;grid-row:1/3!important}
+  html body #ccBox .ccx.s2>.cccart{grid-column:3!important;grid-row:1/3!important;border-radius:22px!important;border:1px solid #E6E8F2!important;padding:16px!important}
+}
+html body #ccBox .ccx.s2 #oProducts>.pbtn,html body #ccBox .ccx.s2 #oProducts>.ctile{border:1px solid #E6E8F2!important;border-radius:16px!important;box-shadow:none!important}
+html body #ccBox .ccx.s2 #oProducts>.pbtn:hover,html body #ccBox .ccx.s2 #oProducts>.ctile:hover{border-color:#C9D2F0!important;box-shadow:0 10px 24px rgba(14,21,48,.08)!important}
+html body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#EEF2FF,#F3EDFF)!important}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
@@ -3278,7 +3328,11 @@ function viewBranch(b){
   const card = (title, btn, body) => `<div class="dzsec dzwide"><div class="dzh"><h3>${title}</h3>${btn||""}</div><div class="dzcard dztbl">${body}</div></div>`;
   const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
   const typesOf = c => (c.orderTypes||[]).length ? c.orderTypes.map(t=>esc(TYPE_LBL[t]||t)).join(", ") : "All order types";
-  return `<div class="phead"><a class="btn" href="#branches" data-brback style="text-decoration:none">← Back</a><h1><span class="dn">${esc(b.name)}</span></h1><div class="sp"></div><button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div><div class="fdet">
+  const dk = ["sun","mon","tue","wed","thu","fri","sat"][new Date().getDay()], hr = st.hours?.[dk] || {}, op = hr.open || b.open, cl = hr.close || b.close;
+  const nowM = new Date().getHours()*60 + new Date().getMinutes(), mm = v => { const [h, m] = String(v||"").split(":").map(Number); return (h||0)*60 + (m||0); };
+  const isOpen = op && cl && hr.closed !== true && (mm(cl) > mm(op) ? nowM >= mm(op) && nowM < mm(cl) : nowM >= mm(op) || nowM < mm(cl));
+  return `<div class="phead hero"><a class="hback" href="#branches" data-brback aria-label="Back">‹</a><span class="htile">${svgIco("store")}</span><div class="hh"><h1><span class="dn">${esc(b.name)}</span>${b.code ? ` <span class="hcode">${esc(b.code)}</span>` : ""}</h1><span class="hmeta"><i class="hdot${isOpen ? " on" : ""}"></i>${isOpen ? "Open now" : "Closed now"}${cl ? " · closes " + t12o(cl) : ""}${brandName(b.brandId) ? " · " + esc(brandName(b.brandId)) : ""} · Business day starts ${t12o(st.dayStart || "00:00")}</span></div><div class="sp"></div>${canOpen("branch-menu") ? `<a class="btn" href="#branch-menu">${svgIco("book")}Menu for this branch</a>` : ""}<button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div>
+    <div class="schk">${[["Delivery zones", zones.length], ["Employees", users.length], ["Devices", devs.length], ["Tables", tl.length], ["Charges", chs.length]].map(([l, v]) => `<div class="card kmini"><span>${l}</span><b>${v}</b></div>`).join("")}</div><div class="fdet">
     <div class="card odet finfo" style="margin-bottom:16px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Reference", esc(b.code || "—"))}${row("Brand", esc(brandName(b.brandId) || "—"))}
       ${more ? row("Opening From", t12o(mon.open || b.open)) + row("Opening To", t12o(mon.close || b.close)) + row("Business day starts", t12o(st.dayStart || "00:00")) + row("Inventory End of Day", t12o(st.invEnd || st.dayStart || "00:00"))
         + row("Tax Group", esc(tg || "—")) + row("Tax Registration Name", esc(st.taxName || "—")) + row("Tax Number", esc(b.taxNumber || "—")) + row("Phone", esc(b.phone || "—")) + row("Address", esc(b.address || "—"))
@@ -5694,7 +5748,8 @@ const devStatus = d => d.activatedAt ? '<span class="tag on">Used</span>' : '<sp
 function viewDevice(d){
   const s = d.settings || {}, row = (k, v) => `<div><span>${k}</span>${v}</div>`, dt = t => t ? new Date(t).dmy(true) : "—";
   const last = S.orders.filter(o => o.deviceId===d.id).reduce((m,o) => o.createdAt > m ? o.createdAt : m, "");
-  return `<div class="phead"><a class="btn" href="#devices" data-devback style="text-decoration:none">← Back</a><h1><span class="dn">${esc(d.name)}</span></h1><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
+  const onl = d.lastSeen && Date.now() - new Date(d.lastSeen) < 6*60000;
+  return `<div class="phead hero"><a class="hback" href="#devices" data-devback aria-label="Back">‹</a><span class="htile">${svgIco(["kds","display"].includes(d.type) ? "monitor" : "tablet")}</span><div class="hh"><h1><span class="dn">${esc(d.name)}</span></h1><span class="hmeta"><i class="hdot${onl ? " on" : ""}"></i>${onl ? "Online" : d.activatedAt ? "Offline" : "Not activated"} · ${esc(devType(d.type))} · ${esc(branchName(d.branchId) || "No branch")}${d.lastSeen ? " · seen " + esc(new Date(d.lastSeen).dmy(true)) : ""}</span></div><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
       <button class="btn" data-devsync="${esc(d.id)}">${svgIco("refresh")}Force Sync Data</button><button class="btn" data-devcopy="${esc(d.id)}">${svgIco("copy")}Copy Settings</button><button class="btn" data-devset="${esc(d.id)}">${svgIco("gear")}Device Settings</button><button class="btn pri" data-devedit="${esc(d.id)}">Edit Device</button></div>
     <div class="card odet" style="margin-bottom:16px">${row("Reference", esc(d.reference || "—"))}${row("Type", esc(devType(d.type)))}${row("Branch", esc(branchName(d.branchId)))}${row("Brand", esc(brandName(branches.find(b=>b.id===d.branchId)?.brandId) || "—"))}
       ${row("Status", devStatus(d))}${row("Receives Online Orders", s.master ? "Yes" : "No")}${row("Activated", dt(d.activatedAt))}${row("Last Online", dt(d.lastSeen))}${row("Last Order", dt(last))}</div>
@@ -5735,16 +5790,22 @@ const dsel = (k, v, opts) => `<select id="ds_${k}" class="sel">${opts.map(([a,b]
 const dhelp = t => `<div class="note">${t}</div>`;
 function openDeviceEdit(id){
   const d = S.devices.find(x=>x.id===id); if(!d) return; const s = d.settings || {}, br = branches.find(b=>b.id===d.branchId);
-  $("#crudBox").innerHTML = `<header><h2>Edit Device</h2><button type="button" class="x" data-cclose aria-label="Close">×</button></header>
-  <div class="body bform">
-    <div class="f full"><label for="ds_name">Name *</label><input id="ds_name" value="${esc(d.name)}">${dhelp("For example: Main Cashier, 2nd Floor Cashier, etc…")}</div>
-    <div class="f full"><label for="ds_reference">Reference *</label><div style="display:flex;gap:8px"><input id="ds_reference" value="${esc(d.reference||devRef())}" style="flex:1"><button type="button" class="btn" data-devgen>Generate</button></div>${dhelp("Reference number or ID of the device.")}</div>
-    <div class="f"><label for="ds_type">Type</label>${dsel("type", d.type, DEV_TYPES)}</div>
-    <div class="f full"><label class="chk"><input type="checkbox" id="ds_master" ${s.master?"checked":""}> Receives Online Orders</label>${dhelp("Only one cashier is allowed to receive call center and web orders in the branch. It also ends the day.")}</div>
+  const onl = d.lastSeen && Date.now() - new Date(d.lastSeen) < 6*60000;
+  const TI = { cashier:["tablet","Cashier register"], sub_cashier:["tablet","Second register"], kds:["monitor","Kitchen screen"], notifier:["mobile","Order alerts"], display:["monitor","Customer screen"] };
+  $("#crudBox").innerHTML = `<header class="dvh"><span class="dlgico">${svgIco("tablet")}</span><div class="dvt"><h2>Edit device</h2><span>${esc(br?.name || "No branch")}${d.activatedAt ? " · activated " + esc(new Date(d.activatedAt).dmy()) : " · not activated yet"}</span></div><span class="spill ${onl ? "s-active" : "s-closed"}">${onl ? "Online" : "Offline"}</span><button type="button" class="x" data-cclose aria-label="Close">×</button></header>
+  <div class="body bform dvform">
+    <div class="f"><label for="ds_name">Name *</label><input id="ds_name" value="${esc(d.name)}" placeholder="e.g. Main cashier"></div>
+    <div class="f"><label for="ds_reference">Reference *</label><div class="dvref"><input id="ds_reference" value="${esc(d.reference||devRef())}"><button type="button" class="btn icob" data-devgen title="Generate a reference" aria-label="Generate a reference">${svgIco("refresh")}</button></div></div>
+    <div class="f full"><label>Type</label><select id="ds_type" hidden>${DEV_TYPES.map(([k,t]) => `<option value="${k}" ${d.type===k?"selected":""}>${t}</option>`).join("")}</select>
+      <div class="dvtypes" role="radiogroup" aria-label="Type">${DEV_TYPES.map(([k,t]) => `<button type="button" role="radio" aria-checked="${d.type===k}" class="${d.type===k?"on":""}" data-dvtype="${k}">${svgIco((TI[k]||["tablet"])[0])}<b>${t}</b><span>${(TI[k]||["",""])[1]}</span></button>`).join("")}</div></div>
+    <label class="f full dvrow" for="ds_master"><span class="dvri">${svgIco("globe")}</span><span class="dvrt"><b>Receives online orders</b><span>Web and call center orders ring on this device. Only one cashier per branch; it also ends the day.</span></span><span class="sw"><input type="checkbox" id="ds_master" ${s.master?"checked":""}><i></i></span></label>
+    ${d.code ? `<div class="f full dvcode"><span><b>Activation code</b><span>${d.activatedAt ? "Already used · deactivate the device to get a new one" : "Type it on a new tablet to connect it"}</span></span><em>${esc(String(d.code).replace(/(\d{3})(?=\d)/, "$1 "))}</em></div>` : ""}
     ${tagPick("device", id, "deTags")}<div class="err" id="cErr"></div></div>
-  <footer><button type="button" class="btn" data-cclose>Cancel</button><button type="button" class="btn pri" id="deSave">Save</button></footer>`;
+  <footer>${d.activatedAt ? `<button type="button" class="btn danger" data-devcode="${esc(d.id)}" data-cclose style="margin-right:auto">Deactivate</button>` : ""}<button type="button" class="btn" data-cclose>Cancel</button><button type="button" class="btn pri" id="deSave">Save</button></footer>`;
   crudEdit = { key:"devedit", id }; $("#crudBox").className = "modal"; $("#crudScrim").classList.add("show");
 }
+document.addEventListener("click", e => { const t = e.target.closest?.("[data-dvtype]"); if(!t) return; const sel = document.getElementById("ds_type"); if(sel) sel.value = t.dataset.dvtype;
+  t.parentElement.querySelectorAll("[data-dvtype]").forEach(b => { const on = b===t; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); }); });
 async function saveDeviceEdit(){
   const id = crudEdit.id, d = S.devices.find(x=>x.id===id), v = k => ($("#ds_"+k)?.value || "").trim();
   const name = v("name"), reference = v("reference").toUpperCase(); if(!name){ $("#cErr").textContent = "Name is required."; return; }

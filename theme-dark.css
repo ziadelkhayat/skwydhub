@@ -745,6 +745,31 @@ html[data-theme=dark] body .seg.tiles{background:#1b1d27!important}
 html[data-theme=dark] body .seg.tiles button{color:#abb1c8!important}
 html[data-theme=dark] body .seg.tiles button.on{background:#101420!important;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body #ccBox .ccx .cctools .cctool *{color:#c9d1ef!important}
+html[data-theme=dark] .phead.hero .htile{background:#5f683f;color:#c8d1f2}
+html[data-theme=dark] .phead.hero .htile svg{stroke:#c8d1f2!important;color:#c8d1f2!important}
+html[data-theme=dark] .hdot.on{background:#5f683f}
+html[data-theme=dark] body .app #view .phead.hero .btn.pri{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
+html[data-theme=dark] body .app #view .phead.hero .btn.pri svg{stroke:#c8d1f2!important;color:#c8d1f2!important}
+html[data-theme=dark] .dvh .dvt span{color:#9aa0b5}
+html[data-theme=dark] .dvtypes button{border:1px solid #272e4c;background:#101420}
+html[data-theme=dark] .dvtypes button svg{color:#abb1c8}
+html[data-theme=dark] .dvtypes button b{color:#c9d1ef}
+html[data-theme=dark] .dvtypes button span{color:#9aa0b5}
+html[data-theme=dark] .dvtypes button.on{background:#141722}
+html[data-theme=dark] .dvtypes button.on svg, html[data-theme=dark] .dvtypes button.on b{color:#96abe8}
+html[data-theme=dark] .dvrow{border:1px solid #272e4c}
+html[data-theme=dark] .dvri{background:#292e1c;color:#e3f9b0}
+html[data-theme=dark] .dvrt b{color:#c9d1ef}
+html[data-theme=dark] .dvrt span{color:#9aa0b5}
+html[data-theme=dark] .sw i{background:#252832}
+html[data-theme=dark] .sw i::after{background:#101420;box-shadow:0 1px 3px rgba(0,0,0,0.44000000000000006)}
+html[data-theme=dark] .dvcode{background:#171923}
+html[data-theme=dark] .dvcode b{color:#c9d1ef}
+html[data-theme=dark] .dvcode > span span{color:#9aa0b5}
+html[data-theme=dark] .dvcode em{color:#96abe8}
+html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn, html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{border:1px solid #272e4c!important}
+html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn:hover, html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile:hover{border-color:#263158!important;box-shadow:0 10px 24px rgba(0,0,0,0.17600000000000002)!important}
+html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#161924,#1b1624)!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .plancard i em{background:#5f683f}
 html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}
@@ -818,6 +843,12 @@ html[data-theme=dark] body[data-route="account"] .app #view > .tabs{background:#
 html[data-theme=dark] body[data-route="account"] #view > .tabs a{color:#abb1c8}
 html[data-theme=dark] body[data-route="account"] #view > .tabs a.on{background:#161924}
 }
+@media (min-width:1100px){
+html[data-theme=dark] body #ccBox .ccx.s2{background:#171923!important}
+html[data-theme=dark] body #ccBox .ccx.s2>.ccside{border:1px solid #272e4c!important;border-bottom:1px solid #272e4c!important}
+html[data-theme=dark] body #ccBox .ccx.s2>.ccleft{background:#101420!important;border:1px solid #272e4c!important}
+html[data-theme=dark] body #ccBox .ccx.s2>.cccart{border:1px solid #272e4c!important}
+}
 html[data-theme=dark] [style*="background:#C6F432"]{background:#5f683f!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
@@ -829,6 +860,7 @@ html[data-theme=dark] [style*="background:#EEF2FF"]{background:#161924!important
 html[data-theme=dark] [style*="background:#F2FBD6"]{background:#292e1c!important}
 html[data-theme=dark] [style*="background:#F3EDFF"]{background:#1b1624!important}
 html[data-theme=dark] [style*="background:#F4F5FA"]{background:#171923!important}
+html[data-theme=dark] [style*="background:#F5F7FF"]{background:#141722!important}
 html[data-theme=dark] [style*="background:#F7F8FC"]{background:#151722!important}
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
 html[data-theme=dark] [style*="background:#FFF1E6"]{background:#271e17!important}
