@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="960-1794924702">
+<meta name="skwyd-build" content="961-1794926149">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -3144,7 +3144,7 @@ async function pdContinue(){
 // tables come from the back office (Manage → Tables), per branch: [{ id, name, section, seats }]
 const tblParts = n => String(n||"").split("+").map(x => x.trim()).filter(Boolean);   // merged tables are saved as "3+4"
 const tblLbl = n => { const l = tblParts(n); if(!l.length) return String(n||""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
-const branchTables = () => { const c = S.settings.find(x => x.id==="tables") || {}, asg = devSet().tables || [];   // Device Settings → Assigned Tables (none = all)
+const branchTables = () => { const c = S.settings.find(x => x.id==="tables") || {}, asg = [];   // every table of the branch
   return (c[device.branchId] || []).filter(t => t && String(t.name||"").trim() && (!asg.length || asg.includes(t.id))); };
 const tableOrders = n => S.orders.filter(o => o.branchId===device.branchId && ["active","pending"].includes(o.status) && o.type==="dinein" && tblParts(o.table).includes(String(n).trim())).sort((a,b) => String(a.createdAt).localeCompare(String(b.createdAt)));
 function openTables(){
