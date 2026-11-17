@@ -391,17 +391,23 @@ async function viewKb(){
     main().innerHTML = `<h2>Guides</h2>${todo ? `<div class="card" style="background:#fff7e6;border:1px solid #f5d9a8;padding:12px 14px"><b>${todo} to read</b><small style="display:block;color:var(--ink2)">Your manager asks you to confirm you read ${todo===1 ? "this article" : "these articles"}.</small></div>` : ""}
       <input class="in" id="kbq" placeholder="Search" value="${esc(KBQ.q)}" style="margin-bottom:10px">
       ${cats.length > 1 ? `<div class="kbc"><button class="${KBQ.cat ? "" : "on"}" data-kbc="">All</button>${cats.map(c => `<button class="${KBQ.cat===c ? "on" : ""}" data-kbc="${esc(c)}">${esc(c)}</button>`).join("")}</div>` : ""}
-      <div class="card" style="padding:6px">${S.kb ? (f.map(a => `<button class="chg" data-kb="${esc(a.id)}"><span class="av">${ic("kb").replace("<svg", '<svg style="width:20px;height:20px"')}</span><span class="t"><b>${esc(a.title)}</b><small>${esc(a.category)}${a.pinned ? " · Pinned" : ""}${(a.files||[]).length ? " · " + a.files.length + " file" + (a.files.length>1 ? "s" : "") : ""}</small></span>${a.ack && !a.readAt ? `<em style="color:var(--bad);font-weight:700">To read</em>` : ""}</button>`).join("") || `<p class="empty">${l.length ? "Nothing matches." : "No guides yet."}</p>`) : `<p class="empty">Loading…</p>`}</div>`;
+      <div class="card" style="padding:6px">${S.kb ? (f.map(a => `<button class="chg" data-kb="${esc(a.id)}"><span class="av">${ic("kb").replace("<svg", '<svg style="width:20px;height:20px"')}</span><span class="t"><b>${esc(a.title)}</b><small>${esc(a.category)}${a.pinned ? " · Pinned" : ""}</small></span>${a.ack && !a.readAt ? `<em style="color:var(--bad);font-weight:700">To read</em>` : ""}</button>`).join("") || `<p class="empty">${l.length ? "Nothing matches." : "No guides yet."}</p>`) : `<p class="empty">Loading…</p>`}</div>`;
     $("#kbq").oninput = e => { KBQ.q = e.target.value; const p = e.target.selectionStart; paint(); const i = $("#kbq"); i.focus(); i.setSelectionRange(p, p); };
     document.querySelectorAll("[data-kbc]").forEach(b => b.onclick = () => { KBQ.cat = b.dataset.kbc; paint(); });
     document.querySelectorAll("[data-kb]").forEach(b => b.onclick = () => openKb(S.kb.find(a => a.id===b.dataset.kb))); };
   paint(); if(navigator.onLine){ await kbLoad(); if(S.tab==="kb" && !$("#kbart")) paint(); }
 }
+// folders, texts, links and files of a knowledge base (old articles: files only, at the top)
+function kbTree(items, parent, depth){ return items.map((f, i) => ({ f, i })).filter(({ f }) => (f.parent||"")===parent).map(({ f, i }) => {
+    const k = f.kind || "file";
+    if(k==="folder") return `<details class="kbfold" ${depth ? "" : "open"} style="margin-top:12px;border:1px solid var(--line,#e6e8ef);border-radius:12px;padding:8px 12px"><summary style="font-weight:700;cursor:pointer">${esc(f.name)}</summary>${kbTree(items, f.id, depth + 1) || `<p class="empty" style="padding:6px">Empty folder</p>`}</details>`;
+    if(k==="text") return `<div style="margin-top:12px">${f.name ? `<h3 style="margin:0 0 6px">${esc(f.name)}</h3>` : ""}<div class="kbt">${kbFmt(f.body)}</div></div>`;
+    if(k==="link") return `<a class="btn ghost" style="margin-top:10px;display:block;text-align:center" href="${esc(/^https?:\/\//i.test(f.url||"") ? f.url : "https://" + (f.url||""))}" target="_blank" rel="noopener">${esc(f.name || f.url)}</a>`;
+    return /^image\//.test(f.type||"") ? `<img class="kbimg" data-kbimg="${i}" alt="${esc(f.name)}">` : `<button class="btn ghost" style="margin-top:10px" data-kbf="${i}">${esc(f.name)}</button>`; }).join(""); }
 async function openKb(a){
   if(!a) return; window.scrollTo(0, 0);
   main().innerHTML = `<div id="kbart"><button class="out" id="kbk" style="margin-bottom:10px">${ic("back").replace("<svg", '<svg style="width:18px;height:18px;vertical-align:-4px"')} Guides</button>
-    <div class="card"><small style="color:var(--acc2);font-weight:700">${esc(a.category)}</small><h2 style="margin:4px 0 10px">${esc(a.title)}</h2><div class="kbt">${kbFmt(a.body)}</div>
-      ${(a.files||[]).map((f, i) => /^image\//.test(f.type||"") ? `<img class="kbimg" data-kbimg="${i}" alt="${esc(f.name)}">` : `<button class="btn ghost" style="margin-top:10px" data-kbf="${i}">${esc(f.name)}</button>`).join("")}
+    <div class="card"><small style="color:var(--acc2);font-weight:700">${esc(a.category)}</small><h2 style="margin:4px 0 10px">${esc(a.title)}</h2>${a.body ? `<div class="kbt">${kbFmt(a.body)}</div>` : ""}${kbTree(a.files||[], "", 0)}
       <p style="color:var(--mut);font-size:12px;margin:14px 0 0">Updated ${dmy(a.updatedAt)}</p></div>
     ${a.ack ? (a.readAt ? `<p class="empty" style="padding:6px">You confirmed you read this on ${dmy(a.readAt)}.</p>` : `<button class="btn" id="kbok">I Have Read This</button>`) : ""}</div>`;
   $("#kbk").onclick = () => go("kb");
@@ -410,7 +416,7 @@ async function openKb(a){
   document.querySelectorAll("[data-kbf]").forEach(b => b.onclick = async () => { if(!navigator.onLine) return toast("No internet connection.", "bad"); try{ location.href = await url(a.files[+b.dataset.kbf]); }catch(_){ toast("Couldn't open the file.", "bad"); } });
   const ok = $("#kbok"); if(ok) ok.onclick = async () => { if(!navigator.onLine) return toast("No internet connection.", "bad"); ok.disabled = true;
     try{ const r = await rpc("skwyd_team_kb_read", { p_article: a.id }); if(r?.error){ toast(r.error, "bad"); ok.disabled = false; return; } a.readAt = r.readAt; LS.set("skwyd_team_kb", S.kb); kbLoad(); toast("Thank you"); openKb(a); }catch(_){ toast("Couldn't save. Try again.", "bad"); ok.disabled = false; } };
-  if(!a.ack && !a.readAt && navigator.onLine) rpc("skwyd_team_kb_read", { p_article: a.id }).then(r => { if(r?.ok) a.readAt = r.readAt; }).catch(() => {});   // opening it counts as read
+  if(!a.ack && navigator.onLine) rpc("skwyd_team_kb_read", { p_article: a.id }).then(r => { if(r?.ok) a.readAt = r.readAt; }).catch(() => {});   // opening it counts as read
 }
 
 /* ---------- driver: delivery orders assigned on the POS ---------- */
