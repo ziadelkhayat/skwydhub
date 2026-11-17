@@ -131,8 +131,10 @@
         if(DEVKEY && !rows.length && (col === "devices" || col === "branches")){   // nothing visible: was this register deactivated?
           const r = await sb.rpc("skwyd_device_ok"); if(!r.error && r.data === false){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff","wokDevice"].forEach(k => localStorage.removeItem(k)); }catch(_){} location.reload(); return; } }
         if(OFF){ ls.set(cacheKey(col), rows); if(!online){ online = true; status(); } }
-        local[col] = OFF ? withPending(col, rows) : rows;
-        emit(col, local[col], false);
+        const next = OFF ? withPending(col, rows) : rows;
+        let same = false; try{ same = local[col] && JSON.stringify(local[col]) === JSON.stringify(next); }catch(_){}
+        local[col] = next;
+        if(!same) emit(col, local[col], false);   // nothing changed: don't redraw the screen (it made phones jump while scrolling)
       }catch(e){
         if(OFF && isNet(e)){ if(online){ online = false; status(); } return; }   // keep showing the cached copy
         console.error("load", col, e); (listeners[col]||[]).forEach(l => l.error && l.error({ code:"unavailable", message:e.message }));

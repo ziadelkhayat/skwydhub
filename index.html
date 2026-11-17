@@ -2169,6 +2169,9 @@ html body .app .note{font-size:13px}
 @media (max-width:760px){html body .app .olseg{overflow-x:auto;flex-wrap:nowrap!important;scrollbar-width:none;max-width:100%}html body .app .olseg::-webkit-scrollbar{display:none}html body .app .olseg > button{flex:none}}
 /* touch screens: a tapped spot must not stay highlighted (it made the wrong tab look selected) */
 @media (hover:none){html body .ptabs a:not(.on):hover,html body .ttabs > :not(.on):not(.active):hover,html body .tabs.dtabs > :not(.on):not(.active):hover,html body .cutabs > :not(.on):not(.active):hover,html body .olseg > button:not(.on):not(.active):hover{background:transparent!important;box-shadow:none!important}}
+/* sideways strips scroll sideways only (they were also sliding up and down inside their box on iPhone) */
+html body .ptabs,html body .app .tabs.dtabs,html body .app .ttabs,html body .cutabs,html body .app .olseg,html body .app .tscroll,html body .app .ptabs{overflow-y:hidden!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+html body .app .tabs.dtabs::-webkit-scrollbar,html body .ptabs::-webkit-scrollbar,html body .cutabs::-webkit-scrollbar,html body .app .ttabs::-webkit-scrollbar{display:none}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -2277,11 +2280,12 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=68"></script>
+<script src="wokdb.js?v=69"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=6"></script>
 <script src="strips.js?v=1"></script>
+<script src="sheets.js?v=1"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
@@ -3554,7 +3558,15 @@ const KEEP_SCROLL = "#view .bmdbody, #view .tscroll, #view .bmdtw, #view .mmcats
 let RENDER_ROUTE = "";
 const DET_BACK = "[data-detback],[data-cusback],[data-brback],[data-devback],[data-docback],[data-dsback],[data-kbback],[data-otback],[data-rptback],[data-scback],[data-tbback],[data-bspage='']";
 const LIST_Y = {};
-function render(){ const route = HASH().slice(1) || "dashboard", same = route===RENDER_ROUTE; RENDER_ROUTE = route;
+/* a background update while the finger is scrolling waits until the scroll settles (redrawing mid-scroll stopped the scroll and made it jump) */
+let LAST_SCROLL = 0, LAST_ACT = 0;
+addEventListener("scroll", () => LAST_SCROLL = Date.now(), { capture:true, passive:true });
+addEventListener("touchmove", () => LAST_SCROLL = Date.now(), { capture:true, passive:true });
+["click","keydown","input","change","submit"].forEach(ev => addEventListener(ev, () => LAST_ACT = Date.now(), { capture:true, passive:true }));
+function render(){ const route0 = HASH().slice(1) || "dashboard";
+  if(route0===RENDER_ROUTE && Date.now() - LAST_SCROLL < 350 && Date.now() - LAST_ACT > 800){ clearTimeout(render.wait); const a = arguments; render.wait = setTimeout(() => render.apply(this, a), 400); return; }
+  clearTimeout(render.wait);
+  const route = route0, same = route===RENDER_ROUTE; RENDER_ROUTE = route;
   const wasDet = !!document.querySelector("#view " + DET_BACK.split(",").join(",#view ")); if(same && !wasDet) LIST_Y[route] = SCRY();
   const wy = SCRY(), keep = same ? [...document.querySelectorAll(KEEP_SCROLL)].map((el, i) => [i, el.scrollTop, el.scrollLeft]).filter(x => x[1] || x[2]) : [];
   const H = document.documentElement; if(same){ H.classList.add("rr"); clearTimeout(render.t); render.t = setTimeout(() => H.classList.remove("rr"), 450); }   // redraws of the same page don't replay entrance animations (no blinking)
@@ -7805,7 +7817,7 @@ async function loadOrders(force){
     const per = {}; ORD_ALLST.forEach((st, i) => per[st] = (cs[i] && cs[i].count) || 0);
     ORD.counts = { all: Object.values(per).reduce((a,b)=>a+b,0) }; Object.entries(ORD_GRP).forEach(([k, l]) => ORD.counts[k] = l.reduce((a,st)=>a+(per[st]||0),0)); ORD.loaded = key;
   }catch(e){ console.error("orders", e); if(ORD.key===key) ORD.err = e.message || "Couldn't load orders"; }
-  finally{ if(ORD.key===key){ ORD.loading = false; if(HASH().slice(1)==="orders") render(); } }
+  finally{ if(ORD.key===key){ ORD.loading = false; const sig = JSON.stringify([ORD.rows, ORD.count, ORD.err]); const changed = sig !== ORD.sig; ORD.sig = sig; if(changed && HASH().slice(1)==="orders") render(); } }
 }
 const fromRowO = r => { const o = {}; for(const [k,v] of Object.entries(r)) o[k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase())] = v; if(o.tableNo!=null) o.table = o.tableNo; return o; };
 function ordSoon(){ if(HASH().slice(1)!=="orders") return; clearTimeout(ORD.t); ORD.t = setTimeout(() => { loadOrders(true); if(ORD.open) openOrderDetail(ORD.open, true); }, 1200); }
