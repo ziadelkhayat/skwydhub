@@ -2180,6 +2180,13 @@ html body .app .tabs.dtabs::-webkit-scrollbar,html body .ptabs::-webkit-scrollba
   html body.navopen,html body.dlgopen{overflow:hidden!important}
 }
 html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
+/* phone menu slides in and out, the shade fades */
+@media (max-width:760px){
+  html body .app aside.side{transition:transform .26s cubic-bezier(.2,.8,.2,1)!important;will-change:transform}
+  html body:not(.navopen) .app aside.side{transform:translateX(-105%)!important;box-shadow:none!important}
+  #navShade{display:block!important;opacity:0;pointer-events:none;transition:opacity .26s ease}
+  html body.navopen #navShade{opacity:1;pointer-events:auto}
+}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -7848,7 +7855,7 @@ function viewOrders(){
     ["source","Order source","All order sources", ordSources().map(x=>[x,x])], ["pay","Payment Type","All payment types", ordPays().map(x=>[x,x])]];
   return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
     <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "dfph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
-  <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div><label class="osrch">${svgIco("search")}<input id="ordQ" type="search" autocomplete="off" placeholder="Order number, customer or phone" value="${esc(ORD.q)}" aria-label="Search orders"></label></div></div>
+  <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading && !ORD.rows.length ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div><label class="osrch">${svgIco("search")}<input id="ordQ" type="search" autocomplete="off" placeholder="Order number, customer or phone" value="${esc(ORD.q)}" aria-label="Search orders"></label></div></div>
   <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       ${brandList().length > 1 ? `<td>${esc(brandName(o.brandId) || "—")}</td>` : ""}<td>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</td>
