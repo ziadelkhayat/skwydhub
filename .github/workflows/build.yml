@@ -127,6 +127,18 @@ jobs:
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-driver.apk
+      - name: Build Android Insights app (APK)
+        run: |
+          rm -rf android www
+          mkdir -p www && cp insights.html www/index.html && cp wokdb.js www/wokdb.js && cp pos-icon-192.png www/
+          cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
+          printf '{ "appId": "com.skwydhub.insights", "appName": "SKWYD Insights", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
+          npx cap add android
+          for f in android-icons/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-insights.apk
       - name: Build the new back office (React preview)
         run: |
           cd app && npm install --no-audit --no-fund && SKWYD_BASE=/skwydhub/v2/ npm run build
@@ -137,6 +149,7 @@ jobs:
           cp skwydhub-pos.apk site/skwydhub-pos.apk
           cp skwyd-team.apk site/skwyd-team.apk
           cp skwyd-driver.apk site/skwyd-driver.apk
+          cp skwyd-insights.apk site/skwyd-insights.apk
           cp -r app/dist site/v2   # the new back office, while it is being rebuilt: ziadelkhayat.github.io/skwydhub/v2/
       - uses: actions/upload-pages-artifact@v3
         with:
