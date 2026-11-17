@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="955-1794920775">
+<meta name="skwyd-build" content="956-1794920905">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -997,7 +997,7 @@ window.SKWYD_OFFLINE = true;</script>
     </section>
   </div>
   <div class="morepop hide" id="morePop" role="menu">
-    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this branch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="diagBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h1.5l1-2 1.5 4 1-2H14"/></svg><span>Diagnostics</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="deviceBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3.1 14H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9.7 3.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.3z"/></svg><span>This device</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button>
+    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this branch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button>
   </div>
 </div>
 
@@ -2815,7 +2815,7 @@ $("#abar").addEventListener("click", e => { const b = e.target.closest("[data-a]
 });
 document.addEventListener("click", e => { if(e.target.closest("#morePop button, #morePop .mitem")){ setTimeout(hideMore, 0); return; } if(!e.target.closest("#morePop") && !e.target.closest("#menuBtn")) hideMore(); });
 $("#syncDataBtn").addEventListener("click", () => { hideMore(); const on = navigator.onLine; Promise.resolve(window.WOK?.sync?.flush?.()).catch(() => {}); if(!on) toast("No connection", true); });
-$("#deviceBtn").addEventListener("click", () => { hideMore(); can("pos_settings") ? openMore() : deny("device settings"); });
+$("#deviceBtn")?.addEventListener("click", () => { hideMore(); can("pos_settings") ? openMore() : deny("device settings"); });
 $("#lockBtn").addEventListener("click", () => { if(usePins() && cashier){ lock(); toast("Logged out"); } });   // tap the signed-in name to log out
 $("#exitBtn").addEventListener("click", () => { hideMore(); if(!usePins()) return toast("Add staff PINs in the back office (Users) to use sign-in"); lock(); toast("Logged out"); });
 $("#reportsBtn").addEventListener("click", () => { hideMore(); can("pos_reports") || can("pos_endday") ? openReports() : deny("POS reports"); });
@@ -2860,7 +2860,7 @@ function prForm(p){
     const l = prList().filter(z => z.id!==x.id); await prSave(p ? prList().map(z => z.id===x.id ? y : z) : [...l, y]); toast("Printer saved"); openPrinters(); };
   if(p) $("#prDel").onclick = async () => { await prSave(prList().filter(z => z.id!==x.id)); toast("Printer deleted"); openPrinters(); };
 }
-$("#diagBtn").addEventListener("click", () => { hideMore(); openDiag(); });
+$("#diagBtn")?.addEventListener("click", () => { hideMore(); openDiag(); });
 $("#bnav").addEventListener("click", e => { const b = e.target.closest("[data-nav]"); if(!b) return; const k = b.dataset.nav; if(k!=="functions") hideMore();
   if(k==="functions"){ e.stopPropagation(); const pop = $("#morePop"), r = __rect(b);   // opens right above the button
     const sg = __stage(); pop.style.left = Math.max(8, Math.min(r.left - sg.l, sg.w - 308)) + "px"; pop.style.bottom = Math.max(8, sg.h - (r.top - sg.t) + 8) + "px"; return pop.classList.toggle("hide"); }
