@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="966-1794951570">
+<meta name="skwyd-build" content="967-1794951972">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -3397,7 +3397,7 @@ function viewBranch(b){
   const dk = ["sun","mon","tue","wed","thu","fri","sat"][new Date().getDay()], hr = st.hours?.[dk] || {}, op = hr.open || b.open, cl = hr.close || b.close;
   const nowM = new Date().getHours()*60 + new Date().getMinutes(), mm = v => { const [h, m] = String(v||"").split(":").map(Number); return (h||0)*60 + (m||0); };
   const isOpen = op && cl && hr.closed !== true && (mm(cl) > mm(op) ? nowM >= mm(op) && nowM < mm(cl) : nowM >= mm(op) || nowM < mm(cl));
-  return `<div class="phead hero"><a class="hback" href="#branches" data-brback aria-label="Back">‹</a><span class="htile">${svgIco("store")}</span><div class="hh"><h1><span class="dn">${esc(b.name)}</span>${b.code ? ` <span class="hcode">${esc(b.code)}</span>` : ""}</h1><span class="hmeta"><i class="hdot${isOpen ? " on" : ""}"></i>${isOpen ? "Open now" : "Closed now"}${cl ? " · closes " + t12o(cl) : ""}${brandName(b.brandId) ? " · " + esc(brandName(b.brandId)) : ""} · Business day starts ${t12o(st.dayStart || "00:00")}</span></div><div class="sp"></div>${canOpen("branch-menu") ? `<a class="btn" href="#branch-menu">${svgIco("book")}Menu for this branch</a>` : ""}<button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div>
+  return `<div class="phead hero"><a class="hback" href="#branches" data-brback aria-label="Back">‹</a><span class="htile">${svgIco("store")}</span><div class="hh"><h1><span class="dn">${esc(b.name)}</span>${b.code ? ` <span class="hcode">${esc(b.code)}</span>` : ""}</h1><span class="hmeta"><i class="hdot${isOpen ? " on" : ""}"></i>${isOpen ? "Open now" : "Closed now"}${cl ? " · closes " + t12o(cl) : ""}${brandName(b.brandId) ? " · " + esc(brandName(b.brandId)) : ""} · Business day starts ${t12o(st.dayStart || "00:00")}</span></div><div class="sp"></div><button class="btn pri" data-edit="${esc(b.id)}">Edit Branch</button></div>
     <div class="schk">${[["Delivery zones", zones.length], ["Employees", users.length], ["Devices", devs.length], ["Tables", tl.length], ["Charges", chs.length]].map(([l, v]) => `<div class="card kmini"><span>${l}</span><b>${v}</b></div>`).join("")}</div><div class="fdet">
     <div class="card odet finfo" style="margin-bottom:16px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Reference", esc(b.code || "—"))}${row("Brand", esc(brandName(b.brandId) || "—"))}
       ${more ? row("Opening From", t12o(mon.open || b.open)) + row("Opening To", t12o(mon.close || b.close)) + row("Business day starts", t12o(st.dayStart || "00:00")) + row("Inventory End of Day", t12o(st.invEnd || st.dayStart || "00:00"))
