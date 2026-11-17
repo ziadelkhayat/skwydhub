@@ -1607,7 +1607,7 @@ html body .brand.skb .skword.f2 svg{display:block}
 html body .dalbl{display:flex!important;justify-content:space-between;align-items:center;gap:10px}html body .dalbl .lnk{color:#2563eb;margin-left:4px;font-size:14px;text-transform:none!important}
 html body .fltbtn .fltx{display:inline-flex;margin-left:8px;color:#aeaeb2;cursor:pointer;border-radius:50%}html body .fltbtn .fltx:hover{color:#636366}html body .fltbtn .fltx svg{width:16px;height:16px}
 /* ===== Foodics typography: IBM Plex Sans, Foodics sizes and weights ===== */
-html body,html body button,html body input,html body select,html body textarea,html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .brand b,html body .btn,html body th,html body td{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:0!important;font-feature-settings:normal}
+html body,html body button,html body input,html body select,html body textarea,html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .brand b,html body .btn,html body th,html body td{font-family:Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:0!important;font-feature-settings:normal}
 html body{font-size:16px;line-height:1.5;color:#1c1c1e}
 html body #view h1{font-size:28px!important;font-weight:400!important;color:#000;line-height:40px}
 html body #view h2{font-size:20px!important;font-weight:400!important}
@@ -1683,6 +1683,100 @@ html body .mm .mmside .mmhd{flex-wrap:wrap}html body .mm .mmside .mmhd .search{f
 h1 .dn,.dn{text-transform:none}
 #view .phead:has(> .sp){justify-content:flex-end}#view .phead:has(> .sp)>h1{margin-right:0}
 #view td>.code:only-child{background:none;padding:0;font-family:inherit;font-size:inherit;color:inherit}
+
+/* ================= Abyss (17-11-2026) · the approved skwyd hub look · canvas HXf8NWhC2FiR2r4B5XbZCD ================= */
+:root{
+  --bg:#F4F5FA; --surface:#FFFFFF; --ink:#0E1530; --ink2:#4A5272; --muted:#6B7392; --line:#E6E8F2;
+  --accent:#1E3A8A; --accent-soft:#EEF2FF; --accent-ink:#1E3A8A; --accent-2:#1E3A8A; --chart:#1E3A8A; --chart-soft:#E3E8FA;
+  --abyss:#0B1330; --abyss-2:#141E44; --abyss-line:#22305F; --lime:#C6F432; --squid:#6D28D9;
+  --good:#15803D; --good-soft:#F2FBD6; --warn:#9A3B00; --warn-soft:#FFF1E6;
+  --radius:12px; --r-sm:12px; --side:#0B1330; --side-2:#141E44; --side-ink:#AEB6D1;
+  --shadow:0 12px 28px rgba(14,21,48,.08); --shadow-lg:0 30px 80px rgba(11,19,48,.35);
+  --ab-head:"Plus Jakarta Sans",Inter,system-ui,sans-serif;
+}
+html body{font-family:Inter,"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14.5px;-webkit-text-size-adjust:100%}
+html body .main,html body .content{background:var(--bg)}
+h1,h2,.phead h1{font-family:var(--ab-head);letter-spacing:-.02em}
+html body .phead h1{font-size:28px;font-weight:700;color:var(--ink)}
+/* side menu: deep navy, lime for the open page */
+html body .app aside.side{background:var(--abyss)!important;border-right:0!important;scrollbar-color:#22305F transparent}
+html body .app aside.side .brand b,html body .app aside.side .brand{color:#FFFFFF!important}
+html body .app aside.side .skmark svg path{stroke:#FFFFFF!important}html body .app aside.side .skmark svg circle{fill:var(--lime)!important}
+html body .app aside.side .nav a,html body .app aside.side .nav button,html body .app aside.side nav .grp>button{color:var(--side-ink)!important;border-radius:12px!important;min-height:44px;font-weight:500;transition:background .18s,color .18s}
+html body .app aside.side .nav a .ico,html body .app aside.side .nav button .ico,html body .app aside.side .nav .chev{color:currentColor!important}
+html body .app aside.side .nav a:hover,html body .app aside.side .nav button:hover{background:rgba(255,255,255,.07)!important;color:#FFFFFF!important}
+html body .app aside.side .nav > a.on,html body .app aside.side .nav .sub a.on,html body .app aside.side a.on{background:var(--lime)!important;color:var(--abyss)!important;font-weight:700!important;box-shadow:none!important}
+html body .app aside.side .nav .grp.open > button{color:#FFFFFF!important}
+html body .app aside.side .nav .sub .lbl{color:#7E88A8!important}
+/* top bar */
+html body .top{background:#FFFFFF!important;border-bottom:1px solid var(--line)!important;min-height:72px}
+/* section tabs: grey bar, white pill for the open tab */
+html body .ptabs{background:#E9EBF4;border:0!important;border-radius:16px;padding:6px!important;gap:6px!important;margin-bottom:16px}
+html body .ptabs a{border:0!important;border-radius:11px!important;color:#4A5272!important;font-weight:500;padding:9px 14px;transition:background .18s,color .18s}
+html body .ptabs a:hover{background:rgba(255,255,255,.65)!important}
+html body .ptabs a.on{background:#FFFFFF!important;color:var(--ink)!important;font-weight:700!important;box-shadow:0 2px 8px rgba(14,21,48,.08)!important}
+html body .ptabs a .ico{color:#6B7392!important}html body .ptabs a.on .ico{color:var(--accent)!important}
+/* list tabs (underline style) and segmented tabs */
+html body .ttabs a.on,html body .ttabs button.on{color:var(--ink)!important;font-weight:700}
+/* buttons */
+html body .btn{min-height:44px;border-radius:12px!important;border:1px solid #E0E3EE;background:#FFFFFF;color:var(--ink);font-weight:600;transition:background .18s,box-shadow .18s,transform .18s}
+html body .btn:hover:not(:disabled){background:#F7F8FC}
+html body .btn.pri{background:var(--accent)!important;border-color:var(--accent)!important;color:#FFFFFF!important;box-shadow:0 6px 16px rgba(30,58,138,.28)}
+html body .btn.pri:hover:not(:disabled){background:#1A3279!important;transform:translateY(-1px)}
+html body .btn.danger{background:#FDECEC!important;border-color:#FDECEC!important;color:#B42318!important}
+html body .btn.sm{min-height:36px;border-radius:10px!important}
+/* fields */
+html body .sel,html body input[type=text],html body input[type=email],html body input[type=tel],html body input[type=number],html body input[type=password],html body input[type=search],html body input[type=date],html body input[type=time],html body input:not([type]),html body select,html body textarea{border-color:#E0E3EE;border-radius:12px}
+html body .sel,html body .f input:not([type=checkbox]):not([type=radio]),html body .f select{min-height:44px}
+html body input:focus,html body select:focus,html body textarea:focus,html body .sel:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 4px #E3E8FA!important}
+html body input[type=checkbox],html body input[type=radio]{accent-color:var(--accent)}
+/* cards, tables, KPIs */
+html body .card{border-radius:20px!important;border:1px solid var(--line)!important;box-shadow:none;background:#FFFFFF}
+html body .kpi{border-radius:20px!important;border:1px solid var(--line)!important;background:#FFFFFF}
+html body .kpi .v,html body .kpi > b,html body .kpi b.kv{font-family:var(--ab-head);letter-spacing:-.02em}
+html body table th{color:var(--muted);font-size:12px;font-weight:600}
+html body table tbody tr{transition:background .15s}
+html body .tbl table tbody tr:hover{background:#F7F8FC}
+/* pills */
+html body .tag{border-radius:999px!important;font-weight:700;font-size:11.5px;padding:4px 10px}
+html body .tag.on{background:#F2FBD6!important;color:#3F5A00!important}
+/* dialogs */
+html body .scrim{background:rgba(11,19,48,.45)!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+html body .modal{border-radius:24px!important;box-shadow:var(--shadow-lg)!important;overflow:hidden}
+html body .modal header h2{font-family:var(--ab-head);font-size:20px}
+html body .modal footer{border-top:1px solid #EEF0F7}
+/* phones and tablets */
+@supports(padding:max(0px)){html body .main{padding-bottom:env(safe-area-inset-bottom)}}
+@media (max-width:1024px){
+  html body .btn,html body .app aside.side .nav a,html body .app aside.side .nav button,html body .ptabs a{min-height:44px}
+  html body .ptabs{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  html body .ptabs::-webkit-scrollbar{display:none}
+}
+@media (max-width:760px){
+  html body input,html body select,html body textarea,html body .sel{font-size:16px!important}   /* iPhone: no zoom when a field is tapped */
+  html body .phead h1{font-size:23px}
+  html body .content{padding-left:max(14px,env(safe-area-inset-left))!important;padding-right:max(14px,env(safe-area-inset-right))!important}
+  html body .scrim.show{align-items:flex-end!important;padding:0!important}
+  html body .scrim .modal{width:100%!important;max-width:none!important;border-radius:28px 28px 0 0!important;max-height:92vh;overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
+  html body .scrim .modal header::before{content:"";position:absolute;left:50%;top:7px;width:44px;height:5px;margin-left:-22px;border-radius:5px;background:#D3D7E5}
+  html body .scrim .modal header{position:relative;padding-top:20px}
+  html body .card,html body .kpi{border-radius:18px!important}
+}
+@media (prefers-reduced-motion:reduce){html body *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* abyss side menu: white squid + wordmark, light icons */
+html body .app aside.side .skmark svg g,html body .app aside.side .skmark svg path[fill="#c6f432"]{stroke:#FFFFFF!important}
+html body .app aside.side .skword b{color:#FFFFFF!important}
+html body .app aside.side .skhub{border-color:#FFFFFF!important;color:#C6F432!important}
+html body .app aside.side a svg,html body .app aside.side button svg,html body .app aside.side a .ico,html body .app aside.side .nav .ico,html body .app aside.side .nti.nln svg.nls{stroke:currentColor!important;color:currentColor!important}
+html body .app aside.side nav .lbl{color:#7E88A8!important}
+html body .app aside.side a.on svg,html body .app aside.side a.on .ico{stroke:#0B1330!important;color:#0B1330!important}
+html body .app aside.side .skword svg g,html body .app aside.side .skword svg path{stroke:#FFFFFF!important}
+html body .app h1,html body .app h2,html body .app .phead h1,html body .app .modal header h2,html body .app .kpi .v{font-family:var(--ab-head)!important;letter-spacing:-.02em!important}
+html body .app #view h1{font-weight:700}
+html body .app #view h1,html body .app .phead h1{font-weight:700!important}
+html body .app .content{background:transparent!important}
+@media (max-width:1000px){html body .app aside.side{box-shadow:none!important}html body.navopen .app aside.side{box-shadow:0 30px 80px rgba(11,19,48,.35)!important}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
