@@ -9561,7 +9561,6 @@ function productDetail(p){
     <div class="dsec"><h3>Allergens</h3><div class="algs">${F(["allergens"])}</div></div>
 
     <div class="err" id="cErr" style="padding:0 22px 14px"></div></form>`;
-  const wide = c => c.replace(/^<div/, '<div style="grid-column:1/-1"');   // every saved setting of the product shows here, except the photo
 </span>`).join("")}<b>${esc(p.name)}</b><em>${pr}</em></div></aside>`; }
   if(!editing) h += pdTopCard(p, [info("Name", esc(p.name)), info("Name Localized", esc(p.nameAr||"—")), info("Category", esc(catName(p.categoryId))),
     info("SKU", `<span class="code">${esc(p.sku||"—")}</span>`), info("Barcode", esc(p.barcode||"—")), info("Calories", (p.nutrition||{}).calories!=null && (p.nutrition||{}).calories!=="" ? esc(p.nutrition.calories) + " kCal" : "—"), info("Tax Group", varKids(p).length ? "Set on each variant" : esc(tgName(p.taxGroup))),
