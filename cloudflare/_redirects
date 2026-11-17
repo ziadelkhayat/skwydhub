@@ -2,3 +2,6 @@
 # Its APK is built and hosted by GitHub until it moves to the Play Store.
 /skwydhub-pos.apk  https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk  302
 /the-wok-pos.apk   https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk  302
+/apple-touch-icon.png  /skwyd-icon-180.png  302
+/apple-touch-icon-precomposed.png  /skwyd-icon-180.png  302
+/favicon.ico  /skwyd-icon-32.png  302
