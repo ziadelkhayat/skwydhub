@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="962-1794926521">
+<meta name="skwyd-build" content="963-1794936307">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -2619,7 +2619,7 @@ function openVR(kind, mode){
     <div class="f"><label>Reason${a.reasonRequired?" *":""}</label><select id="vrReason" hidden data-noseg><option value="">Choose…</option>${reasons.map(r=>`<option>${esc(r)}</option>`).join("")}<option value="_other">Other…</option></select>
       <div class="rchips">${reasons.map(r=>`<button type="button" data-rs="${esc(r)}">${esc(r)}</button>`).join("")}<button type="button" data-rs="_other">Other…</button></div><input id="vrOther" placeholder="Write the reason" style="display:none;margin-top:8px"></div>
     ${a.stockAction==="ask" ? `<div class="f"><div class="dseg"><button type="button" data-st="stock" class="on">Return to stock</button><button type="button" data-st="waste">Waste</button></div></div>`
-      : `<p class="mut">Items go ${a.stockAction==="waste"?"to waste":"back to stock"} (Manage → Settings).</p>`}
+      : `<p class="mut">Items go ${a.stockAction==="waste"?"to waste":"back to stock"}.</p>`}
     <div class="err" id="vrErr" style="color:#b42318"></div></div>
     <div class="mf"><button class="btn" data-ovopen="${esc(o.id)}">Cancel</button><button class="btn bad" id="vrGo" data-kind="${kind}" data-mode="${mode}">${kind==="void" ? "Void" : "Return"}</button></div>`);
   window.__vq = (o.items||[]).map(() => 0); window.__vmax = (o.items||[]).map((i,ix) => kind==="return" ? retLeft(o, ix) : +i.qty);
