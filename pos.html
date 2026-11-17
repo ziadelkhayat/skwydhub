@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="954-1794920482">
+<meta name="skwyd-build" content="955-1794920775">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -341,7 +341,7 @@ body{-webkit-font-smoothing:antialiased}
 .drvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.drv{display:grid;gap:2px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card,#fff);cursor:pointer}.drv b{font-size:15px}.drv small{color:var(--mut);font-size:12px}.drv.on{border-color:#1e3a8a;background:#eff4ff}
 .drvsum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.drvsum div{background:#fff;border-radius:14px;padding:12px 14px}.drvsum small{display:block;color:var(--mut)}.drvsum b{font-size:22px}
 .drvc{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:12px}.drvh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.drvh .sp{flex:1}
-.drl{display:grid;grid-template-columns:90px 1fr auto 90px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}.drl em{font-style:normal;text-align:right;font-weight:700}
+.drl{display:grid;grid-template-columns:90px 1fr auto auto 90px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}.drl em{font-style:normal;text-align:right;font-weight:700}
 .lst-pending{color:#2c5fb8}.lst-active{color:var(--warn)}.lst-closed{color:var(--good)}.lst-void,.lst-refund,.lst-declined,.lst-returned{color:var(--bad)}
 @media(max-width:800px){.lrow{grid-template-columns:80px 1fr 110px}.lrow .lc2{display:none}}@media(max-width:800px){.lrow.ol5{grid-template-columns:1fr 1fr .6fr 1fr .8fr .9fr}}
 /* tables */
@@ -953,7 +953,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
-<script src="wokdb.js?v=63"></script>
+<script src="wokdb.js?v=64"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -2006,22 +2006,34 @@ async function dispatchOrder(eo){ if(!eo || eo.dispatchedAt) return;
   catch(err){ console.error(err); toast("Couldn't dispatch the order"); } }
 
 /* ---------- Drivers: today's delivery orders per driver, with totals ---------- */
+// cash a driver collected from customers and hasn't handed to the cashier yet: closed delivery orders paid in cash, not received
+const drvCashOwed = o => o.type==="delivery" && o.driverId && o.status==="closed" && (o.payment?.type || o.payment?.method)==="cash" && !o.driverSettledAt;
+const owedTotal = l => +l.filter(drvCashOwed).reduce((s,o) => s + (+o.total||0), 0).toFixed(2);
 function openDrivers(){
   const day = bizDate(), mine = S.orders.filter(o => o.branchId===device.branchId && o.type==="delivery" && bizDate(o.createdAt)===day && !["void","declined"].includes(o.status));
   const byDrv = {}; mine.filter(o => o.driverId).forEach(o => { (byDrv[o.driverId] ||= { name: o.driverName, l: [] }).l.push(o); });
   driverList().forEach(u => { if(!byDrv[u.id]) byDrv[u.id] = { name: u.name, l: [] }; });
   const none = mine.filter(o => !o.driverId && o.status!=="closed");
   const rows = Object.entries(byDrv).sort((a,b) => b[1].l.length - a[1].l.length || String(a[1].name).localeCompare(String(b[1].name)));
-  const tot = l => l.reduce((s,o) => s + (+o.total||0), 0), cash = l => l.filter(o => o.driverStatus==="delivered" || (o.status==="closed" && o.payment?.by==="driver")).reduce((s,o) => s + (+o.total||0), 0);
-  const line = o => `<div class="drl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span>${esc(o.customerName || "—")}</span><span class="spill s-${o.driverStatus==="picked" ? "out" : o.status}">${esc(o.status==="closed" ? "Delivered" : DRV_ST[o.driverStatus] ? DRV_ST[o.driverStatus][0].toUpperCase() + DRV_ST[o.driverStatus].slice(1) : stLbl(o))}</span><em>${usd(o.total)}</em></div>`;
+  const tot = l => l.reduce((s,o) => s + (+o.total||0), 0), cash = l => l.filter(o => o.status==="closed" && (o.payment?.type || o.payment?.method)==="cash").reduce((s,o) => s + (+o.total||0), 0);
+  const line = o => `<div class="drl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span>${esc(o.customerName || "—")}</span>${o.driverSettledAt ? `<span class="spill s-closed" title="Cash received">Cash received</span>` : ""}<span class="spill s-${o.driverStatus==="picked" ? "out" : o.status}">${esc(o.status==="closed" ? "Delivered" : DRV_ST[o.driverStatus] ? DRV_ST[o.driverStatus][0].toUpperCase() + DRV_ST[o.driverStatus].slice(1) : stLbl(o))}</span><em>${usd(o.total)}</em></div>`;
   modal("drivers", `<div class="ohdr"><button class="hbtn" data-drvback>Back</button><b style="font-size:18px">Drivers · Today</b><span class="sp"></span></div><div class="mb">
     <div class="drvsum"><div><small>Delivery orders</small><b>${mine.length}</b></div><div><small>Total</small><b>${usd(tot(mine))}</b></div><div><small>Without a driver</small><b>${none.length}</b></div></div>
-    ${rows.map(([id, d]) => `<div class="drvc"><div class="drvh"><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Collected</span><b>${usd(cash(d.l))}</b></div>
+    ${rows.map(([id, d]) => `<div class="drvc"><div class="drvh"><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Cash collected</span><b>${usd(cash(d.l))}</b>${owedTotal(d.l) ? `<span class="mut" style="margin-left:10px">With driver</span><b style="color:#b54708">${usd(owedTotal(d.l))}</b><button class="hbtn" style="margin-left:10px" data-drvrecv="${esc(id)}">Receive Cash</button>` : ""}</div>
       ${d.l.length ? d.l.sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(line).join("") : `<p class="mut" style="margin:6px 0 0">No orders today</p>`}</div>`).join("") || `<p class="mut">No drivers yet. Give employees a role with "Use Driver App" in the back office.</p>`}
     ${none.length ? `<div class="drvc"><div class="drvh"><b>Waiting for a driver</b></div>${none.map(line).join("")}</div>` : ""}</div>`, true);
   $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr");
 }
-document.addEventListener("click", e => { if(e.target.closest("[data-drvlist]")) openDrivers(); if(e.target.closest("[data-drvback]")) openBoard(); if(e.target.closest("[data-gback]")) openTables(); });   // Cancel on the guests count returns to the tables   // Back returns to Pickup & Delivery
+// Receive Cash: the driver hands over the cash of their delivered orders; it is recorded on each order (who received it and when)
+async function receiveDriverCash(id){
+  const l = S.orders.filter(o => o.driverId===id && o.branchId===device.branchId && drvCashOwed(o)), amt = owedTotal(l), name = l[0]?.driverName || "the driver";
+  if(!l.length) return toast("Nothing to receive");
+  if(!(await askYes(`Receive ${usd(amt)} from ${name} for ${l.length} order${l.length===1 ? "" : "s"}?`, "Receive Cash"))) return;
+  const now = new Date().toISOString(), by = cashier?.name || device.name;
+  try{ for(const o of l) await db.collection("orders").doc(o.id).update({ driverSettledAt: now, driverSettledBy: by, updatedAt: now }); toast(`${usd(amt)} received from ${name}`); openDrivers(); }
+  catch(err){ console.error(err); toast("Couldn't save. Try again.", true); }
+}
+document.addEventListener("click", e => { const rv = e.target.closest("[data-drvrecv]"); if(rv) return receiveDriverCash(rv.dataset.drvrecv); if(e.target.closest("[data-drvlist]")) openDrivers(); if(e.target.closest("[data-drvback]")) openBoard(); if(e.target.closest("[data-gback]")) openTables(); });   // Cancel on the guests count returns to the tables   // Back returns to Pickup & Delivery
 
 /* ---------- modals ---------- */
 let modalKind = null;
@@ -2675,11 +2687,12 @@ $("#shiftBtn").addEventListener("click", () => { hideMore();
 function closeTillForm(sh){
   const sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
   const by = m => sales.filter(o=>(o.payment?.type || o.payment?.method)===m).reduce((a,o)=>a+o.total,0);
-  const expected = (+sh.openingCash||0) + by("cash");
+  const withDrv = owedTotal(sales), expected = (+sh.openingCash||0) + by("cash") - withDrv;
   modal("shift", `<div class="mh"><h2>Close Till</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
     ${tillForm("sCount", `<p class="mut" style="margin:0 0 8px">Opened by ${esc(sh.cashier||"—")} at ${new Date(sh.openedAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</p>
     <div class="stats"><div>Orders<b>${sales.length}</b></div><div>Net sales<b>${usd(sales.reduce((a,o)=>a+(+o.total||0)-(+o.tax||0),0))}</b></div><div>Cash<b>${usd(by("cash"))}</b></div><div>Card / other<b>${usd(by("card")+by("other"))}</b></div></div>
     <div class="f"><label>Expected cash in drawer</label><b style="font-size:18px">${usd(expected)}</b></div>
+    ${withDrv ? `<p style="margin:6px 0 0;color:#b54708;font-weight:600">${usd(withDrv)} is still with drivers. Receive it in Pickup & Delivery → Drivers before closing, or it stays with the driver.</p>` : ""}
     <p class="mut" style="margin:6px 0 10px">Count the cash in the drawer</p>`)}</div>
     <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn pri" id="doCloseShift">Close Till</button></div>`); tillFull();
 }
@@ -2702,7 +2715,7 @@ async function doOpenShift(){
 // a shift left open on any register of the branch (even another tablet) is closed from End of day; the drawer is taken as counted at the expected amount
 async function doCloseShift(){
   const sh = openShift(), sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
-  const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+o.total,0), expected = (+sh.openingCash||0)+cash;
+  const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+o.total,0), expected = (+sh.openingCash||0)+cash-owedTotal(sales);   // cash still with drivers isn't in the drawer
   const tv = tillVal("sCount"), counted = tv.blank ? expected : tv.total;
   try{ await db.collection("shifts").doc(sh.id).update({ closedAt:new Date().toISOString(), orders:sales.filter(o=>o.status==="closed").length, sales:+sales.reduce((a,o)=>a+o.total,0).toFixed(2), expectedCash:+expected.toFixed(2), countedCash:counted, ...(tv.blank ? {} : { counted1:tv.v1, ...(tv.cur2 ? { counted2:tv.v2, currency2:tv.cur2, rate2:tv.rate2 } : {}) }), difference:+(counted-expected).toFixed(2) });
     closeModal(); toast(Math.abs(counted-expected)<0.01 ? "Till closed · drawer balanced" : `Till closed · difference ${usd(counted-expected)}`); }
