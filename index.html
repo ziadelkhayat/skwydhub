@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="967-1794951972">
+<meta name="skwyd-build" content="968-1794952201">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -3014,7 +3014,7 @@ function viewDashboard(){
   const now = new Date(), hr = now.getHours(), hello = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   const bday = new Date((state.date || now.toISOString().slice(0,10)) + "T12:00:00");
   let h = `<div class="dhead"><div class="dht"><span class="eyebrow">Business day · ${bday.toLocaleDateString("en-GB",{weekday:"long"})} ${bday.dmy ? bday.dmy() : ""}</span><h1>${hello}, ${esc(state.userName||"Admin")}</h1></div>
-    ${canOpen("call-center") ? `<a class="btn pri" href="#call-center">${svgIco("plus")} New Order</a>` : ""}</div>
+    </div>
     <div class="tabs dtabs">${tabs.map(([k,t])=>`<a href="#dashboard" data-dt="${k}" class="${state.dashTab===k?"on":""}">${t}${k==="kitchen"?' <span class="new">New!</span>':""}</a>`).join("")}</div>`;
   if(!act.length) return h + `<div class="card empty">No active branches yet.<br><br><a class="btn pri" href="#branches">Add your first branch</a></div>`;
   if(storeMode!=="db") return h + placeholder("Dashboard", "Sign in to see live sales.");
