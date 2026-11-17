@@ -2189,6 +2189,11 @@ html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
 }
 /* phone header: always one row (search shrinks), also with Safari text zoom above 100% */
 @media (max-width:760px){html body .app .top{flex-wrap:nowrap!important}html body .app .top #gSearch{flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important}html body .app .top .acct{flex:none!important}html body .app .top .sp{display:none!important}}
+/* touch screens: wide tables pan freely in any direction inside their own box (like Foodics); headers stay on top */
+@media (hover:none),(max-width:760px){
+  html body #view .tscroll,html body #view .card.tbl:not(:has(.tscroll)){max-height:calc(100dvh - 150px);overflow:auto!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  html body #view .tscroll thead th,html body #view .card.tbl:not(:has(.tscroll)) thead th{position:sticky;top:0;z-index:3;background:#fff}
+}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -2302,7 +2307,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=6"></script>
 <script src="strips.js?v=1"></script>
-<script src="sheets.js?v=3"></script>
+<script src="sheets.js?v=4"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">

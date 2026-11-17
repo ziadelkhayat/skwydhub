@@ -55,34 +55,3 @@
   };
   addEventListener("touchend", end, { capture: true }); addEventListener("touchcancel", end, { capture: true });
 })();
-/* Touch screens: wide tables scroll in one direction per swipe (no diagonal drift).
-   Up/down swipes move the page only; sideways swipes move the table only (with a glide after letting go). */
-(function () {
-  if (!matchMedia("(hover:none)").matches) return;
-  const SEL = "#view .tscroll, #view .card.tbl, #view .rptbl, #view .mmtbl, #view .schwrap, #view .bmdtw, #view .card.otbl";
-  const st = document.createElement("style");
-  st.textContent = "@media (hover:none){" + SEL.split(",").map(s => s.trim()).join(",") + "{touch-action:pan-y}}";
-  document.head.appendChild(st);
-  let g = null, raf = 0;
-  const box = t => { let e = t.closest && t.closest(SEL); while (e && !(e.scrollWidth > e.clientWidth + 2)) e = e.parentElement && e.parentElement.closest(SEL); return e; };
-  addEventListener("touchstart", e => {
-    cancelAnimationFrame(raf); if (e.touches.length !== 1) { g = null; return; }
-    const el = box(e.target); if (!el) { g = null; return; }
-    const p = e.touches[0]; g = { el, x: p.clientX, y: p.clientY, sl: el.scrollLeft, dir: 0, lx: p.clientX, lt: performance.now(), v: 0 };
-  }, { passive: true, capture: true });
-  addEventListener("touchmove", e => {
-    if (!g) return; const p = e.touches[0], dx = p.clientX - g.x, dy = p.clientY - g.y;
-    if (!g.dir) { if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return; g.dir = Math.abs(dx) > Math.abs(dy) ? 1 : 2; }
-    if (g.dir !== 1) return;                                   // up/down: the page scrolls natively, the table stays put
-    if (e.cancelable) e.preventDefault();
-    g.el.scrollLeft = g.sl - dx;
-    const now = performance.now(), dt = Math.max(1, now - g.lt); g.v = 0.8 * ((g.lx - p.clientX) / dt) + 0.2 * g.v; g.lx = p.clientX; g.lt = now;
-  }, { passive: false, capture: true });
-  const end = () => {
-    if (!g || g.dir !== 1) { g = null; return; }
-    const el = g.el; let v = g.v * 16; g = null;           // px per frame
-    const step = () => { if (Math.abs(v) < 0.4) return; el.scrollLeft += v; v *= 0.94; raf = requestAnimationFrame(step); };
-    raf = requestAnimationFrame(step);
-  };
-  addEventListener("touchend", end, { capture: true }); addEventListener("touchcancel", end, { capture: true });
-})();
