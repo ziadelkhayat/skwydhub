@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="957-1794921065">
+<meta name="skwyd-build" content="958-1794921240">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -499,6 +499,7 @@ a.btn{text-decoration:none}
 .bform{grid-template-columns:repeat(2,minmax(0,1fr));max-height:72vh;overflow:auto}.bform .fsec{grid-column:1/-1;margin:10px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:capitalize;color:var(--ink3,#8d8c98);border-top:1px solid var(--line);padding-top:12px}
 .modal .body .fsec h3{margin:6px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3,#8d8c98);text-transform:uppercase;border-top:1px solid var(--line);padding-top:14px}.modal .body .fsec:first-child h3{border-top:0;padding-top:0;margin-top:0}
 .schwrap{overflow:auto;border-radius:14px}
+.schcal{position:relative;overflow:hidden;padding:8px 10px}.schcal input{position:absolute;inset:0;opacity:0;cursor:pointer}.schcal svg{width:18px;height:18px}
 .schg{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;min-width:1080px}
 .schg th,.schg td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;padding:8px;text-align:left}
 .schg th:first-child,.schg td:first-child{width:200px;position:sticky;left:0;background:var(--card,#fff);z-index:1}
@@ -6585,7 +6586,7 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
 });
 
 /* ---------- Employee Management → Schedule: a week of shifts per branch (draft → publish), labor cost vs sales ---------- */
-const SCH = { brand:"", branch:"", week:"", sales:{}, salesAt:{} };
+const SCH = { brand:"", branch:"", week:"", view:"week", at:"", sales:{}, salesAt:{} };
 const schIso = d => new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 const schMon = iso => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return schIso(d); };
 const schAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return schIso(d); };
@@ -6598,8 +6599,8 @@ const schCost = x => { const u = x.employeeId && S.users.find(e => e.id===x.empl
   return u.payType==="hourly" ? r * schHrs(x) : u.payType==="daily" ? r : u.payType==="monthly" ? r / 26 : 0; };
 const schLive = () => (S.work_shifts||[]).filter(x => !x.deleted);
 const schClash = x => x.employeeId && schLive().some(y => y.id!==x.id && y.employeeId===x.employeeId && (() => { const [a1,b1] = schSpan(x), [a2,b2] = schSpan(y); return a1 < b2 && a2 < b1; })());
-async function schLoadSales(br, wk){ const k = br + "|" + wk + "|" + SCH.brand, brand = SCH.brand; if(SCH.salesAt[k] && Date.now() - SCH.salesAt[k] < 300000) return; SCH.salesAt[k] = Date.now();
-  try{ const t0 = new Date(wk + "T00:00:00"), t1 = new Date(schAdd(wk, 7) + "T00:00:00");
+async function schLoadSales(br, wk, n = 7){ const k = br + "|" + wk + "|" + n + "|" + SCH.brand, brand = SCH.brand; if(SCH.salesAt[k] && Date.now() - SCH.salesAt[k] < 300000) return; SCH.salesAt[k] = Date.now();
+  try{ const t0 = new Date(wk + "T00:00:00"), t1 = new Date(schAdd(wk, n) + "T00:00:00");
     const { data, error } = await WOK.sb.from("orders").select("total,status,created_at,brand_id").eq("branch_id", br).in("status", ["closed","returned"]).gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()).limit(10000);
     if(error) throw error; const m = {}; (data||[]).filter(o => !brand || o.brand_id===brand).forEach(o => { const d = schIso(new Date(o.created_at)); m[d] = (m[d]||0) + (+o.total||0); }); SCH.sales[k] = m;
     if(HASH().slice(1)==="schedule") render(); }catch(e){ console.warn("schedule sales", e); } }
@@ -6607,13 +6608,16 @@ function viewSchedule(){
   const bl = brandList(); if(SCH.brand && !bl.some(b => b.id===SCH.brand)) SCH.brand = "";
   const brs = branches.filter(b => b.active!==false && !b.deleted && (!SCH.brand || !b.brandId || b.brandId===SCH.brand)); if(!brs.length) return `<div class="phead"><h1>Schedule</h1></div>` + placeholder("No branches yet", "Add a branch first (Manage → Branches).");
   if(!brs.some(b => b.id===SCH.branch)) SCH.branch = (state.branch && state.branch!=="all" && brs.some(b => b.id===state.branch)) ? state.branch : brs[0].id;
-  if(!SCH.week) SCH.week = schMon(todayStr());
-  const br = SCH.branch, wk = SCH.week, days = [...Array(7)].map((_, i) => schAdd(wk, i)), today = todayStr();
-  const week = schLive().filter(x => x.branchId===br && x.day >= days[0] && x.day <= days[6]);
+  if(!SCH.at) SCH.at = todayStr(); SCH.week = schMon(SCH.at);
+  // Day: one day · Week: Monday to Sunday · Month: every day of the month
+  const mStart = SCH.at.slice(0, 8) + "01", mLen = new Date(+SCH.at.slice(0, 4), +SCH.at.slice(5, 7), 0).getDate();
+  const first = SCH.view==="day" ? SCH.at : SCH.view==="month" ? mStart : SCH.week, nDays = SCH.view==="day" ? 1 : SCH.view==="month" ? mLen : 7;
+  const br = SCH.branch, wk = first, days = [...Array(nDays)].map((_, i) => schAdd(first, i)), today = todayStr();
+  const week = schLive().filter(x => x.branchId===br && x.day >= days[0] && x.day <= days[days.length - 1]);
   const drafts = week.filter(x => !x.published).length;
   const emps = S.users.filter(u => live(u) && ((!(u.branchIds||[]).length && !isAdminRow(u)) || (u.branchIds||[]).includes(br) || week.some(x => x.employeeId===u.id))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
-  if(WOK?.sb) schLoadSales(br, wk); const sales = SCH.sales[br + "|" + wk + "|" + SCH.brand] || {};
-  const worked = {}, wflag = {}; const addW = (uid, x, inAt) => { if(x.branchId && x.branchId!==br) return; const d = tcDayOf(inAt); if(d < days[0] || d > days[6]) return; const k = uid + "|" + d; worked[k] = (worked[k]||0) + tcHrs({ in:inAt, out:x.out }); if(x.late || x.unscheduled) wflag[k] = (wflag[k] ? wflag[k] + ", " : "") + (x.late ? `late ${+x.late}m` : "unscheduled"); };
+  if(WOK?.sb) schLoadSales(br, wk, nDays); const sales = SCH.sales[br + "|" + wk + "|" + nDays + "|" + SCH.brand] || {};
+  const worked = {}, wflag = {}; const addW = (uid, x, inAt) => { if(x.branchId && x.branchId!==br) return; const d = tcDayOf(inAt); if(d < days[0] || d > days[days.length - 1]) return; const k = uid + "|" + d; worked[k] = (worked[k]||0) + tcHrs({ in:inAt, out:x.out }); if(x.late || x.unscheduled) wflag[k] = (wflag[k] ? wflag[k] + ", " : "") + (x.late ? `late ${+x.late}m` : "unscheduled"); };
   tcLog().forEach(x => addW(x.userId, x, x.in)); Object.entries(tcDocBo().open || {}).forEach(([id, o]) => addW(id, o, o.at));
   const money = v => "$" + (+v||0).toFixed(0);
   const chip = x => `<span class="shc${x.published ? "" : " draft"}${schClash(x) ? " clash" : ""}" draggable="true" data-shid="${esc(x.id)}" title="${x.published ? "Published" : "Draft · not published yet"}${schClash(x) ? " · overlaps another shift" : ""}${x.note ? " · " + esc(x.note) : ""}">${esc(schT(x.startTime))} – ${esc(schT(x.endTime))}<small>${esc(x.jobTitle || "")}${x.breakMin ? ` · ${+x.breakMin}m break` : ""}</small></span>`;
@@ -6625,14 +6629,19 @@ function viewSchedule(){
   const head = days.map(d => { const ds = week.filter(x => x.day===d), hrs = ds.reduce((s, x) => s + schHrs(x), 0), cost = ds.reduce((s, x) => s + schCost(x), 0), sl = sales[d] || 0, dt = new Date(d + "T12:00:00");
     return `<th class="${d===today ? "today" : ""}">${dt.toLocaleDateString("en-GB", { weekday:"short" })} ${esc(dt.dmy().slice(0,5))}<div class="dst"><span>Hours <b>${hrs.toFixed(1)}</b></span><span>Shifts <b>${ds.length}</b></span><span>Labor <b>${money(cost)}</b></span><span>Sales <b>${money(sl)}</b></span><span style="grid-column:1/-1">Labor % <b>${sl ? (cost / sl * 100).toFixed(1) + "%" : "—"}</b></span></div></th>`; }).join("");
   const wHrs = week.reduce((s, x) => s + schHrs(x), 0), wCost = week.reduce((s, x) => s + schCost(x), 0), wSales = Object.values(sales).reduce((s, v) => s + v, 0);
-  const wl = new Date(days[0] + "T12:00:00").dmy().slice(0,5) + " – " + new Date(days[6] + "T12:00:00").dmy();
+  const wl = SCH.view==="day" ? new Date(days[0] + "T12:00:00").toLocaleDateString("en-GB", { weekday:"long" }) + " " + new Date(days[0] + "T12:00:00").dmy()
+    : SCH.view==="month" ? new Date(days[0] + "T12:00:00").toLocaleDateString("en-GB", { month:"long", year:"numeric" })
+    : new Date(days[0] + "T12:00:00").dmy().slice(0,5) + " – " + new Date(days[6] + "T12:00:00").dmy();
+  const step = SCH.view==="day" ? 1 : SCH.view==="month" ? "m" : 7, isNow = days.includes(today), nowLbl = SCH.view==="day" ? "Today" : SCH.view==="month" ? "This Month" : "This Week";
   return `<div class="phead"><h1>Schedule</h1><div class="sp"></div><div class="schbar">
-      ${bl.length > 1 ? `<select class="sel" id="schBrand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${b.id===SCH.brand?"selected":""}>${esc(b.name)}</option>`).join("")}</select>` : ""}
+      <select class="sel" id="schBrand" aria-label="Brand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${b.id===SCH.brand?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
       <select class="sel" id="schBranch">${brs.map(b => `<option value="${esc(b.id)}" ${b.id===br?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
-      <div class="wkn"><button type="button" class="btn" data-schwk="-7" aria-label="Previous week">‹</button><b>${esc(wl)}</b><button type="button" class="btn" data-schwk="7" aria-label="Next week">›</button>${wk!==schMon(today) ? `<button type="button" class="btn" data-schwk="0">This Week</button>` : ""}</div>
-      <button type="button" class="btn" id="schCopy">Copy Last Week</button><button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` (${drafts})` : ""}</button></div></div>
+      <select class="sel" id="schView" aria-label="View">${[["day","Day"],["week","Week"],["month","Month"]].map(([k,t]) => `<option value="${k}" ${SCH.view===k?"selected":""}>${t}</option>`).join("")}</select>
+      <div class="wkn"><button type="button" class="btn" data-schwk="-${step}" aria-label="Previous">‹</button><b>${esc(wl)}</b><button type="button" class="btn" data-schwk="${step}" aria-label="Next">›</button>
+        <label class="btn schcal" title="Pick a date" aria-label="Pick a date">${svgIco("calendar")}<input type="date" id="schDate" value="${esc(SCH.at)}"></label>${isNow ? "" : `<button type="button" class="btn" data-schwk="0">${nowLbl}</button>`}</div>
+      ${SCH.view==="week" ? `<button type="button" class="btn" id="schCopy">Copy Last Week</button>` : ""}<button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` (${drafts})` : ""}</button></div></div>
     <div class="card tbl"><div class="ttop"><b>${wHrs.toFixed(1)} hours · ${week.length} shift${week.length===1?"":"s"} · labor ${money(wCost)}${wSales ? ` · sales ${money(wSales)} · labor ${(wCost / wSales * 100).toFixed(1)}%` : ""}</b></div>
-      <div class="schwrap"><table class="schg"><thead><tr><th>Employee</th>${head}</tr></thead><tbody>${rowH(null, true)}${emps.map(u => rowH(u)).join("")}</tbody></table></div>
+      <div class="schwrap"><table class="schg" style="${nDays > 7 ? `min-width:${200 + nDays * 140}px` : nDays===1 ? "min-width:0" : ""}"><thead><tr><th>Employee</th>${head}</tr></thead><tbody>${rowH(null, true)}${emps.map(u => rowH(u)).join("")}</tbody></table></div>
       <div class="schleg"><span><i></i>Published</span><span><i class="d"></i>Draft (not published yet)</span><span><i class="c"></i>Overlaps another shift</span><span>Click a day to add · drag a shift to move it, hold Ctrl or Alt to copy it</span></div></div>
     ${emps.length ? "" : `<p class="note">No employees work at this branch yet. Pick their branches on each employee's page (Employee Management → Employees).</p>`}`;
 }
@@ -6660,12 +6669,16 @@ document.addEventListener("input", e => { if(e.target.closest?.("#shStart,#shEnd
 document.addEventListener("change", e => {
   if(e.target.id==="schBranch"){ SCH.branch = e.target.value; render(); }
   if(e.target.id==="schBrand"){ SCH.brand = e.target.value; render(); }
+  if(e.target.id==="schView"){ SCH.view = e.target.value; render(); }
+  if(e.target.id==="schDate" && e.target.value){ SCH.at = e.target.value; SCH.week = schMon(SCH.at); render(); }
   if(e.target.id==="shEmp"){ const u = S.users.find(x => x.id===e.target.value), j = $("#shJob"); if(u?.jobTitle && j && !j.value) j.value = u.jobTitle; } });
 document.addEventListener("click", async e => {
   const t = e.target; if(!t.closest) return;
-  const wb = t.closest("[data-schwk]"); if(wb){ const n = +wb.dataset.schwk; SCH.week = n ? schAdd(SCH.week, n) : schMon(todayStr()); return render(); }
+  const wb = t.closest("[data-schwk]"); if(wb){ const v = wb.dataset.schwk; if(!SCH.at) SCH.at = todayStr();
+    if(v==="0") SCH.at = todayStr(); else if(/m$/.test(v)){ const d = new Date(SCH.at.slice(0, 8) + "01T12:00:00"); d.setMonth(d.getMonth() + (v.startsWith("-") ? -1 : 1)); SCH.at = schIso(d); } else SCH.at = schAdd(SCH.at, +v);
+    SCH.week = schMon(SCH.at); return render(); }
   const pr = t.closest("[data-shpre]"); if(pr){ const [a, b] = pr.dataset.shpre.split("-"); $("#shStart").value = a; $("#shEnd").value = b; return schLen(); }
-  if(t.closest("#schNew")) return schForm(null, "", SCH.week <= todayStr() && todayStr() <= schAdd(SCH.week, 6) ? todayStr() : SCH.week);
+  if(t.closest("#schNew")) return schForm(null, "", SCH.view==="day" ? (SCH.at || todayStr()) : SCH.week <= todayStr() && todayStr() <= schAdd(SCH.week, 6) ? todayStr() : SCH.week);
   const ch = t.closest("[data-shid]"); if(ch) return schForm(ch.dataset.shid);
   const ce = t.closest("[data-shcell]"); if(ce){ const [emp, d] = ce.dataset.shcell.split("|"); return schForm(null, emp, d); }
   const sv = t.closest("[data-shsave]"); if(sv){ const id = sv.dataset.shsave, err = $("#shErr"), a = $("#shStart").value, b = $("#shEnd").value;
