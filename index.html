@@ -1809,6 +1809,65 @@ html body .app aside.side .nav .grp.open > button svg.nls,html body .app aside.s
   body.navopen .tabbar,body.modal-open .tabbar,body:has(.scrim.show) .tabbar{display:none}
   html body.navopen .app aside.side{width:min(300px,86vw)!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(24px + env(safe-area-inset-bottom))!important}
 }
+
+/* ---- Abyss step 3: page templates ---- */
+/* page title: icon in a soft navy tile */
+html body .app .phead{gap:14px;align-items:center}
+html body .app .phead .hico,html body .app .phead .hico.hnt{width:44px!important;height:44px!important;min-width:44px;border-radius:14px!important;background:var(--accent-soft)!important;border:0!important;display:grid!important;place-items:center;color:var(--accent)!important}
+html body .app .phead .hico svg{width:21px!important;height:21px!important;stroke:var(--accent)!important;color:var(--accent)!important}
+/* list pages: card holds tabs, filters and table as one block */
+html body .app .card.tbl{overflow:hidden;padding:0!important}
+html body .app .card.tbl .ttop{padding:14px 20px!important;border-bottom:1px solid #EEF0F7;background:#FFFFFF;border-radius:0!important;margin:0!important;box-shadow:none!important}
+html body .app .ttabs a{font-weight:500;color:#6B7392}
+html body .app .ttabs a.on{color:var(--ink)!important;box-shadow:inset 0 -2px 0 var(--accent)}
+html body .app table th{background:#F7F8FC!important;text-transform:none;letter-spacing:0;padding-top:12px!important;padding-bottom:12px!important;border-bottom:1px solid #EEF0F7!important}
+html body .app table td{border-bottom-color:#EEF0F7!important}
+html body .app .tbl table td{padding-top:14px;padding-bottom:14px}
+html body .app .tbl tbody tr:last-child td{border-bottom:0!important}
+html body .app .pager,html body .app .tbl .tfoot{padding:12px 20px!important;border-top:1px solid #EEF0F7}
+html body .app #view .card.otabsc{padding:14px 20px!important}
+html body .app #view .card.otabsc > .ttop{padding:0!important}
+/* empty states */
+html body .app .empty,html body .app td[colspan]{color:#6B7392!important;font-size:14px}
+html body .app .empty{padding:44px 20px!important;text-align:center}
+html body .app .bempty{border:1.5px dashed #D9DDEA!important;border-radius:16px!important;background:transparent!important;color:#8A91AD!important;padding:22px 14px!important;font-size:13px}
+/* call center board */
+html body .app .bcol{background:#ECEEF6;border-radius:18px;padding:8px!important}
+html body .app .bhead{background:#FFFFFF!important;border:0!important;border-radius:12px!important;padding:10px 12px!important;box-shadow:0 1px 2px rgba(14,21,48,.05)}
+html body .app .bhead .cnt{background:#EEF2FF!important;color:var(--accent)!important;border-radius:999px;font-weight:700;padding:1px 8px}
+html body .app .ocard{border-radius:14px!important;border:1px solid var(--line)!important;box-shadow:0 1px 2px rgba(14,21,48,.04)}
+/* report hub */
+html body .app .rhub{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+html body .app .rhub .rcard{min-height:96px;display:flex!important;flex-direction:row!important;text-align:left;align-items:flex-end;justify-content:space-between;padding:18px 20px!important;transition:border-color .18s,box-shadow .18s,transform .18s;text-decoration:none;position:relative}
+html body .app .rhub .rcard b{font-family:var(--ab-head);font-size:16px;color:var(--ink)}
+html body .app .rhub .rcard::after{content:"→";font-size:18px;color:var(--accent);opacity:.55;transition:opacity .18s,transform .18s}
+html body .app .rhub .rcard:hover{border-color:#C9D2F0!important;box-shadow:0 12px 28px rgba(14,21,48,.08)!important;transform:translateY(-2px)}
+html body .app .rhub .rcard:hover::after{opacity:1;transform:translateX(3px)}
+/* forms inside cards */
+html body .app .card h2,html body .app .card h3,html body .app .card > header b{font-family:var(--ab-head)}
+html body .app .f > label,html body .app label.lbl,html body .app .f > span:first-child{font-weight:600;color:#4A5272}
+/* KPI cards */
+html body .app .kpi{padding:18px 20px!important}
+html body .app .kpi .v{font-size:28px!important;font-weight:700!important;color:var(--ink)}
+/* toast */
+html body .toast,html body #toast{background:var(--abyss)!important;color:#FFFFFF!important;border-radius:14px!important;box-shadow:0 18px 40px rgba(11,19,48,.3)!important}
+/* top bar: page title area breathes, account chip */
+html body .app .acct{border-radius:999px}
+@media (max-width:760px){
+  html body .app .phead{flex-wrap:wrap}
+  html body .app .phead .hico{width:38px!important;height:38px!important;min-width:38px;border-radius:12px!important}
+  html body .app .tscroll{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  html body .app .tscroll table{min-width:620px}
+  html body .app .card.otabsc{padding:12px 14px!important}
+  html body .app #view .card .ttop{padding:0!important;flex-wrap:wrap!important;gap:8px!important}
+  html body .app #view .card.tbl > .ttop{padding:10px 14px!important}
+  html body .app .card .ttop .ttabs{order:-1;flex:1 1 100%!important;max-width:100%;display:flex!important;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+  html body .app .card .ttop .ttabs::-webkit-scrollbar{display:none}
+  html body .app .card .ttop .sp{display:none}
+  .tabbar .tbi .nti,.tabbar .tbi svg{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;width:22px!important;height:22px!important;display:grid;place-items:center}
+  html body .app .rhub{grid-template-columns:1fr 1fr;gap:10px}
+  html body .app .rhub .rcard{min-height:84px;padding:14px!important}
+}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

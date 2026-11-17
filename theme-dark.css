@@ -674,6 +674,20 @@ html[data-theme=dark] body .modal footer{border-top:1px solid #232c4b}
 html[data-theme=dark] body .app aside.side .skhub{border-color:#282d3e!important}
 html[data-theme=dark] body .app aside.side nav .lbl{color:#8992af!important}
 html[data-theme=dark] body .app aside.side a.on svg, html[data-theme=dark] body .app aside.side a.on .ico{stroke:#c8d1f2!important;color:#c8d1f2!important}
+html[data-theme=dark] body .app .card.tbl .ttop{border-bottom:1px solid #232c4b;background:#101420}
+html[data-theme=dark] body .app .ttabs a{color:#9aa0b5}
+html[data-theme=dark] body .app table th{background:#151722!important;border-bottom:1px solid #232c4b!important}
+html[data-theme=dark] body .app table td{border-bottom-color:#232c4b!important}
+html[data-theme=dark] body .app .pager, html[data-theme=dark] body .app .tbl .tfoot{border-top:1px solid #232c4b}
+html[data-theme=dark] body .app .empty, html[data-theme=dark] body .app td[colspan]{color:#9aa0b5!important}
+html[data-theme=dark] body .app .bempty{border:1.5px dashed #2c344f!important}
+html[data-theme=dark] body .app .bcol{background:#1a1c26}
+html[data-theme=dark] body .app .bhead{background:#101420!important;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
+html[data-theme=dark] body .app .bhead .cnt{background:#161924!important}
+html[data-theme=dark] body .app .ocard{box-shadow:0 1px 2px rgba(0,0,0,0.08800000000000001)}
+html[data-theme=dark] body .app .rhub .rcard:hover{border-color:#263158!important;box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002)!important}
+html[data-theme=dark] body .app .f > label, html[data-theme=dark] body .app label.lbl, html[data-theme=dark] body .app .f > span:first-child{color:#abb1c8}
+html[data-theme=dark] body .toast, html[data-theme=dark] body #toast{box-shadow:0 18px 40px rgba(0,0,0,0.6)!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -706,6 +720,8 @@ html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 0 0 100vmax rgba
 }
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
+html[data-theme=dark] [style*="background:#ECEEF6"]{background:#1a1c26!important}
+html[data-theme=dark] [style*="background:#EEF2FF"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#F2FBD6"]{background:#292e1c!important}
 html[data-theme=dark] [style*="background:#F7F8FC"]{background:#151722!important}
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
@@ -833,6 +849,7 @@ html[data-theme=dark] [style*="background:#fff7e6"]{background:#272217!important
 html[data-theme=dark] [style*="background:#fff7ed"]{background:#241e16!important}
 html[data-theme=dark] [style*="background:#fff8e6"]{background:#272217!important}
 html[data-theme=dark] [style*="background:#fffaf0"]{background:#231f15!important}
+html[data-theme=dark] [style*="border-color:#C9D2F0"]{border-color:#263158!important}
 html[data-theme=dark] [style*="border-color:#E0E3EE"]{border-color:#2a314d!important}
 html[data-theme=dark] [style*="border-color:#FDECEC"]{border-color:#4d2121!important}
 html[data-theme=dark] [style*="border-color:#FFFFFF"]{border-color:#282d3e!important}
