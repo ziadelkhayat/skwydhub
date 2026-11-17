@@ -743,7 +743,6 @@ const params = new URLSearchParams(location.search);
 const qrBranch = params.get("branch"), qrTable = params.get("table"), PREVIEW = params.has("preview");
 
 /* ---------- theme: colors, fonts, corners, menu layout, header (Web Ordering → Appearance) ---------- */
-const FONTS = { inter:["Inter","Inter"], jakarta:["Plus Jakarta Sans","Plus Jakarta Sans"], poppins:["Poppins","Poppins"], dm:["DM Sans","DM Serif Display"], nunito:["Nunito","Nunito"], cairo:["Cairo","Cairo"] };
 function lum(hex){ const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex||""); if(!m) return 0; const c = [1,2,3].map(i => { const v = parseInt(m[i],16)/255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }); return .2126*c[0] + .7152*c[1] + .0722*c[2]; }
 function applyTheme(t){
   t = t || {}; const root = document.documentElement, acc = /^#[\da-f]{6}$/i.test(t.accent||"") ? t.accent : "#1e3a8a";
@@ -1135,7 +1134,6 @@ function drawLoc(){
       <div class="err" id="lErr"></div><button type="button" class="primary" data-lsave>${USER ? "Save address" : "Sign in to save address"}</button>`; LS.kind = kind; return; }
   // main
   let h = `<div class="grab"></div><div class="lshead"><span></span><h3>${mode==="delivery" ? "Where should we deliver to?" : mode==="takeaway" ? "Where will you pick up?" : "Where are you eating?"}</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
-  if(false) h += `<div class="seg" style="margin:4px 0 14px">${modes.map(([m,t,i]) => `<button type="button" data-lmode="${m}" class="${mode===m?"on":""}">${ic(i)}${t}</button>`).join("")}</div>`;
   if(mode==="delivery"){
     if(!zoneList().length) h += `<div class="warn">Delivery areas are being set up.${modeOn("takeaway") ? " Pickup is available." : ""}</div>`;
     h += `<div class="srch lsrch">${ic("search")}<input id="lsQ" type="search" placeholder="Search for an address" autocomplete="off"></div><div id="lsRes" class="lres">${LS.res.map((r,i) => `<button type="button" data-lres="${i}">${ic("pin")}<span><b>${esc(r.name)}</b><small>${esc(r.sub)}</small></span></button>`).join("")}</div>

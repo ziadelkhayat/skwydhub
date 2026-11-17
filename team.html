@@ -101,7 +101,7 @@ select.in{appearance:none;-webkit-appearance:none;background:#fff url("data:imag
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>
 (() => {
-const URL_ = "https://akrezmxgtorkuwxxctyk.supabase.co", KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh", DOMAIN = "team.skwydhub.com";
+const URL_ = "https://akrezmxgtorkuwxxctyk.supabase.co", KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh";
 const sb = window.supabase.createClient(URL_, KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: "skwyd-team" } });
 const $ = s => document.querySelector(s), app = $("#app");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
@@ -308,7 +308,7 @@ async function viewHrs(){
   let l = []; try{ l = await rpc("skwyd_team_timesheet", { p_from: ymd(a), p_to: ymd(z) }); }catch(e){ $("#hc").innerHTML = `<div class="card"><p class="empty">Couldn't load your hours.</p></div>`; return; }
   const on = openNow(), o = on && new Date(on.at) >= a && new Date(on.at) <= addD(z, 1) ? { in:on.at, out:null, branch: S.me.branches.find(b => b.id===on.branchId)?.name, late: on.late } : null;
   const all = [...(o ? [o] : []), ...l], hrs = x => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000), tot = all.reduce((s, x) => s + hrs(x), 0);
-  const days = {}; all.forEach(x => { const d = ymd(new Date(x.in)); days[d] = (days[d]||0) + hrs(x); }), ot = Object.values(days).reduce((s, v) => s + Math.max(0, v - 8), 0);
+  const days = {}; all.forEach(x => { const d = ymd(new Date(x.in)); days[d] = (days[d]||0) + hrs(x); }); const ot = Object.values(days).reduce((s, v) => s + Math.max(0, v - 8), 0);
   $("#hc").innerHTML = `<div class="card"><div class="row"><div><div class="note">Total this week</div><div class="big">${tot.toFixed(2)} h</div></div><span class="sp"></span><div style="text-align:right"><div class="note">Days</div><b style="font-size:20px">${Object.keys(days).length}</b>${ot ? `<div class="note" style="margin-top:4px">Overtime ${ot.toFixed(2)} h</div>` : ""}</div></div></div>
     <div class="card">${all.length ? all.map(x => `<div class="ent"><div class="t"><b>${new Date(x.in).toLocaleDateString("en-GB", { weekday:"short" })} ${dmy(x.in)}${x.late ? `<span class="tag">Late ${+x.late}m</span>` : ""}</b><small>${hm(x.in)} – ${x.out ? hm(x.out) : "now"}${x.branch ? " · " + esc(x.branch) : ""}</small></div><b class="h">${hrs(x).toFixed(2)} h</b></div>`).join("") : `<p class="empty">No hours this week</p>`}</div>`;
 }

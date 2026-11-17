@@ -217,7 +217,6 @@ const money = (v, cur) => (cur ? cur + " " : "") + Number(v || 0).toLocaleString
 const dmy = d => { if (!d) return "—"; const x = new Date(d); return String(x.getDate()).padStart(2,"0") + "-" + String(x.getMonth()+1).padStart(2,"0") + "-" + x.getFullYear(); };
 const dmyIn = d => d ? dmy(d) : "";
 const parseDmy = v => { const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(String(v).trim()); if (!m) return null; const iso = m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0"); return isNaN(new Date(iso)) ? null : iso; };
-const LOGO = `<svg viewBox="0 0 120 124" width="32" height="33" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg>`;
 const ICON = {
   companies: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
   invoices: '<path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',

@@ -7,9 +7,13 @@ skwyd hub: back office, POS (Android APK) and multi-brand online ordering for re
 | `index.html` | Back office: dashboard, menu, inventory, call center, devices, online ordering settings |
 | `pos.html` | POS register source. It is not on the web: it is built into the Android APK (`skwydhub-pos.apk`) on every push, and tablets install the new APK to update |
 | `order.html` | Public online ordering (delivery, takeaway, dine-in via table QR: `order.html?brand=<id>&branch=<id>&table=<n>`) |
+| `hub.html` | Skwyd Hub admin (admin.skwydhub.com): businesses, subscriptions, invoices |
+| `signup.html` | Free-trial sign-up |
+| `team.html` | SKWYD Team and SKWYD Driver apps (built into Android APKs) |
+| `track.html` | Delivery tracking and rating page (order.skwydhub.com/track/…) |
 | `wokdb.js` | Supabase connection and staff login |
 
 Every push to `main` runs **Build and publish**: it builds `skwydhub-pos.apk` and publishes only that file to GitHub Pages. The back office, admin and online ordering are on Cloudflare Pages (`scripts/build-web.sh`).
 
-Database setup: run `supabase-schema.sql`, then `supabase-brands.sql`, then `supabase-staff.sql`, in the Supabase SQL editor.
+Database: the live schema snapshot and every change since are in `supabase/` (applied as Supabase migrations).
 The Supabase key in `wokdb.js` is the public (publishable) key; data is protected by row-level security.

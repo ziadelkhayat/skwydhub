@@ -889,7 +889,6 @@ if(!Date.prototype.dmy) Date.prototype.dmy = function(time){ const p = n => Stri
 /* ---------- naming: menu "products" are called Items; inventory "items" are called Products ----------
    Done on what's shown, so data and links keep their names. On inventory screens both words swap
    (there "item" meant an inventory item and "product" a menu product); everywhere else Product → Item. */
-const INV_ROUTES = new Set(["inv-categories","inv-items","warehouses","suppliers","purchase-orders","transfer-orders","transfers","inventory-count","production","quantity-adjustments","cost-adjustments","spot-check","count-sheets","inv-levels","inv-history","purchasing","order-transactions","inventory-reports"]);
 const NM_SEEN = new WeakMap();
 function nmCase(src, w){ if(src === src.toUpperCase()) return w.toUpperCase(); if(src[0] === src[0].toUpperCase()) return w[0].toUpperCase() + w.slice(1); return w; }
 function nmText(t, inv){
@@ -2713,7 +2712,7 @@ async function doCloseShift(){
 
 const openMore = () => modal("more", `<div class="mh"><h2>Device</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
   <p><b>${esc(device.name)}</b><br><span class="mut">${esc(branch?.name||"")}</span></p><p class="mut">To move this tablet to another branch, generate a new code in the back office and activate again.</p></div>
-  <div class="mf"><a class="btn" href="index.html#devices" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
+  <div class="mf"><a class="btn" href="https://portal.skwydhub.com/devices" target="_blank" rel="noopener" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
 
 // full-screen Orders / Tables / Pickup & delivery keep the bottom bar, so "New" and the other tabs stay reachable
 function withNav(){ paintNav(); return;   // full screens have no bottom bar: Back returns to the cart

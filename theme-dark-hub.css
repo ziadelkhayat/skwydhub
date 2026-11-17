@@ -14,7 +14,6 @@ html[data-theme=dark] .cal{background:#101420;box-shadow:0 12px 32px rgba(0,0,0,
 html[data-theme=dark] .cal .ch button{background:#101420}
 html[data-theme=dark] .side{background:#101420;color:#9ea9b9;border-right:1px solid #2c3345}
 html[data-theme=dark] .skword b{color:#b5c1eb}
-html[data-theme=dark] .skhub{background:#5f683f;color:#b5c1eb}
 html[data-theme=dark] .nav a{color:#9ea9b9}
 html[data-theme=dark] .nav a:hover{background:#151a23;color:#96abe8}
 html[data-theme=dark] .nav a.on{background:#161924;color:#96abe8}
@@ -29,16 +28,46 @@ html[data-theme=dark] .msel>.msel-f{background:#101420}
 html[data-theme=dark] .msel>.msel-f:focus, html[data-theme=dark] .msel.open>.msel-f{box-shadow:0 0 0 3px rgba(0,0,0,0.33)}
 html[data-theme=dark] .msel>.msel-p{background:#101420;box-shadow:0 16px 40px rgba(0,0,0,0.35200000000000004)}
 html[data-theme=dark] .msel .msel-o.on{color:#a7baec}
-html[data-theme=dark] [style*="background:#c6f432"]{background:#5f683f!important}
+html[data-theme=dark] body{color:#dcdcde;background:#1a1a1e}
+html[data-theme=dark] h1{color:#ededed}
+html[data-theme=dark] .subt{color:#adacb4}
+html[data-theme=dark] .btn{border:1px solid #3a3845;background:#101420;color:#dad8e0;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
+html[data-theme=dark] .btn:hover{background:#1a1a1e}
+html[data-theme=dark] .btn.pri{box-shadow:0 6px 16px rgba(0,0,0,0.6)}
+html[data-theme=dark] .btn.danger{color:#ee8981}
+html[data-theme=dark] input.sel, html[data-theme=dark] select.sel, html[data-theme=dark] textarea.sel{border:1px solid #333b4b;color:#dcdcde}
+html[data-theme=dark] input.sel:focus, html[data-theme=dark] select.sel:focus, html[data-theme=dark] textarea.sel:focus{box-shadow:0 0 0 4px rgba(0,0,0,0.30800000000000005)}
+html[data-theme=dark] .msel>.msel-f{border-color:#333b4b}
+html[data-theme=dark] .fld label, html[data-theme=dark] .gate label{color:#dcdcde}
+html[data-theme=dark] .card{border:1px solid #333043}
+html[data-theme=dark] table th{color:#dcdcde;background:#19191c}
+html[data-theme=dark] .kpi span{color:#adacb4}
+html[data-theme=dark] .dlg{box-shadow:0 24px 60px rgba(0,0,0,0.48400000000000004)}
+html[data-theme=dark] .dlg header h2{color:#ededed}
+html[data-theme=dark] .dlg footer{background:#141820;border-top:1px solid #2a324a}
+html[data-theme=dark] .cal{border-color:#333843;box-shadow:0 16px 40px rgba(0,0,0,0.35200000000000004)}
+html[data-theme=dark] .cal .cg button:hover, html[data-theme=dark] .cal .ch button:hover{background:#161924}
+html[data-theme=dark] .req{color:#ee8981}
+html[data-theme=dark] body .brand.skb .skmark.f2 svg g{stroke:#b5c1eb!important}
 html[data-theme=dark] [style*="background:#eef2ff"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#f0f0f4"]{background:#1d1d22!important}
 html[data-theme=dark] [style*="background:#f0f1f5"]{background:#1c1d23!important}
 html[data-theme=dark] [style*="background:#f5f7fb"]{background:#151a23!important}
+html[data-theme=dark] [style*="background:#f7f7f9"]{background:#1a1a1e!important}
+html[data-theme=dark] [style*="background:#fafafb"]{background:#19191c!important}
 html[data-theme=dark] [style*="background:#fafafc"]{background:#17171e!important}
+html[data-theme=dark] [style*="background:#fafbfd"]{background:#141820!important}
 html[data-theme=dark] [style*="background:#fff"]{background:#101420!important}
+html[data-theme=dark] [style*="border-color:#d6dae3"]{border-color:#333b4b!important}
+html[data-theme=dark] [style*="border-color:#e5e7eb"]{border-color:#333843!important}
+html[data-theme=dark] [style*="color:#000"]{color:#ededed!important}
 html[data-theme=dark] [style*="color:#0c1738"]{color:#c3cff2!important}
 html[data-theme=dark] [style*="color:#172554"]{color:#b5c1eb!important}
 html[data-theme=dark] [style*="color:#172d6a"]{color:#a7baec!important}
+html[data-theme=dark] [style*="color:#1c1b22"]{color:#dad8e0!important}
+html[data-theme=dark] [style*="color:#1c1c1e"]{color:#dcdcde!important}
 html[data-theme=dark] [style*="color:#1e3a8a"]{color:#96abe8!important}
 html[data-theme=dark] [style*="color:#3a3650"]{color:#c1bed3!important}
 html[data-theme=dark] [style*="color:#64748b"]{color:#9ea9b9!important}
+html[data-theme=dark] [style*="color:#6b6a75"]{color:#adacb4!important}
+html[data-theme=dark] [style*="color:#b42318"]{color:#ee8981!important}
