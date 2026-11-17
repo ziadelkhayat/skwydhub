@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="965-1794950902">
+<meta name="skwyd-build" content="966-1794951570">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -2247,7 +2247,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=67"></script>
+<script src="wokdb.js?v=68"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=5"></script>
@@ -2480,7 +2480,7 @@ const NAV = [
   {t:"Catalog",i:"book",tabs:1,side:[["branch-menu","Sales Channels"]],kids:[["@Catalog Items"],["products","Products"],["categories","Categories"],["modifiers","Modifiers"],["variants","Variants"],["combos","Combos"],["@Menu Settings"],["allergens","Allergens"]]},
   {t:"Inventory",i:"box",tabs:1,drop:["quantity-adjustments","cost-adjustments","spot-check","order-transactions","count-sheets"],kids:[["inv-items","Items"],["inv-categories","Categories"],["warehouses","Warehouses"],["suppliers","Suppliers"],["po","Purchase Orders"],["purchase-orders","Purchasing"],["transfer-orders","Transfer Orders"],["transfers","Transfers"],["production","Production"],["inventory-count","Inventory Count"],["quantity-adjustments","Quantity Adjustment"],["cost-adjustments","Cost Adjustment"],["spot-check","Inventory Spot Check"],["order-transactions","Order Transactions"],["count-sheets","Count Sheet"]]},
   {t:"Web Ordering",i:"globe",tabs:1,kids:[["online-ordering","Settings"],["delivery-zones","Delivery Zones"],["delivery-charges","Delivery Charges"]]},
-  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["team-chat","Chats"],["knowledge","Knowledge Base"]]},
+  {t:"Employee Management",i:"badge",tabs:1,kids:[["users","Employees"],["roles","Roles"],["schedule","Schedule"],["time-clock","Time Clock"],["requests","Requests"],["payroll","Payroll"],["documents","Documents"],["team-chat","Chats"],["tasks","Tasks"],["knowledge","Knowledge Base"]]},
   {t:"Manage",i:"gear",tabs:1,kids:[["brands","Brands"],["branches","Branches"],["devices","Devices"],["taxes","Taxes & Groups"],["currency","Currency"],["payment-methods","Payment Methods"],["order-sources","Order Sources"],["charges","Charges"],["kitchen-flows","Kitchen Flows"],["reasons","Reasons"],["tags","Tags"],["applications","Applications"]]},
   {t:"Marketing",i:"tag",tabs:1,kids:[["discounts","Discounts"],["loyalty","Loyalty"],["gift-cards","Gift Cards"],["promotions","Promotions"],["coupons","Coupons"]]},
   {id:"marketplace",t:"Marketplace",i:"store"},
@@ -2568,7 +2568,7 @@ const SUBI = { "inventory-more":"grid", "manage-more":"grid", subscription:"card
   "inv-items":"box","suppliers":"truck","po":"clipboard","purchase-orders":"cart","transfer-orders":"clipboard","transfers":"swap","inventory-count":"sheet","production":"factory",
   "quantity-adjustments":"sliders","cost-adjustments":"dollar","order-transactions":"receipt","inv-categories":"folder","warehouses":"warehouse","spot-check":"search","count-sheets":"list",
   "categories":"grid","products":"utensils","modifiers":"layers","variants":"sliders","modifier-options":"list","branch-menu":"store","combos":"combo","groups":"folder","price-tags":"pricetag","allergens":"alert","tags":"tag",
-  "company":"building","users":"user","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","team-chat":"message","knowledge":"bookk","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
+  "company":"building","users":"user","tasks":"check","roles":"shield","time-clock":"clock","schedule":"calendar","requests":"message","team-chat":"message","knowledge":"bookk","payroll":"dollar","documents":"folder","brands":"store","branches":"map","devices":"tablet","tables":"grid","taxes":"percent","payment-methods":"card","order-sources":"source",
   "charges":"plusc","applications":"mobile","delivery-zones":"zonepin","delivery-charges":"bike","online-ordering":"gear","kitchen-flows":"flow","reasons":"message","currency":"dollar","settings":"gear",
   "loyalty":"heart","gift-cards":"gift","discounts":"percent","promotions":"megaphone","coupons":"ticket",
   "dashboard":"dash","orders":"orders","call-center":"phone","customers":"users"
@@ -4017,7 +4017,7 @@ function toastOk(m){ const t = $("#toast"); t.textContent = m; t.classList.add("
 let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return; const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */
-const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages","kb_articles","kb_reads"];
+const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages","kb_articles","kb_reads","tasks"];
 const S = {}; COLS.forEach(c => S[c] = []);
 function subscribeAll(){
   COLS.forEach(c => db.collection(c).onSnapshot(snap => {
@@ -7225,6 +7225,50 @@ document.addEventListener("input", e => { const id = e.target.id; if(!["kbQ","kb
   if(id==="kbQ") KB.q = v; else if(id==="kbDQ") KB.dq = v; else if(id==="kbEQ") KB.ed.q = v; else KB.ed.aq = v;
   const p = e.target.selectionStart; render(); const i = $("#" + id); if(i){ i.focus(); i.setSelectionRange(p, p); } });
 
+/* ---------- Employee Management → Tasks: given to employees (or a whole branch), ticked done in the Employee App ---------- */
+const TK = { tab:"open", branch:"", q:"" };
+const tkList = () => (S.tasks||[]).filter(t => !t.deleted);
+const tkWho = t => (t.assigneeIds||[]).length ? (t.assigneeIds).map(id => S.users.find(u => u.id===id)?.name || "—").join(", ") : (t.branchId ? "Everyone at " + branchName(t.branchId) : "Everyone");
+const tkLate = t => t.status!=="done" && t.dueDay && String(t.dueDay).slice(0,10) < todayStr();
+function viewTasks(){
+  const all = tkList(), q = TK.q.trim().toLowerCase(), n = k => all.filter(t => k==="all" || (k==="done") === (t.status==="done")).length;
+  const l = all.filter(t => (TK.tab==="all" || (TK.tab==="done") === (t.status==="done")) && (!TK.branch || t.branchId===TK.branch || (t.assigneeIds||[]).some(id => (S.users.find(u => u.id===id)?.branchIds||[]).includes(TK.branch))) && (!q || (t.title + " " + (t.notes||"")).toLowerCase().includes(q)))
+    .sort((a,b) => (a.status==="done") - (b.status==="done") || String(a.dueDay||"9999").localeCompare(String(b.dueDay||"9999")) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  return `<div class="phead"><h1>Tasks</h1><div class="sp"></div><select class="sel" id="tkBr"><option value="">All Branches</option>${activeBranches().map(b => `<option value="${esc(b.id)}" ${TK.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select><button class="btn pri" data-tknew>${svgIco("plus")} New Task</button></div>
+    <div class="card tbl"><div class="ttop"><div class="ttabs rqtabs">${[["open","Open"],["done","Done"],["all","All"]].map(([k,t]) => `<a role="button" tabindex="0" data-tktab="${k}" class="${TK.tab===k?"on":""}">${t} (${n(k)})</a>`).join("")}</div></div>
+    <div class="kbtool"><input class="sel" id="tkQ" placeholder="Search" value="${esc(TK.q)}"></div>
+    <table><thead><tr><th>Task</th><th>Given To</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>${l.map(t => `<tr class="kbrowc" data-tkedit="${esc(t.id)}"><td><b>${esc(t.title)}</b>${t.notes ? `<div class="note">${esc(String(t.notes).slice(0,90))}</div>` : ""}</td><td>${esc(tkWho(t))}</td>
+      <td>${t.dueDay ? `<span style="${tkLate(t) ? "color:#b42318;font-weight:600" : ""}">${esc(new Date(String(t.dueDay).slice(0,10) + "T12:00:00").dmy())}</span>` : "—"}</td>
+      <td>${t.status==="done" ? `<span class="kbst pb">Done</span><div class="note">${esc(t.doneBy || "")}${t.doneAt ? " · " + esc(new Date(t.doneAt).dmy()) : ""}</div>` : tkLate(t) ? '<span class="kbst" style="background:#fdecec;color:#b42318">Late</span>' : '<span class="kbst dr">Open</span>'}</td>
+      <td class="num"><button type="button" class="btn" data-tkdone="${esc(t.id)}">${t.status==="done" ? "Reopen" : "Mark Done"}</button></td></tr>`).join("") || `<tr><td colspan="5"><div class="empty">${all.length ? "Nothing here." : "No tasks yet. Employees see their tasks in the Employee App and tick them when done."}</div></td></tr>`}</tbody></table></div>`;
+}
+function tkDlg(t){ const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), on = new Set(t?.assigneeIds||[]), box = $("#ccBox"); box.className = "modal";
+  box.innerHTML = `<header><h2>${t ? "Edit Task" : "New Task"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:block">
+    <div class="f"><label for="tkT">Task <span style="color:#d92d20">*</span></label><input id="tkT" class="sel" maxlength="200" value="${esc(t?.title||"")}" placeholder="e.g. Clean the fryer"></div>
+    <div class="f"><label for="tkN">Notes</label><textarea id="tkN" class="sel" rows="3" style="width:100%;font:inherit">${esc(t?.notes||"")}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="f"><label for="tkB">Branch</label><select id="tkB" class="sel"><option value="">All Branches</option>${activeBranches().map(b => `<option value="${esc(b.id)}" ${t?.branchId===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div>
+      <div class="f"><label for="tkD">Due Date</label><input id="tkD" class="sel" type="date" value="${esc(String(t?.dueDay||"").slice(0,10))}"></div></div>
+    <div class="f"><label>Given To <span class="note">(none = everyone at the branch)</span></label><input id="tkEQ" class="sel" placeholder="Search employees" style="margin-bottom:6px"><div class="tchpick" id="tkE">${emps.map(u => `<label class="chk" data-nm="${esc(String(u.name).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${on.has(u.id)?"checked":""}> ${esc(u.name)}${u.jobTitle ? ` <span class="note">${esc(u.jobTitle)}</span>` : ""}</label>`).join("")}</div></div>
+    <div class="err" id="tkErr"></div></div>
+  <footer>${t ? `<button type="button" class="btn danger" data-tkdel="${esc(t.id)}">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tkSave">Save</button></footer>`;
+  $("#ccScrim").classList.add("show"); setTimeout(() => $("#tkT")?.focus(), 30);
+  $("#tkEQ").oninput = e => { const q = e.target.value.trim().toLowerCase(); box.querySelectorAll("#tkE .chk").forEach(l => l.hidden = !!q && !l.dataset.nm.includes(q)); };
+  box.onclick = async e => {
+    const del = e.target.closest("[data-tkdel]"); if(del){ if(!(await askYes(`Delete the task ${t.title}?`))) return; try{ await put("tasks", t.id, { deleted:true }); $("#ccScrim").classList.remove("show"); toastOk("Task deleted"); render(); }catch(er){ console.error(er); toast("Couldn't delete the task."); } return; }
+    if(!e.target.closest("#tkSave")) return; const title = $("#tkT").value.trim(); if(!title) return $("#tkErr").textContent = "Enter the task.";
+    const d = { title, notes: $("#tkN").value.trim() || null, branchId: $("#tkB").value || null, dueDay: $("#tkD").value || null, assigneeIds: [...box.querySelectorAll("#tkE input:checked")].map(i => i.value) };
+    try{ const id = t?.id || "tk_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); await put("tasks", id, t ? d : { ...d, status:"open", createdBy: state.fullName || state.userName || "Manager", deleted:false }); $("#ccScrim").classList.remove("show"); toastOk(t ? "Task saved" : "Task added"); render(); }
+    catch(er){ console.error(er); $("#tkErr").textContent = "Couldn't save the task."; } };
+}
+document.addEventListener("click", async e => { if(document.body.dataset.route!=="tasks") return; const t = e.target;
+  const tb = t.closest("[data-tktab]"); if(tb){ TK.tab = tb.dataset.tktab; render(); return; }
+  if(t.closest("[data-tknew]")) return tkDlg(null);
+  const dn = t.closest("[data-tkdone]"); if(dn){ e.stopPropagation(); const x = tkList().find(y => y.id===dn.dataset.tkdone); if(!x) return; const done = x.status!=="done";
+    try{ await put("tasks", x.id, { status: done ? "done" : "open", doneAt: done ? new Date().toISOString() : null, doneBy: done ? (state.fullName || state.userName || "Manager") : null }); render(); }catch(er){ console.error(er); toast("Couldn't save."); } return; }
+  const ed = t.closest("[data-tkedit]"); if(ed) return tkDlg(tkList().find(y => y.id===ed.dataset.tkedit));
+});
+document.addEventListener("change", e => { if(e.target.id==="tkBr"){ TK.branch = e.target.value; render(); } });
+document.addEventListener("input", e => { if(e.target.id!=="tkQ") return; TK.q = e.target.value; const p = e.target.selectionStart; render(); const i = $("#tkQ"); if(i){ i.focus(); i.setSelectionRange(p, p); } });
 /* ---------- Employee Management → Team Chat: groups of chosen employees, read and answered in the SKWYD Team app ---------- */
 const TCH = { sel:"", q:"", kind:"" };
 const chDirect = g => g.kind==="direct";
@@ -7524,6 +7568,7 @@ function moduleRoute(route){
   if(route==="requests") return viewRequests();
   if(route==="team-chat") return viewTeamChat();
   if(route==="knowledge") return viewKB();
+  if(route==="tasks") return viewTasks();
   if(route==="payroll") return viewPayroll();
   if(route==="documents") return viewStaffDocs();
   if(route==="users") setTimeout(() => teamLoginsSync(), 1200);
@@ -8791,6 +8836,7 @@ const APPS = [
   ["pos","Point Of Sale App","The cashier app on the branch tablets: orders, payments, tables, tills, end of day. Staff sign in with their PIN.","Android tablet","https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk","devices"],
   ["team","Employee App","For every employee: clock in and out, schedule, chats, guides and time-off requests. Sign in with the phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk","users"],
   ["driver","Driver App","For delivery drivers: the orders they're given, the customer's map and phone, picked up and delivered. Sign in with the phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-driver.apk",""],
+  ["insights","Insights App","For the owner: sales, today's orders, who's clocked in, the schedule, requests, chats, tasks and guides, live. Sign in with the account number, phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-insights.apk",""],
   ["manager","Manager App","For branch and area managers: sales, orders, staff and approvals on the phone.","Android phone","",""]];
 function viewApps(){
   return `<div class="phead"><h1>Applications</h1></div><p class="subt" style="margin-top:-6px">Install an app over the old one after an update: the sign-in and data stay.</p>

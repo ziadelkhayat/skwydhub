@@ -18,6 +18,7 @@
     chat_groups: "id name kind owner_id member_ids role_ids branch_ids created_by deleted created_at",
     kb_articles: "id title category body files role_ids branch_ids employee_ids admin_ids status archived pinned ack created_by deleted created_at updated_at",
     kb_reads: "id article_id staff_id read_at views last_viewed_at",
+    tasks: "id title notes assignee_ids branch_id due_day status done_by done_at created_by deleted created_at updated_at",
     chat_messages: "id group_id sender_id sender_name from_office body deleted created_at",
     staff_requests: "id employee_id kind leave_type from_day to_day shift_id swap_with note status decided_by decided_at decision_note branch_id deleted created_at",
     staff_shifts: "id employee_id branch_id day start_time end_time break_min job_title note published deleted created_at",

@@ -149,6 +149,7 @@ const WORD = `<svg class="w" viewBox="0 0 543.6 100" aria-label="SKWYD"><g fill=
 const IC = {
   grp:'<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M18 8v6M15 11h6"/>', mega:'<path d="M3 10v4h3l6 4V6L6 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  task:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
   kb:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7M8 11h5"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   req:'<path d="M5 4h14v16l-7-4-7 4z"/>', bike:'<circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M15 6h3l2 6M5.5 17l3-7h7l3 7M8.5 10 7 6H5"/>', phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>', map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>', cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', wa:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>', chat:'<path d="M4 5h16v11H8l-4 4z"/>', send:'<path d="M4 12l16-8-6 16-2-7z"/>', back:'<path d="M15 18l-6-6 6-6"/>', hrs:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -242,12 +243,12 @@ function shell(){
   const hr = new Date().getHours(), hello = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   app.innerHTML = `<div class="top"><span class="tav">${esc(String(S.me.name||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><div class="who"><small>${hello}</small><b>${esc(S.me.name)}</b></div><div class="mk">${MARK}</div><button class="out" id="so" aria-label="Sign out">Sign Out</button></div>
     <main id="main"></main>
-    <nav class="tabs"><div>${(DRIVER ? [["deliv","Orders","bike"],["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]] : [["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]]).map(([k,t,i]) => `<button data-tab="${k}">${ic(i)}${t}${k==="kb" ? `<span class="dot" id="kdot" hidden></span>` : ""}${k==="chat" ? `<span class="dot" id="cdot" hidden></span>` : k==="deliv" ? `<span class="dot" id="ddot" hidden></span>` : ""}</button>`).join("")}</div></nav>`;
+    <nav class="tabs"><div>${(DRIVER ? [["deliv","Orders","bike"],["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]] : [["clock","Clock","clock"],["sched","Schedule","cal"],["tasks","Tasks","task"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]]).map(([k,t,i]) => `<button data-tab="${k}">${ic(i)}${t}${k==="kb" ? `<span class="dot" id="kdot" hidden></span>` : ""}${k==="chat" ? `<span class="dot" id="cdot" hidden></span>` : k==="deliv" ? `<span class="dot" id="ddot" hidden></span>` : ""}</button>`).join("")}</div></nav>`;
   $("#so").onclick = async () => { if(Q().length) return toast("Connect to the internet first: some punches haven't synced yet.", "bad"); if(!confirm("Sign out?")) return; await sb.auth.signOut(); S.me = null; loginView(); };
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => go(b.dataset.tab));
 }
 function go(tab){ S.tab = tab; clearInterval(chatT); S.chat = null; document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab===tab)); window.scrollTo(0, 0);
-  ({ deliv:viewDeliv, clock:viewClock, sched:viewSched, chat:viewChats, reqs:viewReqs, hrs:viewHrs, kb:viewKb })[tab](); }
+  ({ deliv:viewDeliv, clock:viewClock, sched:viewSched, chat:viewChats, reqs:viewReqs, hrs:viewHrs, kb:viewKb, tasks:viewTasks })[tab](); }
 const main = () => $("#main");
 
 /* ---------- clock in / out (GPS at the branch) ---------- */
@@ -457,6 +458,17 @@ async function openKb(a){
   const ok = $("#kbok"); if(ok) ok.onclick = async () => { if(!navigator.onLine) return toast("No internet connection.", "bad"); ok.disabled = true;
     try{ const r = await rpc("skwyd_team_kb_read", { p_article: a.id }); if(r?.error){ toast(r.error, "bad"); ok.disabled = false; return; } a.readAt = r.readAt; LS.set("skwyd_team_kb", S.kb); kbLoad(); toast("Thank you"); openKb(a); }catch(_){ toast("Couldn't save. Try again.", "bad"); ok.disabled = false; } };
   if(!a.ack && navigator.onLine) rpc("skwyd_team_kb_read", { p_article: a.id }).then(r => { if(r?.ok) a.readAt = r.readAt; }).catch(() => {});   // opening it counts as read
+}
+
+/* ---------- tasks: given by the manager, ticked when done ---------- */
+async function viewTasks(){
+  const paint = () => { const l = S.tasks || [], open = l.filter(t => t.status!=="done"), done = l.filter(t => t.status==="done"), today = new Date().toISOString().slice(0,10);
+    const row = t => `<button class="chg tkrow" data-tk="${esc(t.id)}" style="align-items:flex-start"><span class="av" style="${t.status==="done" ? "background:#e7f7ec;color:#16a34a" : ""}">${ic("task").replace("<svg", '<svg style="width:20px;height:20px"')}</span><span class="t"><b style="${t.status==="done" ? "text-decoration:line-through;color:var(--mut)" : ""}">${esc(t.title)}</b>${t.notes ? `<small>${esc(t.notes)}</small>` : ""}<small>${t.status==="done" ? "Done " + dmy(t.doneAt) : t.dueDay ? (String(t.dueDay).slice(0,10) < today ? '<span style="color:var(--bad);font-weight:700">Late · due ' + dmy(t.dueDay) + "</span>" : "Due " + dmy(t.dueDay)) : ""}</small></span><em style="font-weight:700;color:${t.status==="done" ? "var(--mut)" : "var(--acc2)"}">${t.status==="done" ? "Undo" : "Done"}</em></button>`;
+    main().innerHTML = `<h2>Tasks</h2><div class="card" style="padding:6px">${S.tasks ? (open.map(row).join("") || '<p class="empty">No open tasks. Nice work!</p>') : '<p class="empty">Loading…</p>'}</div>${done.length ? `<h3 style="margin:16px 4px 8px">Done this week</h3><div class="card" style="padding:6px">${done.map(row).join("")}</div>` : ""}`;
+    document.querySelectorAll("[data-tk]").forEach(b => b.onclick = async () => { const t = S.tasks.find(x => x.id===b.dataset.tk); if(!t) return; if(!navigator.onLine) return toast("No internet connection.", "bad");
+      const d = t.status!=="done"; b.disabled = true; try{ const r = await rpc("skwyd_team_task_done", { p_task: t.id, p_done: d }); if(r?.error){ toast(r.error, "bad"); b.disabled = false; return; }
+        S.tasks = await rpc("skwyd_team_tasks"); if(d) toast("Task done", "ok"); if(S.tab==="tasks") paint(); }catch(_){ toast("Couldn't save. Try again.", "bad"); b.disabled = false; } }); };
+  paint(); if(navigator.onLine){ try{ S.tasks = await rpc("skwyd_team_tasks"); }catch(_){ S.tasks = S.tasks || []; } if(S.tab==="tasks") paint(); }
 }
 
 /* ---------- driver: delivery orders assigned on the POS ---------- */
