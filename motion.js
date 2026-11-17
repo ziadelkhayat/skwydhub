@@ -56,6 +56,7 @@ td.empty::before,.empty.inline::before{display:none}
 .m-confetti{position:fixed;inset:0;pointer-events:none;z-index:2147483646}
 .m-cele{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px) scale(.9);opacity:0;z-index:2147483647;background:#172554;color:#fff;border-radius:16px;padding:14px 22px;font-size:18px;font-weight:700;box-shadow:0 16px 40px rgba(20,20,50,.3);transition:all .3s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:center}
 .m-cele.on{opacity:1;transform:translate(-50%,0) scale(1)}.m-cele small{display:block;font-size:13px;font-weight:500;color:#6d28d9;margin-top:2px}
+@media (max-width:760px){.m-top{display:none!important}}
 @media (prefers-reduced-motion:reduce){.m-enter>*,.m-rows tr,.m-rows>li,.m-new,.m-bump,.m-shake{animation:none!important}}`;
   const st = document.createElement("style"); st.id = "motion-css"; st.textContent = css; document.head.appendChild(st);
 
@@ -256,7 +257,7 @@ td.empty::before,.empty.inline::before{display:none}
       if (rowsNext && Date.now() - rowsNext < 1500) { rowsNext = 0; document.querySelectorAll("#view tbody,#view .list,#ilist tbody").forEach(Motion.rows); }
     });
   });
-  const start = () => { mo.observe(document.body, { childList: true, subtree: true, characterData: true }); skeleton(document); errors(document); };
+  const start = () => { mo.observe(document.body, { childList: true, subtree: true }); skeleton(document); errors(document); };   // no characterData: typing and timers no longer wake it
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
 
   // ---- page changes: the new page's blocks fade up

@@ -109,6 +109,8 @@ html[data-theme=dark] .bswrap .bsnav a{color:#bdc5d2}
 html[data-theme=dark] .bswrap .bsnav a:hover{background:#151a23}
 html[data-theme=dark] .bswrap .bsnav a.on{background:#171b26!important;color:#b5c1eb!important}
 html[data-theme=dark] .bswrap .bsbody h3{color:#b5c1eb}
+html[data-theme=dark] .apic{background:#161924;color:#96abe8}
+html[data-theme=dark] .apcard p{color:#b4bcc6}
 html[data-theme=dark] .kbav{border:2px solid #282d3e}
 html[data-theme=dark] .kbst.pb{background:#18291f;color:#86f2b5}
 html[data-theme=dark] .kbst.dr{background:#292319;color:#f5b17e}
@@ -860,6 +862,9 @@ html[data-theme=dark] body #ccBox .ccx.s2{background:#171923!important}
 html[data-theme=dark] body #ccBox .ccx.s2>.ccside{border:1px solid #272e4c!important;border-bottom:1px solid #272e4c!important}
 html[data-theme=dark] body #ccBox .ccx.s2>.ccleft{background:#101420!important;border:1px solid #272e4c!important}
 html[data-theme=dark] body #ccBox .ccx.s2>.cccart{border:1px solid #272e4c!important}
+}
+@media (hover:none),(max-width:1180px){
+html[data-theme=dark] body .top{background:#101420!important}
 }
 html[data-theme=dark] [style*="background:#C6F432"]{background:#5f683f!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}

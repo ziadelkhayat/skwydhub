@@ -1058,7 +1058,7 @@ th.grc,td.grc{width:28px;padding-right:0!important;color:#b3afc2;cursor:grab}tr[
 .modal header>.x[data-ccclose],.modal header>.x[data-cclose],.modal header>.x[data-close],#ccBox header>.x,#crudBox header>.x{width:38px!important;height:38px!important;border-radius:50%!important;border:1.5px solid #cfccd9!important;background-color:#fff!important;line-height:1!important;display:grid!important;place-items:center!important;padding:0!important;margin-left:auto;flex:none;cursor:pointer;transition:background .15s,border-color .15s}
 .modal header>.x:hover,#ccBox header>.x:hover,#crudBox header>.x:hover{border-color:#a9a5b8!important}
 .modal footer .btn[data-ccclose]:not(.pri):not(.danger),.modal footer .btn[data-cclose]:not(.pri):not(.danger),#ccBox footer .btn[data-ccclose]:not(.pri):not(.danger),#crudBox footer .btn[data-cclose]:not(.pri):not(.danger),#ccBox .ccacts .btn[data-ccclose]:not(.pri):not(.danger){display:none!important}
-:has(> header .x) footer .btn[data-close]:not(.pri):not(.danger),:has(> header .x) > form footer .btn[data-close]:not(.pri):not(.danger),.modal:has(header .x) footer .btn[data-close]:not(.pri):not(.danger){display:none!important}
+.modal:has(> header .x) footer .btn[data-close]:not(.pri):not(.danger),.modal:has(> header .x) > form footer .btn[data-close]:not(.pri):not(.danger),.modal:has(header .x) footer .btn[data-close]:not(.pri):not(.danger){display:none!important}
 .modal footer:not(:has(button:not([data-ccclose]):not([data-cclose]),a,input,select,label)),#crudBox footer:not(:has(button:not([data-ccclose]):not([data-cclose]),a,input,select,label)){display:none!important}
 /* the round ✕: an icon drawn dead-centre (not a text glyph), and the window header stays put while the content scrolls */
 .modal header>.x,#ccBox header>.x,#crudBox header>.x{font-size:0!important;color:transparent!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232a2738' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7 7 17'/%3E%3C/svg%3E") center/18px 18px no-repeat!important}
@@ -1806,7 +1806,7 @@ html body .app aside.side .nav .grp.open > button svg.nls,html body .app aside.s
   .tabbar a span{line-height:1.2}
   .tabbar a.on{color:var(--abyss)}
   .tabbar a.on .tbi{background:var(--lime)}
-  body.navopen .tabbar,body.modal-open .tabbar,body:has(.scrim.show) .tabbar{display:none}
+  body.navopen .tabbar,body.modal-open .tabbar,body.dlgopen .tabbar{display:none}
   html body.navopen .app aside.side{width:min(300px,86vw)!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(24px + env(safe-area-inset-bottom))!important}
 }
 
@@ -1924,7 +1924,7 @@ html body .app #view .tbl th{white-space:nowrap}
 .pcb{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.pcb b{font-size:14px;line-height:1.3}.pcb em{font-style:normal;font-family:var(--ab-head);font-weight:700;color:var(--accent);white-space:nowrap}
 .pcs{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#6B7392}
 .pcsel{position:absolute;top:18px;left:18px;z-index:1;background:#FFFFFF;border-radius:6px;display:grid;place-items:center;width:24px;height:24px;box-shadow:0 1px 4px rgba(14,21,48,.15)}
-.bkfloat{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:8px;background:#0B1330;color:#FFFFFF;border-radius:18px;padding:10px 12px 10px 18px;box-shadow:0 20px 50px rgba(11,19,48,.35);max-width:calc(100vw - 32px);overflow-x:auto;animation:bkup .25s cubic-bezier(.2,.8,.2,1) both}
+.bkfloat{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:8px;background:#0B1330;color:#FFFFFF;border-radius:18px;padding:10px 12px 10px 18px;box-shadow:0 20px 50px rgba(11,19,48,.35);max-width:calc(100vw - 32px);overflow-x:auto}
 @keyframes bkup{from{transform:translate(-50%,20px);opacity:0}to{transform:translateX(-50%);opacity:1}}
 .bkfloat > b{white-space:nowrap;font-size:14px}.bkfloat > i{width:1px;height:24px;background:#22305F;margin:0 4px;flex:none}
 .bkfloat button{background:#141E44;border:0;color:#FFFFFF;border-radius:12px;padding:10px 14px;font:600 13.5px Inter,sans-serif;cursor:pointer;white-space:nowrap}
@@ -2062,7 +2062,6 @@ html body #ccBox .ccx .ccacts .btn{height:52px!important;min-height:52px!importa
 html body #ccBox .ccx .cctools .cctool *{color:#0E1530!important}
 html body #ccBox .ccx .cctools .cctool svg,html body #ccBox .ccx .cctools .cctool svg *{color:var(--accent)!important;stroke:var(--accent)!important}
 html body #ccBox .ccx .ccacts .btn *{text-transform:none!important}
-@media (max-width:760px){html,body{overflow-x:hidden}}
 /* detail pages: navy hero header (template) */
 html body .app #view .phead.hero{background:#0B1330;border-radius:24px;padding:18px 22px!important;gap:14px!important;margin-bottom:16px;flex-wrap:wrap;color:#AEB6D1}
 .phead.hero .hback{width:40px;height:40px;border-radius:12px;background:#141E44;border:1px solid #22305F;color:#FFFFFF;display:grid;place-items:center;font-size:22px;text-decoration:none;flex:none}
@@ -2150,6 +2149,34 @@ html body .app #view .dochead .tag{border-radius:999px!important}
 html body .scrim{z-index:60!important}
 html body .toast,html body #toast{z-index:9000!important}
 html body .scrim .modal{max-width:calc(100vw - 24px)!important;box-sizing:border-box}
+/* ---- type scale (template): 12 small · 13 meta · 14 body/controls · 17 card titles · 20 dialog titles · 28 page titles ---- */
+html body .app .ptabs a,html body .app .ttabs a,html body .app .ttabs button{font-size:14px!important}
+html body .app aside.side .nav a,html body .app aside.side .nav .grp > button{font-size:14px!important}
+html body .app .btn{font-size:14px!important}
+html body .app .btn.sm{font-size:13px!important}
+html body .app table th{font-size:12px!important;letter-spacing:.01em}
+html body .app table td{font-size:14px!important}
+html body .app table td .note,html body .app table td small{font-size:12px!important}
+html body .app .msel-f,html body .app .msel-ph,html body .app .msel-v{font-size:14px!important}
+html body .app .tag,html body .app .spill{font-size:12px!important}
+html body .app .abrand b{font-size:18px}
+html body .app .note{font-size:13px}
+@media (max-width:760px){html body .app table td{font-size:13.5px!important}}
+@media (max-width:760px){
+  html body .scrim.show > .modal,html body .scrim.show > *:first-child{animation:abSheet .3s cubic-bezier(.2,.8,.2,1) both!important}
+}
+@keyframes abSheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media (max-width:760px){html body .app .olseg{overflow-x:auto;flex-wrap:nowrap!important;scrollbar-width:none;max-width:100%}html body .app .olseg::-webkit-scrollbar{display:none}html body .app .olseg > button{flex:none}}
+/* ---- touch devices: smooth scrolling first ---- */
+@media (hover:none),(max-width:1180px){
+  html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body .scrim{background:rgba(11,19,48,.55)!important}
+  html body .top{background:#FFFFFF!important}
+  .tabbar{background:#0B1330!important}
+  html body .app .ktile:hover,html body .app .pcard:hover,html body .app .rhub .rcard:hover,html body .ccx .pgrid .ctile:hover,html body .ccx .pgrid .pbtn:hover{transform:none!important}
+  html body .app #view,html body .app .content{-webkit-overflow-scrolling:touch}
+}
+@media (max-width:760px){ html body .app .top{background:#0B1330!important} }
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
@@ -2212,7 +2239,8 @@ html body .app .dchart,html body .app .dbr,html body .app .dshift{padding:22px!i
 .lgd{display:flex;gap:14px;font-size:12.5px;color:#4A5272}.lgd span{display:flex;align-items:center;gap:6px}.lgd i{width:10px;height:10px;border-radius:3px;background:#1E3A8A}.lgd i.p{background:#C9CFF0}
 .abbars{height:220px;display:flex;align-items:flex-end;gap:6px;border-bottom:1px solid #E6E8F2;padding:0 2px}
 .abcol{flex:1;height:100%;display:flex;align-items:flex-end;gap:2px;min-width:0}
-.abcol i{flex:1;border-radius:6px 6px 0 0;min-height:2px;transform-origin:bottom;animation:abgrow .7s cubic-bezier(.2,.8,.2,1) both}
+.abcol i{flex:1;border-radius:6px 6px 0 0;min-height:2px;transform-origin:bottom}
+.abbars.grow .abcol i{animation:abgrow .6s cubic-bezier(.2,.8,.2,1) both}
 .abcol i.c{background:#1E3A8A}.abcol i.p{background:#C9CFF0}
 .abcol:hover i.c{background:#6D28D9}
 @keyframes abgrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
@@ -2250,7 +2278,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <script src="wokdb.js?v=68"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
-<script src="motion.js?v=5"></script>
+<script src="motion.js?v=6"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
@@ -3014,7 +3042,8 @@ function viewDashboard(){
       if(P && P.days){ prev = P.days.slice(-n).map(d => +d.net||0); while(prev.length < n) prev.unshift(0); } step = n > 14 ? 5 : n > 7 ? 2 : 1; }
     else { cur = hNet; prev = P ? hours24(P.hours,"net") : null; labels = cur.map((v,i) => hourLbl((i + dayStartH()) % 24)); step = 3; }
     const max = Math.max(1, ...cur, ...(prev||[]));
-    const bars = `<div class="abbars">${cur.map((v,i) => `<div class="abcol" title="${esc(labels[i])} · ${esc(money(v))}${prev ? " · before: " + esc(money(prev[i]||0)) : ""}">${prev ? `<i class="p" style="height:${(prev[i]||0)/max*100}%"></i>` : ""}<i class="c" style="height:${v/max*100}%"></i></div>`).join("")}</div><div class="ablbl">${labels.map((l,i) => `<span>${i%step===0 ? esc(l) : ""}</span>`).join("")}</div>`;
+    const gk = state.date + "|" + rangeDays() + "|" + !!state.compare, grow = window.__abG !== gk; window.__abG = gk;   // bars grow once, not on every refresh
+    const bars = `<div class="abbars${grow ? " grow" : ""}">${cur.map((v,i) => `<div class="abcol" title="${esc(labels[i])} · ${esc(money(v))}${prev ? " · before: " + esc(money(prev[i]||0)) : ""}">${prev ? `<i class="p" style="height:${(prev[i]||0)/max*100}%"></i>` : ""}<i class="c" style="height:${v/max*100}%"></i></div>`).join("")}</div><div class="ablbl">${labels.map((l,i) => `<span>${i%step===0 ? esc(l) : ""}</span>`).join("")}</div>`;
     const brs = D.branches.map(b => ({ name:bname(b.id), v:+b.net, n:b.n })).sort((a,b) => b.v-a.v), bmax = Math.max(1, ...brs.map(b=>b.v));
     h += `<div class="dgrid">
       <section class="card dchart"><div class="kh"><div><h3>Net sales</h3><span class="note">${rangeDays() > 1 ? "By day" : "By hour"} · ${esc(perLbl(state.date, rangeDays()))}</span></div><div class="lgd"><span><i class="c"></i>This period</span>${prev ? `<span><i class="p"></i>${esc(cap(cmpLbl()))}</span>` : ""}</div></div>${bars}</section>
@@ -11516,6 +11545,8 @@ document.getElementById("signOut").addEventListener("click", () => window.WOK &&
 (function(){ const add = (box, attr) => { const h = box && box.querySelector(":scope > header"); if(h && !h.querySelector(".x")){ const b = document.createElement("button"); b.type = "button"; b.className = "x"; b.setAttribute(attr, ""); b.setAttribute("aria-label", "Close"); b.textContent = "×"; h.appendChild(b); } };
   const watch = (id, attr) => { const box = document.getElementById(id); if(box) new MutationObserver(() => add(box, attr)).observe(box, { childList:true }); };
   watch("ccBox", "data-ccclose"); watch("crudBox", "data-cclose"); })();
+(() => { const set = () => document.body.classList.toggle("dlgopen", !!document.querySelector(".scrim.show"));   // the phone tab bar hides while a pop-up is open
+  const mo = new MutationObserver(set); document.querySelectorAll(".scrim").forEach(sc => mo.observe(sc, { attributes:true, attributeFilter:["class"] })); })();
 (() => { const tile = box => { const h = box.querySelector(":scope > header"); if(!h || h.querySelector(".dlgico")) return; const ic = document.querySelector("#view .phead .hico svg"); if(!ic) return;
     const t = document.createElement("span"); t.className = "dlgico"; t.setAttribute("aria-hidden", "true"); t.appendChild(ic.cloneNode(true)); h.insertBefore(t, h.firstChild); };
   ["crudBox","ccBox"].forEach(id => { const b = document.getElementById(id); if(b) new MutationObserver(() => tile(b)).observe(b, { childList:true }); }); })();
