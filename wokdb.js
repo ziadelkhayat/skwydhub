@@ -292,7 +292,7 @@
       el.querySelector("#wkCode").addEventListener("input", e => { if(e.target.value.replace(/\D/g, "").length === 6) el.querySelector("form").requestSubmit(); });
       el._phone = async () => { const er = el.querySelector("#wkErr"), b = el.querySelector("#wkBtn"), cc = el.querySelector("#wkCc").value, n = el.querySelector("#wkPhone").value.replace(/\D/g, "").replace(/^0+/, "");
         if(n.length < 6){ er.textContent = "Enter your phone number."; return false; } const phone = cc + n;
-        if(codeSent !== phone){ b.disabled = true; const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "whatsapp", shouldCreateUser: false } }); b.disabled = false;
+        if(codeSent !== phone){ b.disabled = true; const { error } = await sb.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } }); b.disabled = false;
           if(error){ er.textContent = /not found|signups not allowed|user/i.test(error.message) ? "This number has no login. Ask the owner to turn on your login (Employee page)." : /provider|unsupported|disabled/i.test(error.message) ? "Sign in by phone isn't set up yet. Use email and password." : /rate|seconds/i.test(error.message) ? "Wait a minute, then try again." : error.message; return false; }
           codeSent = phone; ls.set("skwyd_ph_cc", cc); ls.set("skwyd_ph_n", n); el.querySelector("#wkCodeW").hidden = false; b.textContent = "Sign in"; er.style.color = "#1f7a3d"; er.textContent = "We sent a code on WhatsApp."; setTimeout(() => el.querySelector("#wkCode").focus(), 30); return false; }
         const k = el.querySelector("#wkCode").value.replace(/\D/g, ""); er.style.color = ""; if(k.length < 6){ er.textContent = "Enter the 6-digit code."; return false; }

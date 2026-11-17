@@ -976,7 +976,7 @@ function drawAuth(){
   sh.innerHTML = head("Sign in or sign up") + (AU.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AU.msg)}</p>` : "") + `<form id="auF" novalidate>${phField("aPhone","Phone number", AU.phone || "")}<p class="info" style="margin:-4px 0 4px">We'll send you a code on WhatsApp. New here? Your account is made with the same code.</p>${btn("Send code on WhatsApp")}</form>`;
 }
 const phE164 = v => "+" + String(v || "").replace(/\D/g, "");
-async function sendPhoneCode(){ const { error } = await sb.auth.signInWithOtp({ phone: phE164(AU.phone), options: { channel: "whatsapp", data: { phone: AU.phone } } }); return error; }
+async function sendPhoneCode(){ const { error } = await sb.auth.signInWithOtp({ phone: phE164(AU.phone), options: { data: { phone: AU.phone } } }); return error; }
 const otpErr = m => /rate|seconds/i.test(m) ? "Please wait a minute, then try again." : /provider|unsupported|disabled/i.test(m) ? "Sign in by phone isn't available right now. Please try again later." : /expired|invalid/i.test(m) ? "That code is wrong or expired. Send a new one." : m;
 async function authSubmit(){
   const v = id => ($("#" + id)?.value || "").trim(), err = t => { $("#aErr").textContent = t; }, go = $("#aGo"), label = go.textContent, busy = t => { go.disabled = !!t; go.textContent = t || label; };

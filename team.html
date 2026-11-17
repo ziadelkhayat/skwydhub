@@ -92,6 +92,45 @@ select.in{appearance:none;-webkit-appearance:none;background:#fff url("data:imag
 .toast.show{opacity:1;transform:translate(-50%,0)}.toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
 .empty{color:var(--mut);text-align:center;padding:22px 8px}
 .spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ================= Abyss (17-11-2026) · team app as the template ================= */
+html,body{font-family:Inter,"IBM Plex Sans Arabic",system-ui,sans-serif}
+h2,.clock .now,.big,.bal b{font-family:"Plus Jakarta Sans",Inter,sans-serif;letter-spacing:-.02em}
+.top{background:#0B1330!important;color:#FFFFFF;padding:calc(16px + env(safe-area-inset-top)) 18px 14px!important}
+.tav{width:44px;height:44px;border-radius:50%;background:#C6F432;color:#0B1330;display:grid;place-items:center;font:800 15px "Plus Jakarta Sans",Inter,sans-serif;flex:none}
+.top .who small{color:#8C96B8!important;font-size:12.5px;display:block}.top .who b{color:#FFFFFF;font-family:"Plus Jakarta Sans",Inter,sans-serif}
+.top .mk{background:transparent!important;box-shadow:none!important;width:34px!important}
+.top .mk svg path,.top .mk svg g{stroke:#FFFFFF!important}
+.top .out{background:#141E44!important;border-color:#22305F!important;color:#AEB6D1!important}
+main{padding-top:0!important}
+.card{border-radius:20px!important;box-shadow:none!important;border:1px solid #E6E8F2}
+/* clock: navy hero with the lime button */
+.card.clock{background:#0B1330!important;border:0!important;color:#FFFFFF;margin:0 -16px 16px!important;border-radius:0 0 28px 28px!important;padding:8px 18px 26px!important}
+.clock .now{color:#FFFFFF}.clock .date{color:#8C96B8!important}
+.cbtn{width:180px!important;height:180px!important;background:#C6F432!important;color:#0B1330!important;box-shadow:0 0 0 18px rgba(198,244,50,.08),0 0 0 36px rgba(198,244,50,.04)!important;font-family:"Plus Jakarta Sans",Inter,sans-serif}
+.cbtn svg{color:#0B1330;stroke:#0B1330}
+.cbtn.outb{background:#FFFFFF!important;color:#B42318!important;box-shadow:0 0 0 18px rgba(255,255,255,.07),0 0 0 36px rgba(255,255,255,.03)!important}
+.cbtn.outb svg{color:#B42318;stroke:#B42318}
+.cbtn .spin{border-color:rgba(11,19,48,.25);border-top-color:#0B1330}
+.clock .st{background:#141E44!important;color:#AEB6D1!important}.clock .st.on{background:rgba(198,244,50,.16)!important;color:#C6F432!important}
+.clock .loc{color:#C6F432!important;font-weight:600}
+.btn{border-radius:14px!important}.btn:not(.ghost){background:#1E3A8A}
+.btn.ghost{border-color:#E6E8F2!important}
+/* schedule & lists */
+.day.today .d b{color:#1E3A8A!important}
+.sh{background:#EEF2FF!important;border-radius:14px!important}
+.seg{background:#E9EBF4!important;border-radius:14px!important}
+.pill{font-weight:700}
+/* floating navy tab bar */
+.tabs{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;background:#0B1330!important;border:0!important;border-radius:24px;padding:8px 6px!important;box-shadow:0 18px 40px rgba(11,19,48,.35)}
+.tabs button{color:#8C96B8!important;background:none!important}
+.tabs button.on{background:#C6F432!important;color:#0B1330!important;border-radius:16px}
+main{padding-bottom:calc(110px + env(safe-area-inset-bottom))!important}
+.sheet{border-radius:28px 28px 0 0!important}
+.chg .av{background:#EEF2FF!important}
+.msg.me span{background:#1E3A8A!important}
+/* sign in */
+.login .btn{min-height:52px}
 </style>
 </head>
 <body>
@@ -166,7 +205,7 @@ function loginView(msg){
     if(!navigator.onLine){ $("#le").textContent = "No internet connection."; return; }
     b.disabled = true; b.innerHTML = `<span class="spin"></span>`; $("#le").textContent = "";
     const phone = cc + n; LS.set("skwyd_team_phone", { cc, n });
-    const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "whatsapp", shouldCreateUser: false } });
+    const { error } = await sb.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } });
     if(error){ b.disabled = false; b.textContent = "Send Code On WhatsApp"; $("#le").textContent = /not found|signups not allowed|user/i.test(error.message) ? "This number has no app login. Ask your manager to turn it on." : /provider|unsupported|disabled/i.test(error.message) ? "Sign-in by phone isn't set up yet. Ask your manager." : /rate|seconds/i.test(error.message) ? "Wait a minute, then try again." : error.message; return; }
     codeView(phone); });
   setTimeout(() => $("#lu")?.focus(), 50);
@@ -179,7 +218,7 @@ function codeView(phone){
     <div style="display:flex;justify-content:space-between;margin-top:14px"><button type="button" class="out" id="lback">Change Number</button><button type="button" class="out" id="lre" disabled>Send Again</button></div></form></div>`;
   let t = 30; const re = $("#lre"), tick = setInterval(() => { t--; if(!re.isConnected) return clearInterval(tick); re.textContent = t > 0 ? `Send Again (${t})` : "Send Again"; re.disabled = t > 0; if(t <= 0) clearInterval(tick); }, 1000);
   $("#lback").onclick = () => loginView();
-  re.onclick = async () => { re.disabled = true; const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "whatsapp", shouldCreateUser: false } }); if(error){ $("#le").textContent = error.message; re.disabled = false; return; } toast("Code sent"); t = 30; };
+  re.onclick = async () => { re.disabled = true; const { error } = await sb.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } }); if(error){ $("#le").textContent = error.message; re.disabled = false; return; } toast("Code sent"); t = 30; };
   const go_ = async () => { const k = $("#lk").value.replace(/\D/g, ""), b = $("#lb"); if(k.length < 6){ $("#le").textContent = "Enter the 6-digit code."; return; }
     b.disabled = true; b.innerHTML = `<span class="spin"></span>`; $("#le").textContent = "";
     const { error } = await sb.auth.verifyOtp({ phone, token: k, type: "sms" });
@@ -200,7 +239,8 @@ async function boot(){
   shell(); go(S.tab); if(net){ chatDot(); kbLoad(); } if(DRIVER) drvPoll();
 }
 function shell(){
-  app.innerHTML = `<div class="top"><div class="mk">${MARK}</div><div class="who"><b>${esc(S.me.name)}</b><small>${esc([S.me.jobTitle, S.me.company].filter(Boolean).join(" · "))}</small></div><button class="out" id="so">Sign Out</button></div>
+  const hr = new Date().getHours(), hello = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
+  app.innerHTML = `<div class="top"><span class="tav">${esc(String(S.me.name||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><div class="who"><small>${hello}</small><b>${esc(S.me.name)}</b></div><div class="mk">${MARK}</div><button class="out" id="so" aria-label="Sign out">Sign Out</button></div>
     <main id="main"></main>
     <nav class="tabs"><div>${(DRIVER ? [["deliv","Orders","bike"],["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]] : [["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]]).map(([k,t,i]) => `<button data-tab="${k}">${ic(i)}${t}${k==="kb" ? `<span class="dot" id="kdot" hidden></span>` : ""}${k==="chat" ? `<span class="dot" id="cdot" hidden></span>` : k==="deliv" ? `<span class="dot" id="ddot" hidden></span>` : ""}</button>`).join("")}</div></nav>`;
   $("#so").onclick = async () => { if(Q().length) return toast("Connect to the internet first: some punches haven't synced yet.", "bad"); if(!confirm("Sign out?")) return; await sb.auth.signOut(); S.me = null; loginView(); };
