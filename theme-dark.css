@@ -727,6 +727,29 @@ html[data-theme=dark] .pvon{background:#101420;border:1px solid #272e4c}
 html[data-theme=dark] .pvimg{background:linear-gradient(135deg,#161924,#1b1624)}
 html[data-theme=dark] .pvb p{color:#9aa0b5}
 html[data-theme=dark] .pvpos{background:#101420;border:1px solid #272e4c}
+html[data-theme=dark] .dlgico{background:#161924}
+html[data-theme=dark] body .modal .f > label, html[data-theme=dark] body .modal .f label:not(.chk){color:#c9d1ef!important}
+html[data-theme=dark] body .modal footer{background:#101420!important}
+html[data-theme=dark] body .app .schbar .wkn{background:#101420;border:1px solid #2a314d}
+html[data-theme=dark] .pubn{background:#5f683f;color:#c8d1f2}
+html[data-theme=dark] .schav{background:#161924}
+html[data-theme=dark] .schav.o{background:#1b1624;color:#ad86ea}
+html[data-theme=dark] body .app .schg th{background:#101420!important}
+html[data-theme=dark] body .app .shc{box-shadow:0 4px 10px rgba(0,0,0,0.44000000000000006)}
+html[data-theme=dark] body .app .shc.draft{background:#101420!important;color:#96abe8!important}
+html[data-theme=dark] body .ccx{background:#171923}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool{background:#101420!important;color:#c9d1ef!important;border:1px solid #272e4c!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool:hover{border-color:#263158!important;background:#151722!important}
+html[data-theme=dark] body .ccx .pgrid .ctile, html[data-theme=dark] body .ccx .pgrid .pbtn{background:#101420!important;border:1px solid #272e4c!important}
+html[data-theme=dark] body .ccx .pgrid .ctile:hover, html[data-theme=dark] body .ccx .pgrid .pbtn:hover{box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002)!important;border-color:#263158!important}
+html[data-theme=dark] body .ccx .pgrid.cats .ctile{background:linear-gradient(135deg,#161924,#1b1624)!important}
+html[data-theme=dark] body .cccart{background:#101420!important;border:1px solid #272e4c!important}
+html[data-theme=dark] body .ccctx{background:#101420!important;border:1px solid #272e4c!important}
+html[data-theme=dark] body #ccBox .ccx .ccacts .btn.pri:disabled{background:#212436!important;border-color:#262e58!important}
+html[data-theme=dark] body .seg.tiles{background:#1b1d27!important}
+html[data-theme=dark] body .seg.tiles button{color:#abb1c8!important}
+html[data-theme=dark] body .seg.tiles button.on{background:#101420!important;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool *{color:#c9d1ef!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .plancard i em{background:#5f683f}
 html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}
@@ -782,6 +805,11 @@ html[data-theme=dark] body .mm>*:first-child{border-right:.8px solid #353542!imp
 html[data-theme=dark] body .scrim .modal header::before{background:#252832}
 html[data-theme=dark] .tabbar{background:rgba(16,20,32,.94)}
 html[data-theme=dark] .tabbar a{color:#9aa0b5}
+html[data-theme=dark] body .app .top .avatar{background:#5f683f!important;color:#c8d1f2!important;border-color:#6b7c35!important}
+html[data-theme=dark] .gsearch:focus-within{border-color:#6b7c35}
+html[data-theme=dark] .tabbar{box-shadow:0 18px 40px rgba(0,0,0,0.6)}
+html[data-theme=dark] .tabbar a.on .tbi{background:#5f683f!important;color:#c8d1f2}
+html[data-theme=dark] body[data-route="dashboard"] .dhead .btn.pri{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
 }
 @media (max-width:1000px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 30px 80px rgba(0,0,0,0.6)!important}
@@ -934,6 +962,7 @@ html[data-theme=dark] [style*="background:#fff7ed"]{background:#241e16!important
 html[data-theme=dark] [style*="background:#fff8e6"]{background:#272217!important}
 html[data-theme=dark] [style*="background:#fffaf0"]{background:#231f15!important}
 html[data-theme=dark] [style*="border-color:#C6F432"]{border-color:#6b7c35!important}
+html[data-theme=dark] [style*="border-color:#C9CFF0"]{border-color:#262e58!important}
 html[data-theme=dark] [style*="border-color:#C9D2F0"]{border-color:#263158!important}
 html[data-theme=dark] [style*="border-color:#D6DCF0"]{border-color:#243055!important}
 html[data-theme=dark] [style*="border-color:#E0E3EE"]{border-color:#2a314d!important}
@@ -967,6 +996,7 @@ html[data-theme=dark] [style*="border-color:#fed7aa"]{border-color:#5c4428!impor
 html[data-theme=dark] [style*="color:#000"]{color:#ededed!important}
 html[data-theme=dark] [style*="color:#0369a1"]{color:#8bd0f6!important}
 html[data-theme=dark] [style*="color:#0B1330"]{color:#c8d1f2!important}
+html[data-theme=dark] [style*="color:#0E1530"]{color:#c9d1ef!important}
 html[data-theme=dark] [style*="color:#0c1738"]{color:#c3cff2!important}
 html[data-theme=dark] [style*="color:#0ea5e9"]{color:#7bcff4!important}
 html[data-theme=dark] [style*="color:#112250"]{color:#b6c5ef!important}
@@ -978,6 +1008,7 @@ html[data-theme=dark] [style*="color:#16794a"]{color:#9eedc8!important}
 html[data-theme=dark] [style*="color:#16a34a"]{color:#86efad!important}
 html[data-theme=dark] [style*="color:#172554"]{color:#b5c1eb!important}
 html[data-theme=dark] [style*="color:#172d6a"]{color:#a7baec!important}
+html[data-theme=dark] [style*="color:#1E3A8A"]{color:#96abe8!important}
 html[data-theme=dark] [style*="color:#1b1830"]{color:#d0cde6!important}
 html[data-theme=dark] [style*="color:#1c1b22"]{color:#dad8e0!important}
 html[data-theme=dark] [style*="color:#1c1c1e"]{color:#dcdcde!important}
@@ -1010,6 +1041,7 @@ html[data-theme=dark] [style*="color:#636366"]{color:#b5b5b7!important}
 html[data-theme=dark] [style*="color:#64748b"]{color:#9ea9b9!important}
 html[data-theme=dark] [style*="color:#666"]{color:#b5b5b5!important}
 html[data-theme=dark] [style*="color:#6B7392"]{color:#9aa0b5!important}
+html[data-theme=dark] [style*="color:#6D28D9"]{color:#ad86ea!important}
 html[data-theme=dark] [style*="color:#6b6879"]{color:#aba9b5!important}
 html[data-theme=dark] [style*="color:#6b6880"]{color:#a7a5b6!important}
 html[data-theme=dark] [style*="color:#6b6a75"]{color:#adacb4!important}

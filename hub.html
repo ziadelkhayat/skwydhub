@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
 <title>Skwyd Hub – Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -245,6 +245,27 @@ tbody tr.click:hover{background:#1A2655!important}
 .gate input{border-radius:12px!important;min-height:46px}.gate button{border-radius:12px!important;min-height:48px;background:#1E3A8A!important}
 .app > :not(.side){min-width:0}.content > .card{overflow-x:auto}.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}
 .top .thsw{display:none!important}
+/* top navigation bar (template): logo, pills, account on one row */
+@media (min-width:901px){
+  .app{display:block!important}
+  .side{position:sticky!important;top:0;z-index:20;height:auto!important;display:flex!important;align-items:center;gap:28px;padding:14px 32px!important;border-right:0!important;border-bottom:1px solid var(--abline)!important;overflow:visible!important;padding-right:360px!important}
+  .side .brand.skb{padding:0!important;flex-wrap:nowrap!important;margin:0}
+  .side .brand.skb small,.side .brand.skb .note{display:none}
+  .side .nav{display:flex!important;flex-direction:row!important;gap:6px;align-items:center;flex:1;justify-content:center}
+  .side .nav a{min-height:40px!important;padding:8px 16px!important;border-radius:12px!important;white-space:nowrap}
+  .side .nav a .ico{display:none}
+  .main .top{position:fixed!important;top:0;right:0;height:69px;z-index:21;background:var(--abyss)!important;border-bottom:0!important;padding:0 32px!important}
+  .content{margin:0 auto;padding:28px 32px 60px!important}
+}
+@media (max-width:900px){
+  .app{display:block!important}
+  .side{display:flex!important;position:sticky!important;top:0;z-index:20;height:auto!important;flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px!important;border-right:0!important;border-bottom:1px solid var(--abline)!important}
+  .side .brand.skb{padding:0!important}
+  .side .nav{display:flex!important;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .side .nav a{white-space:nowrap;min-height:38px!important;padding:8px 14px!important}
+  .side .nav a .ico{display:none}
+  .main .top{position:static!important;padding:10px 14px!important}
+}
 @media (max-width:900px){.content{padding:18px 14px 40px}.kpi b{font-size:22px!important}}
 </style>
 <script src="theme.js?v=1"></script>

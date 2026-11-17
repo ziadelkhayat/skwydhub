@@ -36,7 +36,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
     try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
     fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
 <title>skwyd hub – Back Office</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20124%22%3E%3Cpath%20d%3D%22M24%2082%20V62%20C24%2032%2041%2012%2060%2012%20C79%2012%2096%2032%2096%2062%20V82%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M24%2082%20Q24%20106%2014%20114%20M48%2084%20Q48%20104%2042%20116%20M72%2084%20Q72%20104%2078%20116%20M96%2082%20Q96%20106%20106%20114%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3Ccircle%20cx%3D%2273%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3C/svg%3E"><link rel="icon" type="image/png" sizes="32x32" href="/skwyd-icon-32.png?v=2"><link rel="apple-touch-icon" href="/skwyd-icon-180.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1915,7 +1915,7 @@ html body .app #view .tbl th{white-space:nowrap}
 .vtog button{width:36px;height:36px;border:0;background:transparent;border-radius:9px;display:grid;place-items:center;color:#6B7392;cursor:pointer}
 .vtog button svg{width:18px;height:18px}.vtog button.on{background:#FFFFFF;color:var(--ink);box-shadow:0 2px 6px rgba(14,21,48,.08)}
 .otabsc .crsrch{padding:12px 0 0;background:transparent}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;padding:18px 20px;flex:1 1 auto;min-height:0;overflow:auto;align-content:start}
+.prgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;padding:18px 20px;flex:1 1 auto;min-height:0;overflow:auto;align-content:start}
 @media (min-width:1181px){.bkfloat{left:calc(50% + 140px)}}
 .pcard{position:relative;display:flex;flex-direction:column;gap:8px;border:1px solid #E6E8F2;border-radius:18px;padding:12px;background:#FFFFFF;transition:transform .2s,box-shadow .2s,border-color .2s}
 .pcard:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(14,21,48,.08);border-color:#D6DCF0}
@@ -1932,7 +1932,7 @@ html body .app #view .tbl th{white-space:nowrap}
 .bkfloat .ddwrap{position:relative}.bkfloat .ddmenu.up{position:fixed;bottom:84px;top:auto!important;left:auto;background:#FFFFFF;border-radius:14px;box-shadow:0 20px 50px rgba(11,19,48,.25);padding:6px;display:flex;flex-direction:column;min-width:220px}
 .bkfloat .ddmenu.up[hidden]{display:none}
 .bkfloat .ddmenu.up button{background:transparent;color:var(--ink);text-align:left;font-weight:500}.bkfloat .ddmenu.up button:hover{background:#EEF2FF}
-@media (max-width:760px){.pcb{flex-direction:column;gap:2px}.crsrch{padding:0 14px 12px}.pgrid{grid-template-columns:1fr 1fr;gap:10px;padding:12px}.bkfloat{bottom:calc(84px + env(safe-area-inset-bottom));padding:8px 8px 8px 14px}}
+@media (max-width:760px){.pcb{flex-direction:column;gap:2px}.crsrch{padding:0 14px 12px}.prgrid{grid-template-columns:1fr 1fr;gap:10px;padding:12px}.bkfloat{bottom:calc(84px + env(safe-area-inset-bottom));padding:8px 8px 8px 14px}}
 /* customer profile (template) */
 .cuwrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
 .culeft{display:flex;flex-direction:column;gap:16px;position:sticky;top:12px}
@@ -2001,6 +2001,87 @@ html body .app .rchart svg{width:100%;height:auto}
   body[data-route="account"] #view > .tabs a::after{display:none!important}
   body[data-route="account"] #view > .tabs a.on{background:#EEF2FF;color:var(--accent)!important}
 }
+/* dialogs as the template: icon tile in the header, dark bold labels, tighter rows */
+.dlgico{width:44px;height:44px;min-width:44px;border-radius:14px;background:#EEF2FF;color:var(--accent);display:grid;place-items:center;margin-right:4px}
+.dlgico svg{width:21px!important;height:21px!important;stroke:var(--accent)!important;color:var(--accent)!important}
+html body .modal header{display:flex;align-items:center;gap:12px}
+html body .modal .f > label,html body .modal .f label:not(.chk){font-size:13px!important;font-weight:600!important;color:#0E1530!important}
+html body .modal .body{gap:16px 16px!important}
+html body .modal .f{margin-bottom:0!important}
+html body .modal .dsgrid,html body .modal [class*="grid"]{row-gap:16px!important}
+html body .modal .f{gap:6px!important}
+html body .modal .f input:not([type=checkbox]):not([type=radio]),html body .modal .f select,html body .modal .f .sel{min-height:46px;border-radius:12px!important}
+html body .modal footer{background:#FFFFFF!important}
+html body .modal footer .btn.pri{min-width:120px;justify-content:center}
+/* phone: navy top bar and a floating navy tab bar (template) */
+@media (max-width:760px){
+  html body .app .top{background:#0B1330!important;border-bottom:0!important;padding-top:max(10px,env(safe-area-inset-top))!important}
+  html body .app .top .acctbtn,html body .app .top #who{color:#FFFFFF!important}
+  html body .app .top .avatar{background:#C6F432!important;color:#0B1330!important;border-color:#C6F432!important}
+  .gsearch{background:#141E44;border-color:#22305F;color:#8C96B8}
+  html body .gsearch input{color:#FFFFFF}
+  .gsearch:focus-within{background:#141E44;border-color:#C6F432;box-shadow:0 0 0 4px rgba(198,244,50,.15)}
+  .tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));background:#0B1330!important;border:0!important;border-radius:24px;padding:8px 6px!important;box-shadow:0 18px 40px rgba(11,19,48,.35)}
+  .tabbar a{color:#8C96B8!important}
+  .tabbar a.on{color:#FFFFFF!important}
+  .tabbar a.on .tbi{background:#C6F432!important;color:#0B1330}
+  html body .content{padding-bottom:calc(110px + env(safe-area-inset-bottom))!important}
+  body[data-route="dashboard"] .dhead{background:#0B1330;margin:-20px -14px 18px;padding:18px 14px 26px;border-radius:0 0 28px 28px}
+  body[data-route="dashboard"] .dht .eyebrow{color:#8C96B8}
+  html body[data-route="dashboard"] .app .dht h1{color:#FFFFFF!important}
+  body[data-route="dashboard"] .dhead .btn.pri{background:#C6F432!important;border-color:#C6F432!important;color:#0B1330!important;box-shadow:none}
+}
+/* schedule (template): KPI tiles, avatars, shift blocks */
+.schk{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:0 0 16px}
+html body .app .schbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+html body .app .schbar .sel{width:auto!important;min-width:130px}
+html body .app .schbar .wkn{display:flex;align-items:center;gap:6px;background:#FFFFFF;border:1px solid #E0E3EE;border-radius:12px;padding:3px}
+html body .app .schbar .wkn > .btn{border:0!important;min-height:36px!important;background:transparent}
+html body .app .schbar .wkn b{font-size:13.5px;padding:0 6px;white-space:nowrap}
+.pubn{background:#C6F432;color:#0B1330;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:800;margin-left:4px}
+html body .app .schg td.emp{position:relative;padding-left:58px!important}
+.schav{position:absolute;left:14px;top:14px;width:34px;height:34px;border-radius:50%;background:#EEF2FF;color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12.5px}
+.schav.o{background:#F3EDFF;color:#6D28D9;font-size:18px}
+html body .app .schg td.emp b{display:block;font-size:14px}
+html body .app .schg th{background:#FFFFFF!important;font-family:var(--ab-head);font-size:14px!important;color:var(--ink)!important}
+html body .app .schg th.today{box-shadow:inset 0 3px 0 var(--accent)}
+html body .app .schg .dst{font-family:Inter,sans-serif;font-weight:500}
+html body .app .shc{background:#1E3A8A!important;color:#FFFFFF!important;border-radius:10px!important;border:0!important;font-weight:600;box-shadow:0 4px 10px rgba(30,58,138,.2)}
+html body .app .shc.draft{background:#FFFFFF!important;color:#1E3A8A!important;border:1.5px dashed #1E3A8A!important;box-shadow:none}
+html body .app .shc.clash{box-shadow:0 0 0 2px #E5484D!important}
+html body .app tr.open .shc{background:#6D28D9!important}
+html body .app .schcard{padding-top:0!important}
+/* call center order screen (template): light tool chips, white columns, clear send button */
+html body .ccx{background:#F4F5FA}
+html body #ccBox .ccx .cctools .cctools{display:flex!important;flex-wrap:wrap;gap:8px!important}
+html body #ccBox .ccx .cctools .cctool{background:#FFFFFF!important;color:#0E1530!important;border:1px solid #E6E8F2!important;border-radius:14px!important;min-height:46px!important;height:auto!important;width:auto!important;padding:0 16px!important;flex-direction:row!important;gap:8px!important;font-weight:600!important;box-shadow:none!important}
+html body #ccBox .ccx .cctools .cctool svg{color:var(--accent)!important;stroke:var(--accent)!important;width:18px!important;height:18px!important}
+html body #ccBox .ccx .cctools .cctool:hover{border-color:#C9D2F0!important;background:#F7F8FC!important}
+html body .ccx .pgrid .ctile,html body .ccx .pgrid .pbtn{background:#FFFFFF!important;border:1px solid #E6E8F2!important;border-radius:18px!important;box-shadow:none!important;transition:transform .2s,box-shadow .2s,border-color .2s}
+html body .ccx .pgrid .ctile:hover,html body .ccx .pgrid .pbtn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(14,21,48,.08)!important;border-color:#C9D2F0!important}
+html body .ccx .pgrid.cats .ctile{min-height:110px!important;background:linear-gradient(135deg,#EEF2FF,#F3EDFF)!important}
+html body .cccart{background:#FFFFFF!important;border-radius:24px!important;border:1px solid #E6E8F2!important}
+html body .ccctx{background:#FFFFFF!important;border:1px solid #E6E8F2!important;border-radius:18px!important}
+html body #ccBox .ccx .ccacts .btn{text-transform:none!important;font-size:15px!important;min-height:52px!important;border-radius:14px!important;letter-spacing:0!important}
+html body #ccBox .ccx .ccacts .btn.pri{background:#1E3A8A!important;border-color:#1E3A8A!important;color:#FFFFFF!important}
+html body #ccBox .ccx .ccacts .btn.pri:disabled{background:#C9CFF0!important;border-color:#C9CFF0!important;color:#FFFFFF!important}
+html body .ctot b,html body .ctot strong{font-family:var(--ab-head)}
+html body .seg.tiles{background:#E9EBF4!important;border-radius:14px!important;padding:4px!important;border:0!important}
+html body .seg.tiles button{border:0!important;border-radius:11px!important;background:transparent!important;font-weight:600!important;color:#4A5272!important}
+html body .seg.tiles button.on{background:#FFFFFF!important;color:var(--ink)!important;box-shadow:0 2px 8px rgba(14,21,48,.08)!important}
+html body #ccBox .ccx .cctools .cctool{aspect-ratio:auto!important}
+html body #ccBox .ccx .ccacts .btn{height:52px!important;min-height:52px!important;font-size:15px!important;font-weight:700!important}
+html body #ccBox .ccx .cctools .cctool *{color:#0E1530!important}
+html body #ccBox .ccx .cctools .cctool svg,html body #ccBox .ccx .cctools .cctool svg *{color:var(--accent)!important;stroke:var(--accent)!important}
+html body #ccBox .ccx .ccacts .btn *{text-transform:none!important}
+@media (min-width:1000px){
+  html body #crudScrim #crudBox.modal.pdedit{width:min(1100px,96vw)!important;max-width:none!important;display:grid!important;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto minmax(0,1fr) auto}
+  html body #crudBox.pdedit > header,html body #crudBox.pdedit > footer{grid-column:1/-1}
+  html body #crudBox.pdedit > .body{grid-column:1;grid-row:2;min-height:0;overflow:auto}
+  html body #crudBox.pdedit > .dlgprev{grid-column:2;grid-row:2;position:static;padding:18px 20px 18px 0;overflow:auto;min-height:0;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important}
+  html body #crudBox.pdedit > .dlgprev .pvon{width:auto}
+}
+@media (max-width:999px){html body .modal.pdedit > .dlgprev{display:none}}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
@@ -4345,7 +4426,7 @@ function crudView(key){
       ? `<th colspan="${cfg.cols.length}" class="bkbar"><b>${sel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" id="bkAct">Actions ▾</button><span class="ddmenu" id="bkActM" hidden>${bkActs.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}</span></span></th>`
       : cfg.cols.map(c=>`<th class="${c[2]||""}">${c[0]}</th>`).join("")}</tr></thead><tbody>${
     shown.map(r=>`<tr class="click" data-open="${key}:${esc(r.id)}"${dr ? ` data-sk="row:${key}|${esc(r.id)}"` : ""}>${dr ? `<td class="noedit grc" title="Drag to move"><span class="bmgrip" aria-hidden="true">⋮⋮</span></td>` : ""}${bk ? `<td class="noedit bkc"><input type="checkbox" data-bksel="${key}:${esc(r.id)}" ${sel.has(r.id)?"checked":""} aria-label="Select ${esc(r.name||"")}"></td>` : ""}${cfg.cols.map((c, ci)=>`<td class="${c[2]||""}">${c[1](locRow(r))}${ci===0 && TAG_KEY[key] ? tagChips(TAG_KEY[key], r.id) : ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
-    if(key==="products" && state.pview==="grid") h = h.replace(/<table>[\s\S]*<\/table>$/, "") + `<div class="pgrid">${shown.map(r => { const k = varKids(r), pr = k.length ? "From " + usd(Math.min(...k.map(x=>+x.price||0))) : r.pricingMethod==="open" ? "Open" : usd(r.price);
+    if(key==="products" && state.pview==="grid") h = h.replace(/<table>[\s\S]*<\/table>$/, "") + `<div class="prgrid">${shown.map(r => { const k = varKids(r), pr = k.length ? "From " + usd(Math.min(...k.map(x=>+x.price||0))) : r.pricingMethod==="open" ? "Open" : usd(r.price);
       return `<div class="pcard" data-open="${key}:${esc(r.id)}">${bk ? `<label class="noedit pcsel"><input type="checkbox" data-bksel="${key}:${esc(r.id)}" ${sel.has(r.id)?"checked":""} aria-label="Select ${esc(r.name||"")}"></label>` : ""}<div class="pcimg">${r.imageUrl ? `<img src="${esc(r.imageUrl)}" alt="" loading="lazy">` : svgIco("box")}</div><div class="pcb"><b>${esc(r.name||"")}</b><em>${pr}</em></div><div class="pcs"><span>${esc(catName(r.categoryId)||"")}</span><span>${r.active===false ? "Inactive" : esc(r.sku||"")}</span></div></div>`; }).join("")}</div>`;
     if(bk && sel.size){ const main = bkActs.slice(0, 4), more = bkActs.slice(4);
       h += `<div class="bkfloat" role="toolbar" aria-label="Selected ${esc(cfg.title.toLowerCase())}"><b>${sel.size} selected</b><i></i>${main.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}${more.length ? `<span class="ddwrap"><button type="button" id="bkAct">More ▾</button><span class="ddmenu up" id="bkActM" hidden>${more.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}</span></span>` : ""}<button type="button" class="done" data-bkclear="${key}">Done</button></div>`; } }
@@ -7232,7 +7313,7 @@ function viewSchedule(){
     const off = empId && rqOffOn(empId, d);
     return `<td class="cell" data-shcell="${esc(empId)}|${d}" ${off ? 'style="background:repeating-linear-gradient(135deg,rgba(198,244,50,.18) 0 8px,transparent 8px 16px)"' : ""}>${off ? `<small class="note" style="display:block;font-weight:600;color:#3f6212">${esc(LEAVE_T[off.leaveType] || "Time Off")}</small>` : ""}${list.map(chip).join("")}${!w && empId && d < today && list.some(x => x.published) ? `<small class="note" style="color:#b42318" title="Published shift with no clock-in">✗ No clock-in</small>` : ""}${w ? `<small class="note" title="Clocked in on the cashier app" ${wflag[empId + "|" + d] ? 'style="color:#b42318"' : ""}>✓ ${w.toFixed(1)}h worked${wflag[empId + "|" + d] ? " · " + esc(wflag[empId + "|" + d]) : ""}</small>` : ""}</td>`; };
   const rowH = (u, open) => { const mine = week.filter(x => open ? !x.employeeId : x.employeeId===u.id), hrs = mine.reduce((s, x) => s + schHrs(x), 0), cost = mine.reduce((s, x) => s + schCost(x), 0);
-    return `<tr class="${open ? "open" : ""}"><td class="emp"><b>${open ? "Open Shifts" : esc(u.name)}</b><small>${open ? "Not given to anyone yet" : esc(u.jobTitle || "—")}</small><small>${hrs ? hrs.toFixed(1) + "h" : "0h"}${cost ? " · " + money(cost) : ""}</small></td>${days.map(d => cellH(open ? "" : u.id, d)).join("")}</tr>`; };
+    return `<tr class="${open ? "open" : ""}"><td class="emp"><span class="schav${open ? " o" : ""}">${open ? "+" : esc(String(u.name||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><b>${open ? "Open Shifts" : esc(u.name)}</b><small>${open ? "Not given to anyone yet" : esc(u.jobTitle || "—")}</small><small>${hrs ? hrs.toFixed(1) + "h" : "0h"}${cost ? " · " + money(cost) : ""}</small></td>${days.map(d => cellH(open ? "" : u.id, d)).join("")}</tr>`; };
   const head = days.map(d => { const ds = week.filter(x => x.day===d), hrs = ds.reduce((s, x) => s + schHrs(x), 0), cost = ds.reduce((s, x) => s + schCost(x), 0), sl = sales[d] || 0, dt = new Date(d + "T12:00:00");
     return `<th class="${d===today ? "today" : ""}">${dt.toLocaleDateString("en-GB", { weekday:"short" })} ${esc(dt.dmy().slice(0,5))}<div class="dst"><span>Hours <b>${hrs.toFixed(1)}</b></span><span>Shifts <b>${ds.length}</b></span><span>Labor <b>${money(cost)}</b></span><span>Sales <b>${money(sl)}</b></span><span style="grid-column:1/-1">Labor % <b>${sl ? (cost / sl * 100).toFixed(1) + "%" : "—"}</b></span></div></th>`; }).join("");
   const wHrs = week.reduce((s, x) => s + schHrs(x), 0), wCost = week.reduce((s, x) => s + schCost(x), 0), wSales = Object.values(sales).reduce((s, v) => s + v, 0);
@@ -7246,8 +7327,9 @@ function viewSchedule(){
       <select class="sel" id="schView" aria-label="View">${[["day","Day"],["week","Week"],["month","Month"]].map(([k,t]) => `<option value="${k}" ${SCH.view===k?"selected":""}>${t}</option>`).join("")}</select>
       <div class="wkn"><button type="button" class="btn" data-schwk="-${step}" aria-label="Previous">‹</button><b>${esc(wl)}</b><button type="button" class="btn" data-schwk="${step}" aria-label="Next">›</button>
         <label class="btn schcal" title="Pick a date" aria-label="Pick a date">${svgIco("calendar")}<input type="date" id="schDate" value="${esc(SCH.at)}"></label>${isNow ? "" : `<button type="button" class="btn" data-schwk="0">${nowLbl}</button>`}</div>
-      ${SCH.view==="week" ? `<button type="button" class="btn" id="schCopy">Copy Last Week</button>` : ""}<button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` (${drafts})` : ""}</button></div></div>
-    <div class="card tbl"><div class="ttop"><b>${wHrs.toFixed(1)} hours · ${week.length} shift${week.length===1?"":"s"} · labor ${money(wCost)}${wSales ? ` · sales ${money(wSales)} · labor ${(wCost / wSales * 100).toFixed(1)}%` : ""}</b></div>
+      ${SCH.view==="week" ? `<button type="button" class="btn" id="schCopy">Copy Last Week</button>` : ""}<button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` <span class="pubn">${drafts}</span>` : ""}</button></div></div>
+    <div class="schk">${[["Scheduled hours", wHrs.toFixed(1) + "h", `${week.length} shift${week.length===1?"":"s"}`], ["Labor cost", money(wCost), "From pay rates"], ["Sales", money(wSales), SCH.view==="day" ? "This day" : SCH.view==="month" ? "This month" : "This week"], ["Labor %", wSales ? (wCost / wSales * 100).toFixed(1) + "%" : "—", "Labor ÷ sales"], ["Drafts", String(drafts||0), drafts ? "Not published yet" : "All published"]].map(([l, v, d]) => `<div class="card kmini"><span>${l}</span><b>${v}</b><span class="note">${d}</span></div>`).join("")}</div>
+    <div class="card tbl schcard">
       <div class="schwrap"><table class="schg" style="${nDays > 7 ? `min-width:${200 + nDays * 140}px` : nDays===1 ? "min-width:0" : ""}"><thead><tr><th>Employee</th>${head}</tr></thead><tbody>${rowH(null, true)}${emps.map(u => rowH(u)).join("")}</tbody></table></div>
       <div class="schleg"><span><i></i>Published</span><span><i class="d"></i>Draft (not published yet)</span><span><i class="c"></i>Overlaps another shift</span><span>Click a day to add · drag a shift to move it, hold Ctrl or Alt to copy it</span></div></div>
     ${emps.length ? "" : `<p class="note">No employees work at this branch yet. Pick their branches on each employee's page (Employee Management → Employees).</p>`}`;
@@ -9481,6 +9563,11 @@ document.addEventListener("click", async e => {
       const ar = allergenAr(); delete ar[a]; ar[n] = nar || ""; if(n!==a) await algRename(a, n); const ok = await algSave(l.map(x => x===a ? n : x), ar); if(ok) toast("Allergen saved"); return ok; }, allergenAr()[a] || "",
       async () => { const ok = await algSave(l.filter(x => x!==a)); if(ok) toast("Allergen deleted"); return ok; }); }
 });
+document.addEventListener("input", e => { const f = e.target.closest?.("#detForm"); if(!f) return; const pv = document.querySelector(".pdprev"); if(!pv) return;   // the previews follow what's typed
+  const v = id => f.querySelector("#cf_" + id)?.value; const n = v("name"), pr = v("price"), d = v("description");
+  if(n != null) pv.querySelectorAll(".pvb b,.pvpos b").forEach(b => b.textContent = n || "—");
+  if(pr != null && pr !== "") pv.querySelectorAll(".pvb em,.pvpos em").forEach(x => x.textContent = usd(+pr));
+  if(d != null){ let el = pv.querySelector(".pvb p"); if(!el && d){ el = document.createElement("p"); pv.querySelector(".pvb > div").after(el); } if(el) el.textContent = d; } });
 function productDetail(p){
   const cost = productCost(p), price = +p.price || 0, pct = price ? cost/price*100 : 0;
   const brs = branches.slice();
@@ -9496,18 +9583,18 @@ function productDetail(p){
     <div class="sp"></div><span class="dacts">${p.deleted ? `<button type="button" class="btn" data-detrestore>Restore</button>` : DET.edit || draft ? `<button type="button" class="btn danger" data-detdelete>Delete Product</button><button type="button" class="btn" data-detview>Cancel</button><button type="submit" form="detForm" class="btn pri" id="detSave">Save</button>` : `<button type="button" class="btn pri" data-detedit>Edit Product</button>`}</span></div>`;
   const F = keys => openCrud("products", p.id, keys, draft), vk = varKids(p).length;
   const editing = DET.edit || !!draft;
-  if(editing) h += `<form id="detForm" class="card detform" data-id="${esc(p.id)}"${draft ? ' data-dirty="1"' : ""} novalidate>
+  if(editing) h += `<div class="pdwrap"><div class="pdmain"><form id="detForm" class="card detform" data-id="${esc(p.id)}"${draft ? ' data-dirty="1"' : ""} novalidate>
     <div class="dsec dtop">${F(["imageUrl"])}<div class="dgrid d2">${F(["name","nameAr"])}${F(["description"])}</div></div>
     <div class="dsec"><h3>Details</h3><div class="dgrid">${F(["categoryId", ...(brandList().length > 1 ? ["brandId"] : []), "sku", "sellingMethod", "prepTime"])}</div></div>
     <div class="dsec"><h3>Price</h3>${vk ? `<p class="note" style="margin:0">Each variant has its own price and tax: open it from Variants below.</p>` : `<div class="dgrid">${F(["pricingMethod","price","taxGroup"])}</div>`}</div>
     <div class="dsec"><h3>Nutritional values</h3>${F(["nutrition"])}</div>
     <div class="dsec"><h3>Allergens</h3><div class="algs">${F(["allergens"])}</div></div>
 
-    <div class="err" id="cErr" style="padding:0 22px 14px"></div></form>`;
+    <div class="err" id="cErr" style="padding:0 22px 14px"></div></form></div>${pdPrev()}</div>`;
   const wide = c => c.replace(/^<div/, '<div style="grid-column:1/-1"');   // every saved setting of the product shows here, except the photo
-  const pdPrev = () => { const pr = varKids(p).length ? "From " + usd(Math.min(...varKids(p).map(x=>+x.price||0))) : p.pricingMethod==="open" ? "Open price" : usd(price), img = p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : svgIco("box");
+  function pdPrev(){ const pr = varKids(p).length ? "From " + usd(Math.min(...varKids(p).map(x=>+x.price||0))) : p.pricingMethod==="open" ? "Open price" : usd(price), img = p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : svgIco("box");
     return `<aside class="pdprev"><span class="pvl">Preview · online ordering</span><div class="pvon"><div class="pvimg">${img}</div><div class="pvb"><div><b>${esc(p.name)}</b><em>${pr}</em></div>${p.description ? `<p>${esc(p.description)}</p>` : ""}<span class="pvbtn">Add to order</span></div></div>
-      <span class="pvl">Preview · POS tile</span><div class="pvpos">${tagsOf("product", p.id).slice(0,1).map(t => `<span class="tag cc">${esc(tagName(t))}</span>`).join("")}<b>${esc(p.name)}</b><em>${pr}</em></div></aside>`; };
+      <span class="pvl">Preview · POS tile</span><div class="pvpos">${tagsOf("product", p.id).slice(0,1).map(t => `<span class="tag cc">${esc(tagName(t))}</span>`).join("")}<b>${esc(p.name)}</b><em>${pr}</em></div></aside>`; }
   if(!editing) h += `<div class="pdwrap"><div class="pdmain">` + pdTopCard(p, [info("Name", esc(p.name)), info("Name Localized", esc(p.nameAr||"—")), info("Category", esc(catName(p.categoryId))),
     info("SKU", `<span class="code">${esc(p.sku||"—")}</span>`), info("Barcode", esc(p.barcode||"—")), info("Calories", (p.nutrition||{}).calories!=null && (p.nutrition||{}).calories!=="" ? esc(p.nutrition.calories) + " kCal" : "—"), info("Tax Group", varKids(p).length ? "Set on each variant" : esc(tgName(p.taxGroup))),
     info("Pricing Method", p.pricingMethod==="open"?"Open Price":"Fixed Price"), info("Selling Method", p.sellingMethod==="weight"?"Weight":"Unit"),
@@ -11289,6 +11376,21 @@ document.getElementById("signOut").addEventListener("click", () => window.WOK &&
 (function(){ const add = (box, attr) => { const h = box && box.querySelector(":scope > header"); if(h && !h.querySelector(".x")){ const b = document.createElement("button"); b.type = "button"; b.className = "x"; b.setAttribute(attr, ""); b.setAttribute("aria-label", "Close"); b.textContent = "×"; h.appendChild(b); } };
   const watch = (id, attr) => { const box = document.getElementById(id); if(box) new MutationObserver(() => add(box, attr)).observe(box, { childList:true }); };
   watch("ccBox", "data-ccclose"); watch("crudBox", "data-cclose"); })();
+/* product editor: live previews beside the form (template) */
+(() => { const b = document.getElementById("crudBox"); if(!b) return;
+  const paint = () => { const pv = b.querySelector(".dlgprev"); if(!pv) return; const v = id => b.querySelector("#cf_" + id)?.value || "";
+    const img = b.querySelector(".f img[src]")?.getAttribute("src"), n = v("name") || "New item", pr = v("price"), d = v("description");
+    const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[c]);
+    const svgIco = () => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>';
+    const cur = ((b.querySelector('label[for="cf_price"]')?.textContent || "").match(/\(([^)]+)\)/) || [])[1] || "";
+    const price = pr !== "" ? (cur ? cur + " " : "") + (+pr).toFixed(2) : "—";
+    pv.innerHTML = `<span class="pvl">Preview · online ordering</span><div class="pvon"><div class="pvimg">${img ? `<img src="${esc(img)}" alt="">` : svgIco("box")}</div><div class="pvb"><div><b>${esc(n)}</b><em>${price}</em></div>${d ? `<p>${esc(d)}</p>` : ""}<span class="pvbtn">Add to order</span></div></div><span class="pvl">Preview · POS tile</span><div class="pvpos"><b>${esc(n)}</b><em>${price}</em></div>`; };
+  new MutationObserver(() => { const on = b.querySelector("#cf_name") && b.querySelector("#cf_pricingMethod") && b.querySelector("#cf_categoryId");   // the product form
+    b.classList.toggle("pdedit", !!on); if(on && !b.querySelector(".dlgprev")){ const a = document.createElement("aside"); a.className = "pdprev dlgprev"; a.setAttribute("aria-label", "Preview"); b.appendChild(a); paint(); } }).observe(b, { childList:true });
+  b.addEventListener("input", () => { if(b.classList.contains("pdedit")) paint(); }); b.addEventListener("change", () => { if(b.classList.contains("pdedit")) setTimeout(paint, 50); }); })();
+(() => { const tile = box => { const h = box.querySelector(":scope > header"); if(!h || h.querySelector(".dlgico")) return; const ic = document.querySelector("#view .phead .hico svg"); if(!ic) return;
+    const t = document.createElement("span"); t.className = "dlgico"; t.setAttribute("aria-hidden", "true"); t.appendChild(ic.cloneNode(true)); h.insertBefore(t, h.firstChild); };
+  ["crudBox","ccBox"].forEach(id => { const b = document.getElementById(id); if(b) new MutationObserver(() => tile(b)).observe(b, { childList:true }); }); })();
 (() => { const sc = document.getElementById("ccScrim"), bx = document.getElementById("ccBox"); if(!sc || !bx) return;
   new MutationObserver(() => { if(!sc.classList.contains("show")) bx.classList.remove("odrawer"); }).observe(sc, { attributes:true, attributeFilter:["class"] });
   new MutationObserver(() => { if(bx.classList.contains("odrawer") && !bx.querySelector(".odet")) bx.classList.remove("odrawer"); }).observe(bx, { childList:true }); })();
