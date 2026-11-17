@@ -2130,6 +2130,26 @@ html body .toggle .trk{width:42px!important;height:24px!important;background:#D3
 html body .toggle .trk::after{left:3px!important;top:3px!important;width:18px!important;height:18px!important}
 html body .toggle input:checked+.trk{background:#1E3A8A!important}
 html body .toggle input:checked+.trk::after{left:21px!important}
+/* inventory documents (template purchase order): breadcrumb header and steps */
+.dochead .hbk{width:40px;height:40px;border-radius:12px;background:#FFFFFF;border:1px solid #E0E3EE;color:#0E1530;display:grid;place-items:center;font-size:22px;text-decoration:none;flex:none}
+html body .app #view .dochead h1{margin:0!important;font-size:24px!important}
+.dsteps{display:flex;gap:0;padding:16px 20px!important;margin-bottom:16px}
+.dsteps > div{flex:1;display:flex;align-items:center;gap:10px;position:relative;color:#6B7392}
+.dsteps > div:not(:last-child)::after{content:"";flex:1;height:2px;background:#E6E8F2;margin:0 14px;border-radius:2px}
+.dsteps > div.done:not(:last-child)::after{background:#1E3A8A}
+.dsteps i{width:30px;height:30px;border-radius:50%;background:#F4F5FA;border:1.5px solid #E0E3EE;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px;flex:none}
+.dsteps .done i{background:#1E3A8A;border-color:#1E3A8A;color:#FFFFFF}.dsteps .now i{background:#6D28D9;border-color:#6D28D9;color:#FFFFFF}.dsteps .bad i{background:#B42318;border-color:#B42318;color:#FFFFFF}
+.dsteps span{display:flex;flex-direction:column;white-space:nowrap}.dsteps b{font-size:13.5px;color:#0E1530}.dsteps small{font-size:12px}
+@media (max-width:760px){.dsteps{overflow-x:auto}.dsteps > div:not(:last-child)::after{min-width:20px}}
+html body .app #view .card.dinfo{padding:18px 20px!important}
+html body .app #view .card.dinfo > div > .note:first-child{font-size:12px!important;color:#6B7392!important;margin-bottom:2px}
+html body .app #view .card.dinfo > div > div:last-child{font-weight:600;color:#0E1530}
+html body .app #view .card h3,html body .app #view .dzsec h3,html body .app #view .brch h3{font-family:var(--ab-head)!important;font-weight:700!important;font-size:17px!important;text-transform:none!important;color:#0E1530}
+html body .app #view .dochead .tag{border-radius:999px!important}
+/* pop-ups always sit above the side menu and inside the screen */
+html body .scrim{z-index:60!important}
+html body .toast,html body #toast{z-index:9000!important}
+html body .scrim .modal{max-width:calc(100vw - 24px)!important;box-sizing:border-box}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
@@ -10774,9 +10794,9 @@ function viewDoc(route){
   const info = (l, v) => `<div><div class="note">${l}</div><div>${v}</div></div>`;
   const pv = K.kind==="production" && ro ? (DOC.open.view || "") : "";   // production pages (Foodics): the production, its consumption, its waste
   const prodCost = () => ro && Array.isArray(d.consumed) && d.consumed.length ? d.consumed.reduce((s, c) => s + (+c.qty||0) * (+c.cost||0), 0) : d.items.reduce((s, l) => s + (+l.qty||0) * (ro && l.cost!=null ? +l.cost : recipeCost(itemOf(l.itemId)?.ingredients)), 0);
-  let h = `<div class="phead"><a href="#${route}" class="btn" data-docback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${(() => { const r = docRefOf(d), px = { pc:"PC", pw:"PW" }[pv] || (K.kind==="production" ? "PRD" : "");
-      return (pv==="pc" ? "Consumption From Production" : pv==="pw" ? "Waste From Production" : K.title) + (r ? ` (${esc(px ? r.replace(/^[A-Z]+-/, px + "-") : r)})` : ""); })()}</h1>
-    ${K.kind!=="sheet" ? `<span style="margin-left:8px">${docStatusTag(d)}</span>` : ""}<div class="sp"></div>
+  let h = `<div class="phead dochead"><a href="#${route}" class="hbk" data-docback aria-label="Back">‹</a><div class="pdh"><span class="crumb">Inventory · ${esc(K.title)}</span><h1>${(() => { const r = docRefOf(d), px = { pc:"PC", pw:"PW" }[pv] || (K.kind==="production" ? "PRD" : "");
+      return r ? esc(px ? r.replace(/^[A-Z]+-/, px + "-") : r) : (pv==="pc" ? "Consumption From Production" : pv==="pw" ? "Waste From Production" : "New " + K.title.toLowerCase()); })()}</h1></div>
+    ${K.kind!=="sheet" ? `<span>${docStatusTag(d)}</span>` : ""}<div class="sp"></div>
     ${d.items.length || d.id ? `${d.id && K.kind!=="sheet" ? `<button class="btn" data-docprint>Print</button>` : ""}
     ${d.id && !ro ? `<button class="btn danger" data-docdel>Delete Permanently</button>` : ""}
     ${!ro && K.kind!=="cost" ? `<button class="btn" data-docedit>Edit</button>` : ""}
@@ -10784,6 +10804,10 @@ function viewDoc(route){
     ${!ro && K.kind!=="sheet" && !K.flow ? `<button class="btn pri" data-docsubmit ${DOC.busy||!d.items.length?"disabled":""}>${DOC.busy?"Working…":K.count||K.kind==="spot"?"Submit Count":K.kind==="production"?"Produce Items":"Submit"}</button>` : ""}
     ${K.flow ? flowButtons(d, K) : ""}` : ""}</div>`;   // a new draft with no items yet: nothing to print, save, edit, delete or submit (Foodics); a saved draft keeps its buttons
   if(DOC.err) h += `<div class="banner" style="background:#fdecef;color:#9e0c24">${esc(DOC.err)}</div>`;
+  if(K.flow && K.kind!=="sheet"){   // where the order is (template): draft → submitted → done
+    const st = d.status || "draft", bad = ["declined","rejected","void"].includes(st), at = bad ? 1 : st==="draft" ? 0 : st==="pending" ? 1 : 2;
+    const steps = [["Draft", "Being prepared"], [K.kind==="purchase" ? "Submitted" : "Sent", bad ? "Declined" : "Waiting for approval"], [K.kind==="purchase" ? "Received" : "Done", "In stock"]];
+    h += `<div class="card dsteps">${steps.map(([t, sub], i) => `<div class="${i < at || (i===at && st==="closed") ? "done" : i===at ? (bad ? "bad" : "now") : ""}"><i>${i < at || (i===at && st==="closed") ? "✓" : i+1}</i><span><b>${t}</b><small>${i===at ? sub : i < at ? "Done" : ""}</small></span></div>`).join("")}</div>`; }
   // header fields: shown as a summary (Foodics); a draft changes them with Edit
   DOC.form = ro ? "" : docForm(d, K, loc);
   if(true){

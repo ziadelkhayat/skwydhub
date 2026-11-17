@@ -774,6 +774,14 @@ html[data-theme=dark] body .app aside.side nav.nav .grp > button:hover, html[dat
 html[data-theme=dark] body label.chk > input[type=checkbox][id]{background:#252832!important}
 html[data-theme=dark] body label.chk > input[type=checkbox][id]::after{background:#101420;box-shadow:0 1px 3px rgba(0,0,0,0.55)}
 html[data-theme=dark] body .toggle .trk{background:#252832!important}
+html[data-theme=dark] .dochead .hbk{background:#101420;border:1px solid #2a314d;color:#c9d1ef}
+html[data-theme=dark] .dsteps > div{color:#9aa0b5}
+html[data-theme=dark] .dsteps > div:not(:last-child)::after{background:#1d1f29}
+html[data-theme=dark] .dsteps i{background:#171923;border:1.5px solid #2a314d}
+html[data-theme=dark] .dsteps b{color:#c9d1ef}
+html[data-theme=dark] body .app #view .card.dinfo > div > .note:first-child{color:#9aa0b5!important}
+html[data-theme=dark] body .app #view .card.dinfo > div > div:last-child{color:#c9d1ef}
+html[data-theme=dark] body .app #view .card h3, html[data-theme=dark] body .app #view .dzsec h3, html[data-theme=dark] body .app #view .brch h3{color:#c9d1ef}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .plancard i em{background:#5f683f}
 html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}
@@ -856,6 +864,7 @@ html[data-theme=dark] body #ccBox .ccx.s2>.cccart{border:1px solid #272e4c!impor
 html[data-theme=dark] [style*="background:#C6F432"]{background:#5f683f!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
+html[data-theme=dark] [style*="background:#E6E8F2"]{background:#1d1f29!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
 html[data-theme=dark] [style*="background:#ECEEF6"]{background:#1a1c26!important}
 html[data-theme=dark] [style*="background:#EEF0F5"]{background:#1b1e24!important}
