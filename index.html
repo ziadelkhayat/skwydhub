@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="955-1794920775">
+<meta name="skwyd-build" content="957-1794921065">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -756,7 +756,12 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .tbl table th,.tbl table td{white-space:nowrap}.tbl table td.wrap,.tbl table td .note{white-space:normal}
 .phrow{display:flex;gap:8px}.phrow select{flex:0 1 210px;max-width:45%;min-width:0}.phrow input{flex:1;min-width:0}
 .slk-ask{position:fixed;inset:0;z-index:2147483000;background:rgba(20,16,40,.45);display:grid;place-items:center;padding:16px;animation:slkAskIn .12s ease-out}
-.kbcats{display:flex;flex-wrap:wrap;gap:6px}.kbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:14px}.kbcard{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;padding:18px}.kbcard small{color:var(--acc2,#6d28d9);font-weight:600}.kbcard b{font-size:16px}.kbcard p{margin:0;color:var(--mut,#667085);font-size:13px;flex:1}
+.kbcats{display:flex;flex-wrap:wrap;gap:8px}
+.kbchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line,#e6e8f0);background:#fff;color:var(--ink2,#475069);border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.kbchip:hover{border-color:#c9cfe0}
+.kbchip span{font-size:11.5px;font-weight:600;color:var(--mut,#8a90a6);background:#f1f3f8;border-radius:999px;padding:1px 7px;min-width:20px;text-align:center}
+.kbchip.on{background:#172554;border-color:#172554;color:#fff}.kbchip.on span{background:rgba(255,255,255,.18);color:#fff}
+#ccBox.kbdlg .body.kbbody{display:flex!important;flex-direction:column;gap:14px}.kbrow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}.kbrow>.f{min-width:160px}.kb3>.kbpick{flex:1;min-width:180px}.kbpick .tchpick{max-height:170px;overflow:auto}.kbps{margin-bottom:6px}
+#ccBox.kbdlg .f{margin:0!important}.kbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:14px}.kbcard{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;padding:18px}.kbcard small{color:var(--acc2,#6d28d9);font-weight:600}.kbcard b{font-size:16px}.kbcard p{margin:0;color:var(--mut,#667085);font-size:13px;flex:1}
 .kbv{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}.kbart{padding:24px}.kbtx{line-height:1.6}.kbtx h3,.kbtx h4{margin:14px 0 6px}.kbfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.kbside{padding:18px}.kbwho{margin-top:8px;max-height:420px;overflow:auto}.kbwho div{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)}
 @media(max-width:900px){.kbv{grid-template-columns:1fr}}
 .tch{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;height:calc(100vh - 220px);min-height:420px}.tchl{background:#fff;border:1px solid var(--line);border-radius:16px;overflow-y:auto;padding:6px}.tchg{display:grid;grid-template-columns:1fr auto;gap:2px 8px;width:100%;text-align:left;border:0;background:none;padding:12px;border-radius:12px;cursor:pointer;font:inherit;color:inherit}.tchg small{grid-column:1/-1;color:var(--ink3,#8d8c98);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tchg em{font-style:normal;font-size:12px;color:var(--ink3,#8d8c98)}.tchg.on{background:#eef2fc}.tchm{background:#fff;border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-height:0}.tchh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}.tchh small{display:block;color:var(--ink3,#8d8c98);font-size:12.5px}.tchb{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f7f8fb}.tchmsg{max-width:72%;align-self:flex-start;display:grid;gap:3px}.tchmsg span{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:14px 14px 14px 4px;white-space:pre-wrap;word-break:break-word}.tchmsg span b{display:block;font-size:12px;color:#6d28d9;margin-bottom:2px}.tchmsg small{font-size:11px;color:var(--ink3,#8d8c98)}.tchmsg.me{align-self:flex-end;text-align:right}.tchmsg.me span{background:#1e3a8a;color:#fff;border-color:#1e3a8a;border-radius:14px 14px 4px 14px;text-align:left}.tchf{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}.tchf input{flex:1}.tchpick{display:grid;gap:6px;max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:10px}@media(max-width:800px){.tch{grid-template-columns:1fr;height:auto}.tchl{max-height:220px}.tchm{height:60vh}}
@@ -1677,7 +1682,7 @@ h1 .dn,.dn{text-transform:none}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=64"></script>
+<script src="wokdb.js?v=65"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=5"></script>
@@ -6364,7 +6369,8 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
 const KB = { q:"", cat:"", open:"" };
 const KB_CATS = ["Policies","Guides","Recipes","Training","Safety","Other"];
 const kbList = () => (S.kb_articles||[]).filter(a => !a.deleted);
-const kbAud = a => { const rs = a.roleIds||[], bs = a.branchIds||[]; return S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u) && (!rs.length || userRoleIds(u).some(r => rs.includes(r))) && (!bs.length || !(u.branchIds||[]).length || (u.branchIds||[]).some(b => bs.includes(b)))); };
+const kbAud = a => { const rs = a.roleIds||[], bs = a.branchIds||[], es = a.employeeIds||[], byGroup = !es.length || rs.length || bs.length;
+  return S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u) && (es.includes(u.id) || (byGroup && (!rs.length || userRoleIds(u).some(r => rs.includes(r))) && (!bs.length || !(u.branchIds||[]).length || (u.branchIds||[]).some(b => bs.includes(b)))))); };
 const kbReads = id => (S.kb_reads||[]).filter(r => r.articleId===id);
 const kbBody = t => esc(t||"").replace(/^### (.*)$/gm, "<h4>$1</h4>").replace(/^## (.*)$/gm, "<h3>$1</h3>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/^- (.*)$/gm, "<li>$1</li>").replace(/\n/g, "<br>");
 function viewKB(){
@@ -6375,30 +6381,40 @@ function viewKB(){
     return `<div class="phead"><a class="btn" href="#knowledge" data-kbback style="text-decoration:none">← Back</a><h1>${esc(o.title)}</h1><div class="sp"></div><button class="btn pri" data-kbedit="${esc(o.id)}">Edit Article</button></div>
       <div class="kbv"><article class="card kbart"><div class="note" style="margin-bottom:10px">${esc(o.category||"Other")}${o.pinned ? " · Pinned" : ""} · Updated ${esc(new Date(o.updatedAt||o.createdAt).dmy())}</div><div class="kbtx">${kbBody(o.body)}</div>
         ${(o.files||[]).length ? `<div class="kbfiles">${o.files.map((f,i) => `<button type="button" class="btn" data-kbfile="${esc(o.id)}:${i}">${svgIco("download")} ${esc(f.name)}</button>`).join("")}</div>` : ""}</article>
-      <aside class="card kbside"><b>Who sees it</b><p class="note">${(o.roleIds||[]).length ? (o.roleIds).map(id => esc(roleName(id))).join(", ") : "All roles"} · ${(o.branchIds||[]).length ? o.branchIds.map(id => esc(branchName(id))).join(", ") : "All branches"}</p>
+      <aside class="card kbside"><b>Who sees it</b><p class="note">${(o.employeeIds||[]).length && !(o.roleIds||[]).length && !(o.branchIds||[]).length ? "Only the employees picked" : `${(o.roleIds||[]).length ? (o.roleIds).map(id => esc(roleName(id))).join(", ") : "All roles"} · ${(o.branchIds||[]).length ? o.branchIds.map(id => esc(branchName(id))).join(", ") : "All branches"}`}${(o.employeeIds||[]).length ? " · " + o.employeeIds.length + " picked by name" : ""}</p>
         ${o.ack ? `<b>Read & acknowledged ${aud.filter(u => byId[u.id]).length} / ${aud.length}</b>` : `<b>Opened by ${aud.filter(u => byId[u.id]).length} / ${aud.length}</b>`}
         <div class="kbwho">${aud.map(u => `<div><span>${esc(u.name)}</span>${byId[u.id] ? `<span class="tag on">${esc(new Date(byId[u.id].readAt).dmy())}</span>` : `<span class="note">Not yet</span>`}</div>`).join("") || '<p class="note">Nobody yet</p>'}</div></aside></div>`; }
   return `<div class="phead"><h1>Knowledge Base</h1><div class="sp"></div><button class="btn pri" data-kbnew>${svgIco("plus")} New Article</button></div>
     <p class="subt" style="margin-top:-6px">Policies, guides, recipes and training. Employees read them in the SKWYD Team, Driver and Manager apps.</p>
-    <div class="row fbar"><input class="sel" id="kbQ" placeholder="Search articles" value="${esc(KB.q)}" style="min-width:240px"><div class="kbcats"><button type="button" class="chip ${KB.cat ? "" : "on"}" data-kbcat="">All</button>${cats.map(c => `<button type="button" class="chip ${KB.cat===c ? "on" : ""}" data-kbcat="${esc(c)}">${esc(c)} <span class="note">${all.filter(a => a.category===c).length}</span></button>`).join("")}</div></div>
+    <div class="row fbar"><input class="sel" id="kbQ" placeholder="Search articles" value="${esc(KB.q)}" style="min-width:240px"><div class="kbcats"><button type="button" class="kbchip ${KB.cat ? "" : "on"}" data-kbcat="">All <span>${all.length}</span></button>${cats.map(c => `<button type="button" class="kbchip ${KB.cat===c ? "on" : ""}" data-kbcat="${esc(c)}">${esc(c)} <span>${all.filter(a => a.category===c).length}</span></button>`).join("")}</div></div>
     <div class="kbgrid">${l.map(a => { const aud = kbAud(a), n = kbReads(a.id).filter(r => aud.some(u => u.id===r.staffId)).length;
       return `<a class="card kbcard" href="#knowledge" data-kbopen="${esc(a.id)}"><small>${esc(a.category||"Other")}${a.pinned ? " · Pinned" : ""}</small><b>${esc(a.title)}</b><p>${esc(String(a.body||"").replace(/[#*\-]/g,"").slice(0,140))}</p><span class="note">${(a.files||[]).length ? (a.files.length + " file" + (a.files.length>1?"s":"") + " · ") : ""}${a.ack ? "Acknowledged" : "Opened"} ${n}/${aud.length}</span></a>`; }).join("") || `<div class="card"><p class="dzempty" style="padding:24px">${all.length ? "No articles match." : "No articles yet. Add your first policy, guide or recipe."}</p></div>`}</div>`;
 }
 function kbDlg(a){
-  const roles = S.roles.filter(r => live(r)).sort((x,y) => String(x.name).localeCompare(String(y.name))), ron = new Set(a?.roleIds||[]), bon = new Set(a?.branchIds||[]);
-  let files = [...(a?.files||[])]; const box = $("#ccBox"); box.className = "modal wide";
+  const roles = S.roles.filter(r => live(r)).sort((x,y) => String(x.name).localeCompare(String(y.name))), ron = new Set(a?.roleIds||[]), bon = new Set(a?.branchIds||[]), eon = new Set(a?.employeeIds||[]);
+  const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u)).sort((x,y) => String(x.name).localeCompare(String(y.name)));
+  // categories: the standard ones, plus any custom ones already used; "Other" lets you type a new one
+  const cats = [...new Set([...KB_CATS.filter(c => c!=="Other"), ...kbList().map(x => x.category).filter(c => c && c!=="Other")])], cur = a?.category || "Policies", custom = !cats.includes(cur);
+  let files = [...(a?.files||[])]; const box = $("#ccBox"); box.className = "modal wide kbdlg";
   const fl = () => files.map((f,i) => `<span class="dzchip">${esc(f.name)}<button type="button" data-kbrmf="${i}" aria-label="Remove">×</button></span>`).join("");
-  box.innerHTML = `<header><h2>${a ? "Edit Article" : "New Article"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body">
-    <div class="row" style="gap:12px"><div class="f" style="flex:2"><label for="kbT">Title <span style="color:#d92d20">*</span></label><input id="kbT" class="sel" maxlength="160" value="${esc(a?.title||"")}" placeholder="e.g. Opening checklist"></div>
-      <div class="f" style="flex:1"><label for="kbC">Category</label><input id="kbC" class="sel" list="kbCl" value="${esc(a?.category||"Policies")}"><datalist id="kbCl">${KB_CATS.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div></div>
-    <div class="f"><label for="kbB">Content <span style="color:#d92d20">*</span></label><textarea id="kbB" class="sel" rows="12" style="min-height:220px;font:inherit" placeholder="Write the article. Use ## for a heading, - for a list item and **bold**.">${esc(a?.body||"")}</textarea></div>
-    <div class="f"><label>Files</label><div class="dzchips" id="kbFl">${fl()}</div><input type="file" id="kbF" multiple accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx" style="margin-top:6px"><p class="note">PDF, pictures or short videos, up to 10 MB each.</p></div>
-    <div class="row" style="gap:12px;align-items:flex-start"><div class="f" style="flex:1"><label>Roles <span class="note">(none = everyone)</span></label><div class="tchpick" id="kbR" style="max-height:150px">${roles.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${ron.has(r.id) ? "checked" : ""}> ${esc(r.name)}</label>`).join("") || '<p class="note">No roles</p>'}</div></div>
-      <div class="f" style="flex:1"><label>Branches <span class="note">(none = all)</span></label><div class="tchpick" id="kbBr" style="max-height:150px">${activeBranches().map(b => `<label class="chk"><input type="checkbox" value="${esc(b.id)}" ${bon.has(b.id) ? "checked" : ""}> ${esc(b.name)}</label>`).join("")}</div></div></div>
-    <label class="chk"><input type="checkbox" id="kbP" ${a?.pinned ? "checked" : ""}> Pin to the top</label>
-    <label class="chk"><input type="checkbox" id="kbA" ${a?.ack ? "checked" : ""}> Employees must confirm they read it</label>
+  const pick = (id, label, note, items) => `<div class="f kbpick"><label>${label} <span class="note">${note}</span></label>${id==="kbE2" ? `<input class="sel kbps" data-kbps="kbE2" placeholder="Search employees">` : ""}<div class="tchpick" id="${id}">${items || '<p class="note">None</p>'}</div></div>`;
+  box.innerHTML = `<header><h2>${a ? "Edit Article" : "New Article"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body kbbody">
+    <div class="kbrow"><div class="f" style="flex:2"><label for="kbT">Title <span style="color:#d92d20">*</span></label><input id="kbT" class="sel" maxlength="160" value="${esc(a?.title||"")}" placeholder="e.g. Opening checklist"></div>
+      <div class="f" style="flex:1"><label for="kbC">Category <span style="color:#d92d20">*</span></label><select id="kbC" class="sel">${cats.map(c => `<option value="${esc(c)}" ${!custom && c===cur ? "selected" : ""}>${esc(c)}</option>`).join("")}<option value="__other" ${custom ? "selected" : ""}>Other</option></select></div>
+      <div class="f" style="flex:1" id="kbOW" ${custom ? "" : "hidden"}><label for="kbO">Other Category <span style="color:#d92d20">*</span></label><input id="kbO" class="sel" maxlength="40" value="${esc(custom && cur!=="Other" ? cur : "")}" placeholder="e.g. Cleaning"></div></div>
+    <div class="f"><label for="kbB">Content <span style="color:#d92d20">*</span></label><textarea id="kbB" class="sel" rows="10" style="min-height:200px;font:inherit;width:100%" placeholder="Write the article. Use ## for a heading, - for a list item and **bold**.">${esc(a?.body||"")}</textarea></div>
+    <div class="f"><label>Files</label><div class="dzchips" id="kbFl">${fl()}</div><input type="file" id="kbF" multiple accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx"><p class="note">PDF, pictures or short videos, up to 10 MB each.</p></div>
+    <div class="kbrow kb3">
+      ${pick("kbR", "Roles", "(none = everyone)", roles.map(r => `<label class="chk"><input type="checkbox" value="${esc(r.id)}" ${ron.has(r.id) ? "checked" : ""}> ${esc(r.name)}</label>`).join(""))}
+      ${pick("kbBr", "Branches", "(none = all)", activeBranches().map(b => `<label class="chk"><input type="checkbox" value="${esc(b.id)}" ${bon.has(b.id) ? "checked" : ""}> ${esc(b.name)}</label>`).join(""))}
+      ${pick("kbE2", "Employees", "(always see it)", emps.map(u => `<label class="chk" data-nm="${esc(String(u.name).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${eon.has(u.id) ? "checked" : ""}> ${esc(u.name)}</label>`).join(""))}</div>
+    <p class="note" style="margin:-4px 0 0">Employees picked by name always see the article. If you pick only employees, only they see it.</p>
+    <div class="kbrow"><label class="chk"><input type="checkbox" id="kbP" ${a?.pinned ? "checked" : ""}> Pin to the top</label>
+    <label class="chk"><input type="checkbox" id="kbA" ${a?.ack ? "checked" : ""}> Employees must confirm they read it</label></div>
     <div class="err" id="kbE"></div></div>
     <footer>${a ? `<button type="button" class="btn danger" data-kbdel="${esc(a.id)}">Delete Article</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="kbSave">Save</button></footer>`;
+  $("#kbC").onchange = () => { const o = $("#kbC").value==="__other"; $("#kbOW").hidden = !o; if(o) setTimeout(() => $("#kbO").focus(), 0); };
+  box.querySelector("[data-kbps]").oninput = e => { const q = e.target.value.trim().toLowerCase(); box.querySelectorAll("#kbE2 .chk").forEach(l => l.hidden = !!q && !l.dataset.nm.includes(q)); };
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#kbT")?.focus(), 30);
   $("#kbF").onchange = async e => { for(const f of e.target.files){ if(f.size > 10485760){ toast(`${f.name} is larger than 10 MB`); continue; }
       const path = `${await sdCompany()}/kb/${Date.now().toString(36)}-${f.name.replace(/[^\w.\-]+/g, "_")}`;
@@ -6408,9 +6424,9 @@ function kbDlg(a){
   box.onclick = async e => {
     const rm = e.target.closest("[data-kbrmf]"); if(rm){ files.splice(+rm.dataset.kbrmf, 1); $("#kbFl").innerHTML = fl(); return; }
     const del = e.target.closest("[data-kbdel]"); if(del){ if(!(await askYes(`Delete the article ${a.title}?`))) return; try{ await put("kb_articles", a.id, { deleted:true }); $("#ccScrim").classList.remove("show"); KB.open = ""; toastOk("Article deleted"); render(); }catch(er){ console.error(er); toast("Couldn't delete the article."); } return; }
-    if(e.target.closest("#kbSave")){ const title = $("#kbT").value.trim(), body = $("#kbB").value.trim(), category = $("#kbC").value.trim() || "Other";
-      if(!title) return $("#kbE").textContent = "Enter a title."; if(!body && !files.length) return $("#kbE").textContent = "Write the content or add a file.";
-      const d = { title, body, category, files, roleIds: [...document.querySelectorAll("#kbR input:checked")].map(i => i.value), branchIds: [...document.querySelectorAll("#kbBr input:checked")].map(i => i.value), pinned: $("#kbP").checked, ack: $("#kbA").checked };
+    if(e.target.closest("#kbSave")){ const title = $("#kbT").value.trim(), body = $("#kbB").value.trim(), category = $("#kbC").value==="__other" ? $("#kbO").value.trim() : $("#kbC").value;
+      if(!title) return $("#kbE").textContent = "Enter a title."; if(!category) return $("#kbE").textContent = "Enter the category name."; if(!body && !files.length) return $("#kbE").textContent = "Write the content or add a file.";
+      const d = { title, body, category, files, roleIds: [...document.querySelectorAll("#kbR input:checked")].map(i => i.value), branchIds: [...document.querySelectorAll("#kbBr input:checked")].map(i => i.value), employeeIds: [...document.querySelectorAll("#kbE2 input:checked")].map(i => i.value), pinned: $("#kbP").checked, ack: $("#kbA").checked };
       try{ const id = a?.id || "kb_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
         await put("kb_articles", id, a ? d : { ...d, createdBy: state.fullName || state.userName || "Manager", deleted:false });
         $("#ccScrim").classList.remove("show"); toastOk(a ? "Article saved" : "Article published"); KB.open = id; render(); }

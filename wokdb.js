@@ -16,7 +16,7 @@
   const COLS = {
     staff_documents: "id employee_id doc_type number issued_on expires_on file_path file_name note deleted created_at",
     chat_groups: "id name kind owner_id member_ids role_ids branch_ids created_by deleted created_at",
-    kb_articles: "id title category body files role_ids branch_ids pinned ack created_by deleted created_at updated_at",
+    kb_articles: "id title category body files role_ids branch_ids employee_ids pinned ack created_by deleted created_at updated_at",
     kb_reads: "id article_id staff_id read_at",
     chat_messages: "id group_id sender_id sender_name from_office body deleted created_at",
     staff_requests: "id employee_id kind leave_type from_day to_day shift_id swap_with note status decided_by decided_at decision_note branch_id deleted created_at",
