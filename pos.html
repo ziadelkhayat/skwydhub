@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="948-1794870168">
+<meta name="skwyd-build" content="954-1794920482">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -2014,14 +2014,14 @@ function openDrivers(){
   const rows = Object.entries(byDrv).sort((a,b) => b[1].l.length - a[1].l.length || String(a[1].name).localeCompare(String(b[1].name)));
   const tot = l => l.reduce((s,o) => s + (+o.total||0), 0), cash = l => l.filter(o => o.driverStatus==="delivered" || (o.status==="closed" && o.payment?.by==="driver")).reduce((s,o) => s + (+o.total||0), 0);
   const line = o => `<div class="drl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span>${esc(o.customerName || "—")}</span><span class="spill s-${o.driverStatus==="picked" ? "out" : o.status}">${esc(o.status==="closed" ? "Delivered" : DRV_ST[o.driverStatus] ? DRV_ST[o.driverStatus][0].toUpperCase() + DRV_ST[o.driverStatus].slice(1) : stLbl(o))}</span><em>${usd(o.total)}</em></div>`;
-  modal("drivers", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px">Drivers · Today</b><span class="sp"></span></div><div class="mb">
+  modal("drivers", `<div class="ohdr"><button class="hbtn" data-drvback>Back</button><b style="font-size:18px">Drivers · Today</b><span class="sp"></span></div><div class="mb">
     <div class="drvsum"><div><small>Delivery orders</small><b>${mine.length}</b></div><div><small>Total</small><b>${usd(tot(mine))}</b></div><div><small>Without a driver</small><b>${none.length}</b></div></div>
     ${rows.map(([id, d]) => `<div class="drvc"><div class="drvh"><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Collected</span><b>${usd(cash(d.l))}</b></div>
       ${d.l.length ? d.l.sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(line).join("") : `<p class="mut" style="margin:6px 0 0">No orders today</p>`}</div>`).join("") || `<p class="mut">No drivers yet. Give employees a role with "Use Driver App" in the back office.</p>`}
     ${none.length ? `<div class="drvc"><div class="drvh"><b>Waiting for a driver</b></div>${none.map(line).join("")}</div>` : ""}</div>`, true);
   $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr");
 }
-document.addEventListener("click", e => { if(e.target.closest("[data-drvlist]")) openDrivers(); });
+document.addEventListener("click", e => { if(e.target.closest("[data-drvlist]")) openDrivers(); if(e.target.closest("[data-drvback]")) openBoard(); if(e.target.closest("[data-gback]")) openTables(); });   // Cancel on the guests count returns to the tables   // Back returns to Pickup & Delivery
 
 /* ---------- modals ---------- */
 let modalKind = null;
@@ -3188,9 +3188,9 @@ async function tmPick(k){
 }
 function askGuests(k){
   window.__gTable = k; const t = branchTables().find(x => String(x.name).trim()===String(k));
-  modal("guests", `<div class="mh"><h2>${esc(tblLbl(k))}</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
+  modal("guests", `<div class="mh"><h2>${esc(tblLbl(k))}</h2><button class="x" data-gback aria-label="Close">×</button></div><div class="mb">
     <div class="dinput"><input id="gNum" inputmode="none" maxlength="2" aria-label="Number of guests"><span>guests</span></div>${numpad("gNum", "int")}</div>
-    <div class="mf"><button class="btn" data-close>Cancel</button><button class="btn pri" data-guests="custom" disabled>Continue</button></div>`); $("#modal").classList.add("kpm");
+    <div class="mf"><button class="btn" data-gback>Cancel</button><button class="btn pri" data-guests="custom" disabled>Continue</button></div>`); $("#modal").classList.add("kpm");
   $("#gNum").addEventListener("input", e => { $("[data-guests=custom]").disabled = !(+e.target.value >= 1); });
 }
 function pickTable(k, guests){
