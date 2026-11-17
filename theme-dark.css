@@ -771,6 +771,9 @@ html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn, html[data-theme=dark
 html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn:hover, html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile:hover{border-color:#263158!important;box-shadow:0 10px 24px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#161924,#1b1624)!important}
 html[data-theme=dark] body .app aside.side nav.nav .grp > button:hover, html[data-theme=dark] body .app aside.side nav.nav > a:hover, html[data-theme=dark] body .app aside.side nav.nav .sub a:hover{background:rgba(16,20,32,.07)!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id]{background:#252832!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id]::after{background:#101420;box-shadow:0 1px 3px rgba(0,0,0,0.55)}
+html[data-theme=dark] body .toggle .trk{background:#252832!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .plancard i em{background:#5f683f}
 html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}

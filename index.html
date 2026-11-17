@@ -2118,6 +2118,18 @@ html body .app aside.side nav.nav .grp > button:hover,html body .app aside.side 
 html body .app aside.side nav.nav .grp > button:hover svg.nls,html body .app aside.side nav.nav a:hover svg.nls{stroke:currentColor!important}
 html body .app aside.side nav.nav > a.on:hover,html body .app aside.side nav.nav .sub a.on:hover{background:var(--lime)!important;color:var(--abyss)!important}
 @media (hover:none){html body .app aside.side nav.nav .grp > button:hover,html body .app aside.side nav.nav > a:not(.on):hover,html body .app aside.side nav.nav .sub a:not(.on):hover{background:transparent!important}}
+/* on/off settings use switches (template); pick-many lists keep checkboxes */
+html body label.chk > input[type=checkbox][id]{-webkit-appearance:none;appearance:none;width:42px!important;height:24px!important;min-width:42px;border-radius:999px!important;background:#D3D7E5!important;border:0!important;position:relative;cursor:pointer;margin:0 8px 0 0!important;transition:background .2s;flex:none;box-shadow:none!important;outline:none}
+html body label.chk > input[type=checkbox][id]::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,21,48,.25);transition:transform .2s}
+html body label.chk > input[type=checkbox][id]:checked{background:#1E3A8A!important}
+html body label.chk > input[type=checkbox][id]:checked::after{transform:translateX(18px)}
+html body label.chk > input[type=checkbox][id]:focus-visible{box-shadow:0 0 0 4px #E3E8FA!important}
+html body label.chk > input[type=checkbox][id]:disabled{opacity:.5;cursor:default}
+html body label.chk:has(> input[type=checkbox][id]){display:inline-flex!important;align-items:center;gap:0;font-weight:600;color:var(--ink)}
+html body .toggle .trk{width:42px!important;height:24px!important;background:#D3D7E5!important}
+html body .toggle .trk::after{left:3px!important;top:3px!important;width:18px!important;height:18px!important}
+html body .toggle input:checked+.trk{background:#1E3A8A!important}
+html body .toggle input:checked+.trk::after{left:21px!important}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
