@@ -2172,6 +2172,14 @@ html body .app .note{font-size:13px}
 /* sideways strips scroll sideways only (they were also sliding up and down inside their box on iPhone) */
 html body .ptabs,html body .app .tabs.dtabs,html body .app .ttabs,html body .cutabs,html body .app .olseg,html body .app .tscroll,html body .app .ptabs{overflow-y:hidden!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 html body .app .tabs.dtabs::-webkit-scrollbar,html body .ptabs::-webkit-scrollbar,html body .cutabs::-webkit-scrollbar,html body .app .ttabs::-webkit-scrollbar{display:none}
+/* phone menu and pop-ups: the page behind stays still, no pull-to-refresh while one is open, a real backdrop to tap */
+@media (max-width:760px){
+  html body.navopen .app aside.side{z-index:63!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-shadow:none!important}
+  #navShade{position:fixed;inset:0;z-index:62;background:rgba(11,19,48,.5);cursor:pointer;display:none;touch-action:none}
+  html body.navopen #navShade{display:block}
+  html body.navopen,html body.dlgopen{overflow:hidden!important}
+}
+html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -2285,7 +2293,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=6"></script>
 <script src="strips.js?v=1"></script>
-<script src="sheets.js?v=1"></script>
+<script src="sheets.js?v=2"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
@@ -3846,6 +3854,8 @@ document.addEventListener("click", e => { const b = e.target.closest?.("[data-bm
 let lastRoute = HASH().slice(1) || "dashboard";
 // phone/tablet: slide-in menu
 $("#menuBtn").addEventListener("click", e => { e.stopPropagation(); document.body.classList.toggle("navopen"); });
+{ const ns = document.createElement("div"); ns.id = "navShade"; ns.setAttribute("aria-hidden","true"); document.body.appendChild(ns);
+  ns.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); document.body.classList.remove("navopen"); }); }
 document.addEventListener("click", e => { if(document.body.classList.contains("navopen") && (!e.target.closest(".side") || e.target.closest(".side a"))) document.body.classList.remove("navopen"); });
 // clicking the menu entry of the page you're already on does nothing (no reload, no blink)
 document.addEventListener("click", e => { const a = e.target.closest('#nav a[href^="#"], .ptabs a[href^="#"]'); if(!a || e.ctrlKey || e.metaKey || e.shiftKey) return;

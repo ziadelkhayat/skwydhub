@@ -33,3 +33,25 @@
   };
   addEventListener("touchend", end, { capture: true }); addEventListener("touchcancel", end, { capture: true });
 })();
+/* Phones: swipe the side menu to the left to close it */
+(function () {
+  let s = null;
+  addEventListener("touchstart", e => {
+    if (!document.body.classList.contains("navopen") || e.touches.length !== 1 || !matchMedia("(max-width:760px)").matches) return;
+    const m = document.querySelector(".app aside.side"); if (!m) return;
+    s = { m, x0: e.touches[0].clientX, y0: e.touches[0].clientY, dx: 0, on: false };
+  }, { passive: true, capture: true });
+  addEventListener("touchmove", e => {
+    if (!s) return;
+    const dx = e.touches[0].clientX - s.x0, dy = e.touches[0].clientY - s.y0;
+    if (!s.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { s = null; return; } if (dx > -10) return; s.on = true; s.m.style.transition = "none"; }
+    s.dx = Math.min(0, dx); s.m.style.transform = "translateX(" + s.dx + "px)"; if (e.cancelable) e.preventDefault();
+  }, { passive: false, capture: true });
+  const end = () => {
+    if (!s) return; const { m, dx, on } = s; s = null; if (!on) return;
+    m.style.transition = "transform .2s ease-out";
+    if (dx < -70) { m.style.transform = "translateX(-100%)"; setTimeout(() => { document.body.classList.remove("navopen"); m.style.transform = ""; m.style.transition = ""; }, 180); }
+    else { m.style.transform = ""; setTimeout(() => m.style.transition = "", 220); }
+  };
+  addEventListener("touchend", end, { capture: true }); addEventListener("touchcancel", end, { capture: true });
+})();
