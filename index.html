@@ -2113,6 +2113,11 @@ html body .modal .icob{width:46px;min-width:46px;padding:0!important;justify-con
 html body #ccBox .ccx.s2 #oProducts>.pbtn,html body #ccBox .ccx.s2 #oProducts>.ctile{border:1px solid #E6E8F2!important;border-radius:16px!important;box-shadow:none!important}
 html body #ccBox .ccx.s2 #oProducts>.pbtn:hover,html body #ccBox .ccx.s2 #oProducts>.ctile:hover{border-color:#C9D2F0!important;box-shadow:0 10px 24px rgba(14,21,48,.08)!important}
 html body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#EEF2FF,#F3EDFF)!important}
+/* side menu hover (and the stuck hover after a tap on phones/tablets): soft white on navy */
+html body .app aside.side nav.nav .grp > button:hover,html body .app aside.side nav.nav > a:hover,html body .app aside.side nav.nav .sub a:hover{background:rgba(255,255,255,.07)!important;color:#FFFFFF!important}
+html body .app aside.side nav.nav .grp > button:hover svg.nls,html body .app aside.side nav.nav a:hover svg.nls{stroke:currentColor!important}
+html body .app aside.side nav.nav > a.on:hover,html body .app aside.side nav.nav .sub a.on:hover{background:var(--lime)!important;color:var(--abyss)!important}
+@media (hover:none){html body .app aside.side nav.nav .grp > button:hover,html body .app aside.side nav.nav > a:not(.on):hover,html body .app aside.side nav.nav .sub a:not(.on):hover{background:transparent!important}}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
