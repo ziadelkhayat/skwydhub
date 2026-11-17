@@ -722,11 +722,6 @@ html[data-theme=dark] .cutabs button{color:#abb1c8}
 html[data-theme=dark] .cutabs button.on{background:#101420;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)}
 html[data-theme=dark] .pdhead .pdimg{background:#161924}
 html[data-theme=dark] .pdh .crumb{color:#9aa0b5}
-html[data-theme=dark] .pvl{color:#9aa0b5}
-html[data-theme=dark] .pvon{background:#101420;border:1px solid #272e4c}
-html[data-theme=dark] .pvimg{background:linear-gradient(135deg,#161924,#1b1624)}
-html[data-theme=dark] .pvb p{color:#9aa0b5}
-html[data-theme=dark] .pvpos{background:#101420;border:1px solid #272e4c}
 html[data-theme=dark] .dlgico{background:#161924}
 html[data-theme=dark] body .modal .f > label, html[data-theme=dark] body .modal .f label:not(.chk){color:#c9d1ef!important}
 html[data-theme=dark] body .modal footer{background:#101420!important}
