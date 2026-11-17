@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="963-1794936307">
+<meta name="skwyd-build" content="964-1794936983">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -1430,10 +1430,10 @@ const canAccept = () => true;   // every register in the branch can accept or de
 const masterNote = () => `Accepted on the master POS${masterDev()?.name ? " (" + masterDev().name + ")" : ""}`;
 async function autoAccept(){
   if(!isMaster()) return;
-  for(const o of S.orders.filter(o => o.branchId===device.branchId && o.channel!=="pos" && o.status==="pending" && !autoDone.has(o.id) && !(o.scheduledAt && new Date(o.scheduledAt) - Date.now() > 60*60000))){   // a scheduled order waits until an hour before its time
+  for(const o of S.orders.filter(o => o.branchId===device.branchId && o.channel!=="pos" && o.channel!=="callcenter" && o.status==="pending" && !autoDone.has(o.id) && !(o.scheduledAt && new Date(o.scheduledAt) - Date.now() > 60*60000))){   // a scheduled order waits until an hour before its time
     autoDone.add(o.id);
     try{ await db.collection("orders").doc(o.id).update({ status:"active", updatedAt:new Date().toISOString(), ...(o.acceptedAt ? {} : { acceptedAt:new Date().toISOString() }), handledBy:(cashier?.name || device.name) + " (auto)", ...(o.no ? {} : { no: nextOrderNo(), deviceId: device.id }) });
-      toast(`New ${o.channel==="online"?"online":"call-center"} order accepted automatically`); }catch(err){ console.error(err); autoDone.delete(o.id); }
+      toast("New web order accepted automatically"); }catch(err){ console.error(err); autoDone.delete(o.id); }
   }
 }
 /* ---------- end of day: one per branch per business day ---------- */

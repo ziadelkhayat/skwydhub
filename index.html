@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="963-1794936307">
+<meta name="skwyd-build" content="964-1794936983">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -4487,7 +4487,7 @@ function initZonesOverview(){
 const mapLink = o => (o.lat && o.lng) ? `<a class="lnk" href="https://www.google.com/maps?q=${o.lat},${o.lng}" target="_blank" rel="noopener">📍 Open pinned location</a>` : "";
 
 /* ---------- Call Center (Foodics board) ---------- */
-const CC_COLS = [["review","Web","Web orders waiting for the call center to accept them and send them to the branch"],["draft","Draft","Orders that are not yet sent to the branch"],["pending","Pending","Orders that are not yet accepted by the branch"],
+const CC_COLS = [["review","Web & API","Web and API orders waiting for the call center to accept them and send them to the branch"],["draft","Draft","Orders that are not yet sent to the branch"],["pending","Pending","Orders that are not yet accepted by the branch"],
   ["active","Preparing","Orders that are currently being prepared in the branch"],["closed","Done","Orders that are completed, voided, joined or returned"],
   ["declined","Declined","Orders that have been declined from the branch or the call center"]];
 // the Done column keeps every closed order: done, voided or returned
@@ -4800,6 +4800,7 @@ const addrSplit = v => { const a = { label:"", street:"", building:"", floor:"",
 const ccAddrGet = () => { const a = {}; ADDR_K.forEach(k => a[k] = ($("#oA_"+k)?.value || "").trim()); return a; };
 const ccAddrSet = v => { const a = addrSplit(v); ADDR_K.forEach(k => { const el = $("#oA_"+k); if(el) el.value = a[k]; }); addrTypeSync("oA"); ccAddrBar(); };
 function ccActions(o){
+  if(o && !["pos","callcenter"].includes(o.channel) && !ccAccepts(o) && o.status!=="review") return `<p class="note" style="text-align:center;margin:0;padding:10px 0">View only · this brand's web and API orders are accepted by the branch</p>`;
   if(!o || o.status==="draft") return `<button type="button" class="btn" data-osave="draft">Save as Draft</button><button type="button" class="btn pri" data-osave="pending">Send</button>${o ? `<button type="button" class="btn danger" data-ccdeldraft>Cancel Draft</button>` : ""}`;
   const b = [];
   if(o.status==="active" && ccEditable(o)) b.push(erPending(o) ? `<p class="note" style="text-align:center;margin:0;padding:10px 0">Waiting for the branch to answer the last change</p>` : `<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
@@ -5243,7 +5244,7 @@ function openDeviceSettings(id){
     <div class="f"><label for="ds_kitchenPrinter">Kitchen printer (IP address or name)</label><input id="ds_kitchenPrinter" value="${esc(s.kitchenPrinter||"")}" placeholder="e.g. 192.168.1.50"></div>
     <div class="f"><label for="ds_receiptPrinter">Receipt printer (IP address or name)</label><input id="ds_receiptPrinter" value="${esc(s.receiptPrinter||"")}" placeholder="Built-in / 192.168.1.51"></div>
     <div class="f"><label for="ds_lockMinutes">Auto-lock after (minutes idle)</label><input id="ds_lockMinutes" type="number" min="0" max="240" value="${esc(s.lockMinutes ?? 10)}">${dhelp("0 = never lock.")}</div>
-    ${tg("autoAccept", "Auto Accept and Send Online Orders to Kitchen", "Accept call center and web orders and send them to the kitchen automatically.", false)}
+    ${tg("autoAccept", "Auto Accept Web & API Orders", "Accept web and API orders on this device automatically and send them to the kitchen. Call center orders are still accepted by hand.", false)}
     ${tg("printOnline", "Print Online Order Info When Received", "Print call center and web orders automatically when they arrive.", false)}
     ${tg("noAutoPrint", "Disable Automatic Receipt Printing", "Don't print receipts automatically after payments or closing orders.", s.receipt!=="print")}
     ${tg("printDrawer", "Print Drawer Operations", "Print a receipt after each cash in / cash out.", false)}
@@ -7951,7 +7952,7 @@ const BRAND_DEF = { printLang:"main", mainLang:"en", locLang:"ar", invoiceTitle:
   enableTips:false, discNeedsCustomer:false, voidNeedsCustomer:false, requireTableGuests:false, autoKitchenOnPay:false, autoSync:false, autoProductMix:false, autoTills:false, forceInvCount:false, autoCloseKiosk:false,
   preventOos:false, printPayReceipts:false, singleTill:false, requireCustAll:false, displayBg:"", kdsDefaultMods:false, kitchenSort:"added", invLogo:"", invHeader:"", invFooter:"", preventNegative:false, logo:"" };
 const brandSet = id => { const app = S.settings.find(x=>x.id==="app") || {}, row = S.settings.find(x=>x.id==="brand_" + id) || {};
-  return { ...BRAND_DEF, requireTableGuests: !!app.requireTable, ...appSet(), webOrderRoute: company().webOrderRoute || "branch", webCcAutoAccept: !!company().webCcAutoAccept, ...row }; };
+  return { ...BRAND_DEF, requireTableGuests: !!app.requireTable, ...appSet(), webOrderRoute: company().webOrderRoute || "branch", webCcAutoAccept: !!company().webCcAutoAccept, ...row, ccAcceptWeb: (row.webOrderRoute || company().webOrderRoute)==="callcenter" }; };
 const BS_LANGS = [["ar","عربي"],["en","English"],["es","Español"],["fr","Français"]];
 const bsUsers = () => S.users.filter(u => live(u) && !isAdminRow(u) && u.active!==false).map(u => [u.id, u.name]);
 const BS_TABS = [
@@ -7978,8 +7979,8 @@ const BS_TABS = [
     {k:"rcptTax",l:"Show Tax",t:"chk",n:"Print the tax line on the receipts."},
     {k:"rcptSource",l:"Show Order Source",t:"chk",n:"Print the order source (Toters, Phone…) on the receipts."}]],
   ["call_center","Call Center","Call Center Ordering Settings",[
-    {k:"webOrderRoute",l:"Web Orders",t:"radio",req:1,o:[["branch","Send To The Branch"],["callcenter","Send To The Call Center First"]],n:"Where this brand's orders from the ordering page go first. The branch accepts them on its POS (turn on Auto Accept in Manage → Devices → Device Settings to accept them automatically), or the call center reviews them first, then sends them to the branch."},
-    {k:"webCcAutoAccept",l:"Auto Accept In The Call Center",t:"chk",show:v=>v.webOrderRoute==="callcenter",n:"Web orders skip the call center review and go straight to their branch."},
+    {k:"ccAcceptWeb",l:"Accept Web & API Orders In The Call Center",t:"chk",n:"Web and API orders always show on the Call Center page. On: the call center accepts each one first, then the branch accepts it on its POS. Off: they go straight to the branch, and the call center can only view them."},
+    {k:"webCcAutoAccept",l:"Accept Automatically",t:"chk",show:v=>v.ccAcceptWeb,n:"The call center accepts these orders automatically and sends them to the branch. The branch still accepts them on its POS, unless its device has Auto Accept Web & API Orders on."},
     {k:"ccAgents",l:"Agents",t:"multi",req:1,o:bsUsers,n:"Users who can make an online order.",none:"Every user allowed to use the call center"},
     {k:"ccPayments",l:"Accepted Payment Modes",t:"multi",req:1,o:()=>(S.payment_methods||[]).filter(m=>live(m) && m.active!==false).map(m=>[m.id,m.name]),none:"All payment methods"},
     {k:"ccInactiveBranches",l:"Inactive Branches",t:"multi",req:1,o:b=>branches.filter(x=>x.brandId===b.id).map(x=>[x.id,x.name]),n:"Branches in which call center is deactivated.",none:"None"},
@@ -8074,12 +8075,13 @@ document.addEventListener("click", async e => {
   const id = document.querySelector("[data-bsbrand]").dataset.bsbrand, d = { ...(state.bsDraft?.[id]||{}), ...bsRead() };
   if(d.presetTender && !/^\s*\d+(\.\d+)?\s*(,\s*\d+(\.\d+)?\s*)?$/.test(d.presetTender)){ $("#bsErr").textContent = "Preset tendered amounts: up to two numbers separated by a comma, like 50,100"; return; }
   if(d.tipsPct && !/^\s*\d+(\.\d+)?(\s*,\s*\d+(\.\d+)?)*\s*$/.test(d.tipsPct)){ $("#bsErr").textContent = "Tips percentages: numbers separated by commas, like 10,20,30"; return; }
+  if("ccAcceptWeb" in d){ d.webOrderRoute = d.ccAcceptWeb ? "callcenter" : "branch"; if(!d.ccAcceptWeb) d.webCcAutoAccept = false; delete d.ccAcceptWeb; }
   try{ await put("settings", "brand_" + id, d); if(state.bsDraft) delete state.bsDraft[id]; toast("Settings saved"); render(); }
   catch(err){ console.error(err); $("#bsErr").textContent = "Couldn't save. Only the owner or an admin can change settings."; }
 });
 document.addEventListener("change", e => {
   const f = e.target.closest("[data-bsimg]"); if(f && f.files[0]){ bsImage(f.files[0], url => { const el = document.querySelector(`input[type=hidden][data-bs="${f.dataset.bsimg}"]`); el.value = url; const id = document.querySelector("[data-bsbrand]").dataset.bsbrand; state.bsDraft = { ...(state.bsDraft||{}), [id]: { ...(state.bsDraft?.[id]||{}), ...bsRead() } }; render(); }); return; }
-  if(e.target.matches?.('[data-bs="returnMode"],[data-bs="webOrderRoute"]')){ const id = document.querySelector("[data-bsbrand]").dataset.bsbrand; state.bsDraft = { ...(state.bsDraft||{}), [id]: { ...(state.bsDraft?.[id]||{}), ...bsRead() } }; render(); }
+  if(e.target.matches?.('[data-bs="returnMode"],[data-bs="ccAcceptWeb"]')){ const id = document.querySelector("[data-bsbrand]").dataset.bsbrand; state.bsDraft = { ...(state.bsDraft||{}), [id]: { ...(state.bsDraft?.[id]||{}), ...bsRead() } }; render(); }
 });
 
 /* ---------- Manage → Reasons: what the cashier picks from when voiding or returning ---------- */
@@ -8094,6 +8096,7 @@ document.addEventListener("dragend", () => { rsDrag = null; document.querySelect
 async function rsSave(k, l){ try{ await put("settings", "app", { [k]: l.join("\n") }); render(); }catch(err){ console.error(err); toast("Couldn't save. Only the owner or an admin can change reasons."); } }
 /* ---------- Manage → Settings: where web orders go first ---------- */
 const webToCC = () => company().webOrderRoute==="callcenter" || (S.brands||[]).some(b => !b.deleted && brandSet(b.id).webOrderRoute==="callcenter");
+const ccAccepts = o => brandSet(o.brandId || branches.find(b => b.id===o.branchId)?.brandId).webOrderRoute==="callcenter";   // this brand's web & API orders are accepted in the call center first
 function viewSettings(){
   const c = company(), admin = !state.role || state.role==="owner" || state.role==="admin", to = state.setDraft?.route ?? (c.webOrderRoute || "branch"), auto = state.setDraft?.auto ?? !!c.webCcAutoAccept, dis = admin ? "" : "disabled";
   const opt = (v, t, d) => `<label class="wroute ${to===v?"on":""}"><input type="radio" name="webRoute" value="${v}" ${to===v?"checked":""} ${dis}><span><b>${t}</b><small>${d}</small></span></label>`;
