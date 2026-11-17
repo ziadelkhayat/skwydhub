@@ -2167,6 +2167,8 @@ html body .app .note{font-size:13px}
 }
 @keyframes abSheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @media (max-width:760px){html body .app .olseg{overflow-x:auto;flex-wrap:nowrap!important;scrollbar-width:none;max-width:100%}html body .app .olseg::-webkit-scrollbar{display:none}html body .app .olseg > button{flex:none}}
+/* touch screens: a tapped spot must not stay highlighted (it made the wrong tab look selected) */
+@media (hover:none){html body .ptabs a:not(.on):hover,html body .ttabs > :not(.on):not(.active):hover,html body .tabs.dtabs > :not(.on):not(.active):hover,html body .cutabs > :not(.on):not(.active):hover,html body .olseg > button:not(.on):not(.active):hover{background:transparent!important;box-shadow:none!important}}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -2279,6 +2281,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=6"></script>
+<script src="strips.js?v=1"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">
