@@ -25,7 +25,7 @@ jobs:
       - name: Build Android POS app (APK)
         run: |
           npm install
-          mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js www/
+          mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js motion.js www/
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
           npx cap add android
           # app icon: the skwyd mascot (android-icons/<density>__<file>.png -> res/mipmap-<density>/<file>.png)

@@ -9,8 +9,8 @@
   const CK = '<svg class="m-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
   const css = `
-.m-tap{position:fixed;z-index:2147483600;pointer-events:none;border-radius:50%;background:#6d28d9;opacity:.45;transform:translate(-50%,-50%) scale(.2);animation:m-tap .45s ease-out forwards}
-@keyframes m-tap{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+
 .m-busy{pointer-events:none}.m-spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-right:8px;vertical-align:-2px;animation:m-sp .7s linear infinite}
 @keyframes m-sp{to{transform:rotate(360deg)}}
 .m-done{background:#1f7a3d!important;border-color:#1f7a3d!important;color:#fff!important;transition:background .2s}
@@ -36,7 +36,6 @@ ${Array.from({ length: 12 }, (_, i) => `.m-rows tr:nth-child(${i + 1}),.m-rows>l
 .m-new{animation:m-new .7s ease}@keyframes m-new{0%{background:rgba(198,244,50,.55);transform:translateX(-8px)}100%{background:transparent;transform:none}}
 .m-bump{animation:m-bump .35s cubic-bezier(.3,1.6,.5,1)}@keyframes m-bump{40%{transform:scale(1.25)}}
 button,.btn,.prod{-webkit-tap-highlight-color:transparent}
-.btn:active:not(:disabled),.prod:active:not(:disabled){transform:scale(.97)}
 #view div[style*="var(--chart)"][style*="width"]{transform-origin:left;animation:m-grow .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes m-grow{from{transform:scaleX(0)}}
 .nav .grp.open .sub{animation:m-sub .22s ease both}@keyframes m-sub{from{opacity:0;transform:translateY(-6px)}}
@@ -57,17 +56,8 @@ td.empty::before,.empty.inline::before{display:none}
 .m-confetti{position:fixed;inset:0;pointer-events:none;z-index:2147483646}
 .m-cele{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px) scale(.9);opacity:0;z-index:2147483647;background:#172554;color:#fff;border-radius:16px;padding:14px 22px;font-size:18px;font-weight:700;box-shadow:0 16px 40px rgba(20,20,50,.3);transition:all .3s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:center}
 .m-cele.on{opacity:1;transform:translate(-50%,0) scale(1)}.m-cele small{display:block;font-size:13px;font-weight:500;color:#6d28d9;margin-top:2px}
-@media (prefers-reduced-motion:reduce){.m-tap,.m-enter>*,.m-rows tr,.m-rows>li,.m-new,.m-bump,.m-shake{animation:none!important}}`;
+@media (prefers-reduced-motion:reduce){.m-enter>*,.m-rows tr,.m-rows>li,.m-new,.m-bump,.m-shake{animation:none!important}}`;
   const st = document.createElement("style"); st.id = "motion-css"; st.textContent = css; document.head.appendChild(st);
-
-  // ---- touch: a soft lime circle where the finger lands; short vibration on the POS
-  const TAP = "button:not(:disabled),.btn,.prod,[data-add],[role=button],.htab,.tile";
-  document.addEventListener("pointerdown", e => {
-    if (RM || e.button > 0 || (!POS && e.pointerType === "mouse")) return; const t = e.target.closest?.(TAP); if (!t || t.closest(".m-busy")) return;
-    const r = t.getBoundingClientRect(), s = Math.min(Math.max(r.width, r.height) * 1.3, 220), d = document.createElement("span");
-    d.className = "m-tap"; d.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${s}px;height:${s}px`;
-    document.body.appendChild(d); setTimeout(() => d.remove(), 480); buzz(10);
-  }, { passive: true });
 
   // ---- Save buttons: spinner, then a green check, then on with the work
   const Motion = window.Motion = {
