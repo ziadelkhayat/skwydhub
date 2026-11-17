@@ -1777,6 +1777,38 @@ html body .app #view h1{font-weight:700}
 html body .app #view h1,html body .app .phead h1{font-weight:700!important}
 html body .app .content{background:transparent!important}
 @media (max-width:1000px){html body .app aside.side{box-shadow:none!important}html body.navopen .app aside.side{box-shadow:0 30px 80px rgba(11,19,48,.35)!important}}
+
+html body .app aside.side .nav .grp > button svg,html body .app aside.side .nav .grp > button svg *,html body .app aside.side .nav .grp.open > button .ico,html body .app aside.side .nav .grp.open > button svg{stroke:currentColor!important;color:currentColor!important}
+html body .app aside.side .nav .grp.open > button svg.nls,html body .app aside.side .nav .grp > button svg.nls{color:currentColor!important;stroke:currentColor!important}
+/* ---- Abyss step 2: navigation · icon rail on tablets & iPads, bottom tab bar on phones ---- */
+.tabbar{display:none}
+@media (min-width:761px) and (max-width:1180px){
+  html body .app{grid-template-columns:80px minmax(0,1fr)!important}
+  html body .app .menuBtn{display:none!important}
+  html body:not(.navopen) .app aside.side{position:sticky!important;top:0;left:auto;width:80px!important;height:100vh;transform:none!important;padding:16px 12px 24px!important;overflow-x:hidden;z-index:40}
+  html body:not(.navopen) .app aside.side .brand.skb{justify-content:center!important;padding-left:0!important;padding-right:0!important}
+  html body:not(.navopen) .app aside.side .skword{display:none!important}
+  html body:not(.navopen) .app aside.side .nav > a,html body:not(.navopen) .app aside.side .nav .grp > button{font-size:0!important;justify-content:center!important;padding:0!important;width:56px;height:52px;min-height:52px;gap:0!important;margin:2px auto}
+  html body:not(.navopen) .app aside.side .nav .ico,html body:not(.navopen) .app aside.side .nav svg{width:22px!important;height:22px!important;margin:0!important}
+  html body:not(.navopen) .app aside.side .nav .chev,html body:not(.navopen) .app aside.side .nav .sub{display:none!important}
+  html body:not(.navopen) .app aside.side .nav .grp:has(a.on) > button{background:var(--lime)!important;color:var(--abyss)!important}
+  html body.navopen .app aside.side{position:fixed!important;inset:0 auto 0 0;width:280px!important;transform:none!important;z-index:41;box-shadow:0 0 0 100vmax rgba(11,19,48,.45)!important}
+  html body.navopen::after{display:none!important}
+}
+@media (max-width:760px){
+  html body .app .menuBtn{display:none!important}
+  html body .top{min-height:60px;padding-top:max(10px,env(safe-area-inset-top))!important}
+  html body .content{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+  .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:38;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;min-height:52px;border-radius:14px;color:#6B7392;text-decoration:none;font-size:11px;font-weight:600}
+  .tabbar .tbi{display:grid;place-items:center;width:50px;height:30px;border-radius:10px;font-style:normal;flex:none}
+  .tabbar .tbi svg{width:21px!important;height:21px!important;margin:0!important}
+  .tabbar a span{line-height:1.2}
+  .tabbar a.on{color:var(--abyss)}
+  .tabbar a.on .tbi{background:var(--lime)}
+  body.navopen .tabbar,body.modal-open .tabbar,body:has(.scrim.show) .tabbar{display:none}
+  html body.navopen .app aside.side{width:min(300px,86vw)!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(24px + env(safe-area-inset-bottom))!important}
+}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2145,21 +2177,38 @@ function renderNav(route){
   const nav = $("#nav"), wasOpen = new Set([...nav.querySelectorAll(".grp.open")].map(g => g.dataset.g));
   const html = NAV.map((n,gi) => {
     if(!canOpen(n.id || n.kids.find(k=>!k[0].startsWith("@"))?.[0])) return "";
-    if(n.id) return `<a href="#${n.id}" class="${route===n.id?"on":""}">${navIco(n.i)}${n.t}</a>`;
+    if(n.id) return `<a href="#${n.id}" title="${n.t}" class="${route===n.id?"on":""}">${navIco(n.i)}${n.t}</a>`;
     if(n.tabs && n.side){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0], inTabs = n.kids.some(k=>k[0]===route), open = inTabs || n.side.some(k=>k[0]===route);   // Menu: its builder screens are tabs on the page, Sales Channels sits beside them in the sidebar
-      return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub"><a href="#${first}" class="${inTabs?"on":""}">${navSubIco("layers", "#f97316")}Catalog</a>${n.side.filter(k => canOpen(k[0])).map(k => `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${k[0]==="branch-menu" ? navSubIco("channels", "#0d9488") : svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")}</div></div>`; }
-    if(n.tabs){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0]; return `<a href="#${first}" class="${n.kids.some(k=>k[0]===route)?"on":""}">${navIco(n.i)}${n.t}</a>`; }   // one entry; its screens are tabs on the page
+      return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button" title="${n.t}">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub"><a href="#${first}" class="${inTabs?"on":""}">${navSubIco("layers", "#f97316")}Catalog</a>${n.side.filter(k => canOpen(k[0])).map(k => `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${k[0]==="branch-menu" ? navSubIco("channels", "#0d9488") : svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")}</div></div>`; }
+    if(n.tabs){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0]; return `<a href="#${first}" title="${n.t}" class="${n.kids.some(k=>k[0]===route)?"on":""}">${navIco(n.i)}${n.t}</a>`; }   // one entry; its screens are tabs on the page
     const open = n.kids.some(k => k[0]===route);
-    return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub">${
+    return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button" title="${n.t}">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub">${
       n.kids.map(k => k[0].startsWith("@") ? `<div class="lbl">${k[0].slice(1)}</div>` : `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")
     }</div></div>`;
   }).join("");
   // redrawn only when something changed, and a group that was already open doesn't play its opening slide again (it stays still while you move between its pages)
+  renderTabBar(route);
   if(nav._h === html) return; nav._h = html; nav.innerHTML = html;
   nav.querySelectorAll(".grp.open").forEach(g => { if(wasOpen.has(g.dataset.g)) g.classList.add("stay"); });
 }
+/* phones: bottom tab bar with the four most used pages the person can open, and More for the full menu */
+function renderTabBar(route){
+  let bar = document.getElementById("tabbar");
+  if(!bar){ bar = document.createElement("nav"); bar.id = "tabbar"; bar.className = "tabbar"; bar.setAttribute("aria-label","Main"); document.body.appendChild(bar);
+    bar.addEventListener("click", e => { if(e.target.closest("[data-more]")){ e.preventDefault(); e.stopPropagation(); document.body.classList.toggle("navopen"); } }); }
+  const pick = [["dashboard","Home","dash",["dashboard"]],["orders","Orders","orders",["orders"]],["call-center","Calls","phone",["call-center"]]];
+  const rep = NAV.find(n => n.t==="Reports"); if(rep) pick.push([rep.kids.find(k=>!k[0].startsWith("@"))[0],"Reports","chart",rep.kids.map(k=>k[0])]);
+  pick.push(["customers","Customers","users",["customers"]]);
+  const items = pick.filter(x => canOpen(x[0])).slice(0,4);
+  const hit = items.some(x => x[3].includes(route));
+  const html = items.map(x => `<a href="#${x[0]}" class="${x[3].includes(route)?"on":""}"><i class="tbi">${navIco(x[2])}</i><span>${x[1]}</span></a>`).join("")
+    + `<a href="#" data-more class="${hit?"":"on"}"><i class="tbi"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></i><span>More</span></a>`;
+  if(bar._h !== html){ bar._h = html; bar.innerHTML = html; }
+}
+const railMQ = matchMedia("(min-width:761px) and (max-width:1180px)");
 $("#nav").addEventListener("click", e => {
   const b = e.target.closest(".grp > button"); if(!b) return;
+  if(railMQ.matches && !document.body.classList.contains("navopen")){ e.stopPropagation(); document.body.classList.add("navopen"); document.querySelectorAll(".nav .grp").forEach(x => x.classList.remove("open")); b.parentElement.classList.add("open"); return; }
   const g = b.parentElement, was = g.classList.contains("open");
   document.querySelectorAll(".nav .grp").forEach(x => x.classList.remove("open"));
   if(!was) g.classList.add("open");

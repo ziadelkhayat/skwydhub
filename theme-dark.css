@@ -695,9 +695,14 @@ html[data-theme=dark] body .mm>*:first-child{border-right:.8px solid #353542!imp
 }
 @media (max-width:760px){
 html[data-theme=dark] body .scrim .modal header::before{background:#252832}
+html[data-theme=dark] .tabbar{background:rgba(16,20,32,.94)}
+html[data-theme=dark] .tabbar a{color:#9aa0b5}
 }
 @media (max-width:1000px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 30px 80px rgba(0,0,0,0.6)!important}
+}
+@media (min-width:761px) and (max-width:1180px){
+html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 0 0 100vmax rgba(0,0,0,0.6)!important}
 }
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
