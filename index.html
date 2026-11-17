@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="958-1794921240">
+<meta name="skwyd-build" content="959-1794921627">
 <script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
   fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
@@ -498,7 +498,7 @@ tr.chg td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 a.btn{text-decoration:none}
 .bform{grid-template-columns:repeat(2,minmax(0,1fr));max-height:72vh;overflow:auto}.bform .fsec{grid-column:1/-1;margin:10px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:capitalize;color:var(--ink3,#8d8c98);border-top:1px solid var(--line);padding-top:12px}
 .modal .body .fsec h3{margin:6px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3,#8d8c98);text-transform:uppercase;border-top:1px solid var(--line);padding-top:14px}.modal .body .fsec:first-child h3{border-top:0;padding-top:0;margin-top:0}
-.schwrap{overflow:auto;border-radius:14px}
+.schwrap{overflow-x:auto;overflow-y:visible;max-width:100%;border-radius:14px;scrollbar-width:auto}.card.tbl:has(>.schwrap){min-width:0;max-width:100%;overflow:hidden}#view:has(.schwrap){min-width:0;max-width:100%}.ttop:has(>.rqtabs){padding:0!important}.ttop:has(>.rqtabs) #rqYear{margin:0 14px}html body .ttabs.rqtabs{display:flex;flex:1;gap:0!important;flex-wrap:nowrap}html body .ttabs.rqtabs a{flex:1;text-align:center;padding:16px 8px!important;margin:0!important;border-bottom:2px solid transparent;font-size:15px!important}html body .ttabs.rqtabs a.on{color:var(--accent,#1e3a8a)!important;border-bottom-color:var(--accent,#1e3a8a)!important;font-weight:500!important}
 .schcal{position:relative;overflow:hidden;padding:8px 10px}.schcal input{position:absolute;inset:0;opacity:0;cursor:pointer}.schcal svg{width:18px;height:18px}
 .schg{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;min-width:1080px}
 .schg th,.schg td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;padding:8px;text-align:left}
@@ -6096,6 +6096,22 @@ const tcFlags = x => [x.unscheduled ? '<span class="tag off" title="Clocked in w
 // brand filter for Employee Management pages: a branch passes when no brand is chosen or it belongs to the chosen brand
 const emBrandSel = (id, cur) => { const bl = (S.brands||[]).filter(b => !b.deleted && b.active!==false); return bl.length > 1 ? `<select class="sel" id="${id}"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${cur===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>` : ""; };
 const emInBrand = (branchId, brand) => !brand || branches.find(b => b.id===branchId)?.brandId===brand;
+// Entries table: one row per clock-in (overtime = hours past 8 in that employee's day, in clock-in order) plus approved paid leave days (8 h each)
+function tcEntryRows(rows, byId){
+  const nm = n => { const p = String(n||"—").trim().split(/\s+/); return [p[0] || "—", p.slice(1).join(" ") || "—"]; };
+  const used = {}, ot = new Map();
+  rows.slice().sort((a,b) => String(a.in).localeCompare(String(b.in))).forEach(x => { const k = x.userId + "|" + tcDayOf(x.in), h = tcHrs(x), before = used[k] || 0; used[k] = before + h; ot.set(x, Math.max(0, before + h - 8) - Math.max(0, before - 8)); });
+  const items = rows.map(x => ({ at: x.in, x }));
+  const inBr = id => { const u = byId[id], ids = (u?.branchIds||[]).filter(b => b && b!=="-"); const pool = ids.length ? ids : branches.map(b => b.id); return pool.some(b => (!TC.branch || b===TC.branch) && emInBrand(b, TC.brand)); };
+  rqLive().filter(r => r.status==="approved" && r.kind==="time_off" && (r.leaveType==="annual" || r.leaveType==="sick") && (!TC.emp || r.employeeId===TC.emp) && inBr(r.employeeId)).forEach(r => {
+    const a = d10s(r.fromDay), b = d10s(r.toDay || r.fromDay); for(let d = new Date(a + "T12:00:00"); d.toISOString().slice(0,10) <= b; d.setDate(d.getDate() + 1)){ const day = d.toISOString().slice(0,10); if(day >= TC.from && day <= TC.to) items.push({ at: day + "T00:00:00", leave: r, day }); } });
+  items.sort((a,b) => String(b.at).localeCompare(String(a.at)));
+  return items.map(it => { if(it.leave){ const u = byId[it.leave.employeeId], [f, l] = nm(u?.name);
+      return `<tr><td><b>${esc(f)}</b></td><td><b>${esc(l)}</b></td><td>${esc((u?.branchIds||[]).filter(b => b && b!=="-").map(branchNameOf).join(", ") || "All Branches")}</td><td>${esc(u?.jobTitle || "—")}</td><td colspan="2"><span class="tag on">${esc(LEAVE_T[it.leave.leaveType])}</span> <span class="note">${esc(new Date(it.day + "T12:00:00").dmy())}</span></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">8.00</td><td></td></tr>`; }
+    const x = it.x, u = byId[x.userId], [f, l] = nm(u?.name || x.name), h = tcHrs(x), o = ot.get(x) || 0;
+    return `<tr><td><b>${esc(f)}</b> ${tcFlags(x)}${x.editedBy ? ` <span class="note" title="Edited by ${esc(x.editedBy)}">edited</span>` : ""}</td><td><b>${esc(l)}</b></td><td>${esc(branchNameOf(x.branchId))}</td><td>${esc(u?.jobTitle || "—")}</td><td>${esc(new Date(x.in).dmy())} ${esc(tcTime(x.in))}</td><td>${x.out ? `${esc(new Date(x.out).dmy())} ${esc(tcTime(x.out))}` : "—"}</td><td class="num">${h.toFixed(2)}</td><td class="num">${(h - o).toFixed(2)}</td><td class="num">${o ? o.toFixed(2) : "—"}</td><td class="num">—</td><td class="num"><button type="button" class="btn" data-tcedit="${x.i}">Edit</button></td></tr>`; }).join("")
+    || `<tr><td colspan="11"><div class="empty">No clock-ins in this period.</div></td></tr>`;
+}
 function viewTimeClock(){
   if(!TC.from){ const t = todayStr(), d = new Date(t + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); TC.from = d.toISOString().slice(0,10); TC.to = t; }
   const emps = S.users.filter(u => live(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
@@ -6118,7 +6134,7 @@ function viewTimeClock(){
   const totPay = sumRows.reduce((s, r) => s + (r.p || 0), 0);
   h += `<div class="card tbl">${tabsH(empSel)}<table><thead><tr><th>Employee</th><th>Job Title</th><th class="num">Days</th><th class="num">Hours</th><th class="num">Overtime</th><th class="num">Late</th><th class="num">Estimated Pay</th></tr></thead><tbody>${sumRows.map(r => `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.job)}</td><td class="num">${r.days}</td><td class="num">${r.hrs.toFixed(2)}</td><td class="num">${r.ot ? r.ot.toFixed(2) : "—"}</td><td class="num">${r.late || "—"}</td><td class="num">${r.p != null ? "$" + r.p.toFixed(2) : "—"}</td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">No clock-ins in this period.</div></td></tr>`}</tbody>${sumRows.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${sumRows.reduce((s,r)=>s+r.hrs,0).toFixed(2)}</th><th class="num">${sumRows.reduce((s,r)=>s+r.ot,0).toFixed(2)}</th><th class="num">${sumRows.reduce((s,r)=>s+r.late,0) || "—"}</th><th class="num">${totPay ? "$" + totPay.toFixed(2) : "—"}</th></tr></tfoot>` : ""}</table>
     <p class="note" style="margin:10px 14px 14px">Overtime counts hours over 8 in a day. Late means clocking in more than 5 minutes after the published shift starts; Unscheduled means no published shift. Estimated pay uses each employee's hourly or daily rate (Edit Employee → Pay).</p></div>
-    <div class="card tbl"><div class="ttop"><b>Entries</b></div><table><thead><tr><th>Employee</th><th>Branch</th><th>Date</th><th>Clock In</th><th>Clock Out</th><th class="num">Hours</th><th></th></tr></thead><tbody>${rows.map(x => `<tr><td><b>${esc(byId[x.userId]?.name || x.name || "—")}</b> ${tcFlags(x)}${x.editedBy ? ` <span class="note" title="Edited by ${esc(x.editedBy)}">edited</span>` : ""}</td><td>${esc(branchNameOf(x.branchId))}</td><td>${esc(new Date(x.in).dmy())}</td><td>${esc(tcTime(x.in))}</td><td>${esc(tcTime(x.out))}</td><td class="num">${tcHrs(x).toFixed(2)}</td><td class="num"><button type="button" class="btn" data-tcedit="${x.i}">Edit</button></td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">No clock-ins in this period.</div></td></tr>`}</tbody></table></div>`;
+    <div class="card tbl"><div class="ttop"><b>Entries</b></div><table><thead><tr><th>First Name</th><th>Last Name</th><th>Branch</th><th>Job</th><th>Clock In</th><th>Clock Out</th><th class="num">Total Hours</th><th class="num">Regular Hours</th><th class="num">Overtime</th><th class="num">Paid Leave</th><th></th></tr></thead><tbody>${tcEntryRows(rows, byId)}</tbody></table></div>`;
   return h;
 }
 async function tcSave(next){ const d = tcDocBo(), doc = { open: { ...(d.open||{}) }, log: [...(d.log||[])], ...next };
@@ -6512,7 +6528,7 @@ document.addEventListener("focusin", e => { TCH.focus = e.target.id==="tchI"; })
 new MutationObserver(() => { const b = document.getElementById("tchB"); if(b && !b.dataset.sc){ b.dataset.sc = "1"; b.scrollTop = b.scrollHeight; const i = document.getElementById("tchI"); if(TCH.focus && i && document.activeElement!==i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } }).observe(document.documentElement, { childList:true, subtree:true });
 
 /* ---------- Employee Management → Requests: time off and shift swaps (asked on the POS or added here), approved here ---------- */
-const RQ = { tab:"pending", year: new Date().getFullYear() };
+const RQ = { tab:"all", brand:"", branch:"", year: new Date().getFullYear() };
 const LEAVE_T = { annual:"Annual Leave", sick:"Sick Leave", unpaid:"Unpaid Leave", other:"Other" };
 const rqLive = () => (S.work_requests||[]).filter(r => !r.deleted);
 const rqDays = r => r.from_day || r.fromDay ? Math.max(1, Math.round((+new Date(String(r.toDay||r.fromDay).slice(0,10) + "T12:00:00") - +new Date(String(r.fromDay).slice(0,10) + "T12:00:00")) / 86400000) + 1) : 0;
@@ -6524,13 +6540,18 @@ const rqWhat = r => { if(r.kind==="swap"){ const sh = S.work_shifts.find(x => x.
     return `Swap Shift${sh ? ` · ${new Date(d10s(sh.day) + "T12:00:00").dmy()} ${esc(schT(sh.startTime))} – ${esc(schT(sh.endTime))}` : ""}${w ? ` with <b>${esc(w.name)}</b>` : ""}`; }
   const a = d10s(r.fromDay), b = d10s(r.toDay || r.fromDay); return `${LEAVE_T[r.leaveType] || "Time Off"} · ${new Date(a + "T12:00:00").dmy()}${b!==a ? " – " + new Date(b + "T12:00:00").dmy() : ""} <span class="note">(${rqDays(r)} day${rqDays(r)===1?"":"s"})</span>`; };
 const rqSt = r => r.status==="approved" ? '<span class="tag on">Approved</span>' : r.status==="declined" ? '<span class="tag off" style="background:#fdecec;color:#b42318">Declined</span>' : r.status==="cancelled" ? '<span class="tag off">Cancelled</span>' : '<span class="tag cc">Pending</span>';
+// brand / branch filter: a swap counts at its shift's branch; time off at the employee's branches (none set = every branch)
+const rqUserIn = u => { if(!RQ.brand && !RQ.branch) return true; const ids = (u?.branchIds||[]).filter(x => x && x!=="-"); const pool = ids.length ? ids : branches.map(b => b.id);
+  return pool.some(id => (!RQ.branch || id===RQ.branch) && emInBrand(id, RQ.brand)); };
+const rqIn = r => { if(r.kind==="swap"){ const sh = S.work_shifts.find(x => x.id===r.shiftId); if(sh?.branchId) return (!RQ.branch || sh.branchId===RQ.branch) && emInBrand(sh.branchId, RQ.brand); }
+  return rqUserIn(S.users.find(u => u.id===r.employeeId)); };
 function viewRequests(){
-  const all = rqLive().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
+  const all = rqLive().filter(rqIn).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))), byId = Object.fromEntries(S.users.map(u => [u.id, u]));
   const n = k => all.filter(r => r.status===k).length;
-  const tabs = [["pending","Pending (" + n("pending") + ")"],["approved","Approved"],["declined","Declined"],["all","All"],["balances","Leave Balances"]];
-  let h = `<div class="phead"><h1>Requests</h1><div class="sp"></div><button type="button" class="btn pri" id="rqNew">Add Time Off</button></div>
-    <div class="card tbl"><div class="ttop"><div class="ttabs">${tabs.map(t => `<a role="button" tabindex="0" data-rqtab="${t[0]}" class="${RQ.tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div><div class="sp"></div>${RQ.tab==="balances" ? `<select class="sel" id="rqYear">${[0,1,2].map(i => new Date().getFullYear() - i).map(y => `<option ${y===RQ.year?"selected":""}>${y}</option>`).join("")}</select>` : ""}</div>`;
-  if(RQ.tab==="balances"){ const emps = S.users.filter(u => live(u)).sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  const tabs = [["all","All Requests"],["pending","Pending" + (n("pending") ? " (" + n("pending") + ")" : "")],["declined","Declined"],["approved","Approved"],["balances","Leave Balances"]];
+  let h = `<div class="phead"><h1>Requests</h1><div class="sp"></div>${emBrandSel("rqBrand", RQ.brand)}<select class="sel" id="rqBranch"><option value="">All Branches</option>${branches.filter(b => b.active!==false && !b.deleted && emInBrand(b.id, RQ.brand)).map(b => `<option value="${esc(b.id)}" ${RQ.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div>
+    <div class="card tbl"><div class="ttop"><div class="ttabs rqtabs">${tabs.map(t => `<a role="button" tabindex="0" data-rqtab="${t[0]}" class="${RQ.tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div><div class="sp"></div>${RQ.tab==="balances" ? `<select class="sel" id="rqYear">${[0,1,2].map(i => new Date().getFullYear() - i).map(y => `<option ${y===RQ.year?"selected":""}>${y}</option>`).join("")}</select>` : ""}</div>`;
+  if(RQ.tab==="balances"){ const emps = S.users.filter(u => live(u) && rqUserIn(u)).sort((a,b) => String(a.name).localeCompare(String(b.name)));
     h += `<table><thead><tr><th>Employee</th><th>Job Title</th><th class="num">Annual Leave Days</th><th class="num">Annual Used</th><th class="num">Annual Left</th><th class="num">Sick Days</th><th class="num">Unpaid Days</th></tr></thead><tbody>${emps.map(u => { const al = u.leaveDays==null || u.leaveDays==="" ? null : +u.leaveDays, used = rqUsed(u.id, "annual", RQ.year);
       return `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.jobTitle||"—")}</td><td class="num">${al==null ? "—" : al}</td><td class="num">${used || "—"}</td><td class="num">${al==null ? "—" : `<b style="color:${al - used < 0 ? "#b42318" : "inherit"}">${al - used}</b>`}</td><td class="num">${rqUsed(u.id, "sick", RQ.year) || "—"}</td><td class="num">${rqUsed(u.id, "unpaid", RQ.year) || "—"}</td></tr>`; }).join("") || `<tr><td colspan="7"><div class="empty">No employees yet.</div></td></tr>`}</tbody></table>
       <p class="note" style="margin:10px 14px 14px">Set each employee's Annual Leave Days on Edit Employee. Approved requests count on the year they start.</p></div>`;
@@ -6539,19 +6560,9 @@ function viewRequests(){
   h += `<table><thead><tr><th>Employee</th><th>Request</th><th>Note</th><th>Asked</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(r => { const u = byId[r.employeeId], al = u && u.leaveDays!=null && u.leaveDays!=="" ? +u.leaveDays : null;
     const bal = r.kind==="time_off" && r.leaveType==="annual" && al!=null ? `<div class="note">Annual left: ${al - rqUsed(r.employeeId, "annual", d10s(r.fromDay).slice(0,4))}</div>` : "";
     return `<tr><td><b>${esc(u?.name || "—")}</b><div class="note">${esc(u?.jobTitle || "")}</div></td><td>${rqWhat(r)}${bal}</td><td>${esc(r.note || "—")}${r.decisionNote ? `<div class="note">Reply: ${esc(r.decisionNote)}</div>` : ""}</td><td>${esc(new Date(r.createdAt).dmy())}</td><td>${rqSt(r)}${r.decidedBy ? `<div class="note">${esc(r.decidedBy)}</div>` : ""}</td>
-      <td class="num"><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;width:120px;margin-left:auto">${r.status==="pending" ? `<button type="button" class="btn pri" data-rqok="${esc(r.id)}">Approve</button><button type="button" class="btn" data-rqdec="${esc(r.id)}">Decline</button>` : r.status==="approved" ? `<button type="button" class="btn" data-rqundo="${esc(r.id)}">Cancel</button>` : ""}</div></td></tr>`; }).join("") || `<tr><td colspan="6"><div class="empty">${RQ.tab==="pending" ? "No requests waiting. Staff ask for time off or a shift swap on the cashier app after typing their PIN." : "Nothing here yet."}</div></td></tr>`}</tbody></table></div>`;
+      <td class="num"><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;width:120px;margin-left:auto">${r.status==="pending" ? `<button type="button" class="btn pri" data-rqok="${esc(r.id)}">Approve</button><button type="button" class="btn" data-rqdec="${esc(r.id)}">Decline</button>` : r.status==="approved" ? `<button type="button" class="btn" data-rqundo="${esc(r.id)}">Cancel</button>` : ""}</div></td></tr>`; }).join("") || `<tr><td colspan="6"><div class="empty">${RQ.tab==="pending" || RQ.tab==="all" ? "No requests yet. Staff ask for time off or a shift swap through the app." : "Nothing here yet."}</div></td></tr>`}</tbody></table></div>`;
   return h;
 }
-function rqForm(){
-  const emps = S.users.filter(u => live(u)).sort((a,b) => String(a.name).localeCompare(String(b.name))), t = todayStr();
-  const box = $("#ccBox"); box.className = "modal";
-  box.innerHTML = `<header><h2>Add Time Off</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
-  <div class="body"><div class="f"><label for="rqEmp">Employee *</label><select id="rqEmp"><option value="">Choose…</option>${emps.map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}</select></div>
-    <div class="f"><label for="rqType">Type</label><select id="rqType">${Object.entries(LEAVE_T).map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></div>
-    <div class="f"><label for="rqFrom">From *</label><input id="rqFrom" type="date" value="${t}"></div><div class="f"><label for="rqTo">To *</label><input id="rqTo" type="date" value="${t}"></div>
-    <div class="f full"><label for="rqNote">Note</label><input id="rqNote" placeholder="e.g. Family trip"></div><div class="err" id="rqErr" style="grid-column:1/-1"></div></div>
-  <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="rqSave">Save As Approved</button></footer>`;
-  $("#ccScrim").classList.add("show"); }
 const rqWho = () => state.fullName || state.email || "Back office";
 // approving time off: their shifts on those days can become open shifts; approving a swap gives the shift to the colleague
 async function rqApprove(r, note){
@@ -6563,16 +6574,9 @@ async function rqApprove(r, note){
     if(sh.length && await askYes(`${S.users.find(u => u.id===r.employeeId)?.name || "They"} ha${sh.length===1?"s a shift":"ve " + sh.length + " shifts"} on these days. Make ${sh.length===1?"it an open shift":"them open shifts"} so someone else can take ${sh.length===1?"it":"them"}?`))
       for(const x of sh) await put("work_shifts", x.id, { employeeId:null, published:false }); }
   await put("work_requests", r.id, { status:"approved", decidedBy: rqWho(), decidedAt: new Date().toISOString(), decisionNote: note || null }); return true; }
-document.addEventListener("change", e => { if(e.target.id==="rqYear"){ RQ.year = +e.target.value; render(); } });
+document.addEventListener("change", e => { if(e.target.id==="rqYear"){ RQ.year = +e.target.value; render(); } if(e.target.id==="rqBrand"){ RQ.brand = e.target.value; if(RQ.branch && !emInBrand(RQ.branch, RQ.brand)) RQ.branch = ""; render(); } if(e.target.id==="rqBranch"){ RQ.branch = e.target.value; render(); } });
 document.addEventListener("click", async e => { const t = e.target; if(!t.closest) return;
   const tb = t.closest("[data-rqtab]"); if(tb){ RQ.tab = tb.dataset.rqtab; return render(); }
-  if(t.closest("#rqNew")) return rqForm();
-  const sv = t.closest("#rqSave"); if(sv){ const err = $("#rqErr"), emp = $("#rqEmp").value, a = $("#rqFrom").value, b = $("#rqTo").value || a;
-    if(!emp) return err.textContent = "Choose the employee."; if(!a) return err.textContent = "Pick the dates."; if(b < a) return err.textContent = "To must be on or after From.";
-    window.Motion?.saving?.(sv);
-    try{ const id = "req_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); const r = { id, employeeId:emp, kind:"time_off", leaveType: $("#rqType").value, fromDay:a, toDay:b, note: $("#rqNote").value.trim() || null, status:"pending", deleted:false };
-      await put("work_requests", id, r); await rqApprove({ ...r }, null); window.Motion?.saved?.(sv); $("#ccScrim").classList.remove("show"); RQ.tab = "approved"; render(); }
-    catch(er){ console.error(er); window.Motion?.reset?.(sv); err.textContent = "Couldn't save. Check your connection."; } return; }
   const ok = t.closest("[data-rqok]"); if(ok){ const r = S.work_requests.find(x => x.id===ok.dataset.rqok); if(!r) return; ok.disabled = true;
     try{ if(await rqApprove(r, null)) render(); else ok.disabled = false; }catch(er){ console.error(er); ok.disabled = false; toast("Couldn't approve. Check your connection."); } return; }
   const dc = t.closest("[data-rqdec]"); if(dc){ const r = S.work_requests.find(x => x.id===dc.dataset.rqdec); if(!r) return;
