@@ -49,6 +49,17 @@ html[data-theme=dark] .cal{border-color:#333843;box-shadow:0 16px 40px rgba(0,0,
 html[data-theme=dark] .cal .cg button:hover, html[data-theme=dark] .cal .ch button:hover{background:#161924}
 html[data-theme=dark] .req{color:#ee8981}
 html[data-theme=dark] body .brand.skb .skmark.f2 svg g{stroke:#b5c1eb!important}
+html[data-theme=dark] .nav a:hover{background:rgba(16,20,32,.06)!important}
+html[data-theme=dark] .btn.pri{box-shadow:0 6px 16px rgba(0,0,0,0.6)}
+html[data-theme=dark] .t-active, html[data-theme=dark] .t-paid{background:rgba(95,104,63,.16)!important}
+html[data-theme=dark] .dlg{color:#c9d1ef;box-shadow:0 30px 80px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] .dlg .card{background:#101420!important;border-color:#272e4c!important;color:#c9d1ef}
+html[data-theme=dark] .dlg td{color:#c9d1ef;border-bottom-color:#232c4b!important}
+html[data-theme=dark] .dlg th{border-bottom-color:#232c4b!important;color:#9aa0b5!important}
+html[data-theme=dark] .dlg .note{color:#9aa0b5!important}
+html[data-theme=dark] .dlg .btn{background:#101420!important;border-color:#2a314d!important;color:#c9d1ef!important}
+html[data-theme=dark] .dlg input:not([type=checkbox]):not([type=radio]), html[data-theme=dark] .dlg select, html[data-theme=dark] .dlg .sel{background:#101420!important;color:#c9d1ef!important;border:1px solid #2a314d!important}
+html[data-theme=dark] .gate form{box-shadow:0 30px 80px rgba(0,0,0,0.6)!important;color:#c9d1ef}
 html[data-theme=dark] [style*="background:#eef2ff"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#f0f0f4"]{background:#1d1d22!important}
 html[data-theme=dark] [style*="background:#f0f1f5"]{background:#1c1d23!important}
@@ -58,9 +69,12 @@ html[data-theme=dark] [style*="background:#fafafb"]{background:#19191c!important
 html[data-theme=dark] [style*="background:#fafafc"]{background:#17171e!important}
 html[data-theme=dark] [style*="background:#fafbfd"]{background:#141820!important}
 html[data-theme=dark] [style*="background:#fff"]{background:#101420!important}
+html[data-theme=dark] [style*="border-color:#E0E3EE"]{border-color:#2a314d!important}
+html[data-theme=dark] [style*="border-color:#E6E8F2"]{border-color:#272e4c!important}
 html[data-theme=dark] [style*="border-color:#d6dae3"]{border-color:#333b4b!important}
 html[data-theme=dark] [style*="border-color:#e5e7eb"]{border-color:#333843!important}
 html[data-theme=dark] [style*="color:#000"]{color:#ededed!important}
+html[data-theme=dark] [style*="color:#0E1530"]{color:#c9d1ef!important}
 html[data-theme=dark] [style*="color:#0c1738"]{color:#c3cff2!important}
 html[data-theme=dark] [style*="color:#172554"]{color:#b5c1eb!important}
 html[data-theme=dark] [style*="color:#172d6a"]{color:#a7baec!important}
@@ -69,5 +83,6 @@ html[data-theme=dark] [style*="color:#1c1c1e"]{color:#dcdcde!important}
 html[data-theme=dark] [style*="color:#1e3a8a"]{color:#96abe8!important}
 html[data-theme=dark] [style*="color:#3a3650"]{color:#c1bed3!important}
 html[data-theme=dark] [style*="color:#64748b"]{color:#9ea9b9!important}
+html[data-theme=dark] [style*="color:#6B7392"]{color:#9aa0b5!important}
 html[data-theme=dark] [style*="color:#6b6a75"]{color:#adacb4!important}
 html[data-theme=dark] [style*="color:#b42318"]{color:#ee8981!important}

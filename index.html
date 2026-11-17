@@ -1879,6 +1879,128 @@ html body .app aside.side a.cocard .cot span{color:#8C96B8!important;font-weight
 html body .app aside.side a.cocard .coav{color:#FFFFFF!important}
 html body .app aside.side a.plancard{background:#141E44!important}
 html body .app aside.side a.plancard b{color:#FFFFFF!important}
+/* ---- Abyss step 4: pages as the template ---- */
+/* orders: search under the tabs, order opens as a side panel */
+.osrch{display:flex;align-items:center;gap:10px;margin-top:12px;background:#F4F5FA;border:1px solid #E6E8F2;border-radius:12px;padding:0 14px;height:44px;color:#6B7392}
+.osrch svg{width:18px;height:18px;flex:none}
+html body .osrch input{flex:1;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;min-height:0;height:42px;font:inherit;font-size:14px;outline:none}
+.osrch:focus-within{border-color:var(--accent);background:#FFFFFF;box-shadow:0 0 0 4px #E3E8FA}
+@media (min-width:761px){
+  html body .scrim.show:has(> .modal.odrawer){justify-content:flex-end!important;align-items:stretch!important;padding:0!important}
+  html body .scrim .modal.odrawer{width:min(560px,100vw)!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border-radius:24px 0 0 24px!important;display:flex;flex-direction:column;animation:odslide .32s cubic-bezier(.2,.8,.2,1) both}
+  html body .scrim .modal.odrawer > div{max-height:none!important;flex:1;overflow:auto}
+}
+@keyframes odslide{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+html body .modal.odrawer header{padding:22px 24px 14px!important}
+html body .modal.odrawer header h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:22px!important}
+html body .modal.odrawer .odet{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-bottom:16px}
+html body .modal.odrawer .odet > div{display:flex;flex-direction:column;gap:2px;font-size:14px;font-weight:600;color:var(--ink)}
+html body .modal.odrawer .odet > div > span:first-child{font-size:12px;color:#6B7392;font-weight:500}
+html body .modal.odrawer .card{border-radius:16px!important;background:#F7F8FC!important;border-color:#EEF0F7!important}
+html body .modal.odrawer .card.tbl{background:#FFFFFF!important}
+/* status pills with a dot (template) */
+html body .spill{display:inline-flex!important;align-items:center;gap:7px;font-size:12px!important;font-weight:600!important;padding:5px 11px!important;border-radius:999px!important;white-space:nowrap;border:0!important}
+html body .spill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.75}
+html body .spill.s-draft,html body .spill.s-review{background:#F3EDFF!important;color:#5B21B6!important}
+html body .spill.s-pending{background:#FFF1E6!important;color:#9A3B00!important}
+html body .spill.s-active{background:#F2FBD6!important;color:#3F5A00!important}
+html body .spill.s-closed{background:#EEF0F5!important;color:#4A5272!important}
+html body .spill.s-declined,html body .spill.s-void,html body .spill.s-refund,html body .spill.s-returned{background:#FDECEC!important;color:#B42318!important}
+html body .gsearch input::placeholder,html body .osrch input::placeholder{text-transform:none!important}
+html body .app #view .tbl th{white-space:nowrap}
+/* lists: search row, grid of products, floating bar for selected rows */
+.crsrch{display:flex;align-items:center;gap:10px;padding:0 20px 14px;background:#FFFFFF}
+.crsrch .osrch{flex:1;margin:0}
+.vtog{display:inline-flex;gap:4px;background:#E9EBF4;border-radius:12px;padding:4px}
+.vtog button{width:36px;height:36px;border:0;background:transparent;border-radius:9px;display:grid;place-items:center;color:#6B7392;cursor:pointer}
+.vtog button svg{width:18px;height:18px}.vtog button.on{background:#FFFFFF;color:var(--ink);box-shadow:0 2px 6px rgba(14,21,48,.08)}
+.otabsc .crsrch{padding:12px 0 0;background:transparent}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;padding:18px 20px;flex:1 1 auto;min-height:0;overflow:auto;align-content:start}
+@media (min-width:1181px){.bkfloat{left:calc(50% + 140px)}}
+.pcard{position:relative;display:flex;flex-direction:column;gap:8px;border:1px solid #E6E8F2;border-radius:18px;padding:12px;background:#FFFFFF;transition:transform .2s,box-shadow .2s,border-color .2s}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(14,21,48,.08);border-color:#D6DCF0}
+.pcimg{aspect-ratio:4/3;border-radius:12px;background:#F4F5FA;display:grid;place-items:center;overflow:hidden;color:#AEB6D1}
+.pcimg img{width:100%;height:100%;object-fit:cover}.pcimg svg{width:34px;height:34px}
+.pcb{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.pcb b{font-size:14px;line-height:1.3}.pcb em{font-style:normal;font-family:var(--ab-head);font-weight:700;color:var(--accent);white-space:nowrap}
+.pcs{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#6B7392}
+.pcsel{position:absolute;top:18px;left:18px;z-index:1;background:#FFFFFF;border-radius:6px;display:grid;place-items:center;width:24px;height:24px;box-shadow:0 1px 4px rgba(14,21,48,.15)}
+.bkfloat{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:8px;background:#0B1330;color:#FFFFFF;border-radius:18px;padding:10px 12px 10px 18px;box-shadow:0 20px 50px rgba(11,19,48,.35);max-width:calc(100vw - 32px);overflow-x:auto;animation:bkup .25s cubic-bezier(.2,.8,.2,1) both}
+@keyframes bkup{from{transform:translate(-50%,20px);opacity:0}to{transform:translateX(-50%);opacity:1}}
+.bkfloat > b{white-space:nowrap;font-size:14px}.bkfloat > i{width:1px;height:24px;background:#22305F;margin:0 4px;flex:none}
+.bkfloat button{background:#141E44;border:0;color:#FFFFFF;border-radius:12px;padding:10px 14px;font:600 13.5px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.bkfloat button:hover{background:#1E2A5A}.bkfloat button.done{background:#C6F432;color:#0B1330}
+.bkfloat .ddwrap{position:relative}.bkfloat .ddmenu.up{position:fixed;bottom:84px;top:auto!important;left:auto;background:#FFFFFF;border-radius:14px;box-shadow:0 20px 50px rgba(11,19,48,.25);padding:6px;display:flex;flex-direction:column;min-width:220px}
+.bkfloat .ddmenu.up[hidden]{display:none}
+.bkfloat .ddmenu.up button{background:transparent;color:var(--ink);text-align:left;font-weight:500}.bkfloat .ddmenu.up button:hover{background:#EEF2FF}
+@media (max-width:760px){.pcb{flex-direction:column;gap:2px}.crsrch{padding:0 14px 12px}.pgrid{grid-template-columns:1fr 1fr;gap:10px;padding:12px}.bkfloat{bottom:calc(84px + env(safe-area-inset-bottom));padding:8px 8px 8px 14px}}
+/* customer profile (template) */
+.cuwrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.culeft{display:flex;flex-direction:column;gap:16px;position:sticky;top:12px}
+.curight{display:flex;flex-direction:column;gap:16px;min-width:0}
+html body .app .phead #cuEdit{display:none}
+.cuprof{background:#0B1330;border-radius:24px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;color:#AEB6D1}
+.cuav{width:72px;height:72px;border-radius:50%;background:#C6F432;color:#0B1330;display:grid;place-items:center;font:800 24px var(--ab-head);margin-bottom:4px}
+html body .app .cuprof h2{margin:0;color:#FFFFFF!important;font-size:21px!important;font-family:var(--ab-head)!important;text-transform:none!important}
+.cusub{font-size:12.5px}
+.cubadge{background:#6D28D9;color:#FFFFFF;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px}.cubadge.bad{background:#B42318}
+.custats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:8px}
+.custats > div{background:#141E44;border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;gap:2px}
+.custats b{color:#FFFFFF;font:700 16px var(--ab-head)}.custats span{font-size:11px}
+.cuacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
+html body .app .cuacts .btn{justify-content:center;min-height:42px}
+html body .app .cuacts .btn.lime{background:#C6F432!important;border-color:#C6F432!important;color:#0B1330!important;font-weight:700}
+html body .app .cuacts .btn.ghost{background:#141E44!important;border-color:#22305F!important;color:#FFFFFF!important}
+html body .app .culeft .card.odet{display:flex!important;flex-direction:column;gap:0;margin:0!important;padding:6px 20px!important}
+html body .app .culeft .card.odet > div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #EEF0F7;font-size:13.5px;font-weight:600;text-align:right}
+html body .app .culeft .card.odet > div:last-child{border-bottom:0}
+html body .app .culeft .card.odet > div > span:first-child{font-weight:500;color:#6B7392;text-align:left}
+html body .app .culeft .card.odet > div[style*="grid-column"]{flex-direction:column;text-align:left}
+html body .app .curight .cstats{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:0!important}
+html body .app .curight .cstats > div{background:#FFFFFF;border:1px solid #E6E8F2;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+html body .app .curight .cstats span{font-size:12px;color:#6B7392}html body .app .curight .cstats b{font:700 17px var(--ab-head);color:var(--ink)}
+.cutabs{display:inline-flex;align-self:flex-start;gap:4px;background:#E9EBF4;border-radius:14px;padding:4px;max-width:100%;overflow-x:auto}
+.cutabs button{border:0;background:transparent;border-radius:11px;padding:8px 16px;font:600 13.5px Inter,sans-serif;color:#4A5272;cursor:pointer;white-space:nowrap}
+.cutabs button.on{background:#FFFFFF;color:var(--ink);box-shadow:0 2px 8px rgba(14,21,48,.08)}
+.cusec{display:none}
+.curight[data-ct="orders"] .cusec[data-cs="orders"],.curight[data-ct="addresses"] .cusec[data-cs="addresses"],.curight[data-ct="tags"] .cusec[data-cs="tags"],.curight[data-ct="ha"] .cusec[data-cs="ha"]{display:block}
+html body .app .cusec .card{margin:0!important}
+@media (max-width:1000px){.cuwrap{grid-template-columns:1fr}.culeft{position:static}}
+html body .app .cusec table{font-size:13.5px}html body .app .cusec th{font-size:12px!important}
+html body .app .cusec .brch h3,html body .app .brcard .brch h3{font-family:var(--ab-head)!important;font-weight:700!important;font-size:16px!important;text-transform:none!important}
+/* product page: photo tile, breadcrumb, status, previews (template) */
+.pdhead .pdimg{width:48px;height:48px;min-width:48px;border-radius:14px;background:#EEF2FF;color:var(--accent);display:grid;place-items:center;overflow:hidden;margin-left:6px}
+.pdhead .pdimg img{width:100%;height:100%;object-fit:cover}.pdhead .pdimg svg{width:22px;height:22px}
+.pdh{display:flex;flex-direction:column;gap:2px;min-width:0}.pdh .crumb{font-size:12.5px;color:#6B7392}
+html body .app .pdh h1{margin:0!important;font-size:24px!important}
+.pdwrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start;margin-bottom:16px}
+.pdmain > .card{margin:0!important}
+.pdprev{display:flex;flex-direction:column;gap:10px;position:sticky;top:12px}
+.pvl{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B7392}
+.pvon{background:#FFFFFF;border:1px solid #E6E8F2;border-radius:20px;overflow:hidden;margin-bottom:8px}
+.pvimg{aspect-ratio:16/10;background:linear-gradient(135deg,#EEF2FF,#F3EDFF);display:grid;place-items:center;color:var(--accent)}.pvimg img{width:100%;height:100%;object-fit:cover}.pvimg svg{width:44px;height:44px}
+.pvb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}.pvb > div{display:flex;justify-content:space-between;gap:8px}.pvb b{font-size:15px}.pvb em{font-style:normal;font-weight:700;color:var(--accent)}
+.pvb p{margin:0;font-size:12.5px;color:#6B7392;line-height:1.45}
+.pvbtn{display:block;text-align:center;background:var(--accent);color:#FFFFFF;border-radius:12px;padding:11px;font-weight:700;font-size:13.5px}
+.pvpos{width:150px;background:#FFFFFF;border:1px solid #E6E8F2;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.pvpos b{font-size:14px}.pvpos em{font-style:normal;font-weight:700;color:var(--accent);font-family:var(--ab-head);font-size:16px}.pvpos .tag{align-self:flex-start}
+@media (max-width:1100px){.pdwrap{grid-template-columns:1fr}.pdprev{position:static;flex-direction:row;flex-wrap:wrap;align-items:flex-start}.pdprev .pvl{width:100%}.pvon{width:min(320px,100%)}}
+/* reports: summary tiles + chart above the table */
+.rkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:4px 0 16px}
+html body .app .rchart{padding:20px 22px!important;margin-bottom:16px}
+html body .app .rchart .kh{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+html body .app #view .card.rchart h3{margin:0;font-family:var(--ab-head)!important;font-weight:700!important;font-size:17px!important;text-transform:none!important}
+html body .app .rchart svg{width:100%;height:auto}
+/* account settings: section list on the left (template) */
+@media (min-width:1001px){
+  body[data-route="account"] #view{display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:24px;align-items:start}
+  body[data-route="account"] #view > *{grid-column:2}
+  body[data-route="account"] #view > .phead{grid-column:1/-1}
+  html body.x, body[data-route="account"] #view > .tabs{border-bottom:1px solid #E6E8F2!important}
+  html body[data-route="account"] .app #view > .tabs{grid-column:1;grid-row:2/span 30;display:flex!important;flex-direction:column;gap:4px;background:#FFFFFF;border:1px solid #E6E8F2!important;border-radius:20px;padding:8px;position:sticky;top:12px;margin:0!important}
+  body[data-route="account"] #view > .tabs a{border:0!important;border-radius:12px;padding:12px 14px;color:#4A5272;font-weight:600;box-shadow:none!important}
+  body[data-route="account"] #view > .tabs a::after{display:none!important}
+  body[data-route="account"] #view > .tabs a.on{background:#EEF2FF;color:var(--accent)!important}
+}
 /* ---- Abyss step 3b: shell as the template · brand text, business card, plan, me, search ---- */
 html body .app aside.side{display:flex!important;flex-direction:column}
 html body .app aside.side .brand.skb{padding:4px 10px 16px!important;gap:10px!important}
@@ -1976,7 +2098,7 @@ html body .app .dshift .btn{text-transform:none!important;background:#C6F432!imp
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=66"></script>
+<script src="wokdb.js?v=67"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=5"></script>
@@ -2955,6 +3077,11 @@ function rptAggregate(rows, dim, group){
   return list.sort(ord);
 }
 const fmtCell = (v, t) => t==="m" ? money(v) : t==="p" ? (+v||0).toFixed(2) + " %" : (+v||0).toLocaleString("en-US",{maximumFractionDigits:3});
+function rptTop(B){ if(!B.kpis || !B.rows.length) return "";
+  let h = `<div class="rkpis">${B.kpis.map(([l, v]) => `<div class="card kmini"><span>${esc(l)}</span><b>${v}</b></div>`).join("")}</div>`;
+  if(B.series){ const n = B.series.values.length, step = Math.max(1, Math.ceil(n/8));
+    h += `<div class="card rchart"><div class="kh"><h3>Sales by day</h3><span class="note">${esc(B.series.labels[0])} – ${esc(B.series.labels[n-1])}</span></div>${lineChart(B.series.values, { w:1400, h:240, fs:13, fmt:"m", dots:n <= 31, labelStep: step, labels: B.series.labels, label:"Sales by day" })}</div>`; }
+  return h; }
 function rptTable(head, rows, foot){
   return `<div class="card tbl rptbl"><table><thead><tr>${head.map(([l, tip, num]) => `<th class="${num?"num":""}">${esc(l)}${tip ? ` <span class="rinfo" title="${esc(tip)}">ⓘ</span>` : ""}</th>`).join("")}</tr></thead><tbody>${
     rows.length ? rows.map(r => `<tr>${r.map((c,i) => `<td class="${head[i]?.[2]?"num":""}">${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" class="note" style="padding:24px;text-align:center">No data to display!</td></tr>`
@@ -2973,7 +3100,11 @@ function rptBuild(){
     const T = list.reduce((x,r) => { for(const c of cols) x[c[0]] = (x[c[0]]||0) + (+r[c[0]]||0); return x; }, {});
     T.avg = T.orders ? T.net/T.orders : 0; T.avgGuest = T.guests ? T.net/T.guests : 0; T.grossPct = list.length ? 100 : 0; T.netPct = list.length ? 100 : 0;
     const foot = ["Total", ...(RPT.dim==="branch" ? [""] : []), ...(RPT.group ? [""] : []), ...cols.map(c => fmtCell(T[c[0]], c[3]))];
-    return { title: SALES_DIMS.find(d => d[0]===RPT.dim)?.[1] || "Sales", head, rows, foot };
+    // summary tiles and a sales-by-day chart above the table (template)
+    const byDay = {}; R.filter(o => isSale(o)).forEach(o => { const d = rptDay(o); byDay[d] = (byDay[d]||0) + (+o.total||0); });
+    const days = []; if(RPT.from && RPT.to){ for(let d = RPT.from; d <= RPT.to && days.length < 92; d = dAdd(d, 1)) days.push(d); }
+    const kpis = [["Gross sales", fmtCell(T.gross, "m")], ["Net sales", fmtCell(T.net, "m")], ["Orders", fmtCell(T.orders, "n")], ["Average order", fmtCell(T.avg, "m")], ["Discounts", fmtCell(T.disc, "m")]];
+    return { title: SALES_DIMS.find(d => d[0]===RPT.dim)?.[1] || "Sales", head, rows, foot, kpis, series: days.length > 1 ? { labels: days.map(d => fmtD(d)), values: days.map(d => +(byDay[d]||0)) } : null };
   }
   if(RPT.key==="payments"){
     const m = new Map(); R.filter(o => isSale(o) || o.status==="refund").forEach(o => { const k = payOf(o) + "\u0001" + (branchName(o.branchId)||"—"); const r = m.get(k) || { p: payOf(o), b: branchName(o.branchId)||"—", n:0, amt:0, ret:0 };
@@ -3063,7 +3194,7 @@ function viewReports(route){
       <button type="button" class="sel drpbtn" id="rptRange">${svgIco("calendar")}<span>${esc(drpLabel(RPT.from, RPT.to))}</span></button>
       <span class="sp"></span><span class="note">${RPT.loading ? "Loading…" : ""}</span>
       <button class="btn" id="rptCsv" ${B?"":"disabled"}>Export</button><button class="btn" id="rptPrint" ${B?"":"disabled"}>Print</button></div>
-    ${RPT.err ? `<div class="banner">Couldn't load the report: ${esc(RPT.err)}</div>` : B ? rptTable(B.head, B.rows, B.foot) : `<div class="card"><p class="note" style="padding:24px;text-align:center">Loading report…</p></div>`}`;
+    ${RPT.err ? `<div class="banner">Couldn't load the report: ${esc(RPT.err)}</div>` : B ? rptTop(B) + rptTable(B.head, B.rows, B.foot) : `<div class="card"><p class="note" style="padding:24px;text-align:center">Loading report…</p></div>`}`;
 }
 document.addEventListener("click", e => {
   const r = e.target.closest("[data-rpt]"); if(r){ e.preventDefault(); RPT.key = r.dataset.rpt; RPT.hub = HASH().slice(1); RPT.loaded = ""; render(); window.scrollTo(0,0); return; }
@@ -3509,7 +3640,7 @@ function stickHead(v){
   const before = []; for(const el of v.children){ if(el===card) break; before.push(el); }
   if(!before.some(el => el.classList.contains("phead"))) return;
   const w = document.createElement("div"); w.className = "ostick"; v.insertBefore(w, before[0]); before.forEach(el => w.appendChild(el));
-  const tt = card.querySelector(":scope > .ttop"); if(tt){ const c = document.createElement("div"); c.className = "card otabsc"; c.appendChild(tt); w.appendChild(c); card.classList.add("obody"); }
+  const tt = card.querySelector(":scope > .ttop"); if(tt){ const c = document.createElement("div"); c.className = "card otabsc"; c.appendChild(tt); const cs = card.querySelector(":scope > .crsrch"); if(cs) c.appendChild(cs); w.appendChild(c); card.classList.add("obody"); }
   setTopH(); if(w.offsetHeight > innerHeight * 0.5) w.classList.remove("ostick");   // too tall to pin on this screen
 }
 
@@ -4182,6 +4313,9 @@ document.addEventListener("click", e => { const b = e.target.closest("[data-gens
   const g = e.target.closest("[data-skugen]"); if(g){ e.preventDefault(); const i = g.parentElement.querySelector("input"), f = CRUD[g.dataset.skugen]?.fields.find(x => x.k==="sku"); if(i && f?.auto){ i.value = f.auto(); i.dispatchEvent(new Event("input", { bubbles:true })); } } });
 
 state.tabs = {}; state.q = {}; state.page = {}; state.catFilter = "";
+document.addEventListener("click", e => { const v = e.target.closest("[data-pview]"); if(v){ state.pview = v.dataset.pview; try{ localStorage.setItem("skwydPView", state.pview); }catch(_){} return render(); }
+  const c = e.target.closest("[data-bkclear]"); if(c){ (state.sel ||= {})[c.dataset.bkclear]?.clear(); render(); } });
+try{ state.pview = localStorage.getItem("skwydPView") || "list"; }catch(e){ state.pview = "list"; }
 function crudView(key){
   if(key==="inv-items") loadStock();   // the list shows stock on hand
   const dk = key==="modifiers" && DET.key==="modifier-options" ? DET.key : key;
@@ -4199,17 +4333,22 @@ function crudView(key){
   const scopeHere = cfg.filter===brandFilter || key==="delivery-zones";   // menu items are never tied to a brand or branch
   if(key==="delivery-zones") h += `<div class="card" style="padding:0;overflow:hidden;margin-bottom:16px"><div id="zonesMap" style="height:380px"></div><div id="zonesLegend" class="legend"></div></div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${cfg.tabs.map(t=>`<a href="#${key}" data-tab="${key}:${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div>
-    <div class="sp"></div>${CRUD_FF[key] ? crudFltBtn(key) : `${scopeHere ? scopeBar(false) : ""}<input class="sel search" data-search="${key}" placeholder="Search" value="${esc(state.q[key]||"")}" aria-label="Search ${cfg.title}">`}</div>`;
+    <div class="sp"></div>${CRUD_FF[key] ? crudFltBtn(key) : `${scopeHere ? scopeBar(false) : ""}`}</div>
+    <div class="crsrch"><label class="osrch">${svgIco("search")}<input type="search" autocomplete="off" data-search="${key}" placeholder="Search ${esc(cfg.title.toLowerCase())}${key==="products"||key==="inv-items" ? " by name or SKU" : ""}" value="${esc(state.q[key]||"")}" aria-label="Search ${esc(cfg.title)}"></label>${key==="products" ? `<span class="vtog" role="group" aria-label="View"><button type="button" data-pview="list" class="${state.pview!=="grid"?"on":""}" aria-label="List view" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button><button type="button" data-pview="grid" class="${state.pview==="grid"?"on":""}" aria-label="Grid view" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button></span>` : ""}</div>`;
   if(!shown.length) h += `<div class="empty">${S[cfg.col].length ? "Nothing matches." : `No ${cfg.title.toLowerCase()} yet.`}</div>`;
   else { const sel = (state.sel ||= {})[key] ||= new Set(), hasDel = cfg.tabs.some(t => t[0]==="deleted"), hasAct = cfg.tabs.some(t => t[0]==="active"),
       bkActs = tab==="deleted" ? [["restore","Restore"]] : cfg.bulk ? BULK_ACTS : [...(TAG_KEY[key] ? [["tagAdd","Add Tags"],["tagDel","Remove Tags"]] : []), ...(key==="modifiers" ? [["modAdd","Add To Products"]] : []), ...(hasAct ? [["activate","Activate"],["deactivate","Deactivate"]] : []), ...(hasDel ? [["delete","Delete"]] : [])],
       bk = !cfg.hardDelete && bkActs.length > 0, allOn = bk && shown.every(r => sel.has(r.id));
     if(bk) [...sel].forEach(id => { if(!list.some(r => r.id===id)) sel.delete(id); });
     const dr = SORTABLE[key] && !SORTABLE[key].inside && tab!=="deleted" && !(state.q[key]||"").trim();   // drag rows to set the order every screen shows
-    h += `<table><thead><tr>${dr ? `<th class="noedit grc"></th>` : ""}${bk ? `<th class="noedit bkc"><input type="checkbox" data-bkall="${key}" ${allOn?"checked":""} aria-label="Select all on this page"></th>` : ""}${bk && sel.size
+    h += `<table><thead><tr>${dr ? `<th class="noedit grc"></th>` : ""}${bk ? `<th class="noedit bkc"><input type="checkbox" data-bkall="${key}" ${allOn?"checked":""} aria-label="Select all on this page"></th>` : ""}${bk && sel.size && false
       ? `<th colspan="${cfg.cols.length}" class="bkbar"><b>${sel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" id="bkAct">Actions ▾</button><span class="ddmenu" id="bkActM" hidden>${bkActs.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}</span></span></th>`
       : cfg.cols.map(c=>`<th class="${c[2]||""}">${c[0]}</th>`).join("")}</tr></thead><tbody>${
-    shown.map(r=>`<tr class="click" data-open="${key}:${esc(r.id)}"${dr ? ` data-sk="row:${key}|${esc(r.id)}"` : ""}>${dr ? `<td class="noedit grc" title="Drag to move"><span class="bmgrip" aria-hidden="true">⋮⋮</span></td>` : ""}${bk ? `<td class="noedit bkc"><input type="checkbox" data-bksel="${key}:${esc(r.id)}" ${sel.has(r.id)?"checked":""} aria-label="Select ${esc(r.name||"")}"></td>` : ""}${cfg.cols.map((c, ci)=>`<td class="${c[2]||""}">${c[1](locRow(r))}${ci===0 && TAG_KEY[key] ? tagChips(TAG_KEY[key], r.id) : ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`; }
+    shown.map(r=>`<tr class="click" data-open="${key}:${esc(r.id)}"${dr ? ` data-sk="row:${key}|${esc(r.id)}"` : ""}>${dr ? `<td class="noedit grc" title="Drag to move"><span class="bmgrip" aria-hidden="true">⋮⋮</span></td>` : ""}${bk ? `<td class="noedit bkc"><input type="checkbox" data-bksel="${key}:${esc(r.id)}" ${sel.has(r.id)?"checked":""} aria-label="Select ${esc(r.name||"")}"></td>` : ""}${cfg.cols.map((c, ci)=>`<td class="${c[2]||""}">${c[1](locRow(r))}${ci===0 && TAG_KEY[key] ? tagChips(TAG_KEY[key], r.id) : ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    if(key==="products" && state.pview==="grid") h = h.replace(/<table>[\s\S]*<\/table>$/, "") + `<div class="pgrid">${shown.map(r => { const k = varKids(r), pr = k.length ? "From " + usd(Math.min(...k.map(x=>+x.price||0))) : r.pricingMethod==="open" ? "Open" : usd(r.price);
+      return `<div class="pcard" data-open="${key}:${esc(r.id)}">${bk ? `<label class="noedit pcsel"><input type="checkbox" data-bksel="${key}:${esc(r.id)}" ${sel.has(r.id)?"checked":""} aria-label="Select ${esc(r.name||"")}"></label>` : ""}<div class="pcimg">${r.imageUrl ? `<img src="${esc(r.imageUrl)}" alt="" loading="lazy">` : svgIco("box")}</div><div class="pcb"><b>${esc(r.name||"")}</b><em>${pr}</em></div><div class="pcs"><span>${esc(catName(r.categoryId)||"")}</span><span>${r.active===false ? "Inactive" : esc(r.sku||"")}</span></div></div>`; }).join("")}</div>`;
+    if(bk && sel.size){ const main = bkActs.slice(0, 4), more = bkActs.slice(4);
+      h += `<div class="bkfloat" role="toolbar" aria-label="Selected ${esc(cfg.title.toLowerCase())}"><b>${sel.size} selected</b><i></i>${main.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}${more.length ? `<span class="ddwrap"><button type="button" id="bkAct">More ▾</button><span class="ddmenu up" id="bkActM" hidden>${more.map(([k,t]) => `<button type="button" data-bkdo="${key}:${k}">${t}</button>`).join("")}</span></span>` : ""}<button type="button" class="done" data-bkclear="${key}">Done</button></div>`; } }
   h += `<div class="pager"><span class="note">Showing ${list.length?(pg-1)*per+1:0} to ${Math.min(pg*per,list.length)} out of ${list.length}</span><div class="sp"></div>
     <button class="btn sm" data-page="${key}:${pg-1}" ${pg<=1?"disabled":""}>Previous</button><button class="btn sm" data-page="${key}:${pg+1}" ${pg>=pages?"disabled":""}>Next</button></div></div>`;
   return h;
@@ -7441,7 +7580,7 @@ function viewOrders(){
     ["source","Order source","All order sources", ordSources().map(x=>[x,x])], ["pay","Payment Type","All payment types", ordPays().map(x=>[x,x])]];
   return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
     <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "dfph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
-  <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div></div></div>
+  <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div><label class="osrch">${svgIco("search")}<input id="ordQ" type="search" autocomplete="off" placeholder="Order number, customer or phone" value="${esc(ORD.q)}" aria-label="Search orders"></label></div></div>
   <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       ${brandList().length > 1 ? `<td>${esc(brandName(o.brandId) || "—")}</td>` : ""}<td>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</td>
@@ -7461,7 +7600,7 @@ async function openOrderDetail(id, quiet){
   const mins = (a,b) => a && b ? Math.round((new Date(b)-new Date(a))/60000) + " min" : "";
   const admin = ["owner","admin"].includes(state.role);
   const items = Array.isArray(o.items) ? o.items : [];
-  const box = $("#ccBox"); box.className = "modal wide";
+  const box = $("#ccBox"); box.className = "modal wide odrawer";
   box.innerHTML = `<header><h2>${o.status==="refund" ? esc(ordRef(o)) : esc(o.ref || ordRef(o))} <span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
   <div style="padding:18px 22px;max-height:72vh;overflow:auto">
     <div class="odet">
@@ -7807,6 +7946,9 @@ async function openCustomer(id){
   if(CUS.open!==id) return;
   CUS.det = c; window.__cus = c; render();
 }
+const moneyShort = v => { const n = +v||0, sym = typeof SYM==="function" ? SYM() : "$"; return n >= 10000 ? sym + " " + (n/1000).toFixed(1) + "k" : money(n); };
+document.addEventListener("click", e => { const t = e.target.closest("[data-cutab]"); if(t){ CUS.tab = t.dataset.cutab; const r = t.closest(".curight"); if(r){ r.dataset.ct = CUS.tab; r.querySelectorAll("[data-cutab]").forEach(b => b.classList.toggle("on", b===t)); } return; }
+  if(e.target.closest("[data-cuedit2]")) document.getElementById("cuEdit")?.click(); });
 const cusNum = v => v && typeof v==="object" ? +(v.amount ?? v.value ?? 0) || 0 : +v || 0;
 function cusTop(list){ let best = null, n = 0; for(const [k, v] of Object.entries(list)) if(v > n){ best = k; n = v; } return best; }
 function viewCustomer(){
@@ -7825,6 +7967,16 @@ function viewCustomer(){
   const admin = ["owner","admin"].includes(state.role);
   return `<div class="phead"><a href="#customers" class="btn" data-cusback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(c.name || telFmt(c.phone))}</h1>${c.blacklisted?' <span class="spill s-declined" style="margin-left:8px">Blacklisted</span>':""}<div class="sp"></div>
       ${c.deleted_at ? `<span class="spill s-declined" style="margin-right:8px">Deleted</span>${admin ? `<button class="btn pri" id="cuRestore">Restore</button>` : ""}` : `${admin ? `<button class="btn" id="cuHa">${c.house_account ? "Disable House Account" : "Enable House Account"}</button><button class="btn" id="cuDel">Delete Customer</button>` : ""}<button class="btn pri" id="cuEdit">Edit Customer</button>`}</div>
+    <div class="cuwrap"><aside class="culeft">
+    <div class="cuprof"><span class="cuav">${esc(String(c.name || "?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><h2>${esc(c.name || telFmt(c.phone))}</h2>
+      <span class="cusub">Customer since ${esc(dtf(orders.length ? orders[orders.length-1].created_at : c.created_at).slice(3))}${fb && branchName(fb) ? " · " + esc(branchName(fb)) : ""}</span>
+      ${c.blacklisted ? `<span class="cubadge bad">Blacklisted</span>` : c.loyalty ? `<span class="cubadge">Loyalty member</span>` : ""}
+      <div class="custats"><div><b>${done.length}</b><span>Orders</span></div><div><b>${esc(moneyShort(spent))}</b><span>Spent</span></div><div><b>${esc(moneyShort(done.length ? spent/done.length : 0))}</b><span>Average</span></div></div>
+      ${c.deleted_at ? "" : `<div class="cuacts">${canOpen("call-center") ? `<a class="btn lime" href="#call-center">New order</a>` : ""}<button type="button" class="btn ghost" data-cuedit2>Edit</button></div>`}</div>
+    <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(c.name || "—"))}${row("Email", esc(c.email || "—"))}${row("Phone", esc(telFmt(c.phone) || "—"))}${row("Birth Date", c.birthday ? dtf(c.birthday + "T12:00:00") : "—")}
+      ${row("Gender", esc({ male:"Male", female:"Female" }[c.gender] || "—"))}${row("Loyalty", c.loyalty ? "Enabled" : "Disabled")}${row("House Account", c.house_account ? `Enabled · balance <b class="${haBal(c) < 0 ? "neg" : ""}">${money(haBal(c))}</b>` : "Disabled")}${c.house_account ? row("Credit Limit", `${c.house_limit!=null ? money(+c.house_limit) : "No limit"} <a href="#customers" class="lnk" id="cuHaLim">Change</a>`) : ""}${row("Blacklist", c.blacklisted ? "Yes" : "No")}
+      ${row("Created", dtf(c.created_at))}${c.notes ? `<div style="grid-column:1/-1"><span>Customer Notes</span>${esc(c.notes)}</div>` : ""}</div>
+    </aside><div class="curight" data-ct="${esc(CUS.tab || "orders")}">
     <div class="cstats">
       <div><span>Done Orders</span><b>${done.length}</b></div>
       <div><span>Last Order</span><b>${orders.length ? dtf(orders[0].created_at) : "—"}</b></div>
@@ -7833,18 +7985,23 @@ function viewCustomer(){
       ${more ? `<div><span>Total Spent (${esc(SYM())})</span><b>${money(spent)}</b></div><div><span>Total Discounts (${esc(SYM())})</span><b>${money(disc)}</b></div><div><span>Average Order (${esc(SYM())})</span><b>${money(done.length ? spent/done.length : 0)}</b></div><div><span>First Order</span><b>${orders.length ? dtf(orders[orders.length-1].created_at) : "—"}</b></div>` : ""}
       ${c.house_account ? (() => { const sum = k => (c.__ha||[]).filter(t => t.kind===k).reduce((s, t) => s + (+t.amount||0), 0);   // credit: sales charged to the account · debit: payments made
         return `<div><span>Account Balance (${esc(SYM())})</span><b style="${haBal(c) < 0 ? "color:#b42318" : ""}">${money(haBal(c))}</b></div><div><span>Total Credit (${esc(SYM())})</span><b>${money(sum("charge"))}</b></div><div><span>Total Debit (${esc(SYM())})</span><b>${money(sum("payment"))}</b></div>`; })() : ""}</div>
-    <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(c.name || "—"))}${row("Email", esc(c.email || "—"))}${row("Phone", esc(telFmt(c.phone) || "—"))}${row("Birth Date", c.birthday ? dtf(c.birthday + "T12:00:00") : "—")}
-      ${row("Gender", esc({ male:"Male", female:"Female" }[c.gender] || "—"))}${row("Loyalty", c.loyalty ? "Enabled" : "Disabled")}${row("House Account", c.house_account ? `Enabled · balance <b class="${haBal(c) < 0 ? "neg" : ""}">${money(haBal(c))}</b>` : "Disabled")}${c.house_account ? row("Credit Limit", `${c.house_limit!=null ? money(+c.house_limit) : "No limit"} <a href="#customers" class="lnk" id="cuHaLim">Change</a>`) : ""}${row("Blacklist", c.blacklisted ? "Yes" : "No")}
-      ${row("Created", dtf(c.created_at))}${c.notes ? `<div style="grid-column:1/-1"><span>Customer Notes</span>${esc(c.notes)}</div>` : ""}</div>
+    <nav class="cutabs" role="tablist">${[["orders","Orders"],["addresses","Addresses"],["tags","Tags"]].concat(c.house_account || (c.__ha||[]).length ? [["ha","House account"]] : []).map(([k,t]) => `<button type="button" role="tab" data-cutab="${k}" class="${(CUS.tab||"orders")===k?"on":""}">${t}</button>`).join("")}</nav>
+    <div class="cusec" data-cs="ha">
     ${c.house_account || (c.__ha||[]).length ? `<div class="card brcard"><div class="brch"><h3>House Account Transactions</h3><span class="note" style="margin-left:6px">Balance ${money(haBal(c))}</span><span class="sp"></span>${c.house_account ? `<button class="btn sm" id="cuHaPay">Add Payment</button>` : ""}</div>
       ${(c.__ha||[]).length ? tbl(["Date","Type","Payment Type","Reference","Branch","By",`<span class="num">Amount</span>`], c.__ha.map(t => `<tr><td>${new Date(t.created_at).dmy(true)}</td><td>${t.kind==="payment" ? "Payment" : "Order"}</td><td>${esc(t.method || "—")}</td><td>${esc(t.order_ref || t.note || "—")}</td><td>${esc(t.branch_id ? branchName(t.branch_id) || "—" : "—")}</td><td>${esc(t.created_by || "—")}</td><td class="num" style="color:${t.kind==="payment" ? "#067647" : "#b42318"}">${t.kind==="payment" ? "+" : "−"}${money(+t.amount)}</td></tr>`))
         : '<p class="note brempty">Here you can register debit payments and see all credit and debit payments made by this customer.</p>'}</div>` : ""}
+    </div>
+    <div class="cusec" data-cs="tags">
     <div class="card brcard"><div class="brch"><h3>Tags</h3><span class="sp"></span><button class="btn sm" id="cuTagBtn">Add</button></div>${c.tags.length ? `<div>${c.tags.map((t,i)=>`<span class="tag cc">${esc(t)} <a href="#customers" class="lnk" data-cdtag="${i}" aria-label="Remove tag" style="text-decoration:none">×</a></span>`).join(" ")}</div>` : '<p class="note brempty">No data to display!</p>'}</div>
+    </div>
+    <div class="cusec" data-cs="addresses">
     <div class="card brcard"><div class="brch"><h3>Addresses</h3><span class="sp"></span><button class="btn sm" id="cuAddrBtn">Add</button></div>${tbl(["Name","Description","Delivery Zone","Created",""],
       c.addresses.map((a,i) => `<tr class="click" data-cuedaddr="${i}" title="Open address details"><td>${esc(addrSplit(a.address).label || "—")}</td><td>${desc(a.address)} ${a.lat ? mapLink(a) : ""}</td><td>${esc(zn(a.zoneId) || "—")}</td><td>${dtf(a.createdAt)}</td><td class="num"><a href="#customers" class="lnk" data-cdaddr="${i}">Remove</a></td></tr>`)
       .concat(used.map((v,i) => `<tr><td>${esc(addrSplit(v).label || "—")}</td><td>${desc(v)} <span class="tag">from orders</span></td><td>—</td><td>—</td><td class="num"><a href="#customers" class="lnk" data-csaddr="${i}">Save</a></td></tr>`)))}</div>
+    </div>
+    <div class="cusec" data-cs="orders">
     <div class="card brcard otbl"><div class="brch"><h3>Orders</h3></div>${tbl(["Reference #","Invoice #","Order #","Business date","Branch","Sales channel","Order type","Order source","Payment Type","Status",`<span class="num">Total</span>`],
-      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(CH_LBL[o.channel]||cap(o.channel))}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div>`;
+      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(CH_LBL[o.channel]||cap(o.channel))}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div></div></div></div>`;
 }
 // save a change made on the customer page straight away
 async function cusPatch(patch, msg){
@@ -9334,8 +9491,8 @@ function productDetail(p){
   if(old && old.dataset.id===p.id && old.dataset.dirty){ draft = {}; old.querySelectorAll("[id^=cf_]").forEach(el => { const k = el.id.slice(3); if(/_(file|prev|cc|new|dl)$/.test(k)) return;
     if(el.tagName==="DIV"){ if(el.querySelector("[data-nk]")){ const o = {}; el.querySelectorAll("[data-nk]").forEach(i => { if(i.value!=="") o[i.dataset.nk] = +i.value; }); draft[k] = o; } else draft[k] = [...el.querySelectorAll("input:checked")].map(i => i.value); return; }
     draft[k] = el.type==="checkbox" ? el.checked : el.value; }); }
-  let h = `<div class="phead"><a href="#products" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(p.name)}</span></h1>
-    ${p.deleted ? `<span class="stbadge off">Deleted</span>` : ""}
+  let h = `<div class="phead pdhead"><a href="#products" class="btn" data-detback style="text-decoration:none">← Back</a><span class="pdimg">${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : svgIco("box")}</span><div class="pdh"><span class="crumb">Catalog · Items${p.sku ? " · " + esc(p.sku) : ""}</span><h1><span class="dn">${esc(p.name)}</span></h1></div>
+    ${p.deleted ? `<span class="stbadge off">Deleted</span>` : `<span class="spill ${p.active===false ? "s-closed" : "s-active"}">${p.active===false ? "Inactive" : "Active"}</span>`}
     <div class="sp"></div><span class="dacts">${p.deleted ? `<button type="button" class="btn" data-detrestore>Restore</button>` : DET.edit || draft ? `<button type="button" class="btn danger" data-detdelete>Delete Product</button><button type="button" class="btn" data-detview>Cancel</button><button type="submit" form="detForm" class="btn pri" id="detSave">Save</button>` : `<button type="button" class="btn pri" data-detedit>Edit Product</button>`}</span></div>`;
   const F = keys => openCrud("products", p.id, keys, draft), vk = varKids(p).length;
   const editing = DET.edit || !!draft;
@@ -9348,14 +9505,17 @@ function productDetail(p){
 
     <div class="err" id="cErr" style="padding:0 22px 14px"></div></form>`;
   const wide = c => c.replace(/^<div/, '<div style="grid-column:1/-1"');   // every saved setting of the product shows here, except the photo
-  if(!editing) h += pdTopCard(p, [info("Name", esc(p.name)), info("Name Localized", esc(p.nameAr||"—")), info("Category", esc(catName(p.categoryId))),
+  const pdPrev = () => { const pr = varKids(p).length ? "From " + usd(Math.min(...varKids(p).map(x=>+x.price||0))) : p.pricingMethod==="open" ? "Open price" : usd(price), img = p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : svgIco("box");
+    return `<aside class="pdprev"><span class="pvl">Preview · online ordering</span><div class="pvon"><div class="pvimg">${img}</div><div class="pvb"><div><b>${esc(p.name)}</b><em>${pr}</em></div>${p.description ? `<p>${esc(p.description)}</p>` : ""}<span class="pvbtn">Add to order</span></div></div>
+      <span class="pvl">Preview · POS tile</span><div class="pvpos">${tagsOf("product", p.id).slice(0,1).map(t => `<span class="tag cc">${esc(tagName(t))}</span>`).join("")}<b>${esc(p.name)}</b><em>${pr}</em></div></aside>`; };
+  if(!editing) h += `<div class="pdwrap"><div class="pdmain">` + pdTopCard(p, [info("Name", esc(p.name)), info("Name Localized", esc(p.nameAr||"—")), info("Category", esc(catName(p.categoryId))),
     info("SKU", `<span class="code">${esc(p.sku||"—")}</span>`), info("Barcode", esc(p.barcode||"—")), info("Calories", (p.nutrition||{}).calories!=null && (p.nutrition||{}).calories!=="" ? esc(p.nutrition.calories) + " kCal" : "—"), info("Tax Group", varKids(p).length ? "Set on each variant" : esc(tgName(p.taxGroup))),
     info("Pricing Method", p.pricingMethod==="open"?"Open Price":"Fixed Price"), info("Selling Method", p.sellingMethod==="weight"?"Weight":"Unit"),
     info("Costing Method", isFixedCost(p)?"Fixed Cost":"From Ingredients"), info("Preparation Time", p.prepTime ? esc(p.prepTime)+" min" : "—"),
     info("Price", varKids(p).length ? "Set on each variant" : p.pricingMethod==="open" ? "Open" : usd(price)), info(isFixedCost(p)?"Fixed Cost":"Ingredients Cost", fmtCost(cost)),
     info("Cost %", price ? `<span style="${pct>40?"color:var(--accent-ink);font-weight:600":""}">${pct.toFixed(1)} %</span>` : "—"),
     info("Inventory Item", isInvProduct(p) ? "Yes" : "No"),   // shown as "Inventory Product": bought and sold as it is
-    wide(info("Description", esc(p.description||"—"))), wide(info("Description Localized", esc(p.descriptionAr||"—")))]);
+    wide(info("Description", esc(p.description||"—"))), wide(info("Description Localized", esc(p.descriptionAr||"—")))]) + `</div>${pdPrev()}</div>`;
   // a product with variants isn't sold itself: each variant product has its own recipe
   const hasVar = (p.variants||[]).some(v => v.productId);
   if(editing) return h + variantCard(p);
@@ -11129,6 +11289,9 @@ document.getElementById("signOut").addEventListener("click", () => window.WOK &&
 (function(){ const add = (box, attr) => { const h = box && box.querySelector(":scope > header"); if(h && !h.querySelector(".x")){ const b = document.createElement("button"); b.type = "button"; b.className = "x"; b.setAttribute(attr, ""); b.setAttribute("aria-label", "Close"); b.textContent = "×"; h.appendChild(b); } };
   const watch = (id, attr) => { const box = document.getElementById(id); if(box) new MutationObserver(() => add(box, attr)).observe(box, { childList:true }); };
   watch("ccBox", "data-ccclose"); watch("crudBox", "data-cclose"); })();
+(() => { const sc = document.getElementById("ccScrim"), bx = document.getElementById("ccBox"); if(!sc || !bx) return;
+  new MutationObserver(() => { if(!sc.classList.contains("show")) bx.classList.remove("odrawer"); }).observe(sc, { attributes:true, attributeFilter:["class"] });
+  new MutationObserver(() => { if(bx.classList.contains("odrawer") && !bx.querySelector(".odet")) bx.classList.remove("odrawer"); }).observe(bx, { childList:true }); })();
 </script>
 <script>
 /* every Reference field takes at most 20 characters */

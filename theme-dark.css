@@ -688,6 +688,45 @@ html[data-theme=dark] body .app .ocard{box-shadow:0 1px 2px rgba(0,0,0,0.0880000
 html[data-theme=dark] body .app .rhub .rcard:hover{border-color:#263158!important;box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body .app .f > label, html[data-theme=dark] body .app label.lbl, html[data-theme=dark] body .app .f > span:first-child{color:#abb1c8}
 html[data-theme=dark] body .toast, html[data-theme=dark] body #toast{box-shadow:0 18px 40px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] .osrch{background:#171923;border:1px solid #272e4c;color:#9aa0b5}
+html[data-theme=dark] .osrch:focus-within{background:#101420}
+html[data-theme=dark] body .modal.odrawer .odet > div > span:first-child{color:#9aa0b5}
+html[data-theme=dark] body .modal.odrawer .card{background:#151722!important;border-color:#232c4b!important}
+html[data-theme=dark] body .modal.odrawer .card.tbl{background:#101420!important}
+html[data-theme=dark] body .spill.s-draft, html[data-theme=dark] body .spill.s-review{background:#1b1624!important;color:#ad86e9!important}
+html[data-theme=dark] body .spill.s-pending{background:#271e17!important;color:#f6b790!important}
+html[data-theme=dark] body .spill.s-active{background:#292e1c!important;color:#e3f9b0!important}
+html[data-theme=dark] body .spill.s-closed{background:#1b1e24!important;color:#abb1c8!important}
+html[data-theme=dark] body .spill.s-declined, html[data-theme=dark] body .spill.s-void, html[data-theme=dark] body .spill.s-refund, html[data-theme=dark] body .spill.s-returned{background:#251717!important;color:#ee8981!important}
+html[data-theme=dark] .crsrch{background:#101420}
+html[data-theme=dark] .vtog{background:#1b1d27}
+html[data-theme=dark] .vtog button{color:#9aa0b5}
+html[data-theme=dark] .vtog button.on{background:#101420;box-shadow:0 2px 6px rgba(0,0,0,0.17600000000000002)}
+html[data-theme=dark] .pcard{border:1px solid #272e4c;background:#101420}
+html[data-theme=dark] .pcard:hover{box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002);border-color:#243055}
+html[data-theme=dark] .pcimg{background:#171923}
+html[data-theme=dark] .pcs{color:#9aa0b5}
+html[data-theme=dark] .pcsel{background:#101420;box-shadow:0 1px 4px rgba(0,0,0,0.33)}
+html[data-theme=dark] .bkfloat{box-shadow:0 20px 50px rgba(0,0,0,0.6)}
+html[data-theme=dark] .bkfloat button.done{background:#5f683f;color:#c8d1f2}
+html[data-theme=dark] .bkfloat .ddmenu.up{background:#101420;box-shadow:0 20px 50px rgba(0,0,0,0.55)}
+html[data-theme=dark] .bkfloat .ddmenu.up button:hover{background:#161924}
+html[data-theme=dark] .cuav{background:#5f683f;color:#c8d1f2}
+html[data-theme=dark] body .app .cuacts .btn.lime{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
+html[data-theme=dark] body .app .culeft .card.odet > div{border-bottom:1px solid #232c4b}
+html[data-theme=dark] body .app .culeft .card.odet > div > span:first-child{color:#9aa0b5}
+html[data-theme=dark] body .app .curight .cstats > div{background:#101420;border:1px solid #272e4c}
+html[data-theme=dark] body .app .curight .cstats span{color:#9aa0b5}
+html[data-theme=dark] .cutabs{background:#1b1d27}
+html[data-theme=dark] .cutabs button{color:#abb1c8}
+html[data-theme=dark] .cutabs button.on{background:#101420;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)}
+html[data-theme=dark] .pdhead .pdimg{background:#161924}
+html[data-theme=dark] .pdh .crumb{color:#9aa0b5}
+html[data-theme=dark] .pvl{color:#9aa0b5}
+html[data-theme=dark] .pvon{background:#101420;border:1px solid #272e4c}
+html[data-theme=dark] .pvimg{background:linear-gradient(135deg,#161924,#1b1624)}
+html[data-theme=dark] .pvb p{color:#9aa0b5}
+html[data-theme=dark] .pvpos{background:#101420;border:1px solid #272e4c}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .plancard i em{background:#5f683f}
 html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}
@@ -750,17 +789,26 @@ html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 30px 80px rgba(0
 @media (min-width:761px) and (max-width:1180px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 0 0 100vmax rgba(0,0,0,0.6)!important}
 }
+@media (min-width:1001px){
+html[data-theme=dark] body.x, html[data-theme=dark] body[data-route="account"] #view > .tabs{border-bottom:1px solid #272e4c!important}
+html[data-theme=dark] body[data-route="account"] .app #view > .tabs{background:#101420;border:1px solid #272e4c!important}
+html[data-theme=dark] body[data-route="account"] #view > .tabs a{color:#abb1c8}
+html[data-theme=dark] body[data-route="account"] #view > .tabs a.on{background:#161924}
+}
 html[data-theme=dark] [style*="background:#C6F432"]{background:#5f683f!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
 html[data-theme=dark] [style*="background:#ECEEF6"]{background:#1a1c26!important}
+html[data-theme=dark] [style*="background:#EEF0F5"]{background:#1b1e24!important}
 html[data-theme=dark] [style*="background:#EEF0F7"]{background:#191c25!important}
 html[data-theme=dark] [style*="background:#EEF2FF"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#F2FBD6"]{background:#292e1c!important}
+html[data-theme=dark] [style*="background:#F3EDFF"]{background:#1b1624!important}
 html[data-theme=dark] [style*="background:#F4F5FA"]{background:#171923!important}
 html[data-theme=dark] [style*="background:#F7F8FC"]{background:#151722!important}
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
+html[data-theme=dark] [style*="background:#FFF1E6"]{background:#271e17!important}
 html[data-theme=dark] [style*="background:#FFFFFF"]{background:#101420!important}
 html[data-theme=dark] [style*="background:#bbe7c8"]{background:#253e2d!important}
 html[data-theme=dark] [style*="background:#c7c7cc"]{background:#242c47!important}
@@ -887,7 +935,9 @@ html[data-theme=dark] [style*="background:#fff8e6"]{background:#272217!important
 html[data-theme=dark] [style*="background:#fffaf0"]{background:#231f15!important}
 html[data-theme=dark] [style*="border-color:#C6F432"]{border-color:#6b7c35!important}
 html[data-theme=dark] [style*="border-color:#C9D2F0"]{border-color:#263158!important}
+html[data-theme=dark] [style*="border-color:#D6DCF0"]{border-color:#243055!important}
 html[data-theme=dark] [style*="border-color:#E0E3EE"]{border-color:#2a314d!important}
+html[data-theme=dark] [style*="border-color:#EEF0F7"]{border-color:#232c4b!important}
 html[data-theme=dark] [style*="border-color:#FDECEC"]{border-color:#4d2121!important}
 html[data-theme=dark] [style*="border-color:#FFFFFF"]{border-color:#282d3e!important}
 html[data-theme=dark] [style*="border-color:#b0bbd9"]{border-color:#2e3c61!important}
@@ -952,6 +1002,7 @@ html[data-theme=dark] [style*="color:#3f6fd8"]{color:#88a6e7!important}
 html[data-theme=dark] [style*="color:#4A5272"]{color:#abb1c8!important}
 html[data-theme=dark] [style*="color:#4b4760"]{color:#b9b6c9!important}
 html[data-theme=dark] [style*="color:#4b5563"]{color:#b4bcc6!important}
+html[data-theme=dark] [style*="color:#5B21B6"]{color:#ad86e9!important}
 html[data-theme=dark] [style*="color:#5b5a66"]{color:#b5b4bd!important}
 html[data-theme=dark] [style*="color:#5d5973"]{color:#afacbe!important}
 html[data-theme=dark] [style*="color:#5e5a73"]{color:#afacbe!important}
@@ -971,6 +1022,7 @@ html[data-theme=dark] [style*="color:#7a7689"]{color:#a3a0ae!important}
 html[data-theme=dark] [style*="color:#8a5a00"]{color:#f7d698!important}
 html[data-theme=dark] [style*="color:#8a8799"]{color:#9996a6!important}
 html[data-theme=dark] [style*="color:#8a87a0"]{color:#9391a8!important}
+html[data-theme=dark] [style*="color:#9A3B00"]{color:#f6b790!important}
 html[data-theme=dark] [style*="color:#9a3412"]{color:#f1a48a!important}
 html[data-theme=dark] [style*="color:#9e0c24"]{color:#f5879a!important}
 html[data-theme=dark] [style*="color:#B42318"]{color:#ee8981!important}

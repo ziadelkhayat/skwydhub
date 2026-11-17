@@ -201,6 +201,51 @@ html body .brand.skb .skword.f2{display:flex!important;flex-direction:column!imp
 html body .brand.skb .skword.f2 svg{display:block}
 .f2gate{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:6px}.f2gate svg{display:block}
 .brand.skb .skadm{margin-left:0;flex-basis:100%;padding-left:2px}
+
+/* ================= Abyss (17-11-2026) · admin is the dark theme of the template ================= */
+:root{--abyss:#0B1330;--abyss2:#141E44;--abline:#22305F;--lime:#C6F432;--squid:#6D28D9}
+body{font-family:Inter,system-ui,sans-serif;background:var(--abyss);color:#E6E9F5}
+h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,sans-serif!important;letter-spacing:-.02em}
+.app{grid-template-columns:260px 1fr}
+.side{background:var(--abyss)!important;border-right:1px solid var(--abline)!important;color:#AEB6D1}
+.side .skword b,.side .brand b{color:#fff!important}.side .skmark svg g,.side .skmark svg path{stroke:#fff!important}.side .skword svg g,.side .skword svg path{stroke:#fff!important}
+.nav a{color:#AEB6D1!important;border-radius:12px!important;min-height:44px;font-weight:500}
+.nav a:hover{background:rgba(255,255,255,.06)!important;color:#fff!important}
+.nav a.on{background:var(--lime)!important;color:var(--abyss)!important;font-weight:700!important;box-shadow:none!important}
+.nav a .ico,.nav a svg{stroke:currentColor!important;color:currentColor!important}
+.top{background:var(--abyss)!important;border-bottom:1px solid var(--abline)!important;color:#AEB6D1}
+.who{color:#AEB6D1!important}
+.content{max-width:1400px}
+.content h1{color:#fff;font-size:28px;font-weight:700}.subt{color:#8C96B8!important}
+.card{background:var(--abyss2)!important;border:1px solid var(--abline)!important;border-radius:20px!important;color:#E6E9F5}
+.kpis{gap:16px}.kpi{padding:18px 20px!important}.kpi span{color:#8C96B8!important;font-size:12.5px}.kpi b{color:#fff!important;font:700 30px "Plus Jakarta Sans",Inter,sans-serif!important;letter-spacing:-.02em}
+.kpi small,.kpi .d{color:var(--lime)!important}
+.bar{border-bottom:1px solid var(--abline)!important}
+th{color:#8C96B8!important;background:transparent!important;font-size:12px!important;font-weight:600!important;border-bottom:1px solid var(--abline)!important}
+td{border-bottom:1px solid var(--abline)!important;color:#E6E9F5}
+tbody tr.click:hover{background:#1A2655!important}
+.note{color:#8C96B8!important}
+.btn{background:var(--abyss2)!important;border:1px solid var(--abline)!important;color:#fff!important;border-radius:12px!important;min-height:40px}
+.btn:hover{background:#1A2655!important}
+.btn.pri{background:var(--squid)!important;border-color:var(--squid)!important;box-shadow:0 6px 16px rgba(109,40,217,.35)}
+.btn.pri:hover{background:#5B21B6!important}
+.content .sel,.content input:not([type=checkbox]):not([type=radio]),.content select{background:var(--abyss2)!important;border:1px solid var(--abline)!important;color:#fff!important;border-radius:12px!important;min-height:40px}
+.content .sel:focus,.content input:focus,.content select:focus{outline:none;border-color:var(--lime)!important;box-shadow:0 0 0 4px rgba(198,244,50,.15)!important}
+.t-active,.t-paid{background:rgba(198,244,50,.16)!important;color:var(--lime)!important}.t-trial{background:rgba(109,40,217,.25)!important;color:#C4B5FD!important}
+.t-grace,.t-open{background:rgba(249,115,22,.18)!important;color:#FDBA74!important}.t-locked{background:rgba(229,72,77,.2)!important;color:#FCA5A5!important}.t-free,.t-void{background:#22305F!important;color:#AEB6D1!important}
+/* dialogs stay light for forms */
+.modal{background:rgba(5,9,25,.6)!important;backdrop-filter:blur(3px)}
+.dlg{border-radius:24px!important;color:#0E1530;box-shadow:0 30px 80px rgba(0,0,0,.45)!important}
+.dlg .card{background:#fff!important;border-color:#E6E8F2!important;color:#0E1530}.dlg td{color:#0E1530;border-bottom-color:#EEF0F7!important}.dlg th{border-bottom-color:#EEF0F7!important;color:#6B7392!important}
+.dlg .note{color:#6B7392!important}.dlg .btn{background:#fff!important;border-color:#E0E3EE!important;color:#0E1530!important}.dlg .btn.pri{background:#1E3A8A!important;border-color:#1E3A8A!important;color:#fff!important}
+.dlg input:not([type=checkbox]):not([type=radio]),.dlg select,.dlg .sel{background:#fff!important;color:#0E1530!important;border:1px solid #E0E3EE!important;border-radius:12px!important;min-height:42px}
+/* sign in */
+.gate{background:radial-gradient(900px 500px at 20% 0%,#1A2655,transparent),var(--abyss)!important}
+.gate form{border-radius:24px!important;box-shadow:0 30px 80px rgba(0,0,0,.4)!important;color:#0E1530}
+.gate input{border-radius:12px!important;min-height:46px}.gate button{border-radius:12px!important;min-height:48px;background:#1E3A8A!important}
+.app > :not(.side){min-width:0}.content > .card{overflow-x:auto}.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}
+.top .thsw{display:none!important}
+@media (max-width:900px){.content{padding:18px 14px 40px}.kpi b{font-size:22px!important}}
 </style>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
