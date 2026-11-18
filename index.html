@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1002-1795025219">
+<meta name="skwyd-build" content="1003-1795025369">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2436,6 +2436,18 @@ html body .app #view .card.otbl.obody table td:nth-child(n){font-size:14px!impor
 html body .app #view .card.otbl.obody table td:nth-child(n) b{font-weight:400!important;font-size:14px!important}
 html body .app #view .card.otbl.obody table td:nth-child(n) .note{display:block;font-size:12.5px!important;font-weight:400!important;color:#8E8E93!important;line-height:1.3!important;margin-top:2px;white-space:nowrap}
 html body .app #view .card.otbl.obody table th:nth-child(n){font-size:14px!important;font-weight:600!important}
+/* lists scroll: the row box inside a list card scrolls up and down (a "sideways only" rule had locked it) */
+html body .app #view .tscroll,html body .app #view .card>.tscroll{overflow-y:auto!important;overflow-x:auto!important}
+/* every list in the system looks like the Orders list: centred columns, 14px regular values, smaller grey second lines, 14px semibold column titles */
+html body .app #view .card.tbl table th:nth-child(n),html body .app #view .card.tbl table td:nth-child(n){text-align:center!important;vertical-align:middle}
+html body .app #view .card.tbl table td:nth-child(n){font-size:14px!important;font-weight:400!important;line-height:1.35!important;color:#1C1C1E}
+html body .app #view .card.tbl table td:nth-child(n) b{font-weight:400!important;font-size:14px!important}
+html body .app #view .card.tbl table td:nth-child(n) .note{font-size:12.5px!important;font-weight:400!important;color:#8E8E93!important;line-height:1.3!important}
+html body .app #view .card.tbl table th:nth-child(n){font-size:14px!important;font-weight:600!important}
+html body .app #view .card.tbl table td .tagrow,html body .app #view .card.tbl table td .chips{justify-content:center}
+/* buttons inside panels and cards (Add Category, Add Items, card actions): compact, smaller than the page's main button */
+html body .app #view .mm .btn,html body .app #view .mmhd .btn,html body .app #view .card .btn,html body .app #view .ttop .btn,html body .app #view .dzh .btn,html body .app #view .brch .btn,html body .app #view .secbox .btn{min-height:34px!important;height:34px;padding:0 12px!important;font-size:14px!important;border-radius:10px!important;box-shadow:none!important}
+html body .app #view .mm .btn svg,html body .app #view .card .btn svg{width:16px;height:16px}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
