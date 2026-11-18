@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1050-1795036093">
+<meta name="skwyd-build" content="1052-1795036434">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2719,6 +2719,8 @@ html body #ccBox .ccx.s2 .ccleft,html body #ccBox .ccx.s2 .ccleft .cc1,html body
 html body #ccBox .ccx.s2 .ccleft .cc1{flex:0 0 auto!important;min-height:0!important}
 html body #ccBox .ccx.s2 .insbox{background:#FFFFFF!important;flex:0 0 auto!important;align-self:start!important;height:auto!important;min-height:0!important}
 html body #ccBox .ccx.s2 .cc1b,html body #ccBox .ccx.s2 .cc1{align-content:start!important;align-items:stretch;height:auto!important}
+/* ===== Messages: regular weight, one tick only (the round icon) ===== */
+html body #toast,html body .toast,html body #toast.ok,html body #toast.del{font-weight:400!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -4596,7 +4598,7 @@ $("#cYes").addEventListener("click", async () => {
 });
 /* confirmations like "Saved" are not shown; only messages that need attention (errors, missing info) are */
 const TOAST_KEEP = /couldn|can.t|cannot|failed|error|not |no |nothing|enter |select|choose|pick|required|invalid|already|must|only |first|wrong|missing|offline|denied|too |at least|before|unable|exists|in use|used by|blocked|limit/i;
-function toastOk(m){ window.__toastAt = Date.now(); m = String(m||""); const t = $("#toast"); t.textContent = /^✓/.test(m) ? m : "✓ " + m; t.classList.toggle("del", /delet|remov|void|declin|reject|deactivat/i.test(m)); t.classList.add("show", "ok"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show", "ok"), 2200); }
+function toastOk(m){ window.__toastAt = Date.now(); m = String(m||""); const t = $("#toast"); t.textContent = m.replace(/^✓\s*/, ""); t.classList.toggle("del", /delet|remov|void|declin|reject|deactivat/i.test(m)); t.classList.add("show", "ok"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show", "ok"), 2200); }
 let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return String(m||"").trim() ? toastOk(m) : undefined; window.__toastAt = Date.now(); const t = $("#toast"); t.classList.remove("ok","del"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */

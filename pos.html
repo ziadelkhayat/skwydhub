@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1051-1795036229">
+<meta name="skwyd-build" content="1052-1795036434">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1022,6 +1022,8 @@ html body .bnav.bnav button{padding:8px 4px!important;gap:4px!important}
 /* ===== POS top action buttons and bottom bar: one label style (13px, semi-bold, capitals) ===== */
 html body #abar .abtn.abtn.abtn.abtn span,html body #abar .abtn.abtn.abtn.abtn b,html body .bnav.bnav.bnav button,html body .bnav.bnav.bnav button span{font-size:13px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.03em!important;white-space:nowrap!important}
 html body #abar .abtn.abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn.abtn .rti svg,html body .bnav.bnav.bnav button svg,html body .bnav.bnav.bnav .rti svg{width:22px!important;height:22px!important;stroke-width:2!important}
+/* ===== Messages: regular weight, one tick only (the round icon) ===== */
+html body #toast,html body .toast,html body #toast.ok,html body #toast.del{font-weight:400!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)

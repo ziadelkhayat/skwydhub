@@ -449,6 +449,8 @@ html body .smp.smp footer button,html body #ccBox .ccx .cctools .cctool.cctool.c
 html body .smp.smp footer button:active,html body #ccBox .ccx .cctools .cctool.cctool.cctool:active,html body .ccxbtn:active,html body .modal header .x:active,html body .acctbtn:active,html body #ccBox .ccx .ccacts .btn:active,html body .smp.smp header button:active{transform:none!important;box-shadow:none!important}
 html body .smp.smp textarea{border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:14px!important;padding:10px 12px!important;box-shadow:none!important;width:100%;box-sizing:border-box}
 html body .smp.smp textarea:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important;outline:0}
+/* ===== Messages: regular weight, one tick only (the round icon) ===== */
+html body #toast,html body .toast,html body #toast.ok,html body #toast.del{font-weight:400!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -949,7 +951,7 @@ document.addEventListener("keydown", e => {
 // messages: red for errors, green when something is saved
 let TT = 0;
 function toastShow(m, ok) { let t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
-  window.__toastAt = Date.now(); if (ok && !/^✓/.test(m)) m = "✓ " + m; t.textContent = m; t.classList.toggle("ok", !!ok); t.classList.toggle("del", !!ok && /delet|remov|void|declin|reject|deactivat/i.test(m)); void t.offsetWidth; t.classList.add("show"); clearTimeout(TT); TT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
+  window.__toastAt = Date.now(); m = String(m).replace(/^✓\s*/, ""); t.textContent = m; t.classList.toggle("ok", !!ok); t.classList.toggle("del", !!ok && /delet|remov|void|declin|reject|deactivat/i.test(m)); void t.offsetWidth; t.classList.add("show"); clearTimeout(TT); TT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
 const toast = m => toastShow(String(m || ""), false), toastOk = m => toastShow(String(m || ""), true);
 // a question box in place of the browser's confirm: Enter answers yes, Esc answers no
 function ask(msg, yes = "Yes", no = "Cancel") {
