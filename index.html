@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1056-1795037533">
+<meta name="skwyd-build" content="1057-1795038027">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2743,6 +2743,27 @@ html body aside.side .nti.nk-store{--nb:#F3E8FF;--nc:#6D28D9}
 html body aside.side .nti.nk-card{--nb:#FEF3C7;--nc:#B45309}
 html body aside.side .nti.nk-layers{--nb:#EEF2FF;--nc:#1E3A8A}
 html body aside.side .nti.nk-channels{--nb:#E0F2FE;--nc:#0369A1}
+/* ===== Call center discount pop-up: system look, number pad ===== */
+html body .ccdman{border:1px solid #E5E5EA!important;border-radius:14px!important;padding:14px!important}
+html body .ccdseg{background:#E9E9EE!important;border-radius:12px!important;padding:4px!important;gap:4px!important}
+html body .ccdseg button{height:40px;border-radius:9px!important;font-size:14px!important;color:#3A3A3C!important;border:0!important;background:none!important;box-shadow:none!important}
+html body .ccdseg button.on{background:#FFFFFF!important;color:#1C1C1E!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.08)!important}
+html body #ccDmV,html body #ccDsOpenV{height:46px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:18px!important;padding:0 14px!important;box-shadow:none!important;outline:0}
+html body #ccDmV:focus,html body #ccDsOpenV:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important}
+html body .ccnp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(100%,312px);margin:12px auto 0}
+html body .ccnp button{height:58px;border:1px solid #E5E5EA;border-radius:14px;background:#FFFFFF;color:#1C1C1E;font:400 24px inherit;font-family:inherit;cursor:pointer;display:grid;place-items:center}
+html body .ccnp button:active{background:#EEF2FF}
+html body .ccnp button[data-npk2="⌫"]{color:#636366}
+/* ===== Item discount pop-up: as wide as its number pad ===== */
+html body .smp.smp.narrow{width:min(420px,100%)!important}
+html body .smp.smp.disc{width:min(360px,100%)!important}
+html body .smp.smp.disc .smnp{width:100%!important;max-width:none!important}
+html body .smp.smp.disc .dz{display:flex!important;gap:8px!important;width:100%!important}
+html body .smp.smp.disc .dz input{flex:1!important;min-width:0!important;width:0!important;height:46px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:18px!important;padding:0 14px!important;box-sizing:border-box}
+html body .smp.smp.disc .dz button{width:56px!important;min-width:0!important;height:46px!important;flex:none!important}
+html body .smp.smp.disc footer{display:flex!important;gap:10px!important}
+html body .smp.smp.disc footer .err:empty{display:none}
+html body .smp.smp.disc footer button{flex:1 1 0!important;min-width:0!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6195,12 +6216,17 @@ function ccVoidDlg(mode){
         rows.forEach((x, k) => { if(!q[k]) return; ccVoids.push({ name:x.i.name, qty:q[k], price:x.i.price, reason, ...(x.i.options ? { options:x.i.options, mods:x.i.mods } : {}) }); x.i.qty -= q[k]; x.i.saved -= q[k]; if(+x.i.disc) x.i.disc = +(x.i.disc * x.i.qty / (x.i.qty + q[k])).toFixed(2); });
         cart = cart.filter(i => i.qty > 0); ccVoidReason = reason; ccVoidStock = sa; close(); renderCart(false); } }); });
 }
+// on-screen number pad in the call center pop-ups: types into the field it is linked to
+document.addEventListener("pointerdown", e => { if(e.target.closest("[data-npk2]")) e.preventDefault(); });
+document.addEventListener("click", e => { const k = e.target.closest("[data-npk2]"); if(!k) return; const el = document.getElementById(k.closest("[data-npt]")?.dataset.npt); if(!el) return;
+  const key = k.dataset.npk2; let v = el.value; if(key==="⌫") v = v.slice(0, -1); else if(key===".") { if(!v.includes(".")) v = (v || "0") + "."; } else v = v==="0" ? key : v + key;
+  el.value = v; el.dispatchEvent(new Event("input", { bubbles:true })); });
 function ccDiscDlg(){
   if(!ccMayDisc()) return toast("Discounts aren't allowed here");
   const l = mayDo("bo_cc_discount") ? ccDsHere() : [], cA = mayDo("bo_cc_disc_amount"), cP = mayDo("bo_cc_disc_pct"), first = ccDiscType==="amt" && cA || !cP ? "amt" : "pct";
   // built in first: an amount or a percentage off the order (each with its own permission), then the discounts made in Marketing → Discounts
   const man = cA || cP ? `<div class="ccdman"><div class="ccdseg">${cA ? `<button type="button" data-ccdt="amt" class="${first==="amt"?"on":""}">Amount (${esc(SYM())})</button>` : ""}${cP ? `<button type="button" data-ccdt="pct" class="${first==="pct"?"on":""}">Percentage (%)</button>` : ""}</div>
-      <div style="display:flex;gap:8px;margin-top:10px"><input id="ccDmV" class="sel" inputmode="decimal" placeholder="0" value="${!ccDS && +ccDisc ? esc(ccDisc) : ""}" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDmGo">Apply</button></div><p class="note" id="ccDmN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p></div>` : "";
+      <div style="display:flex;gap:8px;margin-top:10px"><input id="ccDmV" class="sel" inputmode="decimal" placeholder="0" value="${!ccDS && +ccDisc ? esc(ccDisc) : ""}" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDmGo">Apply</button></div><p class="note" id="ccDmN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p><div class="ccnp" data-npt="ccDmV">${["1","2","3","4","5","6","7","8","9",".","0","⌫"].map(k => `<button type="button" data-npk2="${k}" aria-label="${k==="⌫" ? "Delete" : k}">${k}</button>`).join("")}</div></div>` : "";
   ccOverlay(`<h3 style="margin:0 0 12px">Discount</h3>${man}${man && mayDo("bo_cc_discount") ? `<div class="note" style="margin:6px 0 8px;font-weight:600">Discounts</div>` : ""}${!mayDo("bo_cc_discount") ? "" : l.length ? `<div class="ccchl">${l.map(d => { const c = d.open ? { amt:1 } : ccDsCalc(d); return `<button type="button" class="ccchr" data-ccds="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"} style="text-align:left;background:${ccDS?.id===d.id ? "#eceff8" : "#fff"}"><span><b>${esc(d.name)}</b><small>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</small></span></button>`; }).join("")}</div>
     <div id="ccDsOpen" hidden style="margin-top:12px"><label class="note" id="ccDsOpenL" for="ccDsOpenV"></label><div style="display:flex;gap:8px;margin-top:4px"><input id="ccDsOpenV" class="sel" inputmode="decimal" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDsOpenGo">Apply</button></div><p class="note" id="ccDsOpenN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p></div>` : `<p class="note" style="text-align:center;padding:20px 0">No discounts available for this order.</p>`}
     <div class="slk-ask-f" style="margin-top:12px"><button type="button" class="slk-ask-no" data-dlgx>Cancel</button></div>`, (w, close) => {
@@ -6211,7 +6237,7 @@ function ccDiscDlg(){
       ccDS = null; ccDiscType = ty; ccDisc = +v.toFixed(2); close(); renderCart(false); });
     w.addEventListener("keydown", e => { if(e.key==="Enter" && e.target.id==="ccDmV"){ e.preventDefault(); e.stopPropagation(); w.querySelector("#ccDmGo")?.click(); } });
     w.addEventListener("click", e => { const b = e.target.closest("[data-ccds]"); if(!b || b.disabled) return; const d = dsList().find(x => x.id===b.dataset.ccds); if(!d) return;
-      if(d.open){ const f = w.querySelector("#ccDsOpen"); f.hidden = false; f.dataset.id = d.id; w.querySelector("#ccDsOpenL").textContent = `${d.name}: enter the ${d.type==="fixed" ? "amount (" + SYM() + ")" : "percentage (%)"}`; const i = w.querySelector("#ccDsOpenV"); i.value = ""; i.focus(); return; }
+      if(d.open){ const f = w.querySelector("#ccDsOpen"); f.hidden = false; f.dataset.id = d.id; w.querySelector("#ccDsOpenL").textContent = `${d.name}: enter the ${d.type==="fixed" ? "amount (" + SYM() + ")" : "percentage (%)"}`; const i = w.querySelector("#ccDsOpenV"); i.value = ""; i.focus(); const np = w.querySelector(".ccnp"); if(np){ np.dataset.npt = "ccDsOpenV"; f.after(np); } return; }
       ccDS = { id:d.id, name:d.name }; ccDiscType = "amt"; ccDisc = ccDsCalc(d).amt; close(); renderCart(false); });
     w.addEventListener("click", e => { if(e.target.id!=="ccDsOpenGo") return; const f = w.querySelector("#ccDsOpen"), d = dsList().find(x => x.id===f.dataset.id); if(!d) return;
       const v = +String(w.querySelector("#ccDsOpenV").value).replace(",", "."), n = w.querySelector("#ccDsOpenN");

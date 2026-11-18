@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1056-1795037533">
+<meta name="skwyd-build" content="1057-1795038027">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1051,6 +1051,16 @@ html body #grid#grid#grid#grid{grid-auto-rows:calc((100% - 40px) / 5)!important;
 html body #grid#grid#grid#grid>.prod,html body #grid#grid#grid#grid>.ctile,html body #grid#grid#grid#grid>.cbtile{height:auto!important;min-height:0!important;max-height:none!important;grid-template-columns:auto minmax(0,1fr)!important}
 html body #grid#grid#grid#grid>.prod>img,html body #grid#grid#grid#grid>.prod>.pic,html body #grid#grid#grid#grid>.ctile>img,html body #grid#grid#grid#grid>.ctile>.pic,html body #grid#grid#grid#grid>.cbtile>img,html body #grid#grid#grid#grid>.cbtile>.pic{width:auto!important;height:100%!important;aspect-ratio:1/1!important;max-width:110px!important}
 html body #abar .abtn.abtn.abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn.abtn.abtn .rti svg{width:26px!important;height:26px!important}
+/* ===== Item discount pop-up: as wide as its number pad ===== */
+html body .smp.smp.narrow{width:min(420px,100%)!important}
+html body .smp.smp.disc{width:min(360px,100%)!important}
+html body .smp.smp.disc .smnp{width:100%!important;max-width:none!important}
+html body .smp.smp.disc .dz{display:flex!important;gap:8px!important;width:100%!important}
+html body .smp.smp.disc .dz input{flex:1!important;min-width:0!important;width:0!important;height:46px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:18px!important;padding:0 14px!important;box-sizing:border-box}
+html body .smp.smp.disc .dz button{width:56px!important;min-width:0!important;height:46px!important;flex:none!important}
+html body .smp.smp.disc footer{display:flex!important;gap:10px!important}
+html body .smp.smp.disc footer .err:empty{display:none}
+html body .smp.smp.disc footer button{flex:1 1 0!important;min-width:0!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
