@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="998-1795024839">
+<meta name="skwyd-build" content="999-1795024965">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2421,6 +2421,16 @@ html body[data-route="account"] .app #view > .tabs{display:inline-flex!important
 html body[data-route="account"] .app #view > .tabs a{display:inline-flex;align-items:center;padding:8px 16px!important;border:0!important;border-radius:10px!important;color:#3A3A3C!important;font-size:15px!important;font-weight:500!important;background:transparent!important;box-shadow:none!important;text-decoration:none}
 html body[data-route="account"] .app #view > .tabs a::after{display:none!important}
 html body[data-route="account"] .app #view > .tabs a.on{background:#FFFFFF!important;color:#000!important;font-weight:700!important;box-shadow:0 2px 8px rgba(14,21,48,.08)!important}
+/* call center board: even columns, one-line headers, a grey "You don't have … orders" box under each empty column (Foodics) */
+html body[data-route="call-center"] .app .board{gap:12px!important;align-items:start}
+html body[data-route="call-center"] .app .bcol{background:transparent!important;padding:0!important;gap:10px!important;border:0!important;box-shadow:none!important}
+html body[data-route="call-center"] .app .bhead{display:flex!important;align-items:center;gap:6px;min-height:52px;padding:12px 10px 12px 12px!important;border-radius:12px!important;background:#fff!important;border:1px solid #E6E8F2!important;box-shadow:none!important}
+html body[data-route="call-center"] .app .bhead>b{font-size:14px!important;font-weight:600!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body[data-route="call-center"] .app .bhead .cnt{flex:none;margin-left:auto}
+html body .app .bempty{display:grid!important;place-items:center;min-height:200px;border:0!important;border-radius:12px!important;background:#EFEFF4!important;color:#1C1C1E!important;padding:16px!important;font-size:15px!important;text-align:center}
+/* orders lists: every column centred */
+html body .app #view .card.otbl.obody table th:nth-child(n),html body .app #view .card.otbl.obody table td:nth-child(n){text-align:center!important}
+html body .app #view .card.otbl.obody table td:nth-child(n) b,html body .app #view .card.otbl.obody table td:nth-child(n) .note{display:block;text-align:center}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -5387,7 +5397,7 @@ function viewCallCenter(){
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
   const ccCols = CC_COLS.filter(([k]) => k!=="review" || webToCC() || list.some(o => o.status==="review"));
   h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
-    ${col.map(ccCard).join("")}</div>`; }).join("")}</div>`;
+    ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
 }
 // order number comes from the POS that bills the order; until then call-center / web orders go by invoice number
@@ -8051,8 +8061,8 @@ function viewOrders(){
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? esc(o.no) : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       <td><div>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>${brandList().length > 1 ? `<div class="note">${esc(brandName(o.brandId) || "—")}</div>` : ""}</td>
       <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
-      <td><div>${esc(ordTypeLbl(o.type))}</div>${o.type==="dinein" && o.table ? `<div class="note">${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
-      <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<span class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)} ${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</span>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "-")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
+      <td><div>${esc(ordTypeLbl(o.type))}</div>${o.type==="dinein" && o.table ? `<div class="note">${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</div>` : ""}</td><td>${esc(srcOf(o) || "—")}</td>
+      <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<span class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)} ${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</span>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "—")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
     : `<tr><td colspan="13" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
   }</tbody></table>`}
   <div class="pager"><span class="note">${a}–${b} of ${ORD.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="ordPrev" ${ORD.page<=1?"disabled":""}>Previous</button><span class="note">Page ${ORD.page} of ${pages}</span><button class="btn" id="ordNext" ${ORD.page>=pages?"disabled":""}>Next</button></div></div>`;
@@ -8467,7 +8477,7 @@ function viewCustomer(){
     </div>
     <div class="cusec" data-cs="orders">
     <div class="card brcard otbl"><div class="brch"><h3>Orders</h3></div>${tbl(["Reference","Check Number","Order","Business date","Branch","Order type","Order source","Payment Type","Status",`<span class="num">Total</span>`],
-      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? esc(o.no) : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div></div></div></div>`;
+      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? esc(o.no) : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "—")}</td><td>${esc(o.payment?.method || "—")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div></div></div></div>`;
 }
 // save a change made on the customer page straight away
 async function cusPatch(patch, msg){
