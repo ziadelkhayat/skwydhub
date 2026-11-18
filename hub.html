@@ -419,6 +419,7 @@ html body .btn.bico,html body .app #view .btn.bico,html body .modal .btn.bico,ht
 html body .btn.sm.bico,html body .app #view .btn.sm.bico,html body .btn.trashbtn.sm{min-width:38px!important;width:38px!important}
 html body .modal footer .btn.danger:not(:first-child),html body .dlg footer .btn.danger:not(:first-child),html body .scrim footer .btn.danger:not(:first-child){background:#FDECEC!important;padding:0 16px!important}
 html body .btn.nochg,html body .app #view .btn.nochg,html body .modal .btn.nochg{opacity:.45!important;cursor:not-allowed!important;box-shadow:none!important}
+html body #toast.ok.del,html body #toast.del{background:#B42318!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -916,7 +917,7 @@ document.addEventListener("keydown", e => {
 // messages: red for errors, green when something is saved
 let TT = 0;
 function toastShow(m, ok) { let t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
-  t.textContent = m; t.classList.toggle("ok", !!ok); void t.offsetWidth; t.classList.add("show"); clearTimeout(TT); TT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
+  window.__toastAt = Date.now(); if (ok && !/^✓/.test(m)) m = "✓ " + m; t.textContent = m; t.classList.toggle("ok", !!ok); t.classList.toggle("del", !!ok && /delet|remov|void|declin|reject|deactivat/i.test(m)); void t.offsetWidth; t.classList.add("show"); clearTimeout(TT); TT = setTimeout(() => t.classList.remove("show"), ok ? 2200 : 3600); }
 const toast = m => toastShow(String(m || ""), false), toastOk = m => toastShow(String(m || ""), true);
 // a question box in place of the browser's confirm: Enter answers yes, Esc answers no
 function ask(msg, yes = "Yes", no = "Cancel") {
@@ -1008,6 +1009,22 @@ boot();
   }, true);
   let q = 0; new MutationObserver(() => { if(q) return; q = requestAnimationFrame(() => { q = 0; arm(); }); }).observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener("DOMContentLoaded", arm);
+})();</script>
+<script>/* Option 7: after any action button finishes, a message drops in from the top: green, or red for delete/remove */
+(function(){
+  const W = { "save":"Saved", "save changes":"Saved", "save rules":"Saved", "update":"Updated", "create":"Created", "add":"Added", "send":"Sent", "accept":"Accepted", "approve":"Approved", "decline":"Declined", "reject":"Rejected", "delete":"Deleted", "remove":"Removed", "restore":"Restored", "activate":"Activated", "deactivate":"Deactivated", "publish":"Published", "submit":"Submitted", "yes":"Done", "confirm":"Done", "save as draft":"Saved as draft", "mark paid":"Marked paid", "void":"Voided", "unassign":"Unassigned", "assign":"Assigned" };
+  window.__toastAt = 0;
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button.btn"); if(!b || b.classList.contains("nochg") || b.disabled) return;
+    const k = (b.textContent||"").replace(/[✓+…▾]/g,"").replace(/\s+/g," ").trim().toLowerCase(); const w = W[k]; if(!w) return;
+    const sc = b.closest(".scrim,.modal,#m,.slk-ask"), t0 = Date.now();
+    let n = 0; const iv = setInterval(() => { n++;
+      if(window.__toastAt > t0){ clearInterval(iv); return; }
+      const gone = !b.isConnected || (sc && !sc.isConnected) || (sc && sc.classList.contains("scrim") && !sc.classList.contains("show")) || (sc && sc.id==="m" && !sc.classList.contains("on"));
+      if(gone){ clearInterval(iv); setTimeout(() => { if(window.__toastAt <= t0 && typeof toastOk === "function") toastOk(w); }, 350); return; }
+      if(n > 20) clearInterval(iv);
+    }, 250);
+  }, true);
 })();</script>
 </body>
 </html>

@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1016-1795030232">
+<meta name="skwyd-build" content="1018-1795030607">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2559,6 +2559,15 @@ html body .app #view .phead.hero .btn svg{stroke:#1E3A8A!important;color:#1E3A8A
 html body .app #view .phead.hero .btn.pri{background:#1E3A8A!important;color:#FFFFFF!important}
 html body .app #view .phead.hero .btn.pri svg{stroke:#FFFFFF!important;color:#FFFFFF!important}
 html body .btn.nochg,html body .app #view .btn.nochg,html body .modal .btn.nochg{opacity:.45!important;cursor:not-allowed!important;box-shadow:none!important}
+html body #toast.ok.del,html body #toast.del{background:#B42318!important}
+/* ===== Brand settings tabs: one row on top, like the other tab strips ===== */
+html body .app .bswrap{grid-template-columns:1fr!important;gap:16px}
+html body .app .bswrap .bsnav{position:static!important;flex-direction:row!important;flex-wrap:wrap;gap:6px;background:#E9E9EE!important;border:0!important;border-radius:14px;padding:6px!important}
+html body .app .bswrap .bsnav b{display:none}
+html body .app .bswrap .bsnav a{padding:9px 14px!important;border-radius:10px!important;color:#3A3A3C!important;font-size:14px;font-weight:400!important;white-space:nowrap}
+html body .app .bswrap .bsnav a:hover{background:rgba(255,255,255,.6)!important}
+html body .app .bswrap .bsnav a.on{background:#FFFFFF!important;color:#1C1C1E!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+@media(max-width:760px){html body .app .bswrap .bsnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -4433,8 +4442,8 @@ $("#cYes").addEventListener("click", async () => {
 });
 /* confirmations like "Saved" are not shown; only messages that need attention (errors, missing info) are */
 const TOAST_KEEP = /couldn|can.t|cannot|failed|error|not |no |nothing|enter |select|choose|pick|required|invalid|already|must|only |first|wrong|missing|offline|denied|too |at least|before|unable|exists|in use|used by|blocked|limit/i;
-function toastOk(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show", "ok"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show", "ok"), 2200); }
-let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return; const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
+function toastOk(m){ window.__toastAt = Date.now(); m = String(m||""); const t = $("#toast"); t.textContent = /^✓/.test(m) ? m : "✓ " + m; t.classList.toggle("del", /delet|remov|void|declin|reject|deactivat/i.test(m)); t.classList.add("show", "ok"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show", "ok"), 2200); }
+let tt; function toast(m){ if(!TOAST_KEEP.test(String(m||""))) return String(m||"").trim() ? toastOk(m) : undefined; window.__toastAt = Date.now(); const t = $("#toast"); t.classList.remove("ok","del"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"), 2200); }
 
 /* ---------- generic collections (menu, inventory, devices, call center, web ordering) ---------- */
 const COLS = ["brands","categories","products","inv_items","devices","orders","zones","settings","order_sources","inv_categories","warehouses","inv_docs","modifiers","modifier_options","suppliers","taxes","tax_groups","payment_methods","roles","users","charges","variant_sets","day_closes","work_shifts","work_requests","staff_docs","chat_groups","chat_messages","kb_articles","kb_reads","tasks"];
@@ -12023,6 +12032,22 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   }, true);
   let q = 0; new MutationObserver(() => { if(q) return; q = requestAnimationFrame(() => { q = 0; arm(); }); }).observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener("DOMContentLoaded", arm);
+})();</script>
+<script>/* Option 7: after any action button finishes, a message drops in from the top: green, or red for delete/remove */
+(function(){
+  const W = { "save":"Saved", "save changes":"Saved", "save rules":"Saved", "update":"Updated", "create":"Created", "add":"Added", "send":"Sent", "accept":"Accepted", "approve":"Approved", "decline":"Declined", "reject":"Rejected", "delete":"Deleted", "remove":"Removed", "restore":"Restored", "activate":"Activated", "deactivate":"Deactivated", "publish":"Published", "submit":"Submitted", "yes":"Done", "confirm":"Done", "save as draft":"Saved as draft", "mark paid":"Marked paid", "void":"Voided", "unassign":"Unassigned", "assign":"Assigned" };
+  window.__toastAt = 0;
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button.btn"); if(!b || b.classList.contains("nochg") || b.disabled) return;
+    const k = (b.textContent||"").replace(/[✓+…▾]/g,"").replace(/\s+/g," ").trim().toLowerCase(); const w = W[k]; if(!w) return;
+    const sc = b.closest(".scrim,.modal,#m,.slk-ask"), t0 = Date.now();
+    let n = 0; const iv = setInterval(() => { n++;
+      if(window.__toastAt > t0){ clearInterval(iv); return; }
+      const gone = !b.isConnected || (sc && !sc.isConnected) || (sc && sc.classList.contains("scrim") && !sc.classList.contains("show")) || (sc && sc.id==="m" && !sc.classList.contains("on"));
+      if(gone){ clearInterval(iv); setTimeout(() => { if(window.__toastAt <= t0 && typeof toastOk === "function") toastOk(w); }, 350); return; }
+      if(n > 20) clearInterval(iv);
+    }, 250);
+  }, true);
 })();</script>
 </body>
 </html>
