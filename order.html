@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="993-1795023224">
+<meta name="skwyd-build" content="998-1795024839">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -686,6 +686,9 @@ html body .promo{background:#0B1330!important;border:0!important;border-radius:1
 html body .promo > svg{background:#1E3A8A;color:#FFFFFF;border-radius:10px;padding:7px;width:34px!important;height:34px!important;box-sizing:border-box;flex:none;order:2;margin-left:auto}
 html body .promo b{color:#FFFFFF!important;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:15px!important}
 html body .promo span{color:#AEB6D1!important}
+
+/* no entrance animations on page content (menu, categories, cart lines): content shows instantly; pop-ups keep their fade */
+html body .hcard,html body .where,html body section.cat,html body .line,html body #view.vin,html body .vin{animation:none!important}
 </style>
 </head>
 <body class="lay-grid">

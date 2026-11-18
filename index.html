@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="997-1795024119">
+<meta name="skwyd-build" content="998-1795024839">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2435,6 +2435,9 @@ html body #view .m-skel i,html body #view .m-spin,html body .content .m-spin{ani
 html body #view .m-spin,html body .content .m-spin,html body #view .bootspin,html body #view [class*="spin"]{animation-name:m-sp!important}
 html body #view svg *,html body .content svg *{transition:none!important;stroke-dashoffset:0!important}
 html body .m-tabbar{transition:none!important}
+html body .nav .sub,html body .nav .grp.open .sub,html body .nav .grp .sub *{animation:none!important;transition:none!important}
+html body .nav .chev,html body .nav .grp > button svg.nls{transition:none!important}
+html body .empty,html body .empty::before,html body .empty::after{animation:none!important}
 html body #view .ddmenu:not([hidden]),html body #view .ofpop,html body #view .kbmenu,html body #view .pkpop,html body #view .cal,html body .content .cal{animation-name:fdPop!important}
 html body .scrim.show,html body .slk-ask,html body .modal.on{animation:fdFade .2s var(--fd) both!important}
 html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .slk-ask-b,html body .modal.on > .dlg{animation:fdModal .2s var(--fd) both!important}
@@ -8048,7 +8051,7 @@ function viewOrders(){
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? esc(o.no) : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       <td><div>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>${brandList().length > 1 ? `<div class="note">${esc(brandName(o.brandId) || "—")}</div>` : ""}</td>
       <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
-      <td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table ? ` <span class="note">· ${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</span>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
+      <td><div>${esc(ordTypeLbl(o.type))}</div>${o.type==="dinein" && o.table ? `<div class="note">${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
       <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<span class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)} ${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</span>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "-")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
     : `<tr><td colspan="13" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
   }</tbody></table>`}
