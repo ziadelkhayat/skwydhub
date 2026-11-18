@@ -426,6 +426,16 @@ html body .btn,html body .app #view .btn,html body .modal .btn,html body .dlg .b
 html body .btn.danger:not(:disabled):hover,html body .modal .btn.danger:not(:disabled):hover,html body .scrim .btn.danger:not(:disabled):hover{box-shadow:0 6px 16px rgba(180,35,24,.16)!important}}
 html body .btn:not(:disabled):active,html body .app #view .btn:not(:disabled):active,html body .modal .btn:not(:disabled):active,html body .scrim .btn:not(:disabled):active{transform:translateY(0)!important;box-shadow:none!important;transition-duration:.08s!important}
 @media (prefers-reduced-motion:reduce){html body .btn{transition:none!important;transform:none!important}}
+/* ===== Question boxes (Are you sure?) use the system buttons ===== */
+html body .slk-ask-b{border-radius:16px!important}
+html body .slk-ask-f{background:#fff!important;border-top:1px solid #E5E5EA;padding:14px 24px!important;gap:10px!important}
+html body .slk-ask-f button,html body .slk-ask-yes,html body .slk-ask-no{min-height:46px!important;height:46px!important;min-width:104px!important;padding:0 20px!important;border:0!important;border-radius:10px!important;font-size:14px!important;font-weight:600!important;box-shadow:none!important;transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s,background .2s!important}
+html body .slk-ask-no{background:#EEF2FF!important;color:#1E3A8A!important}
+html body .slk-ask-yes{background:#1E3A8A!important;color:#fff!important}
+html body .slk-ask-yes.red{background:#FDECEC!important;color:#B42318!important}
+@media (hover:hover){html body .slk-ask-f button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.18)!important}html body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6px 16px rgba(180,35,24,.16)!important}}
+html body .slk-ask-f button:active{transform:none!important;box-shadow:none!important}
+html body .slk-ask-f button:focus-visible{outline:2px solid #1E3A8A;outline-offset:2px}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
