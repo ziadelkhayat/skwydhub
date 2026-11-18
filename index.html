@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1000-1795025075">
+<meta name="skwyd-build" content="1001-1795025143">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -8115,7 +8115,7 @@ async function openOrderDetail(id, quiet){
     ${o.status==="returned"?`<p style="color:#9e0c24"><b>Returned</b> ${dt(o.returnedAt)}${o.returnedBy?` by ${esc(o.returnedBy)}`:""}${o.approvedBy?` · approved by ${esc(o.approvedBy)}`:""}${o.returnReason?` — ${esc(o.returnReason)}`:""}${o.stockAction?` · ${o.stockAction==="waste"?"wasted":"back to stock"}`:""}</p>`:""}
     ${o.status==="void"?`<p style="color:#9e0c24"><b>Voided</b> ${dt(o.voidedAt)}${o.voidedBy?` by ${esc(o.voidedBy)}`:""}${o.voidReason?` — ${esc(o.voidReason)}`:""}</p>`:""}
   </div>
-  <footer><button type="button" class="btn" data-oprint="${esc(o.id)}">Print receipt</button><span style="flex:1"></span>
+  <footer><span style="flex:1"></span>
     ${["pending","active"].includes(o.status)?`<span class="note">The branch accepts and closes this order on its POS.</span>`:""}
     <button type="button" class="btn" data-ccclose>Cancel</button></footer>`;
   window.__ordOpen = o;
