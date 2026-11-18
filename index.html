@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="979-1795007916">
+<meta name="skwyd-build" content="980-1795008213">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2716,6 +2716,8 @@ $("#nav").addEventListener("click", e => {
 });
 
 /* ---------- branch store ---------- */
+let branchesDel = [];   // deleted branches (kept, shown under Branches → Deleted)
+const isDelBr = b => !!b?.settings?.deletedAt;
 let branches = [];        // {id,name,code,address,city,phone,open,close,zones,active,callCenter,production,createdAt}
 let db = null, col = null, storeMode = "loading";
 const state = { range:"day", dashTab:"general", branch:"all", brand:(()=>{ try{ return localStorage.getItem("skwydBrand")||"all"; }catch(e){ return "all"; } })(), compare:false, date:"", userName:"" };
@@ -2748,7 +2750,7 @@ async function initStore(){
       storeMode = "db";
       const list = [];
       (snap.docs || snap).forEach(d => { const v = typeof d.data === "function" ? d.data() : d; list.push({ ...v, id: d.id ?? v.id }); });
-      branches = list; sortBranches();
+      branchesDel = list.filter(isDelBr); branches = list.filter(b => !isDelBr(b)); sortBranches();
       setSync("Saved · " + branches.length + " branch" + (branches.length===1?"":"es"));
       render();
     }, err => { clearTimeout(timer); console.error(err); fallback("Couldn't load saved branches"); });
@@ -2856,9 +2858,15 @@ async function wipeBranch(kind){
   finally{ BD.busy = false; if(BD.cache) delete BD.cache[b.id]; paintBranchData(b.id); }
 }
 document.addEventListener("click", e => { if(e.target.closest("#bdDelOrders")) wipeBranch("orders"); if(e.target.closest("#bdDelInv")) wipeBranch("inv"); });
-async function deleteBranch(id){
-  if(storeMode === "db") await col.doc(id).delete();
-  else { branches = branches.filter(b => b.id!==id); render(); }
+async function deleteBranch(id){   // kept as deleted (inactive), listed under the Deleted tab
+  const b = branches.find(x => x.id===id), data = { active:false, settings: { ...(b?.settings||{}), deletedAt: new Date().toISOString() } };
+  if(storeMode === "db") await col.doc(id).update(data);
+  else { Object.assign(b, data); branches = branches.filter(x => x.id!==id); branchesDel.push(b); render(); }
+}
+async function restoreBranch(id){
+  const b = branchesDel.find(x => x.id===id); if(!b) return; const st = { ...(b.settings||{}) }; delete st.deletedAt;
+  if(storeMode === "db") await col.doc(id).update({ active:true, settings: st });
+  else { Object.assign(b, { active:true, settings: st }); branchesDel = branchesDel.filter(x => x.id!==id); branches.push(b); sortBranches(); render(); }
 }
 
 /* ---------- live dashboard data (summed in Supabase by slick_dashboard) ---------- */
@@ -3426,7 +3434,7 @@ function viewBranch(b){
   const st = b.settings || {}, more = true, row = (k, v) => `<div><span>${k}</span>${v}</div>`, t12o = v => v ? esc(t12(v)) : "—";
   const mon = st.hours?.mon || {}, tg = (S.tax_groups||[]).find(g => g.id===st.taxGroup)?.name;
   const zones = (S.zones||[]).filter(z => !z.deleted && z.branchId===b.id), users = (S.users||[]).filter(u => !u.deleted && !isAdminRow(u) && (!(u.branchIds||[]).length || u.branchIds.includes(b.id)));
-  const devs = S.devices.filter(d => live(d) && d.branchId===b.id), chs = (S.charges||[]).filter(c => !c.deleted && c.active!==false && (!(c.branchIds||[]).length || c.branchIds.includes(b.id)));
+  const devs = S.devices.filter(d => live(d) && d.branchId===b.id), chs = (S.charges||[]).filter(c => !c.deleted && (!(c.branchIds||[]).length || c.branchIds.includes(b.id)));
   const tl = tblList(b.id), secs = tblSecs(b.id), offPay = st.inactivePayments || [], pms = (S.payment_methods||[]).filter(m => !m.deleted && m.active!==false);
   const card = (title, btn, body) => `<div class="dzsec dzwide"><div class="dzh"><h3>${title}</h3>${btn||""}</div><div class="dzcard dztbl">${body}</div></div>`;
   const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
@@ -3453,16 +3461,16 @@ function viewBranch(b){
 }
 function viewBranches(){
   const ob = state.brOpen && branches.find(x => x.id===state.brOpen); if(ob){ setTimeout(() => paintBranchData(ob.id), 0); return viewBranch(ob); }
-  const all0 = branches, list = all0.filter(crudFltOk("branches"));
-  const n = all0.length, a = activeBranches().length;
+  const brTab = state.brTab || "all", all0 = brTab==="deleted" ? branchesDel : branches, list = all0.filter(crudFltOk("branches"));
+  const n = branches.length, a = activeBranches().length;
   let h = `<div class="phead"><h1>Branches</h1><div class="sp"></div><button class="btn pri" id="addBranch">Create Branch</button></div>
     <p class="subt" style="margin-top:-6px">${n} total · ${a} active</p>`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: branches you add here won't be saved. Open this page from claude.ai while signed in to save them.</div>`;
-  if(!n) return h + `<div class="card empty">No branches yet. Add your first branch to get started.</div>`;
+  if(!branches.length && !branchesDel.length) return h + `<div class="card empty">No branches yet. Add your first branch to get started.</div>`;
   const tgName = id => (S.tax_groups||[]).find(g => g.id===id)?.name || "";
   const bsel = (state.brSel ||= new Set()); [...bsel].forEach(id => { if(!list.some(b => b.id===id)) bsel.delete(id); });
   const ball = list.every(b => bsel.has(b.id));
-  h += `<div class="card tbl"><div class="ttop"><div class="sp"></div>${crudFltBtn("branches")}</div>${list.length ? "" : `<div class="empty">Nothing matches.</div>`}<table${list.length ? "" : " hidden"}><thead><tr><th class="noedit bkc"><input type="checkbox" data-brall ${ball?"checked":""} aria-label="Select all"></th>${bsel.size
+  h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${[["all","All"],["deleted","Deleted"]].map(([k,t]) => `<a href="#branches" data-brtab="${k}" class="${brTab===k?"on":""}">${t}</a>`).join("")}</div><div class="sp"></div>${crudFltBtn("branches")}</div>${list.length ? "" : `<div class="empty">${brTab==="deleted" && !all0.length ? "No deleted branches." : "Nothing matches."}</div>`}<table${list.length ? "" : " hidden"}><thead><tr><th class="noedit bkc"><input type="checkbox" data-brall ${ball?"checked":""} aria-label="Select all"></th>${bsel.size
       ? `<th colspan="5" class="bkbar"><b>${bsel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" data-bracts>Actions ▾</button><span class="ddmenu" id="brActM" hidden><button type="button" data-brbulk="add">Add Tags</button><button type="button" data-brbulk="del">Remove Tags</button></span></span></th>`
       : `<th>Name</th><th>Reference</th><th>Tax group</th><th>Created</th>`}</tr></thead><tbody>${
     list.map(b => `<tr class="clk" data-bropen="${esc(b.id)}"><td class="noedit bkc"><input type="checkbox" data-brsel="${esc(b.id)}" ${bsel.has(b.id)?"checked":""} aria-label="Select ${esc(b.name)}"></td>
@@ -3921,6 +3929,8 @@ $("#view").addEventListener("click", e => {
   const t = e.target.closest("[data-dt]"); if(t){ e.preventDefault(); state.dashTab = t.dataset.dt; render(); return; }
   if(e.target.closest("#addBranch")) openForm();
   if(e.target.closest(".noedit")) return;   // the Active switch in the branches list
+  const bt = e.target.closest("[data-brtab]"); if(bt){ e.preventDefault(); e.stopPropagation(); state.brTab = bt.dataset.brtab; (state.brSel ||= new Set()).clear(); return render(); }
+  const bd = e.target.closest("[data-bropen]"); if(bd && state.brTab==="deleted" && !e.target.closest(".bkc")){ e.preventDefault(); const b = branchesDel.find(x => x.id===bd.dataset.bropen); if(b) (async () => { if(!(await askYes(`Restore ${b.name}? It comes back to the branch list as active.`))) return; try{ await restoreBranch(b.id); toastOk("Branch restored"); }catch(err){ console.error(err); toast("Couldn't restore. Only the owner or an admin can do this."); } })(); return; }
   const bo = e.target.closest("[data-bropen]"); if(bo){ e.preventDefault(); state.brOpen = bo.dataset.bropen; state.brMore = false; render(); window.scrollTo(0,0); return; }
   if(e.target.closest("[data-brback]")){ e.preventDefault(); state.brOpen = null; render(); return; }
   if(e.target.closest("[data-brmore]")){ state.brMore = !state.brMore; render(); return; }
@@ -4079,7 +4089,7 @@ $("#delBtn").addEventListener("click", async () => {
   const b = branches.find(x=>x.id===editing); if(!b) return;
   let c = { orders: BD.orders, inv: BD.inv }; try{ c = await countBranchData(b.id); }catch(e){ console.error(e); }
   if(c.orders==null || c.orders || c.inv){ if(!$("#scrim").classList.contains("show")) toast(c.orders==null ? "Couldn't check this branch's data. Try again." : "Delete this branch's orders and inventory transactions first."); $("#fErr").textContent = c.orders==null ? "Couldn't check this branch's data. Try again." : `Delete this branch's ${c.orders ? `${c.orders} order${c.orders===1?"":"s"}` : ""}${c.orders && c.inv ? " and " : ""}${c.inv ? `${c.inv} inventory transaction${c.inv===1?"":"s"}` : ""} first (Branch data, above).`; $("#fData")?.scrollIntoView({ behavior:"smooth", block:"center" }); return; }
-  $("#confirmText").innerHTML = `This removes <b>${esc(b.name)}</b> permanently.`;
+  $("#confirmText").innerHTML = `This moves <b>${esc(b.name)}</b> to Deleted. You can restore it from there.`;
   $("#confirmScrim").classList.add("show");
 });
 $("#cNo").addEventListener("click", () => $("#confirmScrim").classList.remove("show"));
@@ -4114,7 +4124,7 @@ document.addEventListener("focusout", () => setTimeout(() => { if(pendingRender 
 const uid = p => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 async function put(col, id, data){ const r = await put0(col, id, data);
   // a delivery charge that is turned off, deleted or restored also changes the fee of the zones that use it
-  if(col==="charges" && id && ("active" in data || "deleted" in data || "value" in data || "type" in data)) try{ const c = S.charges.find(x => x.id===id) || {}, m = { ...c, ...data }, fee = !m.deleted && m.active!==false && (m.type||"fixed")==="fixed" ? (+m.value||0) : 0;
+  if(col==="charges" && id && ("active" in data || "deleted" in data || "value" in data || "type" in data)) try{ const c = S.charges.find(x => x.id===id) || {}, m = { ...c, ...data }, fee = !m.deleted && (m.type||"fixed")==="fixed" ? (+m.value||0) : 0;
     for(const z of (S.zones||[]).filter(z => dcMap()[z.id]===id && +z.fee!==fee)) await put0("zones", z.id, { fee }); }catch(e){ console.error(e); }
   return r; }
 async function put0(col, id, data){
@@ -4488,32 +4498,28 @@ const CRUD = {
   },
   "order-sources": {
     col:"order_sources", title:"Order Sources", one:"Order Source",
-    tabs:[["all","All",live],["active","Active",r=>live(r)&&r.active!==false],["inactive","Inactive",r=>live(r)&&r.active===false],["deleted","Deleted",r=>r.deleted]],
+    tabs:[["all","All",live],["deleted","Deleted",r=>r.deleted]],
     sort:(a,b)=>(a.sort??999)-(b.sort??999) || a.name.localeCompare(b.name),
     search:r=>r.name+" "+(r.reference||""),
-    cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.nameAr?` <span class="note">${esc(r.nameAr)}</span>`:""}`],["Reference",r=>esc(r.reference||"—")],
-      ["Status",r=>r.active===false?'<span class="tag off">Inactive</span>':'<span class="tag on">Active</span>']],
-    fields:[{k:"name",l:"Name",req:1},{k:"nameAr",l:"Name Localized"},{k:"reference",l:"Reference"},
-      {k:"active",l:"Show in the call center",t:"chk",def:true}],
+    cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.nameAr?` <span class="note">${esc(r.nameAr)}</span>`:""}`],["Reference",r=>esc(r.reference||"—")]],
+    fields:[{k:"name",l:"Name",req:1},{k:"nameAr",l:"Name Localized"},{k:"reference",l:"Reference"}],
     unique:"name",
-    note:"These are the choices in the call center's and the POS's Source list (where the order came from). Inactive sources are hidden from new orders but kept on old ones. Renaming a source renames it on past orders too."
+    note:"These are the choices in the call center's and the POS's Source list (where the order came from). Deleted sources are hidden from new orders but kept on old ones. Renaming a source renames it on past orders too."
 
   },
   charges: {
     col:"charges", title:"Charges", one:"Charge",
     note:"Charges are added on top of the items, e.g. a service charge. The cashier or call center agent adds them to an order.",
-    tabs:[["all","All",live],["active","Active",r=>live(r)&&r.active!==false],["inactive","Inactive",r=>live(r)&&r.active===false],["deleted","Deleted",r=>r.deleted]],
+    tabs:[["all","All",live],["deleted","Deleted",r=>r.deleted]],
     sort:(a,b)=>bySort(a,b), search:r=>r.name+" "+(r.nameAr||""),
     cols:[["Name",r=>`<b>${esc(r.name)}</b>${r.nameAr?` <span class="note">${esc(r.nameAr)}</span>`:""}`],["Type",r=>r.type==="percent"?"Percentage":r.type==="open"?"Open amount":"Amount"],["Value",r=>r.type==="percent"?(+r.value||0)+" %":r.type==="open"?"Open":usd(r.value),"num"],
-      ["Order types",r=>{ const l = (r.orderTypes||[]); return l.length ? l.map(t=>esc(t==="fast" ? "Fast Order" : TYPE_LBL[t]||t)).join(", ") : "All"; }],["Brands / branches",r=>[(r.brandIds||[]).length ? r.brandIds.map(brandName).join(", ") : "All brands", (r.branchIds||[]).length ? (r.branchIds.includes("-") ? "no branches" : r.branchIds.length+" branch(es)") : "all branches"].map(esc).join(" · ")],
-      ["Status",r=>r.deleted?'<span class="tag off">Deleted</span>':r.active===false?'<span class="tag off">Inactive</span>':'<span class="tag on">Active</span>']],
+      ["Order types",r=>{ const l = (r.orderTypes||[]); return l.length ? l.map(t=>esc(t==="fast" ? "Fast Order" : TYPE_LBL[t]||t)).join(", ") : "All"; }],["Brands / branches",r=>[(r.brandIds||[]).length ? r.brandIds.map(brandName).join(", ") : "All brands", (r.branchIds||[]).length ? (r.branchIds.includes("-") ? "no branches" : r.branchIds.length+" branch(es)") : "all branches"].map(esc).join(" · ")]],
     fields:[{k:"name",l:"Name",req:1,ph:"e.g. Delivery charge, Service charge"},{k:"nameAr",l:"Name Localized"},
       {k:"type",l:"Type",t:"select",req:1,opts:()=>[["fixed","Amount"],["percent","Percentage"],["open","Open amount"]],def:"fixed"},{k:"value",l:"Value",t:"number",ph:"e.g. 2 or 10 (empty for open amount)"},
       {k:"taxGroup",l:"Tax Group",t:"select",opts:()=>(S.tax_groups||[]).filter(live).map(g => [g.id, g.name])},
       {k:"orderTypes",l:"Order types it applies to",t:"multi",full:1,opts:()=>[["fast","Fast Order"],["dinein","Dine-in"],["pickup","Pickup"],["delivery","Delivery"]],def:["delivery"]},
       {k:"brandIds",l:"Brands",t:"multi",full:1,req:1,opts:()=>brandList().map(b=>[b.id,b.name]),auto:()=>brandList().map(b=>b.id),get:r=>(r.brandIds||[]).length ? r.brandIds : brandList().map(b=>b.id)},
-      {k:"branchIds",l:"Branches",t:"multi",full:1,req:1,auto:()=>branches.filter(b=>b.active!==false).map(b=>b.id),get:r=>(r.branchIds||[]).filter(x => x!=="-").length ? r.branchIds : branches.filter(b=>b.active!==false).map(b=>b.id),opts:()=>branches.filter(b=>b.active!==false).map(b=>[b.id,(brandList().length>1?brandName(b.brandId)+" · ":"")+b.name])},
-      {k:"active",l:"Active",t:"chk",def:true}],
+      {k:"branchIds",l:"Branches",t:"multi",full:1,req:1,auto:()=>branches.filter(b=>b.active!==false).map(b=>b.id),get:r=>(r.branchIds||[]).filter(x => x!=="-").length ? r.branchIds : branches.filter(b=>b.active!==false).map(b=>b.id),opts:()=>branches.filter(b=>b.active!==false).map(b=>[b.id,(brandList().length>1?brandName(b.brandId)+" · ":"")+b.name])}],
     unique:"name",
     prep: data => { if(data.type==="open"){ data.value = 0; return ""; } if(data.value==null || !(data.value >= 0)) return "Value is required."; if(data.type==="percent" && data.value > 100) return "A percentage can't be more than 100."; return ""; },
     saved: async (old, data) => { if(!old?.id || data.value==null || data.active===false || old.deleted) return; for(const z of (S.zones||[]).filter(z => dcMap()[z.id]===old.id && +z.fee!==+data.value)) await put("zones", z.id, { fee: data.type==="percent" ? 0 : +data.value||0 }); }
@@ -4570,7 +4576,7 @@ function crudView(key){
   if(key==="delivery-zones") h += `<div class="card" style="padding:0;overflow:hidden;margin-bottom:16px"><div id="zonesMap" style="height:380px"></div><div id="zonesLegend" class="legend"></div></div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${cfg.tabs.map(t=>`<a href="#${key}" data-tab="${key}:${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div>
     <div class="sp"></div>${CRUD_FF[key] ? crudFltBtn(key) : `${scopeHere ? scopeBar(false) : ""}`}</div>
-    ${key==="order-sources" ? "" : `<div class="crsrch"><label class="osrch">${svgIco("search")}<input type="search" autocomplete="off" data-search="${key}" placeholder="Search ${esc(cfg.title.toLowerCase())}${key==="products"||key==="inv-items" ? " by name or SKU" : ""}" value="${esc(state.q[key]||"")}" aria-label="Search ${esc(cfg.title)}"></label>${key==="products" ? `<span class="vtog" role="group" aria-label="View"><button type="button" data-pview="list" class="${state.pview!=="grid"?"on":""}" aria-label="List view" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button><button type="button" data-pview="grid" class="${state.pview==="grid"?"on":""}" aria-label="Grid view" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button></span>` : ""}</div>`}`;
+    ${key==="order-sources" || key==="charges" ? "" : `<div class="crsrch"><label class="osrch">${svgIco("search")}<input type="search" autocomplete="off" data-search="${key}" placeholder="Search ${esc(cfg.title.toLowerCase())}${key==="products"||key==="inv-items" ? " by name or SKU" : ""}" value="${esc(state.q[key]||"")}" aria-label="Search ${esc(cfg.title)}"></label>${key==="products" ? `<span class="vtog" role="group" aria-label="View"><button type="button" data-pview="list" class="${state.pview!=="grid"?"on":""}" aria-label="List view" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button><button type="button" data-pview="grid" class="${state.pview==="grid"?"on":""}" aria-label="Grid view" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button></span>` : ""}</div>`}`;
   if(!shown.length) h += `<div class="empty">${S[cfg.col].length ? "Nothing matches." : `No ${cfg.title.toLowerCase()} yet.`}</div>`;
   else { const sel = (state.sel ||= {})[key] ||= new Set(), hasDel = cfg.tabs.some(t => t[0]==="deleted"), hasAct = cfg.tabs.some(t => t[0]==="active"),
       bkActs = tab==="deleted" ? [["restore","Restore"]] : cfg.bulk ? BULK_ACTS : [...(TAG_KEY[key] ? [["tagAdd","Add Tags"],["tagDel","Remove Tags"]] : []), ...(key==="modifiers" ? [["modAdd","Add To Products"]] : []), ...(hasAct ? [["activate","Activate"],["deactivate","Deactivate"]] : []), ...(hasDel ? [["delete","Delete"]] : [])],
@@ -5202,7 +5208,7 @@ const CC_COLS = [["review","Web & API","Web and API orders waiting for the call 
 // the Done column keeps every closed order: done, voided or returned
 const CC_SUB = { review:"Waiting for call center", draft:"Draft", pending:"Sent to branch", active:"Preparing", declined:"Declined", closed:"Done", void:"Void", returned:"Returned", refund:"Refund" };
 const SOURCES_DEF = ["Phone","Toters","NokNok","Talabat","WhatsApp","Walk-in"];
-function sourceList(cur){ const l = S.order_sources.filter(r=>live(r)&&r.active!==false&&String(r.name||"").toUpperCase()!=="POS").sort(CRUD["order-sources"].sort).map(r=>r.name); const out = l.length ? l : SOURCES_DEF; return cur && !out.includes(cur) ? [cur, ...out] : out; }
+function sourceList(cur){ const l = S.order_sources.filter(r=>live(r)&&String(r.name||"").toUpperCase()!=="POS").sort(CRUD["order-sources"].sort).map(r=>r.name); const out = l.length ? l : SOURCES_DEF; return cur && !out.includes(cur) ? [cur, ...out] : out; }
 state.ccBranch = "all"; state.ccAgent = "all"; state.ccTab = "today"; state.ccDate = "";   // "" = the current business date
 document.addEventListener("click", e => {
   if(e.target.closest?.("[data-ccflt]")){ e.preventDefault(); const box = $("#ccBox"); box.className = "modal";
@@ -5425,7 +5431,7 @@ const ccGross = () => cart.reduce((a,i)=>a+lineNet(i),0);
 const ccDiscAmt = () => { const g = ccGross(); if(ccDS){ const d = dsList().find(x => x.id===ccDS.id); if(d){ ccDiscType = "amt"; ccDisc = ccDsCalc(d, ccDS.val).amt; } else ccDS = null; } return +Math.min(g, ccDiscType==="amt" ? +ccDisc||0 : g * (+ccDisc||0) / 100).toFixed(2); };
 const ccMayDisc = () => (mayDo("bo_cc_discount") || mayDo("bo_cc_disc_amount") || mayDo("bo_cc_disc_pct")) && brandSet($("#oBrand")?.value || branches.find(b => b.id===$("#oBranch")?.value)?.brandId || "").ccDiscounts !== false;
 /* ---------- charges (Manage → Charges) and order totals, shared by the call center ---------- */
-const chargeList = (type, brandId, branchId) => S.charges.filter(c => live(c) && c.active!==false && (!(c.orderTypes||[]).length || c.orderTypes.includes(type==="takeaway" ? "pickup" : type))
+const chargeList = (type, brandId, branchId) => S.charges.filter(c => live(c) && (!(c.orderTypes||[]).length || c.orderTypes.includes(type==="takeaway" ? "pickup" : type))
   && (!(c.brandIds||[]).length || c.brandIds.includes(brandId)) && (!(c.branchIds||[]).length || c.branchIds.includes(branchId))).sort(bySort);
 const ccOpen = {};   // open-amount charges: what the agent entered for this order
 const chargeAmt = (c, base) => +(c.type==="percent" ? base * (+c.value||0) / 100 : c.type==="open" ? +(ccOpen[c.id] ?? c.value ?? 0)||0 : +c.value||0).toFixed(2);
@@ -8891,8 +8897,8 @@ document.addEventListener("dragend", () => { rsDrag = null; document.querySelect
 async function rsSave(k, l){ try{ await put("settings", "app", { [k]: l.join("\n") }); render(); }catch(err){ console.error(err); toast("Couldn't save. Only the owner or an admin can change reasons."); } }
 /* ---------- Manage → Applications: every SKWYD app, where it's used and where to get it ---------- */
 const APPS = [
-  ["pos","Point Of Sale App","The cashier app on the branch tablets: orders, payments, tables, tills, end of day. Staff sign in with their PIN.","Android tablet","https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk","devices"],
-  ["team","Employee App","For every employee: clock in and out, schedule, chats, guides and time-off requests. Sign in with the phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk","users"],
+  ["pos","Point Of Sale App","The cashier app on the branch tablets: orders, payments, tables, tills, end of day. Staff sign in with their PIN.","Android tablet","https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk",""],
+  ["team","Employee App","For every employee: clock in and out, schedule, chats, guides and time-off requests. Sign in with the phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk",""],
   ["driver","Driver App","For delivery drivers: the orders they're given, the customer's map and phone, picked up and delivered. Sign in with the phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-driver.apk",""],
   ["insights","Insights App","For the owner: sales, today's orders, who's clocked in, the schedule, requests, chats, tasks and guides, live. Sign in with the account number, phone number and a WhatsApp code.","Android phone","https://ziadelkhayat.github.io/skwydhub/skwyd-insights.apk",""],
   ["manager","Manager App","For branch and area managers: sales, orders, staff and approvals on the phone.","Android phone","",""]];
