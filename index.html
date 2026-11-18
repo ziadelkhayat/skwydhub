@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1061-1795040030">
+<meta name="skwyd-build" content="1062-1795043272">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2882,7 +2882,7 @@ html[data-theme=dark] body .app aside.side{--sk-ink:#E6E9F5}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=70"></script>
+<script src="wokdb.js?v=71"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=7"></script>
@@ -4724,8 +4724,8 @@ const uid = p => p + "_" + Date.now().toString(36) + Math.random().toString(36).
 async function closeDeviceTill(deviceId){
   try{ const { data:open } = await WOK.sb.from("shifts").select("id,opening_cash").eq("device_id", deviceId).is("closed_at", null);
     for(const sh of open || []){
-      const { data:ords } = await WOK.sb.from("orders").select("status,total,payment").eq("shift_id", sh.id).in("status", ["closed","refund"]);
-      const l = ords || [], cash = l.filter(o => (o.payment?.type || o.payment?.method)==="cash").reduce((a,o) => a + (+o.total||0), 0), expected = +((+sh.opening_cash||0) + cash).toFixed(2);
+      const { data:ords } = await WOK.sb.from("orders").select("status,total,payment,type,driver_id,driver_settled_at").eq("shift_id", sh.id).in("status", ["closed","refund"]);
+      const l = ords || [], isCash = o => (o.payment?.type || o.payment?.method)==="cash", cash = l.filter(isCash).reduce((a,o) => a + (+o.total||0), 0), owed = l.filter(o => isCash(o) && o.type==="delivery" && o.driver_id && o.status==="closed" && !o.driver_settled_at).reduce((a,o) => a + (+o.total||0), 0), expected = +((+sh.opening_cash||0) + cash - owed).toFixed(2);
       await WOK.sb.from("shifts").update({ closed_at:new Date().toISOString(), orders:l.filter(o => o.status==="closed").length, sales:+l.reduce((a,o) => a + (+o.total||0), 0).toFixed(2), expected_cash:expected, counted_cash:expected, difference:0 }).eq("id", sh.id).is("closed_at", null);
     } }catch(e){ console.error("close device till", e); }
 }
@@ -9813,7 +9813,7 @@ function prSummary(p){
   if(p.type==="bundle") return (prJoin(prNames(p.bundleIds), 3).replace(/, /g, " + ") || "Bundle") + " for " + money(+p.bundlePrice||0);
   return "";
 }
-function prStatus(p){ const t = new Date().toISOString().slice(0,10);
+function prStatus(p){ const n = new Date(), t = n.getFullYear() + "-" + String(n.getMonth()+1).padStart(2,"0") + "-" + String(n.getDate()).padStart(2,"0");
   if(p.deleted) return ["Deleted","s-void"]; if(p.active===false) return ["Inactive","s-draft"];
   if(p.start && p.start > t) return ["Scheduled","s-pending"]; if(p.end && p.end < t) return ["Expired","s-void"]; return ["Active","s-closed"]; }
 const prPeriod = p => { const d = x => new Date(x + "T00:00").dmy(); return p.start || p.end ? (p.start ? d(p.start) : "Now") + " – " + (p.end ? d(p.end) : "No end") : "Always"; };
@@ -12328,7 +12328,8 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
 })();</script>
 <script>
 // number fields (inputmode decimal / numeric) take numbers only: letters can't be typed or pasted in
-(() => { const bad = el => el instanceof HTMLInputElement && el.type!=="number" && /^(decimal|numeric)$/.test(el.getAttribute("inputmode")||"") ? (el.getAttribute("inputmode")==="numeric" ? /\D/g : /[^\d.,\-]/g) : null;
+(() => { const bad = el => { if(!(el instanceof HTMLInputElement) || el.type==="number") return null; const im = el.getAttribute("inputmode") || "";
+    return el.type==="tel" || im==="tel" ? /[^\d+\s()-]/g : im==="numeric" ? /\D/g : im==="decimal" ? /[^\d.,\-]/g : null; };   // phone boxes: digits and + - ( ) only
   document.addEventListener("keydown", e => { const re = bad(e.target); if(!re || e.ctrlKey || e.metaKey || e.altKey || e.key.length!==1) return; re.lastIndex = 0; if(re.test(e.key)){ e.preventDefault(); } }, true);
   document.addEventListener("input", e => { const el = e.target, re = bad(el); if(!re) return; const v = el.value, c = v.replace(re, ""); if(c===v) return;
     const p = Math.max(0, (el.selectionStart ?? c.length) - (v.length - c.length)); el.value = c; try{ el.setSelectionRange(p, p); }catch(_){} }, true); })();

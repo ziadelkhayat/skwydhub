@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1055-1795037386">
+<meta name="skwyd-build" content="1062-1795043272">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -41,7 +41,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="fontLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link id="fontLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <script src="modpick.js?v=12"></script>
 <style>
 :root{--acc:#1e3a8a;--on-acc:#fff;--accs:color-mix(in srgb,var(--acc) 12%,#fff);--acci:color-mix(in srgb,var(--acc) 82%,#000);
@@ -440,6 +440,7 @@ body{padding-bottom:calc(170px + env(safe-area-inset-bottom))!important}
 .bar{bottom:calc(82px + env(safe-area-inset-bottom))!important;padding-bottom:6px!important}
 .inst{bottom:calc(84px + env(safe-area-inset-bottom))!important}
 .addt{bottom:calc(150px + env(safe-area-inset-bottom))!important}
+.addt.top{top:calc(16px + env(safe-area-inset-top))!important;bottom:auto!important;z-index:70}
 .tcart{margin-left:auto;position:relative;width:42px;height:42px;flex:none;border-radius:50%;border:0;background:var(--s);color:var(--ink);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .tcart svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tcart .n{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--acc);color:var(--on-acc,#fff);font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--bg)}
@@ -690,7 +691,7 @@ html body .promo span{color:#AEB6D1!important}
 /* no entrance animations on page content (menu, categories, cart lines): content shows instantly; pop-ups keep their fade */
 html body .hcard,html body .where,html body section.cat,html body .line,html body #view.vin,html body .vin{animation:none!important}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body class="lay-grid">
 <div class="splash" id="splash" aria-live="polite" aria-label="Loading"><div class="spl"><span class="splogo" id="splLogo"></span><b id="splName"></b><i class="spin"></i></div></div>
@@ -784,10 +785,10 @@ function applyTheme(t){
   root.classList.toggle("dark", t.bg==="dark"); root.classList.toggle("warm", t.bg==="warm");
   document.querySelector('meta[name="theme-color"]').content = acc;
   // default look (like ChatFood): system font for text, Nunito Sans headings, Inter in the top bar
-  const cf = false, f = ["Inter", "Plus Jakarta Sans", "IBM Plex Sans Arabic"];   // Abyss: Inter for text, Plus Jakarta Sans for headings   // IBM Plex Sans everywhere, same as the back office and POS
+  const cf = false, f = ["Plus Jakarta Sans", "Plus Jakarta Sans", "IBM Plex Sans Arabic"];   // Abyss: Inter for text, Plus Jakarta Sans for headings   // IBM Plex Sans everywhere, same as the back office and POS
   root.style.setProperty("--font", cf ? `-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial` : `"${f[0]}","${f[2]}"`); root.style.setProperty("--hfont", `"${f[1]}"`); root.style.setProperty("--tfont", cf ? `"Inter"` : `"${f[0]}"`);
   const fam = [...new Set(f)].map(n => "family=" + n.replace(/ /g,"+") + (n==="DM Serif Display" ? "" : /IBM Plex/.test(n) ? ":wght@400;500;600;700" : ":wght@400;500;600;700;800")).join("&");
-  const href = "https://fonts.googleapis.com/css2?" + fam + "&display=swap"; if($("#fontLink").href !== href) $("#fontLink").href = href;
+  const href = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"; if($("#fontLink").href !== href) $("#fontLink").href = href;   // Plus Jakarta Sans only: no extra font downloads
   document.body.classList.remove("rad-sharp","rad-soft","rad-round"); document.body.classList.add("rad-" + (t.radius || "round"));
   document.body.classList.remove("lay-grid","lay-list","lay-compact"); document.body.classList.add("lay-" + curLay());
   $("#hero").className = "hero hstyle-" + (t.header || "cover");
@@ -796,7 +797,7 @@ function applyTheme(t){
 
 let brandId = params.get("brand");
 const pathSlug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "").toLowerCase().replace(/\.html$/, "");   // order.skwydhub.com/<brand address>
-const pPub = sb.rpc("skwyd_public_settings").then(r => r, () => ({ error:true })), pSym = sb.rpc("skwyd_public_symbols").then(r => r, () => ({ error:true }));   // asked at the same time as the brands, not one after another
+const pPub = sb.rpc("skwyd_public_settings").then(r => r, () => ({ error:true }));   // asked at the same time as the brands, not one after another
 const bl = await sb.from("brands").select("id,name,slug").not("deleted", "is", true).order("name");
 if(bl.error){ $("#main").innerHTML = `<div class="closed"><b>We couldn't load the menu.</b>Please try again in a moment.</div>`; return; }
 if(!brandId && pathSlug && pathSlug!=="order") brandId = bl.data.find(b => String(b.slug||"").toLowerCase()===pathSlug)?.id || "-";
@@ -806,7 +807,7 @@ if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't
 
 PUB = await pPub.then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB);
 let PROMOS = []; await sb.rpc("skwyd_public_promotions", { p_brand: brandId }).then(r => { if(!r.error && Array.isArray(r.data)) PROMOS = r.data.filter(p => p && !p.deleted && p.active!==false); }, () => {});   // Marketing → Promotions (automatic offers)
-await pSym.then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
+PUB.symbol = String(PUB.symbol || "").trim(); PUB.symbol2 = String(PUB.symbol2 || "").trim();   // the currency symbols (Currency settings); the codes show until this is available
 let incl = true;   // set below: true when every tax is inclusive
 const [st, scd, br, ca, pr, zo, mg, tx, tg, mo] = await Promise.all([
   sb.from("settings").select("data").eq("id","online_"+brandId).maybeSingle(),
@@ -1193,7 +1194,8 @@ function lsSearch(q){ clearTimeout(lsT); if(q.trim().length < 3){ LS.res = []; c
         lsShow(); return; }catch(e){ console.warn("Google search failed", e); } }
     const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=${(PUB.countryCode||"lb").toLowerCase()}&q=${encodeURIComponent(q)}`, { headers:{ "Accept-Language":"en" } }).then(x => x.json());
     LS.res = (r||[]).map(x => { const p = String(x.display_name||"").split(", "); return { name: x.name || p[0], sub: p.slice(1, 4).join(", "), lat:+x.lat, lng:+x.lon }; }); lsShow(); }catch(e){ console.warn(e); } }, 350); }
-function lsShow(){ { const el = $("#lsRes"); if(el) el.innerHTML = LS.res.length ? LS.res.map((r,i) => `<button type="button" data-lres="${i}">${ic("pin")}<span><b>${esc(r.name)}</b><small>${esc(r.sub)}</small></span></button>`).join("") : `<div class="info" style="padding:6px 4px">No places found. Try another name, or choose on the map.</div>`; } }
+function lsShow(){ { const seen = new Set(); LS.res = LS.res.filter(r => { const k = (r.name + "|" + r.sub).toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; }); }   // the same place listed twice shows once
+  { const el = $("#lsRes"); if(el) el.innerHTML = LS.res.length ? LS.res.map((r,i) => `<button type="button" data-lres="${i}">${ic("pin")}<span><b>${esc(r.name)}</b><small>${esc(r.sub)}</small></span></button>`).join("") : `<div class="info" style="padding:6px 4px">No places found. Try another name, or choose on the map.</div>`; } }
 function lsGps(after){ const m = $("#lGpsMsg");
   if(!navigator.geolocation){ if(m) m.textContent = "Your browser can't share location"; return; }
   if(m) m.textContent = "Finding you…";
@@ -1426,7 +1428,7 @@ function promoStrip(){ const l = PROMOS.filter(p => promoOn(p, true)); if(!l.len
   return `<div class="promos">${l.map(p => `<div class="promo">${ic("tag","width:18px;height:18px")}<div><b>${esc(p.name||"Offer")}</b><span>${esc(promoLine(p))}</span></div></div>`).join("")}</div>`; }
 const minOrder = () => mode==="delivery" ? (+zones.find(x=>x.id===zoneId)?.min_order||0) : mode==="takeaway" ? (+bcfg(branchId).minPickup||0) : 0;
 function cartLines(){ return cart.map((i,ix)=>`<div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div>`).join(""); }
-function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(sub() + taxParts().add - taxIn())}</span></div>${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
+function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(incl ? sub() : sub() + taxParts().add - taxIn())}</span></div>${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
 function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden = !n; const tc = $("[data-tcart] .n"); if(tc) tc.textContent = n || ""; $("#cartCount").textContent = n; $("#cartTotal").textContent = usd(sub());
   const min = minOrder();
   $("#side").innerHTML = `<div class="card"><h3>${ic("cart","width:20px;height:20px")}Your order</h3>${n ? cartLines() + totals() + (min && sub()<min ? `<div class="warn">Minimum order is ${usd(min)}.</div>` : "") + `<button type="button" class="primary" data-checkout ${min && sub()<min ? "disabled" : ""}>Checkout · ${usd(grand())}</button>`
@@ -1532,7 +1534,7 @@ function togFav(id){ if(!USER) return false; let f = favs(); const on = !f.inclu
   if(USER && PROF){ PROF.favorites = f; sb.from("web_customers").update({ favorites:f }).eq("id", USER.id).then(x => { if(x.error) delete PROF.favorites; }); }
   if(NAV.cur==="favs" && $("#scrim").classList.contains("show")) openFavs();
   return on; }
-function toast(t){ $(".addt")?.remove(); const d = document.createElement("div"); d.className = "addt"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+function toast(t){ $(".addt")?.remove(); const d = document.createElement("div"); d.className = "addt" + ([...document.querySelectorAll(".scrim")].some(x => getComputedStyle(x).display!=="none") ? " top" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
 function openFavs(){
   const list = favs().map(id => products.find(p => p.id===id)).filter(p => p && visible().some(v => v.id===p.id));
   const sh = $("#sheet"); sh.className = "sheet locsheet acsheet";
@@ -1934,6 +1936,14 @@ addEventListener("resize", () => document.querySelectorAll(".msel.open").forEach
 // a value or option list changed by code (picking a country fills its currency) shows straight away
 setInterval(() => document.querySelectorAll(".mselect").forEach(m => { const sel = m.querySelector("select"); if (sel && (m.dataset.v !== sel.value || +m.dataset.n !== sel.options.length || m.querySelector(".msel-f").classList.contains("dis") !== sel.disabled)) msPaint(m); }), 300);
 new MutationObserver(() => msEnhance()).observe(document.body, { childList: true, subtree: true });
+</script>
+<script>
+// phone boxes take digits (and + - ( ) spaces) only; number boxes take numbers only
+(() => { const bad = el => { if(!(el instanceof HTMLInputElement) || el.type==="number") return null; const im = el.getAttribute("inputmode") || "";
+    return el.type==="tel" || im==="tel" ? /[^\d+\s()-]/g : im==="numeric" ? /\D/g : im==="decimal" ? /[^\d.,-]/g : null; };
+  document.addEventListener("keydown", e => { const re = bad(e.target); if(!re || e.ctrlKey || e.metaKey || e.altKey || e.key.length!==1) return; re.lastIndex = 0; if(re.test(e.key)) e.preventDefault(); }, true);
+  document.addEventListener("input", e => { const el = e.target, re = bad(el); if(!re) return; const v = el.value, c = v.replace(re, ""); if(c===v) return;
+    const p = Math.max(0, (el.selectionStart ?? c.length) - (v.length - c.length)); el.value = c; try{ el.setSelectionRange(p, p); }catch(_){} }, true); })();
 </script>
 </body>
 </html>

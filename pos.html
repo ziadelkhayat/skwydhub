@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1061-1795040030">
+<meta name="skwyd-build" content="1062-1795043272">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1153,7 +1153,7 @@ window.SKWYD_OFFLINE = true;</script>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
 <script>window.SKWYD_POS = true;</script>
-<script src="wokdb.js?v=70"></script>
+<script src="wokdb.js?v=71"></script>
 <script src="modpick.js?v=31"></script>
 </head>
 <body>
@@ -2193,7 +2193,7 @@ $("#totals").addEventListener("click", e => { if(e.target.closest("[data-discx]"
   if(!posChg) posChg = new Set(pickedCharges().map(c=>c.id)); posChg.has(b.dataset.chg) ? posChg.delete(b.dataset.chg) : posChg.add(b.dataset.chg); renderCart(); });
 $("#extra").addEventListener("change", e => { if(e.target.id==="tbl") tableNo = e.target.value; });
 $("#extra").addEventListener("input", e => { if(e.target.id==="tbl") tableNo = e.target.value; if(e.target.id==="cPhone") cust.phone = e.target.value; if(e.target.id==="cName") cust.name = e.target.value; if(e.target.id.startsWith("cA_")) cust.addr[e.target.id.slice(3)] = e.target.value; });
-function resetOrder(){ SPL = null; SPLD = null; EDIT = null; VOID_CHG = null; orderNote = ""; kitchenNote = ""; GUESTS = 0; otype = defaultType(); cart = []; discount = 0; discType = "pct"; DSET = null; posChg = null; posOpen = {}; posTags = null; posCustTags = null; tableNo = ""; cust = { name:"", phone:"", addr:{} }; renderCart(); }
+function resetOrder(){ SALE_ID = null; SPL = null; SPLD = null; EDIT = null; VOID_CHG = null; orderNote = ""; kitchenNote = ""; GUESTS = 0; otype = defaultType(); cart = []; discount = 0; discType = "pct"; DSET = null; posChg = null; posOpen = {}; posTags = null; posCustTags = null; tableNo = ""; cust = { name:"", phone:"", addr:{} }; renderCart(); }
 
 /* ---------- delivery: driver and dispatch ---------- */
 // drivers: this branch's employees whose job title says driver; if there are none, everyone working at this branch
@@ -2653,6 +2653,7 @@ function showChange(chg, title){
   const c2 = CUR2(), v2 = c2 ? chg2(chg) : 0;
   modal("chgback", `<div class="mb chgpop"><div class="dlbl">${esc(title)}</div><div class="chgl">Change</div><div class="chgbig">${usd(chg)}</div>${c2 ? `<div class="chg2">= ${esc(c2.code)} ${num2(v2, c2.dec)}</div>` : ""}</div><div class="mf"><button class="btn pri" data-close>Done</button></div>`);
 }
+let SALE_ID = null;   // the id of the sale being paid: kept on a retry, so a save that timed out is never saved twice
 async function completeSale(){
   if(SPL && SPL.i < SPL.parts.length - 1){ const r = payPartRec(SPL.parts[SPL.i]); SPL.paid[SPL.i] = r; SPL.i++;
     if(r.type==="cash"){ showChange(r.change, `${SPL.lbl} ${SPL.i} paid`); SPL.next = true; } else { toast(`${SPL.lbl} ${SPL.i} paid · ${usd(r.amount)}`); openPay(); } return; }
@@ -2685,17 +2686,17 @@ async function completeSale(){
         ...(eo.channel!=="pos" ? { agent: eo.agent, customerName: eo.customerName || order.customerName, phone: eo.phone || order.phone, address: eo.address || order.address } : {}) } : {}, ids = [];
       for(let i = 0; i < parts.length; i++){ const po = { ...parts[i], ...eox };
         if(i===0 && eo){ po.no = eo.no || no; await db.collection("orders").doc(eo.id).update(po); ids.push(eo.id); }   // the open order becomes the first part
-        else { const id = "pos_" + Date.now().toString(36) + Math.random().toString(36).slice(2,5) + "_" + (i + 1); await db.collection("orders").doc(id).set(po); ids.push(id); } }
+        else { const id = (SALE_ID ||= "pos_" + Date.now().toString(36) + Math.random().toString(36).slice(2,5)) + "_" + (i + 1); await db.collection("orders").doc(id).set(po); ids.push(id); } }
       EDIT = null; order.id = ids[0]; haCh.forEach(h => { h.oid = ids[h.part]; });
     } else if(eo){   // billing an open order: it keeps its number, channel and customer; this register bills it
       Object.assign(order, { no: eo.no || no, channel: eo.channel, source: cust.source || eo.source || "", createdAt: eo.createdAt, brandId: eo.brandId || order.brandId, items: cart.map(cleanItem),
         ...(eo.channel!=="pos" ? { agent: eo.agent, customerName: eo.customerName || order.customerName, phone: eo.phone || order.phone, address: eo.address || order.address } : {}), handledBy: cashier?.name || device.name });
       await db.collection("orders").doc(eo.id).update(order); EDIT = null;
     } else {
-    const id = "pos_" + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+    const id = (SALE_ID ||= "pos_" + Date.now().toString(36) + Math.random().toString(36).slice(2,5));
     await db.collection("orders").doc(id).set(order); order.id = id;
     }
-    posTagsCommit(order.id || eo?.id);
+    SALE_ID = null; posTagsCommit(order.id || eo?.id);
     for(const hc of haCh){ const oid = hc.oid || order.id || editOrder()?.id || eo?.id;   // the sale (or its split part) goes on the customer's house account
       const { error: he } = await window.WOK.sb.from("house_account_txns").insert({ customer_id: hc.id, kind:"charge", amount: hc.amount, method:"House Account", order_id: oid || null, order_ref: order.no ? String(order.no) : null, branch_id: device.branchId, created_by: cashier?.name || device.name });
       if(he){ console.error(he); toast("Sale saved, but the house account charge failed: " + he.message); } } HA = null;
@@ -3689,7 +3690,8 @@ const run=()=>{document.querySelectorAll("#abar [data-a]").forEach(b=>put(b.quer
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();})();</script>
 <script>
 // number fields (inputmode decimal / numeric) take numbers only: letters can't be typed or pasted in
-(() => { const bad = el => el instanceof HTMLInputElement && el.type!=="number" && /^(decimal|numeric)$/.test(el.getAttribute("inputmode")||"") ? (el.getAttribute("inputmode")==="numeric" ? /\D/g : /[^\d.,\-]/g) : null;
+(() => { const bad = el => { if(!(el instanceof HTMLInputElement) || el.type==="number") return null; const im = el.getAttribute("inputmode") || "";
+    return el.type==="tel" || im==="tel" ? /[^\d+\s()-]/g : im==="numeric" ? /\D/g : im==="decimal" ? /[^\d.,\-]/g : null; };   // phone boxes: digits and + - ( ) only
   document.addEventListener("keydown", e => { const re = bad(e.target); if(!re || e.ctrlKey || e.metaKey || e.altKey || e.key.length!==1) return; re.lastIndex = 0; if(re.test(e.key)){ e.preventDefault(); } }, true);
   document.addEventListener("input", e => { const el = e.target, re = bad(el); if(!re) return; const v = el.value, c = v.replace(re, ""); if(c===v) return;
     const p = Math.max(0, (el.selectionStart ?? c.length) - (v.length - c.length)); el.value = c; try{ el.setSelectionRange(p, p); }catch(_){} }, true); })();
