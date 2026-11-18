@@ -209,10 +209,32 @@ button{cursor:pointer}
 .btn{border:1px solid var(--line);background:var(--s);border-radius:10px;padding:11px 16px;font-weight:600}
 .btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn.bad{color:var(--bad)}.btn:disabled{opacity:.5}
 .idisc .dlx{width:22px;height:22px;font-size:14px;border-radius:6px}.dline>span:last-child{display:inline-flex;align-items:center;gap:8px}.dlx{width:26px;height:26px;border:0;border-radius:8px;background:var(--sunk,#f2f4f8);color:var(--ink2);font-size:16px;line-height:1;cursor:pointer}
-.osk{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#e7e9f0;padding:8px 8px 10px;box-shadow:0 -6px 24px rgba(20,16,40,.18);transform:translateY(100%);transition:transform .15s;display:flex;flex-direction:column;gap:6px}
-.osk.show{transform:none}.oskr{display:flex;gap:6px;justify-content:center}.osk button{flex:1;max-width:86px;height:54px;border:0;border-radius:10px;background:#fff;font:inherit;font-size:20px;font-weight:500;color:#1b1830;box-shadow:0 1px 0 rgba(0,0,0,.12)}
-.osk button.w{max-width:140px;font-size:16px;background:#d3d7e2}.osk button.sp{max-width:none;flex:4}.osk button.on{background:#1e3a8a;color:#fff}.osk button.done{background:#1e3a8a;color:#fff}.osk button:active{background:#eef2fc}
-body.oskopen .scrim,body.oskopen .npsc{padding-bottom:260px!important;align-items:flex-start}
+.osk{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:rgba(244,245,250,.97);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid #E6E8F2;box-shadow:0 -12px 32px rgba(11,19,48,.12);padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .18s cubic-bezier(.2,.8,.2,1);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif}
+.osk.show{transform:none}
+.osk .oskin{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.osk.num .oskin{max-width:440px}
+.osk .oskbar{display:flex;align-items:center;gap:8px}
+.osk .oskpv{flex:1;min-width:0;height:44px;border-radius:12px;background:#fff;border:1px solid #E6E8F2;display:flex;align-items:center;padding:0 14px;font-size:17px;color:#0E1530;overflow:hidden;white-space:nowrap}
+.osk .oskph{color:#8A90A6;overflow:hidden;text-overflow:ellipsis}.osk .oskv{overflow:hidden;text-overflow:ellipsis;direction:ltr;unicode-bidi:plaintext}
+.osk .oskc{flex:none;width:2px;height:22px;margin-left:2px;border-radius:1px;background:#1E3A8A;animation:oskBlink 1s steps(1) infinite}
+@keyframes oskBlink{50%{opacity:0}}
+.osk .oskr{display:flex;gap:8px;justify-content:center}
+.osk button{flex:1 1 0;min-width:0;max-width:96px;height:60px;border:0;border-radius:12px;background:#fff;color:#0E1530;font:inherit;font-size:22px;font-weight:500;line-height:1;box-shadow:0 1px 0 #CDD3E4,0 1px 3px rgba(11,19,48,.06);display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:0;transition:background-color .08s}
+.osk button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.osk button b{font-size:15px;font-weight:600}
+.osk button.fn{background:#E4E8F4;color:#1E3A8A;font-size:15px;font-weight:600}
+.osk button.wide{flex-grow:1.6;max-width:150px}
+.osk button.sp{flex-grow:5;max-width:none;font-size:14px;font-weight:500;color:#6B7392}
+.osk button.go{background:#1E3A8A;color:#fff;font-size:16px;font-weight:600;box-shadow:0 1px 0 #172D6A,0 4px 12px rgba(30,58,138,.25)}
+.osk button.on{background:#1E3A8A;color:#fff}
+.osk button.lock{box-shadow:inset 0 -3px 0 #9CC70F,0 1px 0 #172D6A}
+.osk button.down{background:#DCE3F7}.osk button.fn.down{background:#CFD7EE}.osk button.go.down,.osk button.on.down{background:#172D6A}
+.osk .oskx{flex:none;width:52px;height:44px;max-width:none}
+.osk .oskgap{flex:1 1 0;max-width:96px}
+.osk.num button{max-width:none;height:62px;font-size:26px}.osk.num button.go{font-size:18px}.osk.num .oskgap{max-width:none}
+body.oskopen .scrim,body.oskopen .npsc{padding-bottom:calc(var(--oskh,330px) + 16px)!important;align-items:flex-start}
+@media (max-width:700px){.osk{padding:8px 6px calc(10px + env(safe-area-inset-bottom,0px))}.osk .oskr{gap:5px}.osk button{height:52px;font-size:20px;border-radius:10px}}
+@media (prefers-reduced-motion:reduce){.osk{transition:none}.osk .oskc{animation:none}}
 .npad{margin-top:12px}.npad span{display:block}.npw .npad{display:none}.npw:focus-within .npad{display:grid}
 .npsc{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(20,16,40,.45);padding:16px}.npsc .modal{width:min(420px,100%)}
 /* touch: no double-tap zoom delay, no text selection on taps, bigger targets */
@@ -2212,27 +2234,108 @@ function closeModal(){ if(modalKind==="tables") TM = null;
   $("#scrim").classList.remove("show"); modalKind = null; OV.back = ""; OV.rpop = false; OV.ca = null; paintNav(); }
 $("#scrim").addEventListener("click", e => { if(e.target.id==="scrim" && modalKind==="pdnew") return pdCancel(); if(e.target.id==="scrim" || e.target.closest("[data-close]")) closeModal(); });
 
-/* on-screen keyboard for text fields on touch screens without their own (Windows / Linux touch registers).
-   Phones and tablets (Android, iPad, iPhone) use their own keyboard. */
-const OSK_ON = (() => { try{ const ua = navigator.userAgent, mobile = /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-  return !mobile && (matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0 || /[?&]kb=1/.test(location.search)); }catch(e){ return false; } })();
-const OSK = { el:null, target:null, shift:false, sym:false };
-const oskRows = () => OSK.sym ? [["1","2","3","4","5","6","7","8","9","0"],["@","#","-","/",":",";","(",")","&","'"],["ABC",".",",","?","!","\"","+","⌫"],["space","Done"]]
-  : [["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["⇧","z","x","c","v","b","n","m","⌫"],["123","space",".","Done"]];
-function oskDraw(){ if(!OSK.el) return; OSK.el.innerHTML = oskRows().map(r => `<div class="oskr">${r.map(k => `<button type="button" data-osk="${esc(k)}" class="${k.length>1 && k!=="⌫" && k!=="⇧" ? "w" : ""}${k==="space" ? " sp" : ""}${k==="⇧" && OSK.shift ? " on" : ""}${k==="Done" ? " done" : ""}">${k==="space" ? "" : OSK.shift && k.length===1 ? esc(k.toUpperCase()) : esc(k)}</button>`).join("")}</div>`).join(""); }
-function oskShow(t){ if(!OSK_ON) return; OSK.target = t; if(!OSK.el){ OSK.el = document.createElement("div"); OSK.el.className = "osk"; document.body.appendChild(OSK.el); }
-  OSK.shift = !t.value; oskDraw(); OSK.el.classList.add("show"); document.body.classList.add("oskopen"); setTimeout(() => t.scrollIntoView({ block:"center" }), 50); }
-function oskHide(){ if(OSK.el) OSK.el.classList.remove("show"); document.body.classList.remove("oskopen"); OSK.target = null; }
-const oskField = t => t && t.matches && t.matches("input, textarea") && !t.matches("[type=checkbox],[type=radio],[type=date],[type=hidden],[type=file],[inputmode=none],[readonly],[disabled]");
-document.addEventListener("focusin", e => { if(oskField(e.target)) oskShow(e.target); else if(!e.target.closest?.(".osk")) oskHide(); });
-document.addEventListener("pointerdown", e => { if(e.target.closest(".osk")) e.preventDefault(); else if(OSK.target && !oskField(e.target)) setTimeout(() => { if(!oskField(document.activeElement)) oskHide(); }, 0); });
-document.addEventListener("click", e => { const b = e.target.closest("[data-osk]"); if(!b) return; e.preventDefault(); const t = OSK.target; if(!t || !document.body.contains(t)) return oskHide();
-  const k = b.dataset.osk;
-  if(k==="Done"){ t.blur(); return oskHide(); } if(k==="⇧"){ OSK.shift = !OSK.shift; return oskDraw(); } if(k==="123" || k==="ABC"){ OSK.sym = k==="123"; return oskDraw(); }
-  const a = t.selectionStart ?? t.value.length, z = t.selectionEnd ?? t.value.length, ins = k==="space" ? " " : k==="⌫" ? "" : OSK.shift ? k.toUpperCase() : k;
-  if(k==="⌫"){ const s0 = a===z ? Math.max(0, a-1) : a; t.value = t.value.slice(0, s0) + t.value.slice(z); t.setSelectionRange?.(s0, s0); }
-  else { if(t.maxLength > 0 && t.value.length >= t.maxLength) return; t.value = t.value.slice(0, a) + ins + t.value.slice(z); t.setSelectionRange?.(a + ins.length, a + ins.length); if(OSK.shift && k.length===1){ OSK.shift = false; oskDraw(); } }
-  t.dispatchEvent(new Event("input", { bubbles:true })); });
+/* on-screen keyboard (skwyd design): used on the POS tablet instead of the system keyboard, so typing looks the same on every
+   device and never covers half the register. Letters (English / Arabic), numbers & symbols, and a number pad for number fields.
+   Keys react on touch-down, ⌫ repeats when held, ⇧ twice = caps lock. Turn it off on a device with localStorage skwyd_osk = "off". */
+const OSK_ON = (() => { try{ if(localStorage.getItem("skwyd_osk") === "off") return false;
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if(ios) return false;   // iPad / iPhone keep their own keyboard
+  return /Android/i.test(ua) || matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0 || /[?&]kb=1/.test(location.search); }catch(e){ return false; } })();
+const OSK = { el:null, target:null, shift:false, caps:false, mode:"abc", lang:(()=>{ try{ return localStorage.getItem("skwyd_osk_lang") || "en"; }catch(e){ return "en"; } })(), kind:"text", lastShift:0, rep:null };
+const OSK_IC = {
+  shift:'<path d="M12 4 4 12.5h4.5V19h7v-6.5H20Z"/>',
+  caps:'<path d="M12 4 4 12.5h4.5V17h7v-4.5H20Z"/><path d="M8.5 20.5h7"/>',
+  back:'<path d="M9 5h10.5A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5H9l-6-7Z"/><path d="m11.5 9.5 5 5m0-5-5 5"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5Z"/>',
+  hide:'<rect x="3" y="4" width="18" height="11" rx="2"/><path d="M7 8h.01M11 8h.01M15 8h.01M8 11.5h8M9 18.5l3 2.5 3-2.5"/>',
+  enter:'<path d="M19 6v5.5a2 2 0 0 1-2 2H6"/><path d="m9.5 10-3.5 3.5L9.5 17"/>'
+};
+const oskSvg = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${OSK_IC[n]}</svg>`;
+const OSK_EN = [["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["⇧","z","x","c","v","b","n","m","⌫"]];
+const OSK_AR = [["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج"],["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],["ذ","ء","ؤ","ر","ى","ة","و","ز","ظ","د","⌫"]];
+const OSK_SYM = [["1","2","3","4","5","6","7","8","9","0"],["@","#","$","&","-","+","(",")","/"],["=","%","*","\"","'",":",";","!","?","⌫"]];
+function oskKind(t){ const im = (t.dataset.oskIm ?? t.getAttribute("inputmode") ?? "").toLowerCase(), ty = (t.type || "").toLowerCase();
+  if(t.tagName === "TEXTAREA") return "area";
+  if(ty === "tel" || im === "tel") return "tel";
+  if(ty === "number" || im === "decimal") return "dec";
+  if(im === "numeric") return "int";
+  return "text"; }
+function oskRows(){
+  const go = OSK.kind === "area" ? "nl" : "go";
+  if(OSK.mode === "num"){ const x = OSK.kind === "tel" ? "+" : OSK.kind === "dec" ? "." : "";
+    return [["1","2","3"],["4","5","6"],["7","8","9"],[x || "·none","0","⌫"],["hide", go]]; }
+  if(OSK.mode === "sym") return [...OSK_SYM, ["ABC","space",",",".",go]];
+  return [...(OSK.lang === "ar" ? OSK_AR : OSK_EN), ["123","lang","space", OSK.lang === "ar" ? "،" : ".", go]];
+}
+function oskLabel(t){ if(!t) return ""; const l = t.getAttribute("aria-label") || t.placeholder || (t.id && document.querySelector(`label[for="${CSS.escape(t.id)}"]`)?.textContent) || t.closest("label")?.textContent || ""; return l.replace(/\*/g, "").trim(); }
+function oskPreview(){ if(!OSK.el || !OSK.target) return; const t = OSK.target, pv = OSK.el.querySelector(".oskpv"); if(!pv) return;
+  const v = t.type === "password" ? "•".repeat(t.value.length) : t.value;
+  pv.innerHTML = v ? `<span class="oskv" dir="auto">${esc(v)}</span><i class="oskc"></i>` : `<span class="oskph">${esc(oskLabel(t) || "Type here")}</span><i class="oskc"></i>`;
+  const s = pv.querySelector(".oskv"); if(s) pv.scrollLeft = pv.scrollWidth; }
+function oskDraw(){ if(!OSK.el) return;
+  const up = OSK.shift || OSK.caps;
+  const key = k => {
+    if(k === "·none") return `<span class="oskgap"></span>`;
+    const cls = [], attrs = `data-osk="${esc(k)}"`; let inner = esc(k), aria = k;
+    if(k === "⇧"){ cls.push("fn"); if(OSK.caps) cls.push("on", "lock"); else if(OSK.shift) cls.push("on"); inner = oskSvg(OSK.caps ? "caps" : "shift"); aria = "Shift"; }
+    else if(k === "⌫"){ cls.push("fn"); inner = oskSvg("back"); aria = "Delete"; }
+    else if(k === "space"){ cls.push("sp"); inner = OSK.lang === "ar" && OSK.mode === "abc" ? "مسافة" : "space"; aria = "Space"; }
+    else if(k === "go"){ cls.push("go", "wide"); inner = "Done"; aria = "Done"; }
+    else if(k === "nl"){ cls.push("fn", "wide"); inner = oskSvg("enter"); aria = "New line"; }
+    else if(k === "hide"){ cls.push("fn"); inner = oskSvg("hide"); aria = "Hide keyboard"; }
+    else if(k === "lang"){ cls.push("fn"); inner = `${oskSvg("globe")}<b>${OSK.lang === "ar" ? "EN" : "ع"}</b>`; aria = OSK.lang === "ar" ? "English" : "Arabic"; }
+    else if(k === "123" || k === "ABC"){ cls.push("fn", "wide"); inner = k === "ABC" && OSK.lang === "ar" ? "أ ب" : k; }
+    else if(up && k.length === 1) inner = esc(k.toUpperCase());
+    return `<button type="button" ${attrs} class="${cls.join(" ")}" aria-label="${esc(aria)}">${inner}</button>`;
+  };
+  OSK.el.classList.toggle("num", OSK.mode === "num");
+  OSK.el.innerHTML = `<div class="oskin" dir="ltr"><div class="oskbar"><div class="oskpv"></div>${OSK.mode === "num" ? "" : `<button type="button" data-osk="hide" class="fn oskx" aria-label="Hide keyboard">${oskSvg("hide")}</button>`}</div>`
+    + oskRows().map(r => `<div class="oskr">${r.map(key).join("")}</div>`).join("") + `</div>`;
+  oskPreview();
+}
+function oskSize(){ if(OSK.el) document.documentElement.style.setProperty("--oskh", OSK.el.offsetHeight + "px"); }
+function oskNoSys(t){ if(!t.hasAttribute("data-osk-im")) t.setAttribute("data-osk-im", t.getAttribute("inputmode") ?? ""); t.setAttribute("inputmode", "none"); }   // keeps the system keyboard away
+function oskShow(t){ if(!OSK_ON) return; const was = OSK.target; OSK.target = t; oskNoSys(t);
+  if(!OSK.el){ OSK.el = document.createElement("div"); OSK.el.className = "osk"; OSK.el.setAttribute("role", "group"); OSK.el.setAttribute("aria-label", "Keyboard"); document.body.appendChild(OSK.el); }
+  OSK.kind = oskKind(t);
+  if(was !== t){ OSK.mode = ["tel","dec","int"].includes(OSK.kind) ? "num" : "abc"; OSK.caps = false; OSK.shift = !t.value && OSK.kind === "text" && !/email|url|search|password/.test(t.type) && t.getAttribute("autocapitalize") !== "off"; }
+  oskDraw(); OSK.el.classList.add("show"); document.body.classList.add("oskopen"); requestAnimationFrame(() => { oskSize(); t.scrollIntoView({ block:"center", behavior:"smooth" }); }); }
+function oskHide(){ if(OSK.el) OSK.el.classList.remove("show"); document.body.classList.remove("oskopen"); oskStop(); OSK.target = null; }
+const oskField = t => t && t.matches && t.matches("input, textarea") && !t.matches("[type=checkbox],[type=radio],[type=date],[type=time],[type=month],[type=color],[type=range],[type=hidden],[type=file],[type=button],[type=submit],[readonly],[disabled]") && !(t.getAttribute("inputmode") === "none" && !t.hasAttribute("data-osk-im"));
+function oskPut(t, ins, del){ let a, z; try{ a = t.selectionStart; z = t.selectionEnd; }catch(e){} if(a == null){ a = z = t.value.length; }
+  if(del){ const s0 = a === z ? Math.max(0, a - 1) : a; if(s0 === z && a === z && a === 0) return; t.value = t.value.slice(0, s0) + t.value.slice(z); try{ t.setSelectionRange(s0, s0); }catch(e){} }
+  else { if(t.maxLength > 0 && t.value.length - (z - a) + ins.length > t.maxLength) return; t.value = t.value.slice(0, a) + ins + t.value.slice(z); try{ t.setSelectionRange(a + ins.length, a + ins.length); }catch(e){} }
+  t.dispatchEvent(new Event("input", { bubbles:true })); oskPreview(); }
+function oskStop(){ if(OSK.rep){ clearTimeout(OSK.rep.t); clearInterval(OSK.rep.i); OSK.rep = null; } OSK.el?.querySelectorAll(".down").forEach(b => b.classList.remove("down")); }
+function oskPress(k){ const t = OSK.target; if(!t || !document.body.contains(t)) return oskHide();
+  if(k === "hide"){ t.blur(); return oskHide(); }
+  if(k === "go"){ const ev = new KeyboardEvent("keydown", { key:"Enter", code:"Enter", keyCode:13, which:13, bubbles:true, cancelable:true });
+    const ok = t.dispatchEvent(ev); t.dispatchEvent(new KeyboardEvent("keyup", { key:"Enter", code:"Enter", keyCode:13, bubbles:true }));
+    if(ok && t.form && t.form.querySelector("[type=submit],button:not([type])")){ try{ t.form.requestSubmit(); }catch(e){} }
+    if(document.activeElement === t) t.blur(); return oskHide(); }
+  if(k === "nl") return oskPut(t, "\n");
+  if(k === "⇧"){ const now = Date.now(); if(OSK.caps){ OSK.caps = false; OSK.shift = false; } else if(OSK.shift && now - OSK.lastShift < 350){ OSK.caps = true; } else OSK.shift = !OSK.shift; OSK.lastShift = now; return oskDraw(); }
+  if(k === "123"){ OSK.mode = "sym"; return oskDraw(); } if(k === "ABC"){ OSK.mode = "abc"; return oskDraw(); }
+  if(k === "lang"){ OSK.lang = OSK.lang === "ar" ? "en" : "ar"; OSK.shift = false; OSK.caps = false; try{ localStorage.setItem("skwyd_osk_lang", OSK.lang); }catch(e){} return oskDraw(); }
+  if(k === "⌫") return oskPut(t, "", true);
+  const ins = k === "space" ? " " : (OSK.shift || OSK.caps) ? k.toUpperCase() : k;
+  oskPut(t, ins);
+  if(OSK.shift && !OSK.caps && k.length === 1){ OSK.shift = false; oskDraw(); }
+  else if(k === "space" && OSK.mode === "sym"){ OSK.mode = "abc"; oskDraw(); } }
+document.addEventListener("pointerdown", e => {
+  const b = e.target.closest?.(".osk [data-osk]");
+  if(b){ e.preventDefault(); const k = b.dataset.osk; b.classList.add("down"); oskPress(k);
+    if(k === "⌫"){ oskStop(); b.classList.add("down"); OSK.rep = { t:setTimeout(() => { OSK.rep.i = setInterval(() => oskPress("⌫"), 55); }, 420) }; }
+    return; }
+  if(e.target.closest?.(".osk")){ e.preventDefault(); return; }
+  if(OSK_ON && oskField(e.target)){ oskNoSys(e.target); return; }   // before focus, so Android never opens its own keyboard
+  if(OSK.target) setTimeout(() => { if(!oskField(document.activeElement)) oskHide(); }, 0);
+}, true);
+["pointerup","pointercancel","pointerleave"].forEach(n => document.addEventListener(n, e => { if(OSK.rep || e.target.closest?.(".osk")) oskStop(); }, true));
+document.addEventListener("focusin", e => { if(OSK_ON && oskField(e.target)) oskShow(e.target); else if(!e.target.closest?.(".osk")) oskHide(); });
+document.addEventListener("focusout", e => { const t = e.target; if(t && t.hasAttribute?.("data-osk-im")) setTimeout(() => { if(document.activeElement !== t){ const im = t.getAttribute("data-osk-im"); if(im) t.setAttribute("inputmode", im); else t.removeAttribute("inputmode"); t.removeAttribute("data-osk-im"); } }, 0); });
+document.addEventListener("input", e => { if(e.target === OSK.target) oskPreview(); });
+addEventListener("resize", () => { if(OSK.el?.classList.contains("show")) oskSize(); });
 // on-screen number pad for touch screens: types into the field it belongs to
 const ADDR_TYPES = ["Apartment","House/Villa","Compound","Office","Hotel","Other"];
 const numpad = (id, kind) => `<div class="pinpad npad" data-npfor="${id}">${["1","2","3","4","5","6","7","8","9", kind==="tel" ? "+" : kind==="int" ? "" : ".","0","C"].map(k => !k ? `<span></span>` : `<button type="button" data-npk="${k}" aria-label="${k==="C" ? "Clear" : k}">${k}</button>`).join("")}</div>`;
