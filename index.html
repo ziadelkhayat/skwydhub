@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1009-1795027792">
+<meta name="skwyd-build" content="1010-1795028228">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2500,6 +2500,34 @@ html body .app .hcard .hch .sp{flex:1}
 html body .app .hcard .hci{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#EEF2FF;color:#1E3A8A;flex:none;font-style:normal}
 html body .app .hcard .hci svg{width:20px;height:20px}
 html body .app #view .kgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+/* ===== Buttons, option C (soft tinted), everywhere: 10px corners, 38px tall, 14px medium text.
+   Main = solid navy with a soft shadow · others = pale navy · delete/remove = pale red (red text only in pop-up footers) · ghost = grey text · disabled = faded ===== */
+html body .btn,html body .app .btn,html body .app #view .btn,html body .app #view .card .btn,html body .app #view .ttop .btn,html body .app #view .mm .btn,html body .app #view .mmhd .btn,html body .modal .btn,html body .dlg .btn,html body .scrim .btn,html body .app .main .top .btn,html body .content .btn{
+  min-height:38px!important;height:38px;padding:0 14px!important;border-radius:10px!important;border:0!important;background:#EEF2FF!important;color:#1E3A8A!important;font-size:14px!important;font-weight:500!important;box-shadow:none!important;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .3s cubic-bezier(.4,0,.2,1),box-shadow .3s cubic-bezier(.4,0,.2,1),opacity .3s}
+html body .btn:hover,html body .app #view .btn:hover,html body .modal .btn:hover,html body .dlg .btn:hover{background:#E0E7FF!important}
+html body .btn svg,html body .app #view .btn svg{stroke:currentColor!important;color:currentColor!important;width:16px;height:16px}
+html body .btn.pri,html body .app .btn.pri,html body .app #view .btn.pri,html body .app #view .card .btn.pri,html body .app #view .mm .btn.pri,html body .modal .btn.pri,html body .dlg .btn.pri,html body .scrim .btn.pri,html body .content .btn.pri{background:#1E3A8A!important;color:#FFFFFF!important;box-shadow:0 4px 12px rgba(30,58,138,.25)!important}
+html body .btn.pri:hover,html body .app #view .btn.pri:hover,html body .modal .btn.pri:hover,html body .dlg .btn.pri:hover{background:#172D6A!important}
+html body .btn.danger,html body .btn.bad,html body .app #view .btn.danger,html body .app #view .btn.bad,html body .modal .btn.danger,html body .dlg .btn.danger,html body .scrim .btn.danger,html body .btn.imgrm{background:#FDECEC!important;color:#B42318!important;box-shadow:none!important}
+html body .btn.danger:hover,html body .app #view .btn.danger:hover,html body .modal .btn.danger:hover{background:#FBD9D9!important}
+html body .modal footer .btn.danger,html body .dlg footer .btn.danger,html body .scrim footer .btn.danger,html body .modal footer .btn.bad,html body .dlg footer .btn.bad{background:transparent!important;padding:0 8px!important}
+html body .modal footer .btn.danger:hover,html body .dlg footer .btn.danger:hover,html body .scrim footer .btn.danger:hover{background:#FDECEC!important}
+html body .btn.ghost,html body .app #view .btn.ghost,html body .modal .btn.ghost{background:transparent!important;color:#636366!important}
+html body .btn.ghost:hover,html body .app #view .btn.ghost:hover{background:#F2F2F7!important}
+html body .btn.sm,html body .app .btn.sm,html body .app #view .btn.sm{min-height:32px!important;height:32px;padding:0 10px!important;font-size:13px!important;border-radius:8px!important}
+html body .btn:disabled,html body .btn[disabled],html body .btn.dis,html body .app #view .btn:disabled,html body .modal .btn:disabled{opacity:.45!important;cursor:not-allowed!important;box-shadow:none!important}
+html body .vr,html body a.vr{color:#636366!important;font-weight:400!important;font-size:14px!important;text-decoration:none}
+html body .vr:hover{color:#1E3A8A!important}
+/* ===== Number fields, option A (Foodics): no up/down arrows anywhere; label above, unit inside the box on the right ===== */
+html body input[type=number]{-moz-appearance:textfield;appearance:textfield}
+html body input[type=number]::-webkit-inner-spin-button,html body input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+html body .nutr{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 18px!important}
+html body .nutr .nrow{display:flex!important;flex-direction:column;align-items:stretch!important;gap:5px!important;position:relative;border:0!important;padding:0!important;margin:0!important}
+html body .nutr .nrow span{font-size:14px!important;font-weight:400!important;color:#1C1C1E}
+html body .nutr .nrow input{width:100%!important;max-width:none!important;height:40px!important;min-height:40px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;padding:0 52px 0 12px!important;background:#fff!important;box-shadow:none!important;font-size:14px!important;text-align:left!important}
+html body .nutr .nrow input:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important}
+html body .nutr .nrow i{position:absolute;right:12px;bottom:11px;font-style:normal!important;color:#8E8E93!important;font-size:13px!important;pointer-events:none;text-transform:none}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
