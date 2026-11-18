@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1023-1795031131">
+<meta name="skwyd-build" content="1024-1795031254">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2595,6 +2595,11 @@ html body .ccvdf button.bad{background:#FDECEC!important;color:#B42318!important
 html body .ccvdf button.pri,html body .ccvdf button.ok{background:#1E3A8A!important;color:#fff!important}
 @media (hover:hover){html body .ccvdf button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.18)}}
 html body .ccvdf button:active{transform:none;box-shadow:none}
+/* ===== One hover everywhere (same as buttons): lift 2px with a soft shadow ===== */
+html body .nav a,html body .nav .grp>button,html body .nav .sub a,html body .tabs a,html body .tabs button,html body .ttabs a,html body .ttabs button,html body .ptabs a,html body .cutabs a,html body .cutabs button,html body .bsnav a,html body .dmseg button,html body .segtabs button,html body .seg button,html body select.sel,html body .drpbtn,html body .fltbtn,html body .msel>button,html body .msel-b,html body .tchchip,html body .rcard,html body .apcard,html body .kbit{transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,.2,1),background-color .2s,color .2s!important}
+@media (hover:hover){html body .nav a:hover,html body .nav .grp>button:hover,html body .nav .sub a:hover,html body .tabs a:hover,html body .tabs button:hover,html body .ttabs a:hover,html body .ttabs button:hover,html body .ptabs a:hover,html body .cutabs a:hover,html body .cutabs button:hover,html body .bsnav a:hover,html body .dmseg button:hover,html body .segtabs button:hover,html body .seg button:hover,html body select.sel:hover,html body .drpbtn:hover,html body .fltbtn:hover,html body .msel>button:hover,html body .msel-b:hover,html body .tchchip:hover,html body .rcard:hover,html body .apcard:hover,html body .kbit:hover{transform:translateY(-2px)!important;box-shadow:0 6px 16px rgba(30,58,138,.14)!important}}
+html body .nav a:active,html body .nav .grp>button:active,html body .nav .sub a:active,html body .tabs a:active,html body .tabs button:active,html body .ttabs a:active,html body .ttabs button:active,html body .ptabs a:active,html body .cutabs a:active,html body .cutabs button:active,html body .bsnav a:active,html body .dmseg button:active,html body .segtabs button:active,html body .seg button:active,html body select.sel:active,html body .drpbtn:active,html body .fltbtn:active,html body .msel>button:active,html body .msel-b:active,html body .tchchip:active,html body .rcard:active,html body .apcard:active,html body .kbit:active{transform:none!important;box-shadow:none!important;transition-duration:.08s!important}
+@media (prefers-reduced-motion:reduce){html body .nav a,html body .nav .grp>button,html body .nav .sub a,html body .tabs a,html body .tabs button,html body .ttabs a,html body .ttabs button,html body .ptabs a,html body .cutabs a,html body .cutabs button,html body .bsnav a,html body .dmseg button,html body .segtabs button,html body .seg button,html body select.sel,html body .drpbtn,html body .fltbtn,html body .msel>button,html body .msel-b,html body .tchchip,html body .rcard,html body .apcard,html body .kbit{transition:none!important;transform:none!important}}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -3042,12 +3047,12 @@ function renderNav(route){
   const nav = $("#nav"), wasOpen = new Set([...nav.querySelectorAll(".grp.open")].map(g => g.dataset.g));
   const html = NAV.map((n,gi) => {
     if(!canOpen(n.id || n.kids.find(k=>!k[0].startsWith("@"))?.[0])) return "";
-    if(n.id) return `<a href="#${n.id}" title="${n.t}" class="${route===n.id?"on":""}">${navIco(n.i)}${n.t}</a>`;
+    if(n.id) return `<a href="#${n.id}" class="${route===n.id?"on":""}">${navIco(n.i)}${n.t}</a>`;
     if(n.tabs && n.side){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0], inTabs = n.kids.some(k=>k[0]===route), open = inTabs || n.side.some(k=>k[0]===route);   // Menu: its builder screens are tabs on the page, Sales Channels sits beside them in the sidebar
-      return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button" title="${n.t}">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub"><a href="#${first}" class="${inTabs?"on":""}">${navSubIco("layers", "#f97316")}Catalog Items</a>${n.side.filter(k => canOpen(k[0])).map(k => `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${k[0]==="branch-menu" ? navSubIco("channels", "#0d9488") : svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")}</div></div>`; }
-    if(n.tabs){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0]; return `<a href="#${first}" title="${n.t}" class="${n.kids.some(k=>k[0]===route)?"on":""}">${navIco(n.i)}${n.t}</a>`; }   // one entry; its screens are tabs on the page
+      return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub"><a href="#${first}" class="${inTabs?"on":""}">${navSubIco("layers", "#f97316")}Catalog Items</a>${n.side.filter(k => canOpen(k[0])).map(k => `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${k[0]==="branch-menu" ? navSubIco("channels", "#0d9488") : svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")}</div></div>`; }
+    if(n.tabs){ const first = n.kids.find(k=>!k[0].startsWith("@"))[0]; return `<a href="#${first}" class="${n.kids.some(k=>k[0]===route)?"on":""}">${navIco(n.i)}${n.t}</a>`; }   // one entry; its screens are tabs on the page
     const open = n.kids.some(k => k[0]===route);
-    return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button" title="${n.t}">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub">${
+    return `<div class="grp ${open?"open":""}" data-g="${gi}"><button type="button">${navIco(n.i)}${n.t}<span class="chev">›</span></button><div class="sub">${
       n.kids.map(k => k[0].startsWith("@") ? `<div class="lbl">${k[0].slice(1)}</div>` : `<a href="#${k[0]}" class="${route===k[0]?"on":""}">${svgIco(SUBI[k[0]]||"list")}${k[1]}</a>`).join("")
     }</div></div>`;
   }).join("");
