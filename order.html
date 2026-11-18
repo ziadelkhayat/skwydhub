@@ -1733,7 +1733,7 @@ function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status
 const tkTitle = o => TBAD.includes(o.status) ? (o.status==="declined" ? "Order declined" : "Order cancelled") : tkSteps(o)[tkStep(o)][0];
 async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
   if(!r.error && Array.isArray(r.data)){ const tmp = TK.id==="_new" ? TK.list.find(x => x.id==="_new") : null; TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); if(tmp) TK.list.unshift(tmp); } return TK.list; }
-function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order #" + o.no + " · " : "") + (TBAD.includes(o.status) ? "Please contact the restaurant for details." : tkSteps(o)[Math.max(0, tkStep(o))][1]);
+function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order " + o.no + " · " : "") + (TBAD.includes(o.status) ? "Please contact the restaurant for details." : tkSteps(o)[Math.max(0, tkStep(o))][1]);
   try{ navigator.vibrate?.([180, 90, 180]); }catch(e){}
   try{ const a = new (window.AudioContext || window.webkitAudioContext)(), g = a.createGain(); g.connect(a.destination); [880, 1175].forEach((f, i) => { const os = a.createOscillator(); os.frequency.value = f; os.connect(g); g.gain.setValueAtTime(.08, a.currentTime); os.start(a.currentTime + i * .18); os.stop(a.currentTime + i * .18 + .15); }); }catch(e){}
   toast(t + (o.no ? " · #" + o.no : ""));
@@ -1750,7 +1750,7 @@ async function trkPoll(){ if(!TK){ setTimeout(trkPoll, 0); return; }   // called
   if(live || TK.id) TK.timer = setTimeout(trkPoll, document.hidden ? 30000 : 10000); }
 document.addEventListener("visibilitychange", () => { if(!document.hidden && USER) trkPoll(); });
 function trkPill(){ const el = $("#trkPill"); if(!el || !TK) return; const day = Date.now() - 864e5, o = TK.list.find(x => tkLive(x) && new Date(x.created_at) > day);
-  el.hidden = !o; if(!o) return; el.innerHTML = `<button type="button" data-track="${esc(o.id)}"><span class="tpd"></span><span><b>${esc(tkTitle(o))}</b><small>${o.no ? "Order #" + esc(o.no) + " · " : ""}Tap to track your order</small></span><i>›</i></button>`; }
+  el.hidden = !o; if(!o) return; el.innerHTML = `<button type="button" data-track="${esc(o.id)}"><span class="tpd"></span><span><b>${esc(tkTitle(o))}</b><small>${o.no ? "Order " + esc(o.no) + " · " : ""}Tap to track your order</small></span><i>›</i></button>`; }
 function trkOpen(id){ TK.id = id; let el = $("#trk"); if(!el){ el = document.createElement("div"); el.id = "trk"; el.className = "trk"; el.setAttribute("role","dialog"); document.body.appendChild(el); }
   if(id!=="_new" && location.hash !== "#track=" + id) history.replaceState(null, "", "#track=" + id);
   trkDraw(); requestAnimationFrame(() => el.classList.add("show")); document.documentElement.classList.add("trkon"); trkPoll(); }

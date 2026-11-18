@@ -501,17 +501,17 @@ function paintDeliv(){
   const m = main(); if(!m || S.tab!=="deliv") return; const l = S.drv || [], open = l.filter(o => o.status!=="closed" && o.driverStatus!=="delivered"), done = l.filter(o => o.driverStatus==="delivered");
   const cash = done.reduce((s, o) => s + (+o.total || 0), 0);
   m.innerHTML = `<div class="row" style="margin:4px 2px 12px"><h2 style="margin:0">My Orders</h2><span class="sp"></span><button class="btn ghost sm" id="drf">Refresh</button></div>
-    ${open.length ? open.map(o => `<div class="card dcard" data-dopen="${esc(o.id)}"><div class="row"><b style="font-size:17px">${o.no ? "#" + esc(o.no) : "Order"}</b><span class="pill ${o.driverStatus==="picked" ? "approved" : ""}">${DS[o.driverStatus] || esc(o.driverStatus)}</span><span class="sp"></span><b>${money(o.total)}</b></div>
+    ${open.length ? open.map(o => `<div class="card dcard" data-dopen="${esc(o.id)}"><div class="row"><b style="font-size:17px">${o.no ? "Order " + esc(o.no) : "Order"}</b><span class="pill ${o.driverStatus==="picked" ? "approved" : ""}">${DS[o.driverStatus] || esc(o.driverStatus)}</span><span class="sp"></span><b>${money(o.total)}</b></div>
       <div class="note" style="margin-top:6px">${esc(o.customerName || "Customer")} · ${esc(addrShort(o.address) || "No address")}</div><div class="note">${esc(o.branch?.name || "")}${o.assignedAt ? " · assigned " + hm(o.assignedAt) : ""}</div>
       ${o.driverStatus==="assigned" ? `<div class="acts" style="display:flex;gap:10px;margin-top:12px"><button class="btn ghost" data-dact="decline:${esc(o.id)}" style="color:var(--bad)">Decline</button><button class="btn" data-dact="accept:${esc(o.id)}">Accept</button></div>` : ""}</div>`).join("") : `<div class="card"><p class="empty">No orders assigned to you right now.</p></div>`}
     <div class="card"><div class="row"><div><div class="note">Delivered today</div><b style="font-size:22px">${done.length}</b></div><span class="sp"></span><div style="text-align:right"><div class="note">Cash collected</div><b style="font-size:22px">${money(cash)}</b></div></div>
-      ${done.slice(0, 10).map(o => `<div class="kv"><span>${o.no ? "#" + esc(o.no) : "Order"} · ${hm(o.deliveredAt)}</span><b>${money(o.total)}</b></div>`).join("")}</div>`;
+      ${done.slice(0, 10).map(o => `<div class="kv"><span>${o.no ? "Order " + esc(o.no) : "Order"} · ${hm(o.deliveredAt)}</span><b>${money(o.total)}</b></div>`).join("")}</div>`;
   $("#drf").onclick = () => drvPoll();
 }
 async function viewDeliv(){ paintDeliv(); if(!S.drv) main().innerHTML = `<div class="card"><p class="empty">Loading…</p></div>`; await drvPoll(); paintDeliv(); }
 function orderSheet(o){
   if(!o) return; const st = o.driverStatus, its = o.items || [], mu = mapUrl(o), ph = telDigits(o.phone);
-  sheet(`<div class="row"><h3 style="margin:0">${o.no ? "Order #" + esc(o.no) : "Order"}</h3><span class="sp"></span><span class="pill ${st==="picked" ? "approved" : ""}">${DS[st] || esc(st)}</span></div>
+  sheet(`<div class="row"><h3 style="margin:0">${o.no ? "Order " + esc(o.no) : "Order"}</h3><span class="sp"></span><span class="pill ${st==="picked" ? "approved" : ""}">${DS[st] || esc(st)}</span></div>
     <div class="kv"><span>Customer</span><b>${esc(o.customerName || "—")}</b></div>
     ${o.phone ? `<div class="kv"><span>Phone</span><a href="tel:${esc(o.phone)}" style="color:var(--acc);font-weight:700">${esc(o.phone)}</a></div>` : ""}
     <div class="kv"><span>Address</span><b style="text-align:right;max-width:65%">${esc(addrShort(o.address) || "—")}</b></div>

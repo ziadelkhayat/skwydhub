@@ -1157,7 +1157,7 @@ false && $("#syncPill").addEventListener("click", () => {
   modal("sync", `<div class="mh"><h2>Connection & sync</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
     <div class="stats"><div><span class="mut">Connection</span><b>${s.online?"Online":"Offline"}</b></div><div><span class="mut">Waiting to sync</span><b>${s.pending}</b></div></div>
     <p class="mut">Last synced: ${ago(s.lastSync)}. Sales, shifts and order updates made offline are kept on this tablet and sent automatically when the connection is back.</p>
-    ${f.length ? `<p><b>${f.length} change(s) the server rejected</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order #"+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
+    ${f.length ? `<p><b>${f.length} change(s) the server rejected</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order "+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
     <div class="mf">${f.length?'<button class="btn" id="retryFailed">Retry rejected</button>':""}<button class="btn pri" id="syncNow">Sync now</button></div>`);
 });
 document.addEventListener("click", e => {
@@ -1993,7 +1993,7 @@ $("#acts").addEventListener("click", async e => { const eb = e.target.closest("[
   b.disabled = true;
   const now = new Date().toISOString(), bill = st==="active" && !o.no ? { no: nextOrderNo(), deviceId: device.id } : {};
   try{ await db.collection("orders").doc(id).update({ status:st, updatedAt:now, ...(st==="active" && !o.acceptedAt ? { acceptedAt:now } : {}), ...(st==="declined" ? { doneAt:now } : {}), handledBy:cashier?.name || device.name, ...bill });
-    toast(st==="active" ? (bill.no ? "Order #" + bill.no + " accepted · sent to kitchen" : "Order accepted · sent to kitchen") : "Order declined"); resetOrder();   // accepted: the cart opens on a new order
+    toast(st==="active" ? (bill.no ? "Order " + bill.no + " accepted · sent to kitchen" : "Order accepted · sent to kitchen") : "Order declined"); resetOrder();   // accepted: the cart opens on a new order
   }catch(err){ console.error(err); b.disabled = false; toast("Couldn't update the order"); } });
 $("#acts").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if(!b || b.disabled) return; const a = b.dataset.act, eo = editOrder();
   if(a==="clear") return resetOrder();
@@ -2226,7 +2226,7 @@ $("#modal").addEventListener("click", async e => {
   const erb = e.target.closest("[data-er]"); if(erb){ e.stopPropagation(); if(!can("pos_incoming")) return deny("handling incoming orders"); const [id, y] = erb.dataset.er.split(":"); try{ await erDecide(id, y==="1"); if(modalKind==="board") openBoard(); }catch(err){ console.error(err); toast("Couldn't update the order"); } return; }
   const ia = e.target.closest("[data-inc]"); if(ia){ if(!can("pos_incoming")) return deny("handling incoming orders"); const [id,s] = ia.dataset.inc.split(":"); if(s==="declined"){ try{ if(await declineOrder(id) && modalKind==="orderview" && OV.back){ const b = OV.back; OV.back = ""; b==="board" ? openBoard() : openIncoming(); } }catch(err){ console.error(err); toast("Couldn't update the order"); } return; }
     try{ const o = S.orders.find(x=>x.id===id), bill = (s==="active" || s==="closed") && o && !o.no ? { no: nextOrderNo(), deviceId: device.id } : {};   // this register bills it, so it numbers it
-    await db.collection("orders").doc(id).update({ status:s, updatedAt:new Date().toISOString(), ...(s==="active" && !S.orders.find(x=>x.id===id)?.acceptedAt ? { acceptedAt:new Date().toISOString() } : {}), ...(s==="closed"||s==="declined" ? { doneAt:new Date().toISOString() } : {}), handledBy:cashier?.name || device.name, ...bill }); toast(s==="active"?(bill.no ? "Order #"+bill.no+" accepted · sent to kitchen" : "Order accepted · sent to kitchen"):s==="declined"?"Order declined":"Order completed"); if(modalKind==="orderview" && OV.back){ const b = OV.back; OV.back = ""; b==="board" ? openBoard() : openIncoming(); } }catch(err){ console.error(err); toast("Couldn't update the order"); } return; }
+    await db.collection("orders").doc(id).update({ status:s, updatedAt:new Date().toISOString(), ...(s==="active" && !S.orders.find(x=>x.id===id)?.acceptedAt ? { acceptedAt:new Date().toISOString() } : {}), ...(s==="closed"||s==="declined" ? { doneAt:new Date().toISOString() } : {}), handledBy:cashier?.name || device.name, ...bill }); toast(s==="active"?(bill.no ? "Order "+bill.no+" accepted · sent to kitchen" : "Order accepted · sent to kitchen"):s==="declined"?"Order declined":"Order completed"); if(modalKind==="orderview" && OV.back){ const b = OV.back; OV.back = ""; b==="board" ? openBoard() : openIncoming(); } }catch(err){ console.error(err); toast("Couldn't update the order"); } return; }
   const ovt = e.target.closest("[data-ovtab]"); if(ovt){ OV.tab = ovt.dataset.ovtab; return openIncoming(); }
   if(e.target.closest("[data-ofilt]")){ OV.filt = !OV.filt; return openIncoming(); }
   if(modalKind==="incoming" && OV.rpop && !e.target.closest(".ovrw")){ OV.rpop = false; OV.ca = null; return openIncoming(); }
@@ -2439,7 +2439,7 @@ async function completeSale(){
     }
     posTagsCommit(order.id || eo?.id);
     for(const hc of haCh){ const oid = hc.oid || order.id || editOrder()?.id || eo?.id;   // the sale (or its split part) goes on the customer's house account
-      const { error: he } = await window.WOK.sb.from("house_account_txns").insert({ customer_id: hc.id, kind:"charge", amount: hc.amount, method:"House Account", order_id: oid || null, order_ref: order.no ? "#" + order.no : null, branch_id: device.branchId, created_by: cashier?.name || device.name });
+      const { error: he } = await window.WOK.sb.from("house_account_txns").insert({ customer_id: hc.id, kind:"charge", amount: hc.amount, method:"House Account", order_id: oid || null, order_ref: order.no ? String(order.no) : null, branch_id: device.branchId, created_by: cashier?.name || device.name });
       if(he){ console.error(he); toast("Sale saved, but the house account charge failed: " + he.message); } } HA = null;
     closeModal(); resetOrder(); window.Motion?.sale(+order.total || 0);
     const lk = devSet().lockAfterSale && usePins();
@@ -2454,7 +2454,7 @@ function receiptText(o){
   const lines = [ (()=>{ const n = (S.brands.find(b=>b.id===branch?.brandId)?.name || "skwyd hub").toUpperCase(); return n.padStart((w+n.length)/2); })(), (branch?.name||"").padStart((w+(branch?.name||"").length)/2), ...rcptHead(w), "",
     ...(a.invoiceTitle && o.status!=="refund" ? [a.invoiceTitle.slice(0,w).padStart((w+Math.min(w,a.invoiceTitle.length))/2), ""] : []),
     ...(o.status==="refund" ? ["*** REFUND ***".padStart((w+14)/2), row("Return " + ordRef(o), typ), ...(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo ? ["Original invoice " + invNo(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo)] : []), ...(o.returnReason ? ["Reason: " + o.returnReason] : [])]
-      : [a.showOrderNo===false ? typ : row("Order #"+(o.no||"—"), typ), ...(o.ref ? ["Ref " + o.ref] : []), ...(a.rcptInvoice && o.invoiceNo ? ["Check " + invNo(o.invoiceNo)] : [])]), ...(a.rcptSource && o.source ? ["Source: " + o.source] : []),
+      : [a.showOrderNo===false ? typ : row("Order "+(o.no||"—"), typ), ...(o.ref ? ["Ref " + o.ref] : []), ...(a.rcptInvoice && o.invoiceNo ? ["Check " + invNo(o.invoiceNo)] : [])]), ...(a.rcptSource && o.source ? ["Source: " + o.source] : []),
     ...(o.type==="dinein" && +o.guests ? ["Guests: " + o.guests] : []),
     ...(a.rcptCustomer && (o.customerName || o.phone) ? [[o.customerName, (o.type==="pickup"||o.type==="takeaway") && a.phoneOnPickup===false ? "" : o.phone].filter(Boolean).join(" · ")] : []),
     ...(a.showCreator && (o.agent || o.handledBy) ? ["Created by " + (o.agent || o.handledBy)] : []), ...(a.showCloser && (o.handledBy || o.agent) ? ["Closed by " + (o.handledBy || o.agent)] : []),
@@ -2518,8 +2518,8 @@ let OV = { tab:"all", q:"", open:null, view:"list", filt:false, ft:"", fc:"", fs
 const outDel = o => o && o.status==="active" && o.type==="delivery" && !!o.dispatchedAt;   // a delivery order that left with the driver
 const stLbl = o => outDel(o) ? "Dispatched" : ({ review:"Call center review", refund:"Returned", pending:"Waiting for you", active:"Preparing", closed:"Done", void:"Void", returned:"Returned", declined:"Declined", draft:"Draft" }[o.status] || o.status);
 const typLbl = t => t==="fast" ? "Fast Order" : t==="dinein" ? "Dine-in" : t==="pickup"||t==="takeaway" ? "Pickup" : t==="delivery" ? "Delivery" : (t||"—");
-const invNo = n => n ? "INV-" + String(n).padStart(6,"0") : "";   // invoice number as shown and printed
-const ordRef = o => o.status==="refund" ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? "#" + o.no : o.invoiceNo ? invNo(o.invoiceNo) : "—";
+const invNo = n => n ? String(n).padStart(6,"0") : "";   // invoice number as shown and printed
+const ordRef = o => o.status==="refund" ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—";
 // Orders: full-screen board, one column per state (like the call center). Tap an order to open it in the billing section
 const OV_COLS = [["pending","Pending","Waiting for this branch to accept"],["active","Preparing","Open orders: add or void items, then bill"],["closed","Done","Billed today: return items or the invoice"],["void","Void & returns","Voided, declined, returned or refunded today"]];
 // the Orders list: every order of this branch (lifetime), or a date range. Older orders come from the server
@@ -2574,7 +2574,7 @@ function openIncoming(){
   if(!can("pos_orders") && !can("pos_incoming")) return deny("seeing orders");
   const t = v => v ? new Date(v).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"}) : "";
   const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web";
-  const card = o => `<button class="ocard" data-ov="${esc(o.id)}"><span class="oc1"><b>${esc(o.invoiceNo ? invNo(o.invoiceNo) : o.no ? "#" + o.no : (o.ref || ordRef(o)))}</b><span class="spill s-${o.status}">${stLbl(o)}</span></span>
+  const card = o => `<button class="ocard" data-ov="${esc(o.id)}"><span class="oc1"><b>${esc(o.invoiceNo ? invNo(o.invoiceNo) : o.no ? "Order " + o.no : (o.ref || ordRef(o)))}</b><span class="spill s-${o.status}">${stLbl(o)}</span></span>
     ${o.invoiceNo && o.no ? `<span class="mut oc-s">Order #${esc(o.no)}</span>` : ""}
     ${o.customerName || o.phone ? `<span class="oc2">${ico("user")}<span>${esc(o.customerName||"")}<small>${esc(telFmt(o.phone))}</small></span></span>` : ""}
     <span class="oc2 mut">${ico("clock")}<span>Created ${t(o.createdAt)}${o.updatedAt && o.updatedAt!==o.createdAt ? `<small>Modified ${t(o.updatedAt)}</small>` : ""}</span></span>
@@ -2588,7 +2588,7 @@ function openIncoming(){
   const row = o => `<button class="lrow ol5" data-ov="${esc(o.id)}">
     <span class="lc"><b style="text-transform:none">${esc(o.ref || "—")}</b></span>
     <span class="lc"><b style="text-transform:none">${esc(invOf(o)) || `<span class="mut">${o.status==="pending" ? "Not accepted yet" : "—"}</span>`}</b></span>
-    <span class="lc"><b class="lno" style="text-transform:none">${esc(o.status==="refund" ? "–" : o.no ? "#" + o.no : "—")}</b></span>
+    <span class="lc"><b class="lno" style="text-transform:none">${esc(o.status==="refund" ? "–" : o.no ? String(o.no) : "—")}</b></span>
     <span class="lc"><b style="text-transform:none">${esc(custOf(o) ? (o.customerName || telFmt(o.phone)) : "-")}</b>${custOf(o) && o.customerName && o.phone ? `<span>${esc(o.phone)}</span>` : ""}</span>
     <span class="lc"><span class="lst-${o.status}" style="font-size:13px;font-weight:700">${esc(stLbl(o))}</span></span>
     <span class="lc lc2"><b style="text-transform:none">${esc(chn(o))}</b></span>
@@ -2929,7 +2929,7 @@ function openBoard(){
   const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(Boolean).map(esc).join(" / ");
   // the same tile as the orders history: reference, status, invoice / order, customer / phone, address (delivery), created, modified, total, type / source, channel / user
   const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : outDel(o) ? "out" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
-    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order #" + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "")) : ""}
+    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order " + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "")) : ""}
     ${sm("Created " + t(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + t(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
     ${sm(jn([typLbl(o.type), o.source && o.source!=="Website" && String(o.source).toUpperCase()!=="POS" ? o.source : ""]))}${sm(jn([chn(o), o.agent || ""]))}${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`;
   const q = OV.q; OV.q = BQ;
@@ -3069,7 +3069,7 @@ const OH_T = { delivery:"Delivery", takeaway:"Pickup", pickup:"Pickup", dinein:"
 const ohTile = x => { const br = S.branches?.find(b => b.id===x.branchId), bd = S.brands?.find(b => b.id===(x.brandId || br?.brandId)), j = a => a.filter(Boolean).map(esc).join(" / ");
   const src = x.source && x.source!=="Website" && String(x.source).toUpperCase()!=="POS" ? x.source : "";
   return `<button type="button" class="ohtile" data-ohopen="${esc(x.id)}"><b>${esc(x.ref || ohNum(x))}</b><span class="spill s-${x.status}">${esc(stLbl(x))}</span>${x.type==="delivery" && x.address ? `<small class="oha">${esc(x.address)}</small>` : ""}<small>Created ${ohDate(x.at, true)}</small>${x.upd && x.upd!==x.at ? `<small>Modified ${ohDate(x.upd, true)}</small>` : ""}<em>${usd(x.total)}</em><small>${j([bd?.name, br?.name])}</small><small>${j([OH_T[x.type] || x.type, src, x.agent])}</small></button>`; };
-const ohNum = o => o.inv ? invNo(o.inv) : o.ref || (o.no ? "#" + o.no : "—");
+const ohNum = o => o.inv ? invNo(o.inv) : o.ref || (o.no ? String(o.no) : "—");
 const ohDate = (x, time) => x ? new Date(x).toLocaleString("en-GB", { day:"numeric", month:"short", year:"numeric", ...(time ? { hour:"2-digit", minute:"2-digit" } : {}) }) : "—";
 const RO_ITEMS = new WeakSet();   // cart lines that came from a Reorder
 function pastHtml(ok, det, key){ ok = (ok || []).filter(ohHist);
@@ -3087,7 +3087,7 @@ function ohPop(key, id){ const list = ((key==="pddet" ? PD?.past : key==="cldet"
   const o = id && list.find(x => x.id===id);
   if(!o){ el.innerHTML = `<div class="modal"><div class="mh"><h2>Orders history</h2><button class="x" data-ohx aria-label="Close">×</button></div><div class="ohfil">${OH_FS.map(([k, l]) => `<button type="button" class="${OH_F===k ? "on" : ""}" data-ohf="${k}">${l}</button>`).join("")}</div><div class="mb"><div class="ohgrid">${(t => OH_F ? list.filter(x => ohMatch(x, OH_F)).map(t).join("") : OH_GR.map(([k, l]) => { const g = list.filter(x => ohMatch(x, k)); return g.length ? `<div class="ohgh">${l}<span>${g.length}</span></div>` + g.map(t).join("") : ""; }).join(""))(ohTile) || `<div class="ohnone">No orders</div>`}</div></div></div>`; ohEqual(el); return; }
   const br = S.branches?.find(b => b.id===o.branchId), bd = S.brands?.find(b => b.id===(o.brandId || br?.brandId)), it = (o.items||[]).filter(i => !i.voided), kv = (l, v) => v ? `<div class="kv"><span>${l}</span><b>${esc(v)}</b></div>` : "";
-  el.innerHTML = `<div class="modal"><div class="mh"><button class="adback" data-ohopen="" aria-label="Back">‹</button><h2>${esc(o.ref || (o.no ? "#" + o.no : ohNum(o)))}</h2><span class="spill s-${o.status}">${esc(stLbl(o))}</span><button class="x" data-ohx aria-label="Close">×</button></div>
+  el.innerHTML = `<div class="modal"><div class="mh"><button class="adback" data-ohopen="" aria-label="Back">‹</button><h2>${esc(o.ref || (o.no ? "Order " + o.no : ohNum(o)))}</h2><span class="spill s-${o.status}">${esc(stLbl(o))}</span><button class="x" data-ohx aria-label="Close">×</button></div>
     <div class="mb"><div class="ohkv">${kv("Check Number", o.inv ? invNo(o.inv) : "")}${kv("Brand", bd?.name)}${kv("Branch", br?.name)}${kv("Order type", OH_T[o.type] || o.type)}${kv("Order source", o.source)}${kv("Date", ohDate(o.at, true))}</div>
       ${o.address && o.type==="delivery" ? `<div class="ohkv">${kv("Address", addrFull(o.address))}</div>` : ""}
       <div class="podi">${it.map(i => `<div><span class="q">${+i.qty||1}×</span><span class="n">${esc(i.name)}${modLines(i).length ? `<small>${modLines(i).map(esc).join(", ")}</small>` : ""}</span><b>${usd(lineNet(i))}</b></div>`).join("") || '<div class="mut">No items</div>'}</div>
@@ -3386,7 +3386,7 @@ async function openDiag(){
     ["Offline app", sw], ["Storage", est ? `${(est.usage/1048576).toFixed(1)} MB used of ${(est.quota/1048576/1024).toFixed(1)} GB` : "—"], ["Screen", `${innerWidth} × ${innerHeight}`], ["Clock", new Date().toLocaleString("en-GB") + " · " + (Intl.DateTimeFormat().resolvedOptions().timeZone || "")],
     ["Printing", window.Capacitor ? "Android app" : "Browser · printing works in the Android app"], ["App", "skwyd hub POS · " + (document.querySelector('script[src^="wokdb.js"]')?.getAttribute("src").split("?v=")[1] ? "data v" + document.querySelector('script[src^="wokdb.js"]').getAttribute("src").split("?v=")[1] : "")]];
   modal("diag", `<div class="mh"><h2>Diagnostics</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb"><div class="rsec" style="box-shadow:none;padding:0"><table>${rows.map(([k,v]) => `<tr><td class="c">${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table></div>
-    ${f.length ? `<p style="margin-top:12px"><b>Rejected changes</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order #"+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
+    ${f.length ? `<p style="margin-top:12px"><b>Rejected changes</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order "+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
     <div class="mf">${f.length?'<button class="btn" id="retryFailed">Retry rejected</button>':""}<button class="btn" id="diagReload" style="margin-right:auto">Reload app</button><button class="btn pri" id="syncNow">Sync now</button></div>`);
 }
 })();
