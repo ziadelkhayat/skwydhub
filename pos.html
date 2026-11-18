@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1052-1795036434">
+<meta name="skwyd-build" content="1053-1795036598">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1024,6 +1024,10 @@ html body #abar .abtn.abtn.abtn.abtn span,html body #abar .abtn.abtn.abtn.abtn b
 html body #abar .abtn.abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn.abtn .rti svg,html body .bnav.bnav.bnav button svg,html body .bnav.bnav.bnav .rti svg{width:22px!important;height:22px!important;stroke-width:2!important}
 /* ===== Messages: regular weight, one tick only (the round icon) ===== */
 html body #toast,html body .toast,html body #toast.ok,html body #toast.del{font-weight:400!important}
+/* ===== Menu tiles: five rows fill the menu area ===== */
+html body #grid#grid#grid#grid{grid-auto-rows:calc((100% - 40px) / 5)!important;grid-template-rows:none!important}
+html body #grid#grid#grid#grid>.prod,html body #grid#grid#grid#grid>.ctile,html body #grid#grid#grid#grid>.cbtile{height:auto!important;min-height:0!important;max-height:none!important;grid-template-columns:auto minmax(0,1fr)!important}
+html body #grid#grid#grid#grid>.prod>img,html body #grid#grid#grid#grid>.prod>.pic,html body #grid#grid#grid#grid>.ctile>img,html body #grid#grid#grid#grid>.ctile>.pic,html body #grid#grid#grid#grid>.cbtile>img,html body #grid#grid#grid#grid>.cbtile>.pic{width:auto!important;height:100%!important;aspect-ratio:1/1!important;max-width:110px!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -1606,10 +1610,12 @@ function dayEndBlock(day){
   if(day < bizDate() || brSet().autoDayEnd === false) return "";   // an earlier day that was never ended can always be ended; without automatic end of day there is no time limit
   const midnight = new Date(day + "T00:00:00"); midnight.setDate(midnight.getDate() + 1);
   return Date.now() >= midnight.getTime() ? "This day ends automatically " + atLbl(autoEndAt(day)) : ""; }
-function openDayEnd(){
+async function openDayEnd(){
   if(!can("pos_endday")) return deny("ending the day");
   { const blk = dayEndBlock(openDay()); if(blk) return toast(blk, true); }
   const day = openDay(), act = S.orders.filter(o => o.branchId===device.branchId && ["pending","active"].includes(o.status));
+  // tills left open on devices that were deleted or deactivated are closed here (counted as expected), so they never block the end of day
+  await closeOrphanTills();
   const shifts = S.shifts.filter(x => x.branchId===device.branchId && !x.closedAt);
   const sales = S.orders.filter(o => liveOrder(o) && (o.status==="closed" || o.status==="refund") && bizDate(o.createdAt)===day);
   // open orders or an open till block the end of day: a red message drops in instead of a window
@@ -1647,6 +1653,7 @@ async function autoDayEnd(){
   if(autoDayBusy || !device || !db || !window.__ordSnap || brSet().autoDayEnd === false) return;
   const today = bizDate(), day = openDay();
   if(day >= today || dayClosed(day)) return;   // the automatic end of day always runs at the branch's set time (Business Day Starts)
+  await closeOrphanTills();
   if(S.orders.some(o => o.branchId===device.branchId && ["pending","active"].includes(o.status)) || S.shifts.some(x => x.branchId===device.branchId && !x.closedAt)) return;
   const sales = S.orders.filter(o => liveOrder(o) && (o.status==="closed" || o.status==="refund") && bizDate(o.createdAt)===day);
   autoDayBusy = true;
@@ -2873,6 +2880,14 @@ async function doCloseShift(){
 }
 
 // the device is being deactivated (here or in the back office): close its open till, the drawer taken as counted at the expected amount
+// tills left open on devices that were deleted or deactivated are closed (counted as expected), so they never block the end of day
+async function closeOrphanTills(){ for(const x of S.shifts.filter(x => x.branchId===device.branchId && !x.closedAt)){ const d = S.devices.find(v => v.id===x.deviceId); if(!d || d.deleted || !d.activatedAt){ await closeShiftAsCounted(x); x.closedAt = x.closedAt || new Date().toISOString(); } } }
+async function closeShiftAsCounted(sh){
+  try{ const sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
+    const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+(+o.total||0),0), expected = (+sh.openingCash||0)+cash-owedTotal(sales);
+    await db.collection("shifts").doc(sh.id).update({ closedAt:new Date().toISOString(), orders:sales.filter(o=>o.status==="closed").length, sales:+sales.reduce((a,o)=>a+(+o.total||0),0).toFixed(2), expectedCash:+expected.toFixed(2), countedCash:+expected.toFixed(2), difference:0 });
+  }catch(err){ console.error("close till", err); }
+}
 async function autoCloseTill(){
   try{ const sh = device && openShift(); if(!sh) return;
     const sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));

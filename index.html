@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1052-1795036434">
+<meta name="skwyd-build" content="1053-1795036598">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2721,6 +2721,10 @@ html body #ccBox .ccx.s2 .insbox{background:#FFFFFF!important;flex:0 0 auto!impo
 html body #ccBox .ccx.s2 .cc1b,html body #ccBox .ccx.s2 .cc1{align-content:start!important;align-items:stretch;height:auto!important}
 /* ===== Messages: regular weight, one tick only (the round icon) ===== */
 html body #toast,html body .toast,html body #toast.ok,html body #toast.del{font-weight:400!important}
+/* ===== Menu tiles: five rows fill the menu area ===== */
+html body #ccBox .ccx.ccx.ccx.ccx #oProducts{grid-auto-rows:calc((100% - 40px) / 5)!important;grid-template-rows:none!important}
+html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile:not(.ccsub),html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.pbtn,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.cbtile,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile.ccsub{height:auto!important;min-height:0!important;max-height:none!important;grid-template-columns:auto minmax(0,1fr)!important}
+html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>img,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>.pic,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.pbtn>img,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.pbtn>.pic,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.cbtile>img,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.cbtile>.pic,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile.ccsub>img,html body #ccBox .ccx.ccx.ccx.ccx #oProducts>.ctile.ccsub>.pic{width:auto!important;height:100%!important;aspect-ratio:1/1!important;max-width:110px!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -4630,7 +4634,8 @@ async function closeDeviceTill(deviceId){
       await WOK.sb.from("shifts").update({ closed_at:new Date().toISOString(), orders:l.filter(o => o.status==="closed").length, sales:+l.reduce((a,o) => a + (+o.total||0), 0).toFixed(2), expected_cash:expected, counted_cash:expected, difference:0 }).eq("id", sh.id).is("closed_at", null);
     } }catch(e){ console.error("close device till", e); }
 }
-async function put(col, id, data){ const r = await put0(col, id, data);
+async function put(col, id, data){ if(col==="devices" && data && (data.deleted===true || data.activatedAt===null)) await closeDeviceTill(id);   // a device that is deactivated or deleted leaves no till open
+  const r = await put0(col, id, data);
   // a delivery charge that is turned off, deleted or restored also changes the fee of the zones that use it
   if(col==="charges" && id && ("active" in data || "deleted" in data || "value" in data || "type" in data)) try{ const c = S.charges.find(x => x.id===id) || {}, m = { ...c, ...data }, fee = !m.deleted && (m.type||"fixed")==="fixed" ? (+m.value||0) : 0;
     for(const z of (S.zones||[]).filter(z => dcMap()[z.id]===id && +z.fee!==fee)) await put0("zones", z.id, { fee }); }catch(e){ console.error(e); }
