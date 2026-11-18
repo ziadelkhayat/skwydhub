@@ -2204,6 +2204,9 @@ html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
   html body #view .tscroll,html body #view .card.tbl:not(:has(.tscroll)){max-height:calc(100dvh - 150px);overflow:auto!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   html body #view .tscroll thead th,html body #view .card.tbl:not(:has(.tscroll)) thead th{position:sticky;top:0;z-index:3;background:#fff}
 }
+/* empty states: a soft grey panel with the message in the middle (Foodics) */
+html body .app #view .empty,html body .app #view .brempty,html body .app #view td .empty{background:#F2F3F7!important;border:0!important;border-radius:12px!important;min-height:180px;display:flex!important;align-items:center;justify-content:center;text-align:center;padding:24px!important;margin:16px!important;color:#0E1530!important;font-size:15px!important;font-weight:400!important;font-style:normal!important}
+html body .app #view td > .empty{margin:8px 0!important}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -3421,7 +3424,7 @@ function rptTop(B){ if(!B.kpis || !B.rows.length) return "";
   return h; }
 function rptTable(head, rows, foot){
   return `<div class="card tbl rptbl"><table><thead><tr>${head.map(([l, tip, num]) => `<th class="${num?"num":""}">${esc(l)}${tip ? ` <span class="rinfo" title="${esc(tip)}">ⓘ</span>` : ""}</th>`).join("")}</tr></thead><tbody>${
-    rows.length ? rows.map(r => `<tr>${r.map((c,i) => `<td class="${head[i]?.[2]?"num":""}">${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" class="note" style="padding:24px;text-align:center">No data to display!</td></tr>`
+    rows.length ? rows.map(r => `<tr>${r.map((c,i) => `<td class="${head[i]?.[2]?"num":""}">${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" style="padding:0"><div class="empty">No data to display</div></td></tr>`
   }${foot && rows.length ? `<tr class="rtot">${foot.map((c,i) => `<td class="${head[i]?.[2]?"num":""}"><b>${c}</b></td>`).join("")}</tr>` : ""}</tbody></table></div>`;
 }
 // what the report shows: { title, head:[[label, tip, numeric]], rows:[[cells]], foot, csv:[[...]] }
@@ -3557,7 +3560,7 @@ function viewBranch(b){
   const devs = S.devices.filter(d => live(d) && d.branchId===b.id), chs = (S.charges||[]).filter(c => !c.deleted && (!(c.branchIds||[]).length || c.branchIds.includes(b.id)));
   const tl = tblList(b.id), secs = tblSecs(b.id), offPay = st.inactivePayments || [], pms = (S.payment_methods||[]).filter(m => !m.deleted && m.active!==false);
   const card = (title, btn, body) => `<div class="dzsec dzwide"><div class="dzh"><h3>${title}</h3>${btn||""}</div><div class="dzcard dztbl">${body}</div></div>`;
-  const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
+  const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>` : '<p class="note brempty">No data to display</p>';
   const typesOf = c => (c.orderTypes||[]).length ? c.orderTypes.map(t=>esc(TYPE_LBL[t]||t)).join(", ") : "All order types";
   const dk = ["sun","mon","tue","wed","thu","fri","sat"][new Date().getDay()], hr = st.hours?.[dk] || {}, op = hr.open || b.open, cl = hr.close || b.close;
   const nowM = new Date().getHours()*60 + new Date().getMinutes(), mm = v => { const [h, m] = String(v||"").split(":").map(Number); return (h||0)*60 + (m||0); };
@@ -3572,7 +3575,7 @@ function viewBranch(b){
     ${card("Delivery Zones", `<button type="button" class="btn" data-brzones="${esc(b.id)}">Delivery Zones</button>`, tbl(["Name","Delivery charge","Min. order"], zones.map(z => { const c = dcChargeOf(z); return [esc(z.name), c ? `${esc(c.name)} · ${money(+c.value||0)}` : '<span class="note">—</span>', money(+z.minOrder||0)]; })))}
     ${card("Users", "", tbl(["Name","Email","Phone"], users.map(u => [esc(u.name), esc(u.email||"—"), esc(u.phone||"—")])))}
     ${card("Sections", `<button class="btn sm" data-secadd="${esc(b.id)}">Add Section</button>`, secs.length ? `<table><thead><tr><th>Name</th><th class="num">Tables</th><th>Table names</th></tr></thead><tbody>${secs.map(sc => { const l = tl.filter(t => (t.section||"")===sc);
-      return `<tr class="click" data-secopen="${esc(b.id)}" data-sec="${esc(sc)}"><td><b>${esc(sc || "No section")}</b></td><td class="num">${l.length}</td><td>${l.map(t => esc(tblLbl(t.name))).join(", ") || '<span class="note">—</span>'}</td></tr>`; }).join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>')}
+      return `<tr class="click" data-secopen="${esc(b.id)}" data-sec="${esc(sc)}"><td><b>${esc(sc || "No section")}</b></td><td class="num">${l.length}</td><td>${l.map(t => esc(tblLbl(t.name))).join(", ") || '<span class="note">—</span>'}</td></tr>`; }).join("")}</tbody></table>` : '<p class="note brempty">No data to display</p>')}
     ${card("Assigned Devices", "", tbl(["Name","Reference","Type","Status"], devs.map(d => [esc(d.name), esc(d.reference||"—"), esc(devType(d.type)), devStatus(d)])))}
     ${card("Assigned Charges", "", tbl(["Name","Value","Applies On"], chs.map(c => [esc(c.name), c.type==="percent" ? (+c.value||0)+"%" : money(+c.value||0), typesOf(c)])))}
     <div class="dzsec dzwide"><div class="dzh"><h3>Inactive Payment Methods <span class="tip" title="Payment methods that can't be used at this branch">ⓘ</span></h3><button type="button" class="btn" data-brpaypick="${esc(b.id)}">Select Payment Method</button></div>
@@ -7919,6 +7922,8 @@ document.addEventListener("click", e => { const t = e.target; if(!t.closest || !
 
 /* ---------- Orders: every order from every channel, any date range ---------- */
 // status tabs: a few clear groups instead of one tab per status
+/* empty lists say what is missing, in the open tab's words (Foodics): "You don't have Draft orders" */
+const youDontHave = (tabs, tab, plural) => { const t = ((tabs||[]).find(x => x[0]===tab) || [])[1]; return `You don't have ${t && tab!=="all" ? t + " " : "any "}${plural}`; };
 const ORD_TABS = [["all","All"],["today","Today"],["draft","Draft"],["pending","Pending"],["active","Active"],["ahead","Ahead"],["callcenter","Call Center"],["online","Web Ordering"]];   // Foodics order tabs
 const ORD_SGRP = { draft:["draft"], pending:["pending","review"], open:["active"], closed:["closed"], declined:["declined"], voids:["void"], returns:["refund","returned"] };
 const ORD_TABQ = { today: q => { const d = bizDate(), [t0, t1] = dayBounds(d, d, ORD.branch || ""); return q.gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()); },
@@ -8021,13 +8026,13 @@ function viewOrders(){
   return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
     <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "dfph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
   <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading && !ORD.rows.length ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div><label class="osrch">${svgIco("search")}<input id="ordQ" type="search" autocomplete="off" placeholder="Order number, customer or phone" value="${esc(ORD.q)}" aria-label="Search orders"></label></div></div>
-  <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
-    ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
+  <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : !ORD.rows.length && !ORD.loading ? `<div class="empty">${ORD.q || ORD.channel || ORD.type || ORD.pay || ORD.source || ORD.from || ORD.to || ORD.branch || ORD.brand || ORD.ref || ORD.num || ORD.cust ? "No orders match these filters." : ORD.tab==="today" ? "You don't have orders today" : youDontHave(ORD_TABS, ORD.tab, "orders")}</div>` : `<table><thead><tr><th>Reference</th><th>Check Number</th><th>Order</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
+    ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       ${brandList().length > 1 ? `<td>${esc(brandName(o.brandId) || "—")}</td>` : ""}<td>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</td>
       <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
-      <td><span class="tag cc">${esc(CH_LBL[o.channel] || cap(o.channel))}</span></td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table ? ` <span class="note">· ${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</span>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
+      <td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table ? ` <span class="note">· ${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</span>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
       <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td style="text-align:center">${o.createdAt ? (t => `<div class="odt" style="white-space:nowrap">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)}</div><div class="note odt" style="white-space:nowrap">${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</div>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "-")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
-    : `<tr><td colspan="14" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
+    : `<tr><td colspan="13" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
   }</tbody></table>`}
   <div class="pager"><span class="note">${a}–${b} of ${ORD.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="ordPrev" ${ORD.page<=1?"disabled":""}>Previous</button><span class="note">Page ${ORD.page} of ${pages}</span><button class="btn" id="ordNext" ${ORD.page>=pages?"disabled":""}>Next</button></div></div>`;
 }
@@ -8045,7 +8050,7 @@ async function openOrderDetail(id, quiet){
   <div style="padding:18px 22px;max-height:72vh;overflow:auto">
     <div class="odet">
       <div><span>Order no.</span>${o.status==="refund" ? "–" : o.no ? "#" + esc(o.no) : "—"}</div>
-      <div><span>Invoice</span>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : (o.channel!=="pos" && ["pending","draft"].includes(o.status) ? '<span class="note">From the POS when accepted</span>' : "—")}</div>
+      <div><span>Check Number</span>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : (o.channel!=="pos" && ["pending","draft"].includes(o.status) ? '<span class="note">From the POS when accepted</span>' : "—")}</div>
       <div><span>Brand</span>${esc(brandName(o.brandId) || "—")}</div>
       <div><span>Branch</span>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>
       <div><span>Sales channel</span>${esc(CH_LBL[o.channel] || cap(o.channel))}</div>
@@ -8108,7 +8113,7 @@ async function exportOrders(){
   const { data, error } = await ordQuery("ref,no,invoice_no,return_no,brand_id,created_at,branch_id,channel,source,type,table_no,status,customer_name,phone,address,subtotal,discount,delivery_fee,total,payment,agent,items", {}, true).order("created_at", { ascending:false }).range(0, 4999);
   if(error) return toast("Export failed: " + error.message);
   const q = v => { v = v==null ? "" : String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
-  const head = ["Reference","Order","Invoice","Brand","Date","Branch","Sales channel","Order source","Order type","Table","Status","Customer","Phone","Address","Items","Subtotal","Discount","Delivery fee","Total","Payment Type","User/Device"];
+  const head = ["Reference","Order","Check Number","Brand","Date","Branch","Sales channel","Order source","Order type","Table","Status","Customer","Phone","Address","Items","Subtotal","Discount","Delivery fee","Total","Payment Type","User/Device"];
   const rows = data.map(r => [r.ref, r.status==="refund" ? "" : r.no, r.status==="refund" ? ordRef(r) : r.invoice_no ? invNo(r.invoice_no) : "", brandName(r.brand_id), new Date(r.created_at).toLocaleString("en-GB"), branches.find(x=>x.id===r.branch_id)?.name||"", CH_LBL[r.channel]||r.channel, r.source && r.source.toUpperCase()!=="POS" ? r.source : "", ordTypeLbl(r.type), r.table_no, ORD_ST[r.status]||r.status, r.customer_name, r.phone, r.address,
     (Array.isArray(r.items)?r.items:[]).map(i=>`${+i.qty||1}x ${i.name}${i.mods?" ("+i.mods+")":""}`).join("; "), r.subtotal, r.discount, r.delivery_fee, r.total, r.payment?.method, r.agent]);
   const blob = new Blob(["\ufeff" + [head, ...rows].map(l=>l.map(q).join(",")).join("\n")], { type:"text/csv;charset=utf-8" });
@@ -8399,7 +8404,7 @@ function viewCustomer(){
   done.forEach(o => { brs[o.branch_id] = (brs[o.branch_id]||0) + 1; (o.items||[]).forEach(i => { if(i.voided) return; const k = i.name || "—"; prod[k] = (prod[k]||0) + (+i.qty||1); }); });
   const spent = done.reduce((s,o)=>s+(+o.total||0),0), disc = done.reduce((s,o)=>s+cusNum(o.discount),0), fb = cusTop(brs);
   const dtf = t => t ? new Date(t).dmy() : "—";
-  const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>` : '<p class="note brempty">No data to display!</p>';
+  const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>` : '<p class="note brempty">No data to display</p>';
   const zn = id => (S.zones||[]).find(z => z.id===id)?.name;
   const used = []; { const ak = v => String(v||"").trim().replace(/^\[.*?\]\s*/, "").toLowerCase().replace(/[:·,]/g, " ").replace(/\s+/g, " ").trim();   /* the same place, whatever its label: an order address already saved isn't offered again */
     const seen = new Set(c.addresses.map(a => ak(a.address))); orders.forEach(o => { const v = String(o.address||"").trim(), k = v && ak(v); if(v && !seen.has(k)){ seen.add(k); used.push(v); } }); } c.__used = used;
@@ -8432,7 +8437,7 @@ function viewCustomer(){
         : '<p class="note brempty">Here you can register debit payments and see all credit and debit payments made by this customer.</p>'}</div>` : ""}
     </div>
     <div class="cusec" data-cs="tags">
-    <div class="card brcard"><div class="brch"><h3>Tags</h3><span class="sp"></span><button class="btn sm" id="cuTagBtn">Add</button></div>${c.tags.length ? `<div>${c.tags.map((t,i)=>`<span class="tag cc">${esc(t)} <a href="#customers" class="lnk" data-cdtag="${i}" aria-label="Remove tag" style="text-decoration:none">×</a></span>`).join(" ")}</div>` : '<p class="note brempty">No data to display!</p>'}</div>
+    <div class="card brcard"><div class="brch"><h3>Tags</h3><span class="sp"></span><button class="btn sm" id="cuTagBtn">Add</button></div>${c.tags.length ? `<div>${c.tags.map((t,i)=>`<span class="tag cc">${esc(t)} <a href="#customers" class="lnk" data-cdtag="${i}" aria-label="Remove tag" style="text-decoration:none">×</a></span>`).join(" ")}</div>` : '<p class="note brempty">No data to display</p>'}</div>
     </div>
     <div class="cusec" data-cs="addresses">
     <div class="card brcard"><div class="brch"><h3>Addresses</h3><span class="sp"></span><button class="btn sm" id="cuAddrBtn">Add</button></div>${tbl(["Name","Description","Delivery Zone","Created",""],
@@ -8440,8 +8445,8 @@ function viewCustomer(){
       .concat(used.map((v,i) => `<tr><td>${esc(addrSplit(v).label || "—")}</td><td>${desc(v)} <span class="tag">from orders</span></td><td>—</td><td>—</td><td class="num"><a href="#customers" class="lnk" data-csaddr="${i}">Save</a></td></tr>`)))}</div>
     </div>
     <div class="cusec" data-cs="orders">
-    <div class="card brcard otbl"><div class="brch"><h3>Orders</h3></div>${tbl(["Reference #","Invoice #","Order #","Business date","Branch","Sales channel","Order type","Order source","Payment Type","Status",`<span class="num">Total</span>`],
-      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(CH_LBL[o.channel]||cap(o.channel))}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div></div></div></div>`;
+    <div class="card brcard otbl"><div class="brch"><h3>Orders</h3></div>${tbl(["Reference","Check Number","Order","Business date","Branch","Order type","Order source","Payment Type","Status",`<span class="num">Total</span>`],
+      orders.slice(0, 100).map(o=>`<tr class="clk" data-coid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoice_no ? esc(invNo(o.invoice_no)) : '<span class="note" title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td><td>${o.created_at ? new Date(bizDate(o.created_at, o.branch_id) + "T12:00:00").dmy() : "—"}</td><td>${esc(branchName(o.branch_id) || "—")}</td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table_no ? `<div class="note">${esc(/^\d+$/.test(String(o.table_no).trim()) ? "Table " + String(o.table_no).trim() : o.table_no)}</div>` : ""}</td><td>${esc(srcOf(o) || "-")}</td><td>${esc(o.payment?.method || "-")}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td><td class="num">${money(+o.total||0)}</td></tr>`))}</div></div></div></div>`;
 }
 // save a change made on the customer page straight away
 async function cusPatch(patch, msg){
@@ -8676,7 +8681,7 @@ function ccOhPop(id){
     <div class="ccadlist"><div class="ohgrid">${((t, m, f) => f ? ok.filter(o => m(o, f)).map(t).join("") : [["closed","Done"],["void","Void"],["refund","Refund"],["declined","Declined"]].map(([k, l]) => { const g = ok.filter(o => m(o, k)); return g.length ? `<div class="ohgh">${l}<span>${g.length}</span></div>` + g.map(t).join("") : ""; }).join(""))(o => `<button type="button" class="ohtile" data-ccohopen="${esc(o.id)}"><b>${esc(o.ref || num(o))}</b><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span>${o.type==="delivery" && o.address ? `<small class="oha">${esc(o.address)}</small>` : ""}<small>Created ${d(o.created_at, true)}</small>${o.updated_at && o.updated_at!==o.created_at ? `<small>Modified ${d(o.updated_at, true)}</small>` : ""}<em>${usd(+o.total||0)}</em><small>${[brandName(o.brand_id), branchName(o.branch_id)].filter(x => x && x!=="—").map(esc).join(" / ")}</small><small>${[ordTypeLbl(o.type), srcOf(o), o.agent].filter(Boolean).map(esc).join(" / ")}</small></button>`, (o, f) => f==="refund" ? ["refund","returned"].includes(o.status) : o.status===f, window.__ccOhF || "") || `<div class="ohnone">No orders</div>`}</div></div></div>`; ohEqual(p); return; }
   const it = (det.items||[]).filter(i => !i.voided), kv = (l, v) => v ? `<div class="ohrow"><span>${l}</span><b>${esc(v)}</b></div>` : "", a = det.address ? addrSplit(det.address) : null;
   p.innerHTML = `<div class="ccadbox"><div class="ccadh"><button type="button" class="adback" data-ccohopen="" aria-label="Back">‹</button><h3>${esc(det.ref || (det.no ? "#" + det.no : num(det)))}</h3><span class="spill s-${det.status}">${ORD_ST[det.status]||det.status}</span><button type="button" class="x" data-ccohx aria-label="Close">×</button></div>
-    <div class="ccadlist"><div class="ohkv">${kv("Invoice number", det.invoice_no ? invNo(det.invoice_no) : "")}${kv("Brand", brandName(det.brand_id))}${kv("Branch", branchName(det.branch_id))}${kv("Order type", ordTypeLbl(det.type))}${kv("Order source", srcOf(det))}${kv("Date", d(det.created_at, true))}</div>
+    <div class="ccadlist"><div class="ohkv">${kv("Check Number", det.invoice_no ? invNo(det.invoice_no) : "")}${kv("Brand", brandName(det.brand_id))}${kv("Branch", branchName(det.branch_id))}${kv("Order type", ordTypeLbl(det.type))}${kv("Order source", srcOf(det))}${kv("Date", d(det.created_at, true))}</div>
       ${a && det.type==="delivery" ? `<div class="ohkv">${kv("Address", [a.label, a.street, a.building && "Bldg " + a.building, a.floor && "Floor " + a.floor, a.door, a.extra].filter(Boolean).join(" · ") || det.address)}</div>` : ""}
       <div class="podi">${it.map(i => `<div><span class="q">${+i.qty||1}×</span><span class="n">${esc(i.name)}${modLines(i).length ? `<small>${modLines(i).map(esc).join(", ")}</small>` : ""}</span><b>${usd((+i.price||0)*(+i.qty||1))}</b></div>`).join("") || '<p class="note">No items</p>'}</div>
       <div class="ohkv">${+det.discount ? kv("Discount", "−" + usd(+det.discount)) : ""}${(det.charges||[]).filter(c => +c.amount).map(c => kv(c.name, usd(+c.amount))).join("")}${+det.delivery_fee ? kv("Delivery fee", usd(+det.delivery_fee)) : ""}</div>
@@ -8917,7 +8922,7 @@ const BS_TABS = [
     {k:"showCheckNo",l:"Show Check Number",t:"chk",n:"Check this to show the check number in the receipts."},
     {k:"hideFreeMods",l:"Hide Free Modifier Options",t:"chk",n:"Check this to hide modifier options with zero price in the receipts."},
     {k:"phoneOnPickup",l:"Print customer phone number in pickup orders",t:"chk",n:"Enabling this will print the customer phone number on the receipt when the order type is pickup"},
-    {k:"rcptInvoice",l:"Show Invoice Number",t:"chk",n:"Show or hide the invoice number (INV-…) on the receipts."},
+    {k:"rcptInvoice",l:"Show Check Number",t:"chk",n:"Show or hide the check number (INV-…) on the receipts."},
     {k:"rcptCustomer",l:"Show Customer",t:"chk",n:"Print the customer's name (and phone) on the receipts."},
     {k:"rcptTax",l:"Show Tax",t:"chk",n:"Print the tax line on the receipts."},
     {k:"rcptSource",l:"Show Order Source",t:"chk",n:"Print the order source (Toters, Phone…) on the receipts."}]],
@@ -10545,7 +10550,7 @@ function viewProductionList(route, K, all, list){
     ${docFltBtn(route, K)}</div>`;
   h += rows.length ? `<table><thead><tr><th>Reference</th><th>Destination</th><th>Type</th><th>Status</th><th>Business Date</th><th>Created</th></tr></thead><tbody>${rows.map(x => `<tr class="click" data-docopen="${route}:${esc(x.d.id)}${x.v ? ":" + x.v : ""}">
       <td>${x.ref}</td><td>${esc(locName(x.d.locationId))}</td><td>${x.type}</td><td>${x.st}</td><td>${x.bd}</td><td>${fmtDate(x.at)}</td></tr>`).join("")}</tbody></table>`
-    : `<div class="empty">${all.length ? "Nothing here." : `No ${K.plural.toLowerCase()} yet.`}</div>`;
+    : `<div class="empty">${all.length ? youDontHave(tabs, tab, K.plural.toLowerCase()) : `No ${K.plural.toLowerCase()} yet.`}</div>`;
   return h + `</div>`;
 }
 // Transfers (Foodics): each transfer is a Transfer Sending (TRS-) at the source and, once sent, a Transfer Receiving (TRR-) at the destination
@@ -10568,7 +10573,7 @@ function viewTransferList(route, K, all, list){
     ${docFltBtn(route, K)}</div>`;
   h += rows.length ? `<table><thead><tr><th>Reference</th><th>Source</th><th>Destination</th><th>TO Reference</th><th>Type</th><th>Status</th><th>Business Date</th><th>Receiving Due Date</th><th>Created</th></tr></thead><tbody>${rows.map(x => `<tr class="click" data-docopen="${route}:${esc(x.d.id)}">
       <td>${x.ref}</td><td>${esc(locName(x.d.locationId))}</td><td>${esc(locName(x.d.destId))}</td><td>${toRef(x.d)}</td><td>${x.type}</td><td>${esc(x.st[1])}</td><td>${x.bdate}</td><td>${x.d.deliveryAt ? fmtD(String(x.d.deliveryAt).slice(0,10)) : "—"}</td><td>${fmtDate(x.d.createdAt)}</td></tr>`).join("")}</tbody></table>`
-    : `<div class="empty">${all.length ? "Nothing here." : `No ${K.plural.toLowerCase()} yet.`}</div>`;
+    : `<div class="empty">${all.length ? youDontHave(tabs, tab, K.plural.toLowerCase()) : `No ${K.plural.toLowerCase()} yet.`}</div>`;
   return h + `</div>`;
 }
 function viewFlowList(route, K, tabs, all, list){
@@ -10588,7 +10593,7 @@ function viewFlowList(route, K, tabs, all, list){
     <div class="card tbl"><div class="ttop"><div class="ttabs">${tabs.map(t=>`<a href="#${route}" data-doctab="${route}:${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div><div class="sp"></div>
     ${docFltBtn(route, K)}</div>`;
   h += shown.length ? `<table><thead><tr>${cols.map(c=>`<th class="${c[2]||""}">${c[0]}</th>`).join("")}</tr></thead><tbody>${shown.map(d=>`<tr class="click" data-docopen="${route}:${esc(d.id)}">${cols.map(c=>`<td class="${c[2]||""}">${c[1](d)}</td>`).join("")}</tr>`).join("")}</tbody></table>`
-    : `<div class="empty">${all.length ? "Nothing here." : `No ${K.plural.toLowerCase()} yet.`}</div>`;
+    : `<div class="empty">${all.length ? youDontHave(tabs, tab, K.plural.toLowerCase()) : `No ${K.plural.toLowerCase()} yet.`}</div>`;
   return h + `</div>`;
 }
 function flowInfo(d, K, info){

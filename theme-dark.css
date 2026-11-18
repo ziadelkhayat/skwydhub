@@ -162,7 +162,6 @@ html[data-theme=dark] body .ttabs.rqtabs a.on{color:var(--accent,#96abe8)!import
 html[data-theme=dark] .schg th:first-child, html[data-theme=dark] .schg td:first-child{background:var(--card,#101420)}
 html[data-theme=dark] .schg thead th{background:var(--bg2,#161621)}
 html[data-theme=dark] .schg td.cell:hover:empty::after, html[data-theme=dark] .schg td.cell .add{color:#96abe8}
-html[data-theme=dark] .schg td.cell.over{background:rgba(95,104,63,.25)}
 html[data-theme=dark] .shc.draft{background:#161924;color:#96abe8}
 html[data-theme=dark] .schg tr.open td.emp b{color:#f5b17e}
 html[data-theme=dark] .schleg i.d{background:#161924}
@@ -675,7 +674,7 @@ html[data-theme=dark] body .sel, html[data-theme=dark] body input[type=text], ht
 html[data-theme=dark] body .card{background:#101420}
 html[data-theme=dark] body .kpi{background:#101420}
 html[data-theme=dark] body .tbl table tbody tr:hover{background:#151722}
-html[data-theme=dark] body .tag.on{background:#292e1c!important;color:#e3f9b0!important}
+html[data-theme=dark] body .tag.on{background:#161924!important;color:#96abe8!important}
 html[data-theme=dark] body .modal footer{border-top:1px solid #232c4b}
 html[data-theme=dark] body .app aside.side .skhub{border-color:#282d3e!important}
 html[data-theme=dark] body .app aside.side nav .lbl{color:#8992af!important}
@@ -701,7 +700,7 @@ html[data-theme=dark] body .modal.odrawer .card{background:#151722!important;bor
 html[data-theme=dark] body .modal.odrawer .card.tbl{background:#101420!important}
 html[data-theme=dark] body .spill.s-draft, html[data-theme=dark] body .spill.s-review{background:#1b1624!important;color:#ad86e9!important}
 html[data-theme=dark] body .spill.s-pending{background:#271e17!important;color:#f6b790!important}
-html[data-theme=dark] body .spill.s-active{background:#292e1c!important;color:#e3f9b0!important}
+html[data-theme=dark] body .spill.s-active{background:#161924!important;color:#96abe8!important}
 html[data-theme=dark] body .spill.s-closed{background:#1b1e24!important;color:#abb1c8!important}
 html[data-theme=dark] body .spill.s-declined, html[data-theme=dark] body .spill.s-void, html[data-theme=dark] body .spill.s-refund, html[data-theme=dark] body .spill.s-returned{background:#251717!important;color:#ee8981!important}
 html[data-theme=dark] .crsrch{background:#101420}
@@ -714,11 +713,8 @@ html[data-theme=dark] .pcimg{background:#171923}
 html[data-theme=dark] .pcs{color:#9aa0b5}
 html[data-theme=dark] .pcsel{background:#101420;box-shadow:0 1px 4px rgba(0,0,0,0.33)}
 html[data-theme=dark] .bkfloat{box-shadow:0 20px 50px rgba(0,0,0,0.6)}
-html[data-theme=dark] .bkfloat button.done{background:#5f683f;color:#c8d1f2}
 html[data-theme=dark] .bkfloat .ddmenu.up{background:#101420;box-shadow:0 20px 50px rgba(0,0,0,0.55)}
 html[data-theme=dark] .bkfloat .ddmenu.up button:hover{background:#161924}
-html[data-theme=dark] .cuav{background:#5f683f;color:#c8d1f2}
-html[data-theme=dark] body .app .cuacts .btn.lime{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
 html[data-theme=dark] body .app .culeft .card.odet > div{border-bottom:1px solid #232c4b}
 html[data-theme=dark] body .app .culeft .card.odet > div > span:first-child{color:#9aa0b5}
 html[data-theme=dark] body .app .curight .cstats > div{background:#101420;border:1px solid #272e4c}
@@ -732,7 +728,6 @@ html[data-theme=dark] .dlgico{background:#161924}
 html[data-theme=dark] body .modal .f > label, html[data-theme=dark] body .modal .f label:not(.chk){color:#c9d1ef!important}
 html[data-theme=dark] body .modal footer{background:#101420!important}
 html[data-theme=dark] body .app .schbar .wkn{background:#101420;border:1px solid #2a314d}
-html[data-theme=dark] .pubn{background:#5f683f;color:#c8d1f2}
 html[data-theme=dark] .schav{background:#161924}
 html[data-theme=dark] .schav.o{background:#1b1624;color:#ad86ea}
 html[data-theme=dark] body .app .schg th{background:#101420!important}
@@ -751,10 +746,8 @@ html[data-theme=dark] body .seg.tiles{background:#1b1d27!important}
 html[data-theme=dark] body .seg.tiles button{color:#abb1c8!important}
 html[data-theme=dark] body .seg.tiles button.on{background:#101420!important;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body #ccBox .ccx .cctools .cctool *{color:#c9d1ef!important}
-html[data-theme=dark] .phead.hero .htile{background:#5f683f;color:#c8d1f2}
 html[data-theme=dark] .phead.hero .htile svg{stroke:#c8d1f2!important;color:#c8d1f2!important}
-html[data-theme=dark] .hdot.on{background:#5f683f}
-html[data-theme=dark] body .app #view .phead.hero .btn.pri{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
+html[data-theme=dark] .hdot.on{box-shadow:0 0 0 3px rgba(0,0,0,0.44000000000000006)}
 html[data-theme=dark] body .app #view .phead.hero .btn.pri svg{stroke:#c8d1f2!important;color:#c8d1f2!important}
 html[data-theme=dark] .dvh .dvt span{color:#9aa0b5}
 html[data-theme=dark] .dvtypes button{border:1px solid #272e4c;background:#101420}
@@ -764,7 +757,7 @@ html[data-theme=dark] .dvtypes button span{color:#9aa0b5}
 html[data-theme=dark] .dvtypes button.on{background:#141722}
 html[data-theme=dark] .dvtypes button.on svg, html[data-theme=dark] .dvtypes button.on b{color:#96abe8}
 html[data-theme=dark] .dvrow{border:1px solid #272e4c}
-html[data-theme=dark] .dvri{background:#292e1c;color:#e3f9b0}
+html[data-theme=dark] .dvri{background:#161924;color:#96abe8}
 html[data-theme=dark] .dvrt b{color:#c9d1ef}
 html[data-theme=dark] .dvrt span{color:#9aa0b5}
 html[data-theme=dark] .sw i{background:#252832}
@@ -788,11 +781,10 @@ html[data-theme=dark] .dsteps b{color:#c9d1ef}
 html[data-theme=dark] body .app #view .card.dinfo > div > .note:first-child{color:#9aa0b5!important}
 html[data-theme=dark] body .app #view .card.dinfo > div > div:last-child{color:#c9d1ef}
 html[data-theme=dark] body .app #view .card h3, html[data-theme=dark] body .app #view .dzsec h3, html[data-theme=dark] body .app #view .brch h3{color:#c9d1ef}
+html[data-theme=dark] body .app #view .empty, html[data-theme=dark] body .app #view .brempty, html[data-theme=dark] body .app #view td .empty{background:#1a1c22!important;color:#c9d1ef!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .sidefoot .acctbtn{background:rgba(16,20,32,.06)!important}
 html[data-theme=dark] .sidefoot .acctbtn:hover{background:rgba(16,20,32,.12)!important}
-html[data-theme=dark] .plancard i em{background:#5f683f}
-html[data-theme=dark] .meav{background:#5f683f;color:#c8d1f2}
 html[data-theme=dark] .met span{color:#8992af}
 html[data-theme=dark] .gsearch{background:#171923;border:1px solid #272e4c;color:#9aa0b5}
 html[data-theme=dark] .gsearch kbd{background:#101420;border:1px solid #2a314d;color:#9aa0b5}
@@ -819,9 +811,7 @@ html[data-theme=dark] .ablbl span{color:#9aa0b5}
 html[data-theme=dark] .brow span{color:#9aa0b5}
 html[data-theme=dark] .brow > i{background:#191c25}
 html[data-theme=dark] .kmini > span:first-child{color:#9aa0b5}
-html[data-theme=dark] .dsh i{background:#5f683f}
 html[data-theme=dark] .dsl span span{color:#8992af}
-html[data-theme=dark] body .app .dshift .btn{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
 html[data-theme=dark] body .app aside.side{background:#1a1a22!important;color:#dcdcde!important}
 html[data-theme=dark] body .app aside.side .nav a, html[data-theme=dark] body .app aside.side .nav .grp > button, html[data-theme=dark] body .app aside.side nav.nav .sub a{color:#dcdcde!important}
 html[data-theme=dark] body .app aside.side .nav a svg, html[data-theme=dark] body .app aside.side .nav .grp > button svg, html[data-theme=dark] body .app aside.side .nav .ico{stroke:#dcdcde!important;color:#dcdcde!important}
@@ -842,6 +832,25 @@ html[data-theme=dark] .sidefoot .acctbtn, html[data-theme=dark] .sidefoot .acctb
 html[data-theme=dark] .sidefoot .acctbtn{background:#232327!important}
 html[data-theme=dark] .sidefoot .acctbtn:hover{background:#2a2a2e!important}
 html[data-theme=dark] .sidefoot .acctbtn svg{stroke:#dcdcde}
+html[data-theme=dark] body{color:#dcdcde}
+html[data-theme=dark] body h1, html[data-theme=dark] body .app #view h1, html[data-theme=dark] body .app .phead h1, html[data-theme=dark] body .content h1{color:#ededed}
+html[data-theme=dark] body .app #view h2, html[data-theme=dark] body .app #view h3, html[data-theme=dark] body .app #view h4, html[data-theme=dark] body .app #view .ct, html[data-theme=dark] body .app #view .card h3.ct, html[data-theme=dark] body .app #view .fsec, html[data-theme=dark] body .app #view .bizh, html[data-theme=dark] body .app #view .brch h3, html[data-theme=dark] body .app #view .brcard>.brch h3, html[data-theme=dark] body .app #view .secbox>.ttop>b, html[data-theme=dark] body .app #view .ttop>b:first-child, html[data-theme=dark] body .app #view .bsbody h3, html[data-theme=dark] body .app #view .dchart h3, html[data-theme=dark] body .app #view .dbr h3, html[data-theme=dark] body .app #view .dshift h3, html[data-theme=dark] body .app #view .dzsec h3, html[data-theme=dark] body .app #view .rsh h3, html[data-theme=dark] body .app #view .setup h3, html[data-theme=dark] body .app #view .udh h3, html[data-theme=dark] body .app #view .kbrh, html[data-theme=dark] body .app #view .mmtitle b, html[data-theme=dark] body .app #view .podh b, html[data-theme=dark] body .app #view .qth b, html[data-theme=dark] body .app #view .olbrh b, html[data-theme=dark] body .app #view .aph b, html[data-theme=dark] body .app #view .ccadh h3, html[data-theme=dark] body .app #view .cchead, html[data-theme=dark] body .app #view .ccothd, html[data-theme=dark] body .app #view .tchaddh b, html[data-theme=dark] body .content h2, html[data-theme=dark] body .content h3{color:#ededed}
+html[data-theme=dark] body table thead th, html[data-theme=dark] body .app #view th, html[data-theme=dark] body .content th, html[data-theme=dark] body .modal th{color:#dcdcde!important}
+html[data-theme=dark] body .app #view label, html[data-theme=dark] body .app #view .f label, html[data-theme=dark] body .modal label, html[data-theme=dark] body .modal .f label, html[data-theme=dark] body .dlg label, html[data-theme=dark] body .fld label{color:#dcdcde}
+html[data-theme=dark] body .app #view .note, html[data-theme=dark] body .modal .note, html[data-theme=dark] body .content .note{color:#b5b5b7!important}
+html[data-theme=dark] body .app #view .igrid>div>div:last-child{color:#dcdcde!important}
+html[data-theme=dark] body .app aside.side, html[data-theme=dark] body .app aside.side.side{background:#202025!important}
+html[data-theme=dark] body .app aside.side nav.nav .grp.open{background:#26262a!important}
+html[data-theme=dark] body .app aside.side nav.nav .grp > button:hover, html[data-theme=dark] body .app aside.side nav.nav > a:not(.on):hover, html[data-theme=dark] body .app aside.side nav.nav .sub a:not(.on):hover, html[data-theme=dark] body .app aside.side .nav a:not(.on):hover{background:#26262a!important}
+html[data-theme=dark] body .app aside.side nav.nav > a.on, html[data-theme=dark] body .app aside.side nav.nav .sub a.on, html[data-theme=dark] body .app aside.side .nav a.on, html[data-theme=dark] body .app aside.side .nav a.on:hover{background:#242c47!important}
+html[data-theme=dark] .sidefoot .acctbtn, html[data-theme=dark] .hsfoot{background:#26262a!important}
+html[data-theme=dark] body .app .ptabs, html[data-theme=dark] body .app .tabs.dtabs, html[data-theme=dark] body .app .cutabs, html[data-theme=dark] body .app .olseg{background:#202025!important}
+html[data-theme=dark] body .app .ptabs a, html[data-theme=dark] body .app .ptabs a svg{color:#ccccce!important}
+html[data-theme=dark] body .app .ptabs a.on, html[data-theme=dark] body .app .ptabs a.on svg{color:#ededed!important}
+html[data-theme=dark] body .app aside.side .brand.skb .skrole, html[data-theme=dark] body .app aside.side .brand.skb .skadm{color:#afafb3!important}
+html[data-theme=dark] body[data-route="account"] .app #view > .tabs{background:#202025!important}
+html[data-theme=dark] body[data-route="account"] .app #view > .tabs a{color:#ccccce!important}
+html[data-theme=dark] body[data-route="account"] .app #view > .tabs a.on{background:#101420!important;color:#ededed!important;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -865,11 +874,8 @@ html[data-theme=dark] body .mm>*:first-child{border-right:.8px solid #353542!imp
 html[data-theme=dark] body .scrim .modal header::before{background:#252832}
 html[data-theme=dark] .tabbar{background:rgba(16,20,32,.94)}
 html[data-theme=dark] .tabbar a{color:#9aa0b5}
-html[data-theme=dark] body .app .top .avatar{background:#5f683f!important;color:#c8d1f2!important;border-color:#6b7c35!important}
-html[data-theme=dark] .gsearch:focus-within{border-color:#6b7c35}
+html[data-theme=dark] .gsearch:focus-within{box-shadow:0 0 0 4px rgba(0,0,0,0.33)}
 html[data-theme=dark] .tabbar{box-shadow:0 18px 40px rgba(0,0,0,0.6)}
-html[data-theme=dark] .tabbar a.on .tbi{background:#5f683f!important;color:#c8d1f2}
-html[data-theme=dark] body[data-route="dashboard"] .dhead .btn.pri{background:#5f683f!important;border-color:#6b7c35!important;color:#c8d1f2!important}
 }
 @media (max-width:1000px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 30px 80px rgba(0,0,0,0.6)!important}
@@ -895,21 +901,29 @@ html[data-theme=dark] body #view .tscroll thead th, html[data-theme=dark] body #
 @media (hover:none),(max-width:1180px){
 html[data-theme=dark] body .top{background:#101420!important}
 }
-html[data-theme=dark] [style*="background:#C6F432"]{background:#5f683f!important}
+@media (max-width:1180px){
+html[data-theme=dark] body .app aside.side.side .nav .grp:has(a.on) > button{color:#dcdcde!important}
+}
+@media (max-width:899px){
+html[data-theme=dark] body.navopen .app aside.side.side{box-shadow:0 20px 60px rgba(0,0,0,0.55)!important}
+html[data-theme=dark] body .app .main .top .menuBtn{background:#1a1a22}
+}
 html[data-theme=dark] [style*="background:#C7C7CC"]{background:#242c47!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#D8D8DE"]{background:#2a2a2e!important}
+html[data-theme=dark] [style*="background:#DFDFE5"]{background:#26262a!important}
 html[data-theme=dark] [style*="background:#E5E5EA"]{background:#232327!important}
 html[data-theme=dark] [style*="background:#E6E8F2"]{background:#1d1f29!important}
+html[data-theme=dark] [style*="background:#E9E9EE"]{background:#202025!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
 html[data-theme=dark] [style*="background:#ECEEF6"]{background:#1a1c26!important}
 html[data-theme=dark] [style*="background:#EEF0F5"]{background:#1b1e24!important}
 html[data-theme=dark] [style*="background:#EEF0F7"]{background:#191c25!important}
 html[data-theme=dark] [style*="background:#EEF2FF"]{background:#161924!important}
 html[data-theme=dark] [style*="background:#F2F2F7"]{background:#1a1a22!important}
+html[data-theme=dark] [style*="background:#F2F3F7"]{background:#1a1c22!important}
 html[data-theme=dark] [style*="background:#F2F4F8"]{background:#191c23!important}
-html[data-theme=dark] [style*="background:#F2FBD6"]{background:#292e1c!important}
 html[data-theme=dark] [style*="background:#F3EDFF"]{background:#1b1624!important}
 html[data-theme=dark] [style*="background:#F4F5FA"]{background:#171923!important}
 html[data-theme=dark] [style*="background:#F5F7FF"]{background:#141722!important}
@@ -1040,7 +1054,6 @@ html[data-theme=dark] [style*="background:#fff7e6"]{background:#272217!important
 html[data-theme=dark] [style*="background:#fff7ed"]{background:#241e16!important}
 html[data-theme=dark] [style*="background:#fff8e6"]{background:#272217!important}
 html[data-theme=dark] [style*="background:#fffaf0"]{background:#231f15!important}
-html[data-theme=dark] [style*="border-color:#C6F432"]{border-color:#6b7c35!important}
 html[data-theme=dark] [style*="border-color:#C9CFF0"]{border-color:#262e58!important}
 html[data-theme=dark] [style*="border-color:#C9D2F0"]{border-color:#263158!important}
 html[data-theme=dark] [style*="border-color:#D6DCF0"]{border-color:#243055!important}
@@ -1104,7 +1117,7 @@ html[data-theme=dark] [style*="color:#22305F"]{color:#b0bce3!important}
 html[data-theme=dark] [style*="color:#2563eb"]{color:#7ca1f3!important}
 html[data-theme=dark] [style*="color:#2c5fb8"]{color:#8cace3!important}
 html[data-theme=dark] [style*="color:#374151"]{color:#bdc5d2!important}
-html[data-theme=dark] [style*="color:#3F5A00"]{color:#e3f9b0!important}
+html[data-theme=dark] [style*="color:#3A3A3C"]{color:#ccccce!important}
 html[data-theme=dark] [style*="color:#3a3650"]{color:#c1bed3!important}
 html[data-theme=dark] [style*="color:#3a3846"]{color:#c6c5d0!important}
 html[data-theme=dark] [style*="color:#3a3850"]{color:#c0bed2!important}
