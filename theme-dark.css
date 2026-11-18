@@ -785,6 +785,16 @@ html[data-theme=dark] body .app #view .empty, html[data-theme=dark] body .app #v
 html[data-theme=dark] body .bmdmx td{border-bottom:1px solid #293246}
 html[data-theme=dark] body .bmdmx .bmdhc .bmdct{color:#dcdcde}
 html[data-theme=dark] body .bmdmx .bmdgrow td{background:#181a20}
+html[data-theme=dark] body .toggle .trk, html[data-theme=dark] body .toggle.sm .trk, html[data-theme=dark] body .toggle.xs .trk{background:#2d3036!important}
+html[data-theme=dark] body .toggle .trk::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] body .toggle input:checked+.trk{background:#2c3347!important}
+html[data-theme=dark] body .toggle input:checked+.trk::after{box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id], html[data-theme=dark] body .f > label.chk > input[type=checkbox]{background:#2d3036!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id]::after, html[data-theme=dark] body .f > label.chk > input[type=checkbox]::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id]:checked, html[data-theme=dark] body .f > label.chk > input[type=checkbox]:checked{background:#2c3347!important}
+html[data-theme=dark] body .sw i{background:#2d3036!important}
+html[data-theme=dark] body .sw i::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] body .sw input:checked + i{background:#2c3347!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .sidefoot .acctbtn{background:rgba(16,20,32,.06)!important}
 html[data-theme=dark] .sidefoot .acctbtn:hover{background:rgba(16,20,32,.12)!important}
@@ -917,7 +927,9 @@ html[data-theme=dark] body .app aside.side.side .nav .grp:has(a.on) > button{col
 html[data-theme=dark] body.navopen .app aside.side.side{box-shadow:0 20px 60px rgba(0,0,0,0.55)!important}
 html[data-theme=dark] body .app .main .top .menuBtn{background:#1a1a22}
 }
+html[data-theme=dark] [style*="background:#A9B6DC"]{background:#2c3347!important}
 html[data-theme=dark] [style*="background:#C7C7CC"]{background:#242c47!important}
+html[data-theme=dark] [style*="background:#C9CED9"]{background:#2d3036!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#D8D8DE"]{background:#2a2a2e!important}

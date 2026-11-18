@@ -2223,12 +2223,24 @@ html body .bmdmx td.c,html body .bmdmx td.num{text-align:left!important;white-sp
 html body .bmdmx .bmdcell{display:inline-flex!important;align-items:center;gap:8px}
 html body .bmdmx .bmdhc .bmdct{font-size:13px!important;font-weight:600!important;color:#1C1C1E;margin:0!important;display:inline!important}
 html body .bmdmx .toggle,html body .bmdmx .toggle.xs,html body .bmdmx .toggle.sm{transform:none!important}
-html body .bmdmx .toggle .trk{width:32px!important;height:18px!important;transform:none!important}
-html body .bmdmx .toggle .trk::after{left:2px!important;top:2px!important;width:14px!important;height:14px!important}
-html body .bmdmx .toggle input:checked+.trk::after{left:16px!important}
 html body .bmdmx .bmdin{width:64px!important;height:34px!important;min-height:34px!important;padding:0 8px!important;font-size:14px!important;text-align:right;border-radius:8px!important}
 html body .bmdmx td:first-child{min-width:240px}
 html body .bmdmx .bmdgrow td{background:#F6F7FA}
+/* ===== switches: Android style everywhere (thin track, bigger knob; navy knob on a light navy track when on) ===== */
+html body .toggle,html body .toggle.sm,html body .toggle.xs{transform:none!important}
+html body .toggle .trk,html body .toggle.sm .trk,html body .toggle.xs .trk{width:36px!important;height:14px!important;border-radius:7px!important;margin:3px 2px!important;background:#C9CED9!important;transform:none!important;overflow:visible!important;box-shadow:none!important;display:inline-block}
+html body .toggle .trk::after{top:-3px!important;left:-2px!important;width:20px!important;height:20px!important;border-radius:50%!important;background:#FFFFFF!important;box-shadow:0 1px 3px rgba(14,21,48,.35)!important;transition:left .18s,background .18s!important}
+html body .toggle input:checked+.trk{background:#A9B6DC!important}
+html body .toggle input:checked+.trk::after{left:18px!important;background:#1E3A8A!important;box-shadow:0 1px 3px rgba(30,58,138,.35)!important}
+html body label.chk > input[type=checkbox][id],html body .f > label.chk > input[type=checkbox]{width:36px!important;min-width:36px!important;height:14px!important;border-radius:7px!important;margin:3px 8px 3px 2px!important;background:#C9CED9!important;box-shadow:none!important;overflow:visible!important;position:relative}
+html body label.chk > input[type=checkbox][id]::after,html body .f > label.chk > input[type=checkbox]::after{top:-3px!important;left:-2px!important;width:20px!important;height:20px!important;background:#FFFFFF!important;box-shadow:0 1px 3px rgba(14,21,48,.35)!important;transform:none!important;transition:left .18s,background .18s!important}
+html body label.chk > input[type=checkbox][id]:checked,html body .f > label.chk > input[type=checkbox]:checked{background:#A9B6DC!important}
+html body label.chk > input[type=checkbox][id]:checked::after,html body .f > label.chk > input[type=checkbox]:checked::after{left:18px!important;transform:none!important;background:#1E3A8A!important}
+html body .sw input{width:40px!important;height:20px!important}
+html body .sw i{width:36px!important;height:14px!important;border-radius:7px!important;margin:3px 2px!important;background:#C9CED9!important;overflow:visible!important}
+html body .sw i::after{top:-3px!important;left:-2px!important;width:20px!important;height:20px!important;background:#FFFFFF!important;box-shadow:0 1px 3px rgba(14,21,48,.35)!important;transform:none!important;transition:left .18s,background .18s!important}
+html body .sw input:checked + i{background:#A9B6DC!important}
+html body .sw input:checked + i::after{left:18px!important;transform:none!important;background:#1E3A8A!important}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
