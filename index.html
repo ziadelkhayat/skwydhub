@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1004-1795025479">
+<meta name="skwyd-build" content="1005-1795025546">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2453,6 +2453,15 @@ html body .app #view table td,html body .app #view .tbl table td,html body .app 
 html body .app #view table th{padding-top:10px!important;padding-bottom:10px!important;font-size:14px!important;font-weight:600!important}
 html body .app #view table td .pthumb,html body .app #view table td img.pthumb{width:30px!important;height:30px!important;border-radius:8px!important}
 html body .app #view table td b{font-weight:400}
+/* values and list names are regular weight everywhere (no bold): detail values, tree rows (brands, branches, sales channels), cards, lists; titles keep their own weight */
+html body .app #view b,html body .app #view strong,html body .modal .body b:not(.keep){font-weight:500!important}
+html body .app #view .igrid>div>div:last-child,html body .app #view .card.odet>div{font-size:15px!important;font-weight:400!important;color:#1C1C1E!important}
+html body .app #view .igrid>div>div:last-child b{font-weight:400!important}
+html body .app #view .sctrow b,html body .app #view .sctrow span:not(.note):not(.sctci),html body .app #view .sctadd span{font-size:15px!important;font-weight:400!important}
+html body .app #view .sctrow .note{font-size:13px!important}
+html body .app #view .sctadd span:last-child{color:#1E3A8A!important}
+html body .app #view .drow b,html body .app #view .rcard b,html body .app #view .rlcard b,html body .app #view .kbcard b,html body .app #view .prcard b,html body .app #view .tchg b,html body .app #view .ocard b,html body .app #view .brow b{font-weight:500!important}
+html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .kpi .v,html body .app #view .ktile .kv{font-weight:700!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
