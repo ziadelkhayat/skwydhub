@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="982-1795008440">
+<meta name="skwyd-build" content="983-1795011927">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2230,6 +2230,10 @@ html body .app aside.side .abrand span{font-size:11.5px;color:#7E88A8}
 .cocard .cot{display:flex;flex-direction:column;flex:1;min-width:0}.cocard .cot b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cocard .cot span{font-size:11.5px;color:#8C96B8}
 .cocard svg{width:16px;height:16px;color:#8C96B8;flex:none}
 .sidefoot{margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:12px}
+body.notop .main .top{display:none!important}
+.sidefoot .acct{position:relative}.sidefoot .acctbtn{width:100%;color:#fff!important;border-radius:12px!important;padding:8px 10px!important;background:rgba(255,255,255,.06)!important}.sidefoot .acctbtn:hover{background:rgba(255,255,255,.12)!important}
+.sidefoot .acctbtn #who{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff!important}.sidefoot .acctbtn svg{stroke:#fff}
+.sidefoot .acctmenu{top:auto!important;bottom:calc(100% + 8px)!important;left:0!important;right:auto!important;color:var(--ink)}
 .plancard{display:flex;flex-direction:column;gap:6px;background:#141E44;border-radius:16px;padding:14px;text-decoration:none}
 .plancard[hidden]{display:none}
 .plancard span{font-size:12px;color:#8C96B8}.plancard b{color:#FFFFFF;font-size:13.5px}
@@ -3887,6 +3891,10 @@ document.addEventListener("click", e => { const b = e.target.closest?.("[data-bm
 let lastRoute = HASH().slice(1) || "dashboard";
 // phone/tablet: slide-in menu
 $("#menuBtn").addEventListener("click", e => { e.stopPropagation(); document.body.classList.toggle("navopen"); });
+/* wide screens: no top bar; the account button sits at the bottom of the side menu */
+(function(){ const mq = matchMedia("(min-width:1181px)"), place = () => { const ac = document.querySelector(".acct"), sf = document.querySelector(".sidefoot"), top = document.querySelector(".main .top"); if(!ac || !sf || !top) return;
+  if(mq.matches){ if(ac.parentElement!==sf) sf.appendChild(ac); document.body.classList.add("notop"); } else { if(ac.parentElement!==top) top.appendChild(ac); document.body.classList.remove("notop"); } };
+  place(); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); })();
 { const ns = document.createElement("div"); ns.id = "navShade"; ns.setAttribute("aria-hidden","true"); document.body.appendChild(ns);
   ns.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); document.body.classList.remove("navopen"); }); }
 document.addEventListener("click", e => { if(document.body.classList.contains("navopen") && (!e.target.closest(".side") || e.target.closest(".side a"))) document.body.classList.remove("navopen"); });
@@ -5218,8 +5226,8 @@ document.addEventListener("click", e => {
     const ccUsers = [...new Set(S.users.filter(u => live(u) && !isAdminRow(u)).map(u => u.name).concat(state.fullName ? [state.fullName] : []))].sort((a,b)=>a.localeCompare(b));
     const sel = (k, l, opts, cur) => `<div class="f"><label for="ccf_${k}">${l}</label><select id="ccf_${k}" class="sel"><option value="">Any</option>${opts.map(([v, t]) => `<option value="${esc(v)}" ${cur===v?"selected":""}>${esc(t)}</option>`).join("")}</select></div>`;
     box.innerHTML = `<header><h2>Filter</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px">
+      ${sel("brand","Brand", brandList().map(b=>[b.id,b.name]), state.ccBrand||"")}${sel("branch","Branch", branches.map(b=>[b.id,b.name]), state.ccBranch==="all" ? "" : state.ccBranch||"")}
       <div class="f"><label for="ccf_date">Business Date</label><input id="ccf_date" class="sel" type="date" max="${esc(bizDate())}" value="${esc(state.ccDate || bizDate())}"></div>
-      ${brandList().length > 1 ? sel("brand","Brand", brandList().map(b=>[b.id,b.name]), state.ccBrand||"") : ""}${sel("branch","Branch", branches.map(b=>[b.id,b.name]), state.ccBranch==="all" ? "" : state.ccBranch||"")}
       ${sel("user","User", ccUsers.map(n=>[n,n]), state.ccAgent==="all" ? "" : state.ccAgent||"")}</div>
       <footer><button type="button" class="btn" id="ccfReset">Reset</button><span style="flex:1"></span><button type="button" class="btn pri" id="ccfApply">Apply</button></footer>`;
     $("#ccScrim").classList.add("show"); return; }
@@ -8137,7 +8145,7 @@ $("#view").addEventListener("click", e => {
 
 /* ---------- Customers (Foodics format): one record per phone, filled automatically from orders ---------- */
 const CUS = { sel:new Set(), filter:"all", q:"", sort:"last", page:1, per:50, rows:[], all:null, count:0, summary:null, loading:false, err:"", key:"", t:null, open:null, det:null, more:false, fopen:false, flt:{} };
-const CUS_TABS = [["all","All"],["blacklisted","Blacklisted"],["deleted","Deleted"]];
+const CUS_TABS = [["all","All"],["orders","Has Orders"],["negative","Has Negative Balance"],["blacklisted","Blacklisted"],["deleted","Deleted"]];
 document.addEventListener("click", e => {
   if(e.target.closest?.("#cusFApply")){ const f = {}; CUS_FLT.forEach(([k]) => { const v = $("#cfl_"+k)?.value?.trim(); if(v) f[k] = v; }); CUS.flt = f; CUS.page = 1; $("#ccScrim").classList.remove("show"); render(); return; }
   if(e.target.closest?.("#cusFClr")){ CUS.flt = {}; CUS.page = 1; $("#ccScrim").classList.remove("show"); render(); return; }
