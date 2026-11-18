@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1018-1795030607">
+<meta name="skwyd-build" content="1019-1795030730">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2568,6 +2568,12 @@ html body .app .bswrap .bsnav a{padding:9px 14px!important;border-radius:10px!im
 html body .app .bswrap .bsnav a:hover{background:rgba(255,255,255,.6)!important}
 html body .app .bswrap .bsnav a.on{background:#FFFFFF!important;color:#1C1C1E!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 @media(max-width:760px){html body .app .bswrap .bsnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
+/* ===== Button animation B (lift): rises 2px with a soft shadow on hover, settles on click ===== */
+html body .btn,html body .app #view .btn,html body .modal .btn,html body .dlg .btn,html body .scrim .btn{transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,.2,1),background .2s,color .2s,opacity .2s!important}
+@media (hover:hover){html body .btn:not(:disabled):not(.nochg):not(.dis):hover,html body .app #view .btn:not(:disabled):not(.nochg):not(.dis):hover,html body .modal .btn:not(:disabled):not(.nochg):hover,html body .scrim .btn:not(:disabled):not(.nochg):hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.18)!important}
+html body .btn.danger:not(:disabled):hover,html body .modal .btn.danger:not(:disabled):hover,html body .scrim .btn.danger:not(:disabled):hover{box-shadow:0 6px 16px rgba(180,35,24,.16)!important}}
+html body .btn:not(:disabled):active,html body .app #view .btn:not(:disabled):active,html body .modal .btn:not(:disabled):active,html body .scrim .btn:not(:disabled):active{transform:translateY(0)!important;box-shadow:none!important;transition-duration:.08s!important}
+@media (prefers-reduced-motion:reduce){html body .btn{transition:none!important;transform:none!important}}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
