@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="973-1795007358">
+<meta name="skwyd-build" content="974-1795007492">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3677,7 +3677,7 @@ function viewSubscription(){
     const pkg = s.complimentary ? "Complimentary" : s.state==="trial" || s.status==="trial" ? "Free Trial" : (s.cycle==="yearly" ? "Yearly" : "Monthly");
     h += `<h3 class="ct" style="margin:6px 0 10px">General Information</h3><div class="card sbinfo" style="margin-bottom:16px"><div class="sbig">
       <div><label>Account Package Type</label><div>${pkg}</div></div><div><label>Account Creation Date</label><div>${when}</div></div>
-      <div><label>Account Creation Email</label><div>${esc(co.email || "—")}</div></div></div></div>`; }
+      <div><label>Account Email</label><div>${esc(co.email || "—")}</div></div></div></div>`; }
   const mods = (s.products||[]).filter(p => !p.required && p.unit!=="device" && p.unit!=="warehouse");
   h += `<div class="card" style="margin-bottom:16px"><h3 class="ct" style="margin-bottom:12px">Modules</h3><div class="sbmods">${mods.map(p => { const on = s.complimentary || (s.modules||[]).includes(p.id);
     return `<div class="${on?"":"off"}"><span>${esc(p.name)}</span>${on ? `<span class="tag on">Included</span>` : `<span class="tag">Not Included</span>`}</div>`; }).join("")}</div></div>`;
