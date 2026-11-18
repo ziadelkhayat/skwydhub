@@ -868,6 +868,10 @@ html[data-theme=dark] body[data-route="call-center"] .app .bhead{background:#101
 html[data-theme=dark] body .app .bempty{background:#1c1c23!important;color:#dcdcde!important}
 html[data-theme=dark] body .app #view .card.otbl.obody table td:nth-child(n){color:#dcdcde}
 html[data-theme=dark] body .app #view .card.tbl table td:nth-child(n){color:#dcdcde}
+html[data-theme=dark] body .app #view table td .pthumb, html[data-theme=dark] body .app #view table td img.pthumb{background:#1a1a22}
+html[data-theme=dark] body .app #view table td, html[data-theme=dark] body .app #view table tbody tr>td, html[data-theme=dark] body .app #view .card.tbl table td:nth-child(n){border-bottom:1px solid #383844!important}
+html[data-theme=dark] body .app #view table thead th, html[data-theme=dark] body .app #view table th{border-bottom:1px solid #3c3c47!important}
+html[data-theme=dark] body .app #view .drow, html[data-theme=dark] body .app #view .brow{border-bottom-color:#383844!important}
 html[data-theme=dark] body .app #view .igrid>div>div:last-child, html[data-theme=dark] body .app #view .card.odet>div{color:#dcdcde!important}
 html[data-theme=dark] body .app #view .sctadd span:last-child{color:#96abe8!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}

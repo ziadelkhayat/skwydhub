@@ -2522,6 +2522,9 @@ html body .toast,html body #toast{transform:translate(-50%,-100%)!important;top:
 html body .toast.show,html body #toast.show{transform:translate(-50%,0)!important;opacity:1}
 @media (max-width:899px){html body .app aside.side,html body .app aside.side.side{transition:transform .3s var(--fd)!important}html body #navShade{transition:opacity .3s var(--fd)!important}}
 @media (prefers-reduced-motion:reduce){html body *,html body *::before,html body *::after{animation:none!important;transition:none!important}}
+/* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
+html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
+html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
