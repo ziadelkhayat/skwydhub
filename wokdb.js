@@ -102,9 +102,9 @@
 
   const listeners = {};          // col -> [cb]
   const timers = {};
-  function emit(col, rows, fromCache){
+  function emit(col, rows, fromCache, onlyNew){
     const snap = { docs: rows.map(r => { const { id, ...d } = r; return { id, data: () => ({ ...d }) }; }), metadata:{ fromCache: !!fromCache, hasPendingWrites: outbox.some(o => o.col === col) } };
-    (listeners[col]||[]).forEach(l => l.next(snap));
+    (listeners[col]||[]).forEach(l => { if(onlyNew && l.seen) return; l.seen = true; l.next(snap); });
   }
   const DEVCOLS = { products: "id,name,name_ar,sku,category_id,price,tax_group,description,image_url,channels,branch_ids,active,deleted,created_at,brand_id,pricing_method,selling_method,calories,custom_prices,inactive_branch_ids,out_of_stock_branch_ids,modifiers,sort,variant_set_id,variants",
     modifiers: "id,name,name_ar,deleted,sort", modifier_options: "id,modifier_id,name,name_ar,price,custom_prices,inactive_branch_ids,out_of_stock_branch_ids,sort,active,deleted" };
@@ -134,7 +134,7 @@
         const next = OFF ? withPending(col, rows) : rows;
         let same = false; try{ same = local[col] && JSON.stringify(local[col]) === JSON.stringify(next); }catch(_){}
         local[col] = next;
-        if(!same) emit(col, local[col], false);   // nothing changed: don't redraw the screen (it made phones jump while scrolling)
+        emit(col, local[col], false, same);   // nothing changed: only screens still waiting for this list get it (no redraw that makes phones jump while scrolling)
       }catch(e){
         if(OFF && isNet(e)){ if(online){ online = false; status(); } return; }   // keep showing the cached copy
         console.error("load", col, e); (listeners[col]||[]).forEach(l => l.error && l.error({ code:"unavailable", message:e.message }));
