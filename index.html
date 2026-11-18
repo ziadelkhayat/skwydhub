@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="991-1795022661">
+<meta name="skwyd-build" content="992-1795022825">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2384,6 +2384,13 @@ html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .
 html body .app #view td,html body .content td,html body .app .btn,html body .app .btn.sm,html body .content .btn,html body .app #view .ttabs a,html body .app aside.side .nav a,html body .app aside.side .nav .grp > button,html body .side .nav a{font-size:14px!important}
 html body table thead th,html body .app #view th,html body .content th{font-size:13px!important;font-weight:600!important}
 @media (min-width:821px){html body .app .sel,html body .app input:not([type=checkbox]):not([type=radio]),html body .app select,html body .app textarea,html body .content input:not([type=checkbox]):not([type=radio]),html body .content select{font-size:14px!important}}
+/* ===== one size per role on every page: page title 24px · dialog title 18px · section/card title 16px · content 14px · labels and column heads 13px · numbers 24px ===== */
+html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-family:"Schibsted Grotesk","Hanken Grotesk",sans-serif!important;font-size:18px!important;font-weight:700!important;line-height:1.3!important}
+html body .app #view h2,html body .app #view h3,html body .app #view h4,html body .app #view .ct,html body .app #view .card h3.ct,html body .app #view .fsec,html body .app #view .bizh,html body .app #view .brch h3,html body .app #view .brcard>.brch h3,html body .app #view .secbox>.ttop>b,html body .app #view .ttop>b:first-child,html body .app #view .bsbody h3,html body .app #view .dchart h3,html body .app #view .dbr h3,html body .app #view .dshift h3,html body .app #view .dzsec h3,html body .app #view .rsh h3,html body .app #view .setup h3,html body .app #view .udh h3,html body .app #view .kbrh,html body .app #view .mmtitle b,html body .app #view .podh b,html body .app #view .qth b,html body .app #view .olbrh b,html body .app #view .aph b,html body .app #view .ccadh h3,html body .app #view .cchead,html body .app #view .ccothd,html body .app #view .tchaddh b,html body .modal h3,html body .modal .fsec,html body .modal .sec{font-family:"Schibsted Grotesk","Hanken Grotesk",sans-serif!important;font-size:16px!important;font-weight:600!important;line-height:1.35!important}
+html body .app #view td,html body .app #view .orow,html body .app #view .rcard b,html body .app #view .rlcard b,html body .app #view .kbcr,html body .app #view .kbcard b,html body .app #view .prcard b,html body .app #view .sbinfo .sbig label+div,html body .app #view .ohtile>b,html body .app #view .ocard.tl>b,html body .app #view p,html body .app #view li,html body .modal .body p,html body .modal td{font-size:14px!important}
+html body .app #view th,html body .app #view label,html body .app #view .f label,html body .modal label,html body .modal .f label,html body .modal th{font-size:13px!important}
+html body .app #view .kpi b,html body .app #view .kpi .v,html body .app #view .ktile .kv,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .sbgrid .card .v,html body .app #view .cstats b,html body .app #view .kbstats b,html body .app #view .kbcr b{font-family:"Hanken Grotesk",sans-serif!important;font-size:24px!important;font-weight:700!important;line-height:1.2!important}
+html body .app #view .note,html body .app #view small,html body .modal .note{font-size:12.5px!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
