@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1022-1795031036">
+<meta name="skwyd-build" content="1023-1795031131">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2589,6 +2589,12 @@ html body .slk-ask-yes.red{background:#FDECEC!important;color:#B42318!important}
 @media (hover:hover){html body .slk-ask-f button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.18)!important}html body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6px 16px rgba(180,35,24,.16)!important}}
 html body .slk-ask-f button:active{transform:none!important;box-shadow:none!important}
 html body .slk-ask-f button:focus-visible{outline:2px solid #1E3A8A;outline-offset:2px}
+/* ===== Void / return dialog footer uses the system buttons ===== */
+html body .ccvdf button{min-height:46px!important;height:46px;min-width:104px;padding:0 20px!important;border:0!important;border-radius:10px!important;background:#EEF2FF!important;color:#1E3A8A!important;font-size:14px!important;font-weight:600!important;transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s,background .2s}
+html body .ccvdf button.bad{background:#FDECEC!important;color:#B42318!important}
+html body .ccvdf button.pri,html body .ccvdf button.ok{background:#1E3A8A!important;color:#fff!important}
+@media (hover:hover){html body .ccvdf button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.18)}}
+html body .ccvdf button:active{transform:none;box-shadow:none}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
