@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1060-1795039676">
+<meta name="skwyd-build" content="1061-1795040030">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -12318,5 +12318,12 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
     }, 250);
   }, true);
 })();</script>
+<script>
+// number fields (inputmode decimal / numeric) take numbers only: letters can't be typed or pasted in
+(() => { const bad = el => el instanceof HTMLInputElement && el.type!=="number" && /^(decimal|numeric)$/.test(el.getAttribute("inputmode")||"") ? (el.getAttribute("inputmode")==="numeric" ? /\D/g : /[^\d.,\-]/g) : null;
+  document.addEventListener("keydown", e => { const re = bad(e.target); if(!re || e.ctrlKey || e.metaKey || e.altKey || e.key.length!==1) return; re.lastIndex = 0; if(re.test(e.key)){ e.preventDefault(); } }, true);
+  document.addEventListener("input", e => { const el = e.target, re = bad(el); if(!re) return; const v = el.value, c = v.replace(re, ""); if(c===v) return;
+    const p = Math.max(0, (el.selectionStart ?? c.length) - (v.length - c.length)); el.value = c; try{ el.setSelectionRange(p, p); }catch(_){} }, true); })();
+</script>
 </body>
 </html>
