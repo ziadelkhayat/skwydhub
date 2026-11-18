@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1042-1795035152">
+<meta name="skwyd-build" content="1044-1795035260">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -973,6 +973,28 @@ html body #abar .abtn.abtn.abtn *{color:#FFFFFF!important}
 html body #abar .abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn svg *,html body #abar .abtn.abtn.abtn .rti svg,html body #abar .abtn.abtn.abtn .rti svg *{color:#FFFFFF!important;stroke:#FFFFFF!important}
 html body #abar .abtn.abtn.abtn:active{background:#172D6A!important}
 html body #abar .abtn.abtn.abtn.off{opacity:.5}
+/* ===== POS sign-in and activation screens: light, like the rest of the system ===== */
+html body #lock#lock,html body #activate#activate{background:#F2F2F7!important;color:#1C1C1E!important}
+html body #lock#lock .pinkeys button,html body #lock#lock [data-pin],html body #activate#activate [data-ak],html body #activate#activate .pinpad button{background:#FFFFFF!important;color:#1C1C1E!important;border:1px solid #E5E5EA!important;border-radius:18px!important}
+html body #lock#lock [data-pin]:active,html body #activate#activate .pinpad button:active{background:#EEF2FF!important}
+html body #lock#lock svg path,html body #lock#lock svg g,html body #activate#activate .sklk svg path,html body #activate#activate .sklk svg g{stroke:#172554!important}
+html body #lock#lock svg circle,html body #activate#activate .sklk svg circle{fill:#6D28D9!important}
+html body #lock#lock .btn,html body #lock#lock button:not([data-pin]){background:#1E3A8A!important;color:#FFFFFF!important;border:0!important}
+html body #lock#lock p,html body #lock#lock .mut,html body #activate#activate p,html body #activate#activate .mut{color:#636366!important}
+html body #lock#lock h1,html body #lock#lock h2,html body #lock#lock b{color:#1C1C1E}
+html body #lock#lock #pinDots i{background:#FFFFFF!important;border:1px solid #D1D1D8!important}
+html body #lock#lock #pinDots i.on{background:#1E3A8A!important;border-color:#1E3A8A!important}
+html body #lock#lock .lkbtn{background:#FFFFFF!important;color:#1C1C1E!important;border:1px solid #E5E5EA!important}
+/* ===== Number pads in pop-ups (phone, amounts): centred ===== */
+html body .modal.kpm .pinpad,html body .modal.kpm .npad,html body #modal .kpm .pinpad{margin-left:auto!important;margin-right:auto!important;justify-self:center!important}
+html body .modal.kpm .mb{display:flex;flex-direction:column;align-items:center}
+html body .modal.kpm .mb>*{width:100%}
+html body .modal.kpm .mb>.pinpad,html body .modal.kpm .mb>.npad{width:min(100%,312px)!important}
+/* ===== Every number pad (table number, discount, customer phone, amounts) looks like the sign-in pad ===== */
+html body #modal .pinpad,html body .modal .pinpad,html body .smp .smnp,html body .smp.np .smnp{width:min(100%,312px)!important;max-width:312px!important;grid-template-columns:repeat(3,1fr)!important;gap:12px!important;margin-left:auto!important;margin-right:auto!important}
+html body #modal .pinpad button,html body .modal .pinpad button,html body .smp .smnp button{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;width:100%!important;padding:0!important;background:#FFFFFF!important;color:#1C1C1E!important;border:1px solid #E5E5EA!important;border-radius:18px!important;font-size:28px!important;font-weight:400!important;display:grid!important;place-items:center!important;box-shadow:none!important}
+html body #modal .pinpad button:active,html body .modal .pinpad button:active,html body .smp .smnp button:active{background:#EEF2FF!important;transform:none!important}
+html body #modal .pinpad button[data-npk="C"],html body .modal .pinpad button[data-npk="C"]{color:#B42318!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
