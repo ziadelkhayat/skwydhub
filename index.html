@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1033-1795033195">
+<meta name="skwyd-build" content="1034-1795033419">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2662,6 +2662,19 @@ html body #ccBox .ccx .cctools .cctool.cctool{background:#EEF2FF!important;borde
 html body #ccBox .ccx .cctools .cctool.cctool *{color:#1E3A8A!important}
 html body #ccBox .ccx .cctools .cctool.cctool svg,html body #ccBox .ccx .cctools .cctool.cctool svg *{stroke:#1E3A8A!important}
 html body #ccBox .ccx .cctools .cctool.cctool:hover{background:#E0E7FF!important}
+/* ===== Call center Customer Details: system design (white body, 46px fields, 14px text, navy Save) ===== */
+html body #ccBox .ccx.s1,html body #ccBox .ccx.s1 .ccleft{background:#FFFFFF!important}
+html body #ccBox:has(.ccx.s1){background:#FFFFFF!important}
+html body #ccBox .ccx.s1 .cc1{background:#FFFFFF!important}
+html body #ccBox .ccx.s1 .seg.tiles{height:46px!important;padding:3px!important}html body #ccBox .ccx.s1 .seg.tiles button{height:38px!important;min-height:0!important}
+html body #ccBox .ccx.s1 input:not([type=checkbox]):not([type=radio]):not([type=hidden]),html body #ccBox .ccx.s1 select,html body #ccBox .ccx.s1 .sel{height:46px!important;min-height:46px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:14px!important;color:#1C1C1E!important;background-color:#FFFFFF!important;box-shadow:none!important;padding-left:12px!important}
+html body #ccBox .ccx.s1 input::placeholder{color:#8E8E93!important;font-size:14px}
+html body #ccBox .ccx.s1 input:focus,html body #ccBox .ccx.s1 select:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important;outline:0}
+html body #ccBox .ccx.s1 .ccseg,html body #ccBox .ccx.s1 .seg{height:46px!important;border-radius:10px!important;background:#F2F2F7!important;padding:4px!important;box-sizing:border-box}
+html body #ccBox .ccx.s1 .ccseg button,html body #ccBox .ccx.s1 .seg button{border-radius:8px!important;font-size:14px!important}
+html body .ccnext .btn.pri:disabled,html body .ccnext .btn.pri[disabled]{background:#1E3A8A!important;border-color:#1E3A8A!important;color:#FFFFFF!important;opacity:.45!important}
+html body #ccBox:has(.ccx.s1) .ccnext{background:#FFFFFF!important;border-top:1px solid #E5E5EA!important}
+html body #ccBox:has(.ccx.s1) .ccnext .btn{min-height:46px!important;height:46px!important;min-width:104px!important;font-size:14px!important;font-weight:600!important;border-radius:10px!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
