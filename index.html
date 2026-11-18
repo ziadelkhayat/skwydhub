@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="980-1795008213">
+<meta name="skwyd-build" content="981-1795008348">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -702,7 +702,7 @@ h1:has(.ib),h3:has(.ib){display:inline-flex;align-items:center}
 .mlist.rl{gap:12px;padding:0;margin:0}.rls input,.rls input:focus{box-shadow:none!important;border:0!important;outline:0!important;min-height:0}.mlist.rl .chk{padding:0;gap:10px}.mlist.rl input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none;margin:0;cursor:pointer}
 .rlbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#fafcfc;position:sticky;top:-1px;z-index:2}
 .rlbar::before{content:"";position:absolute;left:-16px;right:-16px;bottom:calc(100% + 1px);height:24px;background:#fff;pointer-events:none}
-.f.full:has(>.mlist.rl)>label{display:none}   /* hides the rows that scroll up behind the bar (the dialog padding above it) */
+.f.full:has(>.mlist.rl)>label{display:none}.f.full:has(>.mlist.rl){padding-top:24px}   /* room for the white strip above the sticky bar, so it never covers the Name fields */   /* hides the rows that scroll up behind the bar (the dialog padding above it) */
 .rlbar .mall{margin:0}.rlcnt{font-size:12.5px;color:var(--muted)}
 .rls{margin-left:auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:0 10px;min-width:200px}.rls svg{width:14px;height:14px;color:var(--muted);flex:none}.rls input{border:0;outline:0;background:transparent;font:inherit;font-size:13px;padding:7px 0;width:100%}
 .rlg{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface,#fff)}.rlg[hidden],.rlg .mitem[hidden]{display:none}
@@ -7539,8 +7539,7 @@ function viewSchedule(){
       <select class="sel" id="schBrand" aria-label="Brand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${b.id===SCH.brand?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
       <select class="sel" id="schBranch">${brs.map(b => `<option value="${esc(b.id)}" ${b.id===br?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
       <select class="sel" id="schView" aria-label="View">${[["day","Day"],["week","Week"],["month","Month"]].map(([k,t]) => `<option value="${k}" ${SCH.view===k?"selected":""}>${t}</option>`).join("")}</select>
-      <div class="wkn"><button type="button" class="btn" data-schwk="-${step}" aria-label="Previous">‹</button><b>${esc(wl)}</b><button type="button" class="btn" data-schwk="${step}" aria-label="Next">›</button>
-        <label class="btn schcal" title="Pick a date" aria-label="Pick a date">${svgIco("calendar")}<input type="date" id="schDate" value="${esc(SCH.at)}"></label>${isNow ? "" : `<button type="button" class="btn" data-schwk="0">${nowLbl}</button>`}</div>
+      <div class="wkn"><button type="button" class="sel drpbtn" id="schRange" aria-haspopup="dialog"><span>${esc((() => { const p = SCH.view==="day" ? { from: SCH.at || today, to: SCH.at || today } : periodOf(SCH.view, SCH.at || today), f = d => new Date(d + "T12:00:00").dmy(); return p.from===p.to ? f(p.from) : f(p.from) + " – " + f(p.to); })())}</span>${svgIco("calendar")}</button>${isNow ? "" : `<button type="button" class="btn" data-schwk="0">${nowLbl}</button>`}</div>
       ${SCH.view==="week" ? `<button type="button" class="btn" id="schCopy">Copy Last Week</button>` : ""}<button type="button" class="btn" id="schNew">Add Shift</button><button type="button" class="btn pri" id="schPub" ${drafts ? "" : "disabled"}>Publish${drafts ? ` <span class="pubn">${drafts}</span>` : ""}</button></div></div>
     <div class="schk">${[["Scheduled hours", wHrs.toFixed(1) + "h", `${week.length} shift${week.length===1?"":"s"}`], ["Labor cost", money(wCost), "From pay rates"], ["Sales", money(wSales), SCH.view==="day" ? "This day" : SCH.view==="month" ? "This month" : "This week"], ["Labor %", wSales ? (wCost / wSales * 100).toFixed(1) + "%" : "—", "Labor ÷ sales"], ["Drafts", String(drafts||0), drafts ? "Not published yet" : "All published"]].map(([l, v, d]) => `<div class="card kmini"><span>${l}</span><b>${v}</b><span class="note">${d}</span></div>`).join("")}</div>
     <div class="card tbl schcard">
@@ -7577,6 +7576,9 @@ document.addEventListener("change", e => {
   if(e.target.id==="shEmp"){ const u = S.users.find(x => x.id===e.target.value), j = $("#shJob"); if(u?.jobTitle && j && !j.value) j.value = u.jobTitle; } });
 document.addEventListener("click", async e => {
   const t = e.target; if(!t.closest) return;
+  const sr = t.closest("#schRange"); if(sr){ if(DRP.el) return drpClose(); if(PK.el) return pkClose(); const pick = v => { if(!v) return; SCH.at = v; SCH.week = schMon(v); render(); };
+    if(SCH.view!=="day"){ e.stopPropagation(); return pkOpen(sr, SCH.view, SCH.at || todayStr(), pick); }
+    drpOpen(sr, SCH.at || todayStr(), SCH.at || todayStr(), (f, to) => pick(to || f)); DRP.single = true; drpDraw(); return; }
   const wb = t.closest("[data-schwk]"); if(wb){ const v = wb.dataset.schwk; if(!SCH.at) SCH.at = todayStr();
     if(v==="0") SCH.at = todayStr(); else if(/m$/.test(v)){ const d = new Date(SCH.at.slice(0, 8) + "01T12:00:00"); d.setMonth(d.getMonth() + (v.startsWith("-") ? -1 : 1)); SCH.at = schIso(d); } else SCH.at = schAdd(SCH.at, +v);
     SCH.week = schMon(SCH.at); return render(); }
