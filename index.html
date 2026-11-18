@@ -27,14 +27,21 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="969-1795004144">
-<script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
-(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
-  fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
-    var n = (t.match(/slick-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b) return;
-    var ts = function(x){ return +(String(x).split("-")[1]) || 0; }; if(!(ts(n) > ts(b))) return;   /* only ever move forward: right after an update some servers still hand out the older copy, and reloading for that made the page refresh back and forth */
-    try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
-    fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
+<meta name="skwyd-build" content="970-1795004564">
+<script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
+(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
+  var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
+  var check = function(){ fetch(location.pathname + "?_=" + Date.now(), { cache:"no-store", headers:{ Range:"bytes=0-40000" } }).then(function(r){
+      var rd = r.body && r.body.getReader ? r.body.getReader() : null, dec = new TextDecoder(), t = "";
+      var done = function(){ try{ rd && rd.cancel(); }catch(e){}
+        var n = (t.match(/skwyd-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b || !(ts(n) > ts(b))) return;   /* only ever move forward */
+        try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
+        location.reload(); };
+      if(!rd) return r.text().then(function(x){ t = x; done(); });
+      var pump = function(){ return rd.read().then(function(c){ if(c.value) t += dec.decode(c.value, { stream:true }); if(c.done || t.indexOf("skwyd-build") > -1 && t.indexOf(">", t.indexOf("skwyd-build")) > -1 || t.length > 60000) return done(); return pump(); }); };
+      return pump(); }).catch(function(){}); };
+  var go = function(){ setTimeout(check, 2500); };
+  if(document.readyState === "complete") go(); else addEventListener("load", go); })();</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, shrink-to-fit=no">
 <title>skwyd hub – Back Office</title>
@@ -2791,14 +2798,16 @@ async function countBranchData(id){
 async function paintBranchData(id){
   const box = $("#bdData") || $("#fData"); if(!box) return;
   if(!id){ box.style.display = "none"; box.innerHTML = ""; return; }
-  BD.id = id; BD.orders = BD.inv = null; box.style.display = "";
+  const cached = BD.cache?.[id], fresh = cached && Date.now() - cached.at < 60000 && !BD.busy;   // the counts are asked at most once a minute (every redraw used to ask again and flooded the database)
+  BD.id = id; if(fresh){ BD.orders = cached.orders; BD.inv = cached.inv; } else { BD.orders = BD.inv = null; } box.style.display = "";
   const draw = () => { const n = v => v==null ? "…" : v.toLocaleString();
     const sec = (t, d, btn) => `<div class="dzsec"><h3>${t}</h3><div class="dzcard"><p>${d}</p>${btn}</div></div>`;
-    box.innerHTML = sec("Delete Branch Orders", `${BD.orders===0 ? "This branch has no orders to delete." : `If you delete this branch's orders (${n(BD.orders)} order${BD.orders===1?"":"s"}, with their shifts and end-of-day records), all the data will be permanently deleted.`}`, `<button type="button" class="btn danger" id="bdDelOrders" ${!BD.orders || BD.busy ? "disabled" : ""}>Delete Orders</button>`)
+    ($("#bdData") || $("#fData") || box).innerHTML = sec("Delete Branch Orders", `${BD.orders===0 ? "This branch has no orders to delete." : `If you delete this branch's orders (${n(BD.orders)} order${BD.orders===1?"":"s"}, with their shifts and end-of-day records), all the data will be permanently deleted.`}`, `<button type="button" class="btn danger" id="bdDelOrders" ${!BD.orders || BD.busy ? "disabled" : ""}>Delete Orders</button>`)
       + sec("Delete Branch Inventory Transactions", `${BD.inv===0 ? "This branch has no inventory transactions to delete." : `If you delete this branch's inventory transactions (${n(BD.inv)} record${BD.inv===1?"":"s"}: purchases, transfers, adjustments, production, counts and consumption), all the data will be permanently deleted.`}`, `<button type="button" class="btn danger" id="bdDelInv" ${!BD.inv || BD.busy ? "disabled" : ""}>Delete Transactions</button>`); };
-  draw();
-  try{ Object.assign(BD, await countBranchData(id)); }catch(e){ console.error(e); }
-  if(BD.id===id) draw();
+  draw(); if(fresh) return;
+  if(BD.loading===id) return; BD.loading = id;
+  try{ const c = await countBranchData(id); Object.assign(BD, c); (BD.cache ||= {})[id] = { ...c, at: Date.now() }; }catch(e){ console.error(e); } finally{ BD.loading = null; }
+  if(BD.id===id){ const bx = $("#bdData") || $("#fData"); if(bx) draw(); }
 }
 
 /* branch: inactive payment methods, picked from a dialog and removed with × */
@@ -2845,7 +2854,7 @@ async function wipeBranch(kind){
     const left = await countBranchData(b.id), n = kind==="orders" ? left.orders : left.inv;
     toast(n ? `${n} record${n===1?"":"s"} couldn't be deleted. Only the owner or an admin can delete them.` : kind==="orders" ? `Orders of ${b.name} deleted` : `Inventory transactions of ${b.name} deleted`);
   }catch(e){ console.error(e); toast("Couldn't delete. Only the owner or an admin can do this."); }
-  finally{ BD.busy = false; paintBranchData(b.id); }
+  finally{ BD.busy = false; if(BD.cache) delete BD.cache[b.id]; paintBranchData(b.id); }
 }
 document.addEventListener("click", e => { if(e.target.closest("#bdDelOrders")) wipeBranch("orders"); if(e.target.closest("#bdDelInv")) wipeBranch("inv"); });
 async function deleteBranch(id){

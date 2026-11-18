@@ -10,14 +10,21 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="950-1794870741">
-<script>/* a browser refresh always opens the newest version: if the server has a newer build than this copy, reload once (never for an older one) */
-(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch) return;
-  fetch(location.pathname + "?_=" + Date.now(), { cache:"reload" }).then(function(r){ return r.text(); }).then(function(t){
-    var n = (t.match(/slick-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b) return;
-    var ts = function(x){ return +(String(x).split("-")[1]) || 0; }; if(!(ts(n) > ts(b))) return;   /* only ever move forward: right after an update some servers still hand out the older copy, and reloading for that made the page refresh back and forth */
-    try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
-    fetch(location.pathname, { cache:"reload" }).then(function(){ location.reload(); }, function(){ location.reload(); }); }).catch(function(){}); })();</script>
+<meta name="skwyd-build" content="970-1795004564">
+<script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
+(function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
+  var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
+  var check = function(){ fetch(location.pathname + "?_=" + Date.now(), { cache:"no-store", headers:{ Range:"bytes=0-40000" } }).then(function(r){
+      var rd = r.body && r.body.getReader ? r.body.getReader() : null, dec = new TextDecoder(), t = "";
+      var done = function(){ try{ rd && rd.cancel(); }catch(e){}
+        var n = (t.match(/skwyd-build"\s+content="([^"]+)"/) || [])[1]; if(!n || n === b || !(ts(n) > ts(b))) return;   /* only ever move forward */
+        try{ if(sessionStorage.getItem("skwyd_rl") === n) return; sessionStorage.setItem("skwyd_rl", n); }catch(e){}
+        location.reload(); };
+      if(!rd) return r.text().then(function(x){ t = x; done(); });
+      var pump = function(){ return rd.read().then(function(c){ if(c.value) t += dec.decode(c.value, { stream:true }); if(c.done || t.indexOf("skwyd-build") > -1 && t.indexOf(">", t.indexOf("skwyd-build")) > -1 || t.length > 60000) return done(); return pump(); }); };
+      return pump(); }).catch(function(){}); };
+  var go = function(){ setTimeout(check, 2500); };
+  if(document.readyState === "complete") go(); else addEventListener("load", go); })();</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Order Online</title>
@@ -785,6 +792,7 @@ function applyTheme(t){
 
 let brandId = params.get("brand");
 const pathSlug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "").toLowerCase().replace(/\.html$/, "");   // order.skwydhub.com/<brand address>
+const pPub = sb.rpc("skwyd_public_settings").then(r => r, () => ({ error:true })), pSym = sb.rpc("skwyd_public_symbols").then(r => r, () => ({ error:true }));   // asked at the same time as the brands, not one after another
 const bl = await sb.from("brands").select("id,name,slug").not("deleted", "is", true).order("name");
 if(bl.error){ $("#main").innerHTML = `<div class="closed"><b>We couldn't load the menu.</b>Please try again in a moment.</div>`; return; }
 if(!brandId && pathSlug && pathSlug!=="order") brandId = bl.data.find(b => String(b.slug||"").toLowerCase()===pathSlug)?.id || "-";
@@ -792,9 +800,9 @@ if(!brandId){ $("#hero").hidden = true; $("#main").innerHTML = `<div class="clos
 const brand = bl.data.find(b => b.id === brandId);
 if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't taking web orders.</b></div>`; return; }
 
-PUB = await sb.rpc("skwyd_public_settings").then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB, () => PUB);
+PUB = await pPub.then(r => (!r.error && r.data) ? { ...PUB, ...r.data, decimals: r.data.decimals ?? 2 } : PUB);
 let PROMOS = []; await sb.rpc("skwyd_public_promotions", { p_brand: brandId }).then(r => { if(!r.error && Array.isArray(r.data)) PROMOS = r.data.filter(p => p && !p.deleted && p.active!==false); }, () => {});   // Marketing → Promotions (automatic offers)
-await sb.rpc("skwyd_public_symbols").then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
+await pSym.then(r => { if(!r.error && r.data){ PUB.symbol = String(r.data.symbol || "").trim(); PUB.symbol2 = String(r.data.symbol2 || "").trim(); } }, () => {});   // the currency symbols (Currency settings); the codes show until this is available
 let incl = true;   // set below: true when every tax is inclusive
 const [st, scd, br, ca, pr, zo, mg, tx, tg, mo] = await Promise.all([
   sb.from("settings").select("data").eq("id","online_"+brandId).maybeSingle(),
