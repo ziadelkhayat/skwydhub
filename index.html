@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1005-1795025546">
+<meta name="skwyd-build" content="1006-1795025708">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2474,7 +2474,9 @@ html body .app #view .sctrow b,html body .app #view .sctrow span:not(.note):not(
 html body .app #view .sctrow .note{font-size:13px!important}
 html body .app #view .sctadd span:last-child{color:#1E3A8A!important}
 html body .app #view .drow b,html body .app #view .rcard b,html body .app #view .rlcard b,html body .app #view .kbcard b,html body .app #view .prcard b,html body .app #view .tchg b,html body .app #view .ocard b,html body .app #view .brow b{font-weight:500!important}
-html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .kpi .v,html body .app #view .ktile .kv{font-weight:700!important}
+/* dashboard: numbers, labels, notes and card titles all regular weight (Foodics) */
+html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .kpi .v,html body .app #view .ktile .kv,html body .app #view .kpi span,html body .app #view .ktile span,html body .app #view .kmini span,html body .app #view .ktile *,html body .app #view .kmini *,html body .app #view .kpi *{font-weight:400!important}
+html body .app #view .card h3,html body .app #view .card .kh h3,html body .app #view .dchart h3,html body .app #view .dbr h3,html body .app #view .dshift h3{font-weight:400!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
