@@ -2205,7 +2205,7 @@ html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
   html body #view .tscroll thead th,html body #view .card.tbl:not(:has(.tscroll)) thead th{position:sticky;top:0;z-index:3;background:#fff}
 }
 /* empty states: a soft grey panel with the message in the middle (Foodics) */
-html body .app #view .empty,html body .app #view .brempty,html body .app #view td .empty{background:#F2F3F7!important;border:0!important;border-radius:12px!important;min-height:180px;display:flex!important;align-items:center;justify-content:center;text-align:center;padding:24px!important;margin:16px!important;color:#0E1530!important;font-size:15px!important;font-weight:400!important;font-style:normal!important}
+html body .app #view .empty,html body .app #view .brempty,html body .app #view td .empty{background:#F2F3F7!important;border:0!important;border-radius:12px!important;min-height:180px;display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px!important;margin:16px!important;color:#0E1530!important;font-size:15px!important;font-weight:400!important;font-style:normal!important}
 html body .app #view td > .empty{margin:8px 0!important}
 /* bold text is 700 everywhere: inside a semibold box "bolder" became 900 (call center columns, payroll) */
 html body b,html body strong{font-weight:700}
@@ -2541,6 +2541,16 @@ html body .app .hcard .chart svg{width:100%;height:auto;display:block}
 /* detail fields (order details, customer card, info grids): values regular, labels small grey; same everywhere */
 html body .odet > div,html body .odet > div b,html body .odet > div strong,html body .ohkv b,html body .ohkv strong,html body .ohkv > div,html body .igrid > div b{font-weight:400!important}
 html body .odet > div > span:first-child,html body .ohkv span:first-child{font-weight:400!important}
+/* detail-page sections (Variants, Modifiers on an item...) line up like Tags: title and Add above, full-width box below */
+html body .app #view .card.secbox{background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;margin:24px 0 0!important;overflow:visible!important}
+html body .app #view .card.secbox > .ttop{padding:0 0 12px!important;border:0!important;background:transparent!important;display:flex;align-items:center}
+html body .app #view .card.secbox > .ttop > b{font-size:20px!important;font-weight:400!important}
+html body .app #view .card.secbox > table,html body .app #view .card.secbox > .tscroll{background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(14,21,48,.05)}
+html body .app #view .card.secbox > .empty{margin:0!important}
+/* every detail page with a Back button uses the same centered column (the item page, option pages, documents...) */
+html body .app #view:has(> .phead [data-detback]) > *:not(.ptabs),html body .app #view:has(> .phead [data-docback]) > *:not(.ptabs){max-width:820px;margin-left:auto!important;margin-right:auto!important}
+html body .app #view .dzcard:has(> .empty){background:transparent!important;padding:0!important;box-shadow:none!important;border:0!important;display:block!important}
+html body .app #view .dzcard > .empty{margin:0!important;width:auto!important}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
@@ -9886,7 +9896,7 @@ function ingEditor(forKey, rec){
   return `<div class="card tbl${forKey==="products" || forKey==="inv-items" ? " secbox" : ""}" style="margin-bottom:16px" id="ingCard"><div class="ttop"><b>Ingredients${vfor ? ` · ${esc(vfor)}` : ""}</b>${vfor ? ` <button class="btn sm" data-pvrec="" style="margin-left:8px">← Product recipe</button>` : ""}<div class="sp"></div>
       ${rows.length ? `<button type="button" class="btn" data-ingqtys>Edit Quantities</button>` : ""}<button type="button" class="btn" data-ingpick>Add</button></div>
     ${rows.length ? `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="7"><b>Total ingredients cost</b></td><td class="num"><b>${fmtCost(total)}</b></td><td></td></tr></tfoot></table>`
-      : `<div class="empty">${forKey==="inv-items" ? `To produce this item, add the ingredients needed to produce 1 ${esc(rec.storageUnit||"unit")} of this item here from your inventory items list.` : forKey==="products" ? "Add inventory items as ingredients to this product to be consumed when this product is sold." : "Add the inventory items used by this option. They're consumed on top of the product's own ingredients."}</div>`}</div>`;
+      : `<div class="empty">You don't have ingredients</div>`}</div>`;
 }
 // Update Ingredient (one line) and Edit Quantities (all lines): net quantity and yield %, saved right away
 // an ingredient quantity in both units: storage unit + ingredient unit (stored in ingredient units)
@@ -10089,7 +10099,7 @@ function pdSections(p, hasVar){
   const cps = Object.entries(B.customPrices||{}).filter(([id, v]) => v!=="" && v!=null && branches.some(b => b.id===id));
   const inact = (B.inactive||[]).filter(id => branches.some(b => b.id===id)), oos = (B.oos||[]).filter(id => branches.some(b => b.id===id));
   const nut = NUTR.filter(([k]) => (p.nutrition||{})[k]!=null && (p.nutrition||{})[k]!==""), alg = p.allergens||[];
-  let h = pdSec("Tags", `<button type="button" class="btn" data-pdtags>Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<p class="dzempty">No tags added</p>`);
+  let h = pdSec("Tags", `<button type="button" class="btn" data-pdtags>Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<div class="empty">You don't have tags</div>`);
   h += variantCard(p);   // Tags first, then Variants
   if(!hasVar) h += modLinks(p) + ingEditor("products", p);
   // availability per branch (custom price, inactive, out of stock) is set in Sales Channels: items here are the catalog
@@ -10099,7 +10109,7 @@ function pdSections(p, hasVar){
 function pdNutAlg(p, what){
   const nut = NUTR.filter(([k]) => (p.nutrition||{})[k]!=null && (p.nutrition||{})[k]!==""), alg = p.allergens||[]; let h = "";
   h += pdSec("Nutritional Values", `<button type="button" class="btn" data-pdnut>Add</button>`, `<table><thead><tr><th>Ingredient</th><th>Value</th><th>Unit</th></tr></thead><tbody>${NUTR.map(([k,l,u]) => `<tr><td>${l}</td><td>${nut.some(n => n[0]===k) ? esc(p.nutrition[k]) : "-"}</td><td>${u==="kcal"?"kCal":u}</td></tr>`).join("")}</tbody></table>`);
-  h += pdSec("Allergens", `<button type="button" class="btn" data-pdalg>Add</button>`, alg.length ? `<div class="dzchips">${alg.map(a => `<span class="dzchip">${esc(a)}<button type="button" data-pdalgrm="${esc(a)}" aria-label="Remove ${esc(a)}">×</button></span>`).join("")}</div>` : `<p class="dzempty">Select any allergens from your list that apply to this ${what}. This will ensure the correct information is displayed for your customers.</p>`);
+  h += pdSec("Allergens", `<button type="button" class="btn" data-pdalg>Add</button>`, alg.length ? `<div class="dzchips">${alg.map(a => `<span class="dzchip">${esc(a)}<button type="button" data-pdalgrm="${esc(a)}" aria-label="Remove ${esc(a)}">×</button></span>`).join("")}</div>` : `<div class="empty">You don't have allergens</div>`);
   return h;
 }
 const pdCol = () => DET.key==="modifier-options" ? "modifier_options" : DET.key==="products" ? "products" : "";
@@ -10163,7 +10173,7 @@ function variantCard(p){
   // looks and acts like the Modifiers section: Add opens a pick dialog, a row opens its own dialog, changes save right away
   return `<div class="card tbl secbox"><div class="ttop"><b>Variants${rows.length ? ` <span class="note" style="font-weight:400">${esc(varGroup(p))}</span>` : ""}</b><div class="sp"></div><button type="button" class="btn" data-pvadd>Add</button></div>
     ${rows.length ? `<table><thead><tr><th>Name</th><th>Product</th><th>SKU</th><th class="num">Price</th><th>Tax Group</th><th class="num">Cost</th><th></th></tr></thead><tbody>${rows.map(({v,k}) => `<tr class="clk" data-pvedit="${esc(k.id)}"><td><b>${esc(v.name)}</b></td><td><a href="#products" class="lnk" data-detopen="products:${esc(k.id)}">${esc(k.name)}</a></td><td><span class="code">${esc(k.sku||"")}</span></td><td class="num">${usd(+k.price||0)}</td><td>${esc(tgName(k.taxGroup))}</td><td class="num">${fmtCost(productCost(k))}</td><td class="num"><button class="btn sm" data-pvrm="${esc(k.id)}" aria-label="Remove ${esc(v.name)}">×</button></td></tr>`).join("")}</tbody></table>`
-      : `<div class="empty">No variants added. Sold in sizes? Add them here; each one is sold as its own product with its own price, tax, SKU, recipe and modifiers.</div>`}</div>`;
+      : `<div class="empty">You don't have variants</div>`}</div>`;
 }
 // one attribute row of the Add variant form: name, price, tax, SKU
 const avRow = (src, sku) => `<div class="avrow"><input class="sel" data-ar="name" placeholder="e.g. Large" aria-label="Attribute name"><input class="sel" data-ar="price" type="number" step="any" min="0" value="${esc(src.price ?? "")}" placeholder="Price" aria-label="Price">
@@ -10355,7 +10365,7 @@ function invItemDetail(it){
     info("Cost", it.cost ? fmtCost(it.cost) + ` <span class="note">/ ${esc(it.storageUnit||"unit")}</span>` : "—"),
     ...(produced || DET.ing.length ? [info("Total Cost of Production", fmtCost(prodCost) + ` <span class="note">/ ${esc(it.storageUnit||"unit")}</span>`)] : [])]);
   const tg = tagsOf("inventory", it.id), sl = supLinks().filter(l => l.itemId===it.id), lv = invLevels()[it.id] || {};
-  h += pdSec("Tags", `<button type="button" class="btn" data-ivtags>Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<p class="dzempty">Add tags to help you filter and group items easily. You can create tags such as Weekly Stocktaking, Vegetables, etc.</p>`);
+  h += pdSec("Tags", `<button type="button" class="btn" data-ivtags>Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<div class="empty">You don't have tags</div>`);
   h += ingEditor("inv-items", it);
   h += pdSec("Suppliers", `<button type="button" class="btn" data-suplink="item:${esc(it.id)}">Add</button>`, sl.length ? supLinkTable(sl, "item") : `<p class="dzempty">Link this item to the suppliers you purchase from, and you can assign different order units and cost to each supplier.</p>`);
   const lvb = Object.entries(lv).filter(([b]) => locList().some(x => x[0]===b));
@@ -10395,7 +10405,7 @@ function supplierDetail(sp){
   let h = `<div class="phead"><a href="#suppliers" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(sp.name)}</span></h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Supplier</button></div>`;
   h += infoGrid([info("Name", esc(sp.name)), info("Contact Name", esc(sp.contactName||"—")), info("Phone", esc(sp.phone||"—")), info("Primary Email", esc(sp.email||"—")), info("Supplier Code", esc(sp.code||"—")), info("Address", esc(sp.address||"—")), info("Notes", esc(sp.notes||"—"))]);
   h += `<div class="supsecs">`;   // the sections line up with the details card above
-  h += pdSec("Tags", `<button type="button" class="btn" data-suptags="${esc(sp.id)}">Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<p class="dzempty">Add tags to help you filter and group suppliers easily. You can create tags such as Cash Suppliers, High Quality, etc.</p>`);
+  h += pdSec("Tags", `<button type="button" class="btn" data-suptags="${esc(sp.id)}">Add</button>`, tg.length ? `<div class="dzchips">${tg.map(t => `<span class="dzchip" style="padding-right:14px">${esc(tagName(t))}</span>`).join("")}</div>` : `<div class="empty">You don't have tags</div>`);
   h += pdSec("Inventory Items", `<button type="button" class="btn" data-suplink="sup:${esc(sp.id)}">Add</button>`, sl.length ? supLinkTable(sl, "sup") : `<p class="dzempty">Link this supplier to the inventory items you purchase from them, and you can assign different order units and cost to each item.</p>`);
   return h + `</div>`;
 }
@@ -10551,7 +10561,7 @@ function modLinks(p){
       <td class="grc"><span class="mgrip bmgrip" title="Drag to change the order customers see">⋮⋮</span></td><td><b>${esc(modName(l.modifierId))}</b></td>
       <td class="num">${+l.min||0}</td><td class="num">${+l.max ? +l.max : "No limit"}</td><td class="num">${+l.free||0}</td>
       <td class="num"><button class="btn sm" data-modrm="${ix}" aria-label="Remove ${esc(modName(l.modifierId))}">×</button></td></tr>`).join("")}</tbody></table>`
-      : `<div class="empty">No modifiers linked.${S.modifiers.filter(live).length ? "" : " Create them first under Menu → Modifiers."}</div>`}</div>`;
+      : `<div class="empty">You don't have modifiers</div>`}</div>`;
 }
 // Add Modifiers (pick several) and one modifier's rules (minimum, maximum, free, repeat): dialogs that save right away
 document.addEventListener("click", async e => {
