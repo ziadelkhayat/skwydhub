@@ -6,7 +6,7 @@
 <title>Skwyd Hub – Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Schibsted+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20124%22%3E%3Cpath%20d%3D%22M24%2082%20V62%20C24%2032%2041%2012%2060%2012%20C79%2012%2096%2032%2096%2062%20V82%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M24%2082%20Q24%20106%2014%20114%20M48%2084%20Q48%20104%2042%20116%20M72%2084%20Q72%20104%2078%20116%20M96%2082%20Q96%20106%20106%20114%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3Ccircle%20cx%3D%2273%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3C/svg%3E"><link rel="icon" type="image/png" sizes="32x32" href="/skwyd-icon-32.png?v=2"><link rel="apple-touch-icon" href="/skwyd-icon-180.png?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>/* skwyd hub: every country with its dialing code, currency and phone number format (from Google's libphonenumber data) */
@@ -20,7 +20,7 @@ var SKW_WORLD = {"c":[["AF","Afghanistan","+93","AFN"],["AL","Albania","+355","A
 <script src="strips.js?v=1"></script>
 <style>
 :root{--bg:#f7f7f9;--surface:#fff;--ink:#1c1b22;--ink2:#5b5a66;--muted:#8d8c98;--line:#e7e6ec;--accent:#1e3a8a;--accent-soft:#eef1fa;--accent-ink:#172d6a;
-  --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#c6f432;--radius:10px}
+  --good:#1f8a4c;--good-soft:#e5f5ec;--warn:#a86500;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdecea;--navy:#172554;--lime:#6D28D9;--radius:10px}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
 body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -204,7 +204,7 @@ html body .brand.skb .skword.f2 svg{display:block}
 .brand.skb .skadm{margin-left:0;flex-basis:100%;padding-left:2px}
 
 /* ================= Abyss (17-11-2026) · admin is the dark theme of the template ================= */
-:root{--abyss:#0B1330;--abyss2:#141E44;--abline:#22305F;--lime:#C6F432;--squid:#6D28D9}
+:root{--abyss:#0B1330;--abyss2:#141E44;--abline:#22305F;--lime:#6D28D9;--squid:#6D28D9}
 body{font-family:Inter,system-ui,sans-serif;background:var(--abyss);color:#E6E9F5}
 h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,sans-serif!important;letter-spacing:-.02em}
 .app{grid-template-columns:260px 1fr}
@@ -212,7 +212,7 @@ h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,sans-serif!important;let
 .side .skword b,.side .brand b{color:#fff!important}.side .skmark svg g,.side .skmark svg path{stroke:#fff!important}.side .skword svg g,.side .skword svg path{stroke:#fff!important}
 .nav a{color:#AEB6D1!important;border-radius:12px!important;min-height:44px;font-weight:500}
 .nav a:hover{background:rgba(255,255,255,.06)!important;color:#fff!important}
-.nav a.on{background:var(--lime)!important;color:var(--abyss)!important;font-weight:700!important;box-shadow:none!important}
+.nav a.on{background:#1E3A8A!important;color:#FFFFFF!important;font-weight:700!important;box-shadow:none!important}
 .nav a .ico,.nav a svg{stroke:currentColor!important;color:currentColor!important}
 .top{background:var(--abyss)!important;border-bottom:1px solid var(--abline)!important;color:#AEB6D1}
 .who{color:#AEB6D1!important}
@@ -220,7 +220,7 @@ h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,sans-serif!important;let
 .content h1{color:#fff;font-size:28px;font-weight:700}.subt{color:#8C96B8!important}
 .card{background:var(--abyss2)!important;border:1px solid var(--abline)!important;border-radius:20px!important;color:#E6E9F5}
 .kpis{gap:16px}.kpi{padding:18px 20px!important}.kpi span{color:#8C96B8!important;font-size:12.5px}.kpi b{color:#fff!important;font:700 30px "Plus Jakarta Sans",Inter,sans-serif!important;letter-spacing:-.02em}
-.kpi small,.kpi .d{color:var(--lime)!important}
+.kpi small,.kpi .d{color:#C4B5FD!important}
 .bar{border-bottom:1px solid var(--abline)!important}
 th{color:#8C96B8!important;background:transparent!important;font-size:12px!important;font-weight:600!important;border-bottom:1px solid var(--abline)!important}
 td{border-bottom:1px solid var(--abline)!important;color:#E6E9F5}
@@ -231,8 +231,8 @@ tbody tr.click:hover{background:#1A2655!important}
 .btn.pri{background:var(--squid)!important;border-color:var(--squid)!important;box-shadow:0 6px 16px rgba(109,40,217,.35)}
 .btn.pri:hover{background:#5B21B6!important}
 .content .sel,.content input:not([type=checkbox]):not([type=radio]),.content select{background:var(--abyss2)!important;border:1px solid var(--abline)!important;color:#fff!important;border-radius:12px!important;min-height:40px}
-.content .sel:focus,.content input:focus,.content select:focus{outline:none;border-color:var(--lime)!important;box-shadow:0 0 0 4px rgba(198,244,50,.15)!important}
-.t-active,.t-paid{background:rgba(198,244,50,.16)!important;color:var(--lime)!important}.t-trial{background:rgba(109,40,217,.25)!important;color:#C4B5FD!important}
+.content .sel:focus,.content input:focus,.content select:focus{outline:none;border-color:#6D28D9!important;box-shadow:0 0 0 4px rgba(109,40,217,.15)!important}
+.t-active,.t-paid{background:rgba(109,40,217,.16)!important;color:#C4B5FD!important}.t-trial{background:rgba(109,40,217,.25)!important;color:#C4B5FD!important}
 .t-grace,.t-open{background:rgba(249,115,22,.18)!important;color:#FDBA74!important}.t-locked{background:rgba(229,72,77,.2)!important;color:#FCA5A5!important}.t-free,.t-void{background:#22305F!important;color:#AEB6D1!important}
 /* dialogs stay light for forms */
 .modal{background:rgba(5,9,25,.6)!important;backdrop-filter:blur(3px)}
@@ -282,7 +282,7 @@ body{background:var(--bg)!important;color:#0E1530!important}
   .main .top{position:sticky!important;top:0;height:auto!important;z-index:5;padding:14px 32px!important}
 }
 .side{background:var(--navy)!important}
-.nav a.on{background:#D4F25A!important;color:#0B1330!important}
+.nav a.on{background:#1E3A8A!important;color:#FFFFFF!important}
 .main .top,.top{background:#fff!important;border-bottom:1px solid var(--line)!important;min-height:72px;color:#0E1530!important}
 .who{color:#4B5563!important}
 .main .top .btn{background:#fff!important;border-color:#E0E3EE!important;color:#0E1530!important}
@@ -308,8 +308,8 @@ tbody tr.click:hover{background:#F7F8FC!important}
 .dt{flex:1;min-width:0}.dt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dt small{color:#8A90A6}.drow em{font-style:normal;font-weight:700;color:#4B5563;white-space:nowrap}
 
 /* ===== same as the portal on every device: light Foodics-style side menu; tablets keep it open, phones open it with the menu button ===== */
-html body{font-family:"Hanken Grotesk",Inter,system-ui,sans-serif}
-html body .content h1{font-family:"Schibsted Grotesk","Hanken Grotesk",sans-serif!important;font-size:24px!important;font-weight:700!important}
+html body{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif}
+html body .content h1{font-family:"IBM Plex Sans",sans-serif!important;font-size:24px!important;font-weight:700!important}
 html body .app aside.side{background:#F2F2F7!important;color:#1C1C1E!important;border-right:0!important}
 html body .app aside.side .nav a{color:#1C1C1E!important;background:transparent!important;font-size:14px!important;font-weight:500!important;border-radius:10px!important;display:flex!important;align-items:center;gap:12px}
 html body .app aside.side .nav a:hover{background:#E5E5EA!important}
@@ -353,21 +353,35 @@ html body .app aside.side .skadm,html body .app aside.side small{color:#6B6B70!i
   html body .dhero{padding:20px!important}html body .dhero h1{font-size:24px!important}
 }
 
-/* ===== Hamster type, final: every text Hanken Grotesk 14px, headings Schibsted Grotesk (page 24px bold, cards 16px semibold), numbers 24px bold ===== */
-html body{font-size:14px!important;line-height:1.43}
-html body,html body button,html body input,html body select,html body textarea,html body td,html body th,html body label,html body .brand b{font-family:"Hanken Grotesk","IBM Plex Sans Arabic",system-ui,sans-serif!important}
-html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .dlg header h2{font-family:"Schibsted Grotesk","Hanken Grotesk","IBM Plex Sans Arabic",sans-serif!important;letter-spacing:-.01em}
-html body h1,html body .app #view h1,html body .app .phead h1,html body .content h1{font-size:24px!important;font-weight:700!important;line-height:32px!important}
-html body .app #view h2,html body .app #view h3,html body .app #view .card h3,html body .modal header h2,html body .dlg header h2,html body .content h2,html body .content h3{font-size:16px!important;font-weight:600!important;line-height:1.3!important}
-html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .kmini b,html body .content .kpi b{font-family:"Hanken Grotesk",sans-serif!important;font-size:24px!important;font-weight:700!important;letter-spacing:-.01em}
-html body .app #view td,html body .content td,html body .app .btn,html body .app .btn.sm,html body .content .btn,html body .app #view .ttabs a,html body .app aside.side .nav a,html body .app aside.side .nav .grp > button,html body .side .nav a{font-size:14px!important}
-html body table thead th,html body .app #view th,html body .content th{font-size:13px!important;font-weight:600!important}
-@media (min-width:821px){html body .app .sel,html body .app input:not([type=checkbox]):not([type=radio]),html body .app select,html body .app textarea,html body .content input:not([type=checkbox]):not([type=radio]),html body .content select{font-size:14px!important}}
-html body .modal header h2,html body .dlg header h2{font-size:18px!important;font-weight:700!important}
-html body .content td,html body .content p,html body .dlg td{font-size:14px!important}
-html body .content th,html body .content label,html body .dlg label,html body .dlg th,html body .fld label{font-size:13px!important}
-html body .content .note,html body .dlg .note,html body .content small{font-size:12.5px!important}
-html body .content .kpi b{font-size:24px!important}
+/* ===== Foodics type: IBM Plex Sans everywhere; page title 22px regular, section titles 20px regular, dialog titles 20px bold, table heads 16px bold, table rows 16px, buttons 15px, form labels and fields 14px, field labels on detail pages 15px grey, values 16px bold, small 12px ===== */
+html body{font-size:16px!important;line-height:1.5;color:#1C1C1E}
+html body,html body button,html body input,html body select,html body textarea,html body td,html body th,html body label,html body .brand b,html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .dlg header h2{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:0!important}
+html body h1,html body .app #view h1,html body .app .phead h1,html body .content h1{font-size:22px!important;font-weight:400!important;line-height:32px!important;color:#000}
+html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-size:20px!important;font-weight:700!important;line-height:1.4!important}
+html body .app #view h2,html body .app #view h3,html body .app #view h4,html body .app #view .ct,html body .app #view .card h3.ct,html body .app #view .fsec,html body .app #view .bizh,html body .app #view .brch h3,html body .app #view .brcard>.brch h3,html body .app #view .secbox>.ttop>b,html body .app #view .ttop>b:first-child,html body .app #view .bsbody h3,html body .app #view .dchart h3,html body .app #view .dbr h3,html body .app #view .dshift h3,html body .app #view .dzsec h3,html body .app #view .rsh h3,html body .app #view .setup h3,html body .app #view .udh h3,html body .app #view .kbrh,html body .app #view .mmtitle b,html body .app #view .podh b,html body .app #view .qth b,html body .app #view .olbrh b,html body .app #view .aph b,html body .app #view .ccadh h3,html body .app #view .cchead,html body .app #view .ccothd,html body .app #view .tchaddh b,html body .content h2,html body .content h3{font-size:20px!important;font-weight:400!important;line-height:1.4!important;color:#000}
+html body .modal h3,html body .modal .fsec,html body .modal .sec,html body .dlg h3{font-size:16px!important;font-weight:700!important}
+html body table thead th,html body .app #view th,html body .content th,html body .modal th{font-size:16px!important;font-weight:700!important;color:#1C1C1E!important;text-transform:none!important}
+html body .app #view td,html body .content td,html body .modal td,html body .app #view .orow,html body .app #view p,html body .app #view li,html body .content p{font-size:16px!important}
+html body .app .btn,html body .app .btn.sm,html body .content .btn,html body .modal .btn,html body .dlg .btn,html body .app #view .ttabs a,html body .app aside.side .nav a,html body .app aside.side .nav .grp > button,html body .side .nav a{font-size:15px!important}
+html body .app #view label,html body .app #view .f label,html body .modal label,html body .modal .f label,html body .dlg label,html body .fld label{font-size:14px!important;font-weight:400!important;color:#1C1C1E}
+@media (min-width:821px){html body .app .sel,html body .app input:not([type=checkbox]):not([type=radio]),html body .app select,html body .app textarea,html body .modal input:not([type=checkbox]):not([type=radio]),html body .modal select,html body .modal textarea,html body .content input:not([type=checkbox]):not([type=radio]),html body .content select{font-size:14px!important}}
+html body .app #view .note,html body .modal .note,html body .content .note{font-size:14px!important;color:#636366!important}
+html body .app #view small,html body .content small{font-size:12px!important}
+html body .app #view .kpi b,html body .app #view .kpi .v,html body .app #view .ktile .kv,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .sbgrid .card .v,html body .app #view .cstats b,html body .app #view .kbstats b,html body .app #view .kbcr b,html body .content .kpi b{font-size:24px!important;font-weight:700!important;line-height:1.2!important}
+/* side menu a bit more grey than the page */
+html body .app aside.side,html body .app aside.side.side{background:#E9E9EE!important}
+html body .app aside.side nav.nav .grp.open{background:#DFDFE5!important}
+html body .app aside.side nav.nav .grp > button:hover,html body .app aside.side nav.nav > a:not(.on):hover,html body .app aside.side nav.nav .sub a:not(.on):hover,html body .app aside.side .nav a:not(.on):hover{background:#DFDFE5!important}
+html body .app aside.side nav.nav > a.on,html body .app aside.side nav.nav .sub a.on,html body .app aside.side .nav a.on,html body .app aside.side .nav a.on:hover{background:#C7C7CC!important}
+.sidefoot .acctbtn,.hsfoot{background:#DFDFE5!important}
+/* admin dashboard greeting like the portal's: plain text on the page, no navy box */
+html body .dhero{background:transparent!important;color:#1C1C1E!important;padding:4px 0 8px!important;border-radius:0!important}
+html body .dhero h1{color:#000!important}html body .dhero p{color:#636366!important;font-size:16px!important}html body .dhero .eyebrow{display:none}
+html body .app .main .top{background:#fff!important}
+html body{background:#F3F4F8!important}
+/* "Portal" / "Admin" under the logo */
+html body .app aside.side .brand.skb{flex-wrap:wrap!important;row-gap:2px!important}
+html body .app aside.side .brand.skb .skrole,html body .app aside.side .brand.skb .skadm{display:block!important;flex-basis:100%!important;margin:6px 0 0 4px!important;padding:0!important;font-size:11px!important;font-weight:700!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#6B6B70!important;line-height:1!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
