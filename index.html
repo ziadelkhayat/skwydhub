@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1025-1795031431">
+<meta name="skwyd-build" content="1026-1795031687">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2602,6 +2602,21 @@ html body .nav a:active,html body .nav .grp>button:active,html body .nav .sub a:
 @media (prefers-reduced-motion:reduce){html body .nav a,html body .nav .grp>button,html body .nav .sub a,html body .tabs a,html body .tabs button,html body .ttabs a,html body .ttabs button,html body .ptabs a,html body .cutabs a,html body .cutabs button,html body .bsnav a,html body .dmseg button,html body .segtabs button,html body .seg button,html body select.sel,html body .drpbtn,html body .fltbtn,html body .msel>button,html body .msel-b,html body .tchchip,html body .rcard,html body .apcard,html body .kbit{transition:none!important;transform:none!important}}
 /* ===== Text turns bold under the pointer (drawn bold, so nothing beside it moves) ===== */
 @media (hover:hover){html body .nav a:hover,html body .nav .grp>button:hover,html body .nav .sub a:hover,html body .tabs a:hover,html body .tabs button:hover,html body .ttabs a:hover,html body .ttabs button:hover,html body .ptabs a:hover,html body .cutabs a:hover,html body .cutabs button:hover,html body .bsnav a:hover,html body .dmseg button:hover,html body .segtabs button:hover,html body .seg button:hover,html body select.sel:hover,html body .drpbtn:hover,html body .fltbtn:hover,html body .msel>button:hover,html body .msel-b:hover,html body .tchchip:hover,html body .kbit:hover,html body .ddmenu button:hover,html body .ddmenu a:hover,html body .acctabs a:hover,html body .rcard:hover b,html body .apcard:hover b{text-shadow:.35px 0 0 currentColor,-.35px 0 0 currentColor;-webkit-text-stroke:.25px currentColor}}
+/* ===== Customer page: light profile card and regular-weight numbers, like the rest of the system ===== */
+html body .app .cuprof{background:#FFFFFF!important;border:1px solid #E5E5EA;border-radius:16px!important;color:#636366!important}
+html body .app .cuprof .cuav{background:#EEF2FF!important;color:#1E3A8A!important;font-weight:600!important;font-family:inherit!important}
+html body .app #view .cuprof h2{color:#1C1C1E!important;font-size:20px!important;font-weight:400!important;font-family:inherit!important}
+html body .app .cuprof .cusub{color:#636366;font-size:13px}
+html body .app .custats>div{background:#F2F2F7!important;border-radius:10px!important}
+html body .app .custats b{color:#1C1C1E!important;font:400 16px/1.3 inherit!important;font-family:inherit!important}
+html body .app .custats span{color:#636366;font-size:12px}
+html body .app .cuprof .btn.ghost{color:#1E3A8A!important;background:#EEF2FF!important}
+html body .app .curight .cstats>div{border-radius:16px!important;border:1px solid #E5E5EA!important;box-shadow:none!important;padding:16px 18px!important}
+html body .app .curight .cstats span{font-size:13px!important;color:#636366!important}
+html body .app .curight .cstats b{font-size:22px!important;font-weight:400!important;font-family:inherit!important;color:#1C1C1E;line-height:1.3}
+html body .app .curight table th{font-size:14px!important;font-weight:600!important}
+html body .app .curight table td{font-size:14px!important;font-weight:400!important}
+html body .app .curight table td b,html body .app .curight table td strong{font-weight:400!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
