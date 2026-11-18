@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="999-1795024965">
+<meta name="skwyd-build" content="1000-1795025075">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2431,6 +2431,11 @@ html body .app .bempty{display:grid!important;place-items:center;min-height:200p
 /* orders lists: every column centred */
 html body .app #view .card.otbl.obody table th:nth-child(n),html body .app #view .card.otbl.obody table td:nth-child(n){text-align:center!important}
 html body .app #view .card.otbl.obody table td:nth-child(n) b,html body .app #view .card.otbl.obody table td:nth-child(n) .note{display:block;text-align:center}
+/* orders list type: one size and weight for every value (14px regular), second lines (phone, brand, table, time) 12.5px grey under it */
+html body .app #view .card.otbl.obody table td:nth-child(n){font-size:14px!important;font-weight:400!important;line-height:1.35!important;color:#1C1C1E}
+html body .app #view .card.otbl.obody table td:nth-child(n) b{font-weight:400!important;font-size:14px!important}
+html body .app #view .card.otbl.obody table td:nth-child(n) .note{display:block;font-size:12.5px!important;font-weight:400!important;color:#8E8E93!important;line-height:1.3!important;margin-top:2px;white-space:nowrap}
+html body .app #view .card.otbl.obody table th:nth-child(n){font-size:14px!important;font-weight:600!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -8062,7 +8067,7 @@ function viewOrders(){
       <td><div>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>${brandList().length > 1 ? `<div class="note">${esc(brandName(o.brandId) || "—")}</div>` : ""}</td>
       <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
       <td><div>${esc(ordTypeLbl(o.type))}</div>${o.type==="dinein" && o.table ? `<div class="note">${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</div>` : ""}</td><td>${esc(srcOf(o) || "—")}</td>
-      <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<span class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)} ${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</span>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "—")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
+      <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<div class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)}</div><div class="note odt">${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</div>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "—")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
     : `<tr><td colspan="13" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
   }</tbody></table>`}
   <div class="pager"><span class="note">${a}–${b} of ${ORD.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="ordPrev" ${ORD.page<=1?"disabled":""}>Previous</button><span class="note">Page ${ORD.page} of ${pages}</span><button class="btn" id="ordNext" ${ORD.page>=pages?"disabled":""}>Next</button></div></div>`;
