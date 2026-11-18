@@ -2592,6 +2592,11 @@ html body .app #view .tscroll thead th,html body .app #view .card.tbl:not(:has(.
 /* buttons one step smaller */
 html body .btn:not(.ccacts .btn):not(.ccnext .btn),html body .slk-ask-yes,html body .slk-ask-no{min-height:34px!important;height:34px;padding:0 12px!important;font-size:14px!important}
 html body .btn.sm:not(.ccacts .btn){min-height:28px!important;height:28px;padding:0 9px!important;font-size:13px!important}
+/* Cancel always shows next to Save, even when the dialog also has an X (an older rule hid it) */
+html body .modal footer .btn[data-ccclose]:not(.pri):not(.danger),html body .modal footer .btn[data-cclose]:not(.pri):not(.danger),html body .modal footer .btn[data-close]:not(.pri):not(.danger),html body #ccBox footer .btn[data-ccclose]:not(.pri):not(.danger),html body #crudBox footer .btn[data-cclose]:not(.pri):not(.danger),html body #crudBox.onecol footer .btn[data-cclose]{display:inline-flex!important}
+html body .modal > footer,html body #crudBox > footer,html body #ccBox > footer{display:flex!important}
+/* icon-only backs inside panels: same arrow, same size */
+html body .adback svg,html body .tchbk svg,html body .kbib svg{width:18px;height:18px}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
@@ -2939,8 +2944,10 @@ function decorate(route){
     const sk = navSec(route); if(sk && NAVI_C[sk]){ w.classList.add("hnt"); w.style.setProperty("--c", NAVI_C[sk]); }   // page title: the page's icon on its section's colour tile
     if(h.closest(".phead")) h.parentNode.insertBefore(w, h); else { const t = document.createElement("div"); t.className = "titlewrap"; t.style.marginBottom = "4px"; h.parentNode.insertBefore(t, h); t.appendChild(w); t.appendChild(h); } } }
   // buttons
+  // every page's Back is the same button: arrow icon + "Back" (hero pages and documents used a bare ‹)
+  v.querySelectorAll("a.hback, a.hbk").forEach(a => { a.className = "btn"; a.style.textDecoration = "none"; a.removeAttribute("aria-label"); a.innerHTML = svgIco("back") + "Back"; a.dataset.deco = 1; });
   v.querySelectorAll(".btn").forEach(b => { if(b.dataset.deco || b.querySelector("svg")) return; b.dataset.deco = 1;
-    const t = b.textContent.replace(/[↻←]/g,"").trim(); if(b.matches("[data-docback],[data-detback]")){ b.innerHTML = svgIco("back") + "Back"; return; }
+    const t = b.textContent.replace(/[↻←‹]/g,"").trim(); if(/^back$/i.test(t) || b.matches("[data-docback],[data-detback]")){ b.innerHTML = svgIco("back") + "Back"; return; }
     if(/^Save( Draft| Changes)?$/i.test(t)){ b.classList.add("pri"); return; }   // every Save looks the same: the purple button, no icon
     const m = BTN_ICONS.find(([re]) => re.test(t)); if(m){ if(/^↻/.test(b.textContent)) b.textContent = t; b.insertAdjacentHTML("afterbegin", svgIco(m[1])); } });
   // KPI cards
@@ -5645,7 +5652,7 @@ function openOrder(id){
    <section class="cccart${ro?" wide":""}"><div class="cart" id="oCart"></div>
    <input type="hidden" id="oNotes" value="${esc(o?.notes||"")}"><input type="hidden" id="oRNotes" value="${esc(o?.receiptNotes||"")}"><div class="err" id="oErr"></div><div class="ccacts">${ccActions(o)}</div></section>
    <div class="ccadpop" id="oAddrPop" hidden><div class="ccadbox">
-    <div class="ccadh"><button type="button" class="adback" data-ccadv="list" aria-label="Back">‹</button><h3 id="oAddrT">Saved addresses</h3><button type="button" class="x" data-ccadx aria-label="Close">×</button></div>
+    <div class="ccadh"><button type="button" class="adback" data-ccadv="list" aria-label="Back">${svgIco("back")}</button><h3 id="oAddrT">Saved addresses</h3><button type="button" class="x" data-ccadx aria-label="Close">×</button></div>
     <div class="ccadlist"><div class="acards" id="oAddrCards"></div></div>
     <div class="ccaddet">
       <div id="oAddrF">${(() => { const a = addrSplit(o?.address), ad = ro || (ccLocked && o?.address) ? "disabled" : ""; return `<h4>Address details</h4>
@@ -7678,7 +7685,7 @@ function viewTeamChat(){
   if(TCH.adding){ const aq = (TCH.aq||"").trim().toLowerCase(), roleOf = u => userRoleIds(u).map(id => S.roles.find(r => r.id===id)?.name).filter(Boolean)[0] || u.jobTitle || "";
     const emps = S.users.filter(u => live(u) && u.active!==false && !isAdminRow(u) && (!aq || (String(u.name||"") + " " + String(u.phone||"") + " " + String(u.username||"")).toLowerCase().includes(aq))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
     let lt = ""; const rows = emps.map(u => { const L = (String(u.name||"").trim()[0] || "#").toUpperCase(), hd = L!==lt ? `<div class="tchlt">${esc(L)}</div>` : ""; lt = L; return hd + `<button type="button" class="tchg tchct" data-tchdm="${esc(u.id)}">${kbAv(u.name)}<span class="tchgt"><b>${esc(u.name)}</b><small>${esc(roleOf(u).toUpperCase())}</small></span></button>`; }).join("");
-    return `<div class="tch card"><aside class="tchl"><div class="tchtop tchaddh"><button type="button" class="tchbk" data-tchback aria-label="Back">←</button><b>Add new</b></div>
+    return `<div class="tch card"><aside class="tchl"><div class="tchtop tchaddh"><button type="button" class="tchbk" data-tchback aria-label="Back">${svgIco("back")}</button><b>Add new</b></div>
       <div class="tchs"><input class="sel" id="tchAq" placeholder="Search name or number" value="${esc(TCH.aq||"")}" autocomplete="off"></div>
       <div class="tchlist"><button type="button" class="tchg tchnew" data-tchnew="group"><span class="tchnic">${svgIco("users")}</span><span class="tchgt"><b>New Group</b></span></button><button type="button" class="tchg tchnew" data-tchnew="channel"><span class="tchnic">${svgIco("megaphone")}</span><span class="tchgt"><b>New Channel</b></span></button>
         <div class="tchsec">Contacts</div>${rows || `<p class="dzempty" style="padding:24px 18px;text-align:center">${aq ? "Nothing matches." : "No employees yet."}</p>`}</div></aside>
@@ -8850,7 +8857,7 @@ function ccOhPop(id){
     <div class="ohfil">${CC_OHFS.map(([k, l]) => `<button type="button" class="${(window.__ccOhF||"")===k ? "on" : ""}" data-ccohf="${k}">${l}</button>`).join("")}</div>
     <div class="ccadlist"><div class="ohgrid">${((t, m, f) => f ? ok.filter(o => m(o, f)).map(t).join("") : [["closed","Done"],["void","Void"],["refund","Refund"],["declined","Declined"]].map(([k, l]) => { const g = ok.filter(o => m(o, k)); return g.length ? `<div class="ohgh">${l}<span>${g.length}</span></div>` + g.map(t).join("") : ""; }).join(""))(o => `<button type="button" class="ohtile" data-ccohopen="${esc(o.id)}"><b>${esc(o.ref || num(o))}</b><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span>${o.type==="delivery" && o.address ? `<small class="oha">${esc(o.address)}</small>` : ""}<small>Created ${d(o.created_at, true)}</small>${o.updated_at && o.updated_at!==o.created_at ? `<small>Modified ${d(o.updated_at, true)}</small>` : ""}<em>${usd(+o.total||0)}</em><small>${[brandName(o.brand_id), branchName(o.branch_id)].filter(x => x && x!=="—").map(esc).join(" / ")}</small><small>${[ordTypeLbl(o.type), srcOf(o), o.agent].filter(Boolean).map(esc).join(" / ")}</small></button>`, (o, f) => f==="refund" ? ["refund","returned"].includes(o.status) : o.status===f, window.__ccOhF || "") || `<div class="ohnone">No orders</div>`}</div></div></div>`; ohEqual(p); return; }
   const it = (det.items||[]).filter(i => !i.voided), kv = (l, v) => v ? `<div class="ohrow"><span>${l}</span><b>${esc(v)}</b></div>` : "", a = det.address ? addrSplit(det.address) : null;
-  p.innerHTML = `<div class="ccadbox"><div class="ccadh"><button type="button" class="adback" data-ccohopen="" aria-label="Back">‹</button><h3>${esc(det.ref || (det.no ? "Order " + det.no : num(det)))}</h3><span class="spill s-${det.status}">${ORD_ST[det.status]||det.status}</span><button type="button" class="x" data-ccohx aria-label="Close">×</button></div>
+  p.innerHTML = `<div class="ccadbox"><div class="ccadh"><button type="button" class="adback" data-ccohopen="" aria-label="Back">${svgIco("back")}</button><h3>${esc(det.ref || (det.no ? "Order " + det.no : num(det)))}</h3><span class="spill s-${det.status}">${ORD_ST[det.status]||det.status}</span><button type="button" class="x" data-ccohx aria-label="Close">×</button></div>
     <div class="ccadlist"><div class="ohkv">${kv("Check Number", det.invoice_no ? invNo(det.invoice_no) : "")}${kv("Brand", brandName(det.brand_id))}${kv("Branch", branchName(det.branch_id))}${kv("Order type", ordTypeLbl(det.type))}${kv("Order source", srcOf(det))}${kv("Date", d(det.created_at, true))}</div>
       ${a && det.type==="delivery" ? `<div class="ohkv">${kv("Address", [a.label, a.street, a.building && "Bldg " + a.building, a.floor && "Floor " + a.floor, a.door, a.extra].filter(Boolean).join(" · ") || det.address)}</div>` : ""}
       <div class="podi">${it.map(i => `<div><span class="q">${+i.qty||1}×</span><span class="n">${esc(i.name)}${modLines(i).length ? `<small>${modLines(i).map(esc).join(", ")}</small>` : ""}</span><b>${usd((+i.price||0)*(+i.qty||1))}</b></div>`).join("") || '<p class="note">No items</p>'}</div>

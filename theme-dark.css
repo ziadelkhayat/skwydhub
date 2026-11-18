@@ -874,6 +874,7 @@ html[data-theme=dark] body .app #view table thead th, html[data-theme=dark] body
 html[data-theme=dark] body .app #view .drow, html[data-theme=dark] body .app #view .brow{border-bottom-color:#383844!important}
 html[data-theme=dark] body .app #view .igrid>div>div:last-child, html[data-theme=dark] body .app #view .card.odet>div{color:#dcdcde!important}
 html[data-theme=dark] body .app #view .sctadd span:last-child{color:#96abe8!important}
+html[data-theme=dark] body .app .hcard .hci{background:#161924;color:#96abe8}
 html[data-theme=dark] body .app .hcard .hcv{color:#dcdcde}
 html[data-theme=dark] body .app #view .card.secbox > table, html[data-theme=dark] body .app #view .card.secbox > .tscroll{background:#101420;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
 html[data-theme=dark] body .app #view .tscroll thead th, html[data-theme=dark] body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{background:#181a20}
