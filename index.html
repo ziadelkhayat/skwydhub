@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="988-1795020822">
+<meta name="skwyd-build" content="989-1795022137">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2373,6 +2373,23 @@ html body .app aside.side a.plancard{background:#E5E5EA!important;color:#1C1C1E!
   html body .app .kpis,html body .app .dgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
   html body .app .card.tbl,html body .app .tbl{overflow-x:auto!important}
 }
+
+/* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
+:root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
+@keyframes fdFade{from{opacity:0}to{opacity:1}}
+@keyframes fdModal{from{opacity:0;transform:scale(1.1)}to{opacity:1;transform:none}}
+@keyframes fdPop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+html body #view.vin,html body #view{animation:none!important}
+html body .scrim.show,html body .slk-ask,html body .modal.on{animation:fdFade .2s var(--fd) both!important}
+html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .slk-ask-b,html body .modal.on > .dlg{animation:fdModal .2s var(--fd) both!important}
+html body .scrim .modal.odrawer{animation:fdFade .2s var(--fd) both!important}
+html body .ddmenu:not([hidden]),html body .acctmenu:not([hidden]),html body .kbmenu,html body .msel>.msel-p,html body .cal,html body .ofpop,html body .pkpop,html body .drp,html body .gsres:not([hidden]){animation:fdPop .15s var(--fd) both!important}
+html body .btn,html body button.btn,html body .sel,html body input,html body select,html body textarea{transition:all .3s var(--fd)}
+html body aside.side .nav a,html body aside.side .nav .grp > button,html body aside.side .nav svg{transition:all .1s var(--fd)!important}
+html body .toast,html body #toast{transform:translate(-50%,-100%)!important;top:20px!important;bottom:auto!important;opacity:0;transition:all .3s var(--fd)!important}
+html body .toast.show,html body #toast.show{transform:translate(-50%,0)!important;opacity:1}
+@media (max-width:899px){html body .app aside.side,html body .app aside.side.side{transition:transform .3s var(--fd)!important}html body #navShade{transition:opacity .3s var(--fd)!important}}
+@media (prefers-reduced-motion:reduce){html body *,html body *::before,html body *::after{animation:none!important;transition:none!important}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
