@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1026-1795031687">
+<meta name="skwyd-build" content="1027-1795031767">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2617,6 +2617,11 @@ html body .app .curight .cstats b{font-size:22px!important;font-weight:400!impor
 html body .app .curight table th{font-size:14px!important;font-weight:600!important}
 html body .app .curight table td{font-size:14px!important;font-weight:400!important}
 html body .app .curight table td b,html body .app .curight table td strong{font-weight:400!important}
+/* ===== Category and sub-category images shown in the menu list, same size as item images ===== */
+html body .mm .mmside .mmcat .scimg{display:grid!important;place-items:center;width:40px!important;height:40px!important;border-radius:8px;background:#F2F2F7;overflow:hidden;flex:none;color:#C7C7CC}
+html body .mm .mmside .mmcat .scimg img{width:100%;height:100%;object-fit:cover;object-view-box:inset(14%)}
+html body .mm .mmside .mmcat.mmsubc .scimg{width:34px!important;height:34px!important}
+html body .mm .mmside .mmcat .scimg .ico{width:18px;height:18px;color:#AEAEB2}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
