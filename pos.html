@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1044-1795035260">
+<meta name="skwyd-build" content="1046-1795035447">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -995,6 +995,18 @@ html body #modal .pinpad,html body .modal .pinpad,html body .smp .smnp,html body
 html body #modal .pinpad button,html body .modal .pinpad button,html body .smp .smnp button{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;width:100%!important;padding:0!important;background:#FFFFFF!important;color:#1C1C1E!important;border:1px solid #E5E5EA!important;border-radius:18px!important;font-size:28px!important;font-weight:400!important;display:grid!important;place-items:center!important;box-shadow:none!important}
 html body #modal .pinpad button:active,html body .modal .pinpad button:active,html body .smp .smnp button:active{background:#EEF2FF!important;transform:none!important}
 html body #modal .pinpad button[data-npk="C"],html body .modal .pinpad button[data-npk="C"]{color:#B42318!important}
+/* ===== POS orders list: same as the portal Orders list (centred, 14px, dd-mm-yy, second lines small grey, status pills) ===== */
+html body .olist2 .lrow.ol5>span{text-align:center!important;align-items:center!important;justify-content:center!important;display:flex!important;flex-direction:column!important}
+html body .olist2 .lrow.ol5>span.lr{text-align:center!important}
+html body .olist2 .lrow.ol5.lhead>span{font-size:14px!important;font-weight:600!important;text-transform:none!important;letter-spacing:0!important;color:#1C1C1E!important;text-align:center!important}
+html body .olist2 .lrow.ol5:not(.lhead) b{font-size:14px!important;font-weight:400!important;color:#1C1C1E!important}
+html body .olist2 .lrow.ol5:not(.lhead) .lc>span:not(.ospill),html body .olist2 .lrow.ol5:not(.lhead) .lc>b+span{font-size:12.5px!important;color:#8E8E93!important;font-weight:400!important}
+html body .olist2 .ospill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:#F2F2F7;color:#3A3A3C;white-space:nowrap}
+html body .olist2 .ospill.lst-closed{background:#ECFDF3;color:#067647}
+html body .olist2 .ospill.lst-active,html body .olist2 .ospill.lst-pending{background:#FFF6E5;color:#B54708}
+html body .olist2 .ospill.lst-declined,html body .olist2 .ospill.lst-void{background:#FDECEC;color:#B42318}
+html body .olist2 .ospill.lst-refund,html body .olist2 .ospill.lst-returned{background:#F3E8FF;color:#6D28D9}
+html body .olist2 .lrow.ol5{border-bottom:1px solid #DCDCE2}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -2669,15 +2681,15 @@ function openIncoming(){
     <span class="lc"><b style="text-transform:none">${esc(o.ref || "—")}</b></span>
     <span class="lc"><b style="text-transform:none">${esc(invOf(o)) || `<span class="mut">${o.status==="pending" ? "Not accepted yet" : "—"}</span>`}</b></span>
     <span class="lc"><b class="lno" style="text-transform:none">${esc(o.status==="refund" ? "–" : o.no ? String(o.no) : "—")}</b></span>
-    <span class="lc"><b style="text-transform:none">${esc(custOf(o) ? (o.customerName || telFmt(o.phone)) : "-")}</b>${custOf(o) && o.customerName && o.phone ? `<span>${esc(o.phone)}</span>` : ""}</span>
-    <span class="lc"><span class="lst-${o.status}" style="font-size:13px;font-weight:700">${esc(stLbl(o))}</span></span>
+    <span class="lc"><b style="text-transform:none">${esc(custOf(o) ? (o.customerName || telFmt(o.phone)) : "—")}</b>${custOf(o) && o.customerName && o.phone ? `<span>${esc(telFmt(o.phone))}</span>` : ""}</span>
+    <span class="lc"><span class="lst-${o.status} ospill">${esc(stLbl(o))}</span></span>
     <span class="lc lc2"><b style="text-transform:none">${esc(chn(o))}</b></span>
     <span class="lc lc2"><b style="text-transform:none">${esc(typLbl(o.type))}</b>${o.type==="dinein" && o.table ? `<span>${esc(tblLbl(o.table))}</span>` : ""}</span>
-    <span class="lc lc2"><b style="text-transform:none">${o.source && o.source.toLowerCase()!==chn(o).toLowerCase() ? esc(o.source) : "-"}</b></span>
-    <span class="lc lc2">${o.createdAt ? (d => `<b style="text-transform:none">${d[2]}/${d[1]}</b><span style="text-transform:none">${d[0]}</span>`)(bizDate(o.createdAt).split("-")) : "<b>—</b>"}</span>
-    <span class="lc lc2">${o.createdAt ? `<b style="text-transform:none;white-space:nowrap">${new Date(o.createdAt).toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric", year:"numeric" })}</b><span style="text-transform:none">${new Date(o.createdAt).toLocaleTimeString("en-GB", { hour:"numeric", minute:"2-digit" })}</span>` : "<b>—</b>"}</span>
-    <span class="lc lc2"><b style="text-transform:none">${esc(o.payment?.method || "-")}</b></span>
-    <span class="lr"><b style="text-transform:none;font-size:15px">${usd(o.total)}</b></span></button>`;
+    <span class="lc lc2"><b style="text-transform:none">${o.source && o.source.toLowerCase()!==chn(o).toLowerCase() ? esc(o.source) : "—"}</b></span>
+    <span class="lc lc2">${o.createdAt ? (d => `<b style="text-transform:none;white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</b>`)(bizDate(o.createdAt).split("-")) : "<b>—</b>"}</span>
+    <span class="lc lc2">${o.createdAt ? (t => `<b style="text-transform:none;white-space:nowrap">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)}</b><span style="text-transform:none;white-space:nowrap">${t.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" }).toLowerCase()}</span>`)(new Date(o.createdAt)) : "<b>—</b>"}</span>
+    <span class="lc lc2"><b style="text-transform:none">${esc(o.payment?.method || "—")}</b></span>
+    <span class="lr"><b style="text-transform:none">${usd(o.total)}</b></span></button>`;
   const TABS = [["all","All"],["active","Active"],["closed","Done"],["void","Voids"],["returns","Returns"],["declined","Declined"]];
   if(!TABS.some(x => x[0]===OV.tab)) OV.tab = "all";
   const day = OV.date || bizDate(), shift = n => { const d = new Date(day + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
