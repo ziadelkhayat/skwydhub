@@ -16,7 +16,7 @@ export function Shell({ route, perms, children }: { route: string; perms: string
   const go = (id: string) => { location.hash = id; setOpen(false); };
   return <div className={cx("app", open && "navopen")}>
     <aside className="side">
-      <div className="sbrand"><Mark size={34} /><Wordmark height={34} /></div>
+      <div className="sbrand"><Mark size={46} /><Wordmark height={46} /></div>
       <nav>{nav.map(s => s.id
         ? <a key={s.t} href={"#" + s.id} className={cx("nl", route === s.id && "on")} onClick={() => setOpen(false)}><Icon n={s.i} />{s.t}</a>
         : <div key={s.t} className={cx("ng", exp === s.t && "open", sec === s && "cur")}>

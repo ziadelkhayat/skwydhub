@@ -2,7 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { sb } from "../lib/supabase";
 import { ls } from "../lib/util";
-import { Mark, Wordmark } from "./Icons";
+import { Lockup } from "./Icons";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
 
@@ -57,7 +57,7 @@ export function Login({ message }: { message: string }) {
   return (
     <div className="gate">
       <form className="gcard" onSubmit={submit} autoComplete="on">
-        <div className="gbrand"><Mark size={60} /><Wordmark height={54} /></div>
+        <div className="gbrand"><Lockup height={150} /></div>
         <label htmlFor="acct">Account Number <i>*</i></label>
         <input id="acct" inputMode="numeric" autoComplete="organization" value={acct} onChange={e => setAcct(e.target.value)} />
         {pw ? <>
