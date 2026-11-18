@@ -2274,7 +2274,7 @@ $("#scrim").addEventListener("click", e => { if(e.target.id==="scrim" && modalKi
 const oskAuto = () => { try{ if(localStorage.getItem("skwyd_osk") === "off") return false;
   const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   if(ios) return false;   // iPad / iPhone keep their own keyboard
-  return /Android/i.test(ua) || matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0 || /[?&]kb=1/.test(location.search); }catch(e){ return false; } };
+  return true; }catch(e){ return true; } };   // on by default everywhere else (tablet app and web); a physical keyboard still types as usual
 let OSK_ON = oskAuto();
 const OSK = { el:null, target:null, shift:false, caps:false, mode:"abc", lang:(()=>{ try{ return localStorage.getItem("skwyd_osk_lang") || "en"; }catch(e){ return "en"; } })(), kind:"text", lastShift:0, rep:null };
 const OSK_IC = {
@@ -2370,6 +2370,7 @@ document.addEventListener("pointerdown", e => {
 document.addEventListener("focusin", e => { if(OSK_ON && oskField(e.target)) oskShow(e.target); else if(!e.target.closest?.(".osk")) oskHide(); });
 document.addEventListener("focusout", e => { const t = e.target; if(t && t.hasAttribute?.("data-osk-im")) setTimeout(() => { if(document.activeElement !== t){ const im = t.getAttribute("data-osk-im"); if(im) t.setAttribute("inputmode", im); else t.removeAttribute("inputmode"); t.removeAttribute("data-osk-im"); } }, 0); });
 document.addEventListener("input", e => { if(e.target === OSK.target) oskPreview(); });
+document.addEventListener("keydown", e => { if(e.isTrusted && e.target === OSK.target && OSK.shift && !OSK.caps && e.key.length === 1){ OSK.shift = false; oskDraw(); } });   // typing on a real keyboard ends the one-letter shift
 addEventListener("resize", () => { if(OSK.el?.classList.contains("show")) oskSize(); });
 // on-screen number pad for touch screens: types into the field it belongs to
 const ADDR_TYPES = ["Apartment","House/Villa","Compound","Office","Hotel","Other"];
