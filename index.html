@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1008-1795026005">
+<meta name="skwyd-build" content="1009-1795027792">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2494,6 +2494,12 @@ html body .app #view .drow b,html body .app #view .rcard b,html body .app #view 
 /* dashboard: numbers, labels, notes and card titles all regular weight (Foodics) */
 html body .app #view .kpi b,html body .app #view .ktile b,html body .app #view .kmini b,html body .app #view .kpi .v,html body .app #view .ktile .kv,html body .app #view .kpi span,html body .app #view .ktile span,html body .app #view .kmini span,html body .app #view .ktile *,html body .app #view .kmini *,html body .app #view .kpi *{font-weight:400!important}
 html body .app #view .card h3,html body .app #view .card .kh h3,html body .app #view .dchart h3,html body .app #view .dbr h3,html body .app #view .dshift h3{font-weight:400!important}
+/* dashboard chart cards: icon tile top right, two summary tiles above */
+html body .app .hcard .hch{display:flex!important;align-items:center;gap:10px}
+html body .app .hcard .hch .sp{flex:1}
+html body .app .hcard .hci{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#EEF2FF;color:#1E3A8A;flex:none;font-style:normal}
+html body .app .hcard .hci svg{width:20px;height:20px}
+html body .app #view .kgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -3200,7 +3206,7 @@ const cap = s => String(s||"").charAt(0).toUpperCase() + String(s||"").slice(1);
 /* ---------- charts ---------- */
 const FMT = { n: v => Math.round(v).toLocaleString() + " orders", m: v => money(v) };
 function lineChart(values, opt = {}){
-  const W=opt.w||640, H=opt.h||230, L=opt.axis===false?8:44, R=12, T=12, B=30, max = Math.max(1,...values), n = values.length;
+  const W=opt.w||640, H=opt.h||230, L=opt.axis===false?(opt.rot?18:8):44, R=opt.rot?18:12, T=12, B=opt.rot?96:30, max = Math.max(1,...values), n = values.length;
   const x = i => L + i*(W-L-R)/(n-1), y = v => T + (H-T-B)*(1 - v/max);
   const pts = values.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
   let g = "";
@@ -3210,11 +3216,12 @@ function lineChart(values, opt = {}){
   } else g += `<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="#ecebf0"/>`;
   const step = opt.labelStep || 3;
   const lab = i => opt.labels ? opt.labels[i] : hourLbl((i + dayStartH()) % 24);
-  g += values.map((v,i)=> i%step===0 ? `<text x="${x(i)}" y="${H-10}" text-anchor="${opt.labels&&i===n-1?"end":opt.labels&&i===0?"start":"middle"}" font-size="${opt.axis===false?16:(opt.fs||10)}" fill="#8d8c98">${esc(lab(i))}</text>` : "").join("");
-  const dots = opt.dots ? values.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${opt.axis===false?4:3}" fill="var(--chart)"/>`).join("") : "";
+  if(opt.rot) g += values.map((v,i)=> i%step===0 || i===n-1 ? `<text transform="translate(${x(i)+6},${y(0)+12}) rotate(-90)" text-anchor="end" font-size="20" font-style="italic" fill="#636366">${esc(lab(i))}</text>` : "").join("");
+  else g += values.map((v,i)=> i%step===0 ? `<text x="${x(i)}" y="${H-10}" text-anchor="${opt.labels&&i===n-1?"end":opt.labels&&i===0?"start":"middle"}" font-size="${opt.axis===false?16:(opt.fs||10)}" fill="#8d8c98">${esc(lab(i))}</text>` : "").join("");
+  const dots = opt.dots ? values.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${opt.axis===false?4:3}" fill="${opt.color||"var(--chart)"}"/>`).join("") : "";
   const area = `${L},${y(0)} ${pts} ${W-R},${y(0)}`;
   return `<div class="chart" data-vals="${values.map(v=>+v.toFixed(2)).join(",")}" data-h="${H}" data-w="${W}" data-l="${L}" data-fmt="${opt.fmt||"n"}" ${opt.labels?`data-labels="${esc(opt.labels.join("|"))}"`:""}><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.label||"Chart by hour")}">
-    ${g}${opt.area===false?"":`<polygon points="${area}" fill="var(--chart-soft)" opacity=".6"/>`}<polyline points="${pts}" fill="none" stroke="var(--chart)" stroke-width="${opt.axis===false?3:2}" stroke-linejoin="round"/>${dots}
+    ${g}${opt.area===false?"":`<polygon points="${area}" fill="var(--chart-soft)" opacity=".6"/>`}<polyline points="${pts}" fill="none" stroke="${opt.color||"var(--chart)"}" stroke-width="${opt.rot?2:opt.axis===false?3:2}" stroke-linejoin="round"/>${dots}
     <line class="xh" y1="${T}" y2="${y(0)}" stroke="#bdbbc8" stroke-dasharray="3 3" visibility="hidden"/><circle class="mk" r="${opt.axis===false?8:5}" fill="var(--chart)" stroke="#fff" stroke-width="2" visibility="hidden"/>
     <rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" class="hit"/></svg><div class="tip"></div></div>`;
 }
@@ -3331,15 +3338,13 @@ function viewDashboard(){
     const trend = (cur, prev, alt) => state.compare && prev ? (() => { const pct = (cur-prev)/prev*100, up = pct >= 0; return `<span class="ktr ${up?"up":"down"}">${up?"▲":"▼"} ${Math.abs(pct).toFixed(1)}% <span>vs ${esc(cmpLbl())}</span></span>`; })() : `<span class="ktr"><span>${alt}</span></span>`;
     const tile = (label, icon, tint, ink, value, tr, rep) => `<div class="card ktile"><div class="kth"><span>${label}</span><i style="background:${tint};color:${ink}">${svgIco(icon)}</i></div><b class="kv">${value}</b>${tr}${rep ? `<a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a>` : ""}</div>`;
     h += `<div class="kgrid">
-      ${tile("Net sales", "dollar", "#EEF2FF", "#1E3A8A", money(+D.net), trend(+D.net, P&&+P.net, "Prices include tax"), "Net Sales")}
-      ${tile("Orders", "orders", "#EEF2FF", "#1E3A8A", (+D.orders||0).toLocaleString(), trend(+D.orders||0, P&&+P.orders, `${(+D.orders||0) ? "Closed this period" : "No orders yet"}`), "Orders")}
       ${tile("Average ticket", "receipt", "#F3E8FF", "#6D28D9", money(avg(D)), trend(avg(D), P&&avg(P), "Net sales ÷ orders"), "Average Ticket")}
       ${tile("Active orders", "clock", "#FFF1E6", "#9A3B00", D.active ? D.active.n : (D.open||0), `<span class="ktr"><span>${D.active ? money(D.active.v) + " not closed yet" : "Not closed yet"}${D.active?.pending ? ` · ${D.active.pending} waiting` : ""}</span></span>`)}
     </div>`;
     // Foodics row: orders, net sales and net payments by hour, each with its total and a link to the report
     { const hPay = hours24(D.hours,"pay"), sum = a => a.reduce((x,y) => x + y, 0);
-      const hc = (label, value, vals, rep, fmt) => `<div class="card hcard"><div class="hch"><b>${label}</b><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a></div><div class="hcv">${value}</div>${lineChart(vals, { dots:true, h:190, axis:false, area:false, label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
-      h += `<div class="hgrid">${hc("Orders", sum(hN).toLocaleString(), hN, "Orders", "n")}${hc("Net sales", money(sum(hNet)), hNet, "Net Sales", "m")}${hc("Net payments", money(sum(hPay)), hPay, "Net Payments", "m")}</div>`; }
+      const hc = (label, value, vals, rep, fmt, icon) => `<div class="card hcard"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv">${value}</div>${lineChart(vals, { dots:true, h:300, axis:false, area:false, rot:true, color:"#6D28D9", label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
+      h += `<div class="hgrid">${hc("Orders", sum(hN).toLocaleString(), hN, "Orders", "n", "orders")}${hc("Net sales", money(sum(hNet)), hNet, "Net Sales", "m", "dollar")}${hc("Net payments", money(sum(hPay)), hPay, "Net Payments", "m", "card")}</div>`; }
     // net sales chart: by hour for one day, by day for longer periods
     let cur, prev = null, labels, step;
     if(rangeDays() > 1){ const n = rangeDays(), end = new Date(state.date+"T12:00:00"); cur = []; labels = [];
@@ -6319,7 +6324,7 @@ function viewOnline(){
   h += `<div class="olwrap"><div class="olmain"><div class="olseg" role="tablist">${L("store","Storefront")}${L("look","Appearance")}${L("checkout","Checkout")}${L("branches","Branches")}</div>
 
   <div class="olpane${tab==="store"?" on":""}" data-olpane="store">
-    <div class="card olcard"><div class="olhead"><div><h3 class="ct">${esc(brandName(olBrand()))}</h3><p class="note">The page always carries the brand name. Rename it in Manage → Brands.</p></div><span class="tag ${c.enabled?"on":""}">${c.enabled?"Live":"Off"}</span></div>
+    <div class="card olcard"><div class="olhead"><div><h3 class="ct">${esc(brandName(olBrand()))}</h3></div><span class="tag ${c.enabled?"on":""}">${c.enabled?"Live":"Off"}</span></div>
       ${tg("olOn", c.enabled, "Accept web orders", "Turn off to show a “closed” page.")}
       <div class="f" style="margin-top:12px"><label for="olSlug">Web Address *</label><div class="olslug"><span>${esc(ORDER_HOST.replace(/^https:\/\//, ""))}</span><input id="olSlug" class="sel" value="${esc(slug || olSlugGuess())}" autocomplete="off" spellcheck="false" maxlength="40">${slug ? `<button type="button" class="olic" data-olcopy="${esc(link)}" title="Copy the link" aria-label="Copy the link">${svgIco("copy")}</button><a class="olic" href="${esc(link)}" target="_blank" rel="noopener" title="Open the ordering page" aria-label="Open the ordering page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>` : ""}</div>
         <div class="olslugrow"><span id="olSlugMsg" class="note"></span></div></div>
