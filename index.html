@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="978-1795007850">
+<meta name="skwyd-build" content="979-1795007916">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -5884,9 +5884,9 @@ function viewDevice(d){
 }
 function viewDevices(){
   const od = state.devOpen && S.devices.find(x => x.id===state.devOpen && live(x)); if(od) return viewDevice(od);
-  const dt = state.devTab || "all", all = S.devices.filter(live), list = all.filter(d => dt==="all" || d.type===dt).filter(d => (!state.devBranch || d.branchId===state.devBranch) && emInBrand(d.branchId, state.devBrand)).filter(crudFltOk("devices")).sort((a,b)=>branchName(a.branchId).localeCompare(branchName(b.branchId))||a.name.localeCompare(b.name));
+  const dt = state.devTab || "all", all = S.devices.filter(live), list = all.filter(d => dt==="all" || d.type===dt).filter(crudFltOk("devices")).sort((a,b)=>branchName(a.branchId).localeCompare(branchName(b.branchId))||a.name.localeCompare(b.name));
   const dsel = (state.devSel ||= new Set()); [...dsel].forEach(id => { if(!list.some(d => d.id===id)) dsel.delete(id); });
-  let h = `<div class="phead"><h1>Devices</h1><div class="sp"></div><div class="ordtools">${emBrandSel("devBrand", state.devBrand)}<select class="sel" id="devBranch"><option value="">All Branches</option>${branches.filter(b => b.active!==false && emInBrand(b.id, state.devBrand)).map(b => `<option value="${esc(b.id)}" ${state.devBranch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div><button class="btn pri" id="devNew">Create Device</button></div>`;
+  let h = `<div class="phead"><h1>Devices</h1><div class="sp"></div><button class="btn pri" id="devNew">Create Device</button></div>`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: devices won't be saved.</div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${[["all","All"], ...DEV_TYPES].map(([k,t]) => `<a href="#devices" data-devtab="${k}" class="${dt===k?"on":""}">${t}</a>`).join("")}</div><div class="sp"></div>${crudFltBtn("devices")}</div>${list.length ? `<table><thead><tr><th class="noedit bkc"><input type="checkbox" data-devall ${list.every(d => dsel.has(d.id))?"checked":""} aria-label="Select all"></th>${dsel.size
       ? `<th colspan="4" class="bkbar"><b>${dsel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" data-devacts>Actions ▾</button><span class="ddmenu" id="devActM" hidden><button type="button" data-devbulk="add">Add Tags</button><button type="button" data-devbulk="del">Remove Tags</button><button type="button" data-devbulk="sync">Force Sync Data</button></span></span></th>`
@@ -11233,6 +11233,8 @@ const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
     ["upd","Updated After","date",r=>r.updatedAt]],
   devices: [ffTxt("name","Name",r=>r.name), ffTxt("ref","Reference",r=>r.reference), ffTxt("code","Code",r=>r.code),
     ["type","Type","sel",r=>r.type, () => DEV_TYPES],
+    ["brand","Brand","sel",r=>branches.find(b => b.id===r.branchId)?.brandId, () => brandList().map(b => [b.id, b.name])],
+    ["br","Branch","sel",r=>r.branchId, () => activeBranches().map(b => [b.id, b.name])],
     ["tag","Tag","sel",r=>tagsOf("device", r.id), () => tagList("device").map(t => [t.id, t.name])],
     ffYN("use","In Use",r=>!!r.activatedAt)],
   discounts: [ffTxt("name","Name",r=>r.name+" "+(r.nameAr||"")), ffTxt("ref","Reference",r=>r.reference),
