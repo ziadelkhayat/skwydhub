@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1012-1795029236">
+<meta name="skwyd-build" content="1013-1795029364">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2528,6 +2528,13 @@ html body .nutr .nrow span{font-size:14px!important;font-weight:400!important;co
 html body .nutr .nrow input{width:100%!important;max-width:none!important;height:40px!important;min-height:40px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;padding:0 52px 0 12px!important;background:#fff!important;box-shadow:none!important;font-size:14px!important;text-align:left!important}
 html body .nutr .nrow input:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important}
 html body .nutr .nrow i{position:absolute;right:12px;bottom:11px;font-style:normal!important;color:#8E8E93!important;font-size:13px!important;pointer-events:none;text-transform:none}
+/* ===== Buttons, one size everywhere: 38px tall, at least 96px wide (small 32px / 72px), icon-only buttons square, main buttons flat ===== */
+html body .btn,html body .app .btn,html body .app #view .btn,html body .app #view .card .btn,html body .modal .btn,html body .dlg .btn,html body .scrim .btn,html body .content .btn,html body .app #view .ccnext .btn,html body .app #view .ccnext .btn.pri,html body .modal footer .btn.pri,html body .tchtop .btn.pri,html body .tchwel .btn.pri,html body .mmbar .btn.pri,html body .mmcbar .btn.pri,html body .mmhd .btn.pri,html body .ccctxb .btn{min-height:38px!important;height:38px!important;min-width:96px!important;padding:0 16px!important;font-size:14px!important;font-weight:500!important;border-radius:10px!important;box-sizing:border-box;white-space:nowrap}
+html body .btn.pri,html body .app #view .btn.pri,html body .modal .btn.pri,html body .dlg .btn.pri,html body .scrim .btn.pri,html body .content .btn.pri{box-shadow:none!important}
+html body .btn.sm,html body .app .btn.sm,html body .app #view .btn.sm,html body .modal .btn.sm{min-height:32px!important;height:32px!important;min-width:72px!important;padding:0 12px!important;font-size:13px!important;border-radius:8px!important}
+html body .btn.bico,html body .app #view .btn.bico,html body .modal .btn.bico,html body .btn.trashbtn,html body .app #view .btn.trashbtn{min-width:38px!important;width:38px!important;padding:0!important}
+html body .btn.sm.bico,html body .app #view .btn.sm.bico,html body .btn.trashbtn.sm{min-width:32px!important;width:32px!important}
+html body .modal footer .btn.danger:not(:first-child),html body .dlg footer .btn.danger:not(:first-child),html body .scrim footer .btn.danger:not(:first-child){background:#FDECEC!important;padding:0 16px!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -2705,7 +2712,7 @@ const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" +
   <div class="modal" style="width:min(420px,100%)">
     <header><h2>Delete branch?</h2></header>
     <div style="padding:18px 22px" id="confirmText"></div>
-    <footer><button class="btn" id="cNo">Cancel</button><button class="btn pri" id="cYes">Delete</button></footer>
+    <footer><button class="btn" id="cNo">Cancel</button><button class="btn danger" id="cYes">Delete</button></footer>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -7500,7 +7507,7 @@ function kbEditView(){ const E = KB.ed; if(E.step) return kbWizard();
       <div class="kblist">${!E.folder && E.body ? `<div class="kbrowi">${kbIco("text")}<b>Text (from the old article)</b><small>${esc(E.body.slice(0,80))}</small><span class="sp"></span><button type="button" class="kbib" data-kbedtx="__body">${kbIco("edit")}</button></div>` : ""}${list.map(x => `<div class="kbrowi" ${x.kind==="folder" ? `data-kbfo="${esc(x.id)}"` : ""}>${kbIco(x.kind)}<b>${esc(x.name || x.url || "Text")}</b><small>${x.kind==="folder" ? kbKids(E.items, x.id).length + " items" : x.kind==="link" ? esc(x.url) : x.kind==="text" ? esc(String(x.body||"").slice(0,80)) : x.size ? (x.size/1048576).toFixed(1) + " MB" : ""}</small><span class="sp"></span>${x.kind==="folder" ? "" : `<button type="button" class="kbib" data-kbedtx="${esc(x.id)}" title="Edit">${kbIco("edit")}</button>`}<button type="button" class="kbib" data-kbrm="${esc(x.id)}" title="Delete">${kbIco("trash")}</button></div>`).join("")
         || (q ? `<p class="dzempty" style="padding:30px">Nothing matches.</p>` : (!E.folder && E.body ? "" : `<p class="kbempt">This folder is empty</p>`) + tiles)}</div></section></div>
     <footer class="kbedf"><span class="note">Storage</span><span class="kbbar"><i style="width:${Math.min(100, size / (MB * 10485.76))}%"></i></span><span class="note">${(size/1048576).toFixed(1)} MB of ${MB} MB</span><div class="sp"></div>
-      <button type="button" class="btn" data-kbcancel>Cancel</button><button type="button" class="btn" data-kbset>${svgIco("gear")} Settings</button><button type="button" class="btn" data-kbdraft>Save As Draft</button><button type="button" class="btn pri" data-kbsave>Save</button></footer></div>`; }
+      <button type="button" class="btn" data-kbcancel>Cancel</button><button type="button" class="btn" data-kbset>${svgIco("gear")} Settings</button><button type="button" class="btn" data-kbdraft>Save as Draft</button><button type="button" class="btn pri" data-kbsave>Save</button></footer></div>`; }
 
 function kbWizard(){ const E = KB.ed, adm = E.step===2, q = E.aq.trim().toLowerCase();
   const emps = S.users.filter(u => live(u) && u.active!==false && (adm || !isAdminRow(u))).sort((a,b) => String(a.name).localeCompare(String(b.name)));
@@ -7777,7 +7784,7 @@ function viewRequests(){
   h += `<table><thead><tr><th>Employee</th><th>Request</th><th>Note</th><th>Asked</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(r => { const u = byId[r.employeeId], al = u && u.leaveDays!=null && u.leaveDays!=="" ? +u.leaveDays : null;
     const bal = r.kind==="time_off" && r.leaveType==="annual" && al!=null ? `<div class="note">Annual left: ${al - rqUsed(r.employeeId, "annual", d10s(r.fromDay).slice(0,4))}</div>` : "";
     return `<tr><td><b>${esc(u?.name || "—")}</b><div class="note">${esc(u?.jobTitle || "")}</div></td><td>${rqWhat(r)}${bal}</td><td>${esc(r.note || "—")}${r.decisionNote ? `<div class="note">Reply: ${esc(r.decisionNote)}</div>` : ""}</td><td>${esc(new Date(r.createdAt).dmy())}</td><td>${rqSt(r)}${r.decidedBy ? `<div class="note">${esc(r.decidedBy)}</div>` : ""}</td>
-      <td class="num"><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;width:120px;margin-left:auto">${r.status==="pending" ? `<button type="button" class="btn pri" data-rqok="${esc(r.id)}">Approve</button><button type="button" class="btn" data-rqdec="${esc(r.id)}">Decline</button>` : r.status==="approved" ? `<button type="button" class="btn" data-rqundo="${esc(r.id)}">Cancel</button>` : ""}</div></td></tr>`; }).join("") || `<tr><td colspan="6"><div class="empty">${RQ.tab==="pending" || RQ.tab==="all" ? "No requests yet. Staff ask for time off or a shift swap through the app." : "Nothing here yet."}</div></td></tr>`}</tbody></table></div>`;
+      <td class="num"><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;width:120px;margin-left:auto">${r.status==="pending" ? `<button type="button" class="btn pri" data-rqok="${esc(r.id)}">Approve</button><button type="button" class="btn danger" data-rqdec="${esc(r.id)}">Decline</button>` : r.status==="approved" ? `<button type="button" class="btn" data-rqundo="${esc(r.id)}">Cancel</button>` : ""}</div></td></tr>`; }).join("") || `<tr><td colspan="6"><div class="empty">${RQ.tab==="pending" || RQ.tab==="all" ? "No requests yet. Staff ask for time off or a shift swap through the app." : "Nothing here yet."}</div></td></tr>`}</tbody></table></div>`;
   return h;
 }
 const rqWho = () => state.fullName || state.email || "Back office";
@@ -7799,7 +7806,7 @@ document.addEventListener("click", async e => { const t = e.target; if(!t.closes
   const dc = t.closest("[data-rqdec]"); if(dc){ const r = S.work_requests.find(x => x.id===dc.dataset.rqdec); if(!r) return;
     const box = $("#ccBox"); box.className = "modal sm";
     box.innerHTML = `<header><h2>Decline Request</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:block"><p class="note" style="margin:0 0 12px">${esc(S.users.find(u => u.id===r.employeeId)?.name || "")} · ${rqWhat(r)}</p><div class="f"><label for="rqWhy">Reason</label><input id="rqWhy" placeholder="Shown to the employee (optional)"></div></div>
-      <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" data-rqdecgo="${esc(r.id)}">Decline</button></footer>`;
+      <footer><span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn danger" data-rqdecgo="${esc(r.id)}">Decline</button></footer>`;
     $("#ccScrim").classList.add("show"); setTimeout(() => $("#rqWhy")?.focus(), 60); return; }
   const dg = t.closest("[data-rqdecgo]"); if(dg){ try{ await put("work_requests", dg.dataset.rqdecgo, { status:"declined", decidedBy: rqWho(), decidedAt: new Date().toISOString(), decisionNote: $("#rqWhy").value.trim() || null }); $("#ccScrim").classList.remove("show"); render(); }catch(er){ console.error(er); toast("Couldn't save."); } return; }
   const un = t.closest("[data-rqundo]"); if(un){ if(!(await askYes("Cancel this approved request? Shifts already changed stay as they are."))) return;
@@ -11967,5 +11974,7 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
     const t = document.getElementById("toast"); if(!t) return; t.textContent = m; t.classList.remove("ok"); t.classList.add("show"); clearTimeout(window.__errT); window.__errT = setTimeout(() => t.classList.remove("show"), 2600); };
   new MutationObserver(ms => ms.forEach(m => { const el = m.type==="characterData" ? m.target.parentElement : m.target; if(el && el.classList?.contains("err") && el.closest(".modal, #view")) show(el.textContent); }))
     .observe(document.body, { childList:true, characterData:true, subtree:true }); })();</script>
+<script>/* mark icon-only buttons (‹ › × ⋯ ↑ ↓, or just an icon) so they stay square */
+(function(){const mark=()=>document.querySelectorAll(".btn:not(.bico)").forEach(b=>{const t=b.textContent.replace(/\s+/g,"");if(t.length<=1||(!t&&b.querySelector("svg")))b.classList.add("bico")});let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;mark()})}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});document.addEventListener("DOMContentLoaded",mark);})();</script>
 </body>
 </html>
