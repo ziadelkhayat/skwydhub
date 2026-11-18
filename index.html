@@ -2526,8 +2526,6 @@ html body .toast.show,html body #toast.show{transform:translate(-50%,0)!importan
 html body .btn:not(.ccacts .btn):not(.ccnext .btn),html body .slk-ask-yes,html body .slk-ask-no{min-height:36px!important;height:36px;padding:0 14px!important;border-radius:10px!important;font-size:14px!important;line-height:1!important}
 html body .btn.sm:not(.ccacts .btn){min-height:30px!important;height:30px;padding:0 10px!important;font-size:13px!important;border-radius:8px!important}
 html body .btn svg,html body .btn .ico{width:16px!important;height:16px!important}
-/* detail pages (item, customer, branch, device, inventory document) use the same side gaps as Allergens: an 820px column, centered */
-html body .app #view:has(> .pdhead) > *:not(.ptabs),html body .app #view:has(> .phead.hero) > *:not(.ptabs),html body .app #view:has(> .dochead) > *:not(.ptabs),html body .app #view:has(> .cuwrap) > *:not(.ptabs){max-width:820px;margin-left:auto!important;margin-right:auto!important}
 /* category list beside the menu: a bit more room in each row */
 html body .app .mmcat{padding:12px 16px!important;min-height:56px;gap:10px}
 /* dashboard: orders / net sales / net payments by hour (Foodics) */
@@ -2547,10 +2545,19 @@ html body .app #view .card.secbox > .ttop{padding:0 0 12px!important;border:0!im
 html body .app #view .card.secbox > .ttop > b{font-size:20px!important;font-weight:400!important}
 html body .app #view .card.secbox > table,html body .app #view .card.secbox > .tscroll{background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(14,21,48,.05)}
 html body .app #view .card.secbox > .empty{margin:0!important}
-/* every detail page with a Back button uses the same centered column (the item page, option pages, documents...) */
-html body .app #view:has(> .phead [data-detback]) > *:not(.ptabs),html body .app #view:has(> .phead [data-docback]) > *:not(.ptabs){max-width:820px;margin-left:auto!important;margin-right:auto!important}
 html body .app #view .dzcard:has(> .empty){background:transparent!important;padding:0!important;box-shadow:none!important;border:0!important;display:block!important}
 html body .app #view .dzcard > .empty{margin:0!important;width:auto!important}
+/* one width everywhere: pages use the full content width, lined up with the section tabs (no narrow centered columns) */
+html body .app #view .rswrap{max-width:none!important;margin-left:0!important;margin-right:0!important}
+html body .app #view.isdet > :not(.ptabs):not(script):not(style),html body .app #view .fdet,html body .app #view .udwrap,html body .app #view .sblock,html body .app #view .morelist{max-width:none!important;margin-left:0!important;margin-right:0!important}
+/* lists: roomier rows, the same in every list; 15 rows show, then the list scrolls inside its box with the headers pinned */
+html body .app #view .card.tbl tbody td,html body .app #view .tscroll tbody td{padding-top:16px!important;padding-bottom:16px!important;height:56px}
+html body .app #view .card.tbl thead th,html body .app #view .tscroll thead th{padding-top:14px!important;padding-bottom:14px!important}
+html body .app #view .tscroll,html body .app #view .card.tbl:not(:has(.tscroll)):has(> table){max-height:calc(52px + 15 * 57px);overflow:auto!important}
+html body .app #view .tscroll thead th,html body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{position:sticky;top:0;z-index:3;background:#F6F7FA}
+/* buttons one step smaller */
+html body .btn:not(.ccacts .btn):not(.ccnext .btn),html body .slk-ask-yes,html body .slk-ask-no{min-height:34px!important;height:34px;padding:0 12px!important;font-size:14px!important}
+html body .btn.sm:not(.ccacts .btn){min-height:28px!important;height:28px;padding:0 9px!important;font-size:13px!important}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
@@ -2563,7 +2570,7 @@ html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,ht
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=6"></script>
 <script src="strips.js?v=1"></script>
-<script src="sheets.js?v=4"></script>
+<script src="sheets.js?v=5"></script>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
 <link rel="stylesheet" href="theme-dark.css?v=1">

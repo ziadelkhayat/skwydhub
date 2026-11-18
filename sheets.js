@@ -55,3 +55,20 @@
   };
   addEventListener("touchend", end, { capture: true }); addEventListener("touchcancel", end, { capture: true });
 })();
+/* Every dialog with an X close also gets a Cancel button in its footer (left of Save), doing the same as the X */
+(function () {
+  const fix = () => document.querySelectorAll(".modal footer, .dlg footer").forEach(f => {
+    if (f.querySelector("[data-autocancel]")) return;
+    const btns = [...f.querySelectorAll("button")];
+    if (!btns.length || btns.some(b => /^(cancel|close|back|done)$/i.test(b.textContent.trim()))) return;
+    const m = f.closest(".modal, .dlg"), x = m && m.querySelector(":scope > header .x, :scope > header [data-ccclose], :scope > header [aria-label='Close']");
+    if (!x) return;
+    const c = document.createElement("button"); c.type = "button"; c.className = "btn"; c.textContent = "Cancel"; c.dataset.autocancel = "1";
+    c.addEventListener("click", e => { e.preventDefault(); x.click(); });
+    const pri = btns.filter(b => b.classList.contains("pri")).pop() || btns[btns.length - 1];
+    pri.parentNode.insertBefore(c, pri);
+  });
+  let q = 0; const later = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; fix(); }); };
+  const start = () => { new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); fix(); };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+})();
