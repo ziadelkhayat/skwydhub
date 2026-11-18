@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1015-1795029843">
+<meta name="skwyd-build" content="1016-1795030232">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2726,7 +2726,7 @@ const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" +
       <div class="err" id="fErr"></div>
     </div>
     <footer>
-      <button type="button" class="btn danger" id="delBtn" style="margin-right:auto;display:none">Delete branch</button>
+      <button type="button" class="btn danger" id="delBtn" style="margin-right:auto;display:none">Delete</button>
       <button type="submit" class="btn pri" id="saveBtn">Save</button>
     </footer>
   </form>
@@ -3787,7 +3787,7 @@ function viewBranch(b){
     ${card("Assigned Charges", "", tbl(["Name","Value","Applies On"], chs.map(c => [esc(c.name), c.type==="percent" ? (+c.value||0)+"%" : money(+c.value||0), typesOf(c)])))}
     <div class="dzsec dzwide"><div class="dzh"><h3>Inactive Payment Methods <span class="tip" title="Payment methods that can't be used at this branch">ⓘ</span></h3><button type="button" class="btn" data-brpaypick="${esc(b.id)}">Select Payment Method</button></div>
       <div class="dzcard">${offPay.filter(id => pms.some(m => m.id===id)).length ? `<div class="dzchips">${offPay.map(id => pms.find(m => m.id===id)).filter(Boolean).map(m => `<span class="dzchip">${esc(m.name)}<button type="button" data-brpayrm="${esc(b.id)}:${esc(m.id)}" aria-label="Make ${esc(m.name)} available again">×</button></span>`).join("")}</div>` : `<p class="dzempty">All payment methods are available at this branch</p>`}</div></div>
-    <div id="bdData"></div><div class="dzsec"><h3>Delete Branch</h3><div class="dzcard"><p>If you delete this branch, all of its data will be permanently deleted. A branch can be deleted once it has no orders and no inventory transactions.</p><button class="btn danger" data-brdel="${esc(b.id)}">Delete Branch</button></div></div></div>`;
+    <div id="bdData"></div><div class="dzsec"><h3>Delete Branch</h3><div class="dzcard"><p>If you delete this branch, all of its data will be permanently deleted. A branch can be deleted once it has no orders and no inventory transactions.</p><button class="btn danger" data-brdel="${esc(b.id)}">Delete</button></div></div></div>`;
 }
 function viewBranches(){
   const ob = state.brOpen && branches.find(x => x.id===state.brOpen); if(ob){ setTimeout(() => paintBranchData(ob.id), 0); return viewBranch(ob); }
@@ -5157,7 +5157,7 @@ function openCrud(key, id, inline, draft){
     <button type="button" class="btn" data-cclose>Cancel</button><button type="submit" class="btn pri">Save</button></footer>`;
   if(key==="delivery-zones") $("#crudBox").classList.add("zonebig");
   $("#crudBox").classList.toggle("onecol", !!cfg.oneCol);   // Foodics-style narrow dialog: one field per row
-  if(cfg.oneCol && r && !r.deleted){ const d = $("#cDelete"); if(d){ d.className = "btn lnkdel"; d.textContent = "Delete " + cfg.one; } }
+  if(cfg.oneCol && r && !r.deleted){ const d = $("#cDelete"); if(d){ d.className = "btn lnkdel"; d.textContent = "Delete"; } }
   if(cfg.formTop){ const g = $("#crudBox .body") || $("#crudBox form"); if(g) g.insertAdjacentHTML("afterbegin", cfg.formTop(r)); }
   crudWhen();
   $("#crudScrim").classList.add("show");
@@ -6220,7 +6220,7 @@ function viewDevice(d){
     <div class="card odet" style="margin-bottom:16px">${row("Reference", esc(d.reference || "—"))}${row("Type", esc(devType(d.type)))}${row("Branch", esc(branchName(d.branchId)))}${row("Brand", esc(brandName(branches.find(b=>b.id===d.branchId)?.brandId) || "—"))}
       ${row("Status", devStatus(d))}${row("Receives Online Orders", s.master ? "Yes" : "No")}${row("Activated", dt(d.activatedAt))}${row("Last Online", dt(d.lastSeen))}${row("Last Order", dt(last))}</div>
     ${d.activatedAt ? `<div class="card bdrow" style="padding:16px 18px"><div><b>Deactivate Device</b><span class="note">Make sure all its orders are uploaded. The tablet signs out and a new activation code is generated.</span></div><button class="btn danger" data-devcode="${esc(d.id)}">Deactivate Device</button></div>` : ""}
-    ${d.activatedAt ? "" : `<div class="card bdrow" style="padding:16px 18px;margin-top:0"><div><b>Delete Device</b><span class="note">Removes this device from skwyd hub. Its past orders are kept.</span></div><button class="btn danger" data-devdel="${esc(d.id)}">Delete Device</button></div>`}`;
+    ${d.activatedAt ? "" : `<div class="card bdrow" style="padding:16px 18px;margin-top:0"><div><b>Delete Device</b><span class="note">Removes this device from skwyd hub. Its past orders are kept.</span></div><button class="btn danger" data-devdel="${esc(d.id)}">Delete</button></div>`}`;
 }
 function viewDevices(){
   const od = state.devOpen && S.devices.find(x => x.id===state.devOpen && live(x)); if(od) return viewDevice(od);
@@ -7737,7 +7737,7 @@ function tchGroupDlg(g, kind){ const chan = g ? g.kind==="channel" : kind==="cha
     <div class="f"><label>Employees</label><div class="row" style="gap:8px;margin-bottom:6px"><input id="tchQ" class="sel" placeholder="Search employees" style="flex:1"><button type="button" class="btn" data-tchall>All</button><button type="button" class="btn" data-tchnone>None</button></div>
       <div class="tchpick" id="tchP">${emps.map(u => `<label class="chk" data-nm="${esc(String(u.name).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${on.has(u.id) ? "checked" : ""}> ${esc(u.name)}${u.jobTitle ? ` <span class="note">${esc(u.jobTitle)}</span>` : ""}${u.username ? "" : ` <span class="note" title="No SKWYD Team app login yet">· no app login</span>`}</label>`).join("")}</div></div>
     <div class="err" id="tchE"></div></div>
-    <footer>${g ? `<button type="button" class="btn danger" data-tchdel="${esc(g.id)}">Delete ${T}</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tchSave">Save</button></footer>`;
+    <footer>${g ? `<button type="button" class="btn danger" data-tchdel="${esc(g.id)}">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn" data-ccclose>Cancel</button><button type="button" class="btn pri" id="tchSave">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#tchN")?.focus(), 30);
   $("#tchQ").addEventListener("input", e => { const q = e.target.value.trim().toLowerCase(); document.querySelectorAll("#tchP .chk").forEach(l => l.hidden = q && !l.dataset.nm.includes(q)); });
   box.onclick = async e => {
@@ -8053,7 +8053,7 @@ function viewTables(){
   const secCard = sc => { const l = list.filter(t => (t.section||"")===sc);
     return `<div class="card" style="padding:16px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px"><b style="font-size:16px">${esc(sc || "No section")}</b><span class="note">${l.length} table${l.length===1?"":"s"}</span><div style="flex:1"></div>
       <span class="note">Add</span><input class="sel" type="number" min="1" max="100" value="1" id="tbN_${esc(sc)}" style="width:70px"><span class="note">tables</span><button class="btn pri" data-tbadd="${esc(sc)}">Add tables</button>
-      ${sc ? `<button class="btn" data-tbrensec="${esc(sc)}">Rename</button><button class="btn" data-tbdelsec="${esc(sc)}" style="color:#9e0c24">Delete section</button>` : ""}</div>
+      ${sc ? `<button class="btn" data-tbrensec="${esc(sc)}">Rename</button><button class="btn danger" data-tbdelsec="${esc(sc)}">Delete</button>` : ""}</div>
       ${l.length ? `<div class="tblg">${l.map(chip).join("")}</div>` : `<div class="note">No tables in this section yet.</div>`}</div>`; };
   const bn = branches.find(x => x.id===b)?.name || "";
   return `<div class="phead"><a class="btn" href="#branches" data-tbback="${esc(b)}" style="text-decoration:none">← Branches</a><h1>Sections & tables${bn ? ` · ${esc(bn)}` : ""}</h1><div class="sp"></div></div>
@@ -8110,7 +8110,7 @@ function secEdit(b, sc){
   <div class="body" style="display:block"><div class="f" style="margin-bottom:16px"><label for="seName">Name *</label><input id="seName" value="${esc(sc)}" ${sc ? "" : 'placeholder="No section"'}></div>
     <div style="display:flex;align-items:center;margin-bottom:8px"><b>Tables</b><span class="sp" style="flex:1"></span><button type="button" class="btn sm" id="seAdd">Add Table</button></div>
     <div class="card tbl" style="box-shadow:none"><table><thead><tr><th>Name</th><th>Seats</th><th></th></tr></thead><tbody id="seRows"></tbody></table></div><div class="err" id="seErr"></div></div>
-  <footer>${sc ? `<button type="button" class="btn danger" id="seDel" style="margin-right:auto">Delete Section</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="seGo">Save</button></footer>`;
+  <footer>${sc ? `<button type="button" class="btn danger" id="seDel" style="margin-right:auto">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="seGo">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); paint();
   $("#seAdd").onclick = () => { pull(); rows.push({ id: uid("tb"), name: String(tblNextNo([...all, ...rows])), section: sc, seats: null }); paint(); const l = box.querySelectorAll("[data-sen]"); l[l.length-1]?.focus(); };
   box.querySelector("#seRows").onclick = e => { const x = e.target.closest("[data-serm]"); if(!x) return; pull(); rows.splice(+x.dataset.serm, 1); paint(); };
@@ -8617,7 +8617,7 @@ function viewCustomer(){
   const desc = v => { const a = addrSplit(v); return esc([a.street, a.building && "Bldg " + a.building, a.floor && "Floor " + a.floor, a.door, a.extra].filter(Boolean).join(" · ") || v); };
   const admin = ["owner","admin"].includes(state.role);
   return `<div class="phead"><a href="#customers" class="btn" data-cusback style="text-decoration:none">← Back</a><h1 style="margin-left:10px">${esc(c.name || telFmt(c.phone))}</h1>${c.blacklisted?' <span class="spill s-declined" style="margin-left:8px">Blacklisted</span>':""}<div class="sp"></div>
-      ${c.deleted_at ? `<span class="spill s-declined" style="margin-right:8px">Deleted</span>${admin ? `<button class="btn pri" id="cuRestore">Restore</button>` : ""}` : `${admin ? `<button class="btn" id="cuHa">${c.house_account ? "Disable House Account" : "Enable House Account"}</button><button class="btn" id="cuDel">Delete Customer</button>` : ""}<button class="btn pri" id="cuEdit">Edit Customer</button>`}</div>
+      ${c.deleted_at ? `<span class="spill s-declined" style="margin-right:8px">Deleted</span>${admin ? `<button class="btn pri" id="cuRestore">Restore</button>` : ""}` : `${admin ? `<button class="btn" id="cuHa">${c.house_account ? "Disable House Account" : "Enable House Account"}</button><button class="btn danger" id="cuDel">Delete</button>` : ""}<button class="btn pri" id="cuEdit">Edit Customer</button>`}</div>
     <div class="cuwrap"><aside class="culeft">
     <div class="cuprof"><span class="cuav">${esc(String(c.name || "?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><h2>${esc(c.name || telFmt(c.phone))}</h2>
       <span class="cusub">Customer since ${esc(dtf(orders.length ? orders[orders.length-1].created_at : c.created_at).slice(3))}${fb && branchName(fb) ? " · " + esc(branchName(fb)) : ""}</span>
@@ -9600,7 +9600,7 @@ function prForm(p0){
       <div class="prkv"><span>Days</span><b>${esc(dy.length && dy.length < 7 ? dy.join(", ") : "Every day")}</b></div><div class="prkv"><span>Order Types</span><b>${esc(ot.join(", ") || "—")}</b></div><div class="prkv"><span>Branches</span><b>${esc(br.length ? prJoin(br, 3) : "All branches")}</b></div>`; };
   const draw = () => { box.innerHTML = `<header><h2>${ed ? "Edit" : "Create"} Promotion</h2><nav class="ccsteps" aria-label="Steps"><button type="button" data-prstep="1" class="${step===1?"on":""}"><i>1</i>Offer</button><span aria-hidden="true">›</span><button type="button" data-prstep="2" class="${step===2?"on":""}"><i>2</i>Schedule</button></nav><button type="button" class="x" data-ccclose aria-label="Close">×</button></header>
     <div class="body prbody"><div class="prmain">${step===1 ? s1() : s2()}<div class="err" id="prErr"></div></div><aside class="prside"><div class="prsl">Preview</div><div id="prPrev"></div></aside></div>
-    <footer>${ed ? `<button type="button" class="btn danger" id="prDel" style="margin-right:auto">Delete Promotion</button>` : ""}<span style="flex:1"></span>${step===2 ? `<button type="button" class="btn" data-prstep="1">Back</button>` : ""}<button type="button" class="btn pri" id="prGo">${step===1 ? "Continue" : "Save"}</button></footer>`;
+    <footer>${ed ? `<button type="button" class="btn danger" id="prDel" style="margin-right:auto">Delete</button>` : ""}<span style="flex:1"></span>${step===2 ? `<button type="button" class="btn" data-prstep="1">Back</button>` : ""}<button type="button" class="btn pri" id="prGo">${step===1 ? "Continue" : "Save"}</button></footer>`;
     preview(); };
   const go = to => { collect(); if(to===2){ const er = check1(); if(er){ $("#prErr").textContent = er; return; } } step = to; draw(); };
   box.onclick = async e => { if(!box.classList.contains("prm")) return;
@@ -9660,7 +9660,7 @@ function dsForm(d){
     <div class="f"><label for="dsRef">Reference</label><input id="dsRef" value="${esc(x.reference||"")}"></div><div></div>
     <label class="chk full"><input type="checkbox" id="dsTax" ${x.taxable?"checked":""}> Taxable <span class="tip" title="Checked: the customer still pays the full tax of the order before the discount. Unchecked: the tax is reduced with the discount.">ⓘ</span></label>
   </div><div class="err" id="dsErr"></div></div>
-  <footer>${ed ? `<button type="button" class="btn danger" id="dsDel" style="margin-right:auto">Delete Discount</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="dsGo">Save</button></footer>`;
+  <footer>${ed ? `<button type="button" class="btn danger" id="dsDel" style="margin-right:auto">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="dsGo">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#dsName")?.focus(), 50);
   const sync = () => { const fx = $("#dsType").value==="fixed", op = $("#dsMode").value==="open"; $("#dsAmtL").textContent = `Discount Amount (${fx ? SYM() : "%"}) *`; $("#dsMaxF").style.display = fx ? "none" : ""; $("#dsAmtF").style.display = op ? "none" : ""; $("#dsModeN").textContent = op ? "The cashier enters the " + (fx ? "amount" : "percentage") + " when applying it." : ""; }; sync(); $("#dsType").onchange = sync; $("#dsMode").onchange = sync;
   $("#dsGo").onclick = async () => {
@@ -9802,7 +9802,7 @@ function gcForm(g){
     <div class="f"><label for="gcPm">Pricing Method <span class="reqst">*</span></label><select id="gcPm" class="sel" data-req="1"><option value="fixed" ${x.pricing!=="open" ? "selected" : ""}>Fixed Price</option><option value="open" ${x.pricing==="open" ? "selected" : ""}>Open Price</option></select></div>
     <div class="f" id="gcPriceF" ${x.pricing==="open" ? "hidden" : ""}><label for="gcPrice">Price (${esc(SYM())}) <span class="reqst">*</span></label><input id="gcPrice" type="number" min="0" step="any" value="${esc(x.price ?? "")}"></div>
   </div><div class="err" id="gcErr"></div></div>
-  <footer>${ed ? `<button type="button" class="btn danger" id="gcDel" style="margin-right:auto">Delete Gift Card</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="gcGo">Save</button></footer>`;
+  <footer>${ed ? `<button type="button" class="btn danger" id="gcDel" style="margin-right:auto">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="gcGo">Save</button></footer>`;
   $("#ccScrim").classList.add("show"); setTimeout(() => $("#gcName")?.focus(), 50);
   $("#gcPm").onchange = () => { $("#gcPriceF").hidden = $("#gcPm").value==="open"; };
   $("#gcGen").onclick = () => { $("#gcSku").value = gcNextSku(); };
@@ -9876,7 +9876,7 @@ function cpForm(c, bulk){
     <div class="f"><label for="cpEnd">End Date ${rq}</label><input id="cpEnd" type="date" value="${esc(x.end||"")}"></div>
     ${ed ? `<label class="chk full"><input type="checkbox" id="cpAct" ${x.active!==false ? "checked" : ""}> Active</label>` : ""}
   </div><div class="err" id="cpErr"></div></div>
-  <footer>${ed ? `<button type="button" class="btn danger" id="cpDel" style="margin-right:auto">Delete Coupon</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="cpGo">${bulk ? "Create" : "Save"}</button></footer>`;
+  <footer>${ed ? `<button type="button" class="btn danger" id="cpDel" style="margin-right:auto">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn pri" id="cpGo">${bulk ? "Create" : "Save"}</button></footer>`;
   $("#ccScrim").classList.add("show"); setTimeout(() => (bulk ? $("#cpN") : $("#cpName"))?.focus(), 50);
   $("#cpType").onchange = () => { x.discountId = $("#cpDisc").value; $("#cpDisc").innerHTML = discOpts($("#cpType").value); const mw = $("#cpDisc").closest(".msel"); if(mw && typeof msPaint==="function") msPaint(mw); };
   if($("#cpGen")) $("#cpGen").onclick = () => { $("#cpCode").value = cpCode(); };
@@ -10139,7 +10139,7 @@ function productDetail(p){
     draft[k] = el.type==="checkbox" ? el.checked : el.value; }); }
   let h = `<div class="phead pdhead"><a href="#products" class="btn" data-detback style="text-decoration:none">← Back</a><span class="pdimg">${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : svgIco("box")}</span><div class="pdh"><span class="crumb">Catalog · Items${p.sku ? " · " + esc(p.sku) : ""}</span><h1><span class="dn">${esc(p.name)}</span></h1></div>
     ${p.deleted ? `<span class="stbadge off">Deleted</span>` : `<span class="spill ${p.active===false ? "s-closed" : "s-active"}">${p.active===false ? "Inactive" : "Active"}</span>`}
-    <div class="sp"></div><span class="dacts">${p.deleted ? `<button type="button" class="btn" data-detrestore>Restore</button>` : DET.edit || draft ? `<button type="button" class="btn danger" data-detdelete>Delete Product</button><button type="button" class="btn" data-detview>Cancel</button><button type="submit" form="detForm" class="btn pri" id="detSave">Save</button>` : `<button type="button" class="btn pri" data-detedit>Edit Product</button>`}</span></div>`;
+    <div class="sp"></div><span class="dacts">${p.deleted ? `<button type="button" class="btn" data-detrestore>Restore</button>` : DET.edit || draft ? `<button type="button" class="btn danger" data-detdelete>Delete</button><button type="button" class="btn" data-detview>Cancel</button><button type="submit" form="detForm" class="btn pri" id="detSave">Save</button>` : `<button type="button" class="btn pri" data-detedit>Edit Product</button>`}</span></div>`;
   const F = keys => openCrud("products", p.id, keys, draft), vk = varKids(p).length;
   const editing = DET.edit || !!draft;
   if(editing) h += `<form id="detForm" class="card detform" data-id="${esc(p.id)}"${draft ? ' data-dirty="1"' : ""} novalidate>
@@ -10463,7 +10463,7 @@ function warehouseDetail(w){
   h += infoGrid([info("Name", esc(w.name)), info("Reference", esc(w.reference||"—")), info("Address", esc(w.address||"—")), info("Created", fmtDate(w.createdAt))]);
   h += `<div class="supsecs">`;
   h += pdSec("Delete Inventory", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse inventory, all the data will be permanently deleted.</p><button type="button" class="btn danger" data-whdelinv="${esc(w.id)}">Delete Inventory</button>`);
-  if(!w.deleted) h += pdSec("Delete Warehouse", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse, all of its data will be deleted.</p><button type="button" class="btn danger" data-whdel="${esc(w.id)}">Delete Warehouse</button>`);
+  if(!w.deleted) h += pdSec("Delete Warehouse", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse, all of its data will be deleted.</p><button type="button" class="btn danger" data-whdel="${esc(w.id)}">Delete</button>`);
   return h + `</div>`;
 }
 document.addEventListener("click", async e => {
