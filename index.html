@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1027-1795031767">
+<meta name="skwyd-build" content="1029-1795032112">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2622,6 +2622,19 @@ html body .mm .mmside .mmcat .scimg{display:grid!important;place-items:center;wi
 html body .mm .mmside .mmcat .scimg img{width:100%;height:100%;object-fit:cover;object-view-box:inset(14%)}
 html body .mm .mmside .mmcat.mmsubc .scimg{width:34px!important;height:34px!important}
 html body .mm .mmside .mmcat .scimg .ico{width:18px;height:18px;color:#AEAEB2}
+/* ===== Menu lists, option A: smaller switch, tighter tick box and drag handle, names wrap to two lines instead of being cut ===== */
+html body .mm .toggle .trk,html body .bmdmx .toggle .trk,html body .bmdrawer .toggle .trk{width:30px!important;height:12px!important;border-radius:6px!important;margin:3px 1px!important}
+html body .mm .toggle .trk::after,html body .bmdmx .toggle .trk::after,html body .bmdrawer .toggle .trk::after{width:18px!important;height:18px!important;top:-3px!important;left:-2px!important}
+html body .mm .toggle input:checked+.trk::after,html body .bmdmx .toggle input:checked+.trk::after,html body .bmdrawer .toggle input:checked+.trk::after{left:14px!important}
+html body .mm .bmgrip,html body .bmdmx .bmgrip,html body .bmdrawer .bmgrip{width:16px!important;height:22px!important;margin:0!important;border-radius:6px}
+html body .mm .bmgrip::before,html body .bmdmx .bmgrip::before,html body .bmdrawer .bmgrip::before{width:18px;height:18px}
+html body .mm input[type=checkbox]:not(.toggle input),html body .bmdmx input[type=checkbox]:not(.toggle input),html body .bmdrawer input[type=checkbox]:not(.toggle input){width:18px;height:18px}
+html body .mm .mmside .mmcat{gap:7px!important;padding:10px 10px!important}
+html body .mm .mmcat .bmgrip+label.toggle{margin-left:0!important}
+html body .mm .mmside .mmct b{-webkit-line-clamp:3!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:manual}
+html body .mm .mmside .mmcat .ddwrap{width:22px;flex:none}html body .mm .mmside .mmcat .mmdots{width:22px!important;padding:0!important}
+html body .mm .mmmain .mmpn b{white-space:normal!important;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-overflow:clip;line-height:1.25;word-break:normal;overflow-wrap:break-word}
+html body .bmdmx td b,html body .bmdrawer .bmdmx b{white-space:normal!important;word-break:normal;overflow-wrap:break-word}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
