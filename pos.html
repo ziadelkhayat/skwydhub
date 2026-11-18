@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1046-1795035447">
+<meta name="skwyd-build" content="1047-1795035526">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1007,6 +1007,15 @@ html body .olist2 .ospill.lst-active,html body .olist2 .ospill.lst-pending{backg
 html body .olist2 .ospill.lst-declined,html body .olist2 .ospill.lst-void{background:#FDECEC;color:#B42318}
 html body .olist2 .ospill.lst-refund,html body .olist2 .ospill.lst-returned{background:#F3E8FF;color:#6D28D9}
 html body .olist2 .lrow.ol5{border-bottom:1px solid #DCDCE2}
+/* ===== Pickup / delivery card: Online on the first row, Edit Customer beside the name ===== */
+html body #extra .ctx.ctxpd{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;row-gap:10px!important;column-gap:10px!important}
+html body #extra .ctx.ctxpd>.ctxt{grid-column:1!important;grid-row:1!important}
+html body #extra .ctx.ctxpd>.netst{grid-column:2!important;grid-row:1!important;justify-self:end}
+html body #extra .ctx.ctxpd>div:not(.ctxt):not(.ctxb){grid-column:1!important;grid-row:2!important;min-width:0}
+html body #extra .ctx.ctxpd>.ctxb{grid-column:2!important;grid-row:2!important;justify-self:end;margin:0!important}
+html body #extra .ctx.ctxpd>.sp{display:none!important}
+html body #abar .abtn.abtn.abtn span,html body #abar .abtn.abtn.abtn b{font-size:clamp(14px,calc(var(--ab,90px) / 5.6),17px)!important;font-weight:700!important}
+html body #abar .abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn .rti svg{width:26px!important;height:26px!important;stroke-width:2.2!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
