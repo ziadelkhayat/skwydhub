@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1019-1795030730">
+<meta name="skwyd-build" content="1020-1795030833">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2574,6 +2574,8 @@ html body .btn,html body .app #view .btn,html body .modal .btn,html body .dlg .b
 html body .btn.danger:not(:disabled):hover,html body .modal .btn.danger:not(:disabled):hover,html body .scrim .btn.danger:not(:disabled):hover{box-shadow:0 6px 16px rgba(180,35,24,.16)!important}}
 html body .btn:not(:disabled):active,html body .app #view .btn:not(:disabled):active,html body .modal .btn:not(:disabled):active,html body .scrim .btn:not(:disabled):active{transform:translateY(0)!important;box-shadow:none!important;transition-duration:.08s!important}
 @media (prefers-reduced-motion:reduce){html body .btn{transition:none!important;transform:none!important}}
+html body .app #view .phead.hero .hrow2{flex-basis:100%;display:flex;gap:10px;flex-wrap:wrap;padding-left:114px}
+@media(max-width:760px){html body .app #view .phead.hero .hrow2{padding-left:0}}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6231,7 +6233,8 @@ function viewDevice(d){
   const last = S.orders.filter(o => o.deviceId===d.id).reduce((m,o) => o.createdAt > m ? o.createdAt : m, "");
   const onl = d.lastSeen && Date.now() - new Date(d.lastSeen) < 6*60000;
   return `<div class="phead hero"><a class="hback" href="#devices" data-devback aria-label="Back">‹</a><span class="htile">${svgIco(["kds","display"].includes(d.type) ? "monitor" : "tablet")}</span><div class="hh"><h1><span class="dn">${esc(d.name)}</span></h1><span class="hmeta"><i class="hdot${onl ? " on" : ""}"></i>${onl ? "Online" : d.activatedAt ? "Offline" : "Not activated"} · ${esc(devType(d.type))} · ${esc(branchName(d.branchId) || "No branch")}${d.lastSeen ? " · seen " + esc(new Date(d.lastSeen).dmy(true)) : ""}</span></div><span class="acode ${d.activatedAt ? "used" : "free"}" title="${d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}">${esc(String(d.code||"").split("").join(" "))}</span><div class="sp"></div>
-      <button class="btn" data-devsync="${esc(d.id)}">${svgIco("refresh")}Force Sync Data</button><button class="btn" data-devcopy="${esc(d.id)}">${svgIco("copy")}Copy Settings</button><button class="btn" data-devset="${esc(d.id)}">${svgIco("gear")}Device Settings</button><button class="btn pri" data-devedit="${esc(d.id)}">Edit Device</button></div>
+      <button class="btn" data-devset="${esc(d.id)}">${svgIco("gear")}Device Settings</button><button class="btn pri" data-devedit="${esc(d.id)}">Edit Device</button>
+      <div class="hrow2"><button class="btn" data-devsync="${esc(d.id)}">${svgIco("refresh")}Force Sync Data</button><button class="btn" data-devcopy="${esc(d.id)}">${svgIco("copy")}Copy Settings</button></div></div>
     <div class="card odet" style="margin-bottom:16px">${row("Reference", esc(d.reference || "—"))}${row("Type", esc(devType(d.type)))}${row("Branch", esc(branchName(d.branchId)))}${row("Brand", esc(brandName(branches.find(b=>b.id===d.branchId)?.brandId) || "—"))}
       ${row("Status", devStatus(d))}${row("Receives Online Orders", s.master ? "Yes" : "No")}${row("Activated", dt(d.activatedAt))}${row("Last Online", dt(d.lastSeen))}${row("Last Order", dt(last))}</div>
     ${d.activatedAt ? `<div class="card bdrow" style="padding:16px 18px"><div><b>Deactivate Device</b><span class="note">Make sure all its orders are uploaded. The tablet signs out and a new activation code is generated.</span></div><button class="btn danger" data-devcode="${esc(d.id)}">Deactivate Device</button></div>` : ""}
