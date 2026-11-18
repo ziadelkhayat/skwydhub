@@ -2864,6 +2864,14 @@ html body .modal footer .btn[data-ccclose]:not(.pri):not(.danger),html body .mod
 html body .modal > footer,html body #crudBox > footer,html body #ccBox > footer{display:flex!important}
 /* icon-only backs inside panels: same arrow, same size */
 html body .adback svg,html body .tchbk svg,html body .kbib svg{width:18px;height:18px}
+/* dialogs open clean: the dialog is solid from the first frame (no see-through fade, no drift), a short pop only; closing is instant */
+@keyframes dlgPop{from{transform:scale(.97)}to{transform:none}}
+html body .scrim,html body .scrim.show{transition:none!important;animation:none!important}
+html body .scrim.show > .modal,html body .scrim.show > #modal,html body .scrim.show > form.modal,html body .scrim.show > *:first-child,html body .modal.on > .dlg,html body .slk-ask-b{opacity:1!important;animation:dlgPop .14s cubic-bezier(.2,.9,.3,1) both!important;transition:none!important}
+html body .scrim:not(.show) > .modal,html body .scrim:not(.show) > *:first-child{transition:none!important;animation:none!important}
+html body .slk-ask{animation:none!important;transition:none!important}
+@keyframes dlgSheet{from{transform:translateY(32px)}to{transform:none}}
+@media (max-width:760px){html body .scrim.show > .modal,html body .scrim.show > *:first-child{animation:dlgSheet .2s cubic-bezier(.2,.8,.2,1) both!important}}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}

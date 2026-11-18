@@ -875,6 +875,101 @@ html[data-theme=dark] body .app #view .drow, html[data-theme=dark] body .app #vi
 html[data-theme=dark] body .app #view .igrid>div>div:last-child, html[data-theme=dark] body .app #view .card.odet>div{color:#dcdcde!important}
 html[data-theme=dark] body .app #view .sctadd span:last-child{color:#96abe8!important}
 html[data-theme=dark] body .app .hcard .hci{background:#161924;color:#96abe8}
+html[data-theme=dark] body .btn, html[data-theme=dark] body .app .btn, html[data-theme=dark] body .app #view .btn, html[data-theme=dark] body .app #view .card .btn, html[data-theme=dark] body .app #view .ttop .btn, html[data-theme=dark] body .app #view .mm .btn, html[data-theme=dark] body .app #view .mmhd .btn, html[data-theme=dark] body .modal .btn, html[data-theme=dark] body .dlg .btn, html[data-theme=dark] body .scrim .btn, html[data-theme=dark] body .app .main .top .btn, html[data-theme=dark] body .content .btn{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .btn:hover, html[data-theme=dark] body .app #view .btn:hover, html[data-theme=dark] body .modal .btn:hover, html[data-theme=dark] body .dlg .btn:hover{background:#191c29!important}
+html[data-theme=dark] body .btn.pri, html[data-theme=dark] body .app .btn.pri, html[data-theme=dark] body .app #view .btn.pri, html[data-theme=dark] body .app #view .card .btn.pri, html[data-theme=dark] body .app #view .mm .btn.pri, html[data-theme=dark] body .modal .btn.pri, html[data-theme=dark] body .dlg .btn.pri, html[data-theme=dark] body .scrim .btn.pri, html[data-theme=dark] body .content .btn.pri{box-shadow:0 4px 12px rgba(0,0,0,0.55)!important}
+html[data-theme=dark] body .btn.danger, html[data-theme=dark] body .btn.bad, html[data-theme=dark] body .app #view .btn.danger, html[data-theme=dark] body .app #view .btn.bad, html[data-theme=dark] body .modal .btn.danger, html[data-theme=dark] body .dlg .btn.danger, html[data-theme=dark] body .scrim .btn.danger, html[data-theme=dark] body .btn.imgrm{background:#251717!important;color:#ee8981!important}
+html[data-theme=dark] body .btn.danger:hover, html[data-theme=dark] body .app #view .btn.danger:hover, html[data-theme=dark] body .modal .btn.danger:hover{background:#2d1b1b!important}
+html[data-theme=dark] body .modal footer .btn.danger:hover, html[data-theme=dark] body .dlg footer .btn.danger:hover, html[data-theme=dark] body .scrim footer .btn.danger:hover{background:#251717!important}
+html[data-theme=dark] body .btn.ghost, html[data-theme=dark] body .app #view .btn.ghost, html[data-theme=dark] body .modal .btn.ghost{color:#b5b5b7!important}
+html[data-theme=dark] body .btn.ghost:hover, html[data-theme=dark] body .app #view .btn.ghost:hover{background:#1a1a22!important}
+html[data-theme=dark] body .vr, html[data-theme=dark] body a.vr{color:#b5b5b7!important}
+html[data-theme=dark] body .vr:hover{color:#96abe8!important}
+html[data-theme=dark] body .nutr .nrow span{color:#dcdcde}
+html[data-theme=dark] body .nutr .nrow input{border:1px solid #3c3c47!important;background:#101420!important}
+html[data-theme=dark] body .nutr .nrow input:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.264)!important}
+html[data-theme=dark] body .modal footer .btn.danger:not(:first-child), html[data-theme=dark] body .dlg footer .btn.danger:not(:first-child), html[data-theme=dark] body .scrim footer .btn.danger:not(:first-child){background:#251717!important}
+html[data-theme=dark] body select option{color:#dcdcde}
+html[data-theme=dark] body .bsf input:not([type=checkbox]):not([type=radio]):not([type=hidden]), html[data-theme=dark] body .bsf select, html[data-theme=dark] body .bsf textarea{border:1px solid #3c3c47!important;background:#101420!important;color:#dcdcde}
+html[data-theme=dark] body .bsf input:focus, html[data-theme=dark] body .bsf select:focus, html[data-theme=dark] body .bsf textarea:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.264)!important}
+html[data-theme=dark] body .app #view .phead.hero{background:#101420!important;border:1px solid #353542;color:#b5b5b7}
+html[data-theme=dark] body .app #view .phead.hero h1{color:#dcdcde!important}
+html[data-theme=dark] body .app #view .phead.hero .hback{background:#161924;color:#96abe8}
+html[data-theme=dark] body .app #view .phead.hero .htile{background:#161924;color:#96abe8}
+html[data-theme=dark] body .app #view .phead.hero .htile svg{stroke:#96abe8!important;color:#96abe8!important}
+html[data-theme=dark] body .app #view .phead.hero .hcode, html[data-theme=dark] body .app #view .phead.hero .acode{background:#1a1a22!important;color:#b5b5b7!important}
+html[data-theme=dark] body .app #view .phead.hero .hmeta{color:#b5b5b7}
+html[data-theme=dark] body .app #view .phead.hero .btn{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .app #view .phead.hero .btn svg{stroke:#96abe8!important;color:#96abe8!important}
+html[data-theme=dark] body .app .bswrap .bsnav{background:#202025!important}
+html[data-theme=dark] body .app .bswrap .bsnav a{color:#ccccce!important}
+html[data-theme=dark] body .app .bswrap .bsnav a:hover{background:rgba(16,20,32,.6)!important}
+html[data-theme=dark] body .app .bswrap .bsnav a.on{background:#101420!important;color:#dcdcde!important;box-shadow:0 1px 3px rgba(0,0,0,0.17600000000000002)}
+html[data-theme=dark] body .slk-ask-f{background:#101420!important;border-top:1px solid #353542}
+html[data-theme=dark] body .slk-ask-no{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .slk-ask-yes.red{background:#251717!important;color:#ee8981!important}
+html[data-theme=dark] body .ccvdf button{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .ccvdf button.bad{background:#251717!important;color:#ee8981!important}
+html[data-theme=dark] body .app .cuprof{background:#101420!important;border:1px solid #353542;color:#b5b5b7!important}
+html[data-theme=dark] body .app .cuprof .cuav{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .app #view .cuprof h2{color:#dcdcde!important}
+html[data-theme=dark] body .app .cuprof .cusub{color:#b5b5b7}
+html[data-theme=dark] body .app .custats>div{background:#1a1a22!important}
+html[data-theme=dark] body .app .custats b{color:#dcdcde!important}
+html[data-theme=dark] body .app .custats span{color:#b5b5b7}
+html[data-theme=dark] body .app .cuprof .btn.ghost{color:#96abe8!important;background:#161924!important}
+html[data-theme=dark] body .app .curight .cstats>div{border:1px solid #353542!important}
+html[data-theme=dark] body .app .curight .cstats span{color:#b5b5b7!important}
+html[data-theme=dark] body .app .curight .cstats b{color:#dcdcde}
+html[data-theme=dark] body .mm .mmside .mmcat .scimg{background:#1a1a22}
+html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub), html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn{border:1px solid #353542!important;background:#101420!important}
+html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>img, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>.pic, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>img, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>.pic{background:var(--tint,#1a1a22)!important}
+html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>b, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>span:not(.pic){color:#dcdcde!important}
+html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>small.ccn, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>b{color:#b5b5b7!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool *{color:#96abe8!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg, html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg *{stroke:#96abe8!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool:hover{background:#191c29!important}
+html[data-theme=dark] body #ccBox .ccx.s1, html[data-theme=dark] body #ccBox .ccx.s1 .ccleft{background:#101420!important}
+html[data-theme=dark] body #ccBox:has(.ccx.s1){background:#101420!important}
+html[data-theme=dark] body #ccBox .ccx.s1 .cc1{background:#101420!important}
+html[data-theme=dark] body #ccBox .ccx.s1 input:not([type=checkbox]):not([type=radio]):not([type=hidden]), html[data-theme=dark] body #ccBox .ccx.s1 select, html[data-theme=dark] body #ccBox .ccx.s1 .sel{border:1px solid #3c3c47!important;color:#dcdcde!important;background-color:#101420!important}
+html[data-theme=dark] body #ccBox .ccx.s1 input:focus, html[data-theme=dark] body #ccBox .ccx.s1 select:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.264)!important}
+html[data-theme=dark] body #ccBox .ccx.s1 .ccseg, html[data-theme=dark] body #ccBox .ccx.s1 .seg{background:#1a1a22!important}
+html[data-theme=dark] body #ccBox:has(.ccx.s1) .ccnext{background:#101420!important;border-top:1px solid #353542!important}
+html[data-theme=dark] body #ccBox .adgo{color:#96abe8!important}
+html[data-theme=dark] body .smp.smp .og label{border:1.5px solid #353542!important;background:#101420!important;color:#dcdcde!important}
+html[data-theme=dark] body .smp.smp .og label .p{color:#b5b5b7!important}
+html[data-theme=dark] body .smp.smp .og label:has(input:checked), html[data-theme=dark] body .smp.smp .og label.qrow.on{background:#161924!important;color:#dcdcde!important}
+html[data-theme=dark] body .smp.smp .og label.qrow .qs b{color:#dcdcde}
+html[data-theme=dark] body .smp.smp .g .req{color:#ee8981!important;background:#251717}
+html[data-theme=dark] body .smp.smp footer .smc, html[data-theme=dark] body .smp.smp footer button[data-x]{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .smp.smp .og label.qrow.on .nm{color:#dcdcde!important}
+html[data-theme=dark] body .smp.smp textarea{border:1px solid #3c3c47!important}
+html[data-theme=dark] body .smp.smp textarea:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.264)!important}
+html[data-theme=dark] body #ccBox .ccx.s2 .ccleft, html[data-theme=dark] body #ccBox .ccx.s2 .ccleft .cc1, html[data-theme=dark] body #ccBox .ccx.s2 .ccleft .pdstyle{background:#101420!important}
+html[data-theme=dark] body #ccBox .ccx.s2 .insbox{background:#101420!important}
+html[data-theme=dark] body .app aside.side .nti.nln, html[data-theme=dark] body aside.side .nti.nln{background:var(--nb,#161924)!important;color:var(--nc,#96abe8)!important}
+html[data-theme=dark] body .app aside.side .nti.nln svg.nls, html[data-theme=dark] body aside.side .nti.nln svg.nls{stroke:var(--nc,#96abe8)!important;color:var(--nc,#96abe8)!important}
+html[data-theme=dark] body .ccdman{border:1px solid #353542!important}
+html[data-theme=dark] body .ccdseg{background:#202025!important}
+html[data-theme=dark] body .ccdseg button{color:#ccccce!important}
+html[data-theme=dark] body .ccdseg button.on{background:#101420!important;color:#dcdcde!important;box-shadow:0 1px 3px rgba(0,0,0,0.17600000000000002)!important}
+html[data-theme=dark] body #ccDmV, html[data-theme=dark] body #ccDsOpenV{border:1px solid #3c3c47!important}
+html[data-theme=dark] body #ccDmV:focus, html[data-theme=dark] body #ccDsOpenV:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.264)!important}
+html[data-theme=dark] body .ccnp button{border:1px solid #353542;background:#101420;color:#dcdcde}
+html[data-theme=dark] body .ccnp button:active{background:#161924}
+html[data-theme=dark] body .ccnp button[data-npk2="⌫"]{color:#b5b5b7}
+html[data-theme=dark] body .smp.smp.disc .dz input{border:1px solid #3c3c47!important}
+html[data-theme=dark] body .dn2 .dh2{border-bottom:1px solid #353542}
+html[data-theme=dark] body .dz2 button{border:1px solid #3c3c47;background:#101420;color:#dcdcde}
+html[data-theme=dark] body .dz2 button.on{background:#161924;color:#96abe8}
+html[data-theme=dark] body .dz2 input{border:1px solid #3c3c47;background:#101420}
+html[data-theme=dark] body .dnote{color:#e5938a}
+html[data-theme=dark] body .dn2 .slk-ask-f{background:#101420!important;border-top:1px solid #353542}
+html[data-theme=dark] body .dn2 .slk-ask-f .slk-ask-no{background:#161924!important;color:#96abe8!important}
+html[data-theme=dark] body .dn2 #ccDsOpenV{border:1px solid #3c3c47}
+html[data-theme=dark] body .app .hcard.hmini .hsub{color:#9aa0b5}
 html[data-theme=dark] body .app .hcard .hcv{color:#dcdcde}
 html[data-theme=dark] body .app #view .card.secbox > table, html[data-theme=dark] body .app #view .card.secbox > .tscroll{background:#101420;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
 html[data-theme=dark] body .app #view .tscroll thead th, html[data-theme=dark] body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{background:#181a20}
@@ -935,6 +1030,15 @@ html[data-theme=dark] body .app aside.side.side .nav .grp:has(a.on) > button{col
 html[data-theme=dark] body.navopen .app aside.side.side{box-shadow:0 20px 60px rgba(0,0,0,0.55)!important}
 html[data-theme=dark] body .app .main .top .menuBtn{background:#1a1a22}
 }
+@media (hover:hover){
+html[data-theme=dark] body .btn:not(:disabled):not(.nochg):not(.dis):hover, html[data-theme=dark] body .app #view .btn:not(:disabled):not(.nochg):not(.dis):hover, html[data-theme=dark] body .modal .btn:not(:disabled):not(.nochg):hover, html[data-theme=dark] body .scrim .btn:not(:disabled):not(.nochg):hover{box-shadow:0 6px 16px rgba(0,0,0,0.396)!important}
+html[data-theme=dark] body .btn.danger:not(:disabled):hover, html[data-theme=dark] body .modal .btn.danger:not(:disabled):hover, html[data-theme=dark] body .scrim .btn.danger:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.35200000000000004)!important}
+html[data-theme=dark] body .slk-ask-f button:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.396)!important}
+html[data-theme=dark] body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.35200000000000004)!important}
+html[data-theme=dark] body .ccvdf button:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.396)}
+html[data-theme=dark] body .nav a:hover, html[data-theme=dark] body .nav .grp>button:hover, html[data-theme=dark] body .nav .sub a:hover, html[data-theme=dark] body .tabs a:hover, html[data-theme=dark] body .tabs button:hover, html[data-theme=dark] body .ttabs a:hover, html[data-theme=dark] body .ttabs button:hover, html[data-theme=dark] body .ptabs a:hover, html[data-theme=dark] body .cutabs a:hover, html[data-theme=dark] body .cutabs button:hover, html[data-theme=dark] body .bsnav a:hover, html[data-theme=dark] body .dmseg button:hover, html[data-theme=dark] body .segtabs button:hover, html[data-theme=dark] body .seg button:hover, html[data-theme=dark] body select.sel:hover, html[data-theme=dark] body .drpbtn:hover, html[data-theme=dark] body .fltbtn:hover, html[data-theme=dark] body .msel>button:hover, html[data-theme=dark] body .msel-b:hover, html[data-theme=dark] body .tchchip:hover, html[data-theme=dark] body .rcard:hover, html[data-theme=dark] body .apcard:hover, html[data-theme=dark] body .kbit:hover{box-shadow:0 6px 16px rgba(0,0,0,0.30800000000000005)!important}
+html[data-theme=dark] body .smp.smp footer button:not(:disabled):hover, html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool.cctool:not(:disabled):hover, html[data-theme=dark] body .ccxbtn:not(:disabled):hover, html[data-theme=dark] body .modal header .x:not(:disabled):hover, html[data-theme=dark] body .acctbtn:not(:disabled):hover, html[data-theme=dark] body #ccBox .ccx .ccacts .btn:not(:disabled):hover, html[data-theme=dark] body .smp.smp header button:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.396)!important}
+}
 html[data-theme=dark] [style*="background:#A9B6DC"]{background:#2c3347!important}
 html[data-theme=dark] [style*="background:#C7C7CC"]{background:#242c47!important}
 html[data-theme=dark] [style*="background:#C9CED9"]{background:#2d3036!important}
@@ -942,6 +1046,7 @@ html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important
 html[data-theme=dark] [style*="background:#D3D7E5"]{background:#252832!important}
 html[data-theme=dark] [style*="background:#D8D8DE"]{background:#2a2a2e!important}
 html[data-theme=dark] [style*="background:#DFDFE5"]{background:#26262a!important}
+html[data-theme=dark] [style*="background:#E0E7FF"]{background:#191c29!important}
 html[data-theme=dark] [style*="background:#E5E5EA"]{background:#232327!important}
 html[data-theme=dark] [style*="background:#E6E8F2"]{background:#1d1f29!important}
 html[data-theme=dark] [style*="background:#E9E9EE"]{background:#202025!important}
@@ -959,6 +1064,7 @@ html[data-theme=dark] [style*="background:#F4F5FA"]{background:#171923!important
 html[data-theme=dark] [style*="background:#F5F7FF"]{background:#141722!important}
 html[data-theme=dark] [style*="background:#F6F7FA"]{background:#181a20!important}
 html[data-theme=dark] [style*="background:#F7F8FC"]{background:#151722!important}
+html[data-theme=dark] [style*="background:#FBD9D9"]{background:#2d1b1b!important}
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
 html[data-theme=dark] [style*="background:#FFF1E6"]{background:#271e17!important}
 html[data-theme=dark] [style*="background:#FFFFFF"]{background:#101420!important}
