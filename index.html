@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1014-1795029436">
+<meta name="skwyd-build" content="1015-1795029843">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2528,14 +2528,37 @@ html body .nutr .nrow span{font-size:14px!important;font-weight:400!important;co
 html body .nutr .nrow input{width:100%!important;max-width:none!important;height:40px!important;min-height:40px!important;border:1px solid #D1D1D8!important;border-radius:10px!important;padding:0 52px 0 12px!important;background:#fff!important;box-shadow:none!important;font-size:14px!important;text-align:left!important}
 html body .nutr .nrow input:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important}
 html body .nutr .nrow i{position:absolute;right:12px;bottom:11px;font-style:normal!important;color:#8E8E93!important;font-size:13px!important;pointer-events:none;text-transform:none}
-/* ===== Buttons, one size everywhere: 38px tall, at least 96px wide (small 32px / 72px), icon-only buttons square, main buttons flat ===== */
-html body .btn,html body .app .btn,html body .app #view .btn,html body .app #view .card .btn,html body .modal .btn,html body .dlg .btn,html body .scrim .btn,html body .content .btn,html body .app #view .ccnext .btn,html body .app #view .ccnext .btn.pri,html body .modal footer .btn.pri,html body .tchtop .btn.pri,html body .tchwel .btn.pri,html body .mmbar .btn.pri,html body .mmcbar .btn.pri,html body .mmhd .btn.pri,html body .ccctxb .btn{min-height:38px!important;height:38px!important;min-width:96px!important;padding:0 16px!important;font-size:14px!important;font-weight:500!important;border-radius:10px!important;box-sizing:border-box;white-space:nowrap}
+/* ===== Buttons, one size everywhere: 46px tall like the fields, at least 104px wide (small 38px / 80px), icon-only buttons square (46px, same as the fields), main buttons flat ===== */
+html body .btn,html body .app .btn,html body .app #view .btn,html body .app #view .card .btn,html body .modal .btn,html body .dlg .btn,html body .scrim .btn,html body .content .btn,html body .app #view .ccnext .btn,html body .app #view .ccnext .btn.pri,html body .modal footer .btn.pri,html body .tchtop .btn.pri,html body .tchwel .btn.pri,html body .mmbar .btn.pri,html body .mmcbar .btn.pri,html body .mmhd .btn.pri,html body .ccctxb .btn{min-height:46px!important;height:46px!important;min-width:104px!important;padding:0 20px!important;font-size:14px!important;font-weight:600!important;border-radius:10px!important;box-sizing:border-box;white-space:nowrap}
 html body .btn.pri,html body .app #view .btn.pri,html body .modal .btn.pri,html body .dlg .btn.pri,html body .scrim .btn.pri,html body .content .btn.pri{box-shadow:none!important}
-html body .btn.sm,html body .app .btn.sm,html body .app #view .btn.sm,html body .modal .btn.sm{min-height:32px!important;height:32px!important;min-width:72px!important;padding:0 12px!important;font-size:13px!important;border-radius:8px!important}
-html body .btn.bico,html body .app #view .btn.bico,html body .modal .btn.bico,html body .btn.trashbtn,html body .app #view .btn.trashbtn{min-width:38px!important;width:38px!important;padding:0!important}
-html body .btn.sm.bico,html body .app #view .btn.sm.bico,html body .btn.trashbtn.sm{min-width:32px!important;width:32px!important}
+html body .btn.sm,html body .app .btn.sm,html body .app #view .btn.sm,html body .modal .btn.sm{min-height:38px!important;height:38px!important;min-width:80px!important;padding:0 12px!important;font-size:13px!important;border-radius:8px!important}
+html body .btn.bico,html body .app #view .btn.bico,html body .modal .btn.bico,html body .btn.trashbtn,html body .app #view .btn.trashbtn{min-width:46px!important;width:46px!important;padding:0!important}
+html body .btn.sm.bico,html body .app #view .btn.sm.bico,html body .btn.trashbtn.sm{min-width:38px!important;width:38px!important}
 html body .modal footer .btn.danger:not(:first-child),html body .dlg footer .btn.danger:not(:first-child),html body .scrim footer .btn.danger:not(:first-child){background:#FDECEC!important;padding:0 16px!important}
 html body .app .rhub .rcard{align-items:center!important}
+/* ===== Fields match everywhere: selects use the same 14px text as inputs; an empty select shows its placeholder in grey ===== */
+html body select,html body .app select,html body .modal select,html body .scrim select{font-size:14px!important}
+html body select:has(option:checked[value=""]){color:#8E8E93!important}
+html body select option{color:#1C1C1E}
+/* ===== Brand settings fields: standard 40px boxes ===== */
+html body .bsf input:not([type=checkbox]):not([type=radio]):not([type=hidden]),html body .bsf select,html body .bsf textarea{height:40px;min-height:40px;width:100%;max-width:520px;box-sizing:border-box;border:1px solid #D1D1D8!important;border-radius:10px!important;padding:0 12px!important;background:#fff!important;box-shadow:none!important;font-size:14px!important;color:#1C1C1E;outline:0}
+html body .bsf textarea{height:auto;min-height:88px;padding:10px 12px!important}
+html body .bsf input:focus,html body .bsf select:focus,html body .bsf textarea:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important}
+html body .bsf .msel{max-width:520px}
+html body .bsf>label{font-weight:400!important;margin-bottom:6px!important}
+/* ===== Detail page headers (branch and similar): light card like the rest of the system ===== */
+html body .app #view .phead.hero{background:#FFFFFF!important;border:1px solid #E5E5EA;color:#636366;border-radius:16px!important}
+html body .app #view .phead.hero h1{color:#1C1C1E!important;font-size:22px!important;font-weight:400!important}
+html body .app #view .phead.hero .hback{background:#EEF2FF;border:0;color:#1E3A8A;width:38px;height:38px;border-radius:10px}
+html body .app #view .phead.hero .htile{background:#EEF2FF;color:#1E3A8A}
+html body .app #view .phead.hero .htile svg{stroke:#1E3A8A!important;color:#1E3A8A!important}
+html body .app #view .phead.hero .hcode,html body .app #view .phead.hero .acode{background:#F2F2F7!important;color:#636366!important;font-weight:500}
+html body .app #view .phead.hero .hmeta{color:#636366}
+html body .app #view .phead.hero .btn{background:#EEF2FF!important;color:#1E3A8A!important;border:0!important}
+html body .app #view .phead.hero .btn svg{stroke:#1E3A8A!important;color:#1E3A8A!important}
+html body .app #view .phead.hero .btn.pri{background:#1E3A8A!important;color:#FFFFFF!important}
+html body .app #view .phead.hero .btn.pri svg{stroke:#FFFFFF!important;color:#FFFFFF!important}
+html body .btn.nochg,html body .app #view .btn.nochg,html body .modal .btn.nochg{opacity:.45!important;cursor:not-allowed!important;box-shadow:none!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -11977,5 +12000,29 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
     .observe(document.body, { childList:true, characterData:true, subtree:true }); })();</script>
 <script>/* mark icon-only buttons (‹ › × ⋯ ↑ ↓, or just an icon) so they stay square */
 (function(){const mark=()=>document.querySelectorAll(".btn:not(.bico)").forEach(b=>{const t=b.textContent.replace(/\s+/g,"");if(t.length<=1||(!t&&b.querySelector("svg")))b.classList.add("bico")});let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;mark()})}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});document.addEventListener("DOMContentLoaded",mark);})();</script>
+<script>/* Save buttons stay grey until something in their form or card changes */
+(function(){
+  const isSave = b => b.classList.contains("btn") && /^(save|save changes|save rules|update)$/i.test((b.textContent||"").replace(/\s+/g," ").trim()) && !b.closest("#ccScrim,.ccx,[data-nodirty]");
+  const box = b => b.closest(".modal,.dlg,form,.bsbody,.card") || b.parentElement;
+  const sig = c => [...c.querySelectorAll("input,select,textarea")].map(e => e.type==="checkbox"||e.type==="radio" ? (e.checked?1:0) : e.multiple ? [...e.selectedOptions].map(o=>o.value).join("|") : e.value).join("\u0001");
+  const S = new WeakMap();   // box -> {sig, other}
+  const set = (c, dirty) => c.querySelectorAll("button").forEach(b => { if(!isSave(b)) return; b.classList.toggle("nochg", !dirty); dirty ? b.removeAttribute("aria-disabled") : b.setAttribute("aria-disabled","true"); });
+  const arm = () => document.querySelectorAll("button.btn:not([data-dw])").forEach(b => { if(!isSave(b)) return; b.dataset.dw = 1; const c = box(b); if(!S.has(c)) S.set(c, { sig: sig(c), other: false }); set(c, S.get(c).other || sig(c) !== S.get(c).sig); });
+  const touch = (t, other) => { for(const [c] of [[t.closest(".modal,.dlg,form,.bsbody,.card")]]){ if(!c || !S.has(c)) continue; const st = S.get(c); if(other) st.other = true; set(c, st.other || sig(c) !== st.sig); } };
+  document.addEventListener("input", e => touch(e.target), true);
+  document.addEventListener("change", e => touch(e.target), true);
+  document.addEventListener("drop", e => touch(e.target, true), true);
+  document.addEventListener("dragend", e => touch(e.target, true), true);
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if(b && b.classList.contains("nochg")){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+    if(b && isSave(b)){ const c = box(b); setTimeout(() => { if(b.isConnected && S.has(c)){ S.set(c, { sig: sig(c), other: false }); set(c, false); } }, 1500); return; }
+    if(e.target.closest("input,select,textarea,label,a[href^='#']:not([data-bstab])")) return;
+    if(b && /^(cancel|close|back|← back)$/i.test(b.textContent.trim())) return;
+    if(e.target.closest("button,[role=switch],.tgl,.switch,[data-del],[data-rm]")) touch(e.target, true);
+  }, true);
+  let q = 0; new MutationObserver(() => { if(q) return; q = requestAnimationFrame(() => { q = 0; arm(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener("DOMContentLoaded", arm);
+})();</script>
 </body>
 </html>
