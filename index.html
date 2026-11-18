@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="996-1795023558">
+<meta name="skwyd-build" content="997-1795024119">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2418,6 +2418,15 @@ html body[data-route="account"] .app #view > .tabs a.on{background:#FFFFFF!impor
 @keyframes fdModal{from{opacity:0;transform:scale(1.1)}to{opacity:1;transform:none}}
 @keyframes fdPop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 html body #view.vin,html body #view{animation:none!important}
+/* page changes are instant, like Foodics: no fade or slide of page content, rows, bars or tab panels */
+html body #view.vin,html body .content.vin,html body .m-enter>*,html body .m-rows tr,html body .m-rows>li,html body .m-swl,html body .m-swr,html body #view *,html body .content *{animation-name:none!important}
+html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .modal.on > .dlg,html body .slk-ask-b{animation-name:fdModal!important}
+html body .scrim.show,html body .slk-ask,html body .modal.on{animation-name:fdFade!important}
+html body #view .m-skel i,html body #view .m-spin,html body .content .m-spin{animation-name:m-pl!important}
+html body #view .m-spin,html body .content .m-spin,html body #view .bootspin,html body #view [class*="spin"]{animation-name:m-sp!important}
+html body #view svg *,html body .content svg *{transition:none!important;stroke-dashoffset:0!important}
+html body .m-tabbar{transition:none!important}
+html body #view .ddmenu:not([hidden]),html body #view .ofpop,html body #view .kbmenu,html body #view .pkpop,html body #view .cal,html body .content .cal{animation-name:fdPop!important}
 html body .scrim.show,html body .slk-ask,html body .modal.on{animation:fdFade .2s var(--fd) both!important}
 html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .slk-ask-b,html body .modal.on > .dlg{animation:fdModal .2s var(--fd) both!important}
 html body .scrim .modal.odrawer{animation:fdFade .2s var(--fd) both!important}
