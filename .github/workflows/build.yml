@@ -24,6 +24,7 @@ jobs:
           java-version: 17
       - name: Build Android POS app (APK)
         run: |
+          rm -rf node_modules   # the committed node_modules is incomplete (.gitignore drops @capacitor/cli/dist/web), so install fresh
           npm install
           mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js www/
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
