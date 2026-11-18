@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="994-1795023367">
+<meta name="skwyd-build" content="995-1795023468">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3231,7 +3231,7 @@ function viewDashboard(){
     </div>
     <div class="grid two">
       ${shift ? `<div class="card"><div class="kh"><h3>Sales channels</h3></div>${barList(D.channels.map(t=>({name:CH_LBL[t.k]||cap(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>` : ""}
-      <div class="card" style="${shift ? "" : "grid-column:1/-1"}"><div class="kh"><h3>Top products</h3></div>${barList(D.products.map(p=>({name:p.name, v:+p.v, sub:(+p.qty).toLocaleString()+" sold"})))}</div>
+      
     </div>`;
   } else if(state.dashTab==="branches"){
     const rows = list.map(b => { const p = D.branches.find(x=>x.id===b.id) || { n:0, net:0, disc:0 }; const q = P?.branches.find(x=>x.id===b.id); return { b, p, q }; }).sort((a,b)=>b.p.net-a.p.net);
@@ -8024,7 +8024,7 @@ function viewOrders(){
   <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : `<table><thead><tr><th>Reference #</th><th>Invoice #</th><th>Order #</th>${brandList().length > 1 ? "<th>Brand</th>" : ""}<th>Branch</th><th>Customer</th><th>Status</th><th>Sales channel</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
     ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span class="note" title="Gets its invoice number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? `#${esc(o.no)}` : '<span class="note" title="Gets its number when a POS bills it">—</span>'}</td>
       ${brandList().length > 1 ? `<td>${esc(brandName(o.brandId) || "—")}</td>` : ""}<td>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</td>
-      <td>${esc(o.customerName || "—")}${o.phone?` <span class="note">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
+      <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
       <td><span class="tag cc">${esc(CH_LBL[o.channel] || cap(o.channel))}</span></td><td>${esc(ordTypeLbl(o.type))}${o.type==="dinein" && o.table ? ` <span class="note">· ${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</span>` : ""}</td><td>${esc(srcOf(o) || "-")}</td>
       <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${d[0]}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? `<div style="white-space:nowrap">${new Date(o.createdAt).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</div><div class="note">${new Date(o.createdAt).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"})}</div>` : "—"}</td><td>${esc(o.payment?.method || "-")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
     : `<tr><td colspan="14" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
