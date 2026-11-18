@@ -31,6 +31,7 @@ jobs:
           npx cap add android
           # app icon: each app has its own (android-icons/<app>/<density>__<file>.png -> res/mipmap-<density>/<file>.png); Insights uses the main "hub" logo
           for f in android-icons/pos/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          for f in android-splash/pos/*.png; do d=$(basename "$f" .png); mkdir -p "android/app/src/main/res/$d"; cp "$f" "android/app/src/main/res/$d/splash.png"; done   # loading screen: the skwyd logo on navy
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="fullSensor"/' android/app/src/main/AndroidManifest.xml   # POS turns with the tablet: landscape and portrait
           # direct printing: a small native plugin sends raw ESC/POS bytes to network printers (Devices → Printers, port 9100)
           mkdir -p android/app/src/main/java/com/skwydhub/pos
@@ -94,6 +95,7 @@ jobs:
             }
           }
           JAVA
+          sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item><item name="windowSplashScreenBackground">\#1E3A8A</item>#' android/app/src/main/res/values/styles.xml   # Android 12+ start screen: navy behind the app icon
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
       - name: Build Android Team app (APK)
@@ -105,10 +107,12 @@ jobs:
           printf '{ "appId": "com.skwydhub.team", "appName": "SKWYD Team", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
           npx cap add android
           for f in android-icons/team/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          for f in android-splash/team/*.png; do d=$(basename "$f" .png); mkdir -p "android/app/src/main/res/$d"; cp "$f" "android/app/src/main/res/$d/splash.png"; done   # loading screen: the skwyd logo on navy
           # clock in checks the phone's location at the branch
           sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-feature android:name="android.hardware.location.gps" android:required="false" />#' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
           grep -q ACCESS_FINE_LOCATION android/app/src/main/AndroidManifest.xml
+          sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item><item name="windowSplashScreenBackground">\#1E3A8A</item>#' android/app/src/main/res/values/styles.xml   # Android 12+ start screen: navy behind the app icon
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-team.apk
@@ -121,10 +125,12 @@ jobs:
           printf '{ "appId": "com.skwydhub.driver", "appName": "SKWYD Driver", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
           npx cap add android
           for f in android-icons/driver/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          for f in android-splash/driver/*.png; do d=$(basename "$f" .png); mkdir -p "android/app/src/main/res/$d"; cp "$f" "android/app/src/main/res/$d/splash.png"; done   # loading screen: the skwyd logo on navy
           # location for clock in and live tracking, camera for the pickup photo
           sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.location.gps" android:required="false" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />#' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
           grep -q android.permission.CAMERA android/app/src/main/AndroidManifest.xml
+          sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item><item name="windowSplashScreenBackground">\#1E3A8A</item>#' android/app/src/main/res/values/styles.xml   # Android 12+ start screen: navy behind the app icon
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-driver.apk
@@ -136,7 +142,9 @@ jobs:
           printf '{ "appId": "com.skwydhub.insights", "appName": "SKWYD Insights", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
           npx cap add android
           for f in android-icons/hub/*.png; do b=$(basename "$f"); d=${b%%__*}; n=${b#*__}; mkdir -p "android/app/src/main/res/mipmap-$d"; cp "$f" "android/app/src/main/res/mipmap-$d/$n"; done
+          for f in android-splash/hub/*.png; do d=$(basename "$f" .png); mkdir -p "android/app/src/main/res/$d"; cp "$f" "android/app/src/main/res/$d/splash.png"; done   # loading screen: the skwyd logo on navy
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item><item name="windowSplashScreenBackground">\#1E3A8A</item>#' android/app/src/main/res/values/styles.xml   # Android 12+ start screen: navy behind the app icon
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../skwyd-insights.apk

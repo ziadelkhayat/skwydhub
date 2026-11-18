@@ -69,7 +69,7 @@ function draw(){
     else h += `<div class="card"><p class="sub" style="text-align:center">Enjoy your meal! You can rate your driver and order from ${hm(O.rateAt)}.</p></div>`;
   }
   if(O.rated || rated) h += `<div class="card"><p class="sub" style="text-align:center">Thank you for your rating!</p></div>`;
-  h += `<div class="brand">Powered by SKWYD</div>`;
+  h += `<div class="brand">Powered by skwyd hub</div>`;
   app.innerHTML = h;
   if(s === 2 && O.driverLat != null && window.L){ const el = document.getElementById("map"); map = L.map(el, { zoomControl:false, attributionControl:false }); L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:19 }).addTo(map);
     const d = [O.driverLat, O.driverLng]; mk = L.circleMarker(d, { radius:10, color:"#fff", weight:3, fillColor:"#6d28d9", fillOpacity:1 }).addTo(map).bindTooltip("Driver", { permanent:false });

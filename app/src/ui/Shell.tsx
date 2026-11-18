@@ -1,7 +1,7 @@
 // Sidebar + top bar + the section tabs (like the current portal).
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NAV, secOf, canOpen } from "../nav";
-import { Icon, Mark } from "./Icons";
+import { Icon, Mark, Wordmark } from "./Icons";
 import { useAuth } from "../lib/auth";
 import { cx, OLD_PORTAL } from "../lib/util";
 
@@ -16,7 +16,7 @@ export function Shell({ route, perms, children }: { route: string; perms: string
   const go = (id: string) => { location.hash = id; setOpen(false); };
   return <div className={cx("app", open && "navopen")}>
     <aside className="side">
-      <div className="sbrand"><Mark size={30} /><b>SKWYD</b><small>HUB</small></div>
+      <div className="sbrand"><Mark size={34} /><Wordmark height={34} /></div>
       <nav>{nav.map(s => s.id
         ? <a key={s.t} href={"#" + s.id} className={cx("nl", route === s.id && "on")} onClick={() => setOpen(false)}><Icon n={s.i} />{s.t}</a>
         : <div key={s.t} className={cx("ng", exp === s.t && "open", sec === s && "cur")}>
