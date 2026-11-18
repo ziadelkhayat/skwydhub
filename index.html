@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="986-1795013468">
+<meta name="skwyd-build" content="988-1795020822">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2337,6 +2337,42 @@ html body .app aside.side .skword b,html body .app aside.side .abrand b{color:#1
 html body .app aside.side .skmark svg g,html body .app aside.side .skmark svg path,html body .app aside.side .skword svg g,html body .app aside.side .skword svg path{stroke:#1C1C1E!important}
 html body .app aside.side a.plancard{background:#E5E5EA!important;color:#1C1C1E!important}html body .app aside.side a.plancard b{color:#1C1C1E!important}
 .sidefoot .acctbtn,.sidefoot .acctbtn #who{color:#1C1C1E!important}.sidefoot .acctbtn{background:#E5E5EA!important}.sidefoot .acctbtn:hover{background:#D8D8DE!important}.sidefoot .acctbtn svg{stroke:#1C1C1E}
+
+/* ===== tablets and phones: the full side menu with names (never an icon rail) ===== */
+@media (max-width:1180px){
+  html body .app aside.side.side .nav > a,html body .app aside.side.side .nav .grp > button{font-size:14px!important;justify-content:flex-start!important;padding:0 12px!important;width:auto!important;height:auto!important;min-height:44px!important;gap:12px!important;margin:1px 0!important}
+  html body .app aside.side.side .nav .ico,html body .app aside.side.side .nav svg{width:20px!important;height:20px!important;margin:0!important}
+  html body .app aside.side.side .nav .chev{display:inline-block!important}html body .app aside.side.side .nav .grp.open .sub{display:block!important}
+  html body .app aside.side.side .brand.skb{justify-content:flex-start!important;padding:4px 10px 16px!important}
+  html body .app aside.side.side .skword{display:flex!important}
+  html body .app aside.side.side .sidefoot{display:flex!important}
+  html body .app aside.side.side .nav .grp:has(a.on) > button{background:transparent!important;color:#1C1C1E!important}
+}
+/* tablets: the menu stays open on the left */
+@media (min-width:900px) and (max-width:1180px){
+  html body .app{display:grid!important;grid-template-columns:250px minmax(0,1fr)!important}
+  html body .app aside.side.side{position:sticky!important;top:0;left:auto;width:250px!important;height:100vh;transform:none!important;padding:16px 12px 20px!important;overflow-y:auto;overflow-x:hidden;z-index:40;box-shadow:none!important}
+  html body .app .main .top .menuBtn{display:none!important}
+  html body.navopen #navShade,html body.navopen::after{display:none!important}
+  html body .app .content{padding:20px 22px 60px!important}
+}
+/* phones and small tablets: a menu button opens the full menu from the left */
+@media (max-width:899px){
+  html body .tabbar,.tabbar{display:none!important}
+  html body .app{display:block!important}
+  html body .app aside.side.side{position:fixed!important;inset:0 auto 0 0!important;width:min(290px,86vw)!important;height:100dvh!important;transform:translateX(-105%)!important;transition:transform .26s cubic-bezier(.2,.8,.2,1)!important;padding:max(16px,env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom))!important;overflow-y:auto!important;z-index:63!important;box-shadow:none!important}
+  html body.navopen .app aside.side.side{transform:none!important;box-shadow:0 20px 60px rgba(0,0,0,.25)!important}
+  #navShade{position:fixed;inset:0;z-index:62;background:rgba(11,19,48,.45);display:block!important;opacity:0;pointer-events:none;transition:opacity .26s ease}
+  html body.navopen #navShade{opacity:1;pointer-events:auto}
+  html body.navopen::after{display:none!important}
+  html body .app .main .top .menuBtn{display:grid!important;place-items:center;flex:none;width:42px;height:42px;border-radius:12px;background:#F2F2F7;box-shadow:none;border:0}
+  html body .app .main .top{display:flex!important;align-items:center;gap:10px;position:sticky;top:0;z-index:30;min-height:58px;padding:max(8px,env(safe-area-inset-top)) 14px 8px!important}
+  html body .app .main .top #brandSel,html body .app .main .top #branchSel{display:none!important}
+  html body .app .content{padding:16px 14px calc(100px + env(safe-area-inset-bottom))!important;max-width:none!important}
+  html body .app .phead{flex-wrap:wrap;gap:10px}html body .app .phead h1{font-size:22px!important}
+  html body .app .kpis,html body .app .dgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
+  html body .app .card.tbl,html body .app .tbl{overflow-x:auto!important}
+}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3090,7 +3126,7 @@ function viewDashboard(){
   const tabs = [["general","General"],["branches","Branches"],["inventory","Inventory"],["call-center","Call Center"]];
   const now = new Date(), hr = now.getHours(), hello = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   const bday = new Date((state.date || now.toISOString().slice(0,10)) + "T12:00:00");
-  let h = `<div class="dhead"><div class="dht"><span class="eyebrow">Business day · ${bday.toLocaleDateString("en-GB",{weekday:"long"})} ${bday.dmy ? bday.dmy() : ""}</span><h1>${hello}, ${esc(state.userName||"Admin")}</h1></div>
+  let h = `<div class="dhead"><div class="dht"><h1>${hello}, ${esc(state.userName||"Admin")}</h1></div>
     </div>
     <div class="tabs dtabs">${tabs.map(([k,t])=>`<a href="#dashboard" data-dt="${k}" class="${state.dashTab===k?"on":""}">${t}${k==="kitchen"?' <span class="new">New!</span>':""}</a>`).join("")}</div>`;
   if(!act.length) return h + `<div class="card empty">No active branches yet.<br><br><a class="btn pri" href="#branches">Add your first branch</a></div>`;

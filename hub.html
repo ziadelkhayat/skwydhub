@@ -6,7 +6,7 @@
 <title>Skwyd Hub – Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Schibsted+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20124%22%3E%3Cpath%20d%3D%22M24%2082%20V62%20C24%2032%2041%2012%2060%2012%20C79%2012%2096%2032%2096%2062%20V82%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M24%2082%20Q24%20106%2014%20114%20M48%2084%20Q48%20104%2042%20116%20M72%2084%20Q72%20104%2078%20116%20M96%2082%20Q96%20106%20106%20114%22%20fill%3D%22none%22%20stroke%3D%22%23172554%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3Ccircle%20cx%3D%2273%22%20cy%3D%2252%22%20r%3D%228.5%22%20fill%3D%22%236d28d9%22/%3E%3C/svg%3E"><link rel="icon" type="image/png" sizes="32x32" href="/skwyd-icon-32.png?v=2"><link rel="apple-touch-icon" href="/skwyd-icon-180.png?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>/* skwyd hub: every country with its dialing code, currency and phone number format (from Google's libphonenumber data) */
@@ -306,6 +306,52 @@ tbody tr.click:hover{background:#F7F8FC!important}
 .drow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid #EEF0F7;cursor:pointer}.drow:last-child{border-bottom:0}.drow:hover{background:#FAFBFD}
 .dav{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#EEF2FF;color:#1E3A8A;font-weight:700;font-size:12px;flex:none}
 .dt{flex:1;min-width:0}.dt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dt small{color:#8A90A6}.drow em{font-style:normal;font-weight:700;color:#4B5563;white-space:nowrap}
+
+/* ===== same as the portal on every device: light Foodics-style side menu; tablets keep it open, phones open it with the menu button ===== */
+html body{font-family:"Hanken Grotesk",Inter,system-ui,sans-serif}
+html body .content h1{font-family:"Schibsted Grotesk","Hanken Grotesk",sans-serif!important;font-size:24px!important;font-weight:700!important}
+html body .app aside.side{background:#F2F2F7!important;color:#1C1C1E!important;border-right:0!important}
+html body .app aside.side .nav a{color:#1C1C1E!important;background:transparent!important;font-size:14px!important;font-weight:500!important;border-radius:10px!important;display:flex!important;align-items:center;gap:12px}
+html body .app aside.side .nav a:hover{background:#E5E5EA!important}
+html body .app aside.side .nav a.on,html body .app aside.side .nav a.on:hover{background:#C7C7CC!important;color:#000!important;font-weight:700!important}
+html body .app aside.side .nav a .ico,html body .app aside.side .nav a svg{stroke:currentColor!important;color:currentColor!important;fill:none;width:20px;height:20px}
+html body .app aside.side .skword b,html body .app aside.side .brand b{color:#1C1C1E!important}
+html body .app aside.side .skmark svg g,html body .app aside.side .skmark svg path,html body .app aside.side .skword svg g,html body .app aside.side .skword svg path{stroke:#1C1C1E!important}
+html body .app aside.side .skadm,html body .app aside.side small{color:#6B6B70!important}
+.menuBtn{display:none}
+#navShade{display:none}
+.hsfoot{display:none;margin-top:auto;align-items:center;gap:10px;padding:10px;border-radius:12px;background:#E5E5EA}
+.hsav{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid #C7C7CC;font-size:12px;font-weight:700;flex:none}
+.hsem{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600;color:#1C1C1E}
+@media (min-width:1181px){html body:not(.hviewing) .app .main .top{display:none!important}html body:not(.hviewing) .hsfoot{display:flex}}
+@media (min-width:900px){
+  html body .app{display:grid!important;grid-template-columns:250px minmax(0,1fr)!important;min-height:100vh}
+  html body .app aside.side{position:sticky!important;top:0;height:100vh!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:18px;padding:22px 14px!important;border-bottom:0!important;overflow-y:auto!important}
+  html body .app aside.side .nav{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;flex:none!important;gap:2px!important}
+  html body .app aside.side .nav a{padding:0 12px!important;min-height:44px!important}
+  html body .app aside.side .nav a .ico{display:block!important}
+  html body .app .main .top{position:sticky!important;top:0;z-index:5;padding:14px 28px!important;height:auto!important;right:auto!important}
+  html body .app .content{max-width:1280px;margin:0 auto;padding:24px 28px 60px!important}
+}
+@media (max-width:899px){
+  html body .app{display:block!important}
+  html body .app aside.side{position:fixed!important;inset:0 auto 0 0!important;width:min(280px,86vw)!important;height:100dvh!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:16px;padding:max(18px,env(safe-area-inset-top)) 12px 20px!important;transform:translateX(-105%);transition:transform .26s cubic-bezier(.2,.8,.2,1);z-index:63!important;overflow-y:auto!important;border-bottom:0!important}
+  html body.navopen .app aside.side{transform:none;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  html body .app aside.side .nav{display:flex!important;flex-direction:column!important;overflow:visible!important;gap:2px!important}
+  html body .app aside.side .nav a{padding:0 12px!important;min-height:46px!important;white-space:nowrap}
+  html body .app aside.side .nav a .ico{display:block!important}
+  #navShade{display:block;position:fixed;inset:0;z-index:62;background:rgba(11,19,48,.45);opacity:0;pointer-events:none;transition:opacity .26s ease}
+  html body.navopen #navShade{opacity:1;pointer-events:auto}
+  html body.navopen{overflow:hidden}
+  html body .app .main .top{position:sticky!important;top:0;z-index:30;display:flex!important;align-items:center;gap:10px;min-height:58px!important;padding:max(8px,env(safe-area-inset-top)) 14px 8px!important}
+  html body .app .main .top .menuBtn{display:grid!important;place-items:center;flex:none;width:42px;height:42px;border-radius:12px;background:#F2F2F7;border:0;color:#1C1C1E;cursor:pointer}
+  html body .app .main .top .who{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  html body .app .content{padding:16px 14px 40px!important}
+  html body .kpis,html body .kpis.dk{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
+  html body .dgrid{grid-template-columns:1fr!important}
+  html body .content > .card,html body .card.tbl{overflow-x:auto}
+  html body .dhero{padding:20px!important}html body .dhero h1{font-size:24px!important}
+}
 </style>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
@@ -423,12 +469,15 @@ async function load() { DATA = await rpc("slick_pa_overview"); try { VIEW = awai
 function render() {
   const nav = [["dashboard","Dashboard"],["companies","Companies"],["invoices","Invoices"],["prices","Price List"],["settings","Settings"]];
   $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand skb"><div class="skmark f2"><svg viewBox="0 0 120 124" height="40.0" width="38.7" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></div><div class="skword f2"><svg viewBox="0 0 543.6 100" height="22" width="119.6" role="img" aria-label="skwyd hub"><g fill="none" stroke="#172554" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"><path d="M63 21 C56 13 47 9.5 37.5 9.5 C22 9.5 12 17 12 29.5 C12 42 23 45.5 37 48.5 C52 51.5 64 55.5 64 70 C64 83 52.5 90.5 37 90.5 C26 90.5 16 86 9.5 77"/><path d="M111.3 9.5 V90.5 M111.3 49 H144.5 A20.5 20.5 0 0 0 165 28.5 V9.5 M111.3 49 H150.5 A21.7 21.7 0 0 1 172.2 70.7 V90.5"/><path d="M219.5 9.5 V69 A22.5 21.5 0 0 0 264.5 69 V9.5 M264.5 69 A22.5 21.5 0 0 0 309.5 69 V9.5"/><path d="M358.5 9.5 V29 A31.5 31.5 0 0 0 421.5 29 V9.5 M390 60.5 V90.5"/><path d="M469.7 9.5 H492.5 A40.5 40.5 0 0 1 492.5 90.5 H469.7 Z"/></g></svg><svg viewBox="0 0 376 100" height="8" width="30.1" aria-hidden="true"><g fill="none" stroke="#6d28d9" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><path transform="translate(0 0)" d="M10 10 V90 M66 10 V90 M10 50 H66"/><path transform="translate(148 0)" d="M10 10 V60 A30 30 0 0 0 70 60 V10"/><path transform="translate(300 0)" d="M10 10 V90 H46 A20 20 0 0 0 46 50 H10 M10 50 H42 A20 20 0 0 0 42 10 H10"/></g></svg></div><span class="skadm">Admin</span></div>
-    <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
-    <div class="main"><div class="top">${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://dev.portal.skwydhub.com/dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
+    <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav><div class="hsfoot"><span class="hsav">${esc(String(me.email||"?").slice(0,2).toUpperCase())}</span><span class="hsem">${esc(me.email)}</span><button class="btn sm" id="out2" type="button">Sign Out</button></div></aside>
+    <div class="main"><div class="top"><button type="button" class="menuBtn" id="hubMenu" aria-label="Open menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://dev.portal.skwydhub.com/dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
     <div class="content" id="view"></div></div></div><div class="modal" id="m"><div class="dlg" id="dlg"></div></div>`;
-  $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
+  $("#out").onclick = async () => { await sb.auth.signOut(); gate(); }; if ($("#out2")) $("#out2").onclick = () => $("#out").click();
+  document.body.classList.toggle("hviewing", !!VIEW);
   if ($("#stopv")) $("#stopv").onclick = async () => { await rpc("slick_stop_view"); await load(); };
-  document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { if (view === a.dataset.view) return; view = a.dataset.view; VIN = 1; render(); });
+  document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { document.body.classList.remove("navopen"); if (view === a.dataset.view) return; view = a.dataset.view; VIN = 1; render(); });
+  const hm = document.getElementById("hubMenu"); if (hm) hm.onclick = e => { e.stopPropagation(); document.body.classList.toggle("navopen"); };
+  if (!document.getElementById("navShade")) { const ns = document.createElement("div"); ns.id = "navShade"; ns.onclick = () => document.body.classList.remove("navopen"); document.body.appendChild(ns); }
   ({ dashboard: viewDashboard, companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view](); vin();
 }
 
@@ -704,7 +753,7 @@ function newInvoiceForm(c) {
 let IFILTER = "all", IQ = "";
 async function viewInvoices() {
   $("#view").innerHTML = `<h1>Invoices</h1><p class="subt">Every invoice of every business.</p><div class="card"><div class="empty">Loading…</div></div>`;
-  let all; try { all = await rpc("slick_pa_all_invoices"); } catch (e) { $("#view").querySelector(".card").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  let all; try { all = await rpc("slick_pa_all_invoices"); if (!Array.isArray(all)) all = []; } catch (e) { $("#view").querySelector(".card").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
   const cur = DATA.settings?.currency || "USD", now = new Date();
   const overdue = i => i.status === "open" && new Date(i.due_at) < now;
   const sum = l => l.reduce((a, i) => a + Number(i.total || 0), 0);
