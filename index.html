@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1057-1795038027">
+<meta name="skwyd-build" content="1058-1795038645">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2764,6 +2764,27 @@ html body .smp.smp.disc .dz button{width:56px!important;min-width:0!important;he
 html body .smp.smp.disc footer{display:flex!important;gap:10px!important}
 html body .smp.smp.disc footer .err:empty{display:none}
 html body .smp.smp.disc footer button{flex:1 1 0!important;min-width:0!important}
+/* ===== Order discount pop-up: same look as the item discount (narrow, number pad, Cancel / Save) ===== */
+html body .slk-ask-b.dn2{width:min(360px,calc(100vw - 32px))!important;padding:0!important;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+html body .dn2 .dh2{margin:0!important;padding:16px 18px!important;font-size:18px!important;font-weight:600!important;border-bottom:1px solid #E5E5EA}
+html body .dn2 .db2{padding:16px 18px 8px;overflow:auto}
+html body .dz2{display:flex;gap:8px;width:100%}
+html body .dz2 button{width:56px;height:46px;flex:none;border:1px solid #D1D1D8;border-radius:10px;background:#fff;color:#1C1C1E;font:inherit;font-size:15px;font-weight:600;cursor:pointer;padding:0}
+html body .dz2 button.on{background:#EEF2FF;border-color:#1E3A8A;color:#1E3A8A}
+html body .dz2 input{flex:1;min-width:0;width:0;height:46px;border:1px solid #D1D1D8;border-radius:10px;font:inherit;font-size:18px;padding:0 14px;box-sizing:border-box;outline:0;background:#fff}
+html body .dz2 input:focus{border-color:#1E3A8A}
+html body .dnote{color:#c0392b;font-size:13px;min-height:0;margin:4px 0 0!important;padding:0!important}
+html body .dnote:empty{display:none}
+html body .dn2 .ccnp{width:100%!important;margin:12px 0 0!important;gap:12px!important}
+html body .dn2 .ccnp button{height:auto!important;aspect-ratio:1/1;font-size:26px!important;font-weight:400!important;border-radius:16px!important}
+html body .dn2 .slk-ask-f{margin:0!important;background:#fff!important;border-top:1px solid #E5E5EA;padding:14px 18px!important;gap:10px!important}
+html body .dn2 .slk-ask-f button{flex:1 1 0!important;min-width:0!important;height:46px!important;border-radius:10px!important;font-size:14px!important;font-weight:600!important}
+html body .dn2 .slk-ask-f .slk-ask-no{background:#EEF2FF!important;border:0!important;color:#1E3A8A!important}
+html body .dn2 .slk-ask-f .slk-ask-yes{background:#1E3A8A!important;border:0!important;color:#fff!important}
+html body .dn2.hasman #ccDsOpenGo{display:none}
+html body .dn2 #ccDsOpenV{height:46px;border:1px solid #D1D1D8;border-radius:10px;font-size:18px;padding:0 14px}
+/* the item discount: no "Item discount" line over the % / amount row */
+html body .smp.smp.disc .g:has(+ .dz){display:none!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6225,17 +6246,17 @@ function ccDiscDlg(){
   if(!ccMayDisc()) return toast("Discounts aren't allowed here");
   const l = mayDo("bo_cc_discount") ? ccDsHere() : [], cA = mayDo("bo_cc_disc_amount"), cP = mayDo("bo_cc_disc_pct"), first = ccDiscType==="amt" && cA || !cP ? "amt" : "pct";
   // built in first: an amount or a percentage off the order (each with its own permission), then the discounts made in Marketing → Discounts
-  const man = cA || cP ? `<div class="ccdman"><div class="ccdseg">${cA ? `<button type="button" data-ccdt="amt" class="${first==="amt"?"on":""}">Amount (${esc(SYM())})</button>` : ""}${cP ? `<button type="button" data-ccdt="pct" class="${first==="pct"?"on":""}">Percentage (%)</button>` : ""}</div>
-      <div style="display:flex;gap:8px;margin-top:10px"><input id="ccDmV" class="sel" inputmode="decimal" placeholder="0" value="${!ccDS && +ccDisc ? esc(ccDisc) : ""}" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDmGo">Apply</button></div><p class="note" id="ccDmN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p><div class="ccnp" data-npt="ccDmV">${["1","2","3","4","5","6","7","8","9",".","0","⌫"].map(k => `<button type="button" data-npk2="${k}" aria-label="${k==="⌫" ? "Delete" : k}">${k}</button>`).join("")}</div></div>` : "";
-  ccOverlay(`<h3 style="margin:0 0 12px">Discount</h3>${man}${man && mayDo("bo_cc_discount") ? `<div class="note" style="margin:6px 0 8px;font-weight:600">Discounts</div>` : ""}${!mayDo("bo_cc_discount") ? "" : l.length ? `<div class="ccchl">${l.map(d => { const c = d.open ? { amt:1 } : ccDsCalc(d); return `<button type="button" class="ccchr" data-ccds="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"} style="text-align:left;background:${ccDS?.id===d.id ? "#eceff8" : "#fff"}"><span><b>${esc(d.name)}</b><small>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</small></span></button>`; }).join("")}</div>
-    <div id="ccDsOpen" hidden style="margin-top:12px"><label class="note" id="ccDsOpenL" for="ccDsOpenV"></label><div style="display:flex;gap:8px;margin-top:4px"><input id="ccDsOpenV" class="sel" inputmode="decimal" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDsOpenGo">Apply</button></div><p class="note" id="ccDsOpenN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p></div>` : `<p class="note" style="text-align:center;padding:20px 0">No discounts available for this order.</p>`}
-    <div class="slk-ask-f" style="margin-top:12px"><button type="button" class="slk-ask-no" data-dlgx>Cancel</button></div>`, (w, close) => {
+  const man = cA || cP ? `<div class="dz2">${cP ? `<button type="button" data-ccdt="pct" class="${first==="pct"?"on":""}" aria-label="Percentage">%</button>` : ""}${cA ? `<button type="button" data-ccdt="amt" class="${first==="amt"?"on":""}" aria-label="Amount">${esc(SYM())}</button>` : ""}<input id="ccDmV" inputmode="decimal" placeholder="0" aria-label="Discount" value="${!ccDS && +ccDisc ? esc(ccDisc) : ""}"></div><p class="dnote" id="ccDmN"></p><div class="ccnp" data-npt="ccDmV">${["1","2","3","4","5","6","7","8","9",".","0","⌫"].map(k => `<button type="button" data-npk2="${k}" aria-label="${k==="⌫" ? "Delete" : k}">${k}</button>`).join("")}</div>` : "";
+  ccOverlay(`<h3 class="dh2">Discount</h3><div class="db2">${man}${man && mayDo("bo_cc_discount") && l.length ? `<div class="note" style="margin:14px 0 8px;font-weight:600">Discounts</div>` : ""}${!mayDo("bo_cc_discount") ? "" : l.length ? `<div class="ccchl">${l.map(d => { const c = d.open ? { amt:1 } : ccDsCalc(d); return `<button type="button" class="ccchr" data-ccds="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"} style="text-align:left;background:${ccDS?.id===d.id ? "#eceff8" : "#fff"}"><span><b>${esc(d.name)}</b><small>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</small></span></button>`; }).join("")}</div>
+    <div id="ccDsOpen" hidden style="margin-top:12px"><label class="note" id="ccDsOpenL" for="ccDsOpenV"></label><div style="display:flex;gap:8px;margin-top:4px"><input id="ccDsOpenV" class="sel" inputmode="decimal" style="flex:1"><button type="button" class="slk-ask-yes" id="ccDsOpenGo">Apply</button></div><p class="note" id="ccDsOpenN" style="color:#c0392b;min-height:16px;margin:4px 0 0"></p></div>` : man ? "" : `<p class="note" style="text-align:center;padding:20px 0">No discounts available for this order.</p>`}</div>
+    <div class="slk-ask-f"><button type="button" class="slk-ask-no" data-dlgx>Cancel</button>${man ? `<button type="button" class="slk-ask-yes" id="ccDmGo">Save</button>` : ""}</div>`, (w, close) => {
+    w.querySelector(".slk-ask-b").classList.add("dn2"); if(man) w.querySelector(".slk-ask-b").classList.add("hasman");
     w.addEventListener("click", e => { const t = e.target.closest("[data-ccdt]"); if(t){ w.querySelectorAll("[data-ccdt]").forEach(x => x.classList.toggle("on", x===t)); w.querySelector("#ccDmV")?.focus(); return; }
-      if(e.target.id!=="ccDmGo") return; const ty = w.querySelector("[data-ccdt].on")?.dataset.ccdt || "pct", v = +String(w.querySelector("#ccDmV").value).replace(",", "."), n = w.querySelector("#ccDmN"), g = ccGross();
+      if(e.target.id!=="ccDmGo") return; const of = w.querySelector("#ccDsOpen"); if(of && !of.hidden) return w.querySelector("#ccDsOpenGo").click(); const ty = w.querySelector("[data-ccdt].on")?.dataset.ccdt || "pct", v = +String(w.querySelector("#ccDmV").value).replace(",", "."), n = w.querySelector("#ccDmN"), g = ccGross();
       if(!(v >= 0) || w.querySelector("#ccDmV").value.trim()==="") return n.textContent = "Enter a number."; if(ty==="pct" && v > 100) return n.textContent = "A percentage can't be more than 100.";
       if(ty==="amt" && v > g) return n.textContent = `The discount can't be more than the order (${usd(g)}).`;
       ccDS = null; ccDiscType = ty; ccDisc = +v.toFixed(2); close(); renderCart(false); });
-    w.addEventListener("keydown", e => { if(e.key==="Enter" && e.target.id==="ccDmV"){ e.preventDefault(); e.stopPropagation(); w.querySelector("#ccDmGo")?.click(); } });
+    w.addEventListener("keydown", e => { if(e.key==="Enter" && (e.target.id==="ccDmV" || e.target.id==="ccDsOpenV")){ e.preventDefault(); e.stopPropagation(); w.querySelector("#ccDmGo")?.click(); } });
     w.addEventListener("click", e => { const b = e.target.closest("[data-ccds]"); if(!b || b.disabled) return; const d = dsList().find(x => x.id===b.dataset.ccds); if(!d) return;
       if(d.open){ const f = w.querySelector("#ccDsOpen"); f.hidden = false; f.dataset.id = d.id; w.querySelector("#ccDsOpenL").textContent = `${d.name}: enter the ${d.type==="fixed" ? "amount (" + SYM() + ")" : "percentage (%)"}`; const i = w.querySelector("#ccDsOpenV"); i.value = ""; i.focus(); const np = w.querySelector(".ccnp"); if(np){ np.dataset.npt = "ccDsOpenV"; f.after(np); } return; }
       ccDS = { id:d.id, name:d.name }; ccDiscType = "amt"; ccDisc = ccDsCalc(d).amt; close(); renderCart(false); });

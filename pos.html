@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1057-1795038027">
+<meta name="skwyd-build" content="1058-1795038645">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1061,6 +1061,26 @@ html body .smp.smp.disc .dz button{width:56px!important;min-width:0!important;he
 html body .smp.smp.disc footer{display:flex!important;gap:10px!important}
 html body .smp.smp.disc footer .err:empty{display:none}
 html body .smp.smp.disc footer button{flex:1 1 0!important;min-width:0!important}
+/* ===== Order discount pop-up: same look as the item discount (narrow, number pad, Cancel / Save) ===== */
+html body .modal.dlg2.dn2{width:min(360px,calc(100vw - 32px))!important}
+html body .modal.dn2 .mh{padding:16px 18px!important;border-bottom:1px solid #E5E5EA!important}
+html body .modal.dn2 .mh h2{font-size:18px!important;font-weight:600!important}
+html body .modal.dn2 .mh .x{display:none!important}
+html body .modal.dn2 .mb{padding:16px 18px 8px!important}
+html body .dz2{display:flex;gap:8px;width:100%}
+html body .dz2 button{width:56px;height:46px;flex:none;border:1px solid #D1D1D8;border-radius:10px;background:#fff;color:#1C1C1E;font:inherit;font-size:15px;font-weight:600;cursor:pointer;padding:0}
+html body .dz2 button.on{background:#EEF2FF;border-color:#1E3A8A;color:#1E3A8A}
+html body .dz2 input{flex:1;min-width:0;width:0;height:46px;border:1px solid #D1D1D8;border-radius:10px;font:inherit;font-size:18px;padding:0 14px;box-sizing:border-box;outline:0;background:#fff}
+html body .dnote{color:var(--bad,#e5484d);font-size:13px;margin-top:4px}
+html body .dnote:empty{display:none}
+html body #modal.dn2 .pinpad.dpad2{width:100%!important;max-width:none!important;margin:12px 0 0!important}
+html body .modal.dn2 .mf{background:#fff!important;border-top:1px solid #E5E5EA!important;padding:14px 18px!important;gap:10px!important}
+html body .modal.dn2 .mf .btn[data-close]{display:inline-flex!important;align-items:center;justify-content:center}
+html body #modal.dn2 .pinpad.dpad2{padding:0!important}
+html body .modal.dn2 .mf .btn{flex:1 1 0!important;min-width:0!important;min-height:46px!important;height:46px!important;border-radius:10px!important}
+html body .modal.dn2 .mf .btn:not(.pri){background:#EEF2FF!important;border:0!important;color:#1E3A8A!important}
+html body .modal.dn2.hasman #dsOpenGo{display:none}
+html body .smp.smp.disc .g:has(+ .dz){display:none!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -2403,11 +2423,11 @@ function openDiscount(){
   if(!cA && !cP && !cS) return deny("discounts");
   // built in first: an amount or a percentage off the order (each with its own permission in Roles), then the discounts made in Marketing → Discounts
   const sets = cS ? dsHere() : [], first = (discType==="amt" && cA) || !cP ? "amt" : "pct";
-  const man = cA || cP ? `<div class="dman"><div class="dseg">${cA ? `<button type="button" data-dt="amt" class="${first==="amt"?"on":""}">Amount (${esc(SYM())})</button>` : ""}${cP ? `<button type="button" data-dt="pct" class="${first==="pct"?"on":""}">Percentage (%)</button>` : ""}</div>
-    <div style="display:flex;gap:8px;margin-top:10px"><input id="discVal" inputmode="decimal" placeholder="0" value="${!DSET && +discount ? esc(discount) : ""}" style="flex:1"><button type="button" class="btn pri" id="discApply">Apply</button></div><div class="mut" id="discNote" style="font-size:13px;color:var(--bad,#e5484d);min-height:16px;margin-top:4px"></div></div>` : "";
-  modal("disc", `<div class="mh"><h2>Discount</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">${man}${man && cS ? `<div class="mut" style="font-size:13px;font-weight:600;margin:6px 0 8px">Discounts</div>` : ""}
+  const man = cA || cP ? `<div class="dz2">${cP ? `<button type="button" data-dt="pct" class="${first==="pct"?"on":""}" aria-label="Percentage">%</button>` : ""}${cA ? `<button type="button" data-dt="amt" class="${first==="amt"?"on":""}" aria-label="Amount">${esc(SYM())}</button>` : ""}<input id="discVal" inputmode="none" placeholder="0" aria-label="Discount" value="${!DSET && +discount ? esc(discount) : ""}"></div><div class="dnote" id="discNote"></div><div class="pinpad npad dpad2" data-npfor="discVal">${["1","2","3","4","5","6","7","8","9",".","0","⌫"].map(k => `<button type="button" data-npk="${k}" aria-label="${k==="⌫" ? "Delete" : k}">${k}</button>`).join("")}</div>` : "";
+  modal("disc", `<div class="mh"><h2>Discount</h2>${man ? "" : `<button class="x" data-close aria-label="Close">×</button>`}</div><div class="mb">${man}${man && cS && sets.length ? `<div class="mut" style="font-size:13px;font-weight:600;margin:14px 0 8px">Discounts</div>` : ""}
     ${!cS ? "" : sets.length ? `<div class="dsets">${sets.map(d => { const c = d.open ? { amt:1 } : dsCalc(d); return `<button type="button" class="dset${DSET?.id===d.id?" on":""}" data-dset="${esc(d.id)}" ${c.amt > 0 || !cart.length ? "" : "disabled"}><b>${esc(d.name)}</b><span>${d.open ? (d.type==="fixed" ? "Open amount" : "Open %") : (d.type==="fixed" ? usd(+d.amount||0) : (+d.amount||0) + "%") + (c.amt > 0 ? " · −" + usd(c.amt) : !cart.length ? " · applies to the items you add" : " · " + esc(c.why))}</span></button>`; }).join("")}</div>
-    <div id="dsOpen" hidden style="margin-top:14px"><div class="mut" id="dsOpenL" style="font-size:13px;margin-bottom:6px"></div><div style="display:flex;gap:8px"><input id="dsOpenV" inputmode="decimal" style="flex:1"><button type="button" class="btn pri" id="dsOpenGo">Apply</button></div><div class="mut" id="dsOpenN" style="font-size:13px;color:var(--bad,#e5484d);min-height:16px;margin-top:4px"></div></div>` : `<div class="mut" style="text-align:center;padding:26px 10px;font-size:14px">No discounts available</div>`}</div>`);
+    <div id="dsOpen" hidden style="margin-top:14px"><div class="mut" id="dsOpenL" style="font-size:13px;margin-bottom:6px"></div><div style="display:flex;gap:8px"><input id="dsOpenV" inputmode="decimal" style="flex:1"><button type="button" class="btn pri" id="dsOpenGo">Apply</button></div><div class="mut" id="dsOpenN" style="font-size:13px;color:var(--bad,#e5484d);min-height:16px;margin-top:4px"></div></div>` : man ? "" : `<div class="mut" style="text-align:center;padding:26px 10px;font-size:14px">No discounts available</div>`}</div>${man ? `<div class="mf"><button type="button" class="btn pri" id="discApply">Save</button></div>` : ""}`);
+  $("#modal").classList.add("dn2"); if(man) $("#modal").classList.add("hasman");
 }
 document.addEventListener("change", e => { const sl = e.target.closest?.("[data-ofsel]"); if(!sl) return; OV[sl.dataset.ofsel] = sl.value; openIncoming(); });
 $("#modal").addEventListener("click", async e => {
@@ -2418,13 +2438,13 @@ $("#modal").addEventListener("click", async e => {
     if(appSet().discountApproval && !(await approve("pos_discount", "Approve discount"))) return;
     DSET = { id:d.id, name:d.name, val:v }; discType = "amt"; discount = dsCalc(d, v).amt; closeModal(); renderCart(); return; }
   const ds = e.target.closest("[data-dset]"); if(ds){ const d = dsAll().find(x => x.id===ds.dataset.dset); if(!d) return;
-    if(d.open){ const f = $("#dsOpen"); f.hidden = false; f.dataset.id = d.id; document.querySelectorAll("[data-dset]").forEach(b => b.classList.toggle("on", b===ds)); $("#dsOpenL").textContent = `${d.name}: enter the ${d.type==="fixed" ? "amount (" + SYM() + ")" : "percentage (%)"}`; $("#dsOpenV").value = ""; $("#dsOpenN").textContent = ""; $("#dsOpenV").focus(); return; }
+    if(d.open){ const f = $("#dsOpen"); f.hidden = false; f.dataset.id = d.id; document.querySelectorAll("[data-dset]").forEach(b => b.classList.toggle("on", b===ds)); $("#dsOpenL").textContent = `${d.name}: enter the ${d.type==="fixed" ? "amount (" + SYM() + ")" : "percentage (%)"}`; $("#dsOpenV").value = ""; $("#dsOpenN").textContent = ""; $("#dsOpenV").focus(); const np = $("#modal .dpad2"); if(np){ np.dataset.npfor = "dsOpenV"; f.after(np); } return; }
     const c = dsCalc(d); if(!(c.amt > 0) && cart.length) return;
     if(((d.customerTags||[]).length || appSet().discNeedsCustomer) && !custGiven(cust.name, cust.phone)){ toast("Add the customer first: this discount needs customer info"); return; }
     if(appSet().discountApproval && !(await approve("pos_discount", "Approve discount"))) return;
     DSET = { id:d.id, name:d.name }; discType = "amt"; discount = c.amt; closeModal(); renderCart(); return; }
   const dt = e.target.closest("[data-dt]"); if(dt){ document.querySelectorAll("[data-dt]").forEach(b => b.classList.toggle("on", b===dt)); if($("#discUnit")) $("#discUnit").textContent = dt.dataset.dt==="amt" ? "USD" : "%"; $("#discVal").focus(); return; }
-  if(e.target.closest("#discApply")){ const ty = document.querySelector("[data-dt].on")?.dataset.dt || "pct"; if(!can(ty==="amt" ? "pos_disc_amount" : "pos_disc_pct")) return deny("this discount"); const v = +String($("#discVal").value).replace(",", "."), sub = totals().sub;
+  if(e.target.closest("#discApply")){ const of = $("#dsOpen"); if(of && !of.hidden) return $("#dsOpenGo").click(); const ty = document.querySelector("[data-dt].on")?.dataset.dt || "pct"; if(!can(ty==="amt" ? "pos_disc_amount" : "pos_disc_pct")) return deny("this discount"); const v = +String($("#discVal").value).replace(",", "."), sub = totals().sub;
     if(!(v >= 0) || $("#discVal").value.trim()==="") { $("#discNote").textContent = "Enter a number."; return; }
     if(ty==="pct" && v > 100){ $("#discNote").textContent = "A percentage can't be more than 100."; return; }
     if(ty==="amt" && v > sub){ $("#discNote").textContent = `The discount can't be more than the subtotal (${usd(sub)}).`; return; }
@@ -2837,7 +2857,7 @@ function openIncoming(){
   const TYL = { dinein:"Dine-in", pickup:"Pickup", delivery:"Delivery", fast:"Fast Order" }, CHL = { pos:"POS", callcenter:"Call center", web:"Web" };
   const active = [["ft", TYL[OV.ft]], ["fc", CHL[OV.fc]], ["fs", OV.fs], ["fp", OV.fp]].filter(x => x[1]);
   const head = `<div class="ohdr"><button class="hbtn" data-close>Back</button>
-    <div class="ovsrch">${ico("search")}<input id="ovQ" placeholder="Search reference, order no., invoice no., customer, phone or table" value="${esc(OV.q)}"></div>
+    <div class="ovsrch">${ico("search")}<input id="ovQ" placeholder="Search" value="${esc(OV.q)}"></div>
     <div class="ovrw"><button class="ovrange${OV.from||OV.to ? " on" : ""}" data-ovrange aria-expanded="${!!OV.rpop}">${ico("calendar")}<span>${esc(ovRangeLbl())}</span></button>
       ${OV.rpop ? `<div class="ovrpop"><div class="ovrpre">${OV_PRE.map(([k,l]) => `<button class="${ovPreset(k).join()===[OV.from||"",OV.to||""].join() ? "on" : ""}" data-ovpre="${k}">${l}</button>`).join("")}</div>
         <div class="ovrcus">${ovCal()}<div class="ovract"><button class="btn" data-ovrcancel>Cancel</button></div></div></div>` : ""}</div>
