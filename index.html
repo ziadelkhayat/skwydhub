@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1034-1795033419">
+<meta name="skwyd-build" content="1035-1795033524">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2675,6 +2675,12 @@ html body #ccBox .ccx.s1 .ccseg button,html body #ccBox .ccx.s1 .seg button{bord
 html body .ccnext .btn.pri:disabled,html body .ccnext .btn.pri[disabled]{background:#1E3A8A!important;border-color:#1E3A8A!important;color:#FFFFFF!important;opacity:.45!important}
 html body #ccBox:has(.ccx.s1) .ccnext{background:#FFFFFF!important;border-top:1px solid #E5E5EA!important}
 html body #ccBox:has(.ccx.s1) .ccnext .btn{min-height:46px!important;height:46px!important;min-width:104px!important;font-size:14px!important;font-weight:600!important;border-radius:10px!important}
+/* ===== Call center: arrows as thick as the icons; tool buttons solid system navy ===== */
+html body #ccBox .adgo{font-style:normal!important;font-size:24px!important;font-weight:700!important;color:#1E3A8A!important;line-height:1}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool{background:#1E3A8A!important;color:#FFFFFF!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool *{color:#FFFFFF!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool svg,html body #ccBox .ccx .cctools .cctool.cctool.cctool svg *{stroke:#FFFFFF!important;color:#FFFFFF!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool:hover{background:#172D6A!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
