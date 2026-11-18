@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="977-1795007785">
+<meta name="skwyd-build" content="978-1795007850">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3453,9 +3453,9 @@ function viewBranch(b){
 }
 function viewBranches(){
   const ob = state.brOpen && branches.find(x => x.id===state.brOpen); if(ob){ setTimeout(() => paintBranchData(ob.id), 0); return viewBranch(ob); }
-  const all0 = branches.filter(b => state.brand==="all" || b.brandId===state.brand), list = all0.filter(crudFltOk("branches"));
+  const all0 = branches, list = all0.filter(crudFltOk("branches"));
   const n = all0.length, a = activeBranches().length;
-  let h = `<div class="phead"><h1>Branches</h1><div class="sp"></div>${scopeBar(false)}<button class="btn pri" id="addBranch">Create Branch</button></div>
+  let h = `<div class="phead"><h1>Branches</h1><div class="sp"></div><button class="btn pri" id="addBranch">Create Branch</button></div>
     <p class="subt" style="margin-top:-6px">${n} total · ${a} active</p>`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: branches you add here won't be saved. Open this page from claude.ai while signed in to save them.</div>`;
   if(!n) return h + `<div class="card empty">No branches yet. Add your first branch to get started.</div>`;
@@ -4570,7 +4570,7 @@ function crudView(key){
   if(key==="delivery-zones") h += `<div class="card" style="padding:0;overflow:hidden;margin-bottom:16px"><div id="zonesMap" style="height:380px"></div><div id="zonesLegend" class="legend"></div></div>`;
   h += `<div class="card tbl"><div class="ttop"><div class="ttabs">${cfg.tabs.map(t=>`<a href="#${key}" data-tab="${key}:${t[0]}" class="${tab===t[0]?"on":""}">${t[1]}</a>`).join("")}</div>
     <div class="sp"></div>${CRUD_FF[key] ? crudFltBtn(key) : `${scopeHere ? scopeBar(false) : ""}`}</div>
-    <div class="crsrch"><label class="osrch">${svgIco("search")}<input type="search" autocomplete="off" data-search="${key}" placeholder="Search ${esc(cfg.title.toLowerCase())}${key==="products"||key==="inv-items" ? " by name or SKU" : ""}" value="${esc(state.q[key]||"")}" aria-label="Search ${esc(cfg.title)}"></label>${key==="products" ? `<span class="vtog" role="group" aria-label="View"><button type="button" data-pview="list" class="${state.pview!=="grid"?"on":""}" aria-label="List view" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button><button type="button" data-pview="grid" class="${state.pview==="grid"?"on":""}" aria-label="Grid view" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button></span>` : ""}</div>`;
+    ${key==="order-sources" ? "" : `<div class="crsrch"><label class="osrch">${svgIco("search")}<input type="search" autocomplete="off" data-search="${key}" placeholder="Search ${esc(cfg.title.toLowerCase())}${key==="products"||key==="inv-items" ? " by name or SKU" : ""}" value="${esc(state.q[key]||"")}" aria-label="Search ${esc(cfg.title)}"></label>${key==="products" ? `<span class="vtog" role="group" aria-label="View"><button type="button" data-pview="list" class="${state.pview!=="grid"?"on":""}" aria-label="List view" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button><button type="button" data-pview="grid" class="${state.pview==="grid"?"on":""}" aria-label="Grid view" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button></span>` : ""}</div>`}`;
   if(!shown.length) h += `<div class="empty">${S[cfg.col].length ? "Nothing matches." : `No ${cfg.title.toLowerCase()} yet.`}</div>`;
   else { const sel = (state.sel ||= {})[key] ||= new Set(), hasDel = cfg.tabs.some(t => t[0]==="deleted"), hasAct = cfg.tabs.some(t => t[0]==="active"),
       bkActs = tab==="deleted" ? [["restore","Restore"]] : cfg.bulk ? BULK_ACTS : [...(TAG_KEY[key] ? [["tagAdd","Add Tags"],["tagDel","Remove Tags"]] : []), ...(key==="modifiers" ? [["modAdd","Add To Products"]] : []), ...(hasAct ? [["activate","Activate"],["deactivate","Deactivate"]] : []), ...(hasDel ? [["delete","Delete"]] : [])],
@@ -11225,6 +11225,7 @@ const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
     ffYN("con","Has Console Access",r=>!!r.email), ffYN("app","Has App Access",r=>!!r.pinHash), ["upd","Updated After","date",r=>r.updatedAt]],
   "delivery-zones": [ffTxt("name","Name",r=>r.name), ffTxt("ref","Reference",r=>r.reference), ["upd","Updated After","date",r=>r.updatedAt]],
   branches: [ffTxt("name","Name",r=>r.name), ffTxt("ref","Reference",r=>r.code),
+    ["brand","Brand","sel",r=>r.brandId, () => brandList().map(b => [b.id, b.name])],
     ["tag","Tag","sel",r=>tagsOf("branch", r.id), () => tagList("branch").map(t => [t.id, t.name])],
     ["tax","Tax Group","sel",r=>r.settings?.taxGroup, () => taxGroupOpts()],
     ["user","User","sel",r=>(S.users||[]).filter(u => !u.deleted && (!(u.branchIds||[]).length || u.branchIds.includes(r.id))).map(u => u.id), () => (S.users||[]).filter(u => live(u) && !isAdminRow(u)).map(u => [u.id, u.name])],
