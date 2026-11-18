@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1011-1795028957">
+<meta name="skwyd-build" content="1012-1795029236">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3370,16 +3370,16 @@ function viewDashboard(){
   const bname = id => branches.find(b=>b.id===id)?.name || "Unassigned";
   if(state.dashTab==="general"){
     const hN = hours24(D.hours,"n"), hNet = hours24(D.hours,"net");
-    const trend = (cur, prev, alt) => state.compare && prev ? (() => { const pct = (cur-prev)/prev*100, up = pct >= 0; return `<span class="ktr ${up?"up":"down"}">${up?"▲":"▼"} ${Math.abs(pct).toFixed(1)}% <span>vs ${esc(cmpLbl())}</span></span>`; })() : `<span class="ktr"><span>${alt}</span></span>`;
+    const trend = (cur, prev, alt) => state.compare && prev ? (() => { const pct = (cur-prev)/prev*100, up = pct >= 0; return `<span class="ktr ${up?"up":"down"}">${up?"▲":"▼"} ${Math.abs(pct).toFixed(1)}% <span>vs ${esc(cmpLbl())}</span></span>`; })() : alt ? `<span class="ktr"><span>${alt}</span></span>` : "";
     const tile = (label, icon, tint, ink, value, tr, rep) => `<div class="card ktile"><div class="kth"><span>${label}</span><i style="background:${tint};color:${ink}">${svgIco(icon)}</i></div><b class="kv">${value}</b>${tr}${rep ? `<a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a>` : ""}</div>`;
-    h += `<div class="kgrid">
-      ${tile("Average ticket", "receipt", "#F3E8FF", "#6D28D9", money(avg(D)), trend(avg(D), P&&avg(P), "Net sales ÷ orders"), "Average Ticket")}
-      ${tile("Active orders", "clock", "#FFF1E6", "#9A3B00", D.active ? D.active.n : (D.open||0), `<span class="ktr"><span>${D.active ? money(D.active.v) + " not closed yet" : "Not closed yet"}${D.active?.pending ? ` · ${D.active.pending} waiting` : ""}</span></span>`)}
-    </div>`;
     // Foodics row: orders, net sales and net payments by hour, each with its total and a link to the report
     { const hPay = hours24(D.hours,"pay"), sum = a => a.reduce((x,y) => x + y, 0);
       const hc = (label, value, vals, rep, fmt, icon) => `<div class="card hcard"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv">${value}</div>${lineChart(vals, { dots:true, h:300, axis:false, area:false, rot:true, color:"#6D28D9", label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
       h += `<div class="hgrid">${hc("Orders", sum(hN).toLocaleString(), hN, "Orders", "n", "orders")}${hc("Net sales", money(sum(hNet)), hNet, "Net Sales", "m", "dollar")}${hc("Net payments", money(sum(hPay)), hPay, "Net Payments", "m", "card")}</div>`; }
+    h += `<div class="kgrid">
+      ${tile("Average ticket", "receipt", "#F3E8FF", "#6D28D9", money(avg(D)), trend(avg(D), P&&avg(P), ""), "Average Ticket")}
+      ${tile("Active orders", "clock", "#FFF1E6", "#9A3B00", D.active ? D.active.n : (D.open||0), "")}
+    </div>`;
     // net sales chart: by hour for one day, by day for longer periods
     let cur, prev = null, labels, step;
     if(rangeDays() > 1){ const n = rangeDays(), end = new Date(state.date+"T12:00:00"); cur = []; labels = [];
@@ -3395,13 +3395,12 @@ function viewDashboard(){
       <section class="card dbr"><div class="kh"><h3>Sales by branch</h3><a href="#dashboard" data-dt2="branches" class="vr">View all</a></div>
         ${brs.length ? brs.map(b => `<div class="brow"><div><b>${esc(b.name)}</b><span>${b.n} order${b.n===1?"":"s"}</span><em>${money(b.v)}</em></div><i><u style="width:${Math.max(2, b.v/bmax*100)}%"></u></i></div>`).join("") : `<div class="empty">No sales yet</div>`}</section>
     </div>`;
-    const mini = (label, value, sub, tr) => `<div class="card kmini"><span>${label}</span><b>${value}</b>${tr || `<span class="note">${sub}</span>`}</div>`;
+    const mini = (label, value, sub, tr) => `<div class="card kmini"><span>${label}</span><b>${value}</b>${tr || (sub ? `<span class="note">${sub}</span>` : "")}</div>`;
     h += `<div class="kmgrid">
-      ${mini("Net payments", money(+D.payments), "Collected", state.compare && P ? trend(+D.payments, +P.payments) : "")}
       ${mini("Discounts", money(+D.discount), "Given this period", state.compare && P ? trend(+D.discount, +P.discount) : "")}
-      ${mini("Tax", money(+D.tax||0), "Included in sales")}
-      ${mini("Returns", money(D.returns?.v||0), `${D.returns?.n||0} refund ticket${D.returns?.n===1?"":"s"}`)}
-      ${mini("Declined", (D.declined?.n ?? 0).toLocaleString(), `${money(+(D.declined?.v || 0))} not sold`)}
+      ${mini("Tax", money(+D.tax||0), "")}
+      ${mini("Returns", money(D.returns?.v||0), "")}
+      ${mini("Declined", (D.declined?.n ?? 0).toLocaleString(), "")}
     </div>`;
     const shift = "";
     h += `<div class="dgrid3">
