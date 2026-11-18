@@ -2207,6 +2207,9 @@ html:has(> body.navopen),html:has(> body.dlgopen){overscroll-behavior-y:none}
 /* empty states: a soft grey panel with the message in the middle (Foodics) */
 html body .app #view .empty,html body .app #view .brempty,html body .app #view td .empty{background:#F2F3F7!important;border:0!important;border-radius:12px!important;min-height:180px;display:flex!important;align-items:center;justify-content:center;text-align:center;padding:24px!important;margin:16px!important;color:#0E1530!important;font-size:15px!important;font-weight:400!important;font-style:normal!important}
 html body .app #view td > .empty{margin:8px 0!important}
+/* bold text is 700 everywhere: inside a semibold box "bolder" became 900 (call center columns, payroll) */
+html body b,html body strong{font-weight:700}
+html body .app #view .bhead b{font-size:16px!important;font-weight:700!important}
 /* ---- touch devices: smooth scrolling first ---- */
 @media (hover:none),(max-width:1180px){
   html body .scrim,html body .top,.tabbar,.gsres,html body .bar,html body .bkfloat{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -5339,7 +5342,7 @@ const mapLink = o => (o.lat && o.lng) ? `<a class="lnk" href="https://www.google
 
 /* ---------- Call Center (Foodics board) ---------- */
 const CC_COLS = [["review","Web & API","Web and API orders waiting for the call center to accept them and send them to the branch"],["draft","Draft","Orders that are not yet sent to the branch"],["pending","Pending","Orders that are not yet accepted by the branch"],
-  ["active","Preparing","Orders that are currently being prepared in the branch"],["closed","Done","Orders that are completed, voided, joined or returned"],
+  ["active","Preparing","Orders that are currently being prepared in the branch"],["dispatched","Out For Delivery","Delivery orders a driver has picked up and is taking to the customer"],["closed","Done","Orders that are completed, voided, joined or returned"],
   ["declined","Declined","Orders that have been declined from the branch or the call center"]];
 // the Done column keeps every closed order: done, voided or returned
 const CC_SUB = { review:"Waiting for call center", draft:"Draft", pending:"Sent to branch", active:"Preparing", declined:"Declined", closed:"Done", void:"Void", returned:"Returned", refund:"Refund" };
@@ -5374,7 +5377,7 @@ function viewCallCenter(){
 `;
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
   const ccCols = CC_COLS.filter(([k]) => k!=="review" || webToCC() || list.some(o => o.status==="review"));
-  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
+  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
     ${col.map(ccCard).join("")}</div>`; }).join("")}</div>`;
   return h;
 }
@@ -7933,10 +7936,10 @@ document.addEventListener("click", e => { const t = e.target; if(!t.closest || !
 // status tabs: a few clear groups instead of one tab per status
 /* empty lists say what is missing, in the open tab's words (Foodics): "You don't have Draft orders" */
 const youDontHave = (tabs, tab, plural) => { const t = ((tabs||[]).find(x => x[0]===tab) || [])[1]; return `You don't have ${t && tab!=="all" ? t + " " : "any "}${plural}`; };
-const ORD_TABS = [["all","All"],["today","Today"],["draft","Draft"],["pending","Pending"],["active","Active"],["ahead","Ahead"],["callcenter","Call Center"],["online","Web Ordering"]];   // Foodics order tabs
+const ORD_TABS = [["all","All"],["today","Today"],["draft","Draft"],["pending","Pending"],["active","Active"],["dispatched","Out For Delivery"],["ahead","Ahead"],["callcenter","Call Center"],["online","Web Ordering"]];   // Foodics order tabs
 const ORD_SGRP = { draft:["draft"], pending:["pending","review"], open:["active"], closed:["closed"], declined:["declined"], voids:["void"], returns:["refund","returned"] };
 const ORD_TABQ = { today: q => { const d = bizDate(), [t0, t1] = dayBounds(d, d, ORD.branch || ""); return q.gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()); },
-  draft: q => q.eq("status","draft"), pending: q => q.eq("status","pending"), active: q => q.eq("status","active"),
+  draft: q => q.eq("status","draft"), pending: q => q.eq("status","pending"), active: q => q.eq("status","active"), dispatched: q => q.eq("status","active").not("dispatched_at","is",null),
   ahead: q => q.not("scheduled_at","is",null).in("status",["draft","pending","active"]), callcenter: q => q.eq("channel","callcenter"), online: q => q.eq("channel","online") };
 const ORD_GRP = { pending:["draft","pending"], open:["active"], closed:["closed"], declined:["declined"], voids:["void"], returns:["refund","returned"] };
 const ORD_ALLST = ["draft","pending","active","closed","declined","void","refund","returned"];
