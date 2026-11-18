@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1038-1795034144">
+<meta name="skwyd-build" content="1039-1795034553">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2682,8 +2682,8 @@ html body #ccBox .ccx .cctools .cctool.cctool.cctool *{color:#FFFFFF!important}
 html body #ccBox .ccx .cctools .cctool.cctool.cctool svg,html body #ccBox .ccx .cctools .cctool.cctool.cctool svg *{stroke:#FFFFFF!important;color:#FFFFFF!important}
 html body #ccBox .ccx .cctools .cctool.cctool.cctool:hover{background:#172D6A!important}
 /* ===== Modifier picker: no animation at all ===== */
-html body .smp,html body .smp *,html body .smp *::before,html body .smp *::after{transition:none!important;animation:none!important}
-html body .smp *:hover,html body .smp *:active{transform:none!important}
+html body .smp .b,html body .smp .b *,html body .smp .b *::before,html body .smp .b *::after{transition:none!important;animation:none!important}
+html body .smp .b *:hover,html body .smp .b *:active{transform:none!important}
 /* ===== Modifier pop-up, design A: compact tiles; − / + centred and regular weight ===== */
 html body .smp.smp{width:min(820px,100%)!important}
 html body .smp.smp .og{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:10px!important;margin:8px 0 16px!important}
@@ -2708,6 +2708,12 @@ html body .smp.smp .g .req{font-size:12px!important;font-weight:600!important;co
 html body .smp.smp footer .smc,html body .smp.smp footer button[data-x]{background:#EEF2FF!important;color:#1E3A8A!important;border:0!important;height:46px!important;min-width:104px!important;border-radius:10px!important;font-size:14px!important;font-weight:600!important;padding:0 20px!important}
 html body .smp.smp footer button[data-ok]{height:46px!important;min-width:104px!important;border-radius:10px!important;font-size:14px!important;font-weight:600!important;padding:0 20px!important;background:#1E3A8A!important;color:#fff!important;border:0!important}
 html body .smp.smp .og label.qrow.on .nm{color:#1C1C1E!important}
+/* ===== Lift on every remaining button (modifier footer, call center tools, close buttons, account button) ===== */
+html body .smp.smp footer button,html body #ccBox .ccx .cctools .cctool.cctool.cctool,html body .ccxbtn,html body .modal header .x,html body .acctbtn,html body #ccBox .ccx .ccacts .btn,html body .smp.smp header button{transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,.2,1),background-color .2s!important}
+@media (hover:hover){html body .smp.smp footer button:not(:disabled):hover,html body #ccBox .ccx .cctools .cctool.cctool.cctool:not(:disabled):hover,html body .ccxbtn:not(:disabled):hover,html body .modal header .x:not(:disabled):hover,html body .acctbtn:not(:disabled):hover,html body #ccBox .ccx .ccacts .btn:not(:disabled):hover,html body .smp.smp header button:not(:disabled):hover{transform:translateY(-2px)!important;box-shadow:0 6px 16px rgba(30,58,138,.18)!important}}
+html body .smp.smp footer button:active,html body #ccBox .ccx .cctools .cctool.cctool.cctool:active,html body .ccxbtn:active,html body .modal header .x:active,html body .acctbtn:active,html body #ccBox .ccx .ccacts .btn:active,html body .smp.smp header button:active{transform:none!important;box-shadow:none!important}
+html body .smp.smp textarea{border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:14px!important;padding:10px 12px!important;box-shadow:none!important;width:100%;box-sizing:border-box}
+html body .smp.smp textarea:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important;outline:0}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
