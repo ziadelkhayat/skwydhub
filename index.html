@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="975-1795007544">
+<meta name="skwyd-build" content="976-1795007723">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -8994,7 +8994,7 @@ function rrPanel(k){
     ${open ? `<div class="rrdig">${[0,1,2,3,4,5,6,7,8,9].map(d => `<span class="${rrDigit(k, d)}">${d}</span>`).join("")}</div>
       <div class="rrleg"><span><i class="up"></i>Round up</span><span><i class="down"></i>Round down</span><span><i></i>No change</span></div>
       <table class="rrt"><thead><tr><th>From</th><th>To</th><th>Round Up</th><th></th></tr></thead><tbody>${l.map((r, i) => `<tr><td><input class="sel" type="number" min="0" max="9" data-rrv="${k}:${i}:from" value="${esc(r.from)}"></td><td><input class="sel" type="number" min="0" max="9" data-rrv="${k}:${i}:to" value="${esc(r.to)}"></td><td><label class="toggle"><input type="checkbox" data-rrv="${k}:${i}:up" ${r.up ? "checked" : ""}><span class="trk"></span></label></td><td class="num"><button type="button" class="kbib" data-rrrm="${k}:${i}" title="Delete" style="color:#d92d20">${svgIco("trash")||"×"}</button></td></tr>`).join("") || `<tr><td colspan="4"><span class="note">No rules: totals are not rounded.</span></td></tr>`}</tbody></table>
-      <div class="rract"><button type="button" class="btn" data-rradd="${k}">${svgIco("plusc")}Add Rule</button>${l.length ? `<button type="button" class="btn ghost" data-rrclr="${k}">Clear All</button>` : ""}<span class="sp" style="flex:1"></span><button type="button" class="btn pri" data-rrsave="${k}" ${dirty ? "" : "disabled"}>Save Rules</button></div>
+      <div class="rract"><button type="button" class="btn" data-rradd="${k}">${svgIco("plusc")}Add Rule</button>${l.length ? `<button type="button" class="btn ghost" data-rrclr="${k}">Clear All</button>` : ""}<span class="sp" style="flex:1"></span><button type="button" class="btn pri" data-rrsave="${k}">Save Rules</button></div>
       ${RR.err[k] ? `<div class="err">${esc(RR.err[k])}</div>` : ""}
       <p class="rrnote">The deciding digit is the last digit of the amount at this currency's ${dec} decimal place${dec===1?"":"s"}. Round down sets it to 0; round up sets it to 0 and adds one to the digit before it. For example ${esc(ex)}: the deciding digit is 7.${k==1 ? " The rule rounds the total the customer pays on the POS and in the call center; a Rounding line shows the difference." : " The rule rounds the amount due in this currency and its change."}</p>` : ""}</div>`;
 }
