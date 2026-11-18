@@ -73,7 +73,7 @@ td.empty::before,.empty.inline::before{display:none}
 
   // ---- dashboard numbers count up when they change (a re-render with the same number stays still)
   const NUMS = ".kpi .v,.kpi>b,.kpi b.kv,[data-countup]" + (POS ? ",#totals .g span:last-child" : ""), seen = new Map();
-  function keyOf(el) { const k = el.closest(".kpi"); return (k?.querySelector("h3,span,.kh")?.textContent || "") + "|" + [...(k?.parentElement?.children || [])].indexOf(k); }
+  function keyOf(el) { const k = el.closest(".kpi,.hcard"); return (k?.querySelector(".hch b,h3,span,.kh")?.textContent || "") + "|" + [...(k?.parentElement?.children || [])].indexOf(k); }
   function countUp(el) {
     const txt = el.textContent.trim(); if (el._mDone === txt) return;
     const m = txt.match(/^([^\d−-]*)([−-]?)([\d,]+(?:\.(\d+))?)(.*)$/); const key = keyOf(el), prev = seen.get(key); seen.set(key, txt); el._mDone = txt;

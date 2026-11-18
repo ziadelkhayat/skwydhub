@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1059-1795039502">
+<meta name="skwyd-build" content="1060-1795039676">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2785,6 +2785,16 @@ html body .dn2.hasman #ccDsOpenGo{display:none}
 html body .dn2 #ccDsOpenV{height:46px;border:1px solid #D1D1D8;border-radius:10px;font-size:18px;padding:0 14px}
 /* the item discount: no "Item discount" line over the % / amount row */
 html body .smp.smp.disc .g:has(+ .dz){display:none!important}
+/* ===== Dashboard number cards: same look as the Orders / Net sales / Net payments cards ===== */
+html body .app .hmgrid{display:grid;gap:16px;margin:0 0 16px}
+html body .app .hmgrid.h3{grid-template-columns:repeat(3,minmax(0,1fr))}
+html body .app .hmgrid.h4{grid-template-columns:repeat(4,minmax(0,1fr))}
+html body .app .hcard.hmini{padding:18px 20px!important;display:flex;flex-direction:column}
+html body .app .hcard.hmini .hcv{margin:8px 0 0}
+html body .app .hcard.hmini .hsub{font-size:12.5px;color:#6B7392;margin-top:4px}
+html body .app .hcard.hmini .hsub .ktr{font-size:12.5px}
+@media (max-width:1000px){html body .app .hmgrid.h3,html body .app .hmgrid.h4{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){html body .app .hmgrid.h3,html body .app .hmgrid.h4{grid-template-columns:1fr}}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -2867,7 +2877,7 @@ html[data-theme=dark] body .app aside.side{--sk-ink:#E6E9F5}
 <script src="wokdb.js?v=70"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
-<script src="motion.js?v=6"></script>
+<script src="motion.js?v=7"></script>
 <script src="strips.js?v=1"></script>
 <script src="sheets.js?v=5"></script>
 <script src="theme.js?v=1"></script>
@@ -3648,11 +3658,14 @@ function viewDashboard(){
     const tile = (label, icon, tint, ink, value, tr, rep) => `<div class="card ktile"><div class="kth"><span>${label}</span><i style="background:${tint};color:${ink}">${svgIco(icon)}</i></div><b class="kv">${value}</b>${tr}${rep ? `<a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a>` : ""}</div>`;
     // Foodics row: orders, net sales and net payments by hour, each with its total and a link to the report
     { const hPay = hours24(D.hours,"pay"), sum = a => a.reduce((x,y) => x + y, 0);
-      const hc = (label, value, vals, rep, fmt, icon) => `<div class="card hcard"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv">${value}</div>${lineChart(vals, { dots:true, h:300, axis:false, area:false, rot:true, color:"#6D28D9", label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
+      const hc = (label, value, vals, rep, fmt, icon) => `<div class="card hcard"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div>${lineChart(vals, { dots:true, h:300, axis:false, area:false, rot:true, color:"#6D28D9", label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
       h += `<div class="hgrid">${hc("Orders", sum(hN).toLocaleString(), hN, "Orders", "n", "orders")}${hc("Net sales", money(sum(hNet)), hNet, "Net Sales", "m", "dollar")}${hc("Net payments", money(sum(hPay)), hPay, "Net Payments", "m", "card")}</div>`; }
-    h += `<div class="kgrid">
-      ${tile("Average ticket", "receipt", "#F3E8FF", "#6D28D9", money(avg(D)), trend(avg(D), P&&avg(P), ""), "Average Ticket")}
-      ${tile("Active orders", "clock", "#FFF1E6", "#9A3B00", D.active ? D.active.n : (D.open||0), "")}
+    // the number cards: the same look as the Orders / Net sales / Net payments cards, each with its report
+    const hm = (label, value, sub, rep, icon) => `<div class="card hcard hmini"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div>${sub ? `<div class="hsub">${sub}</div>` : ""}</div>`;
+    h += `<div class="hmgrid h3">
+      ${hm("Average ticket", money(avg(D)), trend(avg(D), P&&avg(P), ""), "Average Ticket", "receipt")}
+      ${hm("Active orders", (D.active ? D.active.n : (D.open||0)).toLocaleString(), "", "Active Orders", "clock")}
+      ${hm("Declined", (D.declined?.n ?? 0).toLocaleString(), "", "Declined", "x")}
     </div>`;
     // net sales chart: by hour for one day, by day for longer periods
     let cur, prev = null, labels, step;
@@ -3670,12 +3683,11 @@ function viewDashboard(){
         ${brs.length ? brs.map(b => `<div class="brow"><div><b>${esc(b.name)}</b><span>${b.n} order${b.n===1?"":"s"}</span><em>${money(b.v)}</em></div><i><u style="width:${Math.max(2, b.v/bmax*100)}%"></u></i></div>`).join("") : `<div class="empty">No sales yet</div>`}</section>
     </div>`;
     const mini = (label, value, sub, tr, ic) => `<div class="card kmini">${ic ? `<i class="kmi" style="background:${ic[1]};color:${ic[2]}">${svgIco(ic[0])}</i>` : ""}<span>${label}</span><b>${value}</b>${tr || (sub ? `<span class="note">${sub}</span>` : "")}</div>`;
-    h += `<div class="kmgrid">
-      ${mini("Discounts", money(+D.discount), "Given this period", state.compare && P ? trend(+D.discount, +P.discount) : "", ["percent","#ECFDF3","#067647"])}
-      ${mini("Tax", money(+D.tax||0), "", "", ["coins","#EEF2FF","#1E3A8A"])}
-      ${mini("Returns", money(D.returns?.v||0), "", "", ["back","#FFF1E6","#9A3B00"])}
-      ${mini("Declined", (D.declined?.n ?? 0).toLocaleString(), "", "", ["x","#FDECEC","#B42318"])}
-      ${mini("Voids", money(D.voids?.v||0), D.voids ? `${D.voids.n} order${D.voids.n===1?"":"s"} · ${D.voids.items} item${D.voids.items===1?"":"s"}` : "", "", ["ban","#F4F4F5","#3F3F46"])}
+    h += `<div class="hmgrid h4">
+      ${hm("Discounts", money(+D.discount), state.compare && P ? trend(+D.discount, +P.discount) : "", "Discounts", "percent")}
+      ${hm("Tax", money(+D.tax||0), "", "Taxes", "coins")}
+      ${hm("Returns", money(D.returns?.v||0), D.returns?.n ? `${D.returns.n} return${D.returns.n===1?"":"s"}` : "", "Returns", "back")}
+      ${hm("Voids", money(D.voids?.v||0), D.voids && (D.voids.n || D.voids.items) ? `${D.voids.n} order${D.voids.n===1?"":"s"} · ${D.voids.items} item${D.voids.items===1?"":"s"}` : "", "Voids", "ban")}
     </div>`;
     const shift = "";
     h += `<div class="dgrid3">
@@ -11988,6 +12000,12 @@ const IC = { branch:"", levels:{}, loaded:{}, draft:{}, q:"", cat:"", sheet:"", 
 /* ---------- KPI breakdown ("View Report") ---------- */
 // Foodics-style: "View Report" opens the matching report in Reports, for the dashboard's dates and branch, grouped by hour
 function dashToReport(title){
+  { const act = /^active orders$/i.test(title), dec = /^declined$/i.test(title);
+    if(act || dec){ Object.assign(ORD, { keep:true, tab: act ? "active" : "all", status: dec ? "declined" : "", q:"", from:dashFrom(), to:state.date, channel:"", type:"", pay:"", source:"", brand: state.brand==="all" ? "" : state.brand, branch: state.branch==="all" ? "" : state.branch, page:1, key:"", open:null });
+      go("orders"); setTimeout(() => { render(); window.scrollTo(0,0); }, 0); return; }
+    const biz = /^taxes$/i.test(title) ? "taxes" : /^(returns|voids)$/i.test(title) ? "voids" : "";
+    if(biz){ Object.assign(RPT, { keep:true, key:biz, hub:"business-reports", from:dashFrom(), to:state.date, branch: state.branch==="all" ? "" : state.branch, brand: state.brand==="all" ? "" : state.brand, loaded:"", rows:null });
+      go("business-reports"); setTimeout(() => { render(); window.scrollTo(0,0); }, 0); return; } }
   if(/^orders$/i.test(title)){   // Orders: the orders list for the dashboard's dates, brand and branch
     Object.assign(ORD, { keep:true, tab:"all", q:"", from:dashFrom(), to:state.date, channel:"", type:"", pay:"", source:"", brand: state.brand==="all" ? "" : state.brand, branch: state.branch==="all" ? "" : state.branch, page:1, key:"", open:null });
     go("orders"); setTimeout(() => { render(); window.scrollTo(0,0); }, 0); return; }
