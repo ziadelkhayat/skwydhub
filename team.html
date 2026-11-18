@@ -472,7 +472,8 @@ async function viewTasks(){
 }
 
 /* ---------- driver: delivery orders assigned on the POS ---------- */
-const ORDER_HOST = "https://order.skwydhub.com";
+const ENVP = /^dev\./.test(location.hostname) ? "dev." : "";   // dev.portal / dev.order / dev.admin: links stay on the dev addresses
+const ORDER_HOST = "https://" + ENVP + "order.skwydhub.com";
 const DS = { assigned:"New order", accepted:"Accepted", picked:"On the way", delivered:"Delivered" };
 let drvT = 0, drvKnown = null, drvWatch = null, drvLast = 0;
 const trackUrl = o => `${ORDER_HOST}/track/${o.track}`;

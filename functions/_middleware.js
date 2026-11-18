@@ -1,7 +1,7 @@
 // order.skwydhub.com opens online ordering, admin.skwydhub.com the Skwyd Hub admin (hub.html); portal.skwydhub.com the back office (index.html).
 // Each business's ordering page has its own address: order.skwydhub.com/<brand address> (set in Web Ordering).
 export async function onRequest(ctx) {
-  const url = new URL(ctx.request.url), host = url.hostname;
+  const url = new URL(ctx.request.url), host = url.hostname.replace(/^dev\./, "");   // dev.order / dev.admin / dev.portal work like the plain names
   const isFile = /\.[a-z0-9]+$/i.test(url.pathname);
   let page = null;
   if (host.startsWith("order.") && !isFile) page = url.pathname.startsWith("/track/") ? "/track" : "/order";   // /track/<private link>: delivery tracking & rating                // "/" and "/thewok" both open order.html, which reads the address

@@ -6183,7 +6183,8 @@ function olFit(){ const fr = document.querySelector(".olframe"), ifr = fr?.query
 addEventListener("resize", () => setTimeout(olFit, 50));
 new MutationObserver(() => { const fr = document.querySelector(".olframe"); if(fr && !fr.dataset.fit){ fr.dataset.fit = 1; setTimeout(olFit, 0); } }).observe(document.body, { childList:true, subtree:true });
 function olPreview(){ clearTimeout(olT); olT = setTimeout(() => { if(!$("#olOn")) return; const cfg = olCollect(); state.olDraft = { brand:olBrand(), cfg }; $("#olFrame")?.contentWindow?.postMessage({ type:"skwyd-web-cfg", cfg }, location.origin); }, 120); }
-const ORDER_HOST = "https://order.skwydhub.com/", SLUG_RESERVED = new Set(["order","hub","admin","portal","api","www","app","help","login","signup","pos","skwyd","skwydhub"]);
+const ENVP = /^dev\./.test(location.hostname) ? "dev." : "";   // dev.portal / dev.order / dev.admin: links stay on the dev addresses
+const ORDER_HOST = "https://" + ENVP + "order.skwydhub.com/", SLUG_RESERVED = new Set(["order","hub","admin","portal","api","www","app","help","login","signup","pos","skwyd","skwydhub"]);
 const olSlug = () => S.brands.find(b => b.id===olBrand())?.slug || "";
 const olSlugGuess = () => String(brandName(olBrand()) || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
 const olLinkTo = (branch, table) => { const s = olSlug(); return (s ? ORDER_HOST + s + "?" : "order.html?brand=" + encodeURIComponent(olBrand()) + "&") + "branch=" + encodeURIComponent(branch) + "&table=" + table; };
@@ -6191,7 +6192,7 @@ const olLinkTo = (branch, table) => { const s = olSlug(); return (s ? ORDER_HOST
 let slugT = 0;
 async function olSlugCheck(){ const i = $("#olSlug"), m = $("#olSlugMsg"); if(!i || !m) return; const v = i.value.trim().toLowerCase();
   const say = (t, ok) => { m.textContent = t; m.className = "note " + (ok===true ? "slok" : ok===false ? "slbad" : ""); };
-  if(v===olSlug() && v) return say(`order.skwydhub.com/${v} is your current address.`, true);
+  if(v===olSlug() && v) return say(`${ENVP}order.skwydhub.com/${v} is your current address.`, true);
   if(!/^[a-z0-9]([a-z0-9-]{1,38}[a-z0-9])?$/.test(v)) return say("Use 3 to 40 letters, numbers or dashes (no spaces).", false);
   if(SLUG_RESERVED.has(v)) return say(`/${v} is not available. Choose another one.`, false);
   say("Checking…"); const my = ++slugT;
