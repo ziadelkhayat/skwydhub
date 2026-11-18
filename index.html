@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1045-1795035343">
+<meta name="skwyd-build" content="1049-1795035726">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -4616,6 +4616,15 @@ const typingInView = () => { const a = document.activeElement; return a && $("#v
 function softRender(){ if(typingInView()){ pendingRender = true; return; } render(); }
 document.addEventListener("focusout", () => setTimeout(() => { if(pendingRender && !typingInView()){ pendingRender = false; render(); } }, 0));
 const uid = p => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+// a deactivated device's open till is closed: the drawer taken as counted at the expected amount (opening cash + cash sales)
+async function closeDeviceTill(deviceId){
+  try{ const { data:open } = await WOK.sb.from("shifts").select("id,opening_cash").eq("device_id", deviceId).is("closed_at", null);
+    for(const sh of open || []){
+      const { data:ords } = await WOK.sb.from("orders").select("status,total,payment").eq("shift_id", sh.id).in("status", ["closed","refund"]);
+      const l = ords || [], cash = l.filter(o => (o.payment?.type || o.payment?.method)==="cash").reduce((a,o) => a + (+o.total||0), 0), expected = +((+sh.opening_cash||0) + cash).toFixed(2);
+      await WOK.sb.from("shifts").update({ closed_at:new Date().toISOString(), orders:l.filter(o => o.status==="closed").length, sales:+l.reduce((a,o) => a + (+o.total||0), 0).toFixed(2), expected_cash:expected, counted_cash:expected, difference:0 }).eq("id", sh.id).is("closed_at", null);
+    } }catch(e){ console.error("close device till", e); }
+}
 async function put(col, id, data){ const r = await put0(col, id, data);
   // a delivery charge that is turned off, deleted or restored also changes the fee of the zones that use it
   if(col==="charges" && id && ("active" in data || "deleted" in data || "value" in data || "type" in data)) try{ const c = S.charges.find(x => x.id===id) || {}, m = { ...c, ...data }, fee = !m.deleted && (m.type||"fixed")==="fixed" ? (+m.value||0) : 0;
@@ -12003,7 +12012,7 @@ $("#view").addEventListener("click", async e => {
   if(t.closest("#ccNew")) return openOrder();
   const oc = t.closest("[data-order]"); if(oc) return openOrder(oc.dataset.order);
   if(t.closest("#devNew")) return openDevice();
-  const dc = t.closest("[data-devcode]"); if(dc){ if(!(await askYes("Deactivate this device? The tablet signs out and gets a new activation code."))) return; const code = newCode(); await put("devices", dc.dataset.devcode, { code, activatedAt:null }); toast("Device deactivated · new activation code " + code); render(); return; }
+  const dc = t.closest("[data-devcode]"); if(dc){ if(!(await askYes("Deactivate this device? The tablet signs out and gets a new activation code."))) return; const code = newCode(); await closeDeviceTill(dc.dataset.devcode); await put("devices", dc.dataset.devcode, { code, activatedAt:null }); toast("Device deactivated · new activation code " + code); render(); return; }
   const dd = t.closest("[data-devdel]"); if(dd){ if(S.devices.find(x => x.id===dd.dataset.devdel)?.activatedAt){ toast("Deactivate the device first, then delete it."); return; } if(!(await askYes("Delete this device?"))) return; await put("devices", dd.dataset.devdel, { deleted:true }); state.devOpen = null; toast("Device deleted"); render(); return; }
   if(t.closest("#olSave")) return saveOnline();
 });

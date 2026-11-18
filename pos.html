@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1048-1795035575">
+<meta name="skwyd-build" content="1049-1795035726">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1018,7 +1018,10 @@ html body #abar .abtn.abtn.abtn span,html body #abar .abtn.abtn.abtn b{font-size
 html body #abar .abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn .rti svg{width:26px!important;height:26px!important;stroke-width:2.2!important}
 html body .bnav.bnav button,html body .bnav.bnav button span{font-size:clamp(14px,calc(var(--ab,90px) / 5.6),17px)!important;font-weight:700!important;letter-spacing:.02em!important}
 html body .bnav.bnav button svg,html body .bnav.bnav .rti svg{width:26px!important;height:26px!important;stroke-width:2.2!important}
-html body .bnav.bnav button{padding:12px 4px!important;gap:6px!important}
+html body .bnav.bnav button{padding:8px 4px!important;gap:4px!important}
+/* ===== POS top action buttons and bottom bar: one label style (13px, semi-bold, capitals) ===== */
+html body #abar .abtn.abtn.abtn.abtn span,html body #abar .abtn.abtn.abtn.abtn b,html body .bnav.bnav.bnav button,html body .bnav.bnav.bnav button span{font-size:13px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.03em!important;white-space:nowrap!important}
+html body #abar .abtn.abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn.abtn .rti svg,html body .bnav.bnav.bnav button svg,html body .bnav.bnav.bnav .rti svg{width:22px!important;height:22px!important;stroke-width:2!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -1228,6 +1231,7 @@ function onData(c, cached){
     started = true; if(ok) startApp(id); else { store.set("wokDevice", null); show("activate"); $("#code").focus(); } return; }
   if(!device) return;
   device = S.devices.find(d => d.id===device.id) || device;
+  if((device.deleted || !device.activatedAt) && !window.__autoClosing){ window.__autoClosing = true; autoCloseTill().finally(() => onData(c, cached)); return; }   // close the till first, then sign out
   if(device.deleted){ store.set("wokDevice", null); location.reload(); return; }
   if(!device.activatedAt){ try{ ["skwyd_devkey","skwyd_devtopic","skwyd_staff"].forEach(k => localStorage.removeItem(k)); }catch(_){} store.set("wokDevice", null); try{ window.WOK?.isDevice?.() && WOK.sb.auth.signOut({ scope:"local" }); }catch(_){} setTimeout(() => location.reload(), 300); return; }   // deactivated in the back office
   syncCheck();
@@ -2394,7 +2398,8 @@ $("#modal").addEventListener("click", async e => {
   if(e.target.closest("#goDayEnd")){ closeModal(); return openDayEnd(); }
   if(e.target.closest("#doCloseShift")) return doCloseShift();
   const shc = e.target.closest("[data-shclose]"); if(shc){ const sh = openShift(); if(sh && sh.id===shc.dataset.shclose) closeTillForm(sh); return; }   // a till is closed only on the device it was opened on, with its amounts counted
-  if(e.target.closest("#deact")){ store.set("wokDevice", null); if(window.WOK?.isDevice?.()) return window.WOK.user.signOut(); location.reload(); }
+  if(e.target.closest("#deact")){ return autoCloseTill().finally(() => { store.set("wokDevice", null); if(window.WOK?.isDevice?.()) return window.WOK.user.signOut(); location.reload(); }); }
+  if(false){ store.set("wokDevice", null); if(window.WOK?.isDevice?.()) return window.WOK.user.signOut(); location.reload(); }
 });
 $("#modal").addEventListener("change", e => { if(e.target.id==="pdSrc" && PD){ PD.source = e.target.value; if($("#pdErr")) $("#pdErr").textContent = ""; return pdRefresh(); } if(e.target.id==="pdA_label") return pdRefresh(); if(e.target.id==="pdCc"){ PD && (PD.cc = e.target.value); clearTimeout(pdT); pdT = setTimeout(pdLookup, 50); } });
 $("#modal").addEventListener("input", e => { if(e.target.id==="pdPhone" && PD){ pdKeep(); PD.name = ""; PD.addr = {}; PD.autoName = PD.autoAddr = ""; PD.addrIx = null; const n = $("#pdName"); if(n) n.value = ""; ADDR_K.forEach(k => { const el = $("#pdA_" + k); if(el) el.value = ""; }); }   // a new phone number clears the customer fields
@@ -2865,6 +2870,14 @@ async function doCloseShift(){
   catch(err){ console.error(err); toast("Couldn't close the till"); }
 }
 
+// the device is being deactivated (here or in the back office): close its open till, the drawer taken as counted at the expected amount
+async function autoCloseTill(){
+  try{ const sh = device && openShift(); if(!sh) return;
+    const sales = S.orders.filter(o => o.shiftId===sh.id && (o.status==="closed" || o.status==="refund"));
+    const cash = sales.filter(o=>(o.payment?.type || o.payment?.method)==="cash").reduce((a,o)=>a+(+o.total||0),0), expected = (+sh.openingCash||0)+cash-owedTotal(sales);
+    await db.collection("shifts").doc(sh.id).update({ closedAt:new Date().toISOString(), orders:sales.filter(o=>o.status==="closed").length, sales:+sales.reduce((a,o)=>a+(+o.total||0),0).toFixed(2), expectedCash:+expected.toFixed(2), countedCash:+expected.toFixed(2), difference:0 });
+  }catch(err){ console.error("auto close till", err); }
+}
 const openMore = () => modal("more", `<div class="mh"><h2>Device</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
   <p><b>${esc(device.name)}</b><br><span class="mut">${esc(branch?.name||"")}</span></p><p class="mut">To move this tablet to another branch, generate a new code in the back office and activate again.</p></div>
   <div class="mf"><a class="btn" href="https://dev.portal.skwydhub.com/devices" target="_blank" rel="noopener" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
