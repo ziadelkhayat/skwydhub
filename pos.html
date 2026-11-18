@@ -2763,7 +2763,7 @@ async function doCloseShift(){
 
 const openMore = () => modal("more", `<div class="mh"><h2>Device</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
   <p><b>${esc(device.name)}</b><br><span class="mut">${esc(branch?.name||"")}</span></p><p class="mut">To move this tablet to another branch, generate a new code in the back office and activate again.</p></div>
-  <div class="mf"><a class="btn" href="https://portal.skwydhub.com/devices" target="_blank" rel="noopener" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
+  <div class="mf"><a class="btn" href="https://dev.portal.skwydhub.com/devices" target="_blank" rel="noopener" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
 
 // full-screen Orders / Tables / Pickup & delivery keep the bottom bar, so "New" and the other tabs stay reachable
 function withNav(){ paintNav(); return;   // full screens have no bottom bar: Back returns to the cart

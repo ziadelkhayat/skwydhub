@@ -6183,7 +6183,7 @@ function olFit(){ const fr = document.querySelector(".olframe"), ifr = fr?.query
 addEventListener("resize", () => setTimeout(olFit, 50));
 new MutationObserver(() => { const fr = document.querySelector(".olframe"); if(fr && !fr.dataset.fit){ fr.dataset.fit = 1; setTimeout(olFit, 0); } }).observe(document.body, { childList:true, subtree:true });
 function olPreview(){ clearTimeout(olT); olT = setTimeout(() => { if(!$("#olOn")) return; const cfg = olCollect(); state.olDraft = { brand:olBrand(), cfg }; $("#olFrame")?.contentWindow?.postMessage({ type:"skwyd-web-cfg", cfg }, location.origin); }, 120); }
-const ENVP = /^dev\./.test(location.hostname) ? "dev." : "";   // dev.portal / dev.order / dev.admin: links stay on the dev addresses
+const ENVP = "dev.";   // the system runs as the development copy (dev.portal / dev.order / dev.admin); set to "" when the live system launches   // dev.portal / dev.order / dev.admin: links stay on the dev addresses
 const ORDER_HOST = "https://" + ENVP + "order.skwydhub.com/", SLUG_RESERVED = new Set(["order","hub","admin","portal","api","www","app","help","login","signup","pos","skwyd","skwydhub"]);
 const olSlug = () => S.brands.find(b => b.id===olBrand())?.slug || "";
 const olSlugGuess = () => String(brandName(olBrand()) || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);

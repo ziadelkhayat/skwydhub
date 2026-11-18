@@ -796,7 +796,7 @@ const pPub = sb.rpc("skwyd_public_settings").then(r => r, () => ({ error:true })
 const bl = await sb.from("brands").select("id,name,slug").not("deleted", "is", true).order("name");
 if(bl.error){ $("#main").innerHTML = `<div class="closed"><b>We couldn't load the menu.</b>Please try again in a moment.</div>`; return; }
 if(!brandId && pathSlug && pathSlug!=="order") brandId = bl.data.find(b => String(b.slug||"").toLowerCase()===pathSlug)?.id || "-";
-if(!brandId){ $("#hero").hidden = true; $("#main").innerHTML = `<div class="closed"><b>Order from your restaurant</b>Open the ordering link your restaurant shared with you (order.skwydhub.com/their-name), or scan the QR code on your table.</div>`; return; }   // never list other businesses
+if(!brandId){ $("#hero").hidden = true; $("#main").innerHTML = `<div class="closed"><b>Order from your restaurant</b>Open the ordering link your restaurant shared with you (dev.order.skwydhub.com/their-name), or scan the QR code on your table.</div>`; return; }   // never list other businesses
 const brand = bl.data.find(b => b.id === brandId);
 if(!brand){ $("#main").innerHTML = `<div class="closed"><b>This restaurant isn't taking web orders.</b></div>`; return; }
 
