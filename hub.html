@@ -269,6 +269,43 @@ tbody tr.click:hover{background:#1A2655!important}
 }
 @media (max-width:900px){.content{padding:18px 14px 40px}.kpi b{font-size:22px!important}}
 .side .nav{overflow-y:hidden;overscroll-behavior-x:contain}
+
+/* the same look as the portal: navy side menu on the left with a lime current page, white top bar, white rounded cards */
+:root{--bg:#F3F4F8;--navy:#0B1330;--line:#E6E8F2}
+body{background:var(--bg)!important;color:#0E1530!important}
+@media (min-width:901px){
+  .app{display:grid!important;grid-template-columns:250px 1fr!important;min-height:100vh}
+  .side{position:sticky!important;top:0;height:100vh!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:18px;padding:22px 14px!important;padding-right:14px!important;border-right:0!important;border-bottom:0!important;overflow-y:auto!important}
+  .side .nav{flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;flex:none!important;gap:4px!important}
+  .side .nav a{padding:0 14px!important;min-height:44px!important}
+  .side .nav a .ico{display:block!important}
+  .main .top{position:sticky!important;top:0;height:auto!important;z-index:5;padding:14px 32px!important}
+}
+.side{background:var(--navy)!important}
+.nav a.on{background:#D4F25A!important;color:#0B1330!important}
+.main .top,.top{background:#fff!important;border-bottom:1px solid var(--line)!important;min-height:72px;color:#0E1530!important}
+.who{color:#4B5563!important}
+.main .top .btn{background:#fff!important;border-color:#E0E3EE!important;color:#0E1530!important}
+.content h1{color:#0C1738!important}.subt,.note{color:#6B7392!important}
+.card{background:#fff!important;border:1px solid var(--line)!important;border-radius:16px!important;color:#0E1530!important;box-shadow:0 1px 2px rgba(11,19,48,.04)}
+.kpi span{color:#6B7392!important;font-weight:600}.kpi b{color:#0C1738!important;font-size:26px!important}
+.bar{border-bottom:1px solid #EEF0F7!important}
+th{color:#6B7392!important;border-bottom:1px solid #EEF0F7!important}
+td{color:#0E1530!important;border-bottom:1px solid #EEF0F7!important}
+tbody tr.click:hover{background:#F7F8FC!important}
+.btn{background:#fff!important;border:1px solid #E0E3EE!important;color:#0E1530!important}.btn:hover{background:#F5F7FB!important}
+.btn.pri{background:#1E3A8A!important;border-color:#1E3A8A!important;color:#fff!important;box-shadow:none!important}.btn.pri:hover{background:#172D6A!important}
+.content .sel,.content input:not([type=checkbox]):not([type=radio]),.content select{background:#fff!important;border:1px solid #E0E3EE!important;color:#0E1530!important}
+.content .sel:focus,.content input:focus,.content select:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 4px rgba(30,58,138,.1)!important}
+.t-active,.t-paid{background:#ECFDF3!important;color:#067647!important}.t-trial{background:#F3E8FF!important;color:#6D28D9!important}
+.t-grace,.t-open{background:#FFF4E5!important;color:#B54708!important}.t-locked{background:#FEECEC!important;color:#B42318!important}.t-free,.t-void{background:#F0F1F5!important;color:#4B5563!important}
+.dhero{background:var(--navy);color:#fff;border-radius:22px;padding:26px 28px;margin-bottom:18px}.dhero .eyebrow{color:#8C96B8;font-size:13px}.dhero h1{color:#fff!important;font-size:30px;margin:6px 0 4px}.dhero p{color:#C9D0E6;margin:0}
+.kpis.dk{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.dcard{padding:18px}.dcard h3{margin:0 0 8px;font-size:15px;color:#0C1738}
+.drow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid #EEF0F7;cursor:pointer}.drow:last-child{border-bottom:0}.drow:hover{background:#FAFBFD}
+.dav{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#EEF2FF;color:#1E3A8A;font-weight:700;font-size:12px;flex:none}
+.dt{flex:1;min-width:0}.dt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dt small{color:#8A90A6}.drow em{font-style:normal;font-weight:700;color:#4B5563;white-space:nowrap}
 </style>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
@@ -286,6 +323,7 @@ const dmy = d => { if (!d) return "—"; const x = new Date(d); return String(x.
 const dmyIn = d => d ? dmy(d) : "";
 const parseDmy = v => { const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(String(v).trim()); if (!m) return null; const iso = m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0"); return isNaN(new Date(iso)) ? null : iso; };
 const ICON = {
+  dashboard: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   companies: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
   invoices: '<path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
   prices: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
@@ -313,7 +351,7 @@ const splitPhone = v => { const d = String(v || "").replace(/[^\d+]/g, ""); if (
 const fullPhone = (country, num) => { const dial = dialOf(country); num = String(num || "").replace(/\D/g, "").replace(/^0+/, ""); return num ? dial + num : ""; };   // +96170123456, as the back office saves it
 const MODULES = [["inventory","Inventory"],["marketing","Marketing"],["online_ordering","Online Ordering"],["marketplace","Marketplace"],["call_center","Call Center"]];
 const STATE_LABEL = { trial: "Trial", active: "Active", grace: "Grace Period", locked: "Locked", none: "No Plan" };
-let DATA = null, me = null, view = "companies", q = "";
+let DATA = null, me = null, view = "dashboard", q = "";
 
 // ---------- calendar: every dd-mm-yyyy field opens a month calendar below it (typing still works) ----------
 const CAL = { el: null, input: null, y: 0, m: 0 };
@@ -383,7 +421,7 @@ async function load() { DATA = await rpc("slick_pa_overview"); try { VIEW = awai
 
 // ---------- shell ----------
 function render() {
-  const nav = [["companies","Companies"],["invoices","Invoices"],["prices","Price List"],["settings","Settings"]];
+  const nav = [["dashboard","Dashboard"],["companies","Companies"],["invoices","Invoices"],["prices","Price List"],["settings","Settings"]];
   $("#root").innerHTML = `<div class="app"><aside class="side"><div class="brand skb"><div class="skmark f2"><svg viewBox="0 0 120 124" height="40.0" width="38.7" aria-hidden="true"><path d="M24 82 V62 C24 32 41 12 60 12 C79 12 96 32 96 62 V82" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><path d="M24 82 Q24 106 14 114 M48 84 Q48 104 42 116 M72 84 Q72 104 78 116 M96 82 Q96 106 106 114" fill="none" stroke="#172554" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="52" r="8.5" fill="#6d28d9"/><circle cx="73" cy="52" r="8.5" fill="#6d28d9"/></svg></div><div class="skword f2"><svg viewBox="0 0 543.6 100" height="22" width="119.6" role="img" aria-label="skwyd hub"><g fill="none" stroke="#172554" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"><path d="M63 21 C56 13 47 9.5 37.5 9.5 C22 9.5 12 17 12 29.5 C12 42 23 45.5 37 48.5 C52 51.5 64 55.5 64 70 C64 83 52.5 90.5 37 90.5 C26 90.5 16 86 9.5 77"/><path d="M111.3 9.5 V90.5 M111.3 49 H144.5 A20.5 20.5 0 0 0 165 28.5 V9.5 M111.3 49 H150.5 A21.7 21.7 0 0 1 172.2 70.7 V90.5"/><path d="M219.5 9.5 V69 A22.5 21.5 0 0 0 264.5 69 V9.5 M264.5 69 A22.5 21.5 0 0 0 309.5 69 V9.5"/><path d="M358.5 9.5 V29 A31.5 31.5 0 0 0 421.5 29 V9.5 M390 60.5 V90.5"/><path d="M469.7 9.5 H492.5 A40.5 40.5 0 0 1 492.5 90.5 H469.7 Z"/></g></svg><svg viewBox="0 0 376 100" height="8" width="30.1" aria-hidden="true"><g fill="none" stroke="#6d28d9" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><path transform="translate(0 0)" d="M10 10 V90 M66 10 V90 M10 50 H66"/><path transform="translate(148 0)" d="M10 10 V60 A30 30 0 0 0 70 60 V10"/><path transform="translate(300 0)" d="M10 10 V90 H46 A20 20 0 0 0 46 50 H10 M10 50 H42 A20 20 0 0 0 42 10 H10"/></g></svg></div><span class="skadm">Admin</span></div>
     <nav class="nav">${nav.map(([k,t]) => `<a data-view="${k}" class="${view===k?"on":""}"><svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>${t}</a>`).join("")}</nav></aside>
     <div class="main"><div class="top">${VIEW ? `<span class="note">Viewing <b>${esc(VIEW.name)}</b> in the portal</span><a class="btn sm" style="text-decoration:none" href="https://portal.skwydhub.com/dashboard" target="_blank">Open</a><button class="btn sm" id="stopv">Stop Viewing</button>` : ""}<div class="sp"></div><span class="who">${esc(me.email)}</span><button class="btn sm" id="out">Sign Out</button></div>
@@ -391,7 +429,7 @@ function render() {
   $("#out").onclick = async () => { await sb.auth.signOut(); gate(); };
   if ($("#stopv")) $("#stopv").onclick = async () => { await rpc("slick_stop_view"); await load(); };
   document.querySelectorAll("[data-view]").forEach(a => a.onclick = () => { if (view === a.dataset.view) return; view = a.dataset.view; VIN = 1; render(); });
-  ({ companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view](); vin();
+  ({ dashboard: viewDashboard, companies: viewCompanies, invoices: viewInvoices, prices: viewPrices, settings: viewSettings })[view](); vin();
 }
 
 function stateTag(c) {
@@ -400,6 +438,31 @@ function stateTag(c) {
 }
 
 // ---------- companies ----------
+// ---------- dashboard: the business at a glance ----------
+function viewDashboard() {
+  const cs = DATA.companies || [], cur = DATA.settings?.currency || "USD", now = new Date(), hr = now.getHours();
+  const paying = cs.filter(c => !c.sub?.complimentary && c.sub?.state === "active");
+  const mrr = paying.reduce((a, c) => a + Number(c.quote?.total || 0) / (c.quote?.cycle === "yearly" ? 12 : 1), 0);
+  const owed = cs.reduce((a, c) => a + Number(c.sub?.owed || 0), 0);
+  const count = st => cs.filter(c => !c.sub?.complimentary && c.sub?.state === st).length;
+  const ending = cs.filter(c => !c.sub?.complimentary && ["trial","grace"].includes(c.sub?.state) && c.sub?.daysLeft != null).sort((a, b) => a.sub.daysLeft - b.sub.daysLeft).slice(0, 6);
+  const newest = cs.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 6);
+  const busy = cs.slice().sort((a, b) => (b.orders30 || 0) - (a.orders30 || 0)).filter(c => c.orders30).slice(0, 6);
+  const list = (title, rows, cell) => `<div class="card dcard"><h3>${title}</h3>${rows.length ? rows.map(c => `<div class="drow" data-co="${esc(c.id)}"><span class="dav">${esc(String(c.name||"?").trim().split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase())}</span><span class="dt"><b>${esc(c.name)}</b><small>${esc(c.account_no || "")}</small></span>${cell(c)}</div>`).join("") : `<div class="empty" style="padding:22px">Nothing yet.</div>`}</div>`;
+  $("#view").innerHTML = `<div class="dhero"><span class="eyebrow">${now.toLocaleDateString("en-GB", { weekday:"long" })} ${String(now.getDate()).padStart(2,"0")}-${String(now.getMonth()+1).padStart(2,"0")}-${now.getFullYear()}</span><h1>${hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"}</h1><p>Every restaurant on Skwyd Hub, their plans and what they owe.</p></div>
+    <div class="kpis dk">
+      <div class="card kpi"><span>Monthly Revenue</span><b>${money(mrr, cur)}</b></div>
+      <div class="card kpi"><span>Paying</span><b>${paying.length}</b></div>
+      <div class="card kpi"><span>On Trial</span><b>${count("trial")}</b></div>
+      <div class="card kpi"><span>Grace / Locked</span><b>${count("grace")} / ${count("locked")}</b></div>
+      <div class="card kpi"><span>Open Invoices</span><b>${money(owed, cur)}</b></div>
+    </div>
+    <div class="dgrid">${list("Trials and grace ending soon", ending, c => `${stateTag(c)}<em>${c.sub.daysLeft} ${c.sub.daysLeft === 1 ? "day" : "days"}</em>`)}
+      ${list("Busiest (orders, 30 days)", busy, c => `<em>${c.orders30}</em>`)}
+      ${list("Newest businesses", newest, c => `<em>${dmy(c.created_at)}</em>`)}</div>`;
+  document.querySelectorAll("[data-co]").forEach(r => r.onclick = () => openCompany(r.dataset.co));
+}
+
 function viewCompanies() {
   const cs = DATA.companies || [], cur = DATA.settings?.currency || "USD";
   const paying = cs.filter(c => !c.sub?.complimentary && c.sub?.state === "active");
@@ -409,13 +472,6 @@ function viewCompanies() {
   const s = q.trim().toLowerCase();
   const rows = cs.filter(c => !s || [c.name, c.account_no, c.email, c.phone, c.contact_name].some(v => String(v || "").toLowerCase().includes(s)));
   $("#view").innerHTML = `<h1>Companies</h1><p class="subt">Every restaurant using Skwyd Hub, their plan and what they owe.</p>
-    <div class="kpis">
-      <div class="card kpi"><span>Monthly Revenue</span><b>${money(mrr, cur)}</b></div>
-      <div class="card kpi"><span>Paying</span><b>${paying.length}</b></div>
-      <div class="card kpi"><span>On Trial</span><b>${count("trial")}</b></div>
-      <div class="card kpi"><span>Grace / Locked</span><b>${count("grace")} / ${count("locked")}</b></div>
-      <div class="card kpi"><span>Open Invoices</span><b>${money(owed, cur)}</b></div>
-    </div>
     <div class="card"><div class="bar"><input class="sel" id="q" placeholder="Search" value="${esc(q)}" style="width:260px"><div class="sp"></div><span class="note">${rows.length} of ${cs.length}</span><button class="btn pri" id="newco">New Business</button></div>
     ${rows.length ? `<table><thead><tr><th>Company</th><th>Account Number</th><th>Contact</th><th>Status</th><th class="num">Ends In</th><th class="num">POS Devices</th><th class="num">Price</th><th class="num">Owed</th><th class="num">Orders (30 Days)</th><th>Joined</th></tr></thead><tbody>
       ${rows.map(c => { const sb_ = c.sub || {}; return `<tr class="click" data-co="${esc(c.id)}">

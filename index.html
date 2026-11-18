@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="971-1795006720">
+<meta name="skwyd-build" content="972-1795007035">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2349,7 +2349,6 @@ const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" +
       <select class="sel" id="brandSel" aria-label="Brand filter"></select>
       <select class="sel" id="branchSel" aria-label="Branch filter"></select>
       <span id="syncPill" style="display:none"></span>
-      <div class="gsearch" id="gSearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16M21 21l-4.3-4.3"/></svg><input id="gsIn" type="search" autocomplete="off" placeholder="Search pages, items, customers…" aria-label="Search"><kbd>Ctrl K</kbd><div class="gsres" id="gsRes" hidden></div></div>
       <div class="sp"></div>
       <div class="acct"><button type="button" class="acctbtn" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="avatar" id="avatar" aria-hidden="true"></span><span id="who"></span><script>try{ const c0 = JSON.parse(localStorage.getItem("skwyd_who") || "null"); if(c0){ document.getElementById("avatar").textContent = c0.av; document.getElementById("who").textContent = c0.who; } }catch(e){}</script><span class="chev" aria-hidden="true">▾</span></button>
         <div class="acctmenu" id="acctMenu" role="menu" hidden>
@@ -8566,26 +8565,6 @@ function paintSide(){
     else pc.hidden = true; }
   const me = $("#meChip"); if(me){ const n = state.fullName || state.userName || ""; const h = n ? `<span class="meav">${esc(n.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><span class="met"><b>${esc(n)}</b><span>${esc((ROLE_LBL[state.role]||cap(state.role||"")).split(" · ")[0])}</span></span>` : ""; if(me._h !== h){ me._h = h; me.innerHTML = h; } }
 }
-/* search in the top bar: pages, products, customers (Ctrl K / Cmd K) */
-const GS = { i:0, list:[] };
-function gsItems(q){ q = q.trim().toLowerCase(); if(!q) return [];
-  const out = [], seen = new Set(), add = (t, sub, href, k) => { if(out.length >= 14 || seen.has(href+t)) return; seen.add(href+t); out.push({ t, sub, href, k }); };
-  NAV.forEach(n => { if(n.id){ if(canOpen(n.id) && n.t.toLowerCase().includes(q)) add(n.t, "Page", "#"+n.id, "page"); return; }
-    (n.kids||[]).concat(n.side||[]).forEach(k => { if(k[0].startsWith("@") || !canOpen(k[0])) return; if(k[1].toLowerCase().includes(q) || n.t.toLowerCase().includes(q)) add(k[1], n.t, "#"+k[0], "page"); }); });
-  if(canOpen("products")) (S.products||[]).filter(p => !p.deleted && String(p.name||"").toLowerCase().includes(q)).slice(0,5).forEach(p => add(p.name, "Product", "#products", "item"));
-  if(canOpen("customers")) (S.customers||[]).filter(c => (String(c.name||"") + " " + String(c.phone||"")).toLowerCase().includes(q)).slice(0,5).forEach(c => add(c.name || c.phone, "Customer" + (c.phone ? " · " + c.phone : ""), "#customers", "cust"));
-  return out; }
-function gsPaint(){ const r = $("#gsRes"), q = $("#gsIn").value; GS.list = gsItems(q); GS.i = Math.min(GS.i, Math.max(0, GS.list.length-1));
-  if(!q.trim()){ r.hidden = true; return; }
-  r.innerHTML = GS.list.length ? GS.list.map((x,i) => `<a href="${esc(x.href)}" class="${i===GS.i?"on":""}" data-gsi="${i}"><b>${esc(x.t)}</b><span>${esc(x.sub)}</span></a>`).join("") : `<div class="gsnone">Nothing found for “${esc(q)}”</div>`;
-  r.hidden = false; }
-$("#gsIn").addEventListener("input", () => { GS.i = 0; gsPaint(); });
-$("#gsIn").addEventListener("focus", gsPaint);
-$("#gsIn").addEventListener("keydown", e => { if(e.key==="ArrowDown"||e.key==="ArrowUp"){ e.preventDefault(); GS.i = (GS.i + (e.key==="ArrowDown"?1:-1) + GS.list.length) % Math.max(1, GS.list.length); gsPaint(); }
-  else if(e.key==="Enter"){ const x = GS.list[GS.i]; if(x){ e.preventDefault(); location.hash = x.href; gsClose(); } } else if(e.key==="Escape") gsClose(); });
-function gsClose(){ $("#gsIn").value = ""; $("#gsRes").hidden = true; $("#gsIn").blur(); }
-document.addEventListener("click", e => { if(e.target.closest("#gsRes a")){ setTimeout(gsClose, 0); return; } if(!e.target.closest("#gSearch")) $("#gsRes").hidden = true; });
-document.addEventListener("keydown", e => { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); $("#gsIn").focus(); } });
 $("#acctBtn").addEventListener("click", e => { e.stopPropagation(); const m = $("#acctMenu"), open = m.hidden; m.hidden = !open; $("#acctBtn").setAttribute("aria-expanded", open); });
 document.addEventListener("click", e => { if(!e.target.closest(".acct")) { $("#acctMenu").hidden = true; $("#acctBtn").setAttribute("aria-expanded", "false"); } else if(e.target.closest("#acctMenu a")) $("#acctMenu").hidden = true; });
 $("#amSignOut").addEventListener("click", () => window.WOK && WOK.user.signOut());
