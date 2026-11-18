@@ -1197,7 +1197,7 @@ window.SKWYD_OFFLINE = true;</script>
     </section>
   </div>
   <div class="morepop hide" id="morePop" role="menu">
-    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this branch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button>
+    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this branch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button><button class="mitem" id="oskBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/></svg><span>On-Screen Keyboard On</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button>
   </div>
 </div>
 
@@ -1346,6 +1346,10 @@ document.addEventListener("wok:locked", subLock);
 const soundLbl = () => { const b = document.getElementById("soundBtn"); if(b) b.querySelector("span").textContent = localStorage.getItem("skwyd_sound")==="off" ? "Sound Off" : "Sound On"; };
 soundLbl();
 document.getElementById("soundBtn")?.addEventListener("click", e => { e.stopPropagation(); const off = localStorage.getItem("skwyd_sound")!=="off"; localStorage.setItem("skwyd_sound", off ? "off" : "on"); soundLbl(); if(!off) whistle(); });
+// More menu: turn this tablet's on-screen keyboard on or off (off = Android's own keyboard)
+const oskLbl = () => { const b = document.getElementById("oskBtn"); if(b) b.querySelector("span").textContent = localStorage.getItem("skwyd_osk")==="off" ? "On-Screen Keyboard Off" : "On-Screen Keyboard On"; };
+oskLbl();
+document.getElementById("oskBtn")?.addEventListener("click", e => { e.stopPropagation(); const off = localStorage.getItem("skwyd_osk")!=="off"; localStorage.setItem("skwyd_osk", off ? "off" : "on"); OSK_ON = oskAuto(); if(!OSK_ON) oskHide(); oskLbl(); toast(off ? "On-screen keyboard off · this tablet uses its own keyboard" : "On-screen keyboard on"); });
 setInterval(async () => { if(!navigator.onLine || document.getElementById("subLock") || !window.WOK?.subscription) return; const st = await window.WOK.subscription(); if(st?.state === "locked") subLock(); }, 300000);
 window.WOK?.ready?.then?.(async () => { if(window.WOK.locked?.()) return subLock(); if(!navigator.onLine) return; const st = await window.WOK.subscription?.(); if(st?.state === "locked") subLock(); });
 if(window.WOK?.needsActivation?.()) actGate();
@@ -2267,10 +2271,11 @@ $("#scrim").addEventListener("click", e => { if(e.target.id==="scrim" && modalKi
 /* on-screen keyboard (skwyd design): used on the POS tablet instead of the system keyboard, so typing looks the same on every
    device and never covers half the register. Letters (English / Arabic), numbers & symbols, and a number pad for number fields.
    Keys react on touch-down, ⌫ repeats when held, ⇧ twice = caps lock. Turn it off on a device with localStorage skwyd_osk = "off". */
-const OSK_ON = (() => { try{ if(localStorage.getItem("skwyd_osk") === "off") return false;
+const oskAuto = () => { try{ if(localStorage.getItem("skwyd_osk") === "off") return false;
   const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   if(ios) return false;   // iPad / iPhone keep their own keyboard
-  return /Android/i.test(ua) || matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0 || /[?&]kb=1/.test(location.search); }catch(e){ return false; } })();
+  return /Android/i.test(ua) || matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0 || /[?&]kb=1/.test(location.search); }catch(e){ return false; } };
+let OSK_ON = oskAuto();
 const OSK = { el:null, target:null, shift:false, caps:false, mode:"abc", lang:(()=>{ try{ return localStorage.getItem("skwyd_osk_lang") || "en"; }catch(e){ return "en"; } })(), kind:"text", lastShift:0, rep:null };
 const OSK_IC = {
   shift:'<path d="M12 4 4 12.5h4.5V19h7v-6.5H20Z"/>',
