@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1039-1795034553">
+<meta name="skwyd-build" content="1042-1795035152">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -960,6 +960,19 @@ html body .smp.smp footer button,html body #ccBox .ccx .cctools .cctool.cctool.c
 html body .smp.smp footer button:active,html body #ccBox .ccx .cctools .cctool.cctool.cctool:active,html body .ccxbtn:active,html body .modal header .x:active,html body .acctbtn:active,html body #ccBox .ccx .ccacts .btn:active,html body .smp.smp header button:active{transform:none!important;box-shadow:none!important}
 html body .smp.smp textarea{border:1px solid #D1D1D8!important;border-radius:10px!important;font-size:14px!important;padding:10px 12px!important;box-shadow:none!important;width:100%;box-sizing:border-box}
 html body .smp.smp textarea:focus{border-color:#1E3A8A!important;box-shadow:0 0 0 3px rgba(30,58,138,.12)!important;outline:0}
+/* ===== POS: light bottom bar, navy action buttons on top ===== */
+html body .bnav.bnav{background:#FFFFFF!important;border:1px solid #E5E5EA!important;box-shadow:0 8px 24px rgba(20,24,40,.08)!important}
+html body .bnav.bnav button{color:#3A3A3C!important;background:transparent!important}
+html body .bnav.bnav button *{color:#3A3A3C!important}
+html body .bnav.bnav button svg,html body .bnav.bnav .rti svg,html body .bnav.bnav button .rti svg,html body .bnav.bnav button svg *{color:#1E3A8A!important;stroke:#1E3A8A!important}
+html body .bnav.bnav button.on{background:#EEF2FF!important;color:#1E3A8A!important}
+html body .bnav.bnav button.on *{color:#1E3A8A!important}
+html body .bnav.bnav button:disabled,html body .bnav.bnav button.dis,html body .bnav.bnav button.off{opacity:.45!important}
+html body #abar .abtn.abtn.abtn,html body #abar .abtn.abtn.abtn.off{background:#1E3A8A!important;border:0!important;color:#FFFFFF!important}
+html body #abar .abtn.abtn.abtn *{color:#FFFFFF!important}
+html body #abar .abtn.abtn.abtn svg,html body #abar .abtn.abtn.abtn svg *,html body #abar .abtn.abtn.abtn .rti svg,html body #abar .abtn.abtn.abtn .rti svg *{color:#FFFFFF!important;stroke:#FFFFFF!important}
+html body #abar .abtn.abtn.abtn:active{background:#172D6A!important}
+html body #abar .abtn.abtn.abtn.off{opacity:.5}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
