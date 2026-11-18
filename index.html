@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1003-1795025369">
+<meta name="skwyd-build" content="1004-1795025479">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2448,6 +2448,11 @@ html body .app #view .card.tbl table td .tagrow,html body .app #view .card.tbl t
 /* buttons inside panels and cards (Add Category, Add Items, card actions): compact, smaller than the page's main button */
 html body .app #view .mm .btn,html body .app #view .mmhd .btn,html body .app #view .card .btn,html body .app #view .ttop .btn,html body .app #view .dzh .btn,html body .app #view .brch .btn,html body .app #view .secbox .btn{min-height:34px!important;height:34px;padding:0 12px!important;font-size:14px!important;border-radius:10px!important;box-shadow:none!important}
 html body .app #view .mm .btn svg,html body .app #view .card .btn svg{width:16px;height:16px}
+/* all list tables: compact rows (10px top and bottom), 14px text, small thumbnails */
+html body .app #view table td,html body .app #view .tbl table td,html body .app #view .card.tbl table td:nth-child(n){padding-top:10px!important;padding-bottom:10px!important;font-size:14px!important;line-height:1.35!important}
+html body .app #view table th{padding-top:10px!important;padding-bottom:10px!important;font-size:14px!important;font-weight:600!important}
+html body .app #view table td .pthumb,html body .app #view table td img.pthumb{width:30px!important;height:30px!important;border-radius:8px!important}
+html body .app #view table td b{font-weight:400}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -2466,10 +2471,10 @@ html body .nav .sub,html body .nav .grp.open .sub,html body .nav .grp .sub *{ani
 html body .nav .chev,html body .nav .grp > button svg.nls{transition:none!important}
 html body .empty,html body .empty::before,html body .empty::after{animation:none!important}
 html body #view .ddmenu:not([hidden]),html body #view .ofpop,html body #view .kbmenu,html body #view .pkpop,html body #view .cal,html body .content .cal{animation-name:fdPop!important}
-html body .scrim.show,html body .slk-ask,html body .modal.on{animation:fdFade .2s var(--fd) both!important}
-html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .slk-ask-b,html body .modal.on > .dlg{animation:fdModal .2s var(--fd) both!important}
-html body .scrim .modal.odrawer{animation:fdFade .2s var(--fd) both!important}
-html body .ddmenu:not([hidden]),html body .acctmenu:not([hidden]),html body .kbmenu,html body .msel>.msel-p,html body .cal,html body .ofpop,html body .pkpop,html body .drp,html body .gsres:not([hidden]){animation:fdPop .15s var(--fd) both!important}
+html body .scrim.show,html body .slk-ask,html body .modal.on{animation:fdFade .2s var(--fd) backwards!important}
+html body .scrim.show > .modal,html body .scrim.show > *:first-child,html body .slk-ask-b,html body .modal.on > .dlg{animation:fdModal .2s var(--fd) backwards!important}
+html body .scrim .modal.odrawer{animation:fdFade .2s var(--fd) backwards!important}
+html body .ddmenu:not([hidden]),html body .acctmenu:not([hidden]),html body .kbmenu,html body .msel>.msel-p,html body .cal,html body .ofpop,html body .pkpop,html body .drp,html body .gsres:not([hidden]){animation:fdPop .15s var(--fd) backwards!important}
 html body .btn,html body button.btn,html body .sel,html body input,html body select,html body textarea{transition:all .3s var(--fd)}
 html body aside.side .nav a,html body aside.side .nav .grp > button,html body aside.side .nav svg{transition:all .1s var(--fd)!important}
 html body .toast,html body #toast{transform:translate(-50%,-100%)!important;top:20px!important;bottom:auto!important;opacity:0;transition:all .3s var(--fd)!important}
