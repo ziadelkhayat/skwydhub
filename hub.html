@@ -6,7 +6,7 @@
 <title>Skwyd Hub – Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%231E3A8A%22%2F%3E%3Cg%20transform%3D%22translate%2860%2062%29%20scale%280.95%29%20translate%28-60%20-60%29%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M60%2010%20C82%2010%2094%2032%2094%2054%20C94%2070%2082%2078%2060%2078%20C38%2078%2026%2070%2026%2054%20C26%2032%2038%2010%2060%2010Z%22%2F%3E%3Cpath%20d%3D%22M38%2074%20C34%2092%2022%2094%2024%20104%20C26%20110%2034%20106%2030%20101%22%2F%3E%3Cpath%20d%3D%22M50%2078%20C50%2094%2044%20104%2048%20110%22%2F%3E%3Cpath%20d%3D%22M60%2078%20V108%20C60%20112%2066%20112%2064%20107%22%2F%3E%3Cpath%20d%3D%22M70%2078%20C70%2094%2076%20104%2072%20110%22%2F%3E%3Cpath%20d%3D%22M82%2074%20C86%2092%2098%2094%2096%20104%20C94%20110%2086%20106%2090%20101%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2250%22%20r%3D%225.5%22%20fill%3D%22%231E3A8A%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2250%22%20r%3D%225.5%22%20fill%3D%22%231E3A8A%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2250%22%20r%3D%225%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2250%22%20r%3D%225%22%20fill%3D%22%23FFFFFF%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"><link rel="icon" type="image/png" sizes="32x32" href="/admin-icon-32.png?v=3"><link rel="apple-touch-icon" href="/admin-icon-180.png?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>/* skwyd hub: every country with its dialing code, currency and phone number format (from Google's libphonenumber data) */
@@ -90,8 +90,8 @@ tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fafafc}
 input[data-cal]{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238d8c98' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:38px!important}
 /* ===== same look and behaviour as the back office (portal) ===== */
 :root{--ease:cubic-bezier(.2,.8,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);--bg:#f3f4f8}
-body{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
-h1,h2,h3,.brand b{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif}
+body{font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+h1,h2,h3,.brand b{font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif}
 /* side menu: Light & Clean, the current squid and wordmark */
 .app{grid-template-columns:280px 1fr}
 .side{background:#fff;color:#64748b;border-right:1px solid #eceef3;padding:16px 12px 24px;overflow:auto}
@@ -308,8 +308,8 @@ tbody tr.click:hover{background:#F7F8FC!important}
 .dt{flex:1;min-width:0}.dt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dt small{color:#8A90A6}.drow em{font-style:normal;font-weight:700;color:#4B5563;white-space:nowrap}
 
 /* ===== same as the portal on every device: light Foodics-style side menu; tablets keep it open, phones open it with the menu button ===== */
-html body{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif}
-html body .content h1{font-family:"IBM Plex Sans",sans-serif!important;font-size:24px!important;font-weight:700!important}
+html body{font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif}
+html body .content h1{font-family:"Plus Jakarta Sans",sans-serif!important;font-size:24px!important;font-weight:700!important}
 html body .app aside.side{background:#F2F2F7!important;color:#1C1C1E!important;border-right:0!important}
 html body .app aside.side .nav a{color:#1C1C1E!important;background:transparent!important;font-size:14px!important;font-weight:500!important;border-radius:10px!important;display:flex!important;align-items:center;gap:12px}
 html body .app aside.side .nav a:hover{background:#E5E5EA!important}
@@ -355,7 +355,7 @@ html body .app aside.side .skadm,html body .app aside.side small{color:#6B6B70!i
 
 /* ===== Foodics type: IBM Plex Sans everywhere; page title 22px regular, section titles 20px regular, dialog titles 20px bold, table heads 16px bold, table rows 16px, buttons 15px, form labels and fields 14px, field labels on detail pages 15px grey, values 16px bold, small 12px ===== */
 html body{font-size:16px!important;line-height:1.5;color:#1C1C1E}
-html body,html body button,html body input,html body select,html body textarea,html body td,html body th,html body label,html body .brand b,html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .dlg header h2{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:0!important}
+html body,html body button,html body input,html body select,html body textarea,html body td,html body th,html body label,html body .brand b,html body h1,html body h2,html body h3,html body h4,html body .modal header h2,html body .dlg header h2{font-family:"Plus Jakarta Sans","IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:0!important}
 html body h1,html body .app #view h1,html body .app .phead h1,html body .content h1{font-size:22px!important;font-weight:400!important;line-height:32px!important;color:#000}
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-size:20px!important;font-weight:700!important;line-height:1.4!important}
 html body .app #view h2,html body .app #view h3,html body .app #view h4,html body .app #view .ct,html body .app #view .card h3.ct,html body .app #view .fsec,html body .app #view .bizh,html body .app #view .brch h3,html body .app #view .brcard>.brch h3,html body .app #view .secbox>.ttop>b,html body .app #view .ttop>b:first-child,html body .app #view .bsbody h3,html body .app #view .dchart h3,html body .app #view .dbr h3,html body .app #view .dshift h3,html body .app #view .dzsec h3,html body .app #view .rsh h3,html body .app #view .setup h3,html body .app #view .udh h3,html body .app #view .kbrh,html body .app #view .mmtitle b,html body .app #view .podh b,html body .app #view .qth b,html body .app #view .olbrh b,html body .app #view .aph b,html body .app #view .ccadh h3,html body .app #view .cchead,html body .app #view .ccothd,html body .app #view .tchaddh b,html body .content h2,html body .content h3{font-size:20px!important;font-weight:400!important;line-height:1.4!important;color:#000}
