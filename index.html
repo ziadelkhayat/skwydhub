@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1020-1795030833">
+<meta name="skwyd-build" content="1021-1795030913">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2576,6 +2576,9 @@ html body .btn:not(:disabled):active,html body .app #view .btn:not(:disabled):ac
 @media (prefers-reduced-motion:reduce){html body .btn{transition:none!important;transform:none!important}}
 html body .app #view .phead.hero .hrow2{flex-basis:100%;display:flex;gap:10px;flex-wrap:wrap;padding-left:114px}
 @media(max-width:760px){html body .app #view .phead.hero .hrow2{padding-left:0}}
+html body .app .kmini{position:relative}
+html body .app .kmini .kmi{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:10px;display:grid;place-items:center}
+html body .app .kmini .kmi svg{width:20px;height:20px;stroke:currentColor!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -3443,12 +3446,12 @@ function viewDashboard(){
       <section class="card dbr"><div class="kh"><h3>Sales by branch</h3><a href="#dashboard" data-dt2="branches" class="vr">View all</a></div>
         ${brs.length ? brs.map(b => `<div class="brow"><div><b>${esc(b.name)}</b><span>${b.n} order${b.n===1?"":"s"}</span><em>${money(b.v)}</em></div><i><u style="width:${Math.max(2, b.v/bmax*100)}%"></u></i></div>`).join("") : `<div class="empty">No sales yet</div>`}</section>
     </div>`;
-    const mini = (label, value, sub, tr) => `<div class="card kmini"><span>${label}</span><b>${value}</b>${tr || (sub ? `<span class="note">${sub}</span>` : "")}</div>`;
+    const mini = (label, value, sub, tr, ic) => `<div class="card kmini">${ic ? `<i class="kmi" style="background:${ic[1]};color:${ic[2]}">${svgIco(ic[0])}</i>` : ""}<span>${label}</span><b>${value}</b>${tr || (sub ? `<span class="note">${sub}</span>` : "")}</div>`;
     h += `<div class="kmgrid">
-      ${mini("Discounts", money(+D.discount), "Given this period", state.compare && P ? trend(+D.discount, +P.discount) : "")}
-      ${mini("Tax", money(+D.tax||0), "")}
-      ${mini("Returns", money(D.returns?.v||0), "")}
-      ${mini("Declined", (D.declined?.n ?? 0).toLocaleString(), "")}
+      ${mini("Discounts", money(+D.discount), "Given this period", state.compare && P ? trend(+D.discount, +P.discount) : "", ["percent","#ECFDF3","#067647"])}
+      ${mini("Tax", money(+D.tax||0), "", "", ["coins","#EEF2FF","#1E3A8A"])}
+      ${mini("Returns", money(D.returns?.v||0), "", "", ["back","#FFF1E6","#9A3B00"])}
+      ${mini("Declined", (D.declined?.n ?? 0).toLocaleString(), "", "", ["x","#FDECEC","#B42318"])}
     </div>`;
     const shift = "";
     h += `<div class="dgrid3">
