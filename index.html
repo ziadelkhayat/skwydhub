@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1064-1795082079">
+<meta name="skwyd-build" content="1065-1795082343">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2871,11 +2871,11 @@ html body .adback svg,html body .tchbk svg,html body .kbib svg{width:18px;height
 /* dialogs open clean: the dialog is solid from the first frame (no see-through fade, no drift), a short pop only; closing is instant */
 @keyframes dlgPop{from{transform:scale(.97)}to{transform:none}}
 html body .scrim,html body .scrim.show{transition:none!important;animation:none!important}
-html body .scrim.show > .modal,html body .scrim.show > #modal,html body .scrim.show > form.modal,html body .scrim.show > *:first-child,html body .modal.on > .dlg,html body .slk-ask-b{opacity:1!important;animation:dlgPop .14s cubic-bezier(.2,.9,.3,1) both!important;transition:none!important}
+html body .scrim.show > .modal,html body .scrim.show > #modal,html body .scrim.show > form.modal,html body .scrim.show > *:first-child,html body .modal.on > .dlg,html body .slk-ask-b{opacity:1!important;animation:dlgPop .14s cubic-bezier(.2,.9,.3,1) backwards!important;transition:none!important}
 html body .scrim:not(.show) > .modal,html body .scrim:not(.show) > *:first-child{transition:none!important;animation:none!important}
 html body .slk-ask{animation:none!important;transition:none!important}
 @keyframes dlgSheet{from{transform:translateY(32px)}to{transform:none}}
-@media (max-width:760px){html body .scrim.show > .modal,html body .scrim.show > *:first-child{animation:dlgSheet .2s cubic-bezier(.2,.8,.2,1) both!important}}
+@media (max-width:760px){html body .scrim.show > .modal,html body .scrim.show > *:first-child{animation:dlgSheet .2s cubic-bezier(.2,.8,.2,1) backwards!important}}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
@@ -4413,7 +4413,11 @@ function msEnhance(){
 // the list floats above everything (dialogs scroll and would cut it off)
 function msPlace(m){ const p = m.querySelector(":scope > .msel-p"), r = m.querySelector(":scope > .msel-f").getBoundingClientRect(), up = innerHeight - r.bottom < 300 && r.top > innerHeight - r.bottom;
   Object.assign(p.style, { position:"fixed", left: r.left + "px", width:"max-content", minWidth: r.width + "px", maxWidth: Math.max(r.width, Math.min(460, innerWidth - 16)) + "px", top: up ? "auto" : (r.bottom + 4) + "px", bottom: up ? (innerHeight - r.top + 4) + "px" : "auto", right:"auto" });
-  const pw = p.getBoundingClientRect().width; if(pw && r.left + pw > innerWidth - 8) p.style.left = Math.max(8, innerWidth - 8 - pw) + "px"; }   // options stay on one line: the list widens (and moves left at the screen edge)
+  const pw = p.getBoundingClientRect().width; if(pw && r.left + pw > innerWidth - 8) p.style.left = Math.max(8, innerWidth - 8 - pw) + "px";   // options stay on one line: the list widens (and moves left at the screen edge)
+  // inside a dialog that is moved or animated (a transform), "fixed" is measured from the dialog, not the screen: shift the list back under its field
+  { const a = p.getBoundingClientRect(), wl = parseFloat(p.style.left), dx = a.left - wl; if(Math.abs(dx) > 1) p.style.left = (wl - dx) + "px";
+    if(up){ const wb = innerHeight - r.top - 4, dy = a.bottom - wb; if(Math.abs(dy) > 1) p.style.bottom = (parseFloat(p.style.bottom) + dy) + "px"; }
+    else { const wt = r.bottom + 4, dy = a.top - wt; if(Math.abs(dy) > 1) p.style.top = (wt - dy) + "px"; } } }
 addEventListener("scroll", e => { if(e.target.closest?.(".msel-p")) return; document.querySelectorAll(".msel.open").forEach(msPlace); }, true);
 addEventListener("resize", () => document.querySelectorAll(".msel.open").forEach(msPlace));
 function msClose(except){ document.querySelectorAll(".msel.open").forEach(m => { if(m!==except){ m.classList.remove("open"); m.querySelector(":scope > .msel-p").hidden = true; } }); }
