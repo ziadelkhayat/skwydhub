@@ -6787,7 +6787,7 @@ function viewOnline(){
   const PRE = [["Royal","#1e3a8a","light"],["Wok red","#d62828","light"],["Ember","#f26b1d","warm"],["Golden","#e8a317","warm"],["Forest","#1f7a4d","light"],["Ocean","#0e6ba8","light"],["Rose","#e0457b","light"],["Charcoal","#23222b","light"],["Midnight","#f4b400","dark"],["Neon","#1e3a8a","dark"]];
   const acc = th.accent || "#1e3a8a";
   const L = (k, t) => `<button type="button" class="${tab===k?"on":""}" data-oltab="${k}">${tabIco({ store:"store", look:"image", checkout:"cart", branches:"map" }[k] || "list", "globe")}${t}</button>`;
-  let h = `<div class="phead"><h1>Web Ordering</h1><div class="sp"></div><a class="btn" href="${esc(link)}" target="_blank" rel="noopener">${svgIco("globe")} Open page</a><button class="btn pri" id="olSave">Save</button></div>
+  let h = `<div class="phead"><h1>Web Ordering</h1><div class="sp"></div><button class="btn pri" id="olSave">Save</button></div>
     <p class="subt" style="margin-top:-6px">Each brand has its own ordering page named after the brand, with its own look, checkout and branch settings.</p>
     ${brandList().length > 1 ? `<div class="tabs" style="margin-bottom:16px">${brandList().map(b=>`<a href="#online-ordering" data-olbrand="${esc(b.id)}" class="${b.id===olBrand()?"on":""}">${esc(b.name)}${(S.settings.find(x=>x.id==="online_"+b.id)||{}).enabled?' <span class="tag on" style="margin-left:4px">Live</span>':""}</a>`).join("")}</div>` : ""}`;
   if(storeMode==="local") h += `<div class="banner">Preview mode: settings won't be saved.</div>`;
@@ -12424,11 +12424,12 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
 (function(){
   const isSave = b => b.classList.contains("btn") && /^(save|save changes|save rules|update)$/i.test((b.textContent||"").replace(/\s+/g," ").trim()) && !b.closest("#ccScrim,.ccx,[data-nodirty]");
   const box = b => b.closest(".modal,.dlg,form,.bsbody,.card") || b.parentElement;
-  const sig = c => [...c.querySelectorAll("input,select,textarea")].map(e => e.type==="checkbox"||e.type==="radio" ? (e.checked?1:0) : e.multiple ? [...e.selectedOptions].map(o=>o.value).join("|") : e.value).join("\u0001");
+  // a Save in the page header (e.g. Web Ordering) watches the whole page under it
+  const sig = c => [...(c.classList.contains("phead") ? (c.closest("#view") || c) : c).querySelectorAll("input,select,textarea")].map(e => e.type==="checkbox"||e.type==="radio" ? (e.checked?1:0) : e.multiple ? [...e.selectedOptions].map(o=>o.value).join("|") : e.value).join("\u0001");
   const S = new WeakMap();   // box -> {sig, other}
   const set = (c, dirty) => c.querySelectorAll("button").forEach(b => { if(!isSave(b)) return; b.classList.toggle("nochg", !dirty); dirty ? b.removeAttribute("aria-disabled") : b.setAttribute("aria-disabled","true"); });
   const arm = () => document.querySelectorAll("button.btn:not([data-dw])").forEach(b => { if(!isSave(b)) return; b.dataset.dw = 1; const c = box(b); if(!S.has(c)) S.set(c, { sig: sig(c), other: false }); set(c, S.get(c).other || sig(c) !== S.get(c).sig); });
-  const touch = (t, other) => { for(const [c] of [[t.closest(".modal,.dlg,form,.bsbody,.card")]]){ if(!c || !S.has(c)) continue; const st = S.get(c); if(other) st.other = true; set(c, st.other || sig(c) !== st.sig); } };
+  const touch = (t, other) => { for(const c of [t.closest(".modal,.dlg,form,.bsbody,.card"), ...(t.closest?.("#view") ? [...document.querySelectorAll("#view .phead")] : [])]){ if(!c || !S.has(c)) continue; const st = S.get(c); if(other) st.other = true; set(c, st.other || sig(c) !== st.sig); } };
   document.addEventListener("input", e => touch(e.target), true);
   document.addEventListener("change", e => touch(e.target), true);
   document.addEventListener("drop", e => touch(e.target, true), true);

@@ -728,7 +728,8 @@ html body .cats button.on{color:#111827!important;font-weight:600!important;bord
 html body .cprog{display:none!important}
 html body .cats{scrollbar-width:none!important}html body .cats::-webkit-scrollbar{display:none!important;height:0!important}
 /* secondary-currency price: same colour as the description */
-html .item .pr2{color:#888d9a;font-size:14px;font-weight:400;line-height:1.4;margin-top:-2px}
+html .item .pr2{color:#888d9a;font-size:13px;font-weight:400;margin-left:8px;white-space:nowrap}
+html .item small{font-size:13px!important;line-height:19px!important}
 /* grid view: the + sits on the photo's bottom-right corner, like in the list */
 html .lay-grid .item{container-type:inline-size;position:relative}
 html .lay-grid .item .qa{top:calc(100cqw - 42px)!important;bottom:auto!important;right:8px!important}
@@ -1345,11 +1346,11 @@ async function addItem(p){
   const y = scrollY; renderMenu(); scrollTo(0,y);
 }
 // the item's price in the secondary currency, shown under the main price when Web Ordering turns it on
-function sec2(p, kids){ if(SH().cur2 !== true) return ""; const v = kids.length ? Math.min(...kids.map(k => priceOf(k.p))) : priceOf(p); const t = v ? usd2(v) : ""; return t ? `<div class="pr2">${kids.length ? "From " : ""}${t}</div>` : ""; }
+function sec2(p, kids){ if(SH().cur2 !== true) return ""; const v = kids.length ? Math.min(...kids.map(k => priceOf(k.p))) : priceOf(p); const t = v ? usd2(v) : ""; return t ? `<span class="pr2">${t}</span>` : ""; }
 function itemCard(p){ const n = cart.filter(i => i.productId===p.id || (p.variants||[]).some(v => v.productId===i.productId)).reduce((a,i)=>a+i.qty,0), out = oos(p), lay = curLay(), img = p.image_url && lay !== "compact", kids = kidsOf(p);
   const price = kids.length ? "From " + usd(Math.min(...kids.map(k => priceOf(k.p)))) : !priceOf(p) && hasMods(p) ? "" : usd(priceOf(p));
   return `<div class="item${out?" oos":""}${img?"":" noimg"}" data-item="${esc(p.id)}" role="button" tabindex="0"><div class="ph">${img ? `<img src="${esc(p.image_url)}" alt="" loading="lazy">` : lay==="grid" ? ic("img","width:34px;height:34px;opacity:.35") : ""}</div>
-    <div class="tx"><b>${esc(p.name)}</b>${price ? `<div class="pr">${price}</div>${sec2(p, kids)}` : `<div class="pr cz">Customization available</div>`}${p.description && SH().desc !== false ? `<small>${esc(p.description)}</small>` : ""}${out ? `<span class="soldout">Sold out</span>` : ""}</div>${out ? "" : qaCtl(p, n)}</div>`; }
+    <div class="tx"><b>${esc(p.name)}</b>${price ? `<div class="pr">${price}${sec2(p, kids)}</div>` : `<div class="pr cz">Customization available</div>`}${p.description && SH().desc !== false ? `<small>${esc(p.description)}</small>` : ""}${out ? `<span class="soldout">Sold out</span>` : ""}</div>${out ? "" : qaCtl(p, n)}</div>`; }
 // quick add on the menu: "+" adds straight to the basket (items with options open their page); once added it becomes − qty +
 function qaCtl(p, n){ const simple = !kidsOf(p).length && !hasMods(p), one = cart.filter(i => i.productId===p.id).length;
   return n
