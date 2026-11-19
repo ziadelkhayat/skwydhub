@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1068-1795083091">
+<meta name="skwyd-build" content="1069-1795083231">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -4416,7 +4416,7 @@ function msPlace(m){ const p = m.querySelector(":scope > .msel-p"), r = m.queryS
   const pw = p.getBoundingClientRect().width; if(pw && r.left + pw > innerWidth - 8) p.style.left = Math.max(8, innerWidth - 8 - pw) + "px";   // options stay on one line: the list widens (and moves left at the screen edge)
   // inside a dialog that is moved or animated (a transform), "fixed" is measured from the dialog, not the screen: shift the list back under its field
   { const a = p.getBoundingClientRect(), wl = parseFloat(p.style.left), dx = a.left - wl; if(Math.abs(dx) > 1) p.style.left = (wl - dx) + "px";
-    if(up){ const wb = innerHeight - r.top - 4, dy = a.bottom - wb; if(Math.abs(dy) > 1) p.style.bottom = (parseFloat(p.style.bottom) + dy) + "px"; }
+    if(up){ const dy = a.bottom - (r.top - 4); if(Math.abs(dy) > 1) p.style.bottom = (parseFloat(p.style.bottom) + dy) + "px"; }   // the list's bottom edge sits 4px above the field
     else { const wt = r.bottom + 4, dy = a.top - wt; if(Math.abs(dy) > 1) p.style.top = (wt - dy) + "px"; } } }
 addEventListener("scroll", e => { if(e.target.closest?.(".msel-p")) return; document.querySelectorAll(".msel.open").forEach(msPlace); }, true);
 addEventListener("resize", () => document.querySelectorAll(".msel.open").forEach(msPlace));
