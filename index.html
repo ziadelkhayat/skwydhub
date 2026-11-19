@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1067-1795082875">
+<meta name="skwyd-build" content="1068-1795083091">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2970,7 +2970,7 @@ const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" +
       <div class="f full"><label for="fRFoot">Receipt footer</label><textarea id="fRFoot" rows="2" maxlength="300" placeholder="e.g. Thank you! Follow us @thewok"></textarea></div>
       <h4 class="fsec">Options</h4>
       <div class="f full">
-        <label class="chk"><input type="checkbox" id="fCC" checked> Receives call-center orders</label>
+        <label class="chk"><input type="checkbox" id="fCC" checked> Receive Call Center, Web &amp; API Orders</label>
       </div>
       <input type="hidden" id="fOpen" value="11:00"><input type="hidden" id="fClose" value="23:30"><input type="hidden" id="fZones">
       <div id="fData" class="f full" style="display:none"></div>
@@ -4045,7 +4045,7 @@ function viewBranch(b){
     <div class="card odet finfo" style="margin-bottom:16px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Reference", esc(b.code || "—"))}${row("Brand", esc(brandName(b.brandId) || "—"))}
       ${more ? row("Opening From", t12o(mon.open || b.open)) + row("Opening To", t12o(mon.close || b.close)) + row("Business day starts", t12o(st.dayStart || "00:00")) + row("Inventory End of Day", t12o(st.invEnd || st.dayStart || "00:00"))
         + row("Tax Group", esc(tg || "—")) + row("Tax Registration Name", esc(st.taxName || "—")) + row("Tax Number", esc(b.taxNumber || "—")) + row("Phone", esc(b.phone || "—")) + row("Address", esc(b.address || "—"))
-        + row("Location", b.lat && b.lng ? `<a class="lnk" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${b.lat},${b.lng}">${b.lat}, ${b.lng}</a>` : "—") + row("Receives call center and web orders", b.callCenter ? "Yes" : "No") + row("Automatic end of day", st.autoDayEnd===false ? "No" : "Yes") : ""}
+        + row("Location", b.lat && b.lng ? `<a class="lnk" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${b.lat},${b.lng}">${b.lat}, ${b.lng}</a>` : "—") + row("Receive Call Center, Web & API Orders", b.callCenter ? "Yes" : "No") + row("Automatic end of day", st.autoDayEnd===false ? "No" : "Yes") : ""}
 </div>
     ${card("Delivery Zones", `<button type="button" class="btn" data-brzones="${esc(b.id)}">Delivery Zones</button>`, tbl(["Name","Delivery charge","Min. order"], zones.map(z => { const c = dcChargeOf(z); return [esc(z.name), c ? `${esc(c.name)} · ${money(+c.value||0)}` : '<span class="note">—</span>', money(+z.minOrder||0)]; })))}
     ${card("Users", "", tbl(["Name","Email","Phone"], users.map(u => [esc(u.name), esc(u.email||"—"), esc(u.phone||"—")])))}
