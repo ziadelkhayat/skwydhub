@@ -796,6 +796,7 @@ html .ipg.show{animation:none!important}
 html body .bar button{background:var(--acc)!important;color:var(--on-acc)!important;box-shadow:0 12px 30px color-mix(in srgb,var(--acc) 35%,transparent)!important}
 html body .bar .n{background:rgba(255,255,255,.22)!important;color:var(--on-acc)!important}
 html body .bar .t2{display:block;font-size:12px;font-weight:500;opacity:.8;line-height:1.2;text-align:right}
+html .primary .b2{display:block;font-size:12px;font-weight:500;opacity:.85;line-height:1.2;margin-top:2px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1409,9 +1410,10 @@ function itemCard(p){ const n = cart.filter(i => i.productId===p.id || (p.varian
   return `<div class="item${out?" oos":""}${img?"":" noimg"}" data-item="${esc(p.id)}" role="button" tabindex="0"><div class="ph">${img ? `<img src="${esc(p.image_url)}" alt="" loading="lazy">` : lay==="grid" ? ic("img","width:34px;height:34px;opacity:.35") : ""}</div>
     <div class="tx"><b>${esc(p.name)}</b>${price ? `<div class="pr">${price}${sec2(p, kids)}</div>` : `<div class="pr cz">Customization available</div>`}${p.description && SH().desc !== false ? `<small>${esc(p.description)}</small>` : ""}${out ? `<span class="soldout">Sold out</span>` : ""}</div>${out ? "" : qaCtl(p, n)}</div>`; }
 // after + / − on the menu: only that item's control and the basket bar change, so the page doesn't redraw or blink
-function qaRefresh(p){ const n = cart.filter(i => i.productId===p.id || (p.variants||[]).some(v => v.productId===i.productId)).reduce((a,i)=>a+i.qty,0);
+function syncMenu(){ const seen = new Set(); document.querySelectorAll("[data-item]").forEach(c => { const id = c.dataset.item; if(seen.has(id)) return; seen.add(id); const p = products.find(x => x.id===id); if(p) qaRefresh(p, true); }); renderBar(); }
+function qaRefresh(p, quiet){ const n = cart.filter(i => i.productId===p.id || (p.variants||[]).some(v => v.productId===i.productId)).reduce((a,i)=>a+i.qty,0);
   document.querySelectorAll(`[data-item="${CSS.escape(p.id)}"]`).forEach(card => { const old = card.querySelector("[data-qa]"); if(!old) return; const t = document.createElement("template"); t.innerHTML = qaCtl(p, n).trim(); old.replaceWith(t.content.firstElementChild); });
-  renderBar(); }
+  if(!quiet) renderBar(); }
 // quick add on the menu: "+" adds straight to the basket (items with options open their page); once added it becomes − qty +
 function qaCtl(p, n){ const simple = !kidsOf(p).length && !hasMods(p), one = cart.filter(i => i.productId===p.id).length;
   return n
@@ -1430,7 +1432,7 @@ function drawCust(){ const p = CUSTP, sh = $("#sheet"); if(!p) return;
     <button type="button" class="custadd" data-custnew>Add new customization</button>`; }
 document.addEventListener("click", e => { let t;
   if(t = e.target.closest("[data-custq]")){ const [ix, d] = t.dataset.custq.split(":").map(Number), it = cart[ix]; if(!it) return; it.qty += d; if(it.qty < 1) cart.splice(ix, 1);
-    const y = scrollY; renderMenu(); scrollTo(0, y); drawCust(); return; }
+    syncMenu(); drawCust(); return; }
   if(e.target.closest("[data-custnew]")){ const p = CUSTP; $("#scrim").classList.remove("show"); CUSTP = null; if(p) openItem(p); } });
 /* ---------- item page: photo, description, option groups, quantity, then add to the order ---------- */
 // which category is on screen: the last section whose top has passed under the sticky search/category bar
@@ -1514,7 +1516,7 @@ function itAdd(){
   const unit = +itUnit().toFixed(2), base = priceOf(b), note = IT.note.trim(), qn = IT.qty;
   const k = SkwydMods.key(b.id, chosen) + "|" + note, ex = cart.find(i => SkwydMods.key(i.productId, i.options) + "|" + (i.note||"") === k);
   if(IT.edit!=null && cart[IT.edit]){ const ei = IT.edit; IT.edit = null; const line = { productId:b.id, name:b.name, price:unit, qty:qn, ...(chosen.length ? { options:chosen, mods:tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), optPrice:+(unit - base).toFixed(2) } : {}), ...(note ? { note } : {}) };
-    cart[ei] = line; closeItem(); renderMenu(); return openCart("basket"); }
+    cart[ei] = line; closeItem(); syncMenu(); return openCart("basket"); }
   { const pp = IT.p || b; if(!cart.some(i => i.productId===pp.id || i.productId===b.id || (pp.variants||[]).some(v => v.productId===i.productId))) try{ navigator.vibrate?.(30); }catch(_){} }
   if(ex) ex.qty += qn; else cart.push({ productId:b.id, name:b.name, price:unit, qty:qn, ...(chosen.length ? { options:chosen, mods:tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), optPrice:+(unit - base).toFixed(2) } : {}), ...(note ? { note } : {}) });
   closeItem(); qaRefresh(IT.p || b);
@@ -1559,6 +1561,8 @@ function promoStrip(){ const l = PROMOS.filter(p => promoOn(p, true)); if(!l.len
   return `<div class="promos">${l.map(p => `<div class="promo">${ic("tag","width:18px;height:18px")}<div><b>${esc(p.name||"Offer")}</b><span>${esc(promoLine(p))}</span></div></div>`).join("")}</div>`; }
 const minOrder = () => mode==="delivery" ? (+zones.find(x=>x.id===zoneId)?.min_order||0) : mode==="takeaway" ? (+bcfg(branchId).minPickup||0) : 0;
 function cartLines(){ return cart.map((i,ix)=>`<div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div>`).join(""); }
+// the total in the secondary currency on the Continue / Place order buttons, when Web Ordering shows it
+const btn2 = v => { const t = SH().cur2 === true ? usd2(v) : ""; return t ? `<small class="b2">${esc(t)}</small>` : ""; };
 function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(incl ? sub() : sub() + taxParts().add - taxIn())}</span></div>${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
 function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden = !n; const tc = $("[data-tcart] .n"); if(tc) tc.textContent = n || ""; $("#cartCount").textContent = n; { const t2 = SH().cur2 === true ? usd2(sub()) : ""; $("#cartTotal").innerHTML = esc(usd(sub())) + (t2 ? `<small class="t2">${esc(t2)}</small>` : ""); }
   const min = minOrder();
@@ -1581,7 +1585,7 @@ $("#main").addEventListener("click", e => {
   const qb = e.target.closest("[data-q]"); if(qb){ const [id,d] = qb.dataset.q.split(":"); const p = products.find(x=>x.id===id);
     if(+d > 0) return addItem(p);
     const ex = [...cart].reverse().find(i=>i.productId===id); if(ex){ ex.qty--; if(ex.qty<=0) cart = cart.filter(i=>i!==ex); }
-    const y = scrollY; renderMenu(); scrollTo(0,y); return; }
+    syncMenu(); return; }
   const qp = e.target.closest("[data-qa-p]"), qm = e.target.closest("[data-qa-m]");
   if(qp || qm){ const p = products.find(x => x.id===(qp || qm).dataset[qp ? "qaP" : "qaM"]); if(!p) return;
     // lines of this item in the basket (its variants too); + repeats the last one as it was chosen, − takes one off it
@@ -1602,14 +1606,16 @@ $("#main").addEventListener("keydown", e => { const it = e.target.closest?.("[da
 $("#main").addEventListener("scroll", e => { if(e.target.id==="catBar") catProg(); }, true);
 $("#main").addEventListener("input", e => { if(e.target.id==="tbl") tableNo = e.target.value.trim(); if(e.target.id==="q"){ q = e.target.value; renderMenu(); } });
 $("#cartBtn").addEventListener("click", openCart);
-document.addEventListener("click", e => { if(e.target.closest("[data-checkout]")) return openCart(); const r = e.target.closest("[data-rm]"); if(r){ cart.splice(+r.dataset.rm, 1); renderMenu(); if($("#scrim").classList.contains("show")){ if(cart.length) openCart(); else $("#scrim").classList.remove("show"); } } });
+document.addEventListener("click", e => { if(e.target.closest("[data-checkout]")) return openCart(); const r = e.target.closest("[data-rm]"); if(r){ cart.splice(+r.dataset.rm, 1); syncMenu(); if($("#scrim").classList.contains("show")){ if(cart.length) openCart(); else $("#scrim").classList.remove("show"); } } });
 
 /* iPhone: keep sheets inside the visible area (keyboard / toolbars) and lock the page behind them */
 (function(){ const r = document.documentElement, vv = window.visualViewport;
   const fit = () => { if(!vv) return; r.style.setProperty("--vvh", vv.height + "px"); r.style.setProperty("--vvt", vv.offsetTop + "px"); };
   if(vv){ vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit); fit(); }
   const sc = document.getElementById("scrim"); if(!sc) return;
-  new MutationObserver(() => { const on = sc.classList.contains("show"); r.classList.toggle("lockpg", on); if(on) fit(); }).observe(sc, {attributes:true, attributeFilter:["class"]});
+  let keepY = null;   // the page stays exactly where it was while a sheet is open and after it closes
+  new MutationObserver(() => { const on = sc.classList.contains("show"), was = r.classList.contains("lockpg"); if(on && !was) keepY = scrollY; r.classList.toggle("lockpg", on); if(on) fit();
+    if(!on && was && keepY != null){ const y = keepY; keepY = null; if(Math.abs(scrollY - y) > 1) scrollTo({ top:y, behavior:"instant" }); requestAnimationFrame(() => { if(Math.abs(scrollY - y) > 1) scrollTo({ top:y, behavior:"instant" }); }); } }).observe(sc, {attributes:true, attributeFilter:["class"]});
   document.addEventListener("focusout", () => setTimeout(() => { if(sc.classList.contains("show") && !document.activeElement?.matches?.("input,select,textarea")){ window.scrollTo(0,0); fit(); } }, 60));
 })();
 
@@ -1700,7 +1706,7 @@ document.addEventListener("click", e => { let t;
   if(e.target.closest("[data-costep]")) return openCart("details");
   if(e.target.closest("[data-coback]")) return openCart("basket");
   if(t = e.target.closest("[data-cq]")){ const [ix, d] = t.dataset.cq.split(":").map(Number), it = cart[ix]; if(!it) return; it.qty += d; if(it.qty < 1) cart.splice(ix, 1);
-    const y = scrollY; renderMenu(); scrollTo(0, y); openCart("basket"); return; }
+    syncMenu(); openCart("basket"); return; }
   if(t = e.target.closest("[data-cedit]")){ const ix = +t.dataset.cedit, it = cart[ix]; if(!it) return;
     const par = products.find(p => (p.variants||[]).some(v => v.productId===it.productId)) || products.find(p => p.id===it.productId); if(!par) return;
     $("#scrim").classList.remove("show"); openItem(par); if(!$("#ipg")?.classList.contains("show")) return;
@@ -1787,7 +1793,7 @@ function openCart(step){
       ${cartLines()}${totals()}
       ${min && sub()<min ? `<div class="warn">Minimum order ${mode==="delivery" ? "for this area " : ""}is ${usd(min)}.</div>` : ""}
       <button type="button" class="ghost" data-nav="order" style="width:100%;margin-top:12px">${ic("plus")}Add more items</button>
-      <button type="button" class="primary" data-costep ${min && sub()<min ? "disabled" : ""} style="margin-top:10px">Continue · ${usd(grand())}</button>`;
+      <button type="button" class="primary" data-costep ${min && sub()<min ? "disabled" : ""} style="margin-top:10px">Continue · ${usd(grand())}${btn2(grand())}</button>`;
     $("#scrim").classList.add("show"); return; }
   if(!USER && !PREVIEW) return openAuth("in", () => openCart("details"), "Sign in or create an account to place your order.");
   if(USER && PROF && !PREVIEW && (!PROF.first_name || !PROF.last_name || String(PROF.phone||"").replace(/\D/g,"").length < 8)){ AC.then = () => openCart("details"); AC.msg = "Add your name and phone number to finish your profile before ordering."; return openAcct("profile"); }
@@ -1811,7 +1817,7 @@ function openCart(step){
     ${CO().notes !== false ? `<div class="f"><label for="cNote">Notes for the kitchen</label><textarea id="cNote" rows="2" placeholder="e.g. extra spicy"></textarea></div>` : ""}
     <div class="sec">Payment</div><div class="opts">${pays.map(([t,s,i],k)=>`<label class="opt"><input type="radio" name="pay" value="${t}" ${k?"":"checked"}>${ic(i)}<span>${t}${s?`<small>${s}</small>`:""}</span></label>`).join("")}</div>
     ${CO().terms ? `<p class="info">${esc(CO().terms)}</p>` : ""}
-    <div class="err" id="coErr"></div><button class="primary" id="place" ${min && sub()<min?"disabled":""}>Place order · ${usd(grand())}</button></form>`;
+    <div class="err" id="coErr"></div><button class="primary" id="place" ${min && sub()<min?"disabled":""}>Place order · ${usd(grand())}${btn2(grand())}</button></form>`;
   $("#scrim").classList.add("show"); $("#scrim").scrollTop = 0;
   if(mode==="delivery" && addr){ const set = (id, v) => { const el = $("#" + id); if(el && v) el.value = v; };
     if(!["gps","pin"].includes(addr.id)) set("cA_label", addr.label); set("cA_street", addr.street); set("cA_building", addr.building); set("cA_floor", addr.floor); set("cA_door", addr.door); set("cA_extra", addr.extra); }
@@ -1847,7 +1853,7 @@ async function placeOrder(e){
     items: cart, subtotal:+sub().toFixed(2), delivery_fee:fee(), discount:disc(), tax:taxIn(), total:grand(), scheduled_at: later ? at.toISOString() : null, customer_user_id: USER.id };
   const { error } = await sb.from("orders").insert(row);
   if(!error){ const h = lsGet(OHK(), []); h.unshift({ created_at:new Date().toISOString(), status:"pending", branch_id:b, type:row.type, items:JSON.parse(JSON.stringify(cart)), total:row.total, uid:USER.id }); lsSet(OHK(), h.slice(0, 30)); }
-  if(error){ console.error(error); err("We couldn't place your order. Please try again or call us."); $("#place").disabled = false; $("#place").textContent = `Place order · ${usd(grand())}`; return; }
+  if(error){ console.error(error); err("We couldn't place your order. Please try again or call us."); $("#place").disabled = false; $("#place").innerHTML = `Place order · ${usd(grand())}${btn2(grand())}`; return; }
   if(mode==="delivery" && pin){   // keep the delivery address on this device for next time
     const v = k => $("#cA_" + k)?.value.trim() || "", own = addr && !["gps","pin"].includes(addr.id);
     const sa = { id: own ? addr.id : "a" + Date.now().toString(36), label: v("label") || (own ? addr.label : "Address"), street:v("street"), building:v("building"), floor:v("floor"), door:v("door"), extra:v("extra"), lat:pin[0], lng:pin[1] };
