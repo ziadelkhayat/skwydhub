@@ -743,6 +743,11 @@ html body .hcard #logo img{transform:scale(1.15)}
 html body .qa > button{background:#fff!important;color:var(--acc)!important;box-shadow:none!important;border:0!important}
 html body .qa > button svg{stroke-width:3}
 html body .qa{box-shadow:none!important}
+/* item text order: name, description, then price */
+html .item .tx > b{order:1}
+html .item .tx > small{order:2}
+html .item .tx > .pr{order:3;margin-top:6px!important;padding-top:0!important}
+html .item .tx > .soldout{order:4}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
