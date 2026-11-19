@@ -690,6 +690,25 @@ html body .promo span{color:#AEB6D1!important}
 
 /* no entrance animations on page content (menu, categories, cart lines): content shows instantly; pop-ups keep their fade */
 html body .hcard,html body .where,html body section.cat,html body .line,html body #view.vin,html body .vin{animation:none!important}
+/* item cards: text keeps its distance from the card edge in every view */
+html .lay-list .item,html .lay-compact .item{padding-left:0!important;padding-right:0!important}
+html .lay-grid .item .tx{padding-left:12px!important;padding-right:12px!important}
+/* banner: shows the whole picture at its own shape */
+html .cover.cvfit,html .hstyle-cover .cover.cvfit{height:auto!important;max-height:none!important;background-size:cover!important;background-position:center!important}
+@media (min-width:900px){html .cover.cvfit,html .hstyle-cover .cover.cvfit{max-height:420px!important;background-size:contain!important;background-repeat:no-repeat!important}}
+/* brand logo: round, no box, ring or shadow around it */
+html .hcard .logo,html .hcard #logo,html .splash .splogo{border-radius:50%!important;box-shadow:none!important;border:0!important;outline:0!important;overflow:hidden!important;padding:0!important}
+html .hcard .logo:has(img),html .hcard #logo:has(img),html .splash .splogo:has(img){background:transparent!important}
+html .hcard .logo img,html .hcard #logo img,html .splash .splogo img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;border:0!important;box-shadow:none!important;display:block}
+/* the + on item cards: small and round */
+html body .qa > button{width:32px!important;height:32px!important;border-radius:50%!important;box-shadow:0 3px 8px rgba(20,18,30,.18)!important}
+html body .qa > button svg{width:14px!important;height:14px!important}
+html body .qa{border-radius:999px!important}
+html body .qa.qa2{border-radius:999px!important}
+/* list views: items sit on the page separated by thin lines, no box around each */
+html .lay-list .item,html .lay-compact .item{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;transform:none!important}
+html .lay-list .item:hover,html .lay-compact .item:hover{transform:none!important;box-shadow:none!important}
+html .lay-list .item:last-child,html .lay-compact .item:last-child{border-bottom:0!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -793,6 +812,9 @@ function applyTheme(t){
   document.body.classList.remove("lay-grid","lay-list","lay-compact"); document.body.classList.add("lay-" + curLay());
   $("#hero").className = "hero hstyle-" + (t.header || "cover");
   $("#cover").style.backgroundImage = t.cover && (t.header||"cover")==="cover" ? `url("${t.cover.replace(/"/g,"%22")}")` : "";
+  // the banner takes the picture's own shape, so the whole image shows (no cropped top or bottom)
+  { const cv = $("#cover"); cv.style.aspectRatio = ""; cv.classList.remove("cvfit");
+    if(t.cover && (t.header||"cover")==="cover"){ const im = new Image(); im.onload = () => { if(im.naturalWidth && im.naturalHeight){ cv.style.aspectRatio = im.naturalWidth + " / " + im.naturalHeight; cv.classList.add("cvfit"); } }; im.src = t.cover; } }
 }
 
 let brandId = params.get("brand");
