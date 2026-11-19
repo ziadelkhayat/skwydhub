@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1065-1795082343">
+<meta name="skwyd-build" content="1066-1795082748">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -11268,7 +11268,7 @@ async function loadOT(){
   if(HASH().slice(1)==="order-transactions") render();
 }
 /* ---------- Inventory reports: levels (stock on hand, value, low stock), history (every movement), purchasing ---------- */
-const INV = { loc:"", cat:"", q:"", low:false, hist:{ rows:null, loading:false, err:"", key:"", from:"", to:"", loc:"", item:"", type:"" }, pur:{ from:"", to:"", loc:"" } };
+const INV = { brand:"", loc:"", cat:"", q:"", low:false, hist:{ rows:null, loading:false, err:"", key:"", from:"", to:"", loc:"", item:"", type:"" }, pur:{ from:"", to:"", loc:"" } };
 const invDay = (d) => { const x = new Date(); x.setDate(x.getDate() + d); return x.toISOString().slice(0,10); };
 // stock on hand of an item at one location, or summed over every location when loc is ""
 const invQty = (id, loc) => { if(loc) return stockOf(loc, id); let s, any = false; locList().forEach(([l]) => { const v = stockOf(l, id); if(v !== undefined){ s = (s||0) + v; any = true; } }); return any ? s : undefined; };
@@ -11298,35 +11298,33 @@ function invSetupCard(){
 }
 function viewInvLevels(){
   loadStock();
-  const locs = locList(), loading = storeMode==="db" && (DOC.stock === "loading" || !DOC.stock), q = INV.q.trim().toLowerCase();
-  const all = S.inv_items.filter(live).filter(i => (!INV.cat || i.category===INV.cat) && (!q || (i.name+" "+(i.sku||"")).toLowerCase().includes(q)))
-    .sort((a,b) => (a.category||"").localeCompare(b.category||"") || a.name.localeCompare(b.name));
-  const rows = all.map(it => { const qn = invQty(it.id, INV.loc), cost = +itemUnitCost(it) || 0, st = invStatus(it, qn); return { it, qn, cost, value: (qn > 0 ? qn : 0) * cost, st, re: invReorder(it, qn) }; })
+  // Foodics layout: one location at a time (a brand narrows the branches; warehouses belong to every brand), tabs All / Low Level
+  const bl = brandList(), brand = bl.some(b => b.id===INV.brand) ? INV.brand : "";
+  const locs = [...activeBranches().filter(b => !brand || b.brandId===brand).map(b => [b.id, b.name]), ...S.warehouses.filter(live).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")])];
+  if(!locs.some(([id]) => id===INV.loc)) INV.loc = locs[0]?.[0] || "";
+  const loading = storeMode==="db" && (DOC.stock === "loading" || !DOC.stock), q = INV.q.trim().toLowerCase();
+  const all = S.inv_items.filter(live).filter(i => (!INV.cat || i.category===INV.cat) && (!q || (i.name+" "+(i.sku||"")+" "+(i.barcode||"")).toLowerCase().includes(q)))
+    .sort((a,b) => (a.sku||"").localeCompare(b.sku||"", undefined, { numeric:true }) || a.name.localeCompare(b.name));
+  const rows = all.map(it => { const qn = INV.loc ? stockOf(INV.loc, it.id) : undefined, cost = +itemUnitCost(it) || 0, st = invStatus(it, qn); return { it, qn, cost, value: (+qn || 0) * cost, st, re: invReorder(it, qn) }; })
     .filter(r => !INV.low || r.st[0]==="low" || r.st[0]==="out");
-  const tot = rows.reduce((s,r) => s + r.value, 0), counted = rows.filter(r => r.qn !== undefined).length,
-        low = rows.filter(r => r.st[0]==="low").length, out = rows.filter(r => r.st[0]==="out").length;
-  const per = !INV.loc && locs.length > 1 && locs.length <= 6;
+  const fx = v => (+v || 0).toLocaleString("en-US", { maximumFractionDigits: 5 });
   let h = `<div class="phead"><a href="#inventory-reports" class="btn" style="text-decoration:none">← Back</a><h1 style="margin-left:10px">Inventory Levels</h1><div class="sp"></div><button class="btn" id="ilCsv">Export</button><button class="btn" id="ilRefresh">↻ Refresh</button></div>
-    <p class="subt" style="margin-top:-6px">Stock on hand right now, in each item's storage unit. Sales take recipe ingredients out, purchases and transfers add, counts set the quantity.</p>
     ${invSetupCard()}
-    <div class="cstats"><div><span>Stock value</span><b>${fmtCost(tot)}</b></div><div><span>Items counted</span><b>${counted} / ${rows.length}</b></div><div><span>Low stock</span><b style="color:${low?"#b45309":"inherit"}">${low}</b></div><div><span>Out of stock</span><b style="color:${out?"#dc2626":"inherit"}">${out}</b></div></div>
-    <div class="card tbl"><div class="ttop" style="flex-wrap:wrap;gap:8px">
-      <select class="sel" id="ilLoc" aria-label="Location"><option value="">All locations</option>${locs.map(([id,n]) => `<option value="${esc(id)}" ${INV.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
+    <div class="card tbl"><div class="ttop" style="flex-wrap:wrap;gap:8px"><div class="ttabs">${[["all","All"],["low","Low Level"]].map(([k,t]) => `<a href="#inv-levels" data-iltab="${k}" class="${(INV.low ? "low" : "all")===k ? "on" : ""}">${t}</a>`).join("")}</div><div class="sp"></div>
+      <select class="sel" id="ilBrand" aria-label="Brand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${brand===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+      <select class="sel" id="ilLoc" aria-label="Branch or warehouse">${locs.map(([id,n]) => `<option value="${esc(id)}" ${INV.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
       <select class="sel" id="ilCat" aria-label="Category"><option value="">All categories</option>${invCatNames().map(n => `<option ${INV.cat===n?"selected":""}>${esc(n)}</option>`).join("")}</select>
-      <label class="chk" style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="ilLow" ${INV.low?"checked":""}> Low and out of stock only</label>
-      <div class="sp"></div><input class="sel search" id="ilQ" type="search" placeholder="Search" value="${esc(INV.q)}"></div>`;
-  if(loading) h += `<div class="empty">Loading stock…</div>`;
-  else if(!rows.length) h += `<div class="empty">${INV.low ? "Nothing is low or out of stock." : "No items."}</div>`;
-  else h += `<table><thead><tr><th>Item</th><th>Category</th><th>Unit</th>${per ? locs.map(([,n]) => `<th class="num">${esc(n)}</th>`).join("") : ""}<th class="num">On hand</th><th class="num">Min</th><th class="num">Par</th><th class="num">To order</th><th class="num">Unit cost</th><th class="num">Value</th><th>Status</th></tr></thead><tbody>${rows.map(r => `<tr>
-      <td><b>${esc(r.it.name)}</b> <span class="code">${esc(r.it.sku||"")}</span></td><td>${esc(r.it.category||"—")}</td><td>${esc(r.it.storageUnit||"—")}</td>
-      ${per ? locs.map(([l]) => { const v = stockOf(l, r.it.id); return `<td class="num">${v===undefined?'<span class="note">—</span>':n2(v)}</td>`; }).join("") : ""}
-      <td class="num"><b>${r.qn===undefined?'<span class="note">—</span>':n2(r.qn)}</b></td><td class="num">${+r.it.minLevel ? n2(r.it.minLevel) : "—"}</td><td class="num">${+r.it.parLevel ? n2(r.it.parLevel) : "—"}</td>
-      <td class="num">${r.re ? `<b>${n2(r.re)}</b>` : "—"}</td><td class="num">${r.cost ? fmtCost(r.cost) : '<span class="note">No cost</span>'}</td><td class="num">${fmtCost(r.value)}</td>
-      <td><span class="ist ist-${r.st[0]}">${r.st[1]}</span></td></tr>`).join("")}</tbody>
-      <tfoot><tr><td colspan="${3 + (per ? locs.length : 0) + 5}"><b>Total stock value</b></td><td class="num"><b>${fmtCost(tot)}</b></td><td></td></tr></tfoot></table>`;
-  INV._rows = rows; INV._locs = per ? locs : null;
+      <input class="sel search" id="ilQ" type="search" placeholder="Search" value="${esc(INV.q)}"></div>`;
+  if(!locs.length) h += `<div class="empty">Add a branch or a warehouse first.</div>`;
+  else if(loading) h += `<div class="empty">Loading stock…</div>`;
+  else if(!rows.length) h += `<div class="empty">${INV.low ? "Nothing is at a low level." : "No items."}</div>`;
+  else h += `<table><thead><tr><th>Name</th><th>SKU</th><th>Barcode</th><th>Storage Unit</th><th class="num">Quantity</th><th class="num">Cost Per Unit</th><th class="num">Total Cost</th></tr></thead><tbody>${rows.map(r => `<tr>
+      <td>${esc(r.it.name)}</td><td>${esc(r.it.sku||"—")}</td><td>${esc(r.it.barcode||"—")}</td><td>${esc(r.it.storageUnit||"—")}</td>
+      <td class="num"${r.st[0]==="low" || r.st[0]==="out" ? ' style="color:#B42318"' : ""}>${r.qn===undefined ? "0" : fx(r.qn)}</td><td class="num">${fmtCost(r.cost)}</td><td class="num">${fmtCost(r.value)}</td></tr>`).join("")}</tbody></table>`;
+  INV._rows = rows; INV._locs = null;
   return h + `</div>`;
 }
+document.addEventListener("click", e => { const t = e.target.closest("[data-iltab]"); if(!t) return; e.preventDefault(); INV.low = t.dataset.iltab==="low"; render(); });
 // every movement, with how much it changed the quantity (needs the skwyd_inv_history database function)
 const invMoveType = r => { const n = (r.note||"") + " " + (r.batch||"");
   if(/Consumption from order/i.test(n)) return "Sale"; if(/voided|Return/i.test(n)) return "Return"; if(/Waste/i.test(n)) return "Waste";
@@ -11386,15 +11384,15 @@ function viewPurchasing(){
   return h + `</div>`;
 }
 document.addEventListener("change", e => { const t = e.target, H = INV.hist, P = INV.pur;
-  if(t.id==="ilLoc"){ INV.loc = t.value; return render(); } if(t.id==="ilCat"){ INV.cat = t.value; return render(); } if(t.id==="ilLow"){ INV.low = t.checked; return render(); }
+  if(t.id==="ilBrand"){ INV.brand = t.value; INV.loc = ""; return render(); } if(t.id==="ilLoc"){ INV.loc = t.value; return render(); } if(t.id==="ilCat"){ INV.cat = t.value; return render(); } if(t.id==="ilLow"){ INV.low = t.checked; return render(); }
   if(t.id==="ihFrom"){ H.from = t.value; return loadInvHistory(); } if(t.id==="ihTo"){ H.to = t.value; return loadInvHistory(); }
   if(t.id==="ihLoc"){ H.loc = t.value; return loadInvHistory(); } if(t.id==="ihItem"){ H.item = t.value; return loadInvHistory(); } if(t.id==="ihType"){ H.type = t.value; return render(); }
   if(t.id==="puFrom"){ P.from = t.value; return render(); } if(t.id==="puTo"){ P.to = t.value; return render(); } if(t.id==="puLoc"){ P.loc = t.value; return render(); } });
 let ilT; document.addEventListener("input", e => { if(e.target.id!=="ilQ") return; INV.q = e.target.value; clearTimeout(ilT); ilT = setTimeout(() => { const pos = e.target.selectionStart; render(); const i = $("#ilQ"); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} } }, 250); });
 document.addEventListener("click", e => { const t = e.target;
   if(t.id==="ilRefresh"){ loadStock(true); return; }
-  if(t.id==="ilCsv"){ const L = INV._locs || []; return csvDownload("inventory-levels.csv", [["SKU","Item","Category","Unit", ...L.map(l=>l[1]), "On hand","Minimum","Par","To order","Unit cost","Value","Status"],
-    ...(INV._rows||[]).map(r => [r.it.sku, r.it.name, r.it.category, r.it.storageUnit, ...L.map(([l]) => stockOf(l, r.it.id) ?? ""), r.qn ?? "", r.it.minLevel ?? "", r.it.parLevel ?? "", r.re || "", r.cost, +r.value.toFixed(5), r.st[1]])]); }
+  if(t.id==="ilCsv") return csvDownload("inventory-levels.csv", [["Name","SKU","Barcode","Storage Unit","Quantity","Cost Per Unit","Total Cost"],
+    ...(INV._rows||[]).map(r => [r.it.name, r.it.sku||"", r.it.barcode||"", r.it.storageUnit||"", r.qn ?? 0, r.cost, +r.value.toFixed(5)])]);
   if(t.id==="ihCsv") return csvDownload("inventory-history.csv", [["Date","Location","Item","Type","Change","Quantity after","Unit","Reference","Note","By"],
     ...(INV._hist||[]).map(r => { const it = itemOf(r.item_id) || {}; return [fmtDate(r.counted_at), locName(r.branch_id), it.name, invMoveType(r), r.delta, r.qty, it.storageUnit, r.batch, r.note, r.counted_by]; })]);
   if(t.id==="puCsv") return csvDownload("purchasing.csv", [["Item","Supplier","Quantity","Unit","Average cost","Total cost"],
