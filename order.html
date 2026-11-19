@@ -770,6 +770,11 @@ html .opt2 .st{margin-left:auto!important}
 html .iphd{padding-bottom:16px!important;margin-bottom:0!important;border-bottom:10px solid #F3F4F6!important}
 html .iphd + .ipgg,html .iphd ~ .ipgg:first-of-type{padding-top:12px!important}
 html .ipgg{padding-top:14px!important}
+/* share button beside the favourite heart on the item page */
+.ipshare{position:sticky;top:12px;margin:12px 66px -44px auto;z-index:3;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--s);color:var(--acc);display:grid;place-items:center}
+.app .ipshare{top:calc(12px + env(safe-area-inset-top))}
+.ipshare svg{width:21px;height:21px}
+.ipshare+.ipfav{margin-top:0}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1421,6 +1426,11 @@ const itCnt = gi => [...IT.sel[gi].values()].reduce((a,n) => a + n, 0);
 const itUnits = (l, gi) => { const out = []; l.list.forEach(x => { for(let k = 0; k < (IT.sel[gi].get(x.id)||0); k++) out.push(x); }); return out; };
 function itUnit(){ const b = itBase(); let t = b ? priceOf(b) : 0; IT.links.forEach((l, gi) => { let free = +l.free||0; itUnits(l, gi).forEach(x => { if(free > 0) free--; else t += +x.price||0; }); }); return t; }
 const itRule = l => { const mn = +l.min||0, mx = +l.max||0; if(mn && mx && mn===mx) return `Choose ${mn}`; if(mn && mx) return `Choose ${mn} to ${mx}`; if(mn) return `Choose at least ${mn}`; if(mx) return `Choose up to ${mx}`; return "Optional"; };
+// share an item: the phone's share sheet, or the link is copied; the link opens straight on this item
+const SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+async function shareItem(p){ if(!p) return; const u = new URL(location.href); u.searchParams.delete("preview"); u.searchParams.set("item", p.id); u.hash = ""; const url = u.toString();
+  if(navigator.share){ try{ await navigator.share({ title: p.name, text: p.name + " · " + brand.name, url }); }catch(e){} return; }
+  try{ await navigator.clipboard.writeText(url); toast("Link copied"); }catch(e){ prompt("Copy this link", url); } }
 function openItem(p){
   if(!p || oos(p)) return;
   const kids = kidsOf(p);
@@ -1429,6 +1439,7 @@ function openItem(p){
   if(!d){ d = document.createElement("div"); d.id = "ipg"; d.className = "ipg"; d.setAttribute("role","dialog"); d.setAttribute("aria-modal","true"); document.body.appendChild(d);
     d.addEventListener("click", e => { const g = s => e.target.closest(s); let t;
       if(e.target===d || g("[data-ix]")) return closeItem();
+      if(g("[data-ishare]")) return shareItem(IT.p);
       if(g("[data-ifav]") && !USER){ const p = IT.p; closeItem(); return openAuth("in", () => { $("#scrim").classList.remove("show"); if(!isFav(p.id)) togFav(p.id); openItem(p); }, "Sign in to save your favorites."); }
       if(t = g("[data-ifav]")){ const on = togFav(IT.p.id); t.classList.toggle("on", on); t.setAttribute("aria-label", on ? "Remove from favorites" : "Add to favorites"); toast(on ? "Added to favorites" : "Removed from favorites"); return; }
       if(t = g("[data-iv]")){ IT.kid = IT.kids.find(k => k.p.id===t.dataset.iv)?.p || null; IT.err = -1; itLinks(); return drawItem(); }
@@ -1455,7 +1466,7 @@ function drawItem(first){
         return `<button type="button" class="opt2${on ? " on" : ""}" data-io="${gi}:${esc(x.id)}:t" ${!on && full && !one ? "disabled" : ""}><span class="ck${one ? " rd" : ""}">${ic("check")}</span><span>${esc(x.name)}</span><span class="op">${+x.price ? "+" + usd(x.price) : ""}</span></button>`; }).join("")}</div>`; }).join("");
   const needLoc = false;   // location is asked for on View basket
   const shown = IT.kids.length && !IT.kid ? "From " + usd(Math.min(...IT.kids.map(k => priceOf(k.p)))) : usd(b ? priceOf(b) : 0);
-  el.innerHTML = `<div class="pg"><button type="button" class="ipfav${isFav(p.id) ? " on" : ""}" data-ifav aria-label="${isFav(p.id) ? "Remove from favorites" : "Add to favorites"}">${ic("heart")}</button><button type="button" class="ipx" data-ix aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${p.image_url ? `<div class="ipimg"><img src="${esc(p.image_url)}" alt=""></div>` : `<div class="ipnoimg"></div>`}
+  el.innerHTML = `<div class="pg"><button type="button" class="ipshare" data-ishare aria-label="Share ${esc(p.name)}">${SHARE_IC}</button><button type="button" class="ipfav${isFav(p.id) ? " on" : ""}" data-ifav aria-label="${isFav(p.id) ? "Remove from favorites" : "Add to favorites"}">${ic("heart")}</button><button type="button" class="ipx" data-ix aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${p.image_url ? `<div class="ipimg"><img src="${esc(p.image_url)}" alt=""></div>` : `<div class="ipnoimg"></div>`}
     <div class="iphd"><h2>${esc(p.name)}</h2><div class="ipp">${shown}${(b||p).nutrition?.calories != null ? `<span class="ipcal">${esc((b||p).nutrition.calories)} kcal</span>` : ""}</div>${p.description ? `<p>${esc(p.description)}</p>` : ""}
       ${((b||p).allergens||[]).length ? `<div class="ipalg"><b>Contains</b>${(b||p).allergens.map(a => `<span>${esc(a)}</span>`).join("")}</div>` : ""}
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
@@ -1908,6 +1919,8 @@ function setupApp(){
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content = m.short_name;
 }
 setupApp();
+// a shared item link (?item=…) opens that item once the menu is ready
+{ const sid = params.get("item"); if(sid){ const sp = products.find(x => x.id===sid); if(sp && visible().some(x => x.id===sid) && !oos(sp)) setTimeout(() => openItem(sp), 300); } }
 // offer to install: Android / Chrome show their own prompt; iPhone gets "Share → Add to Home Screen"
 let instEvt = null; const IK = "skwyd_inst_" + brandId;
 const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
