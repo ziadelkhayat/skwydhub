@@ -799,6 +799,11 @@ html body .bar .t2{display:block;font-size:12px;font-weight:500;opacity:.8;line-
 html .primary .b2{display:block;font-size:12px;font-weight:500;opacity:.85;line-height:1.2;margin-top:2px}
 /* lighter icons in the − 1 + pill */
 html body .qa.qa2 button svg{stroke-width:1.9!important}
+/* back to top button */
+#toTop{position:fixed;z-index:44;right:max(16px,calc((100vw - var(--colw,100vw))/2 + 16px));bottom:calc(20px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--acc);display:grid;place-items:center;box-shadow:0 4px 14px rgba(20,18,30,.14);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s,bottom .2s;cursor:pointer}
+#toTop svg{width:20px;height:20px}
+#toTop.on{opacity:1;pointer-events:auto;transform:none}
+#toTop.hasbar{bottom:calc(92px + env(safe-area-inset-bottom))}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1955,6 +1960,11 @@ function setupApp(){
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content = m.short_name;
 }
 setupApp();
+// back to top: a round arrow shows once the customer has scrolled down the menu
+{ const b = document.createElement("button"); b.type = "button"; b.id = "toTop"; b.setAttribute("aria-label", "Back to top"); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  b.addEventListener("click", () => scrollTo({ top:0, behavior:"smooth" })); document.body.appendChild(b);
+  let q = 0; const upd = () => { q = 0; b.classList.toggle("on", scrollY > 700 && !document.documentElement.classList.contains("lockpg")); b.classList.toggle("hasbar", !$("#bar")?.hidden); };
+  addEventListener("scroll", () => { if(!q) q = requestAnimationFrame(upd); }, { passive:true }); new MutationObserver(upd).observe($("#bar"), { attributes:true, attributeFilter:["hidden"] }); upd(); }
 // a shared item link (?item=…) opens that item once the menu is ready
 { const sid = params.get("item"); if(sid){ const sp = products.find(x => x.id===sid); if(sp && visible().some(x => x.id===sid) && !oos(sp)) setTimeout(() => openItem(sp), 300); } }
 // offer to install: Android / Chrome show their own prompt; iPhone gets "Share → Add to Home Screen"
