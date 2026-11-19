@@ -1335,8 +1335,8 @@ function renderMenu(){
   if(!vcats.length) h = `<div class="empty">${ql ? `Nothing matches “${esc(q)}”.` : "The menu isn't available here yet."}</div>`;
   $("#menuBox").innerHTML = (ql ? "" : promoStrip()) + h;
   // highlight the category in view
-  catObs?.disconnect(); catObs = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting){ document.querySelectorAll("#catBar button").forEach(b => b.classList.toggle("on", b.dataset.cat === e.target.id.slice(2))); const on = document.querySelector("#catBar button.on"); if(on){ const bar = $("#catBar"); bar.scrollTo({ left: on.offsetLeft - bar.clientWidth/2 + on.clientWidth/2, behavior:"smooth" }); } } }); }, { rootMargin:`-${130 + ($("#locbar")?.offsetHeight||0)}px 0px -60% 0px` });
-  document.querySelectorAll("section.cat").forEach(s => catObs.observe(s)); catProg();
+  catObs?.disconnect(); catObs = null; catSpy();
+  catProg();
   renderBar();
 }
 function render(){ renderHead(); renderWhere(); renderMenu(); renderLocs(); }
@@ -1390,6 +1390,15 @@ document.addEventListener("click", e => { let t;
     const y = scrollY; renderMenu(); scrollTo(0, y); drawCust(); return; }
   if(e.target.closest("[data-custnew]")){ const p = CUSTP; $("#scrim").classList.remove("show"); CUSTP = null; if(p) openItem(p); } });
 /* ---------- item page: photo, description, option groups, quantity, then add to the order ---------- */
+// which category is on screen: the last section whose top has passed under the sticky search/category bar
+let catLock = 0;
+function catStuck(){ const t = document.querySelector(".tools"); if(!t) return 0; return (parseFloat(getComputedStyle(t).top) || 0) + t.offsetHeight; }
+function catMark(id){ const bar = $("#catBar"); if(!bar) return; let on = null; bar.querySelectorAll("button").forEach(b => { const y = b.dataset.cat === id; b.classList.toggle("on", y); if(y) on = b; }); if(on) bar.scrollTo({ left: on.offsetLeft - bar.clientWidth/2 + on.clientWidth/2, behavior:"smooth" }); }
+function catSpy(){ if(Date.now() < catLock) return; const secs = [...document.querySelectorAll("section.cat")]; if(!secs.length) return; const lim = catStuck() + 12; let cur = secs[0];
+  for(const sc of secs){ if(sc.getBoundingClientRect().top <= lim) cur = sc; else break; }
+  const last = secs[secs.length-1], se = document.scrollingElement; if(se && se.scrollTop + innerHeight >= se.scrollHeight - 4 && last.getBoundingClientRect().top < innerHeight) cur = last;
+  const id = cur.id.slice(2); if(document.querySelector("#catBar button.on")?.dataset.cat !== id) catMark(id); }
+let catSpyQ = 0; addEventListener("scroll", () => { if(catSpyQ) return; catSpyQ = requestAnimationFrame(() => { catSpyQ = 0; catSpy(); }); }, { capture:true, passive:true });
 function catProg(){ const b = $("#catBar"), i = $("#cprog"); if(!b || !i) return; const w = b.scrollWidth || 1; i.parentElement.style.visibility = b.scrollWidth > b.clientWidth + 2 ? "" : "hidden"; i.style.width = (b.clientWidth / w * 100) + "%"; i.style.left = (b.scrollLeft / w * 100) + "%"; }
 const IT = { p:null, kids:[], kid:null, links:[], groups:{}, sel:[], qty:1, note:"", err:-1 };
 const itBase = () => IT.kids.length ? IT.kid : IT.p;
@@ -1518,7 +1527,7 @@ $("#main").innerHTML = shell();
 $("#main").addEventListener("click", e => {
   const m = e.target.closest("[data-mode]"); if(m){ mode = m.dataset.mode; if(mode!=="delivery") zoneId = ""; cart = cart.filter(i => visible().some(p=>p.id===i.productId) && !oos(products.find(p=>p.id===i.productId))); reprice(); render(); return; }
   const vw = e.target.closest("[data-view]"); if(vw){ VIEW = vw.dataset.view; lsSet(VK, VIEW); applyTheme(cfg.theme); const y = scrollY; renderMenu(); scrollTo(0,y); return; }
-  const c = e.target.closest("[data-cat]"); if(c){ document.getElementById("c_"+c.dataset.cat)?.scrollIntoView({ behavior:"smooth", block:"start" }); return; }
+  const c = e.target.closest("[data-cat]"); if(c){ const sec = document.getElementById("c_"+c.dataset.cat); if(!sec) return; catMark(c.dataset.cat); catLock = Date.now() + 1200; sec.style.scrollMarginTop = (catStuck() + 6) + "px"; sec.scrollIntoView({ behavior:"smooth", block:"start" }); return; }
   const qb = e.target.closest("[data-q]"); if(qb){ const [id,d] = qb.dataset.q.split(":"); const p = products.find(x=>x.id===id);
     if(+d > 0) return addItem(p);
     const ex = [...cart].reverse().find(i=>i.productId===id); if(ex){ ex.qty--; if(ex.qty<=0) cart = cart.filter(i=>i!==ex); }
