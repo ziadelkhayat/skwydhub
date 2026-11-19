@@ -800,7 +800,7 @@ html .primary .b2{display:inline;font-size:13px;font-weight:500;opacity:.85;marg
 /* lighter icons in the − 1 + pill */
 html body .qa.qa2 button svg{stroke-width:1.9!important}
 /* back to top button */
-#toTop{position:fixed;z-index:44;right:max(16px,calc((100vw - var(--colw,100vw))/2 + 16px));bottom:calc(20px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--acc);display:grid;place-items:center;box-shadow:0 4px 14px rgba(20,18,30,.14);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s,bottom .2s;cursor:pointer}
+#toTop{position:fixed;z-index:11;right:max(16px,calc((100vw - var(--colw,100vw))/2 + 16px));bottom:calc(20px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--acc);display:grid;place-items:center;box-shadow:0 4px 14px rgba(20,18,30,.14);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s,bottom .2s;cursor:pointer}
 #toTop svg{width:20px;height:20px}
 #toTop.on{opacity:1;pointer-events:auto;transform:none}
 #toTop.hasbar{bottom:calc(92px + env(safe-area-inset-bottom))}
@@ -815,6 +815,7 @@ html .lsw .ldel svg{width:18px;height:18px}
 /* "Add to Home Screen" bar: pinned to the screen bottom by its top edge, so it doesn't slide when the phone's toolbar hides or shows while scrolling */
 html body .inst{bottom:auto!important;top:calc(100svh - 14px - env(safe-area-inset-bottom))!important;transform:translate(-50%,-100%)!important;animation:none!important}
 html body .bar:not([hidden])~.inst,html body .inst.up{top:calc(100svh - 86px - env(safe-area-inset-bottom))!important}
+html.lockpg #toTop,html:has(#scrim.show) #toTop,html:has(#ipg.show) #toTop,html:has(.scrim.show) #toTop{display:none!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
