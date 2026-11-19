@@ -812,6 +812,9 @@ html .lsw{position:relative;overflow:hidden}
 html .lsw > .line{position:relative;z-index:1;background:var(--s);transition:transform .2s ease;touch-action:pan-y}
 html .lsw .ldel{position:absolute;right:0;top:0;bottom:1px;width:88px;border:0;background:#e5484d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer}
 html .lsw .ldel svg{width:18px;height:18px}
+/* "Add to Home Screen" bar: pinned to the screen bottom by its top edge, so it doesn't slide when the phone's toolbar hides or shows while scrolling */
+html body .inst{bottom:auto!important;top:calc(100svh - 14px - env(safe-area-inset-bottom))!important;transform:translate(-50%,-100%)!important;animation:none!important}
+html body .bar:not([hidden])~.inst,html body .inst.up{top:calc(100svh - 86px - env(safe-area-inset-bottom))!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
