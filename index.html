@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1071-1795083488">
+<meta name="skwyd-build" content="1072-1795083594">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -4011,7 +4011,8 @@ function viewReports(route){
   return `<div class="phead rhead"><a class="btn" href="#${route}" data-rptback style="text-decoration:none">← Back</a>${title}<div class="sp"></div></div>
     <div class="row fbar ofb">
       ${RPT.key==="sales" ? `<label class="note" style="display:flex;align-items:center;gap:6px">Group By ${sel("rptGroup", RPT.group, RPT_GROUPS.filter(g => g[0]!==RPT.dim))}</label>` : ""}
-      ${sel("rptBranch", RPT.branch, [["","All Branches"], ...activeBranches().map(b=>[b.id, b.name])])}
+      ${sel("rptBrand", RPT.brand || "", [["","All Brands"], ...brandList().map(b=>[b.id, b.name])])}
+      ${sel("rptBranch", RPT.branch, [["","All Branches"], ...activeBranches().filter(b => !RPT.brand || b.brandId===RPT.brand).map(b=>[b.id, b.name])])}
       <button type="button" class="sel drpbtn" id="rptRange">${svgIco("calendar")}<span>${esc(drpLabel(RPT.from, RPT.to))}</span></button>
       <span class="sp"></span><span class="note">${RPT.loading ? "Loading…" : ""}</span>
       <button class="btn" id="rptCsv" ${B?"":"disabled"}>Export</button><button class="btn" id="rptPrint" ${B?"":"disabled"}>Print</button></div>
@@ -4026,12 +4027,13 @@ document.addEventListener("click", e => {
     const lines = [B.head.map(h=>h[0]), ...B.rows, ...(B.foot ? [B.foot] : [])].map(l => l.map(q).join(","));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" })); a.download = `skwyd-${B.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${RPT.from}-to-${RPT.to}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); return; }
   if(e.target.closest("#rptPrint")){ const B = rptBuild(), w = window.open("", "_blank"); if(!w) return toast("Allow pop-ups to print");
-    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); return; }
+    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : RPT.brand ? (brandList().find(b => b.id===RPT.brand)?.name || "") + " · All Branches" : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); return; }
 });
 document.addEventListener("change", e => {
   if(e.target.id==="rptDim"){ RPT.dim = e.target.value; if(RPT.group===RPT.dim) RPT.group = ""; render(); }
   if(e.target.id==="rptGroup"){ RPT.group = e.target.value; render(); }
-  if(e.target.id==="rptBranch"){ RPT.branch = e.target.value; RPT.brand = ""; render(); }
+  if(e.target.id==="rptBrand"){ RPT.brand = e.target.value; if(RPT.branch && RPT.brand && branches.find(b => b.id===RPT.branch)?.brandId!==RPT.brand) RPT.branch = ""; render(); }
+  if(e.target.id==="rptBranch"){ RPT.branch = e.target.value; render(); }
 });
 
 function viewBranch(b){
@@ -11372,7 +11374,7 @@ function viewInvHistory(){
 // purchases received in a date range, by item and supplier, from closed purchase orders
 function viewPurchasing(){
   const P = INV.pur; P.from ||= invDay(-29); P.to ||= invDay(0);
-  const docs = (S.inv_docs||[]).filter(d => live(d) && d.kind==="purchase" && d.status==="closed" && (!P.loc || d.locationId===P.loc))
+  const docs = (S.inv_docs||[]).filter(d => live(d) && d.kind==="purchase" && d.status==="closed" && (!P.loc || d.locationId===P.loc) && (!P.brand || (d.brandId ? d.brandId===P.brand : brandHasLoc(P.brand, d.locationId))))
     .filter(d => { const day = String(d.receivedAt || d.submittedAt || d.createdAt || "").slice(0,10); return day >= P.from && day <= P.to; });
   const m = {}; docs.forEach(d => (d.items||[]).forEach(l => { const k = l.itemId + "|" + (d.supplierId||""); const r = m[k] ||= { itemId:l.itemId, sup:d.supplierId, qty:0, total:0, n:0 };
     r.qty += +l.qty||0; r.total += (+l.qty||0) * (+l.cost || +itemOf(l.itemId)?.cost || 0); r.n++; }));
@@ -11383,7 +11385,8 @@ function viewPurchasing(){
     <div class="cstats"><div><span>Purchases received</span><b>${docs.length}</b></div><div><span>Total cost</span><b>${fmtCost(total)}</b></div><div><span>Items</span><b>${new Set(rows.map(r=>r.itemId)).size}</b></div><div><span>Suppliers</span><b>${new Set(docs.map(d=>d.supplierId)).size}</b></div></div>
     <div class="card tbl"><div class="ttop" style="flex-wrap:wrap;gap:8px">
       <label class="note">From <input type="date" class="sel" id="puFrom" value="${esc(P.from)}"></label><label class="note">To <input type="date" class="sel" id="puTo" value="${esc(P.to)}"></label>
-      <select class="sel" id="puLoc" aria-label="Location"><option value="">All locations</option>${locList().map(([id,n]) => `<option value="${esc(id)}" ${P.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select></div>`;
+      <select class="sel" id="puBrand" aria-label="Brand"><option value="">All Brands</option>${brandList().map(b => `<option value="${esc(b.id)}" ${P.brand===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+      <select class="sel" id="puLoc" aria-label="Location"><option value="">All locations</option>${locList().filter(([id]) => brandHasLoc(P.brand, id)).map(([id,n]) => `<option value="${esc(id)}" ${P.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select></div>`;
   if(!rows.length) h += `<div class="empty">No purchases received in these dates.</div>`;
   else h += `<table><thead><tr><th>Item</th><th>Supplier</th><th class="num">Quantity</th><th class="num">Average cost</th><th class="num">Total cost</th></tr></thead><tbody>${rows.map(r => { const it = itemOf(r.itemId) || {};
       return `<tr><td><b>${esc(it.name||"(deleted item)")}</b></td><td>${esc(supName(r.sup))}</td><td class="num">${n2(r.qty)} ${esc(it.storageUnit||"")}</td><td class="num">${fmtCost(r.qty ? r.total/r.qty : 0)}</td><td class="num">${fmtCost(r.total)}</td></tr>`; }).join("")}</tbody>
@@ -11395,7 +11398,7 @@ document.addEventListener("change", e => { const t = e.target, H = INV.hist, P =
   if(t.id==="ilBrand"){ INV.brand = t.value; INV.loc = ""; return render(); } if(t.id==="ilLoc"){ INV.loc = t.value; return render(); } if(t.id==="ilCat"){ INV.cat = t.value; return render(); } if(t.id==="ilLow"){ INV.low = t.checked; return render(); }
   if(t.id==="ihFrom"){ H.from = t.value; return loadInvHistory(); } if(t.id==="ihTo"){ H.to = t.value; return loadInvHistory(); }
   if(t.id==="ihBrand"){ H.brand = t.value; if(H.loc && !brandHasLoc(H.brand, H.loc)){ H.loc = ""; return loadInvHistory(); } return render(); } if(t.id==="ihLoc"){ H.loc = t.value; return loadInvHistory(); } if(t.id==="ihItem"){ H.item = t.value; return loadInvHistory(); } if(t.id==="ihType"){ H.type = t.value; return render(); }
-  if(t.id==="puFrom"){ P.from = t.value; return render(); } if(t.id==="puTo"){ P.to = t.value; return render(); } if(t.id==="puLoc"){ P.loc = t.value; return render(); } });
+  if(t.id==="puFrom"){ P.from = t.value; return render(); } if(t.id==="puTo"){ P.to = t.value; return render(); } if(t.id==="puBrand"){ P.brand = t.value; if(P.loc && !brandHasLoc(P.brand, P.loc)) P.loc = ""; return render(); } if(t.id==="puLoc"){ P.loc = t.value; return render(); } });
 let ilT; document.addEventListener("input", e => { if(e.target.id!=="ilQ") return; INV.q = e.target.value; clearTimeout(ilT); ilT = setTimeout(() => { const pos = e.target.selectionStart; render(); const i = $("#ilQ"); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} } }, 250); });
 document.addEventListener("click", e => { const t = e.target;
   if(t.id==="ilRefresh"){ loadStock(true); return; }
