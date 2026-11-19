@@ -787,6 +787,15 @@ html body .cats button,html body .cats button.on{font-size:16px!important;paddin
 /* item page: name, description and price spaced like the menu list */
 html .iphd p{margin:6px 0 0!important}
 html .iphd .ipp{margin-top:8px!important}
+/* item page: slides in once when it opens; redraws (quantity, options) don't replay it, so nothing blinks */
+html .ipg .pg{animation:none!important}
+html .ipg .pg.pgin{animation:sheetIn .25s var(--ease)!important}
+@keyframes sheetIn{from{transform:translateY(40px)}to{transform:none}}
+html .ipg.show{animation:none!important}
+/* basket bar in the brand colour */
+html body .bar button{background:var(--acc)!important;color:var(--on-acc)!important;box-shadow:0 12px 30px color-mix(in srgb,var(--acc) 35%,transparent)!important}
+html body .bar .n{background:rgba(255,255,255,.22)!important;color:var(--on-acc)!important}
+html body .bar .t2{display:block;font-size:12px;font-weight:500;opacity:.8;line-height:1.2;text-align:right}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1482,7 +1491,7 @@ function drawItem(first){
         return `<button type="button" class="opt2${on ? " on" : ""}" data-io="${gi}:${esc(x.id)}:t" ${!on && full && !one ? "disabled" : ""}><span class="ck${one ? " rd" : ""}">${ic("check")}</span><span>${esc(x.name)}</span><span class="op">${+x.price ? "+" + usd(x.price) : ""}</span></button>`; }).join("")}</div>`; }).join("");
   const needLoc = false;   // location is asked for on View basket
   const shown = IT.kids.length && !IT.kid ? "From " + usd(Math.min(...IT.kids.map(k => priceOf(k.p)))) : usd(b ? priceOf(b) : 0);
-  el.innerHTML = `<div class="pg"><button type="button" class="ipshare" data-ishare aria-label="Share ${esc(p.name)}">${SHARE_IC}</button><button type="button" class="ipfav${isFav(p.id) ? " on" : ""}" data-ifav aria-label="${isFav(p.id) ? "Remove from favorites" : "Add to favorites"}">${ic("heart")}</button><button type="button" class="ipx" data-ix aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${p.image_url ? `<div class="ipimg"><img src="${esc(p.image_url)}" alt=""></div>` : `<div class="ipnoimg"></div>`}
+  el.innerHTML = `<div class="pg${first ? " pgin" : ""}"><button type="button" class="ipshare" data-ishare aria-label="Share ${esc(p.name)}">${SHARE_IC}</button><button type="button" class="ipfav${isFav(p.id) ? " on" : ""}" data-ifav aria-label="${isFav(p.id) ? "Remove from favorites" : "Add to favorites"}">${ic("heart")}</button><button type="button" class="ipx" data-ix aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${p.image_url ? `<div class="ipimg"><img src="${esc(p.image_url)}" alt=""></div>` : `<div class="ipnoimg"></div>`}
     <div class="iphd"><h2>${esc(p.name)}</h2>${p.description ? `<p>${esc(p.description)}</p>` : ""}<div class="ipp">${shown}${(b||p).nutrition?.calories != null ? `<span class="ipcal">${esc((b||p).nutrition.calories)} kcal</span>` : ""}</div>
       ${((b||p).allergens||[]).length ? `<div class="ipalg"><b>Contains</b>${(b||p).allergens.map(a => `<span>${esc(a)}</span>`).join("")}</div>` : ""}
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
@@ -1551,7 +1560,7 @@ function promoStrip(){ const l = PROMOS.filter(p => promoOn(p, true)); if(!l.len
 const minOrder = () => mode==="delivery" ? (+zones.find(x=>x.id===zoneId)?.min_order||0) : mode==="takeaway" ? (+bcfg(branchId).minPickup||0) : 0;
 function cartLines(){ return cart.map((i,ix)=>`<div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div>`).join(""); }
 function totals(){ return `<div class="tot">${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}<div><span>Subtotal</span><span>${usd(incl ? sub() : sub() + taxParts().add - taxIn())}</span></div>${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div><span>Tax${incl?" (included)":""}</span><span>${usd(taxIn())}</span></div><div class="g"><span>Total</span><span>${usd(grand())}</span></div>${usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
-function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden = !n; const tc = $("[data-tcart] .n"); if(tc) tc.textContent = n || ""; $("#cartCount").textContent = n; $("#cartTotal").textContent = usd(sub());
+function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden = !n; const tc = $("[data-tcart] .n"); if(tc) tc.textContent = n || ""; $("#cartCount").textContent = n; { const t2 = SH().cur2 === true ? usd2(sub()) : ""; $("#cartTotal").innerHTML = esc(usd(sub())) + (t2 ? `<small class="t2">${esc(t2)}</small>` : ""); }
   const min = minOrder();
   $("#side").innerHTML = `<div class="card"><h3>${ic("cart","width:20px;height:20px")}Your order</h3>${n ? cartLines() + totals() + (min && sub()<min ? `<div class="warn">Minimum order is ${usd(min)}.</div>` : "") + `<button type="button" class="primary" data-checkout ${min && sub()<min ? "disabled" : ""}>Checkout · ${usd(grand())}</button>`
     : `<div class="empt">${ic("bag")}Your bag is empty.<br>Add items to start your order.</div>`}</div>`; }
