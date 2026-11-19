@@ -748,6 +748,12 @@ html .item .tx > b{order:1}
 html .item .tx > small{order:2}
 html .item .tx > .pr{order:3;margin-top:6px!important;padding-top:0!important}
 html .item .tx > .soldout{order:4}
+/* special instructions: tap the title to drop the box down */
+html .ipnote > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
+html .ipnote > summary::-webkit-details-marker{display:none}
+html .ipnote .ipchev{width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin:0 6px 4px 0;opacity:.6;flex:none}
+html .ipnote[open] .ipchev{transform:rotate(-135deg);margin-bottom:-4px}
+html .ipnote[open] > summary{margin-bottom:10px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1428,7 +1434,7 @@ function drawItem(first){
     <div class="iphd"><h2>${esc(p.name)}</h2><div class="ipp">${shown}${(b||p).nutrition?.calories != null ? `<span class="ipcal">${esc((b||p).nutrition.calories)} kcal</span>` : ""}</div>${p.description ? `<p>${esc(p.description)}</p>` : ""}
       ${((b||p).allergens||[]).length ? `<div class="ipalg"><b>Contains</b>${(b||p).allergens.map(a => `<span>${esc(a)}</span>`).join("")}</div>` : ""}
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
-    ${CO().notes !== false ? `<div class="ipgg"><div class="ght"><div><b>Special instructions</b><small>Optional</small></div></div><textarea id="ipNote" rows="2" placeholder="e.g. extra spicy">${esc(IT.note)}</textarea></div>` : ""}
+    ${CO().notes !== false ? `<details class="ipgg ipnote"${IT.note ? " open" : ""}><summary class="ght"><div><b>Special instructions</b></div><span class="ipchev" aria-hidden="true"></span></summary><textarea id="ipNote" rows="2" placeholder="Tell Us Here">${esc(IT.note)}</textarea></details>` : ""}
     ${needLoc ? "" : `<div class="ipgg ipqty"><b>Quantity</b><div class="ipq"><button type="button" data-iq="-1" ${IT.qty <= 1 ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div></div>`}</div>
     <div class="ipft">${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
       : `<button type="button" class="primary" data-iadd>${IT.edit!=null ? "Update item" : `Add ${IT.qty} to basket`}<small>${usd(itUnit() * IT.qty)}</small></button>`}</div>`;
