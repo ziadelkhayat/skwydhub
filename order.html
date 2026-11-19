@@ -713,11 +713,14 @@ html .lay-list .item:last-child,html .lay-compact .item:last-child{border-bottom
 html .item .ph{background:#fff!important;border:1px solid var(--line)!important;box-shadow:0 2px 8px rgba(20,18,30,.06)!important}
 /* brand name row on white */
 html body .hcard,html body .hcard .hin{background:#fff!important}
-/* one line under each category, none between items */
-html body section.cat{border-bottom:3px solid #E9EAEE!important;padding-bottom:14px!important;margin-bottom:18px!important}
-html body section.cat:last-of-type{border-bottom:0!important}
+/* one light grey line under each category name, none between items */
+html body section.cat{border-bottom:0!important}
+html body section.cat h2.ch{border-bottom:3px solid #E9EAEE!important;padding-bottom:10px!important;margin-bottom:6px!important}
 /* smaller item photos in the list */
 html .lay-list .item .ph{width:100px!important;height:100px!important}
+/* bright white page */
+html:not(.dark),html:not(.dark) body{--bg:#fff!important;--s2:#fafafa!important;background:#fff!important}
+html:not(.dark) .tools{background:#fff!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
