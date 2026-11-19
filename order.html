@@ -1476,7 +1476,7 @@ async function shareItem(p){ if(!p) return; const u = new URL(location.href); u.
 function openItem(p){
   if(!p || oos(p)) return;
   const kids = kidsOf(p);
-  Object.assign(IT, { p, kids, kid: kids.length===1 ? kids[0].p : null, qty:1, note:"", err:-1, edit:null }); itLinks();
+  Object.assign(IT, { p, kids, kid: kids.length===1 ? kids[0].p : null, qty:1, note:"", err:-1, edit:null, orig:null }); itLinks();
   let d = $("#ipg");
   if(!d){ d = document.createElement("div"); d.id = "ipg"; d.className = "ipg"; d.setAttribute("role","dialog"); d.setAttribute("aria-modal","true"); document.body.appendChild(d);
     d.addEventListener("click", e => { const g = s => e.target.closest(s); let t;
@@ -1489,7 +1489,7 @@ function openItem(p){
         if(dd==="t"){ if(mx===1){ const on = IT.sel[gi].has(id); IT.sel[gi].clear(); if(!on) IT.sel[gi].set(id, 1); } else if(IT.sel[gi].has(id)) IT.sel[gi].delete(id); else if(!mx || itCnt(gi) < mx) IT.sel[gi].set(id, 1); }
         else { const n = (IT.sel[gi].get(id)||0) + (+dd); if(+dd > 0 && mx && itCnt(gi) >= mx) return; if(n <= 0) IT.sel[gi].delete(id); else IT.sel[gi].set(id, n); }
         if(IT.err===gi) IT.err = -1; return drawItem(); }
-      if(t = g("[data-iq]")){ IT.qty = Math.max(1, IT.qty + (+t.dataset.iq)); return drawItem(); }
+      if(t = g("[data-iq]")){ IT.qty = Math.max(IT.edit!=null ? 0 : 1, IT.qty + (+t.dataset.iq)); return drawItem(); }
       if(g("[data-iloc]")){ closeItem(); return openLoc("main"); }
       if(g("[data-iadd]")) return itAdd(); });
     d.addEventListener("input", e => { if(e.target.id==="ipNote") IT.note = e.target.value; }); }
@@ -1514,14 +1514,18 @@ function drawItem(first){
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
     ${CO().notes !== false ? `<details class="ipgg ipnote"${IT.note ? " open" : ""}><summary class="ght"><div><b>Special instructions</b></div><span class="ipchev" aria-hidden="true"></span></summary><textarea id="ipNote" rows="2" placeholder="Tell Us Here">${esc(IT.note)}</textarea></details>` : ""}
     </div>
-    <div class="ipft">${needLoc ? "" : `<div class="ipq ipqf"><button type="button" data-iq="-1" ${IT.qty <= 1 ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div>`}${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
-      : `<button type="button" class="primary" data-iadd>${IT.edit!=null ? "Update item" : `Add ${IT.qty} to basket`}<small>${usd(itUnit() * IT.qty)}</small></button>`}</div>`;
+    <div class="ipft">${needLoc ? "" : `<div class="ipq ipqf"><button type="button" data-iq="-1" ${IT.qty <= (IT.edit!=null ? 0 : 1) ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div>`}${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
+      : `${IT.edit!=null && IT.qty===0 ? `<button type="button" class="primary iprm" data-iadd>Remove from cart</button>` : IT.edit!=null && IT.orig && IT.qty===IT.orig.qty && itSig()===IT.orig.sig ? `<button type="button" class="primary ipin" data-iadd>In cart<small>${usd(itUnit() * IT.qty)}</small></button>` : `<button type="button" class="primary" data-iadd>${IT.edit!=null ? "Update item" : `Add ${IT.qty} to basket`}<small>${usd(itUnit() * IT.qty)}</small></button>`}`}</div>`;
   if(!first) el.querySelector(".pg").scrollTop = y;
 }
 function closeItem(fromPop){ const d = $("#ipg"); if(!d || !d.classList.contains("show")) return; d.classList.remove("show"); d.innerHTML = ""; document.body.style.overflow = "";
   if(!fromPop && history.state?.skwydItem) try{ history.back(); }catch(e){} }
 addEventListener("popstate", () => closeItem(true));
+// what's chosen on the item page (variant, options, note), to tell whether an item being edited has changed
+const itSig = () => JSON.stringify([IT.kid?.id || "", (IT.sel||[]).map(m => [...m.entries()].filter(([,n]) => n > 0).sort()), (IT.note||"").trim()]);
 function itAdd(){
+  if(IT.edit!=null && IT.qty===0){ const ei = IT.edit; IT.edit = null; IT.orig = null; if(cart[ei]) cart.splice(ei, 1); closeItem(); syncMenu(); return cart.length ? openCart("basket") : undefined; }
+  if(IT.edit!=null && IT.orig && IT.qty===IT.orig.qty && itSig()===IT.orig.sig){ IT.edit = null; IT.orig = null; closeItem(); return openCart("basket"); }
   if(IT.kids.length && !IT.kid){ IT.err = -2; drawItem(); return $("#ig-v")?.scrollIntoView({ behavior:"smooth", block:"start" }); }
   const bad = IT.links.findIndex((l, gi) => itCnt(gi) < (+l.min||0));
   if(bad >= 0){ IT.err = bad; drawItem(); return $("#ig-" + bad)?.scrollIntoView({ behavior:"smooth", block:"start" }); }
@@ -1739,7 +1743,7 @@ document.addEventListener("click", e => { let t;
     $("#scrim").classList.remove("show"); openItem(par); if(!$("#ipg")?.classList.contains("show")) return;
     if(IT.kids.length){ IT.kid = IT.kids.find(k => k.p.id===it.productId)?.p || IT.kid; itLinks(); }
     (it.options||[]).forEach(o => { const gi = IT.links.findIndex(l => l.modifierId===o.modifierId && l.list.some(x => x.id===o.id)); if(gi >= 0) IT.sel[gi].set(o.id, (IT.sel[gi].get(o.id)||0) + 1); });
-    IT.qty = it.qty; IT.note = it.note || ""; IT.edit = ix; drawItem(); }
+    IT.qty = it.qty; IT.note = it.note || ""; IT.edit = ix; IT.orig = { qty: it.qty, sig: itSig() }; drawItem(); }
 });
 
 /* ---------- past orders: from the account (skwyd_my_orders), else the ones placed on this device ---------- */
