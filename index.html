@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1072-1795083594">
+<meta name="skwyd-build" content="1073-1795083881">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2805,6 +2805,11 @@ html body .app #view .card table td .dtt{display:block;font-size:12.5px;color:#8
 html body .app #view .card.tbl,html body .app #view .card.tbl .tscroll{scrollbar-width:thin!important;scrollbar-color:#C7C7CC transparent!important}
 html body .app #view .card.tbl::-webkit-scrollbar,html body .app #view .card.tbl .tscroll::-webkit-scrollbar{display:block!important;height:8px!important}
 html body .app #view .card.tbl::-webkit-scrollbar-thumb,html body .app #view .card.tbl .tscroll::-webkit-scrollbar-thumb{background:#C7C7CC!important;border-radius:4px}
+/* ===== Tables inside detail-page sections (customer orders, branch lists…): nothing cut off at the right ===== */
+html body .app #view .brcard>table,html body .app #view .secbox>table{overflow-x:auto!important;max-width:100%;scrollbar-width:thin!important;scrollbar-color:#C7C7CC transparent!important}
+html body .app #view .brcard>table::-webkit-scrollbar,html body .app #view .secbox>table::-webkit-scrollbar{display:block!important;height:8px!important}
+html body .app #view .brcard>table::-webkit-scrollbar-thumb,html body .app #view .secbox>table::-webkit-scrollbar-thumb{background:#C7C7CC!important;border-radius:4px}
+html body .app #view .brcard>table th,html body .app #view .secbox>table th{white-space:normal!important;line-height:1.3}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -8673,6 +8678,8 @@ function drpOpen(anchor, from, to, onPick){
   DRP.el = document.createElement("div"); DRP.el.className = "drp"; DRP.el.setAttribute("role","dialog"); DRP.el.setAttribute("aria-label","Choose dates");
   document.body.appendChild(DRP.el); drpDraw();
   const r = anchor.getBoundingClientRect(); DRP.el.style.top = (r.bottom + scrollY + 6) + "px"; DRP.el.style.left = Math.max(8, Math.min(r.left + scrollX, innerWidth - DRP.el.offsetWidth - 12)) + "px";
+  // the calendar stays on screen: no room below the field → it opens above it (or as low as fits)
+  { const h = DRP.el.offsetHeight, c = DRP.el.getBoundingClientRect(); if(c.bottom > innerHeight - 8){ const up = r.top - h - 6; const y = up >= 8 ? up : Math.max(8, innerHeight - h - 8); DRP.el.style.top = (y + (parseFloat(DRP.el.style.top) - c.top)) + "px"; } }
 }
 function drpDraw(){
   const [y, mo] = DRP.m.split("-").map(Number), first = new Date(y, mo-1, 1), days = new Date(y, mo, 0).getDate(), lead = (first.getDay() + 6) % 7, max = todayStr();
