@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1079-1795102801">
+<meta name="skwyd-build" content="1080-1795103213">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3753,7 +3753,7 @@ function viewDashboard(){
       const box = (label, value, sub, vals, rep, icon) => `<div class="card hcard hmini dbx"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div><div class="hsub">${sub || "&nbsp;"}</div>${area(vals)}</div>`;
       const tr = (c, p) => state.compare && P ? trend(c, p) : "";
       const hAvg = hNet.map((v, i) => hN[i] ? v / hN[i] : 0);
-      h += `<div class="hmgrid h4">
+      h += `<div class="hmgrid h3">
         ${box("Orders", sum(hN).toLocaleString(), tr(+D.orders||sum(hN), P && +P.orders), hN, "Orders", "orders")}
         ${box("Net sales", money(sum(hNet)), tr(+D.net||sum(hNet), P && +P.net), hNet, "Net Sales", "dollar")}
         ${box("Net payments", money(sum(hPay)), tr(+D.payments||sum(hPay), P && +P.payments), hPay, "Net Payments", "card")}
