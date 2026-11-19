@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1075-1795100250">
+<meta name="skwyd-build" content="1076-1795100318">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2819,6 +2819,9 @@ html body .app #view td.num,html body .app #view th.num{white-space:nowrap}
 /* ===== Full-screen call center order: edge to edge (no strip on the right) ===== */
 html body .scrim #ccBox.ccfull:has(.ccx.s2){max-width:none!important;width:auto!important;left:0!important;right:0!important}
 @media(max-width:1000px){html body .scrim .modal.ccfull{max-width:none!important;width:auto!important}}
+/* ===== Call center customer card: the source / branch line shows in full (wraps instead of "…") ===== */
+html body .ccx .ccctxn small,html body .ccx.s2 .ccctxn small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.35}
+html body .ccx .ccctxh{flex-wrap:wrap}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
