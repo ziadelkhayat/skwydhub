@@ -497,6 +497,8 @@ html[data-theme=dark] body .app aside.side{--sk-ink:#E6E9F5}
 }
 @media (min-width:761px) and (max-width:1099px){html body .app .kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media (min-width:1100px){html body .app .kpis{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+/* no big empty gaps beside pages: full width next to the menu */
+@media (min-width:900px){html body .app .content,html body[data-route] .app .content{max-width:none!important;margin:0!important;padding:24px 28px 60px!important}}
 </style>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">
