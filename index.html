@@ -2953,6 +2953,8 @@ html body .slk-ask{animation:none!important;transition:none!important}
 @media (min-width:761px) and (max-width:899px){html body .app #view .hcard .hcv{font-size:17px!important}}
 /* no big empty gaps beside pages: the content uses the full width next to the menu on every screen (iPad landscape, laptops, big monitors) */
 @media (min-width:900px){html body .app .content,html body[data-route] .app .content{max-width:none!important;margin:0!important;padding:24px 28px 60px!important}}
+.ingact{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:#e8f5ee;color:#1f7a4d}
+.ingact.rm{background:#fdecec;color:#b42318}.ingact.rp{background:#eef2ff;color:#3346a8}
 /* dialog titles and their row labels are not bold: medium titles, regular labels (every dialog alike) */
 html body .modal header h2,html body .dlg header h2,html body .modal.ccfull>header h2,html body #ccBox.ccfull>header h2,html body .bmdrawer header b,html body .slk-ask-h,html body .ccvdh,html body .kbedh{font-weight:500!important}
 html body .slk-ask-b b,html body .slk-ask-b strong,html body .slk-ask-b label,html body .modal .f > label,html body .modal .f label:not(.chk),html body .modal label.chk,html body .modal label{font-weight:400!important}
@@ -10336,7 +10338,9 @@ const uomOf = it => it?.ingredientUnit || it?.storageUnit || nameUnit(it) || "";
 const hasRecipe = it => !!it && (it.ingredients||[]).length > 0;
 const itemUnitCost = (it, depth=0) => !it ? 0 : (+it.cost || (hasRecipe(it) && depth < 4 ? recipeCost(it.ingredients, depth+1) : 0));
 const ingCost = (it, qty, depth=0) => !it ? 0 : (+qty||0) / (+it.factor || 1) * itemUnitCost(it, depth);
-const recipeCost = (list, depth=0) => (list||[]).reduce((s,l) => s + ingCost(itemOf(l.itemId), l.qty, depth), 0);
+// option ingredient lines can Remove an ingredient (costs nothing here: what it saves depends on the product) or Replace it with another (costs the replacement)
+const ingAct = l => l?.action==="remove" || l?.action==="replace" ? l.action : "add";
+const recipeCost = (list, depth=0) => (list||[]).reduce((s,l) => s + (ingAct(l)==="remove" ? 0 : ingCost(itemOf(ingAct(l)==="replace" ? l.withId : l.itemId), l.qty, depth)), 0);
 const isFixedCost = p => /fixed/i.test(String(p?.costingMethod||""));
 const productCost = p => isFixedCost(p) ? (+p.cost||0) : recipeCost(p.ingredients);
 const fmtCost = n => CURJ(SYM(), (+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:5}));
@@ -10365,12 +10369,20 @@ const ingNet = l => l.net!=null && l.net!=="" ? +l.net : +l.qty||0;
 const ingYield = l => +l.yield > 0 ? +l.yield : 100;
 const ingGross = l => +(ingNet(l) * 100 / ingYield(l)).toFixed(4);
 function ingEditor(forKey, rec){
-  const rows = DET.ing, isProd = forKey==="products" || forKey==="modifier-options";
-  const total = rows.reduce((t, l) => t + ingCost(itemOf(l.itemId), ingGross(l)), 0);
-  const head = `<th>Name</th><th>SKU</th><th class="num">Cost Per Unit</th><th class="num">Net Qty</th><th class="num">Yield</th><th class="num">Gross Qty</th><th class="num">Waste Qty</th><th class="num">Actual Cost</th><th></th>`;
+  const rows = DET.ing, isProd = forKey==="products" || forKey==="modifier-options", isOpt = forKey==="modifier-options";
+  const total = recipeCost(rows.map(l => ({ ...l, qty: ingGross(l) })));
+  const head = `<th>Name</th>${isOpt ? "<th>Action</th>" : ""}<th>SKU</th><th class="num">Cost Per Unit</th><th class="num">Net Qty</th><th class="num">Yield</th><th class="num">Gross Qty</th><th class="num">Waste Qty</th><th class="num">Actual Cost</th><th></th>`;
   const body = rows.map((l, ix) => {
-    const it = itemOf(l.itemId) || { name:"(deleted item)" }, u = esc(uomOf(it)), net = ingNet(l), g = ingGross(l);
-    return `<tr class="clk" data-ingedit="${ix}"><td><b>${esc(it.name)}</b></td><td><span class="code">${esc(it.sku||"")}</span></td><td class="num">${fmtCost(ingCost(it, 1))}</td>
+    const it = itemOf(l.itemId) || { name:"(deleted item)" }, act = isOpt ? ingAct(l) : "add";
+    if(act==="remove") return `<tr class="clk" data-ingedit="${ix}"><td><b>${esc(it.name)}</b></td><td><span class="ingact rm">Remove</span></td><td><span class="code">${esc(it.sku||"")}</span></td><td class="num">${fmtCost(ingCost(it, 1))}</td>
+      <td class="num" colspan="4"><span class="note">All of it, whatever the product's recipe uses</span></td><td class="num">—</td>
+      <td class="num"><button class="btn sm" data-ingrm="${ix}" aria-label="Delete ${esc(it.name)}">×</button></td></tr>`;
+    if(act==="replace"){ const w = itemOf(l.withId) || { name:"(choose an item)" }, wu = esc(uomOf(w)), same = !(+l.qty > 0), net = ingNet(l), g = ingGross(l);
+      return `<tr class="clk" data-ingedit="${ix}"><td><b>${esc(it.name)}</b></td><td><span class="ingact rp">Replace with</span> <b>${esc(w.name)}</b></td><td><span class="code">${esc(w.sku||"")}</span></td><td class="num">${fmtCost(ingCost(w, 1))}</td>
+      ${same ? `<td class="num" colspan="4"><span class="note">Same amount as the recipe uses</span></td><td class="num">—</td>` : `<td class="num">${n2(net)} ${wu}</td><td class="num">${n2(ingYield(l))}%</td><td class="num">${n2(g)} ${wu}</td><td class="num">${n2(g - net)} ${wu}</td><td class="num">${fmtCost(ingCost(w, g))}</td>`}
+      <td class="num"><button class="btn sm" data-ingrm="${ix}" aria-label="Delete ${esc(it.name)}">×</button></td></tr>`; }
+    const u = esc(uomOf(it)), net = ingNet(l), g = ingGross(l);
+    return `<tr class="clk" data-ingedit="${ix}"><td><b>${esc(it.name)}</b></td>${isOpt ? `<td><span class="ingact">Add</span></td>` : ""}<td><span class="code">${esc(it.sku||"")}</span></td><td class="num">${fmtCost(ingCost(it, 1))}</td>
       <td class="num">${n2(net)} ${u}</td><td class="num">${n2(ingYield(l))}%</td><td class="num">${n2(g)} ${u}</td><td class="num">${n2(g - net)} ${u}</td><td class="num">${fmtCost(ingCost(it, g))}</td>
       <td class="num"><button class="btn sm" data-ingrm="${ix}" aria-label="Remove ${esc(it.name)}">×</button></td></tr>`;
   }).join("");
@@ -10378,8 +10390,8 @@ function ingEditor(forKey, rec){
   const vfor = forKey==="products" && DET.ingFor ? DET.ingFor : "";
   return `<div class="card tbl${forKey==="products" || forKey==="inv-items" ? " secbox" : ""}" style="margin-bottom:16px" id="ingCard"><div class="ttop"><b>Ingredients${vfor ? ` · ${esc(vfor)}` : ""}</b>${vfor ? ` <button class="btn sm" data-pvrec="" style="margin-left:8px">← Product recipe</button>` : ""}<div class="sp"></div>
       ${rows.length ? `<button type="button" class="btn" data-ingqtys>Edit Quantities</button>` : ""}<button type="button" class="btn" data-ingpick>Add</button></div>
-    ${rows.length ? `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="7"><b>Total ingredients cost</b></td><td class="num"><b>${fmtCost(total)}</b></td><td></td></tr></tfoot></table>`
-      : `<div class="empty">You don't have ingredients</div>`}</div>`;
+    ${rows.length ? `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="${isOpt ? 8 : 7}"><b>Total ingredients cost</b></td><td class="num"><b>${fmtCost(total)}</b></td><td></td></tr></tfoot></table>`
+      : `<div class="empty">You don't have ingredients</div>`}${isOpt ? `<p class="note" style="margin:10px 16px 14px">Click an ingredient to choose what it does: <b>Add</b> uses that amount on top of the product's recipe, <b>Remove</b> takes out whatever the product's recipe uses (e.g. No Pickles), <b>Replace</b> swaps it for another item (e.g. Beef → Chicken). A sale never adds stock back.</p>` : ""}</div>`;
 }
 // Update Ingredient (one line) and Edit Quantities (all lines): net quantity and yield %, saved right away
 // an ingredient quantity in both units: storage unit + ingredient unit (stored in ingredient units)
@@ -10388,20 +10400,44 @@ function ingBoth(i, it, net, head){   // ingredients: only the ingredient-unit q
 }
 function ingQtyDialog(ix){
   const one = ix!=null, list = one ? [ix] : DET.ing.map((_, i) => i), box = $("#ccBox"); box.className = "modal sm";
-  const it0 = one ? itemOf(DET.ing[ix].itemId) : null;
+  const it0 = one ? itemOf(DET.ing[ix].itemId) : null, isOpt = DET.key==="modifier-options";
+  if(!one && isOpt) list.splice(0, list.length, ...list.filter(i => ingAct(DET.ing[i])==="add"));   // Edit Quantities: only the Add lines have an amount to set
   box.innerHTML = `<header><h2>${one ? `${esc(it0?.name || "")}${it0?.sku ? " (" + esc(it0.sku) + ")" : ""}` : "Quantities"}</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:block">
-    ${one ? (() => { const l = DET.ing[ix]; return `${ingBoth(ix, it0, ingNet(l))}
+    ${one && isOpt ? (() => { const l = DET.ing[ix], a = ingAct(l), w = itemOf(l.withId);
+      const opts = S.inv_items.filter(x => live(x) && x.id!==l.itemId).sort((x, y) => String(x.name).localeCompare(String(y.name)));
+      return `<div class="f"><label for="iqAct">Action</label><select class="sel" id="iqAct" data-iqact>${[["add","Add: use this amount on top of the recipe"],["remove","Remove: take out what the recipe uses"],["replace","Replace with another item"]].map(([v, t]) => `<option value="${v}"${a===v ? " selected" : ""}>${t}</option>`).join("")}</select></div>
+      <div class="f" data-iqfor="replace"${a==="replace" ? "" : " hidden"}><label for="iqWith">Replace with *</label><select class="sel" id="iqWith"><option value="">Choose an item</option>${opts.map(x => `<option value="${esc(x.id)}"${x.id===l.withId ? " selected" : ""}>${esc(x.name)}${x.sku ? " (" + esc(x.sku) + ")" : ""}</option>`).join("")}</select></div>
+      <div data-iqfor="add replace"${a==="remove" ? " hidden" : ""}><div class="f"><label for="iq_n_${ix}"><span data-iqlbl>${a==="replace" ? "Quantity of the replacement" : "Quantity"}</span> (<span data-iqunit>${esc(ingUnit(a==="replace" && w ? w : it0))}</span>)<span data-iqreq>${a==="replace" ? "" : " *"}</span></label><input class="sel" id="iq_n_${ix}" data-iqn="${ix}" type="number" min="0" step="any" value="${esc(a==="replace" && !(+l.qty > 0) ? "" : (+ingNet(l) || ""))}" placeholder="${a==="replace" ? "Same amount as the recipe uses" : ""}"></div>
+      <div class="f"><label for="iq_y_${ix}">Yield (%)</label><input class="sel" id="iq_y_${ix}" data-iqy="${ix}" type="number" min="1" max="100" step="any" value="${esc(ingYield(l))}"></div></div>
+      <p class="note" data-iqfor="remove"${a==="remove" ? "" : " hidden"} style="margin:4px 0 0">Takes out all of ${esc(it0?.name || "this ingredient")} the product's recipe uses, for any size or variant. Nothing happens on products without it.</p>`; })()
+    : one ? (() => { const l = DET.ing[ix]; return `${ingBoth(ix, it0, ingNet(l))}
       <div class="f"><label for="iq_y_${ix}">Yield (%)</label><input class="sel" id="iq_y_${ix}" data-iqy="${ix}" type="number" min="1" max="100" step="any" value="${esc(ingYield(l))}"></div>`; })()
     : list.map(i => { const l = DET.ing[i], it = itemOf(l.itemId); return ingBoth(i, it, ingNet(l), it?.name || ""); }).join("")}
     <div class="err" id="iqErr"></div></div>
     <footer>${one ? `<button type="button" class="btn danger" data-ingrm="${ix}">Delete</button>` : ""}<span style="flex:1"></span><button type="button" class="btn keep" data-ccclose>Close</button><button type="button" class="btn pri" id="iqSave">Save</button></footer>`;
   $("#ccScrim").classList.add("show");
 }
+// Update Ingredient on an option: show the fields for the chosen action
+document.addEventListener("change", e => { const t = e.target; if(t.id!=="iqAct" && t.id!=="iqWith") return; const box = $("#ccBox"), a = box.querySelector("#iqAct").value;
+  box.querySelectorAll("[data-iqfor]").forEach(el => el.hidden = !el.dataset.iqfor.split(" ").includes(a));
+  const ix = +box.querySelector("[data-iqn]").dataset.iqn, w = itemOf(box.querySelector("#iqWith").value), base = itemOf(DET.ing[ix]?.itemId), n = box.querySelector("[data-iqn]");
+  box.querySelector("[data-iqlbl]").textContent = a==="replace" ? "Quantity of the replacement" : "Quantity"; box.querySelector("[data-iqreq]").textContent = a==="replace" ? "" : " *";
+  box.querySelector("[data-iqunit]").textContent = ingUnit(a==="replace" && w ? w : base); n.placeholder = a==="replace" ? "Same amount as the recipe uses" : ""; });
 document.addEventListener("click", async e => {
   if(!DET.id || !DET.ing) return;
   const ed = e.target.closest("[data-ingedit]"); if(ed && !e.target.closest("button")){ e.preventDefault(); return ingQtyDialog(+ed.dataset.ingedit); }
   if(e.target.closest("[data-ingqtys]")){ e.preventDefault(); return ingQtyDialog(null); }
   if(e.target.closest("#iqSave")){ document.querySelectorAll("#ccBox [data-iqs]").forEach(sv => { const n = document.querySelector(`#ccBox [data-iqn="${sv.dataset.iqs}"]`); if(n && sv.value!=="" && n.value!=="") { n.value = String(+((+sv.value||0) * (+sv.dataset.fac||1) + (+n.value||0)).toFixed(6)); sv.value = "0"; } });
+    const actSel = $("#ccBox #iqAct");
+    if(actSel){ const ix = +document.querySelector("#ccBox [data-iqn]").dataset.iqn, l = DET.ing[ix], a = actSel.value, n = $("#ccBox [data-iqn]"), y = $("#ccBox [data-iqy]");
+      if(a==="remove"){ Object.assign(l, { action:"remove", qty:0, net:0, yield:100 }); delete l.withId; }
+      else if(a==="replace"){ const w = $("#ccBox #iqWith").value; if(!w) return $("#iqErr").textContent = "Choose the item to replace it with.";
+        if(n.value!=="" && !(+n.value > 0)) return $("#iqErr").textContent = "Enter a quantity, or leave it empty to use the same amount.";
+        if(!(+y.value > 0 && +y.value <= 100)) return $("#iqErr").textContent = "Yield is between 1 and 100%.";
+        Object.assign(l, { action:"replace", withId:w, yield:+y.value }); if(n.value===""){ l.net = 0; l.qty = 0; } else { l.net = +n.value; l.qty = ingGross(l); } }
+      else { if(!(+n.value > 0)) return $("#iqErr").textContent = "Enter a quantity."; if(!(+y.value > 0 && +y.value <= 100)) return $("#iqErr").textContent = "Yield is between 1 and 100%.";
+        delete l.action; delete l.withId; l.net = +n.value; l.yield = +y.value; l.qty = ingGross(l); }
+      $("#ccScrim").classList.remove("show"); DET.dirtyIng = true; await saveIngredients(); return render(); }
     const ins = [...document.querySelectorAll("#ccBox [data-iqn]")];
     for(const n of ins){ const i = +n.dataset.iqn, y = document.querySelector(`#ccBox [data-iqy="${i}"]`); if(!(+n.value > 0)) return $("#iqErr").textContent = "Enter a quantity for every ingredient."; if(y && !(+y.value > 0 && +y.value <= 100)) return $("#iqErr").textContent = "Yield is between 1 and 100%."; }
     ins.forEach(n => { const i = +n.dataset.iqn, y = document.querySelector(`#ccBox [data-iqy="${i}"]`), l = DET.ing[i]; l.net = +n.value; if(y) l.yield = +y.value; l.qty = ingGross(l); });   // Quantities keeps each yield
@@ -10928,11 +10964,15 @@ function ingLive(ix){
 }
 async function saveIngredients(){
   const cfg = CRUD[DET.key], list = DET.ing.filter(l => l.itemId).map(l => {
-    const o = { itemId:l.itemId, qty: ingGross(l), net: ingNet(l), yield: ingYield(l) };
+    const a = DET.key==="modifier-options" ? ingAct(l) : "add";
+    const o = a==="remove" ? { itemId:l.itemId, action:"remove", qty:0, net:0, yield:100 }
+      : a==="replace" ? { itemId:l.itemId, action:"replace", withId:l.withId, qty: +l.qty > 0 ? ingGross(l) : 0, net: +l.qty > 0 ? ingNet(l) : 0, yield: ingYield(l) }
+      : { itemId:l.itemId, qty: ingGross(l), net: ingNet(l), yield: ingYield(l) };
     if(DET.key==="products" || DET.key==="modifier-options") o.types = ORDER_TYPES.map(t=>t[0]);   // ingredients apply to every order type
     return o;
   });
-  if(list.some(l => !(l.qty > 0))){ toast("Enter a quantity for every ingredient"); return; }
+  if(list.some(l => !l.action && !(l.qty > 0))){ toast("Enter a quantity for every ingredient"); return; }
+  if(list.some(l => l.action==="replace" && !l.withId)){ toast("Choose the item each Replace uses"); return; }
   DET.saving = true; render();
   try{
     if(DET.key==="products" && DET.ingFor){ const p = S.products.find(x=>x.id===DET.id), vr = { ...(p?.variantRecipes||{}), [DET.ingFor]: list };

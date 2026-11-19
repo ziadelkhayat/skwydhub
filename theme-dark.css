@@ -977,6 +977,9 @@ html[data-theme=dark] body .app #view .schwrap::-webkit-scrollbar-thumb, html[da
 html[data-theme=dark] body .app .hcard .hcv{color:#dcdcde}
 html[data-theme=dark] body .app #view .card.secbox > table, html[data-theme=dark] body .app #view .card.secbox > .tscroll{background:#101420;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
 html[data-theme=dark] body .app #view .tscroll thead th, html[data-theme=dark] body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{background:#181a20}
+html[data-theme=dark] .ingact{background:#1a2921;color:#9fe7c3}
+html[data-theme=dark] .ingact.rm{background:#251717;color:#ee8981}
+html[data-theme=dark] .ingact.rp{background:#161924;color:#919ede}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1102,6 +1105,7 @@ html[data-theme=dark] [style*="background:#e7f6ec"]{background:#192a1f!important
 html[data-theme=dark] [style*="background:#e7f7ec"]{background:#19291e!important}
 html[data-theme=dark] [style*="background:#e8eefe"]{background:#171b26!important}
 html[data-theme=dark] [style*="background:#e8f0fd"]{background:#171d27!important}
+html[data-theme=dark] [style*="background:#e8f5ee"]{background:#1a2921!important}
 html[data-theme=dark] [style*="background:#e8f6ee"]{background:#192920!important}
 html[data-theme=dark] [style*="background:#e8f6fd"]{background:#172227!important}
 html[data-theme=dark] [style*="background:#e8f8ef"]{background:#18291f!important}
@@ -1260,9 +1264,11 @@ html[data-theme=dark] [style*="color:#1d4ed8"]{color:#819eee!important}
 html[data-theme=dark] [style*="color:#1e3a8a"]{color:#96abe8!important}
 html[data-theme=dark] [style*="color:#1f7a3d"]{color:#9fe7b7!important}
 html[data-theme=dark] [style*="color:#1f7a3f"]{color:#9fe7b9!important}
+html[data-theme=dark] [style*="color:#1f7a4d"]{color:#9fe7c3!important}
 html[data-theme=dark] [style*="color:#22305F"]{color:#b0bce3!important}
 html[data-theme=dark] [style*="color:#2563eb"]{color:#7ca1f3!important}
 html[data-theme=dark] [style*="color:#2c5fb8"]{color:#8cace3!important}
+html[data-theme=dark] [style*="color:#3346a8"]{color:#919ede!important}
 html[data-theme=dark] [style*="color:#374151"]{color:#bdc5d2!important}
 html[data-theme=dark] [style*="color:#3A3A3C"]{color:#ccccce!important}
 html[data-theme=dark] [style*="color:#3a3650"]{color:#c1bed3!important}
