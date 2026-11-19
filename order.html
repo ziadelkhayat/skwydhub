@@ -804,6 +804,9 @@ html body .qa.qa2 button svg{stroke-width:1.9!important}
 #toTop svg{width:20px;height:20px}
 #toTop.on{opacity:1;pointer-events:auto;transform:none}
 #toTop.hasbar{bottom:calc(92px + env(safe-area-inset-bottom))}
+/* item page price: brand red like the menu list, secondary currency beside it */
+html body .iphd .ipp{color:var(--acc)!important;font-weight:700!important;font-size:16px!important;font-family:"Plus Jakarta Sans",Inter,sans-serif}
+html .iphd .ipp .pr2{color:#888d9a;font-size:14px;font-weight:400;margin-left:8px;white-space:nowrap}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1499,9 +1502,9 @@ function drawItem(first){
         if(l.multi && !one) return `<div class="opt2${on ? " on" : ""}"><span>${esc(x.name)}</span><span class="op">${+x.price ? "+" + usd(x.price) : ""}</span><span class="st"><button type="button" data-io="${gi}:${esc(x.id)}:-1" ${on ? "" : "disabled"} aria-label="Less ${esc(x.name)}">${ic("minus")}</button><b>${n}</b><button type="button" data-io="${gi}:${esc(x.id)}:1" ${full ? "disabled" : ""} aria-label="More ${esc(x.name)}">${ic("plus")}</button></span></div>`;
         return `<button type="button" class="opt2${on ? " on" : ""}" data-io="${gi}:${esc(x.id)}:t" ${!on && full && !one ? "disabled" : ""}><span class="ck${one ? " rd" : ""}">${ic("check")}</span><span>${esc(x.name)}</span><span class="op">${+x.price ? "+" + usd(x.price) : ""}</span></button>`; }).join("")}</div>`; }).join("");
   const needLoc = false;   // location is asked for on View basket
-  const shown = IT.kids.length && !IT.kid ? "From " + usd(Math.min(...IT.kids.map(k => priceOf(k.p)))) : usd(b ? priceOf(b) : 0);
+  const shown = IT.kids.length && !IT.kid ? "From " + usd(Math.min(...IT.kids.map(k => priceOf(k.p)))) : usd(b ? priceOf(b) : 0); const shownV = IT.kids.length && !IT.kid ? Math.min(...IT.kids.map(k => priceOf(k.p))) : (b ? priceOf(b) : 0), shown2 = SH().cur2 === true && shownV ? usd2(shownV) : "";
   el.innerHTML = `<div class="pg${first ? " pgin" : ""}"><button type="button" class="ipshare" data-ishare aria-label="Share ${esc(p.name)}">${SHARE_IC}</button><button type="button" class="ipfav${isFav(p.id) ? " on" : ""}" data-ifav aria-label="${isFav(p.id) ? "Remove from favorites" : "Add to favorites"}">${ic("heart")}</button><button type="button" class="ipx" data-ix aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${p.image_url ? `<div class="ipimg"><img src="${esc(p.image_url)}" alt=""></div>` : `<div class="ipnoimg"></div>`}
-    <div class="iphd"><h2>${esc(p.name)}</h2>${p.description ? `<p>${esc(p.description)}</p>` : ""}<div class="ipp">${shown}${(b||p).nutrition?.calories != null ? `<span class="ipcal">${esc((b||p).nutrition.calories)} kcal</span>` : ""}</div>
+    <div class="iphd"><h2>${esc(p.name)}</h2>${p.description ? `<p>${esc(p.description)}</p>` : ""}<div class="ipp">${shown}${shown2 ? `<span class="pr2">${esc(shown2)}</span>` : ""}${(b||p).nutrition?.calories != null ? `<span class="ipcal">${esc((b||p).nutrition.calories)} kcal</span>` : ""}</div>
       ${((b||p).allergens||[]).length ? `<div class="ipalg"><b>Contains</b>${(b||p).allergens.map(a => `<span>${esc(a)}</span>`).join("")}</div>` : ""}
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
     ${CO().notes !== false ? `<details class="ipgg ipnote"${IT.note ? " open" : ""}><summary class="ght"><div><b>Special instructions</b></div><span class="ipchev" aria-hidden="true"></span></summary><textarea id="ipNote" rows="2" placeholder="Tell Us Here">${esc(IT.note)}</textarea></details>` : ""}
