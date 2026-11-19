@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1076-1795100318">
+<meta name="skwyd-build" content="1077-1795101932">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2822,6 +2822,12 @@ html body .scrim #ccBox.ccfull:has(.ccx.s2){max-width:none!important;width:auto!
 /* ===== Call center customer card: the source / branch line shows in full (wraps instead of "…") ===== */
 html body .ccx .ccctxn small,html body .ccx.s2 .ccctxn small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.35}
 html body .ccx .ccctxh{flex-wrap:wrap}
+/* ===== Dashboard number boxes: soft filled line by hour (all ten the same) ===== */
+html body .app .hcard.dbx{padding:18px 20px 12px!important}
+html body .app .hcard.dbx .hsub{min-height:18px;margin:2px 0 8px}
+html body .app .hcard.dbx .hsub .ktr{font-size:12.5px}
+html body .app .hcard.dbx .dbxc{display:block;width:100%;height:64px;margin-top:auto}
+html body .app .hcard.dbx .dbxl{display:flex;justify-content:space-between;font-size:11px;color:#8E8E93;margin-top:6px}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -3539,13 +3545,20 @@ async function dashActive(pr){
 async function dashVoids(pr){
   const end = new Date(pr.p_day + "T12:00:00"), start = new Date(end); start.setDate(end.getDate() - (pr.p_days - 1));
   const [t0, t1] = dayBounds(start.toISOString().slice(0,10), pr.p_day);
-  let q = WOK.sb.from("orders").select("total,status,voided_items").or("status.eq.void,voided_items.not.is.null").gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()).limit(5000);
+  let q = WOK.sb.from("orders").select("created_at,total,tax,discount,status,voided_items").gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()).limit(5000);
   if(pr.p_branches) q = q.in("branch_id", pr.p_branches); if(pr.p_brand) q = q.eq("brand_id", pr.p_brand);
   const { data, error } = await q; if(error){ console.error("voids", error); return null; }
-  let n = 0, items = 0, v = 0;
-  for(const o of data){ if(o.status==="void"){ n++; v += +o.total||0; }
-    for(const i of (Array.isArray(o.voided_items) ? o.voided_items : [])){ const q = +i.qty||1; items += q; v += q * (+i.price||0); } }
-  return { n, items, v: +v.toFixed(2) };
+  let n = 0, items = 0, v = 0; const sh = dayStartH(), z = () => Array(24).fill(0), hrs = { tax:z(), disc:z(), ret:z(), decl:z(), voids:z(), active:z() };
+  for(const o of data){ const k = (new Date(o.created_at).getHours() - sh + 24) % 24; let ov = 0;
+    if(o.status==="void"){ n++; ov += +o.total||0; }
+    for(const i of (Array.isArray(o.voided_items) ? o.voided_items : [])){ const q = +i.qty||1; items += q; ov += q * (+i.price||0); }
+    v += ov; hrs.voids[k] += ov;
+    if(o.status==="closed" || o.status==="refund") hrs.tax[k] += +o.tax||0;
+    if(o.status==="closed") hrs.disc[k] += +o.discount||0;
+    if(o.status==="refund") hrs.ret[k] += -(+o.total||0);
+    if(o.status==="declined") hrs.decl[k]++;
+    if(o.status==="pending" || o.status==="active") hrs.active[k]++; }
+  return { n, items, v: +v.toFixed(2), hrs };
 }
 function dashKind(){ if(state.dashTab==="kitchen") state.dashTab = "general"; return state.dashTab==="inventory" ? "inventory" : "sales"; }
 const mins = v => v==null ? "—" : (+v).toFixed(1) + " min";
@@ -3691,17 +3704,28 @@ function viewDashboard(){
     const hN = hours24(D.hours,"n"), hNet = hours24(D.hours,"net");
     const trend = (cur, prev, alt) => state.compare && prev ? (() => { const pct = (cur-prev)/prev*100, up = pct >= 0; return `<span class="ktr ${up?"up":"down"}">${up?"▲":"▼"} ${Math.abs(pct).toFixed(1)}% <span>vs ${esc(cmpLbl())}</span></span>`; })() : alt ? `<span class="ktr"><span>${alt}</span></span>` : "";
     const tile = (label, icon, tint, ink, value, tr, rep) => `<div class="card ktile"><div class="kth"><span>${label}</span><i style="background:${tint};color:${ink}">${svgIco(icon)}</i></div><b class="kv">${value}</b>${tr}${rep ? `<a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a>` : ""}</div>`;
-    // Foodics row: orders, net sales and net payments by hour, each with its total and a link to the report
-    { const hPay = hours24(D.hours,"pay"), sum = a => a.reduce((x,y) => x + y, 0);
-      const hc = (label, value, vals, rep, fmt, icon) => `<div class="card hcard"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div>${lineChart(vals, { dots:true, h:300, axis:false, area:false, rot:true, color:"#6D28D9", label: label + " by hour", fmt, labels: vals.map((v,i) => hourLbl((i + dayStartH()) % 24)), labelStep: 3 })}</div>`;
-      h += `<div class="hgrid">${hc("Orders", sum(hN).toLocaleString(), hN, "Orders", "n", "orders")}${hc("Net sales", money(sum(hNet)), hNet, "Net Sales", "m", "dollar")}${hc("Net payments", money(sum(hPay)), hPay, "Net Payments", "m", "card")}</div>`; }
-    // the number cards: the same look as the Orders / Net sales / Net payments cards, each with its report
-    const hm = (label, value, sub, rep, icon) => `<div class="card hcard hmini"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div>${sub ? `<div class="hsub">${sub}</div>` : ""}</div>`;
-    h += `<div class="hmgrid h3">
-      ${hm("Average ticket", money(avg(D)), trend(avg(D), P&&avg(P), ""), "Average Ticket", "receipt")}
-      ${hm("Active orders", (D.active ? D.active.n : (D.open||0)).toLocaleString(), "", "Active Orders", "clock")}
-      ${hm("Declined", (D.declined?.n ?? 0).toLocaleString(), "", "Declined", "x")}
-    </div>`;
+    // all ten number boxes look the same (Foodics row style): title, View report, icon, number, the change vs the period before, a soft line by hour
+    { const sum = a => a.reduce((x,y) => x + y, 0), hPay = hours24(D.hours,"pay"), X = D.voids?.hrs || {}, z = Array(24).fill(0);
+      const hl = i => { const h = (i + dayStartH()) % 24; return (h % 12 || 12) + (h < 12 ? "am" : "pm"); };
+      const area = vals => { const w = 300, ht = 64, mx = Math.max(...vals.map(v => Math.abs(v)), 0) || 1, p = vals.map((v, i) => [i * w / (vals.length - 1), ht - 4 - (Math.max(0, v) / mx) * (ht - 12)]);
+        const d = p.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
+        return `<svg class="dbxc" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${w} ${ht} L0 ${ht}Z" fill="#6D28D9" opacity=".08"/><path d="${d}" fill="none" stroke="#6D28D9" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="dbxl">${[0,6,12,18,23].map(i => `<span>${hl(i)}</span>`).join("")}</div>`; };
+      const box = (label, value, sub, vals, rep, icon) => `<div class="card hcard hmini dbx"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div><div class="hsub">${sub || "&nbsp;"}</div>${area(vals)}</div>`;
+      const tr = (c, p) => state.compare && P ? trend(c, p) : "";
+      const hAvg = hNet.map((v, i) => hN[i] ? v / hN[i] : 0);
+      h += `<div class="hmgrid h3">
+        ${box("Orders", sum(hN).toLocaleString(), tr(+D.orders||sum(hN), P && +P.orders), hN, "Orders", "orders")}
+        ${box("Net sales", money(sum(hNet)), tr(+D.net||sum(hNet), P && +P.net), hNet, "Net Sales", "dollar")}
+        ${box("Net payments", money(sum(hPay)), tr(+D.payments||sum(hPay), P && +P.payments), hPay, "Net Payments", "card")}</div>
+      <div class="hmgrid h4">
+        ${box("Average ticket", money(avg(D)), tr(avg(D), P && avg(P)), hAvg, "Average Ticket", "receipt")}
+        ${box("Active orders", (D.active ? D.active.n : (D.open||0)).toLocaleString(), "", X.active || z, "Active Orders", "clock")}
+        ${box("Declined", (D.declined?.n ?? 0).toLocaleString(), tr(+(D.declined?.n||0), P && +(P.declined?.n||0)), X.decl || z, "Declined", "x")}
+        ${box("Discounts", money(+D.discount), tr(+D.discount, P && +P.discount), X.disc || z, "Discounts", "percent")}
+        ${box("Tax", money(+D.tax||0), tr(+D.tax||0, P && +P.tax), X.tax || z, "Taxes", "coins")}
+        ${box("Returns", money(D.returns?.v||0), tr(+(D.returns?.v||0), P && +(P.returns?.v||0)) || (D.returns?.n ? `${D.returns.n} return${D.returns.n===1?"":"s"}` : ""), X.ret || z, "Returns", "back")}
+        ${box("Voids", money(D.voids?.v||0), D.voids && (D.voids.n || D.voids.items) ? `${D.voids.n} order${D.voids.n===1?"":"s"} · ${D.voids.items} item${D.voids.items===1?"":"s"}` : "", X.voids || z, "Voids", "ban")}
+      </div>`; }
     // net sales chart: by hour for one day, by day for longer periods
     let cur, prev = null, labels, step;
     if(rangeDays() > 1){ const n = rangeDays(), end = new Date(state.date+"T12:00:00"); cur = []; labels = [];
@@ -3718,12 +3742,7 @@ function viewDashboard(){
         ${brs.length ? brs.map(b => `<div class="brow"><div><b>${esc(b.name)}</b><span>${b.n} order${b.n===1?"":"s"}</span><em>${money(b.v)}</em></div><i><u style="width:${Math.max(2, b.v/bmax*100)}%"></u></i></div>`).join("") : `<div class="empty">No sales yet</div>`}</section>
     </div>`;
     const mini = (label, value, sub, tr, ic) => `<div class="card kmini">${ic ? `<i class="kmi" style="background:${ic[1]};color:${ic[2]}">${svgIco(ic[0])}</i>` : ""}<span>${label}</span><b>${value}</b>${tr || (sub ? `<span class="note">${sub}</span>` : "")}</div>`;
-    h += `<div class="hmgrid h4">
-      ${hm("Discounts", money(+D.discount), state.compare && P ? trend(+D.discount, +P.discount) : "", "Discounts", "percent")}
-      ${hm("Tax", money(+D.tax||0), "", "Taxes", "coins")}
-      ${hm("Returns", money(D.returns?.v||0), D.returns?.n ? `${D.returns.n} return${D.returns.n===1?"":"s"}` : "", "Returns", "back")}
-      ${hm("Voids", money(D.voids?.v||0), D.voids && (D.voids.n || D.voids.items) ? `${D.voids.n} order${D.voids.n===1?"":"s"} · ${D.voids.items} item${D.voids.items===1?"":"s"}` : "", "Voids", "ban")}
-    </div>`;
+
     const shift = "";
     h += `<div class="dgrid3">
       <div class="card"><div class="kh"><h3>Order types</h3></div>${barList(D.types.map(t=>({name:TYPE_LBL[t.k]||cap(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>
