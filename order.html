@@ -775,6 +775,13 @@ html .ipgg{padding-top:14px!important}
 .app .ipshare{top:calc(12px + env(safe-area-inset-top))}
 .ipshare svg{width:21px;height:21px}
 .ipshare+.ipfav{margin-top:0}
+/* item page footer: quantity − 1 + above the add button, no circles */
+html .ipft{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+html .ipft .ipqf{display:flex!important;justify-content:space-around!important;align-items:center!important;width:60%!important;margin:0 auto!important;padding:2px 0!important}
+html .ipft .ipqf button{border:0!important;background:none!important;width:44px!important;height:40px!important;color:var(--acc)!important}
+html .ipft .ipqf button svg{width:22px!important;height:22px!important;stroke-width:2.4!important}
+html .ipft .ipqf b{font-size:18px!important;font-weight:500!important;min-width:24px;text-align:center}
+html #ipg .pg{padding-bottom:150px!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1471,8 +1478,8 @@ function drawItem(first){
       ${((b||p).allergens||[]).length ? `<div class="ipalg"><b>Contains</b>${(b||p).allergens.map(a => `<span>${esc(a)}</span>`).join("")}</div>` : ""}
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
     ${CO().notes !== false ? `<details class="ipgg ipnote"${IT.note ? " open" : ""}><summary class="ght"><div><b>Special instructions</b></div><span class="ipchev" aria-hidden="true"></span></summary><textarea id="ipNote" rows="2" placeholder="Tell Us Here">${esc(IT.note)}</textarea></details>` : ""}
-    ${needLoc ? "" : `<div class="ipgg ipqty"><b>Quantity</b><div class="ipq"><button type="button" data-iq="-1" ${IT.qty <= 1 ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div></div>`}</div>
-    <div class="ipft">${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
+    </div>
+    <div class="ipft">${needLoc ? "" : `<div class="ipq ipqf"><button type="button" data-iq="-1" ${IT.qty <= 1 ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div>`}${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
       : `<button type="button" class="primary" data-iadd>${IT.edit!=null ? "Update item" : `Add ${IT.qty} to basket`}<small>${usd(itUnit() * IT.qty)}</small></button>`}</div>`;
   if(!first) el.querySelector(".pg").scrollTop = y;
 }
