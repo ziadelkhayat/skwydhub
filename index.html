@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1073-1795083881">
+<meta name="skwyd-build" content="1074-1795084191">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2810,6 +2810,12 @@ html body .app #view .brcard>table,html body .app #view .secbox>table{overflow-x
 html body .app #view .brcard>table::-webkit-scrollbar,html body .app #view .secbox>table::-webkit-scrollbar{display:block!important;height:8px!important}
 html body .app #view .brcard>table::-webkit-scrollbar-thumb,html body .app #view .secbox>table::-webkit-scrollbar-thumb{background:#C7C7CC!important;border-radius:4px}
 html body .app #view .brcard>table th,html body .app #view .secbox>table th{white-space:normal!important;line-height:1.3}
+/* ===== Tables that scroll sideways show a thin scroll bar (so a cut-off column is never hidden) ===== */
+html body .app #view .schwrap,html body .app #view .tscroll,html body .app #view .card:has(> table),html body .app #view .card:has(> .schwrap){scrollbar-width:thin!important;scrollbar-color:#C7C7CC transparent!important}
+html body .app #view .schwrap::-webkit-scrollbar,html body .app #view .card:has(> table)::-webkit-scrollbar{display:block!important;height:8px!important}
+html body .app #view .schwrap::-webkit-scrollbar-thumb,html body .app #view .card:has(> table)::-webkit-scrollbar-thumb{background:#C7C7CC!important;border-radius:4px}
+html body .app #view .schwrap th{white-space:normal!important;line-height:1.3}
+html body .app #view td.num,html body .app #view th.num{white-space:nowrap}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -7692,7 +7698,7 @@ function viewPayroll(){
         <td class="num">${l.days}</td><td class="num">${(+l.hrs).toFixed(1)}</td><td class="num">${l.ot ? (+l.ot).toFixed(1) : "—"}</td><td class="num">${payMoney(l.base)}</td><td class="num">${l.otPay ? payMoney(l.otPay) : "—"}</td><td class="num">${l.leavePay ? payMoney(l.leavePay) : (l.paidLeave ? l.paidLeave + "d" : "—")}</td>
         <td class="num">${l.bonus ? payMoney(l.bonus) : "—"}</td><td class="num">${payMoney(l.gross)}</td><td class="num">${l.ssE ? "−" + payMoney(l.ssE) : "—"}</td><td class="num">${l.tax ? "−" + payMoney(l.tax) : "—"}</td><td class="num">${l.deduction ? "−" + payMoney(l.deduction) : "—"}</td><td class="num">${l.advance ? "−" + payMoney(l.advance) : "—"}</td><td class="num"><b>${payMoney(l.net)}</b></td>
         <td class="num" style="white-space:nowrap">${closed ? "" : `<button type="button" class="btn" data-pradj="${esc(l.id)}">Adjust</button> `}<button type="button" class="btn" data-prslip="${esc(l.id)}">Payslip</button></td></tr>`).join("") || `<tr><td colspan="16"><div class="empty">Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app.</div></td></tr>`}</tbody>
-      ${lines.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${tot("hrs").toFixed(1)}</th><th class="num">${tot("ot").toFixed(1)}</th><th class="num">${payMoney(tot("base"))}</th><th class="num">${payMoney(tot("otPay"))}</th><th class="num">${payMoney(tot("leavePay"))}</th><th class="num">${payMoney(tot("bonus"))}</th><th class="num">${payMoney(tot("gross"))}</th><th class="num">−${payMoney(tot("ssE"))}</th><th class="num">−${payMoney(tot("tax"))}</th><th class="num">−${payMoney(tot("deduction"))}</th><th class="num">−${payMoney(tot("advance"))}</th><th class="num">${payMoney(tot("net"))}</th><th></th></tr></tfoot>` : ""}</table></div>
+      ${lines.length ? `<tfoot><tr><th>Total</th><th></th><th></th><th class="num">${tot("hrs").toFixed(1)}</th><th class="num">${tot("ot").toFixed(1)}</th><th class="num">${payMoney(tot("base"))}</th><th class="num">${payMoney(tot("otPay"))}</th><th class="num">${payMoney(tot("leavePay"))}</th><th class="num">${payMoney(tot("bonus"))}</th><th class="num">${payMoney(tot("gross"))}</th>${["ssE","tax","deduction","advance"].map(k => `<th class="num" style="white-space:nowrap">${tot(k) ? "−" + payMoney(tot(k)) : "—"}</th>`).join("")}<th class="num">${payMoney(tot("net"))}</th><th></th></tr></tfoot>` : ""}</table></div>
       <p class="note" style="margin:10px 14px 14px">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ ${+st.workDays||26}). Overtime is hours over ${+st.otAfter||8} a day at ${+st.otRate||1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at ${+st.otAfter||8} hours a day for hourly and daily staff. ${+st.ssEmp || +st.taxRate ? `Social security: ${+st.ssEmp||0}% employee, ${+st.ssEr||0}% employer${+st.ssCap ? ` on pay up to ${payMoney(st.ssCap)}` : ""}, for employees marked as registered. Tax: ${+st.taxRate||0}% above ${payMoney(st.taxFree)}.` : "Social security and tax are off: set their rates in Settings."}</p></div>
     <div class="card tbl"><div class="ttop"><b>Cost By Branch</b></div><table><thead><tr><th>Branch</th><th class="num">Gross Pay</th><th class="num">Share</th></tr></thead><tbody>${Object.entries(byBr).sort((x, y) => y[1] - x[1]).map(([b, v]) => `<tr><td>${b ? esc(branchNameOf(b)) : '<span class="note">No clock-ins (salary only)</span>'}</td><td class="num">${payMoney(v)}</td><td class="num">${tot("gross") ? (v / tot("gross") * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("") || `<tr><td colspan="3"><div class="empty">—</div></td></tr>`}</tbody></table>
       <p class="note" style="margin:10px 14px 14px">Each employee's gross pay is split across branches by the hours they clocked at each.</p></div>`;
@@ -10038,7 +10044,7 @@ function lyRead(){ const v = id => document.getElementById(id); return { enabled
 function viewLoyalty(){
   const c = lyCfg(), pt = c.method==="punches", amt = c.rewardType==="amount", req = '<span class="reqst">*</span>';
   const f = (id, lbl, val, extra="") => `<div class="f"><label for="${id}">${lbl} ${req}</label><input id="${id}" type="number" min="0" step="any" value="${esc(val ?? "")}" ${extra}></div>`;
-  return `<div class="phead"><h1>Loyalty Settings</h1></div>
+  return `<div class="phead"><h1>Loyalty Settings</h1><div class="sp"></div><span class="err" id="lyErr"></span><button class="btn pri" id="lySave">Save Changes</button></div>
   <div class="card lyset">
     <label class="chk lyon"><input type="checkbox" id="lyOn" ${c.enabled ? "checked" : ""}> Enable Loyalty</label>
     <div id="lyBody" ${c.enabled ? "" : "hidden"}>
@@ -10056,7 +10062,6 @@ function viewLoyalty(){
       <label class="chk"><input type="checkbox" id="lySms" ${c.sms ? "checked" : ""}> Send Notifications By SMS</label>
       <div class="note" style="margin:4px 0 0 28px">Check this to send loyalty notifications to the customer by SMS</div>
     </div>
-    <div class="lyfoot"><span class="err" id="lyErr"></span><span class="sp"></span><button class="btn pri" id="lySave">Save Changes</button></div>
   </div>`;
 }
 document.addEventListener("input", e => { if(!e.target.closest?.(".lyset")) return; lyLive(); });
