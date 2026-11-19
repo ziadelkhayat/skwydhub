@@ -10391,7 +10391,7 @@ function ingEditor(forKey, rec){
   return `<div class="card tbl${forKey==="products" || forKey==="inv-items" ? " secbox" : ""}" style="margin-bottom:16px" id="ingCard"><div class="ttop"><b>Ingredients${vfor ? ` · ${esc(vfor)}` : ""}</b>${vfor ? ` <button class="btn sm" data-pvrec="" style="margin-left:8px">← Product recipe</button>` : ""}<div class="sp"></div>
       ${rows.length ? `<button type="button" class="btn" data-ingqtys>Edit Quantities</button>` : ""}<button type="button" class="btn" data-ingpick>Add</button></div>
     ${rows.length ? `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="${isOpt ? 8 : 7}"><b>Total ingredients cost</b></td><td class="num"><b>${fmtCost(total)}</b></td><td></td></tr></tfoot></table>`
-      : `<div class="empty">You don't have ingredients</div>`}${isOpt ? `<p class="note" style="margin:10px 16px 14px">Click an ingredient to choose what it does: <b>Add</b> uses that amount on top of the product's recipe, <b>Remove</b> takes out whatever the product's recipe uses (e.g. No Pickles), <b>Replace</b> swaps it for another item (e.g. Beef → Chicken). A sale never adds stock back.</p>` : ""}</div>`;
+      : `<div class="empty">You don't have ingredients</div>`}</div>`;
 }
 // Update Ingredient (one line) and Edit Quantities (all lines): net quantity and yield %, saved right away
 // an ingredient quantity in both units: storage unit + ingredient unit (stored in ingredient units)
