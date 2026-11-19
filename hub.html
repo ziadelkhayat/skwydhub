@@ -482,6 +482,21 @@ html body .toast.show,html body #toast.show{transform:translate(-50%,0)!importan
 
 /* final skwyd logo: light ink on the dark-mode side menu */
 html[data-theme=dark] body .app aside.side{--sk-ink:#E6E9F5}
+/* ===== every device opens like the PC: tablets (portrait too) keep the side menu open with the account at its foot and no top bar; phones get the same light menu from the menu button ===== */
+@media (min-width:761px) and (max-width:899px){
+  html body .app{display:grid!important;grid-template-columns:210px minmax(0,1fr)!important;min-height:100vh}
+  html body .app aside.side,html body .app aside.side.side{position:sticky!important;inset:auto!important;top:0!important;width:auto!important;height:100vh!important;transform:none!important;transition:none!important;box-shadow:none!important;padding:18px 10px!important;z-index:5!important}
+  html body .app aside.side .nav a{font-size:13px!important;min-height:42px!important}
+  #navShade,html body.navopen #navShade{display:none!important}
+}
+@media (min-width:761px){
+  html body:not(.hviewing) .app .main .top{display:none!important}
+  html body:not(.hviewing) .hsfoot{display:flex!important}
+  html body .app .main .top .menuBtn{display:none!important}
+  html body .app .grid,html body .app .dgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media (min-width:761px) and (max-width:1099px){html body .app .kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media (min-width:1100px){html body .app .kpis{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
 </style>
 <script src="theme.js?v=1"></script>
 <link rel="stylesheet" href="theme-dark-base.css?v=1">

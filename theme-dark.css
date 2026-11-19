@@ -970,6 +970,10 @@ html[data-theme=dark] body .dn2 .slk-ask-f{background:#101420!important;border-t
 html[data-theme=dark] body .dn2 .slk-ask-f .slk-ask-no{background:#161924!important;color:#96abe8!important}
 html[data-theme=dark] body .dn2 #ccDsOpenV{border:1px solid #3c3c47}
 html[data-theme=dark] body .app .hcard.hmini .hsub{color:#9aa0b5}
+html[data-theme=dark] body .app #view .empty, html[data-theme=dark] body .app #view .brempty, html[data-theme=dark] body .app #view td .empty{background:#202025!important}
+html[data-theme=dark] body .app #view .card.tbl::-webkit-scrollbar-thumb, html[data-theme=dark] body .app #view .card.tbl .tscroll::-webkit-scrollbar-thumb{background:#242c47!important}
+html[data-theme=dark] body .app #view .brcard>table::-webkit-scrollbar-thumb, html[data-theme=dark] body .app #view .secbox>table::-webkit-scrollbar-thumb{background:#242c47!important}
+html[data-theme=dark] body .app #view .schwrap::-webkit-scrollbar-thumb, html[data-theme=dark] body .app #view .card:has(> table)::-webkit-scrollbar-thumb{background:#242c47!important}
 html[data-theme=dark] body .app .hcard .hcv{color:#dcdcde}
 html[data-theme=dark] body .app #view .card.secbox > table, html[data-theme=dark] body .app #view .card.secbox > .tscroll{background:#101420;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
 html[data-theme=dark] body .app #view .tscroll thead th, html[data-theme=dark] body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{background:#181a20}
@@ -998,6 +1002,12 @@ html[data-theme=dark] .tabbar{background:rgba(16,20,32,.94)}
 html[data-theme=dark] .tabbar a{color:#9aa0b5}
 html[data-theme=dark] .gsearch:focus-within{box-shadow:0 0 0 4px rgba(0,0,0,0.33)}
 html[data-theme=dark] .tabbar{box-shadow:0 18px 40px rgba(0,0,0,0.6)}
+html[data-theme=dark] body .app .main .top, html[data-theme=dark] body .app .top{background:#101420!important;color:#dcdcde!important;border-bottom:1px solid #353542!important}
+html[data-theme=dark] body .app .top .acct, html[data-theme=dark] body .app .top .acct *{color:#dcdcde!important}
+html[data-theme=dark] body .app .dhead{color:#dcdcde!important}
+html[data-theme=dark] body .app .dhead *{color:#dcdcde!important}
+html[data-theme=dark] body[data-route="dashboard"] .app .dhead .dht h1, html[data-theme=dark] body[data-route] .app .dhead .dht h1{color:#dcdcde!important;-webkit-text-fill-color:#dcdcde!important}
+html[data-theme=dark] body .app .top .avatar{background:#232327!important;color:#dcdcde!important;border:1px solid #363d55!important}
 }
 @media (max-width:1000px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 30px 80px rgba(0,0,0,0.6)!important}
