@@ -807,6 +807,11 @@ html body .qa.qa2 button svg{stroke-width:1.9!important}
 /* item page price: brand red like the menu list, secondary currency beside it */
 html body .iphd .ipp{color:var(--acc)!important;font-weight:700!important;font-size:16px!important;font-family:"Plus Jakarta Sans",Inter,sans-serif}
 html .iphd .ipp .pr2{color:#888d9a;font-size:14px;font-weight:400;margin-left:8px;white-space:nowrap}
+/* basket line swipe-to-delete */
+html .lsw{position:relative;overflow:hidden}
+html .lsw > .line{position:relative;z-index:1;background:var(--s);transition:transform .2s ease;touch-action:pan-y}
+html .lsw .ldel{position:absolute;right:0;top:0;bottom:1px;width:88px;border:0;background:#e5484d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer}
+html .lsw .ldel svg{width:18px;height:18px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1570,7 +1575,19 @@ function promoLine(p){ const v = p.valueType==="fixed" ? usd(p.value) : (+p.valu
 function promoStrip(){ const l = PROMOS.filter(p => promoOn(p, true)); if(!l.length) return "";
   return `<div class="promos">${l.map(p => `<div class="promo">${ic("tag","width:18px;height:18px")}<div><b>${esc(p.name||"Offer")}</b><span>${esc(promoLine(p))}</span></div></div>`).join("")}</div>`; }
 const minOrder = () => mode==="delivery" ? (+zones.find(x=>x.id===zoneId)?.min_order||0) : mode==="takeaway" ? (+bcfg(branchId).minPickup||0) : 0;
-function cartLines(){ return cart.map((i,ix)=>`<div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div>`).join(""); }
+function cartLines(){ return cart.map((i,ix)=>`<div class="lsw"><button type="button" class="ldel" data-rm="${ix}" tabindex="-1" aria-label="Delete ${esc(i.name)}">${ic("trash")}<span>Delete</span></button><div class="line ledit" data-cedit="${ix}" role="button" tabindex="0" aria-label="Edit ${esc(i.name)}"><span class="q">${i.qty}</span><div class="nm">${esc(i.name)}${modList(i)}</div><div class="rt">${usd(i.price*i.qty)}<span class="lq"><button type="button" data-cq="${ix}:-1" aria-label="${i.qty > 1 ? "One less" : "Remove"} ${esc(i.name)}">${i.qty > 1 ? ic("minus") : ic("trash")}</button><b>${i.qty}</b><button type="button" data-cq="${ix}:1" aria-label="One more ${esc(i.name)}">${ic("plus")}</button></span></div></div></div>`).join(""); }
+// basket lines: swipe left to show Delete (tap Delete to remove the item); swipe right or tap elsewhere to close
+(function(){ const W = 88; let st = null, open = null;
+  const shut = l => { if(!l) return; l.style.transform = ""; l.classList.remove("swo"); if(open===l) open = null; };
+  document.addEventListener("touchstart", e => { const l = e.target.closest?.(".lsw > .line"); if(open && open!==l && !e.target.closest(".ldel")) shut(open); if(!l) return; const t = e.touches[0]; st = { l, x:t.clientX, y:t.clientY, base: l.classList.contains("swo") ? -W : 0, h:null }; }, { passive:true });
+  document.addEventListener("touchmove", e => { if(!st) return; const t = e.touches[0], dx = t.clientX - st.x, dy = t.clientY - st.y;
+    if(st.h===null){ if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return; st.h = Math.abs(dx) > Math.abs(dy); }
+    if(!st.h){ st = null; return; } e.preventDefault(); const v = Math.max(-W - 30, Math.min(0, st.base + dx)); st.l.style.transition = "none"; st.l.style.transform = `translateX(${v}px)`; st.v = v; }, { passive:false });
+  document.addEventListener("touchend", () => { if(!st) return; const { l, v, h } = st; st = null; if(!h) return; l.style.transition = "";
+    if(v != null && v < -W/2){ l.style.transform = `translateX(${-W}px)`; l.classList.add("swo"); open = l; l.dataset.swiped = Date.now(); } else { shut(l); l.dataset.swiped = Date.now(); } }, { passive:true });
+  // a swipe is not a tap: don't open the item editor right after one
+  document.addEventListener("click", e => { const l = e.target.closest?.(".lsw > .line"); if(l && (Date.now() - (+l.dataset.swiped||0) < 400 || l.classList.contains("swo"))){ e.stopImmediatePropagation(); e.preventDefault(); if(l.classList.contains("swo") && Date.now() - (+l.dataset.swiped||0) >= 400) shut(l); } }, true);
+})();
 // the total in the secondary currency on the Continue / Place order buttons, when Web Ordering shows it
 const btn2 = v => { const t = SH().cur2 === true ? usd2(v) : ""; return t ? `<small class="b2">${esc(t)}</small>` : ""; };
 function totals(){ return `<div class="tot"><div><span>Subtotal</span><span>${usd(incl ? sub() : sub() + taxParts().add)}</span></div>${mode==="delivery"?`<div><span>Delivery</span><span>${zoneId?usd(fee()):"—"}</span></div>`:""}${(b => b ? `<div class="pdisc"><span>${esc(b.name||"Promotion")}</span><span>−${usd(b.amount)}</span></div>` : "")(promoBest())}<div class="g"><span>Total</span><span>${usd(grand())}</span></div>${SH().cur2 === true && usd2(grand()) ? `<div><span></span><span>≈ ${usd2(grand())}</span></div>` : ""}</div>`; }
