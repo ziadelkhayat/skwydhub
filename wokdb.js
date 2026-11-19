@@ -32,7 +32,7 @@
     shifts: "id device_id branch_id cashier opening_cash opened_at closed_at orders sales expected_cash counted_cash difference",
     order_sources: "id name name_ar reference sort active deleted created_at",
     inventory_categories: "id name name_ar reference deleted created_at",
-    warehouses: "id name reference address deleted created_at",
+    warehouses: "id name reference address brand_id deleted created_at",
     inventory_docs: "id kind ref name location_id reason direction status business_date items notes created_by submitted_by submitted_at deleted created_at consumed supplier_id dest_id linked_id received_at received_by delivery_at additional_cost",
     suppliers: "id name code contact_name phone email address notes deleted created_at",
     modifiers: "id name name_ar reference sort deleted created_at",

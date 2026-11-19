@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1070-1795083331">
+<meta name="skwyd-build" content="1071-1795083488">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2892,7 +2892,7 @@ html[data-theme=dark] body .app aside.side{--sk-ink:#E6E9F5}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wokdb.js?v=71"></script>
+<script src="wokdb.js?v=72"></script>
 <script src="modpick.js?v=31"></script>
 <script src="invoice-doc.js?v=1"></script>
 <script src="motion.js?v=7"></script>
@@ -5116,8 +5116,8 @@ const CRUD = {
     tabs:[["all","All",live],["deleted","Deleted",r=>r.deleted]],
     sort:(a,b)=>(a.reference||"").localeCompare(b.reference||"",undefined,{numeric:true}) || a.name.localeCompare(b.name),
     search:r=>r.name+" "+(r.reference||""),
-    cols:[["Name",r=>`<b>${esc(r.name)}</b>`],["Reference",r=>`<span class="code">${esc(r.reference||"")}</span>`],["Created",r=>fmtDate(r.createdAt)]],
-    fields:[{k:"name",l:"Name",req:1},{k:"reference",l:"Reference",req:1,auto:()=>"W" + String(Math.max(0, ...S.warehouses.map(w => +(/^W(\d+)$/i.exec(w.reference||"")||[])[1] || 0)) + 1).padStart(2, "0")},{k:"address",l:"Address",t:"textarea",full:1}],
+    cols:[["Name",r=>`<b>${esc(r.name)}</b>`],["Reference",r=>`<span class="code">${esc(r.reference||"")}</span>`],["Brand",r=>esc(brandList().find(b => b.id===r.brandId)?.name || "—")],["Created",r=>fmtDate(r.createdAt)]],
+    fields:[{k:"name",l:"Name",req:1},{k:"brandId",l:"Brand",t:"select",req:1,opts:()=>brandList().map(b => [b.id, b.name]),auto:()=>brandList().length===1 ? brandList()[0].id : ""},{k:"reference",l:"Reference",req:1,auto:()=>"W" + String(Math.max(0, ...S.warehouses.map(w => +(/^W(\d+)$/i.exec(w.reference||"")||[])[1] || 0)) + 1).padStart(2, "0")},{k:"address",l:"Address",t:"textarea",full:1}],
     unique:"name"
   },
   "order-sources": {
@@ -10756,7 +10756,7 @@ function supLinkTable(list, side){
 // a warehouse (Foodics): its details, then deleting its inventory or the warehouse itself
 function warehouseDetail(w){
   let h = `<div class="phead"><a href="#warehouses" class="btn" data-detback style="text-decoration:none">← Back</a><h1 style="margin-left:10px"><span class="dn">${esc(w.name)}</span></h1><div class="sp"></div><button class="btn pri" data-detedit>Edit Warehouse</button></div>`;
-  h += infoGrid([info("Name", esc(w.name)), info("Reference", esc(w.reference||"—")), info("Address", esc(w.address||"—")), info("Created", fmtDate(w.createdAt))]);
+  h += infoGrid([info("Name", esc(w.name)), info("Brand", esc(brandList().find(b => b.id===w.brandId)?.name || "—")), info("Reference", esc(w.reference||"—")), info("Address", esc(w.address||"—")), info("Created", fmtDate(w.createdAt))]);
   h += `<div class="supsecs">`;
   h += pdSec("Delete Inventory", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse inventory, all the data will be permanently deleted.</p><button type="button" class="btn danger" data-whdelinv="${esc(w.id)}">Delete Inventory</button>`);
   if(!w.deleted) h += pdSec("Delete Warehouse", "", `<p class="note" style="margin:0 0 12px">If you delete this warehouse, all of its data will be deleted.</p><button type="button" class="btn danger" data-whdel="${esc(w.id)}">Delete</button>`);
@@ -11308,7 +11308,7 @@ function viewInvLevels(){
   loadStock();
   // Foodics layout: one location at a time (a brand narrows the branches; warehouses belong to every brand), tabs All / Low Level
   const bl = brandList(), brand = bl.some(b => b.id===INV.brand) ? INV.brand : "";
-  const locs = [...activeBranches().filter(b => !brand || b.brandId===brand).map(b => [b.id, b.name]), ...S.warehouses.filter(live).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")])];
+  const locs = [...activeBranches().filter(b => !brand || b.brandId===brand).map(b => [b.id, b.name]), ...S.warehouses.filter(w => live(w) && brandHasLoc(brand, w.id)).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")])];
   if(!locs.some(([id]) => id===INV.loc)) INV.loc = locs[0]?.[0] || "";
   const loading = storeMode==="db" && (DOC.stock === "loading" || !DOC.stock), q = INV.q.trim().toLowerCase();
   const all = S.inv_items.filter(live).filter(i => (!INV.cat || i.category===INV.cat) && (!q || (i.name+" "+(i.sku||"")+" "+(i.barcode||"")).toLowerCase().includes(q)))
@@ -11317,7 +11317,6 @@ function viewInvLevels(){
     .filter(r => !INV.low || r.st[0]==="low" || r.st[0]==="out");
   const fx = v => (+v || 0).toLocaleString("en-US", { maximumFractionDigits: 5 });
   let h = `<div class="phead"><a href="#inventory-reports" class="btn" style="text-decoration:none">← Back</a><h1 style="margin-left:10px">Inventory Levels</h1><div class="sp"></div><button class="btn" id="ilCsv">Export</button><button class="btn" id="ilRefresh">↻ Refresh</button></div>
-    ${invSetupCard()}
     <div class="card tbl"><div class="ttop" style="flex-wrap:wrap;gap:8px"><div class="ttabs">${[["all","All"],["low","Low Level"]].map(([k,t]) => `<a href="#inv-levels" data-iltab="${k}" class="${(INV.low ? "low" : "all")===k ? "on" : ""}">${t}</a>`).join("")}</div><div class="sp"></div>
       <select class="sel" id="ilBrand" aria-label="Brand"><option value="">All Brands</option>${bl.map(b => `<option value="${esc(b.id)}" ${brand===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
       <select class="sel" id="ilLoc" aria-label="Branch or warehouse">${locs.map(([id,n]) => `<option value="${esc(id)}" ${INV.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
@@ -11534,10 +11533,11 @@ function docNewDialog(route){
 }
 const PAIRS = [["dnLoc","dnDest"],["dLoc","dDest"]];
 function brandSync(){ const bs = $("#dnBrand"); if(!bs) return; const bid = bs.value;
-  ["dnLoc","dnDest"].forEach(id => { const s = $("#" + id); if(!s) return; [...s.options].forEach(o => { const br = branches.find(b => b.id===o.value); if(br) o.dataset.brHide = bid && br.brandId!==bid ? "1" : ""; });
+  ["dnLoc","dnDest"].forEach(id => { const s = $("#" + id); if(!s) return; [...s.options].forEach(o => { if(o.value) o.dataset.brHide = bid && !brandHasLoc(bid, o.value) ? "1" : ""; });
     if(s.selectedOptions[0]?.dataset.brHide==="1"){ s.value = ""; s.dispatchEvent(new Event("change", { bubbles:true })); } }); }
 function pairSync(){ brandSync(); PAIRS.forEach(([a, b]) => { const A = $("#" + a), B = $("#" + b); if(!A || !B) return;
-  [[A, B], [B, A]].forEach(([x, y]) => [...y.options].forEach(o => { o.hidden = (!!o.value && o.value===x.value) || o.dataset.brHide==="1"; })); });
+  [[A, B], [B, A]].forEach(([x, y]) => [...y.options].forEach(o => { const xb = x.value ? locBrand(x.value) : "", ob = o.value ? locBrand(o.value) : "";
+    o.hidden = (!!o.value && o.value===x.value) || o.dataset.brHide==="1" || (!!xb && !!ob && xb!==ob); })); });   // a warehouse only serves the branches of its brand
   ["dnLoc","dnDest"].forEach(id => { const s = $("#" + id); if(s && !(PAIRS.some(p => p.includes(id) && $("#" + p.find(x => x!==id))))) [...s.options].forEach(o => { o.hidden = o.dataset.brHide==="1"; }); }); }
 document.addEventListener("change", e => { if(e.target.id==="dnBrand") return pairSync(); });
 document.addEventListener("change", e => { if(!PAIRS.flat().includes(e.target.id)) return; const p = PAIRS.find(x => x.includes(e.target.id)), other = $("#" + p.find(id => id!==e.target.id));
@@ -11802,8 +11802,8 @@ function printDoc(){
 }
 /* Foodics filtering on the inventory transaction lists: a Filter button opens the fields that page has
    (reference, business date, status, places, supplier, reason, creator, submitter); no brand / branch pickers */
-const locBrand = id => branches.find(b => b.id===id)?.brandId || "";   // a warehouse ("") belongs to every brand
-const brandHasLoc = (brand, id) => !brand || !id || !branches.some(b => b.id===id) || locBrand(id)===brand;
+const locBrand = id => branches.find(b => b.id===id)?.brandId || S.warehouses.find(w => w.id===id)?.brandId || "";   // a warehouse with no brand ("") serves every brand
+const brandHasLoc = (brand, id) => !brand || !id || !locBrand(id) || locBrand(id)===brand;
 const docFltFields = K => { const f = [["ref","Reference","text"],["date","Business Date","range"]];
   if(K.kind==="spot" && !K.count) return [["brand","Brand","brand"],["loc","Branch","loc"],["date","Business Date","range"]];
   if(K.kind==="sheet") return [];
@@ -11828,7 +11828,7 @@ function docFltDlg(route, draft){
   const opt = (list, cur) => `<option value="">Any</option>${list.map(([k,t]) => `<option value="${esc(k)}" ${k===cur?"selected":""}>${esc(t)}</option>`).join("")}`;
   const people = k => [...new Set(docs.map(d => d[k]).filter(Boolean))].sort().map(x => [x, x]);
   const st = K.flow ? [["draft","Draft"],["pending","Pending"],["closed","Closed"],["rejected","Declined"]] : [["draft","Draft"],["closed","Closed"]];
-  const locs = [...branches.filter(b => b.active!==false && (!f.brand || b.brandId===f.brand)).map(b => [b.id, b.name]), ...S.warehouses.filter(live).map(w => [w.id, w.name])];
+  const locs = [...branches.filter(b => b.active!==false && (!f.brand || b.brandId===f.brand)).map(b => [b.id, b.name]), ...S.warehouses.filter(w => live(w) && brandHasLoc(f.brand, w.id)).map(w => [w.id, w.name])];
   const fld = ([k, l, t]) => t==="text" ? `<div class="f"><label for="df_${k}">${l}</label><input id="df_${k}" class="sel" value="${esc(f[k]||"")}"></div>`
     : t==="range" ? `<div class="f" style="grid-column:1/-1"><label>${l}</label><div style="display:flex;gap:8px;align-items:center"><input id="df_from" type="date" class="sel" value="${esc(f.from||"")}"><span class="note">to</span><input id="df_to" type="date" class="sel" value="${esc(f.to||"")}"></div></div>`
     : `<div class="f"><label for="df_${k}">${l}</label><select id="df_${k}" class="sel">${opt(t==="status" ? st : t==="brand" ? brandList().map(b => [b.id, b.name]) : t==="loc" ? locs : t==="sup" ? S.suppliers.filter(live).map(x => [x.id, x.name]) : t==="reason" ? QA_REASONS_L().map(r => [r, r]) : people(t==="by" ? "createdBy" : "submittedBy"), f[k]||"")}</select></div>`;
@@ -11862,7 +11862,7 @@ const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
   suppliers: [ffTxt("name","Name",r=>r.name), ffTxt("code","Code",r=>r.code), ffTxt("contact","Contact Name",r=>r.contactName), ffTxt("email","Email",r=>r.email),
     ["tag","Tag","sel",r=>tagsOf("supplier", r.id), () => tagList("supplier").map(t => [t.id, t.name])], ["upd","Updated After","date",r=>r.updatedAt]],
   "inv-categories": [ffTxt("name","Name",r=>r.name), ["upd","Updated After","date",r=>r.updatedAt]],
-  warehouses: [ffTxt("name","Name",r=>r.name), ffTxt("ref","Reference",r=>r.reference), ["upd","Updated After","date",r=>r.updatedAt]],
+  warehouses: [ffTxt("name","Name",r=>r.name), ffTxt("ref","Reference",r=>r.reference), ["brand","Brand","sel",r=>r.brandId, () => brandList().map(b => [b.id, b.name])], ["upd","Updated After","date",r=>r.updatedAt]],
   categories: [ffTxt("name","Name",r=>r.name+" "+(r.nameAr||"")), ffTxt("ref","Reference",r=>r.reference), ["upd","Updated After","date",r=>r.updatedAt]],
   products: [ffTxt("name","Name",r=>r.name+" "+(r.nameAr||"")), ffTxt("sku","SKU",r=>r.sku), ffTxt("barcode","Barcode",r=>r.barcode),
     ["cat","Categories","sel",r=>r.categoryId, () => S.categories.filter(c=>live(c)&&!c.channel).sort(bySort).map(c => [c.id, c.name])],
