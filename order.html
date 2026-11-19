@@ -1633,7 +1633,10 @@ $("#main").addEventListener("click", e => {
     if(first) try{ navigator.vibrate?.(30); }catch(_){}   // a short buzz the first time an item goes into the basket
     qaRefresh(p); return; }
   if(e.target.closest("[data-qa]")) return;
-  const it = e.target.closest("[data-item]"); if(it && !it.classList.contains("oos")) openItem(products.find(x => x.id===it.dataset.item));
+  const it = e.target.closest("[data-item]"); if(it && !it.classList.contains("oos")){ const p = products.find(x => x.id===it.dataset.item); if(!p) return;
+    // an item with choices that's already in the basket: show "Your customizations" (change those, or add a new one)
+    if((kidsOf(p).length || hasMods(p)) && cart.some(i => i.productId===p.id || (p.variants||[]).some(v => v.productId===i.productId))) return openCust(p);
+    openItem(p); }
 });
 $("#main").addEventListener("change", e => { if(e.target.id==="branch"){ branchId = e.target.value; cart = cart.filter(i => visible().some(p=>p.id===i.productId) && !oos(products.find(p=>p.id===i.productId))); cart.forEach(i => i.price = +(priceOf(products.find(p=>p.id===i.productId)) + (+i.optPrice||0)).toFixed(2)); render(); } });
 $("#main").addEventListener("keydown", e => { const it = e.target.closest?.("[data-item]"); if(it && (e.key==="Enter" || e.key===" ") && !it.classList.contains("oos")){ e.preventDefault(); openItem(products.find(x => x.id===it.dataset.item)); } });
