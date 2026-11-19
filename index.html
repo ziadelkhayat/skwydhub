@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1066-1795082748">
+<meta name="skwyd-build" content="1067-1795082875">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -11343,13 +11343,14 @@ async function loadInvHistory(){
 }
 function viewInvHistory(){
   const H = INV.hist; H.from ||= invDay(-6); H.to ||= invDay(0); loadInvHistory();
-  const rows = (H.rows||[]).filter(r => !H.type || invMoveType(r)===H.type);
+  const rows = (H.rows||[]).filter(r => (!H.type || invMoveType(r)===H.type) && brandHasLoc(H.brand, r.branch_id));
   const types = ["Sale","Return","Waste","Purchase","Transfer","Production","Adjustment","Count"];
   let h = `<div class="phead"><a href="#inventory-reports" class="btn" style="text-decoration:none">← Back</a><h1 style="margin-left:10px">Inventory History</h1><div class="sp"></div><button class="btn" id="ihCsv">Export</button></div>
     <p class="subt" style="margin-top:-6px">Every stock movement: sales, returns, purchases, transfers, production, adjustments and counts.</p>
     <div class="card tbl"><div class="ttop" style="flex-wrap:wrap;gap:8px">
       <label class="note">From <input type="date" class="sel" id="ihFrom" value="${esc(H.from)}"></label><label class="note">To <input type="date" class="sel" id="ihTo" value="${esc(H.to)}"></label>
-      <select class="sel" id="ihLoc" aria-label="Location"><option value="">All locations</option>${locList().map(([id,n]) => `<option value="${esc(id)}" ${H.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
+      <select class="sel" id="ihBrand" aria-label="Brand"><option value="">All Brands</option>${brandList().map(b => `<option value="${esc(b.id)}" ${H.brand===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
+      <select class="sel" id="ihLoc" aria-label="Location"><option value="">All locations</option>${locList().filter(([id]) => brandHasLoc(H.brand, id)).map(([id,n]) => `<option value="${esc(id)}" ${H.loc===id?"selected":""}>${esc(n)}</option>`).join("")}</select>
       <select class="sel" id="ihItem" aria-label="Item"><option value="">All items</option>${S.inv_items.filter(live).sort((a,b)=>a.name.localeCompare(b.name)).map(i => `<option value="${esc(i.id)}" ${H.item===i.id?"selected":""}>${esc(i.name)}</option>`).join("")}</select>
       <select class="sel" id="ihType" aria-label="Type"><option value="">All types</option>${types.map(t => `<option ${H.type===t?"selected":""}>${t}</option>`).join("")}</select></div>`;
   if(H.err) h += `<div class="empty">${esc(H.err)}</div>`;
@@ -11386,7 +11387,7 @@ function viewPurchasing(){
 document.addEventListener("change", e => { const t = e.target, H = INV.hist, P = INV.pur;
   if(t.id==="ilBrand"){ INV.brand = t.value; INV.loc = ""; return render(); } if(t.id==="ilLoc"){ INV.loc = t.value; return render(); } if(t.id==="ilCat"){ INV.cat = t.value; return render(); } if(t.id==="ilLow"){ INV.low = t.checked; return render(); }
   if(t.id==="ihFrom"){ H.from = t.value; return loadInvHistory(); } if(t.id==="ihTo"){ H.to = t.value; return loadInvHistory(); }
-  if(t.id==="ihLoc"){ H.loc = t.value; return loadInvHistory(); } if(t.id==="ihItem"){ H.item = t.value; return loadInvHistory(); } if(t.id==="ihType"){ H.type = t.value; return render(); }
+  if(t.id==="ihBrand"){ H.brand = t.value; if(H.loc && !brandHasLoc(H.brand, H.loc)){ H.loc = ""; return loadInvHistory(); } return render(); } if(t.id==="ihLoc"){ H.loc = t.value; return loadInvHistory(); } if(t.id==="ihItem"){ H.item = t.value; return loadInvHistory(); } if(t.id==="ihType"){ H.type = t.value; return render(); }
   if(t.id==="puFrom"){ P.from = t.value; return render(); } if(t.id==="puTo"){ P.to = t.value; return render(); } if(t.id==="puLoc"){ P.loc = t.value; return render(); } });
 let ilT; document.addEventListener("input", e => { if(e.target.id!=="ilQ") return; INV.q = e.target.value; clearTimeout(ilT); ilT = setTimeout(() => { const pos = e.target.selectionStart; render(); const i = $("#ilQ"); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} } }, 250); });
 document.addEventListener("click", e => { const t = e.target;
@@ -11793,10 +11794,12 @@ function printDoc(){
 }
 /* Foodics filtering on the inventory transaction lists: a Filter button opens the fields that page has
    (reference, business date, status, places, supplier, reason, creator, submitter); no brand / branch pickers */
+const locBrand = id => branches.find(b => b.id===id)?.brandId || "";   // a warehouse ("") belongs to every brand
+const brandHasLoc = (brand, id) => !brand || !id || !branches.some(b => b.id===id) || locBrand(id)===brand;
 const docFltFields = K => { const f = [["ref","Reference","text"],["date","Business Date","range"]];
-  if(K.kind==="spot" && !K.count) return [["loc","Branch","loc"],["date","Business Date","range"]];
+  if(K.kind==="spot" && !K.count) return [["brand","Brand","brand"],["loc","Branch","loc"],["date","Business Date","range"]];
   if(K.kind==="sheet") return [];
-  f.push(["status","Status","status"]);
+  f.push(["status","Status","status"],["brand","Brand","brand"]);
   if(K.kind==="purchase") f.push(["loc","Destination","loc"],["sup","Supplier","sup"]);
   else if(K.kind==="torder") f.push(["dest","Warehouse","loc"],["loc","Destination","loc"]);
   else f.push(["loc","Branch","loc"]);
@@ -11806,30 +11809,34 @@ const docFltFields = K => { const f = [["ref","Reference","text"],["date","Busin
 const docFlt = route => (DOC.flt ||= {})[route] || {};
 const docFltOk = (route, K) => { const f = docFlt(route), day = d => String(d.businessDate || d.createdAt || "").slice(0,10);
   return d => (!f.ref || String(d.ref||"").toLowerCase().includes(f.ref.toLowerCase())) && (!f.from || day(d) >= f.from) && (!f.to || day(d) <= f.to)
-    && (!f.status || d.status===f.status) && (!f.loc || (K.kind==="torder" ? d.locationId===f.loc : (d.locationId===f.loc || (K.kind==="transfer" && d.destId===f.loc))))
+    && (!f.status || d.status===f.status) && (!f.brand || (d.brandId ? d.brandId===f.brand : brandHasLoc(f.brand, d.locationId) && brandHasLoc(f.brand, d.destId))) && (!f.loc || (K.kind==="torder" ? d.locationId===f.loc : (d.locationId===f.loc || (K.kind==="transfer" && d.destId===f.loc))))
     && (!f.dest || d.destId===f.dest) && (!f.sup || d.supplierId===f.sup) && (!f.reason || d.reason===f.reason) && (!f.by || d.createdBy===f.by) && (!f.sub || d.submittedBy===f.sub); };
 const docFltBtn = (route, K) => { if(!docFltFields(K).length) return ""; const n = Object.values(docFlt(route)).filter(v => v).length;
   return fltBtn("data-docflt", route, n > 0); };
 const docExpMenu = (route, K) => `<span class="ddwrap iewrap"><button type="button" class="btn" data-iemenu>${svgIco("download")}Export <span class="iecv">▾</span></button><span class="ddmenu iemenu" hidden>
   <button type="button" data-docexport="${route}" data-exlvl="docs">Export ${esc(K.plural)}</button>${K.kind!=="sheet" ? `<button type="button" data-docexport="${route}" data-exlvl="items">Export ${esc(K.plural)} Items</button>` : ""}</span></span>`;
-function docFltDlg(route){
-  const K = DOC_KINDS[route], f = docFlt(route), box = $("#ccBox"); box.className = "modal"; const docs = S.inv_docs.filter(d => docOf(K)(d) && live(d));
+function docFltDlg(route, draft){
+  const K = DOC_KINDS[route], f = draft || docFlt(route), box = $("#ccBox"); box.className = "modal"; const docs = S.inv_docs.filter(d => docOf(K)(d) && live(d));
   const opt = (list, cur) => `<option value="">Any</option>${list.map(([k,t]) => `<option value="${esc(k)}" ${k===cur?"selected":""}>${esc(t)}</option>`).join("")}`;
   const people = k => [...new Set(docs.map(d => d[k]).filter(Boolean))].sort().map(x => [x, x]);
   const st = K.flow ? [["draft","Draft"],["pending","Pending"],["closed","Closed"],["rejected","Declined"]] : [["draft","Draft"],["closed","Closed"]];
-  const locs = [...branches.filter(b => b.active!==false).map(b => [b.id, b.name]), ...S.warehouses.filter(live).map(w => [w.id, w.name])];
+  const locs = [...branches.filter(b => b.active!==false && (!f.brand || b.brandId===f.brand)).map(b => [b.id, b.name]), ...S.warehouses.filter(live).map(w => [w.id, w.name])];
   const fld = ([k, l, t]) => t==="text" ? `<div class="f"><label for="df_${k}">${l}</label><input id="df_${k}" class="sel" value="${esc(f[k]||"")}"></div>`
     : t==="range" ? `<div class="f" style="grid-column:1/-1"><label>${l}</label><div style="display:flex;gap:8px;align-items:center"><input id="df_from" type="date" class="sel" value="${esc(f.from||"")}"><span class="note">to</span><input id="df_to" type="date" class="sel" value="${esc(f.to||"")}"></div></div>`
-    : `<div class="f"><label for="df_${k}">${l}</label><select id="df_${k}" class="sel">${opt(t==="status" ? st : t==="loc" ? locs : t==="sup" ? S.suppliers.filter(live).map(x => [x.id, x.name]) : t==="reason" ? QA_REASONS_L().map(r => [r, r]) : people(t==="by" ? "createdBy" : "submittedBy"), f[k]||"")}</select></div>`;
+    : `<div class="f"><label for="df_${k}">${l}</label><select id="df_${k}" class="sel">${opt(t==="status" ? st : t==="brand" ? brandList().map(b => [b.id, b.name]) : t==="loc" ? locs : t==="sup" ? S.suppliers.filter(live).map(x => [x.id, x.name]) : t==="reason" ? QA_REASONS_L().map(r => [r, r]) : people(t==="by" ? "createdBy" : "submittedBy"), f[k]||"")}</select></div>`;
   box.innerHTML = `<header><h2>Filter</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px">${docFltFields(K).map(fld).join("")}</div>
     <footer><button type="button" class="btn" id="dfReset" data-route="${esc(route)}">Reset</button><span style="flex:1"></span><button type="button" class="btn pri" id="dfApply" data-route="${esc(route)}">Apply</button></footer>`;
   $("#ccScrim").classList.add("show");
 }
+// picking a brand in the filter narrows its branch lists (a branch of another brand is cleared)
+document.addEventListener("change", e => { if(e.target.id!=="df_brand") return; const route = $("#dfApply")?.dataset.route; if(!route) return; const o = {};
+  ["ref","status","brand","loc","dest","sup","reason","by","sub","from","to"].forEach(k => { const v = $("#df_" + k)?.value?.trim(); if(v) o[k] = v; });
+  ["loc","dest"].forEach(k => { if(o[k] && !brandHasLoc(o.brand, o[k])) delete o[k]; }); docFltDlg(route, o); });
 document.addEventListener("click", e => {
   const fb = e.target.closest("[data-docflt]"); if(fb){ e.preventDefault(); return docFltDlg(fb.dataset.docflt); }
   const fc = e.target.closest("[data-docfltclr]"); if(fc){ e.preventDefault(); (DOC.flt ||= {})[fc.dataset.docfltclr] = {}; return render(); }
   const rs = e.target.closest("#dfReset"); if(rs){ e.preventDefault(); (DOC.flt ||= {})[rs.dataset.route] = {}; $("#ccScrim").classList.remove("show"); return render(); }
-  const ap = e.target.closest("#dfApply"); if(ap){ e.preventDefault(); const o = {}; ["ref","status","loc","dest","sup","reason","by","sub"].forEach(k => { const v = $("#df_" + k)?.value?.trim(); if(v) o[k] = v; });
+  const ap = e.target.closest("#dfApply"); if(ap){ e.preventDefault(); const o = {}; ["ref","status","brand","loc","dest","sup","reason","by","sub"].forEach(k => { const v = $("#df_" + k)?.value?.trim(); if(v) o[k] = v; });
     const fr = $("#df_from")?.value, to = $("#df_to")?.value; if(fr) o.from = fr; if(to) o.to = to; (DOC.flt ||= {})[ap.dataset.route] = o; $("#ccScrim").classList.remove("show"); return render(); }
 });
 /* Foodics Filter on the inventory setup lists (products, suppliers, categories, warehouses) */
@@ -11863,6 +11870,7 @@ const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
     ["mod","Modifiers","sel",r=>r.modifierId, () => S.modifiers.filter(live).sort((a,b)=>a.name.localeCompare(b.name)).map(m => [m.id, m.name])],
     ffTxt("sku","SKU",r=>r.sku), ["upd","Updated After","date",r=>r.updatedAt], ["alg","Allergens","sel",r=>r.allergens||[], () => allergenList().map(a => [a, a])]],
   users: [ffTxt("name","Name",r=>r.name), ffTxt("emp","Employee Number",r=>r.employeeNumber), ffTxt("email","Email",r=>r.email), ffTxt("phone","Phone",r=>r.phone),
+    ["brand","Brand","sel",r=>[...new Set(((r.branchIds||[]).length ? branches.filter(b => r.branchIds.includes(b.id)) : branches).map(b => b.brandId).filter(Boolean))], () => brandList().map(b => [b.id, b.name])],
     ["br","Branch","sel",r=>(r.branchIds||[]).length ? r.branchIds : branches.map(b => b.id), () => activeBranches().map(b => [b.id, b.name])],
     ["role","Role","sel",r=>userRoleIds(r), () => S.roles.filter(live).map(x => [x.id, x.name])],
     ["tag","Tag","sel",r=>tagsOf("user", r.id), () => tagList("user").map(t => [t.id, t.name])],
