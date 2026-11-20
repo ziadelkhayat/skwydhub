@@ -819,6 +819,18 @@ html.lockpg #toTop,html:has(#scrim.show) #toTop,html:has(#ipg.show) #toTop,html:
 /* checkout: clear space between the payment choices and Place order */
 html body #place{margin-top:20px!important;position:relative;top:auto!important;transform:none}
 html body .sheet .opts{margin-bottom:4px}
+/* order tracking steps: evenly spaced, one line joining the dots, the current step ticked */
+html body .trks{list-style:none!important;margin:0!important;padding:18px 20px!important}
+html body .trks li{display:flex!important;align-items:flex-start!important;gap:14px!important;position:relative!important;padding:0 0 22px!important;margin:0!important;min-height:0!important}
+html body .trks li:last-child{padding-bottom:0!important}
+html body .trks li::before{display:none!important}
+html body .trks li:not(:last-child)::after{content:""!important;position:absolute!important;left:11px!important;top:26px!important;bottom:2px!important;width:2px!important;background:var(--line)!important;height:auto!important}
+html body .trks li.done:not(.now):not(:last-child)::after{background:var(--acc)!important}
+html body .trks .dt{width:24px!important;height:24px!important;margin:0!important;border-radius:50%!important;border:2px solid var(--line)!important;background:var(--s)!important;flex:none!important;display:grid!important;place-items:center!important;color:#fff!important;position:relative;z-index:1}
+html body .trks li.done .dt{background:var(--acc)!important;border-color:var(--acc)!important}
+html body .trks li.now .dt{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)!important}
+html body .trks li > div{padding-top:0!important;margin:0!important;text-align:left!important;flex:1;min-width:0}
+html body .trks b{display:block!important;font-size:15px!important;line-height:24px!important;margin:0!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1953,7 +1965,7 @@ function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find
     <div class="trkhero ${bad ? "bad" : st===3 ? "ok" : ""}"><div class="trki">${ic(bad ? "out" : st===3 ? "check" : o.type==="delivery" && st===2 ? "bike" : st===0 ? "clock" : "dine")}</div>
       <h2>${esc(tkTitle(o))}</h2>${o.type==="delivery" && o.driver_name && st===2 ? `<p class="trkdrv">${ic("bike")}Your driver: <b>${esc(o.driver_name)}</b></p>` : ""}<p>${bad ? "Sorry, the restaurant couldn't take this order. Please contact them for details." : esc(steps[st][1])}</p>
       ${o.no ? `<span class="trkno">Order #${esc(o.no)}</span>` : ""}</div>
-    ${bad ? "" : `<ol class="trks">${steps.map((x, i) => `<li class="${i < st ? "done" : i===st ? "now" : ""}"><span class="dt">${i < st || st===3 ? ic("check") : ""}</span><div><b>${esc(x[0])}</b>${i===st && st < 3 ? `<small>${esc(x[1])}</small>` : ""}</div></li>`).join("")}</ol>`}
+    ${bad ? "" : `<ol class="trks">${steps.map((x, i) => `<li class="${i < st ? "done" : i===st ? "done now" : ""}"><span class="dt">${i <= st ? ic("check") : ""}</span><div><b>${esc(x[0])}</b>${i===st && st < 3 ? `<small>${esc(x[1])}</small>` : ""}</div></li>`).join("")}</ol>`}
     ${tkLive(o) && np !== "granted" && np !== "unsupported" ? `<button type="button" class="trknot" data-trknot>${ic("mega")}<span><b>Turn on notifications</b><small>We'll let you know as soon as your order status changes</small></span></button>` : tkLive(o) && np==="granted" ? `<div class="trkon1">${ic("check")}Notifications are on for this order</div>` : ""}
     <div class="trkc"><div class="trkr"><span>${ic(o.type==="delivery" ? "bike" : o.type==="pickup" ? "bag" : "dine")}</span><div><b>${esc(br?.name || brand.name)}</b><small>${o.type==="delivery" ? "Delivery" : o.type==="pickup" ? "Pickup" : "Dine-in"} · ${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}</small></div>${ph ? `<a class="trkcall" href="tel:${esc(ph)}" aria-label="Call the restaurant">${ic("phone")}</a>` : ""}</div>
       <div class="trkits">${its.map(it => `<div><span>${+it.qty||1}×</span><b>${esc(it.name)}</b><em>${usd((+it.price||0) * (+it.qty||1))}</em></div>`).join("")}</div>
