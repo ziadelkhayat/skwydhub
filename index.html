@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1111-1795184069">
+<meta name="skwyd-build" content="1112-1795184283">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2876,7 +2876,8 @@ html body #ccBox .ccx .cctools .cctool.cctool.cctool span{font-size:13px!importa
 html body #ccBox .ccx .cctools .cctool.cctool.cctool:hover{background:#172D6A!important}html body #ccBox .ccx .cctools .cctool.cctool.cctool:active{background:#172D6A!important;transform:scale(.97)}
 html body #ccBox .ccx .cctools .cctool .cchn{position:absolute;top:8px;right:8px;margin:0!important}
 /* ===== Call center customer card: order type switch ===== */
-html body #ccBox .ccotsel{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:#F2F2F7;border-radius:14px;margin-bottom:12px}
+html body #ccBox .ccctop{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}html body #ccBox .ccctop .sel{height:46px;border-radius:12px;font-size:14px}
+html body #ccBox .ccotsel{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:#F2F2F7;border-radius:14px}
 html body #ccBox .ccotsel button{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border:0;border-radius:11px;background:transparent;color:#636366;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 html body #ccBox .ccotsel button svg{width:20px;height:20px}html body #ccBox .ccotsel button.on{background:#fff;color:#1E3A8A;box-shadow:0 1px 4px rgba(23,21,31,.12)}html body #ccBox .ccotsel button:disabled{opacity:.45;cursor:not-allowed}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
@@ -6071,12 +6072,23 @@ function ccSendSync(){ const hasCust = !!(($("#oPhone")?.value || "").trim() && 
   const b = $("#ccSendEdit"); if(!b) return; b.disabled = ccSig0==null || (ccSig() + "|" + ($("#oNotes")?.value || "") + "|" + ($("#oRNotes")?.value || "")===ccSig0 && !ccVoids.length && !ccTags); }   // greyed out until something changed
 document.addEventListener("change", e => { if(e.target.closest && e.target.closest("#ccBox")) setTimeout(ccSendSync, 0); });
 document.addEventListener("click", e => { if(e.target.closest && e.target.closest("#ccBox #oType")) setTimeout(ccSendSync, 0); });
-// order type picked on the customer card (Pickup / Delivery): same rules as in the customer window
+// on top of the cart: order type (Pickup / Delivery) and the order source, kept in step with the customer window
+function ccTopSync(){
+  const cartEl = $("#oCart"); if(!cartEl) return; let top = $("#ccCTop");
+  const tb = [...document.querySelectorAll("#oType [data-ot]")].filter(b => b.style.display!=="none" && !b.hidden), src = $("#oSource"), type = $("#oType .on")?.dataset.ot || "";
+  if(!tb.length || tb.every(b => b.disabled) && (!src || src.disabled)){ top?.remove(); return; }
+  if(!top){ cartEl.insertAdjacentHTML("beforebegin", `<div id="ccCTop" class="ccctop"></div>`); top = $("#ccCTop"); }
+  top.innerHTML = `<div class="ccotsel" role="group" aria-label="Order type">${tb.map(b => `<button type="button" data-ccot="${esc(b.dataset.ot)}" class="${b.dataset.ot===type ? "on" : ""}" ${b.disabled ? "disabled" : ""}>${svgIco(b.dataset.ot==="delivery" ? "pscoot" : "pbag")}<span>${b.dataset.ot==="delivery" ? "Delivery" : "Pickup"}</span></button>`).join("")}</div>`
+    + (src ? `<select id="ccSrcTop" class="sel" aria-label="Order source" ${src.disabled ? "disabled" : ""}>${[...src.options].map(o => `<option value="${esc(o.value)}" ${o.value===src.value ? "selected" : ""}>${esc(o.textContent)}</option>`).join("")}</select>` : "");
+}
+document.addEventListener("change", e => { if(e.target.id==="ccSrcTop"){ const s = $("#oSource"); if(s){ s.value = e.target.value; s.dispatchEvent(new Event("change", { bubbles:true })); } setTimeout(() => { try{ ccSide(); ccSendSync(); }catch(_){} }, 0); }
+  else if(e.target.id==="oSource") setTimeout(ccTopSync, 0); });
+// order type picked on top of the cart (Pickup / Delivery): same rules as in the customer window
 document.addEventListener("click", async e => { const b = e.target.closest?.("[data-ccot]"); if(!b || b.disabled || b.classList.contains("on")) return; e.preventDefault();
   const ot = document.querySelector(`#oType [data-ot="${b.dataset.ccot}"]`); if(!ot) return;
   if(!ccEdit && cart.length && !(await askDlg({ msg:"The cart has items. Clear the cart and switch to " + (b.dataset.ccot==="delivery" ? "Delivery" : "Pickup") + "?", yes:"Clear Cart", no:"Cancel" }))) return;
   if(!ccEdit && cart.length) cart = [];
-  ot.click(); setTimeout(() => { try{ ccSide(); ccSendSync(); renderOrderMenu(); }catch(_){} }, 0); });
+  ot.click(); setTimeout(() => { try{ ccSide(); ccSendSync(); renderOrderMenu(); ccTopSync(); }catch(_){} }, 0); });
 // the branch approved or rejected an order edit: a notification for the call center (everyone on the Call Center page, and the agent who sent it wherever they are)
 function ccEditWatch(){ const me = state.fullName || state.userName || "Operator", onCC = document.body.dataset.route==="call-center"; let seen = []; try{ seen = JSON.parse(localStorage.getItem("skwyd_er_seen") || "[]"); }catch(_){}
   (S.orders||[]).forEach(o => { const er = o.editRequest; if(!er || !["approved","rejected"].includes(er.status) || seen.includes(er.id)) return;
@@ -6219,14 +6231,14 @@ async function ccStep(n, force){
   if(n===2){ ccSide(); renderOrderMenu(); setTimeout(() => $("#oSearch")?.focus(), 30); }
 }
 function ccSide(){
-  const el = $("#oSide"); if(!el) return;
+  const el = $("#oSide"); if(!el) return; setTimeout(ccTopSync, 0);
   const type = $("#oType .on")?.dataset.ot || "", c = window.__ccCust, a = addrSplit(addrJoin(ccAddrGet()));
   const keep = [].map(id => document.getElementById(id)).filter(Boolean); keep.forEach(n => n.remove());   // order type, source, brand and branch live in this card
   const bits = [$("#oSource")?.value || "", branchName($("#oBranch")?.value || "")].filter(Boolean);   // no address here
   const so = ccEdit && S.orders.find(x => x.id===ccEdit);   // a placed order: its reference and status on top, as on the POS
   el.innerHTML = `${so ? `<div class="ccobar"><b>${esc(ccRef(so))}</b><span class="ccpill s-${esc(so.status)}">${esc(CC_SUB[so.status] || so.status)}</span><button type="button" class="ccobx" data-ccclose aria-label="Close">×</button></div>` : ""}<div class="ccctx">${(() => { const tb = [...document.querySelectorAll("#oType [data-ot]")].filter(b => b.style.display!=="none" && !b.hidden), lock = !tb.length || tb.every(b => b.disabled);
     return lock ? `<div class="ccothd"><span class="ccib">${svgIco(type==="delivery" ? "pscoot" : "pbag")}</span><b>${type==="delivery" ? "Delivery" : "Pickup"}</b></div>`
-      : `<div class="ccotsel" role="group" aria-label="Order type">${tb.map(b => `<button type="button" data-ccot="${esc(b.dataset.ot)}" class="${b.dataset.ot===type ? "on" : ""}" ${b.disabled ? "disabled" : ""}>${svgIco(b.dataset.ot==="delivery" ? "pscoot" : "pbag")}<span>${b.dataset.ot==="delivery" ? "Delivery" : "Pickup"}</span></button>`).join("")}</div>`; })()}<div class="ccctxh"><div class="ccctxn"><b>${esc($("#oName").value.trim() || "No customer yet")}</b>${bits.length ? `<small>${bits.map(esc).join(" / ")}</small>` : ""}</div>${c?.blacklisted ? `<span class="tag" style="background:#fde8eb;color:#9e0c24">⚠ Blacklisted</span>` : ""}<div class="ccctxb">${$("#oPhone")?.disabled ? `<button type="button" class="btn sm" data-ccstep="1">Customer Details</button>` : `<button type="button" class="btn sm" data-ccstep="1">${$("#oName").value.trim() ? "Edit Customer" : "Add Customer"}</button>`}</div></div>
+      : ""; })()}<div class="ccctxh"><div class="ccctxn"><b>${esc($("#oName").value.trim() || "No customer yet")}</b>${bits.length ? `<small>${bits.map(esc).join(" / ")}</small>` : ""}</div>${c?.blacklisted ? `<span class="tag" style="background:#fde8eb;color:#9e0c24">⚠ Blacklisted</span>` : ""}<div class="ccctxb">${$("#oPhone")?.disabled ? `<button type="button" class="btn sm" data-ccstep="1">Customer Details</button>` : `<button type="button" class="btn sm" data-ccstep="1">${$("#oName").value.trim() ? "Edit Customer" : "Add Customer"}</button>`}</div></div>
     <div class="ccctxf" id="oCtxF"></div></div>`;
   const f = $("#oCtxF"); if(f){ keep.forEach(n => f.appendChild(n));
   }
