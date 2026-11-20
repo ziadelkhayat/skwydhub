@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1142-1795194329">
+<meta name="skwyd-build" content="1143-1795194406">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2926,6 +2926,13 @@ html body .mmdet .mmdft{display:flex;gap:8px;align-items:center;flex-wrap:wrap;m
 html body .mm .mmside .mmcat .scimg.scimg,html body .mm .mmside .mmcat .bmcsel.bmcsel{display:none!important}
 /* ===== Call center empty columns: same as the POS ===== */
 html body .app .board .bempty.bempty{display:block!important;min-height:0!important;background:#F7F8FA!important;color:#A6A2B8!important;border:0!important;border-radius:16px!important;padding:30px 14px!important;font-size:15px!important;text-align:center}
+/* ===== Touch screens showing the desktop layout (iPad, phone in desktop mode): the whole page scrolls, so nothing is cut off at the bottom ===== */
+@media screen and (min-width:1001px) and (pointer:coarse){
+  html,body{height:auto!important;overflow:visible!important}
+  html body .app{position:relative!important;inset:auto!important;min-height:100dvh!important;overflow:visible!important}
+  html body .app>.side,html body .app aside.side.side{position:sticky!important;top:0!important;height:100dvh!important;overflow-y:auto}
+  html body .app>.main{height:auto!important;min-height:100dvh;overflow:visible!important}
+}
 /* ===== One sort handle everywhere (the sales channel one) ===== */
 html body .bmgrip,html body .bmgrip.rsgrip,html body .bmgrip.igrip,html body .bmgrip.mgrip{width:16px!important;min-width:16px;height:22px!important;padding:0!important;margin:0 6px 0 0;border-radius:6px;color:#8f8ba3;font-size:0!important;letter-spacing:0}
 html body .bmgrip::before{width:18px!important;height:18px!important}
