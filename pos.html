@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1136-1795190264">
+<meta name="skwyd-build" content="1138-1795190497">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1648,12 +1648,13 @@ const incoming = () => S.orders.filter(o => o.branchId===device.branchId && o.ch
 // a change the call center asked for on an order this branch already accepted: it waits here to be approved or rejected
 const erPending = o => !!(o && o.editRequest && o.editRequest.status==="pending");
 const rejReasons = () => String(appSet().rejectReasons ?? "Item not available\nBranch too busy\nOrder already prepared").split("\n").map(x => x.trim()).filter(Boolean);
+const erReasons = () => String(appSet().editRejectReasons ?? "Order already prepared\nItem not available\nAlready out for delivery").split("\n").map(x => x.trim()).filter(Boolean);   // Manage → Reasons → Order Edit Rejection Reason
 const erLines = o => { const s = o.editRequest?.summary || {}; if(s.voidAll) return ["Void whole order" + (s.reason ? ": " + s.reason : "")]; return [...(s.added||[]).map(i => "+ " + i.qty + " × " + i.name), ...(s.voided||[]).map(i => "Void " + i.qty + " × " + i.name)]; };
 async function declineOrder(id){ const reason = await askReason("Decline order: reason", rejReasons(), "Decline"); if(!reason) return false; const now = new Date().toISOString();
   await db.collection("orders").doc(id).update({ status:"declined", updatedAt:now, doneAt:now, voidReason:reason, handledBy:cashier?.name || device.name }); toast("Order declined"); return true; }
 async function erDecide(id, yes){ const o = S.orders.find(x => x.id===id); if(!erPending(o)) return; const er = o.editRequest, now = new Date().toISOString(), by = cashier?.name || device.name;
   if(yes && o.status!=="active"){ await db.collection("orders").doc(id).update({ editRequest:{ ...er, status:"rejected", reason:"Order already closed", decidedAt:now, decidedBy:by } }); toast("This order is not editable"); return; }
-  if(!yes){ const reason = await askReason("Reject order edit: reason", rejReasons()); if(!reason) return;
+  if(!yes){ const reason = await askReason("Reject order edit: reason", erReasons()); if(!reason) return;
     await db.collection("orders").doc(id).update({ editRequest:{ ...er, status:"rejected", reason, decidedAt:now, decidedBy:by } }); toast("Order edit rejected"); return; }   // the order and its cart stay as they were
   const d = er.data || {}, s = er.summary || {};
   await db.collection("orders").doc(id).update({ ...d, ...(s.voidAll ? { approvedBy:by } : {}), updatedAt:now, editRequest:{ ...er, status:"approved", decidedAt:now, decidedBy:by } });

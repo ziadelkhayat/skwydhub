@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1137-1795190336">
+<meta name="skwyd-build" content="1138-1795190497">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -10021,9 +10021,9 @@ document.addEventListener("click", async e => { if(e.target.closest("[data-cursa
     try{ await put("settings", "company", { currency2:"", currencySymbol2:"", rate2:null, decimals2:0, quickTender2:"" }); state.cur2on = false; QT.draft[2] = null; state.curDraft = {}; toastOk("Secondary currency deactivated"); render(); }
     catch(err){ console.error(err); toast("Couldn't save. Only the owner or an admin can change this."); } } });
 /* Reasons (Manage → Reasons, Foodics style): a card per kind; tap a reason to edit it; drag to reorder; deleted ones under Deleted */
-const RS_KINDS = [["vr","Void and Return Reason"],["rejectReasons","Order Rejection Reason"],["cancelReasons","Order Cancellation Reason"],["qtyReasons","Quantity Adjustment Reason"],["drawerReasons","Drawer Operation Reason"]];
+const RS_KINDS = [["vr","Void and Return Reason"],["rejectReasons","Order Rejection Reason"],["editRejectReasons","Order Edit Rejection Reason"],["cancelReasons","Order Cancellation Reason"],["qtyReasons","Quantity Adjustment Reason"],["drawerReasons","Drawer Operation Reason"]];
 const RS_GONE = new Set(["Customer changed mind","Wrong item entered","Item not available","Kitchen mistake","Quality complaint","Wrong order delivered","Late delivery","Damaged","Theft","Staff meal","Sample","Found stock"]);   // removed for good, even from saved lists
-const RS_DEF = { qtyReasons:["Waste","Expired"], drawerReasons:["Cash Change"], rejectReasons:["Item not available","Branch too busy","Order already prepared"], cancelReasons:["Customer cancelled","Duplicate order","Wrong order details"] };
+const RS_DEF = { qtyReasons:["Waste","Expired"], drawerReasons:["Cash Change"], rejectReasons:["Item not available","Branch too busy","Order already prepared"], editRejectReasons:["Order already prepared","Item not available","Already out for delivery"], cancelReasons:["Customer cancelled","Duplicate order","Wrong order details"] };
 const RS = { tab:"general" };
 const rsSplit = v => String(v || "").split("\n").map(x => x.trim()).filter(Boolean);
 // void and return share one list (the POS offers it for both)
