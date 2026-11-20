@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1105-1795182758">
+<meta name="skwyd-build" content="1106-1795182969">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2863,6 +2863,11 @@ html body .ocard.tl .ocr2 .ocm{display:block;overflow-wrap:anywhere}html body .o
 html body .ocard.tl .ocr2.cus .ocm{font-weight:600}html body .ocard.tl .ocr2.cus .ocs{color:var(--ink,#1C1C1E);font-size:13.5px}
 html body .ocard.tl .ocr2.tot{font-size:16px;font-weight:700}html body .ocard.tl .ocr2.tot .oci{stroke:#067647}
 html body .ocard.tl>.ochd{margin-bottom:6px!important}html body .ocard.tl>.ochd>b{font-size:17px!important;font-weight:700!important}
+/* ===== Call center Hold / Retrieve ===== */
+.cchl{display:flex;flex-direction:column;gap:8px;margin:4px 24px 14px;max-height:60vh;overflow:auto}
+.cchr{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:1px solid #E6E8F2;background:#fff;border-radius:14px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer}
+.cchr:hover{border-color:#1E3A8A;background:#F7F8FD}.cchr>b{font-size:15px;color:#1E3A8A}.cchr>span>span{display:block;font-weight:600}.cchr small{color:#6B7392;font-size:12.5px}.cchr .cchm{font-weight:600;white-space:nowrap}
+html body #ccBox .cctool .cchn{font-style:normal;min-width:20px;height:20px;border-radius:999px;background:#dc2626;color:#fff!important;font-size:11.5px;display:inline-grid;place-items:center;padding:0 5px;margin-left:2px}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6004,7 +6009,7 @@ function viewCallCenter(){
     <button class="btn pri" id="ccNew">${svgIco("phone")} New Call Center Order</button></div>
 `;
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
-  const ccCols = CC_COLS.filter(([k]) => k!=="review");
+  const ccCols = CC_COLS.filter(([k]) => k!=="review" && k!=="draft");
   h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : k==="pending" ? ["pending","review"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
     ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
@@ -6075,10 +6080,10 @@ window.addEventListener("hashchange", () => setTimeout(() => { try{ ccEditWatch(
 document.addEventListener("keydown", e => { const cx = $("#ccX"); if(!cx || !cx.classList.contains("s1") || !$("#ccScrim")?.classList.contains("show")) return;
   if(($("#oAddrPop") && !$("#oAddrPop").hidden) || document.querySelector(".askdlg, .msel.open, .wk-gate")) return;
   if(e.key==="Enter" && !e.target.closest?.("select, textarea, .msel")){ e.preventDefault(); e.stopPropagation(); const b = document.querySelector('.ccnext [data-ccstep="2"]'); if(b && !b.disabled) b.click(); else ccStep(2); }
-  else if(e.key==="Escape"){ if(!ccEdit && !cart.length && !(CC_SNAP?.v?.oPhone || "").trim()) return; e.preventDefault(); e.stopPropagation(); ccSnapBack(); ccStep(2, true); } }, true);
+  else if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); ccSnapBack(); ccStep(2, true); } }, true);
 // the customer window of a new order sits over its cart: × goes back to the cart instead of closing the order
 document.addEventListener("click", e => { const x = e.target.closest && e.target.closest("[data-ccclose]"), cx = $("#ccX"); if(!x || !cx || !cx.classList.contains("s1") || !x.closest(".cc1top,.cc1")) return;
-  if(!ccEdit && !cart.length && !(CC_SNAP?.v?.oPhone || "").trim()) return;   /* a brand-new order still on its first step: × closes it */ e.stopImmediatePropagation(); e.preventDefault(); ccSnapBack(); ccStep(2, true); }, true);   // × cancels: nothing typed here is kept
+  e.stopImmediatePropagation(); e.preventDefault(); ccSnapBack(); ccStep(2, true); }, true);   // × cancels: nothing typed here is kept
 document.addEventListener("click", e => { const ro = e.target.closest && e.target.closest("[data-ccreorder]"); if(ro){ e.preventDefault(); ccReorder(ro.dataset.ccreorder); } });
 // Reorder a done, declined or void order: a new order with the same customer, type, source, brand, branch, address and items (at today's prices)
 function ccReorder(id){
@@ -6133,7 +6138,7 @@ function openOrder(id){
     <div class="ccnext"><span class="err" id="oErr1"></span><button type="button" class="btn pri" data-ccstep="2"${ro ? " disabled" : ""}>Save</button></div>
    </section>
    <aside class="ccside" id="oSide"></aside>
-   ${ro ? "" : `<section class="ccmenu"><div class="ccprods"><div class="cctools"><button type="button" class="cctool" data-cctool="disc" id="ccToolDisc">${ccIco("pct")}<span>Discount</span></button><button type="button" class="cctool" data-cctool="chg">${ccIco("plus")}<span>Charges</span></button><button type="button" class="cctool" data-cctool="tags">${ccIco("tag")}<span>Tags</span></button><button type="button" class="cctool" data-cctool="notes">${ccIco("note")}<span>Notes</span></button>${o?.status==="active" && !erPending(o) ? `<button type="button" class="cctool" data-cctool="void"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg><span>Void</span></button>` : ""}<button type="button" class="ccxbtn" data-ccclose aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="ccbar"><div class="cchead" id="oCatTitle"></div><input class="sel search" type="search" id="oSearch" placeholder="Search items" autocomplete="off"></div><div class="pgrid" id="oProducts"></div></div></section>`}
+   ${ro ? "" : `<section class="ccmenu"><div class="ccprods"><div class="cctools"><button type="button" class="cctool" data-cctool="disc" id="ccToolDisc">${ccIco("pct")}<span>Discount</span></button><button type="button" class="cctool" data-cctool="chg">${ccIco("plus")}<span>Charges</span></button><button type="button" class="cctool" data-cctool="tags">${ccIco("tag")}<span>Tags</span></button><button type="button" class="cctool" data-cctool="notes">${ccIco("note")}<span>Notes</span></button>${!o ? `<button type="button" class="cctool" data-cctool="hold"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>Hold</span></button><button type="button" class="cctool" data-cctool="retr"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/></svg><span>Retrieve</span>${ccHeldList().length ? `<em class="cchn">${ccHeldList().length}</em>` : ""}</button>` : ""}${o?.status==="active" && !erPending(o) ? `<button type="button" class="cctool" data-cctool="void"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg><span>Void</span></button>` : ""}<button type="button" class="ccxbtn" data-ccclose aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="ccbar"><div class="cchead" id="oCatTitle"></div><input class="sel search" type="search" id="oSearch" placeholder="Search items" autocomplete="off"></div><div class="pgrid" id="oProducts"></div></div></section>`}
    <section class="cccart${ro?" wide":""}"><div class="cart" id="oCart"></div>
    <input type="hidden" id="oNotes" value="${esc(o?.notes||"")}"><input type="hidden" id="oRNotes" value="${esc(o?.receiptNotes||"")}"><div class="err" id="oErr"></div><div class="ccacts">${ccActions(o)}</div></section>
    <div class="ccadpop" id="oAddrPop" hidden><div class="ccadbox">
@@ -6153,8 +6158,7 @@ function openOrder(id){
   </div>`;
   state.oCat = ""; fillOrderBranches(o?.branchId); renderOrderMenu(); renderCart(ro); ccAddrVis(); setTimeout(ccGoState, 0);
   $("#ccScrim").classList.add("show");
-  ccStep(o ? 2 : 1, true);   // a new order starts with the customer details, then the menu and cart
-  if(!o) setTimeout(() => $("#oPhone")?.focus(), 30);
+  ccStep(2, true);   // every order opens on the menu; the customer is added from the card on the right
   if(o && o.phone) ccLookup(o.status!=="draft");
 }
 // Foodics-style flow: step 1 customer, type, branch and address; step 2 the menu and cart, with the customer beside it
@@ -6305,7 +6309,7 @@ const ccAddrGet = () => { const a = {}; ADDR_K.forEach(k => a[k] = ($("#oA_"+k)?
 const ccAddrSet = v => { const a = addrSplit(v); ADDR_K.forEach(k => { const el = $("#oA_"+k); if(el) el.value = a[k]; }); addrTypeSync("oA"); ccAddrBar(); };
 function ccActions(o){
   if(o && !["pos","callcenter"].includes(o.channel) && !ccAccepts(o) && o.status!=="review") return `<p class="note" style="text-align:center;margin:0;padding:10px 0">View only · this brand's web and API orders are accepted by the branch</p>`;
-  if(!o || o.status==="draft") return `<button type="button" class="btn" data-osave="draft">Save as Draft</button><button type="button" class="btn pri" data-osave="pending">Send</button>${o ? `<button type="button" class="btn danger" data-ccdeldraft>Cancel Draft</button>` : ""}`;
+  if(!o || o.status==="draft") return `<button type="button" class="btn pri" data-osave="pending">Send</button>${o ? `<button type="button" class="btn danger" data-ccdeldraft>Cancel Draft</button>` : ""}`;
   const b = [];
   if(o.status==="active" && ccEditable(o)) b.push(erPending(o) ? `<p class="note" style="text-align:center;margin:0;padding:10px 0">Waiting for the branch to answer the last change</p>` : `<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
   else if(ccEditable(o) && o.status!=="review") b.push(`<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
@@ -6507,6 +6511,49 @@ function ccChgDlg(){
       Object.keys(ccOpen).forEach(k => delete ccOpen[k]); Object.assign(ccOpen, vals); ccChg = pick; close(); renderCart(false); };
   });
 }
+/* hold an unsent call center order on this browser and pick it up later (like the POS) */
+const ccHeldKey = () => "skwydCcHeld:" + (state.userId || state.userName || "me");
+const ccHeldList = () => { try{ return JSON.parse(localStorage.getItem(ccHeldKey()) || "[]"); }catch(_){ return []; } };
+const ccHeldSave = l => { try{ l.length ? localStorage.setItem(ccHeldKey(), JSON.stringify(l)) : localStorage.removeItem(ccHeldKey()); }catch(_){} };
+const CC_HF = () => ["oCc","oPhone","oName","oBrand","oBranch","oSource","oNotes","oRNotes","oA_lat","oA_lng", ...ADDR_K.map(k => "oA_" + k)];
+function ccHold(silent){
+  if(ccEdit) return; if(!cart.length){ toast("Add items first"); return; }
+  const v = {}; CC_HF().forEach(id => { const el = document.getElementById(id); if(el) v[id] = el.value; });
+  const l = ccHeldList(), n = l.reduce((m, h) => Math.max(m, +h.n || 0), 0) + 1, c = orderCalc(cart, ccDiscAmt(), ccCharges().picked);
+  l.push({ id: "h" + Date.now().toString(36), n, at: new Date().toISOString(), by: state.fullName || state.userName || "", total: c.total, v, ot: $("#oType .on")?.dataset.ot || "",
+    cart: JSON.parse(JSON.stringify(cart)), disc: ccDisc, discType: ccDiscType, ds: ccDS, chg: ccChg ? [...ccChg] : null, open: { ...ccOpen }, tags: ccTags });
+  ccHeldSave(l); openOrder(); if(!silent) toast(`Order held as H${n} · tap Retrieve to pick it up`);
+}
+async function ccRestore(h){
+  openOrder(); await new Promise(r => setTimeout(r, 80));
+  const set = (id, val) => { const el = document.getElementById(id); if(el && val!=null && val!==""){ el.value = val; el.dispatchEvent(new Event("change", { bubbles:true })); } };
+  set("oBrand", h.v.oBrand); await new Promise(r => setTimeout(r, 30)); set("oBranch", h.v.oBranch);
+  CC_HF().filter(id => !["oBrand","oBranch"].includes(id)).forEach(id => set(id, h.v[id]));
+  if(h.ot){ document.querySelectorAll("#oType [data-ot]").forEach(b => b.classList.toggle("on", b.dataset.ot===h.ot)); }
+  cart = h.cart || []; ccDisc = +h.disc || 0; ccDiscType = h.discType || "pct"; ccDS = h.ds || null; ccChg = h.chg ? new Set(h.chg) : null; Object.keys(ccOpen).forEach(k => delete ccOpen[k]); Object.assign(ccOpen, h.open || {}); ccTags = h.tags || null;
+  try{ ccAddrSet(addrJoin(Object.fromEntries(ADDR_K.map(k => [k, h.v["oA_" + k] || ""])))); }catch(_){}
+  try{ ccLookup(); }catch(_){} renderCart(false); ccStep(2, true); try{ ccSide(); ccSendSync(); }catch(_){}
+  toast(`Order H${h.n} retrieved`);
+}
+function ccRetrieveDlg(){
+  const l = ccHeldList(), dr = (S.orders || []).filter(o => o.status==="draft" && o.channel==="callcenter"), t = v => new Date(v).toLocaleTimeString("en-GB", { hour:"numeric", minute:"2-digit" });
+  const its = c => (c || []).reduce((a, i) => a + (+i.qty || 0), 0);
+  const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
+  w.innerHTML = `<div class="slk-ask-b" style="max-width:600px;width:calc(100% - 32px)"><h3 class="slk-ask-h">Held orders</h3><div class="cchl">${l.length || dr.length ? [
+      ...l.map(h => `<button type="button" class="cchr" data-cch="${esc(h.id)}"><b>H${h.n}</b><span><span>${esc([h.v?.oName, h.v?.oPhone].filter(Boolean).join(" · ") || (h.cart || []).slice(0, 3).map(i => i.name).join(", "))}</span><small>${t(h.at)}${h.by ? " · " + esc(h.by) : ""}</small></span><span class="cchm">${its(h.cart)} items · ${usd(h.total)}</span></button>`),
+      ...dr.map(o => `<button type="button" class="cchr" data-ccdr="${esc(o.id)}"><b>Draft</b><span><span>${esc([o.customerName, o.phone].filter(Boolean).join(" · ") || "—")}</span><small>${t(o.createdAt)}${o.agent ? " · " + esc(o.agent) : ""}</small></span><span class="cchm">${its(o.items)} items · ${usd(o.total)}</span></button>`)].join("")
+    : `<p class="note" style="text-align:center;padding:24px 0;margin:0">No held orders. Add items, then tap Hold to park the order and take the next call.</p>`}</div><div class="slk-ask-f"><button type="button" class="slk-ask-no">Close</button></div></div>`;
+  const done = () => { document.removeEventListener("keydown", key, true); w.remove(); };
+  const key = e => { if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); done(); } };
+  w.addEventListener("click", async e => {
+    if(e.target===w || e.target.closest(".slk-ask-no")) return done();
+    const h = e.target.closest("[data-cch]"), d = e.target.closest("[data-ccdr]"); if(!h && !d) return;
+    if(!ccEdit && cart.length){ done(); if(!(await askYes("Hold the current order and retrieve this one?", "Hold & retrieve"))) return; ccHold(true); } else done();
+    if(d) return openOrder(d.dataset.ccdr);
+    const all = ccHeldList(), x = all.find(y => y.id===h.dataset.cch); if(!x) return; ccHeldSave(all.filter(y => y.id!==x.id)); ccRestore(x); });
+  document.addEventListener("keydown", key, true); document.body.appendChild(w);
+}
+document.addEventListener("click", e => { const t = e.target.closest("[data-cctool]"); if(t && (t.dataset.cctool==="hold" || t.dataset.cctool==="retr")){ e.preventDefault(); e.stopImmediatePropagation(); return t.dataset.cctool==="hold" ? ccHold() : ccRetrieveDlg(); } }, true);
 document.addEventListener("click", e => { const t = e.target.closest("[data-cctool]"); if(t){ e.preventDefault(); return t.dataset.cctool==="void" ? ccVoidDlg() : t.dataset.cctool==="disc" ? ccDiscDlg() : t.dataset.cctool==="chg" ? ccChgDlg() : t.dataset.cctool==="tags" ? ccTagsDlg() : ccNotesDlg(); }
   const cx = e.target.closest("[data-ochgx]"); if(cx){ e.preventDefault(); if(!ccChg) ccChg = new Set(ccCharges().picked.map(c=>c.id)); ccChg.delete(cx.dataset.ochgx); delete ccOpen[cx.dataset.ochgx]; renderCart(false); return; }
   const nx = e.target.closest("[data-ccnotex]"); if(nx){ e.preventDefault(); const el = $(nx.dataset.ccnotex==="k" ? "#oNotes" : "#oRNotes"); if(el) el.value = ""; renderCart(false); return; }
