@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1117-1795184955">
+<meta name="skwyd-build" content="1118-1795185055">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6682,7 +6682,7 @@ function renderCart(ro){
 }
 async function saveOrder(status, extra){
   const o = ccEdit ? S.orders.find(x=>x.id===ccEdit) : null;
-  if(!o || o.status==="draft"){ let e1 = ccStep1Err(); if(e1 && status==="draft" && !["oPhone","oName"].includes(e1[1])) e1 = null; if(e1){ if(ccCustErr(e1)) await ccStep(1, true); toast(e1[0]); if(e1[1]) setTimeout(() => $("#"+e1[1])?.focus(), 30); return; } }   // the customer details come first: open them with what's missing
+  if(!o || o.status==="draft"){ let e1 = ccStep1Err(); if(e1 && status==="draft" && !["oPhone","oName"].includes(e1[1])) e1 = null; if(e1){ toast(e1[0], true); return; } }   // the customer details come first: open them with what's missing
   if(status==="keep") status = o?.status || "draft";
   const phone = ccPhone(), name = $("#oName").value.trim(), branchId = $("#oBranch").value;
   if(!phone){ $("#oErr").textContent = "Customer phone is required."; $("#oPhone").focus(); return; }
