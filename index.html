@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1108-1795183419">
+<meta name="skwyd-build" content="1109-1795183632">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6158,6 +6158,10 @@ function openOrder(id){
   </div>`;
   state.oCat = ""; fillOrderBranches(o?.branchId); renderOrderMenu(); renderCart(ro); ccAddrVis(); setTimeout(ccGoState, 0);
   $("#ccScrim").classList.add("show");
+  if(!o){   // a new order opens on the menu: start on the brand (when there is one) and its first branch; both can be changed with the customer
+    const bs = $("#oBrand"), bb = $("#oBranch");
+    if(bs && !bs.value){ const l = brandList(); if(l.length===1){ bs.value = l[0].id; bs.dispatchEvent(new Event("change", { bubbles:true })); } }
+    if(bb && !bb.value){ const op = [...bb.options].find(x => x.value && !x.disabled); if(op){ bb.value = op.value; bb.dispatchEvent(new Event("change", { bubbles:true })); } } }
   ccStep(2, true);   // every order opens on the menu; the customer is added from the card on the right
   if(o && o.phone) ccLookup(o.status!=="draft");
 }
