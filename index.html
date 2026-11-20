@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1119-1795185490">
+<meta name="skwyd-build" content="1120-1795185573">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6234,7 +6234,7 @@ function ccStep1Err(){
 let CC_SNAP = null;
 function ccSnapBack(){ const sn = CC_SNAP; if(!sn) return; if(sn.ot && $("#oType .on")?.dataset.ot!==sn.ot) document.querySelector(`#oType [data-ot="${sn.ot}"]`)?.click(); Object.entries(sn.v).forEach(([id, val]) => { const el = document.getElementById(id); if(el) el.value = val; });
   window.__ccCust = sn.cust; window.__ccPast = sn.past; window.__ccAddrIx = sn.ix; try{ addrTypeSync("oA"); ccAddrBar(); }catch(_){} if($("#oAddrPop")) $("#oAddrPop").hidden = true; CC_SNAP = null; clearTimeout(ccLookT); try{ ccLookup(); }catch(_){} }
-const ccCustErr = e => !!e;   // every order detail is in the customer window   // errors the customer window fixes; the rest are in the cart's top card
+const ccCustErr = e => !!e && (["oPhone","oName"].includes(e[1]) || String(e[1]||"").startsWith("oA_") || /delivery address/i.test(e[0]));   // only the customer's own details hold Save; type, source, brand and branch are on top of the cart   // every order detail is in the customer window   // errors the customer window fixes; the rest are in the cart's top card
 async function ccStep(n, force){
   const x = $("#ccX"); if(!x) return;
   if(n===2 && !force){ const e = ccStep1Err(); if(e && ccCustErr(e)){ $("#oErr1").textContent = e[0]; if(e[1]) $("#"+e[1])?.focus(); return; } }
