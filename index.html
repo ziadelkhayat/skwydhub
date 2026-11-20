@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1136-1795190264">
+<meta name="skwyd-build" content="1137-1795190336">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2924,6 +2924,8 @@ html body .mmdet .mmdrow .bmdin{width:90px;height:38px;text-align:right}html bod
 html body .mmdet .mmdft{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
 @media(max-width:1100px){ html body .mmdet{border-left:0;border-top:.8px solid #e5e5ea} }
 html body .mm .mmside .mmcat .scimg.scimg,html body .mm .mmside .mmcat .bmcsel.bmcsel{display:none!important}
+/* ===== Call center empty columns: same as the POS ===== */
+html body .app .board .bempty.bempty{display:block!important;min-height:0!important;background:#F7F8FA!important;color:#A6A2B8!important;border:0!important;border-radius:16px!important;padding:30px 14px!important;font-size:15px!important;text-align:center}
 /* ===== One sort handle everywhere (the sales channel one) ===== */
 html body .bmgrip,html body .bmgrip.rsgrip,html body .bmgrip.igrip,html body .bmgrip.mgrip{width:16px!important;min-width:16px;height:22px!important;padding:0!important;margin:0 6px 0 0;border-radius:6px;color:#8f8ba3;font-size:0!important;letter-spacing:0}
 html body .bmgrip::before{width:18px!important;height:18px!important}
@@ -6079,7 +6081,7 @@ function viewCallCenter(){
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
   const ccCols = CC_COLS.filter(([k]) => k!=="review" && k!=="draft");
   h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="void" ? ["void","returned","refund"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : k==="pending" ? ["pending","review"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
-    ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
+    ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t.toLowerCase()} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
 }
 // order number comes from the POS that bills the order; until then call-center / web orders go by invoice number
