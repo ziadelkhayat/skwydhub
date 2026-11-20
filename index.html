@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1138-1795190497">
+<meta name="skwyd-build" content="1139-1795193904">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -4617,7 +4617,7 @@ function viewMarketplace(){
 document.addEventListener("click", e => { if(e.target.closest("[data-mktgo]")){ e.preventDefault(); BM.open1 = false; BM.exp = new Set(); go("branch-menu"); } });
 function msEnhance(){
   // list tables: a "date time" cell shows the date with the time under it (narrower columns, nothing cut off at the right)
-  document.querySelectorAll("#view .card table tbody td:not([data-dt2])").forEach(td => { td.dataset.dt2 = "1"; if(td.children.length) return; const m = /^(\d{2}-\d{2}-\d{2,4}) (\d{1,2}:\d{2}(?: ?[ap]m)?)$/i.exec(td.textContent.trim()); if(m) td.innerHTML = `${m[1]}<span class="note dtt">${m[2]}</span>`; });
+  document.querySelectorAll("#view .card table tbody td:not([data-dtm])").forEach(td => { td.dataset.dtm = "1"; if(td.children.length) return; const m = /^(\d{2}-\d{2}-\d{2,4}) (\d{1,2}:\d{2}(?: ?[ap]m)?)$/i.exec(td.textContent.trim()); if(m) td.innerHTML = `${m[1]}<span class="note dtt">${m[2]}</span>`; });
   // close buttons: a drawn × so it sits exactly in the middle of the circle
   document.querySelectorAll("button.x:not([data-xi]),button.mmdx:not([data-xi])").forEach(b => { if(b.textContent.trim()!=="×") return; b.dataset.xi = "1"; b.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`; });
   // remove buttons ("×" on a row) show a bin icon, like Foodics
