@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1135-1795190030">
+<meta name="skwyd-build" content="1136-1795190264">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6040,7 +6040,7 @@ const mapLink = o => (o.lat && o.lng) ? `<a class="lnk" href="https://www.google
 
 /* ---------- Call Center (Foodics board) ---------- */
 const CC_COLS = [["review","Web & API","Web and API orders waiting for the call center to accept them and send them to the branch"],["draft","Draft","Orders that are not yet sent to the branch"],["pending","Pending","Orders that are not yet accepted by the branch"],
-  ["active","Preparing","Orders that are currently being prepared in the branch"],["dispatched","Dispatched","Delivery orders a driver has picked up and is taking to the customer"],["closed","Done","Orders that are completed, voided, joined or returned"],
+  ["active","Preparing","Orders that are currently being prepared in the branch"],["dispatched","Dispatched","Delivery orders a driver has picked up and is taking to the customer"],["closed","Done","Orders that are completed"],["void","Void & Returned","Orders that have been voided, returned or refunded"],
   ["declined","Declined","Orders that have been declined from the branch or the call center"]];
 // the Done column keeps every closed order: done, voided or returned
 const CC_SUB = { review:"Waiting for call center", draft:"Draft", pending:"Sent to branch", active:"Preparing", declined:"Declined", closed:"Done", void:"Void", returned:"Returned", refund:"Refund" };
@@ -6078,7 +6078,7 @@ function viewCallCenter(){
 `;
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
   const ccCols = CC_COLS.filter(([k]) => k!=="review" && k!=="draft");
-  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : k==="pending" ? ["pending","review"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
+  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="void" ? ["void","returned","refund"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : k==="pending" ? ["pending","review"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
     ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
 }

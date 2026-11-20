@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1132-1795188054">
+<meta name="skwyd-build" content="1136-1795190264">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -172,7 +172,7 @@ button{cursor:pointer}
 #modal.full{width:var(--sw,100vw)!important;height:var(--sh,100vh);max-width:none;max-height:none;border-radius:0;display:flex;flex-direction:column}.scrim.fullscr{padding:0!important}.modal.full .mb{flex:1;overflow:auto}
 .modal.full{background:#f3f3f9}.modal.full .mh{background:var(--s)}
 .oboard{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px;align-items:start;min-height:100%}
-@media(min-width:901px){.oboard:has(> .ocol:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}}
+@media(min-width:901px){.oboard:has(> .ocol:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.oboard:has(> .ocol:nth-child(6)){grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}}
 .ocol{display:flex;flex-direction:column;gap:10px}.ochead{display:flex;align-items:center;gap:8px;background:var(--s);border-radius:14px;padding:12px 16px;box-shadow:0 1px 3px rgba(21,19,31,.06)}.ochead b{font-size:16px}.ochead .cnt{background:#ececf3;border-radius:999px;padding:1px 9px;font-size:13px}
 .oempty{background:#e9e8f1;border-radius:14px;padding:30px 14px;text-align:center;color:#5b5a66}
 .ocard{display:flex;flex-direction:column;gap:7px;text-align:left;background:var(--s);border:1px solid transparent;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(21,19,31,.08);font:inherit;color:inherit;cursor:pointer}
@@ -2886,7 +2886,7 @@ function boardOrders(col, pd){
   if(col==="all") return (pd ? ["pending","active","out","closed","void"] : ["active","closed","void"]).flatMap(k => boardOrders(k, pd)).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const l = col==="pending" ? mine.filter(o => (o.status==="pending" || (pd && erPending(o))) && onDay(o)) : col==="active" ? mine.filter(o => o.status==="active" && !(pd && erPending(o)) && !(pd && outDel(o)) && onDay(o))
     : col==="out" ? mine.filter(o => outDel(o) && !erPending(o) && onDay(o))
-    : col==="closed" ? mine.filter(o => (pd ? ["closed","void","returned"].includes(o.status) : o.status==="closed") && bizDate(o.createdAt)===day)   // pickup & delivery: Done keeps every closed order
+    : col==="closed" ? mine.filter(o => o.status==="closed" && bizDate(o.createdAt)===day)
     : col==="declined" ? mine.filter(o => o.status==="declined" && bizDate(o.updatedAt || o.createdAt)===day)
     : mine.filter(o => ["void","returned","refund"].includes(o.status) && bizDate(anyDay ? (o.updatedAt || o.createdAt) : o.createdAt)===day);
   return l.filter(m).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -3284,7 +3284,7 @@ function openBoard(){
     ${ocRow("money", usd(o.total), "", "tot")}
     ${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`; };
   const q = OV.q; OV.q = BQ;
-  const PD_COLS = [...OV_COLS.slice(0,2), ["out","Dispatched","Delivery orders on the way with their driver"], OV_COLS[2], ["declined","Declined","Declined today"]];   // pickup & delivery: no void / returns column
+  const PD_COLS = [...OV_COLS.slice(0,2), ["out","Dispatched","Delivery orders on the way with their driver"], OV_COLS[2], ["void","Void & Returned","Voided, returned or refunded today"], ["declined","Declined","Declined today"]];
   const cols = PD_COLS.map(([k,title,tip]) => [k, title, tip, boardOrders(k, true)]); OV.q = q;
   modal("board", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px;letter-spacing:.03em">Pickup & Delivery</b><span class="sp"></span><button class="hbtn ghost" data-drvlist>Drivers</button>${allowedTypes().some(t => t==="takeaway"||t==="delivery") ? `<button class="hbtn" data-pdnewt>New Order</button>` : ""}</div>
     <div class="mb"><div class="oboard">${cols.map(([k,title,tip,l]) => `<div class="ocol"><div class="ochead" title="${esc(tip)}"><b>${title}</b><span class="cnt">${l.length}</span></div>${l.length ? l.map(card).join("") : `<div class="oempty">You don't have ${title.toLowerCase()} orders</div>`}</div>`).join("")}</div></div>`, true);
