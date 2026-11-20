@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1130-1795187110">
+<meta name="skwyd-build" content="1131-1795187668">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2910,6 +2910,20 @@ html body .ocard.tl .ocr2 .oci.oci-headset{stroke:#DB2777!important}
 html body .ocard.tl .ocr2 .oci.oci-clock{stroke:#B54708!important}
 html body .ocard.tl .ocr2 .oci.oci-money{stroke:#067647!important}
 html body .ocard.tl .ocr2 .oci.oci-store{stroke:#92400E!important}
+/* ===== Sales channel menu: categories | items | selected item's prices ===== */
+@media(min-width:1101px){ html body .mm{grid-template-columns:300px minmax(0,1fr) 340px!important} }
+html body .mmside .scimg,html body .mmside .bmcsel,html body .mmside .mmselbar{display:none!important}
+html body .mmside .mmcat{gap:10px}html body .mmside .mmct b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .mmside .mmcbar [data-bmnewcat]{font-size:0!important;width:40px;min-width:40px;height:40px;padding:0!important;display:grid;place-items:center}html body .mmside .mmcbar [data-bmnewcat]::before{content:"+";font-size:22px;line-height:1}
+html body .mmmain .mmtyps,html body .mmmain .mmth{display:none!important}
+html body .mmmain .mmrow{grid-template-columns:22px 18px 46px minmax(0,1fr) 34px!important;cursor:pointer}
+html body .mmmain .mmrow.sel{background:#EEF2FF!important;border-radius:12px}html body .mmmain .mmrow .mmpn small{white-space:nowrap}
+html body .mmdet{border-left:.8px solid #e5e5ea;padding:18px;background:#FAFAFC;min-width:0}
+html body .mmdet .mmdh b{display:block;font-size:17px;font-weight:600}html body .mmdet .mmdh small{color:#6B7392;font-size:13px}html body .mmdet .mmdh{margin-bottom:12px}
+html body .mmdet .mmdrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0F1F6}html body .mmdet .mmdrow b{flex:1;font-weight:500}
+html body .mmdet .mmdrow .bmdin{width:90px;height:38px;text-align:right}html body .mmdet .mmdbase>span:first-child{flex:1;font-weight:600}html body .mmdet .mmdbase .scprice{width:120px}
+html body .mmdet .mmdft{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+@media(max-width:1100px){ html body .mmdet{border-left:0;border-top:.8px solid #e5e5ea} }
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -4213,7 +4227,7 @@ document.addEventListener("click", e => {
     const lines = [B.head.map(h=>h[0]), ...B.rows, ...(B.foot ? [B.foot] : [])].map(l => l.map(q).join(","));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" })); a.download = `skwyd-${B.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${RPT.from}-to-${RPT.to}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); return; }
   if(e.target.closest("#rptPrint")){ const B = rptBuild(), w = window.open("", "_blank"); if(!w) return toast("Allow pop-ups to print");
-    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : RPT.brand ? (brandList().find(b => b.id===RPT.brand)?.name || "") + " · All Branches" : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){} return; }
+    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : RPT.brand ? (brandList().find(b => b.id===RPT.brand)?.name || "") + " · All Branches" : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); return; }
 });
 document.addEventListener("change", e => {
   if(e.target.id==="rptDim"){ RPT.dim = e.target.value; if(RPT.group===RPT.dim) RPT.group = ""; render(); }
@@ -7260,10 +7274,10 @@ function viewBranchMenu(){
   if(!rows.length) h += `<div class="mmempty">No products match.</div>`;
   const stockPill = (attr, ok, dis) => `<label class="scstk${ok?" ok":" no"}${dis?" dis":""}" title="Stock at ${esc(br.name)} (all channels)"><input type="checkbox" ${attr} ${ok?"checked":""} ${dis?"disabled":""}><i></i>${ok ? "In stock" : "Sold out"}</label>`;
   const row = (r, par) => { const st = bmState(r), vk = par ? [] : varKids(r), nm = par ? ((par.variants||[]).find(v => v.productId===r.id)?.name || r.name) : r.name, nl = bmLinks(r).length;
-    let s = `<div class="mmrow${par?" mmvar":""}${st.on?"":" off"}${BM.draft[r.id]?" chg":""}"${vk.length || !bmLinks(r).length ? "" : ` data-bmitem="${esc(r.id)}"`}${q || par ? "" : ` data-sk="bmp:${esc(cur.id)}|${esc(r.id)}"`}>
+    let s = `<div class="mmrow${par?" mmvar":""}${st.on?"":" off"}${BM.draft[r.id]?" chg":""}${BM.sel===r.id?" sel":""}" data-bmsel="${esc(r.id)}"${q || par ? "" : ` data-sk="bmp:${esc(cur.id)}|${esc(r.id)}"`}>
       ${par ? `<span></span><span></span>` : `<input type="checkbox" class="bmcsel" data-bmisel="${esc(r.id)}" ${isel.has(r.id)?"checked":""} aria-label="Select ${esc(nm)}"><span class="bmgrip" title="Drag to sort" aria-hidden="true">${q ? "" : "⋮⋮"}</span>`}<label class="toggle mmon" title="On the ${esc(ch[1])} menu"><input type="checkbox" data-bmon="${esc(r.id)}" ${st.on?"checked":""} aria-label="${esc(nm)} on the ${esc(ch[1])} menu"><span class="trk"></span></label>
       <span class="mmprod">${par ? `<span class="mmvl">↳</span>` : `<span class="mmimg">${r.imageUrl ? `<img src="${esc(r.imageUrl)}" alt="">` : svgIco("image")}</span>`}
-        <span class="mmpn"><b>${esc(nm)}</b>${vk.length ? "" : `<small class="mmpr">${usd(st.price!=="" ? +st.price : st.fallback)}</small>`}${vk.length ? `<small>${vk.length} variants below</small>` : (Object.values(st.tprices).some(Boolean) ? `<span class="mmlinks"><span class="mmtp" title="Has its own price for some order types">Order type prices</span></span>` : "")}</span></span>
+        <span class="mmpn"><b>${esc(nm)}</b>${vk.length ? `<small>${vk.length} variants below</small>` : `<small class="mmpr">${usd(st.price!=="" ? +st.price : st.fallback)} · ${Object.values(st.tprices).some(Boolean) ? "order type prices" : bmTypes().every(([t]) => st.types[t]) ? "all types" : bmTypes().filter(([t]) => st.types[t]).map(([, tl]) => tl).join(", ") || "off"}</small>`}</span></span>
       <span class="mmtyps">${vk.length ? "" : (() => { const base = st.price!=="" ? +st.price : st.fallback; return bmTypes().map(([t, tl]) => `<span class="mmty"><label class="toggle sm" title="Sell ${esc(nm)} as ${esc(tl)}"><input type="checkbox" data-bmtype="${esc(r.id)}|${t}" ${st.types[t]?"checked":""} aria-label="${esc(nm)} as ${esc(tl)}"><span class="trk"></span></label><input inputmode="decimal" class="sel bmdin${st.tprices[t]!=="" ? " cust" : ""}" data-bmtprice="${esc(r.id)}|${t}" value="${esc(st.tprices[t])}" placeholder="${esc(String(base))}" aria-label="${esc(nm)} ${esc(tl)} price" ${st.types[t] ? "" : "disabled"}></span>`).join(""); })()}</span>
       ${par ? "<span></span>" : `<div class="ddwrap"><button type="button" class="mmdots" data-bmcmenu="p" aria-label="Product actions">⋯</button><div class="ddmenu" hidden><button type="button" class="danger" data-bmrm="${esc(cur.id)}|${esc(r.id)}">Remove</button></div></div>`}</div>`;
     if(false) s += `<div class="mmsub">${bmLinks(r).map(l => `<div class="mmsg">${esc(modName(l.modifierId))}</div>` + modOptions(l.modifierId).map(o => { const os = bmOptState(r, o);
@@ -7273,7 +7287,16 @@ function viewBranchMenu(){
         ${stockPill(`data-bmostock="${esc(r.id)}|${esc(o.id)}"`, os.stock, !os.on)}<span></span></div>`; }).join("")).join("")}</div>`;
     return s; };
   rows.forEach(r => { h += row(r); varKids(r).forEach(k => h += row(k, r)); });
-  return h + `</div></section></div>${bmSaveBar(nDraft)}</div>` + bmDrawer(br, ch, types);
+  // right: the selected item's price and availability per order type
+  const flat = rows.flatMap(r => [r, ...varKids(r)]), sp = flat.find(p => p.id===BM.sel) || flat.find(p => !varKids(p).length) || null;
+  if(sp) BM.sel = sp.id;
+  const det = (() => { if(!sp) return `<div class="mmempty">Pick an item to set its prices.</div>`; const st = bmState(sp), base = st.price!=="" ? +st.price : st.fallback, par = flat.find(p => varKids(p).some(k => k.id===sp.id));
+    const nm = par ? (par.name + " › " + ((par.variants||[]).find(v => v.productId===sp.id)?.name || sp.name)) : sp.name;
+    return `<div class="mmdh"><b>${esc(nm)}</b><small>Prices and availability at ${esc(br.name)}</small></div>
+      <div class="mmdrow mmdbase"><span>Price</span><span class="scprice${st.price!=="" ? " cust" : ""}"><span class="cur">${esc(SYM())}</span><input inputmode="decimal" class="sel" data-bmprice="${esc(sp.id)}" value="${esc(st.price)}" placeholder="${esc(String(st.fallback))}" aria-label="${esc(nm)} price"></span></div>
+      ${bmTypes().map(([t, tl]) => `<div class="mmdrow"><label class="toggle" title="Sell as ${esc(tl)}"><input type="checkbox" data-bmtype="${esc(sp.id)}|${t}" ${st.types[t]?"checked":""} aria-label="${esc(nm)} as ${esc(tl)}"><span class="trk"></span></label><b>${esc(tl)}</b><input inputmode="decimal" class="sel bmdin${st.tprices[t]!=="" ? " cust" : ""}" data-bmtprice="${esc(sp.id)}|${t}" value="${esc(st.tprices[t])}" placeholder="${esc(String(base))}" aria-label="${esc(nm)} ${esc(tl)} price" ${st.types[t] ? "" : "disabled"}></div>`).join("")}
+      <div class="mmdft">${Object.values(st.tprices).some(Boolean) ? `<button type="button" class="btn sm" data-bmsame="${esc(sp.id)}">Same price for all</button>` : `<span class="note">Same price for every order type</span>`}${bmLinks(sp).length ? `<button type="button" class="btn sm" data-bmopen="${esc(sp.id)}">Modifiers</button>` : ""}</div>`; })();
+  return h + `</div></section><aside class="mmdet">${det}</aside></div>${bmSaveBar(nDraft)}</div>` + bmDrawer(br, ch, types);
 }
 // one item in a sales channel: its price per order type and its modifiers (each group with its rule, options on/off, price, stock)
 function bmDrawer(br, ch, types){
@@ -7301,6 +7324,10 @@ function bmDrawer(br, ch, types){
   </tbody></table></div>${links.length ? "" : `<p class="note bmdnomod">This item has no modifiers.</p>`}</div></aside>`;
   return h;
 }
+$("#view").addEventListener("click", e => {
+  const sl = e.target.closest("[data-bmsel]"); if(sl && !e.target.closest("label,input,button,.bmgrip,.ddwrap,.toggle")){ e.preventDefault(); BM.sel = sl.dataset.bmsel; return render(); }
+  const so = e.target.closest("[data-bmopen]"); if(so){ e.preventDefault(); BM.item = so.dataset.bmopen; return render(); }
+  const sm = e.target.closest("[data-bmsame]"); if(sm){ e.preventDefault(); const id = sm.dataset.bmsame; bmTypes().forEach(([t]) => bmSet(id, "tp_"+t, "")); render(); return bmAuto(); } }, true);
 $("#view").addEventListener("click", e => { const o = e.target.closest("[data-bmitem]"); if(o && !e.target.closest("label,input,button,.sctypes,.bmgrip,.ddwrap,.toggle")){ e.preventDefault(); BM.item = o.dataset.bmitem; return render(); }
   if(e.target.closest("[data-bmclose]")){ e.preventDefault(); BM.item = ""; render(); } });
 document.addEventListener("keydown", e => { if(e.key==="Escape" && BM.item && HASH()==="#branch-menu"){ BM.item = ""; render(); } });
@@ -8898,7 +8925,7 @@ function printOrder(){
     <table>${items.map(i=>`<tr><td>${+i.qty||1} x ${esc(i.name)}${modLines(i).map(m => `<br>&nbsp;&nbsp;&nbsp;- ${esc(m)}`).join("")}</td><td class="r">${((+i.qty||1)*(+i.price||0)).toFixed(2)}</td></tr>`).join("")}</table><hr>
     <table>${+o.discount?`<tr><td>Discount</td><td class="r">-${(+o.discount).toFixed(2)}</td></tr>`:""}${(o.charges||[]).filter(c=>+c.amount).map(c=>`<tr><td>${esc(c.name)}</td><td class="r">${(+c.amount).toFixed(2)}</td></tr>`).join("")}${+o.deliveryFee?`<tr><td>Delivery</td><td class="r">${(+o.deliveryFee).toFixed(2)}</td></tr>`:""}<tr><td>Subtotal</td><td class="r">${((+o.total||0)-(+o.tax||0)).toFixed(2)}</td></tr><tr><td>Tax</td><td class="r">${(+o.tax||0).toFixed(2)}</td></tr><tr><td><b>TOTAL ${esc(SYM())}</b></td><td class="r"><b>${(+o.total||0).toFixed(2)}</b></td></tr>${o.payment?`<tr><td>Paid (${esc(o.payment.method)})</td><td class="r">${(+o.payment.tendered||+o.total||0).toFixed(DEC())}</td></tr>${+o.payment.tendered2 ? `${+o.payment.tendered1 ? `<tr><td>&nbsp; ${esc(SYM())}</td><td class="r">${(+o.payment.tendered1).toFixed(DEC())}</td></tr>` : ""}<tr><td>&nbsp; ${esc(o.payment.currency2)}</td><td class="r">${(+o.payment.tendered2).toLocaleString("en-US",{minimumFractionDigits:+o.payment.decimals2||0,maximumFractionDigits:+o.payment.decimals2||0})}</td></tr>` : ""}${+o.payment.change ? `<tr><td>Change</td><td class="r">${(+o.payment.change).toFixed(DEC())}</td></tr>` : ""}`:""}</table>
     ${o.receiptNotes?`<p class="c">${esc(o.receiptNotes)}</p>`:""}${o.status==="void"?"<h2>*** VOID ***</h2>":o.status==="returned"?"<h2>*** RETURNED ***</h2>":""}<hr><p class="c">Thank you!</p><script>window.onload=()=>{window.print();}<\/script>`);
-  w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){}
+  w.document.close();
 }
 async function exportOrders(){
   toast("Preparing export…");
@@ -12126,12 +12153,12 @@ function printDoc(){
     w.document.write(`<!doctype html><title>${esc(d.name||K.title)}</title><style>body{font:13px/1.4 "Plus Jakarta Sans",Arial,sans-serif;padding:24px;color:#1b1830}h2{font-weight:500;margin:0 0 6px;padding-bottom:10px;border-bottom:1px solid #ddd}b.h{display:block;margin:14px 0 6px}table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;text-align:left;border-bottom:1px solid #e3e1ea}th{font-weight:700}.ln{display:inline-block;width:56px;border-bottom:1px solid #b9b5c8;margin-right:8px;vertical-align:middle}</style>
       <h2>${esc(d.name||K.title)}</h2><b class="h">Items</b><table><thead><tr><th>Name</th><th>SKU</th><th>Storage UOM</th><th>Ingredients UOM</th></tr></thead><tbody>
       ${d.items.map(l => { const it = itemOf(l.itemId) || {}; return `<tr><td>${esc(it.name||"")}</td><td>${esc(it.sku||"")}</td><td>${ln(storUnit(it))}</td><td>${ln(ingUnit(it))}</td></tr>`; }).join("")}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
-    return w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){} }
+    return w.document.close(); }
   const rows = d.items.map(l => { const it = itemOf(l.itemId) || {}; return `<tr><td>${esc(it.name||"")}</td><td>${esc(it.sku||"")}</td><td>${esc(it.storageUnit||"")}</td>${K.kind==="sheet"?"<td></td>":K.kind==="cost"?`<td>${l.cost??""}</td>`:`<td>${l.qty??""}</td>`}</tr>`; }).join("");
   w.document.write(`<!doctype html><title>${esc(d.ref||K.title)}</title><style>body{font:13px/1.4 "Plus Jakarta Sans",Arial,sans-serif;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#f2f3f7}</style>
     <h2>${esc(K.title)} ${esc(d.ref||"")}${d.name?" — "+esc(d.name):""}</h2><p>${K.loc?"Branch: "+esc(locName(d.locationId))+" · ":""}${d.reason?"Reason: "+esc(d.reason)+" · ":""}${d.businessDate?"Date: "+esc(d.businessDate):""}</p>
     <table><thead><tr><th>Name</th><th>SKU</th><th>Unit</th><th>${K.kind==="sheet"||K.kind==="spot"?"Counted":K.kind==="cost"?"New cost":"Quantity"}</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
-  w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){}
+  w.document.close();
 }
 /* Foodics filtering on the inventory transaction lists: a Filter button opens the fields that page has
    (reference, business date, status, places, supplier, reason, creator, submitter); no brand / branch pickers */
@@ -12704,24 +12731,6 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   let q = 0; const run = () => { q = 0; document.querySelectorAll('input[placeholder$="*"], textarea[placeholder$="*"]').forEach(fix); document.querySelectorAll(".phstar").forEach(s => { const i = s.previousElementSibling; if(i && i._star===s) place(i); else s.remove(); }); };
   new MutationObserver(() => { if(!q) q = requestAnimationFrame(run); }).observe(document.documentElement, { childList:true, subtree:true });
   addEventListener("resize", () => requestAnimationFrame(run)); setInterval(run, 1200); if(document.readyState!=="loading") run(); else document.addEventListener("DOMContentLoaded", run);
-})();</script>
-<script>/* naming, on what's shown only (data and links keep their names): Branch → Store, Dine-in → In-Store */
-(function(){ const RX = /\b(branch(?:es)?)\b|\b(dine[\s-]?in)\b/gi;
-  const cs = (src, w) => src === src.toUpperCase() ? w.toUpperCase() : src[0] === src[0].toUpperCase() ? w.replace(/(^|-)([a-z])/g, (m, a, c) => a + c.toUpperCase()) : w;
-  const tx = t => t.replace(RX, (m, br, di) => br ? cs(m, br.length > 6 ? "stores" : "store") : cs(m, "in-store"));
-  const skip = el => !el || el.closest("script,style,textarea,[contenteditable],.nm-keep");
-  const SEEN = new WeakMap();
-  function fix(root){ if(!root) return;
-    if(root.nodeType === 3){ const p = root.parentElement; if(skip(p) || SEEN.get(root) === root.data) return; if(RX.test(root.data)){ RX.lastIndex = 0; const v = tx(root.data); if(v !== root.data) root.data = v; } RX.lastIndex = 0; SEEN.set(root, root.data); return; }
-    if(root.nodeType !== 1 || skip(root)) return;
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while((n = w.nextNode())) fix(n);
-    [root, ...root.querySelectorAll("[placeholder],[title],[aria-label]")].forEach(el => ["placeholder","title","aria-label"].forEach(a => { const v = el.getAttribute(a); if(v && /branch|dine/i.test(v)){ const nv = tx(v); if(nv !== v) el.setAttribute(a, nv); } })); }
-  let Q = new Set(), on = false;
-  new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") Q.add(m.target); else m.addedNodes.forEach(x => Q.add(x)); });
-    if(!on){ on = true; queueMicrotask(() => { on = false; const q = [...Q]; Q = new Set(); q.forEach(x => { if(x.isConnected) fix(x); }); }); } })
-    .observe(document.documentElement, { childList:true, subtree:true, characterData:true });
-  if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
-  window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
 </body>
 </html>
