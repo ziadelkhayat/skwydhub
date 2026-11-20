@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1105-1795182758">
+<meta name="skwyd-build" content="1107-1795183115">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1109,6 +1109,9 @@ html body .ocard.tl .ocr2.cus .ocm{font-weight:600}html body .ocard.tl .ocr2.cus
 html body .ocard.tl .ocr2.tot{font-size:16px;font-weight:700}html body .ocard.tl .ocr2.tot .oci{stroke:#067647}
 html body .ocard.tl>.ochd{margin-bottom:6px!important}html body .ocard.tl>.ochd>b{font-size:17px!important;font-weight:700!important}
 html body .ocard.tl>.ochd{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;align-self:stretch}html body .ocard.tl>.ochd>.spill{margin:0!important}
+/* drivers page: each driver's orders expand from the row */
+.drvc .drvh[data-drvx]{cursor:pointer;user-select:none}.drvc .drvchev{width:18px;height:18px;flex:none;fill:none;stroke:#1E3A8A;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px;transition:transform .18s}
+.drvc.open .drvchev{transform:rotate(90deg)}.drvc .drvls{display:none}.drvc.open .drvls{display:block}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -2259,11 +2262,14 @@ function openDrivers(){
   const line = o => `<div class="drl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span>${esc(o.customerName || "—")}</span>${o.driverSettledAt ? `<span class="spill s-closed" title="Cash received">Cash received</span>` : ""}<span class="spill s-${o.driverStatus==="picked" ? "out" : o.status}">${esc(o.status==="closed" ? "Delivered" : DRV_ST[o.driverStatus] ? DRV_ST[o.driverStatus][0].toUpperCase() + DRV_ST[o.driverStatus].slice(1) : stLbl(o))}</span><em>${usd(o.total)}</em></div>`;
   modal("drivers", `<div class="ohdr"><button class="hbtn" data-drvback>Back</button><b style="font-size:18px">Drivers · Today</b><span class="sp"></span></div><div class="mb">
     <div class="drvsum"><div><small>Delivery orders</small><b>${mine.length}</b></div><div><small>Total</small><b>${usd(tot(mine))}</b></div><div><small>Without a driver</small><b>${none.length}</b></div></div>
-    ${rows.map(([id, d]) => `<div class="drvc"><div class="drvh"><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Cash collected</span><b>${usd(cash(d.l))}</b>${owedTotal(d.l) ? `<span class="mut" style="margin-left:10px">With driver</span><b style="color:#b54708">${usd(owedTotal(d.l))}</b><button class="hbtn" style="margin-left:10px" data-drvrecv="${esc(id)}">Receive Cash</button>` : ""}</div>
-      ${d.l.length ? d.l.sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(line).join("") : `<p class="mut" style="margin:6px 0 0">No orders today</p>`}</div>`).join("") || `<p class="mut">No drivers yet. Give employees a role with "Use Driver App" in the back office.</p>`}
+    ${rows.map(([id, d]) => `<div class="drvc${DRV_OPEN.has(id) ? " open" : ""}" data-drvc="${esc(id)}"><div class="drvh" role="button" tabindex="0" data-drvx="${esc(id)}" title="Show or hide the orders"><svg class="drvchev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><b>${esc(d.name)}</b><span class="mut">${d.l.length} order${d.l.length===1 ? "" : "s"}</span><span class="sp"></span><span class="mut">Total</span><b>${usd(tot(d.l))}</b><span class="mut" style="margin-left:10px">Cash collected</span><b>${usd(cash(d.l))}</b>${owedTotal(d.l) ? `<span class="mut" style="margin-left:10px">With driver</span><b style="color:#b54708">${usd(owedTotal(d.l))}</b><button class="hbtn" style="margin-left:10px" data-drvrecv="${esc(id)}">Receive Cash</button>` : ""}</div>
+      <div class="drvls">${d.l.length ? d.l.sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).map(line).join("") : `<p class="mut" style="margin:6px 0 0">No orders today</p>`}</div></div>`).join("") || `<p class="mut">No drivers yet. Give employees a role with "Use Driver App" in the back office.</p>`}
     ${none.length ? `<div class="drvc"><div class="drvh"><b>Waiting for a driver</b></div>${none.map(line).join("")}</div>` : ""}</div>`, true);
   $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr");
 }
+// each driver's orders open and close from the driver's row (closed by default)
+const DRV_OPEN = new Set();
+document.addEventListener("click", e => { const h = e.target.closest?.("[data-drvx]"); if(!h || e.target.closest("button,[data-drvrecv]")) return; const id = h.dataset.drvx, c = h.closest(".drvc"); DRV_OPEN.has(id) ? DRV_OPEN.delete(id) : DRV_OPEN.add(id); c?.classList.toggle("open", DRV_OPEN.has(id)); });
 // Receive Cash: the driver hands over the cash of their delivered orders; it is recorded on each order (who received it and when)
 async function receiveDriverCash(id){
   const l = S.orders.filter(o => o.driverId===id && o.branchId===device.branchId && drvCashOwed(o)), amt = owedTotal(l), name = l[0]?.driverName || "the driver";
