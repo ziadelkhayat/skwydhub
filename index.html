@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1099-1795180980">
+<meta name="skwyd-build" content="1100-1795181198">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2851,6 +2851,8 @@ html body #ccBox .ccx .cc1b>.insbox{align-self:stretch!important;width:auto!impo
 html body .ocard.tl>.ochd{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;align-self:stretch;margin-bottom:2px}html body .ocard.tl>.ochd>.spill{margin:0!important}html body .ocard.tl>small.ocreason{color:#B42318!important;margin:-2px 0 4px}
 html body #ccBox .ccobar .ccobx{margin-left:auto;flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid #cfccd9;font-size:0;color:transparent;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232a2738' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7 7 17'/%3E%3C/svg%3E") center/18px 18px no-repeat;cursor:pointer;padding:0;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .15s,border-color .15s}
 html body #ccBox .ccx.s2:has(.ccobx) .ccxbtn{display:none!important}
+html body #ccBox .cc1 :is(input,select,textarea):disabled{background:#F2F2F7!important;color:#636366!important;-webkit-text-fill-color:#636366;cursor:not-allowed;opacity:1}
+html body #ccBox .cc1 #oType button:disabled:not(.on){opacity:.45;cursor:not-allowed}html body #ccBox .cc1 #oType button:disabled.on{cursor:default}
 html body #ccBox .ccobar .ccobx:hover{background-color:#f3f4f8;border-color:#a9a5b8;transform:rotate(90deg)}html body #ccBox .ccobar .ccobx:active{transform:scale(.86) rotate(90deg);background-color:#ecf0fa;border-color:var(--accent)}.chpill.ch-type{background:#E0F2FE;color:#075985}.chpill.ch-agent{background:#F2F2F7;color:#3A3A3C}
 html body .ocard.tl>small.occust{font-size:16px!important;color:var(--ink)!important;font-weight:500;line-height:1.35}html body .ocard.tl>small.ocdrv{font-size:14px!important;color:var(--ink)!important}
 html body .board .ocard{flex-shrink:0!important;overflow:visible!important}
@@ -6090,7 +6092,7 @@ function openOrder(id){
     <div class="cc1top"><button type="button" class="ccxbtn" data-ccclose aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     <div class="cc1 pdstyle">
      <div class="cc1a">
-      <div class="f2 ccts" id="oTSF"><div class="f" id="oTypeF"><div class="seg tiles" id="oType">${[["pickup","Pickup"],["delivery","Delivery"]].map(([k,t])=>`<button type="button" data-ot="${k}" class="${(o ? o.type===k : k==="pickup")?"on":""}" ${dis}>${svgIco(k==="delivery"?"pscoot":"pbag")}${t}</button>`).join("")}</div></div>
+      <div class="f2 ccts" id="oTSF"><div class="f" id="oTypeF"><div class="seg tiles" id="oType">${[["pickup","Pickup"],["delivery","Delivery"]].map(([k,t])=>`<button type="button" data-ot="${k}" class="${(o ? o.type===k : k==="pickup")?"on":""}" ${dis || (o && !["callcenter","pos"].includes(o.channel) ? "disabled" : "")}>${svgIco(k==="delivery"?"pscoot":"pbag")}${t}</button>`).join("")}</div></div>
       <div class="f" id="oSourceF"><select id="oSource" class="sel" data-noseg ${dis} aria-label="Order source"><option value="">Order source *</option>${sourceList(o?.source).map(s=>`<option ${o?.source===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div></div>
       <div class="f2" id="oBBF"><div class="f"><select id="oBrand" ${ldis} aria-label="Brand"><option value="">Brand *</option>${brandList().map(b=>`<option value="${esc(b.id)}" ${o?.brandId===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></div>
       <div class="f"><select id="oBranch" ${ldis} aria-label="Branch"></select></div></div>

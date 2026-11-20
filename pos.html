@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1091-1795179810">
+<meta name="skwyd-build" content="1100-1795181199">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1771,7 +1771,6 @@ function renderAll(){
   $("#incBadge").textContent = pend; $("#incBadge").classList.toggle("hide", !pend); if(!pend) document.getElementById("incNote")?.remove();
   { const fresh = inc.filter(o => o.status==="pending" && !SEEN.has(o.id)); inc.forEach(o => SEEN.add(o.id));
     if(fresh.length && SEEN_READY){ $("#boardBtn").classList.remove("ring"); void $("#boardBtn").offsetWidth; $("#boardBtn").classList.add("ring");
-      toast(fresh.length===1 ? `New ${fresh[0].channel==="callcenter" ? "call-center" : "web"} order${fresh[0].customerName ? " · " + fresh[0].customerName : ""} · open Pickup & delivery to accept it` : `${fresh.length} new orders · open Pickup & delivery to accept them`);
       whistle(); incNote(fresh);
       try{ navigator.vibrate?.(200); }catch(e){} }
     const freshE = inc.filter(o => erPending(o) && !SEEN.has("er:" + o.editRequest.id)); inc.forEach(o => { if(erPending(o)) SEEN.add("er:" + o.editRequest.id); });
