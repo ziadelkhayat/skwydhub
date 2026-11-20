@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1123-1795186047">
+<meta name="skwyd-build" content="1124-1795186139">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6086,7 +6086,8 @@ const erPending = o => !!(o && o.editRequest && o.editRequest.status==="pending"
 const ccSig = () => JSON.stringify([cart.map(i => [i.productId, (i.options||[]).map(x => x.id), i.note||"", i.qty, +i.disc||0]), ccDiscAmt(), ccCharges().picked.map(c => c.id + ":" + (+c.amount||0)).sort(), $("#oSource")?.value || "", $("#oType .on")?.dataset.ot || ""]);
 // an accepted order: Send To Branch can be pressed once something changed
 function ccSendSync(){ const hasCust = !!(($("#oPhone")?.value || "").trim() && ($("#oName")?.value || "").trim() && $("#oType .on")) && !$("#ccX")?.classList.contains("s1");
-  document.querySelectorAll('#ccBox [data-osave="pending"]').forEach(x => { x.disabled = !cart.length || !hasCust; });   // no sending until the customer and order type are saved
+  const missing = (() => { try{ return ccStep1Err(); }catch(_){ return null; } })();   // a new order can't be sent until everything is filled in (delivery needs the address)
+  document.querySelectorAll('#ccBox [data-osave="pending"]').forEach(x => { x.disabled = !cart.length || !hasCust || !!missing; x.title = missing ? missing[0] : ""; });   // no sending until the customer and order type are saved
   document.querySelectorAll('#ccBox [data-osave="draft"]').forEach(x => { x.disabled = !hasCust; });   // a new order: Send is greyed out while the cart is empty
   const b = $("#ccSendEdit"); if(!b) return; b.disabled = ccSig0==null || (ccSig() + "|" + ($("#oNotes")?.value || "") + "|" + ($("#oRNotes")?.value || "")===ccSig0 && !ccVoids.length && !ccTags); }   // greyed out until something changed
 document.addEventListener("change", e => { if(e.target.closest && e.target.closest("#ccBox")) setTimeout(ccSendSync, 0); });
