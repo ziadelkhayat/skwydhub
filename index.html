@@ -6837,7 +6837,7 @@ function viewOnline(){
       ${tg("olPayCash", (co.pay||{}).cash!==false, "Cash", "On delivery or at the counter.")}
       ${tg("olPayCard", (co.pay||{}).card, "Card", "Card machine on delivery or at the counter.")}</div>
     <div class="card olcard"><h3 class="ct">Customer details</h3>
-      <div class="f"><label>Ask for email</label>${radios("olEmail", co.email||"off", [["off","Don't ask"],["optional","Optional"],["required","Required"]])}</div>
+      <div class="f"><label>Ask for email</label>${radios("olEmail", co.email==="optional" || co.email==="required" ? "optional" : "off", [["off","Don't ask"],["optional","Optional"]])}</div>
       ${tg("olNotes", co.notes!==false, "Notes for the kitchen", "A free-text box on checkout.")}
       ${tg("olWaBtn", co.whatsapp, "“Send on WhatsApp” button", "After ordering, customers can send the order to the branch's WhatsApp.")}
       ${inp("olTerms","Checkout message",co.terms,"e.g. Orders over USD 100 need a call to confirm")}</div>

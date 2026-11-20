@@ -1848,7 +1848,7 @@ function openCart(step){
     <div class="sec">Your details</div>
     <div class="f"><label for="cName">Name *</label><input id="cName" required autocomplete="name"></div>
     ${phField("cPhone","Phone *",PROF?.phone||"")}
-    ${em !== "off" ? `<div class="f"><label for="cEmail">Email${em==="required" ? " *" : " (optional)"}</label><input id="cEmail" type="email" autocomplete="email"></div>` : ""}
+    ${em !== "off" ? `<div class="f"><label for="cEmail">Email (optional)</label><input id="cEmail" type="email" autocomplete="email"></div>` : ""}
     ${mode==="delivery"?`<div class="sec">Address details</div><div class="f"><label for="cA_label">Address name</label><input id="cA_label" placeholder="Home, Work…"></div>
     <div class="f"><label for="cA_street">Area / street *</label><input id="cA_street" required autocomplete="street-address"></div>
     <div class="f2"><div class="f"><label for="cA_building">Building name / no. *</label><input id="cA_building" required></div><div class="f"><label for="cA_floor">Floor / Apartment no. *</label><input id="cA_floor" required></div></div>
@@ -1878,7 +1878,7 @@ async function placeOrder(e){
   if(later && !(at && +at)) return err("Pick a time for your order.");
   for(const id of ["cName","cPhone","cA_street","cA_building","cA_floor"]){ const el = $("#"+id); if(el && !el.value.trim()){ el.focus(); return err("Please fill in the required fields."); } }
   const phone = phVal("cPhone"); if(phone.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
-  const email = $("#cEmail")?.value.trim() || ""; if((CO().email==="required" || email) && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email.");
+  const email = $("#cEmail")?.value.trim() || ""; if(email && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email, or leave it empty.");
   const pay = document.querySelector('input[name="pay"]:checked')?.value || "Cash";
   const extra = [later ? `Scheduled for ${dayLbl(at)} ${timeLbl(at)}` : "", payList().length > 1 ? `Pay by ${pay}` : ""].filter(Boolean);   // the email goes to the customer record, not the kitchen note
   const pb = promoBest(); if(pb) extra.push(`Promotion: ${pb.name} (−${usd(pb.amount)})`);
