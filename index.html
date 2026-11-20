@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1088-1795179387">
+<meta name="skwyd-build" content="1089-1795179611">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -5989,8 +5989,8 @@ function viewCallCenter(){
     <button class="btn pri" id="ccNew">${svgIco("phone")} New Call Center Order</button></div>
 `;
   if(storeMode==="local") h += `<div class="banner">Preview mode: orders won't be saved.</div>`;
-  const ccCols = CC_COLS.filter(([k]) => k!=="review" || webToCC() || list.some(o => o.status==="review"));
-  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
+  const ccCols = CC_COLS.filter(([k]) => k!=="review");
+  h += `<div class="board" style="--cccols:${ccCols.length}">${ccCols.map(([k,t,d]) => { const col = list.filter(o => k==="closed" ? ["closed","void","returned"].includes(o.status) : k==="dispatched" ? o.status==="active" && !!o.dispatchedAt : k==="active" ? o.status==="active" && !o.dispatchedAt : k==="pending" ? ["pending","review"].includes(o.status) : o.status===k); return `<div class="bcol"><div class="bhead"><b>${t}</b><span class="cnt ${col.length&&k==="active"?"hot":""}">${col.length}</span></div>
     ${col.length ? col.map(ccCard).join("") : `<div class="bempty">You don't have ${t} orders</div>`}</div>`; }).join("")}</div>`;
   return h;
 }
