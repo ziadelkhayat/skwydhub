@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1104-1795181943">
+<meta name="skwyd-build" content="1105-1795182758">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2856,6 +2856,13 @@ html body #ccBox .cc1 #oType button:disabled:not(.on){opacity:.45;cursor:not-all
 html body #ccBox .ccobar .ccobx:hover{background-color:#f3f4f8;border-color:#a9a5b8;transform:rotate(90deg)}html body #ccBox .ccobar .ccobx:active{transform:scale(.86) rotate(90deg);background-color:#ecf0fa;border-color:var(--accent)}.chpill.ch-type{background:#E0F2FE;color:#075985}.chpill.ch-agent{background:#F2F2F7;color:#3A3A3C}
 html body .ocard.tl>small.occust{font-size:16px!important;color:var(--ink)!important;font-weight:500;line-height:1.35}html body .ocard.tl>small.ocdrv{font-size:14px!important;color:var(--ink)!important}
 html body .board .ocard{flex-shrink:0!important;overflow:visible!important}
+/* ===== Order tiles: one icon row per detail ===== */
+html body .ocard.tl .ocr2{display:grid!important;grid-template-columns:20px minmax(0,1fr);gap:9px;align-items:start;padding:3px 0;font-size:13.5px;line-height:1.4;text-align:left;align-self:stretch;color:var(--ink,#1C1C1E);font-weight:400}
+html body .ocard.tl .ocr2 .oci{width:18px;height:18px;margin-top:1px;fill:none;stroke:#1E3A8A;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+html body .ocard.tl .ocr2 .ocm{display:block;overflow-wrap:anywhere}html body .ocard.tl .ocr2 .ocs{display:block;color:#6B7392;font-size:12.5px;overflow-wrap:anywhere}html body .ocard.tl .ocr2 .ocm .ocs{display:inline}
+html body .ocard.tl .ocr2.cus .ocm{font-weight:600}html body .ocard.tl .ocr2.cus .ocs{color:var(--ink,#1C1C1E);font-size:13.5px}
+html body .ocard.tl .ocr2.tot{font-size:16px;font-weight:700}html body .ocard.tl .ocr2.tot .oci{stroke:#067647}
+html body .ocard.tl>.ochd{margin-bottom:6px!important}html body .ocard.tl>.ochd>b{font-size:17px!important;font-weight:700!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6016,10 +6023,24 @@ const chPill = (o, part) => { const c = o.channel || "", l = c ? salesChName(c) 
   const c3 = o.type ? `<span class="chpill ch-type" title="Order type">${esc(ordTypeLbl(o.type))}</span>` : "", c4 = o.agent ? `<span class="chpill ch-agent" title="${esc(o.agent)}">${esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, ""))}</span>` : "";
   const top = a + b + c3 + c4, loc = c1 + c2;   // channel, source, type and user under the status; brand and branch under the total
   return part==="loc" ? (loc ? `<span class="chpills cploc">${loc}</span>` : "") : (top ? `<span class="chpills">${top}</span>` : ""); };
-const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(x => x && x!=="—").map(esc).join(" / ");
-  return `<button class="ocard tl" data-order="${esc(o.id)}"><span class="ochd"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span></span>${o.status==="declined" && o.voidReason ? `<small class="ocreason">Reason: ${esc(o.voidReason)}</small>` : ""}${chPill(o)}
-  <small class="occust">${esc(o.customerName || "Guest")}</small>${o.phone ? `<small class="occust" style="white-space:nowrap">${esc(telFmt(o.phone))}</small>` : ""}${o.type==="delivery" && o.driverName ? `<small class="ocdrv">Driver: ${esc(o.driverName)}</small>` : ""}
-  ${sm("Created " + ccTime(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + ccTime(o.updatedAt)) : ""}<em>${usd(o.total)}</em>${chPill(o, "loc")}
+const OCI = { user:'<circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/>', bike:'<circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M15 6h3l2 6M5.5 17l3-7h7l3 7"/>', bag:'<path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/>', dine:'<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 3c-2 2-2 6 0 8v10"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>', globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>', tablet:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/>', link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  money:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5a2.5 2 0 0 0-2.5-1.5h-1a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4h-1A2.5 2 0 0 1 9 14.5M12 6.5v1.5m0 8v1.5"/>', store:'<path d="M4 10v10h16V10"/><path d="M3 10l2-6h14l2 6"/><path d="M3 10a3 3 0 0 0 6 0a3 3 0 0 0 6 0a3 3 0 0 0 6 0"/><path d="M10 20v-5h4v5"/>' };
+// one line per detail on an order tile: icon, then the main text and an optional second line
+const ocRow = (k, main, sub, cls) => `<span class="ocr2 ${cls || ""}"><svg class="oci" viewBox="0 0 24 24" aria-hidden="true">${OCI[k]}</svg><span><span class="ocm">${main}</span>${sub ? `<span class="ocs">${sub}</span>` : ""}</span></span>`;
+const ocChIco = c => c==="pos" ? "tablet" : c==="callcenter" ? "phone" : c==="online" ? "globe" : "link";
+const ocTypeIco = t => t==="delivery" ? "bike" : t==="pickup" || t==="takeaway" ? "bag" : "dine";
+const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", ok = v => v && v!=="—";
+  const c = o.channel || "", chl = c ? salesChName(c) : "", src = c && !["pos","callcenter"].includes(c) && (!o.source || o.source==="Website") ? "Web" : String(o.source || "").trim(), bn = brandName(o.brandId), br = branchName(o.branchId);
+  return `<button class="ocard tl" data-order="${esc(o.id)}"><span class="ochd"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span></span>${o.status==="declined" && o.voidReason ? `<small class="ocreason">Reason: ${esc(o.voidReason)}</small>` : ""}
+  ${ocRow("user", esc(o.customerName || "Guest"), o.phone ? esc(telFmt(o.phone)) : "", "cus")}
+  ${o.type ? ocRow(ocTypeIco(o.type), esc(ordTypeLbl(o.type)), o.type==="delivery" && o.driverName ? "Driver: " + esc(o.driverName) : "") : ""}
+  ${chl || src ? ocRow(ocChIco(c), esc(chl || src) + (chl && src && src.toLowerCase()!==chl.toLowerCase() ? ` <span class="ocs">· ${esc(src)}</span>` : "")) : ""}
+  ${o.agent ? ocRow("headset", esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, ""))) : ""}
+  ${ocRow("clock", "Created " + ccTime(o.createdAt), o.updatedAt && o.updatedAt!==o.createdAt ? "Modified " + ccTime(o.updatedAt) : "")}
+  ${ocRow("money", usd(o.total), "", "tot")}
+  ${ok(bn) || ok(br) ? ocRow("store", esc(ok(bn) ? bn : br), ok(bn) && ok(br) ? esc(br) : "") : ""}
   ${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
 
 const ccVO = () => { const o = ccEdit && S.orders.find(x => x.id===ccEdit); return o && o.status==="void" ? o : null; };   // a voided order: every line shows the void and its reason
