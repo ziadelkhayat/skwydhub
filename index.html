@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1085-1795178778">
+<meta name="skwyd-build" content="1086-1795178970">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -9640,7 +9640,7 @@ function brandDetail(b){
     <div class="card odet" style="margin-bottom:16px;padding:16px 18px">${row("Name", esc(b.name))}${row("Name Localized", esc(b.nameAr || "—"))}${row("Branches", brs.length)}${row("Created", b.createdAt ? new Date(b.createdAt).dmy() : "—")}</div>`;
   return `<div class="phead"><button type="button" class="btn" data-bspage="">← Back</button><h1 style="margin-left:10px"><span class="dn">${esc(b.name)}</span> · Settings</h1></div>
     <div class="bswrap"><nav class="bsnav"><b>Settings</b>${BS_TABS.map(([k,t])=>`<a role="button" tabindex="0" data-bstab="${k}" class="${tab[0]===k?"on":""}" style="cursor:pointer">${t}</a>`).join("")}</nav>
-    <div class="card bsbody" data-bsbrand="${esc(b.id)}"><h3>${tab[2]}</h3>${admin?"":`<div class="banner">Only the owner or an admin can change settings.</div>`}
+    <div class="card bsbody" data-bsbrand="${esc(b.id)}"${Object.keys(state.bsDraft?.[b.id] || {}).length ? ' data-dirty="1"' : ""}><h3>${tab[2]}</h3>${admin?"":`<div class="banner">Only the owner or an admin can change settings.</div>`}
       ${tab[3].map(f => bsField(f, v, b, dis)).join("")}
       <div class="err" id="bsErr"></div>${admin ? `<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn pri" data-bssave>Save</button></div>` : ""}</div></div>`;
 }
@@ -12489,7 +12489,7 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   const sig = c => [...(c.classList.contains("phead") ? (c.closest("#view") || c) : c).querySelectorAll("input,select,textarea")].map(e => e.type==="checkbox"||e.type==="radio" ? (e.checked?1:0) : e.multiple ? [...e.selectedOptions].map(o=>o.value).join("|") : e.value).join("\u0001");
   const S = new WeakMap();   // box -> {sig, other}
   const set = (c, dirty) => c.querySelectorAll("button").forEach(b => { if(!isSave(b)) return; b.classList.toggle("nochg", !dirty); dirty ? b.removeAttribute("aria-disabled") : b.setAttribute("aria-disabled","true"); });
-  const arm = () => document.querySelectorAll("button.btn:not([data-dw])").forEach(b => { if(!isSave(b)) return; b.dataset.dw = 1; const c = box(b); if(!S.has(c)) S.set(c, { sig: sig(c), other: false }); set(c, S.get(c).other || sig(c) !== S.get(c).sig); });
+  const arm = () => document.querySelectorAll("button.btn:not([data-dw])").forEach(b => { if(!isSave(b)) return; b.dataset.dw = 1; const c = box(b); if(!S.has(c)) S.set(c, { sig: sig(c), other: c.dataset?.dirty==="1" }); set(c, S.get(c).other || sig(c) !== S.get(c).sig); });
   const touch = (t, other) => { for(const c of [t.closest(".modal,.dlg,form,.bsbody,.card"), ...(t.closest?.("#view") ? [...document.querySelectorAll("#view .phead")] : [])]){ if(!c || !S.has(c)) continue; const st = S.get(c); if(other) st.other = true; set(c, st.other || sig(c) !== st.sig); } };
   document.addEventListener("input", e => touch(e.target), true);
   document.addEventListener("change", e => touch(e.target), true);
