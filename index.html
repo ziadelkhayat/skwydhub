@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1115-1795184665">
+<meta name="skwyd-build" content="1116-1795184756">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2880,7 +2880,7 @@ html body #ccBox #oTSF,html body #ccBox #oBBF{display:none!important}html body #
 html body #ccBox .ccctop{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}html body #ccBox .ccctop .sel{height:46px;border-radius:12px;font-size:14px}
 html body #ccBox .ccotsel{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:#F2F2F7;border-radius:14px}
 html body #ccBox .ccotsel button{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border:0;border-radius:11px;background:transparent;color:#636366;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
-html body #ccBox .ccotsel button svg{width:20px;height:20px}html body #ccBox .ccotsel button.on{background:#fff;color:#1E3A8A;box-shadow:0 1px 4px rgba(23,21,31,.12)}html body #ccBox .ccotsel button:disabled{opacity:.45;cursor:not-allowed}
+html body #ccBox .ccotsel button svg{width:20px;height:20px}html body #ccBox .ccotsel button.on{background:#fff;color:#1E3A8A;box-shadow:0 1px 4px rgba(23,21,31,.12)}html body #ccBox .ccotsel button:disabled{opacity:.45;cursor:not-allowed}html body #ccBox .ccotsel button.on:disabled{opacity:1;cursor:default}html body #ccBox .ccctop .sel:disabled{background:#F7F8FB;color:#3A3A3C;opacity:1;cursor:default}
 /* ===== Call center: customer card and customer details are one panel, × in its top bar ===== */
 @media (min-width:1001px){
   html body #ccBox .ccx.s2{row-gap:0!important}
@@ -6083,7 +6083,7 @@ document.addEventListener("click", e => { if(e.target.closest && e.target.closes
 function ccTopSync(){
   const cartEl = $("#oCart"); if(!cartEl) return; let top = $("#ccCTop");
   const tb = [...document.querySelectorAll("#oType [data-ot]")].filter(b => b.style.display!=="none" && !b.hidden), src = $("#oSource"), type = $("#oType .on")?.dataset.ot || "";
-  if(!tb.length || tb.every(b => b.disabled) && (!src || src.disabled)){ top?.remove(); return; }
+  if(!tb.length && !src){ top?.remove(); return; }   // placed, web and closed orders show the same bar, read-only
   if(!top){ cartEl.insertAdjacentHTML("beforebegin", `<div id="ccCTop" class="ccctop"></div>`); top = $("#ccCTop"); }
   top.innerHTML = `<div class="ccotsel" role="group" aria-label="Order type">${tb.map(b => `<button type="button" data-ccot="${esc(b.dataset.ot)}" class="${b.dataset.ot===type ? "on" : ""}" ${b.disabled ? "disabled" : ""}>${svgIco(b.dataset.ot==="delivery" ? "pscoot" : "pbag")}<span>${b.dataset.ot==="delivery" ? "Delivery" : "Pickup"}</span></button>`).join("")}</div>`
     + (src ? `<select id="ccSrcTop" class="sel" aria-label="Order source" ${src.disabled ? "disabled" : ""}>${[...src.options].map(o => `<option value="${esc(o.value)}" ${o.value===src.value ? "selected" : ""}>${esc(o.textContent)}</option>`).join("")}</select>` : "")
