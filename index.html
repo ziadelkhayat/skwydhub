@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1127-1795186831">
+<meta name="skwyd-build" content="1128-1795186923">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6084,7 +6084,7 @@ const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", ok = v => 
   ${ocRow("user", esc(o.customerName || "Guest"), o.phone ? esc(telFmt(o.phone)) : "", "cus")}
   ${o.type ? ocRow(ocTypeIco(o.type), esc(ordTypeLbl(o.type)), o.type==="delivery" && o.driverName ? "Driver: " + esc(o.driverName) : "") : ""}
   ${chl || src ? ocRow(ocChIco(c), esc(chl || src) + (chl && src && src.toLowerCase()!==chl.toLowerCase() ? ` <span class="ocs">· ${esc(src)}</span>` : "")) : ""}
-  ${o.agent ? ocRow("headset", esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, ""))) : ""}
+  ${o.agent ? ocRow("headset", ["pos","callcenter"].includes(o.channel) ? esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, "")) : /\(auto\)/i.test(o.agent) ? "Accepted automatically" : "Accepted by " + esc(o.agent)) : ""}
   ${ocRow("clock", "Created " + ccTime(o.createdAt), o.updatedAt && o.updatedAt!==o.createdAt ? "Modified " + ccTime(o.updatedAt) : "")}
   ${ocRow("money", usd(o.total), "", "tot")}
   ${ok(bn) || ok(br) ? ocRow("store", esc(ok(bn) ? bn : br), ok(bn) && ok(br) ? esc(br) : "") : ""}

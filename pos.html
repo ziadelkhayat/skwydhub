@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1126-1795186648">
+<meta name="skwyd-build" content="1128-1795186923">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3273,7 +3273,7 @@ function openBoard(){
     ${ocRow("user", esc(o.customerName || "Guest"), o.phone ? esc(telFmt(o.phone)) : "", "cus")}
     ${o.type ? ocRow(ocTypeIco(o.type), esc(typLbl(o.type)), o.type==="delivery" && o.driverName ? "Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "") : "") : ""}
     ${ocRow(ocChIco(c), esc(chl) + (src && src.toLowerCase()!==chl.toLowerCase() ? ` <span class="ocs">· ${esc(src)}</span>` : ""))}
-    ${o.agent ? ocRow("headset", esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, ""))) : ""}
+    ${o.agent ? ocRow("headset", ["pos","callcenter"].includes(o.channel) ? esc(String(o.agent).replace(/\s*\(auto\)\s*$/i, "")) : /\(auto\)/i.test(o.agent) ? "Accepted automatically" : "Accepted by " + esc(o.agent)) : ""}
     ${ocRow("clock", "Created " + t(o.createdAt), o.updatedAt && o.updatedAt!==o.createdAt ? "Modified " + t(o.updatedAt) : "")}
     ${ocRow("money", usd(o.total), "", "tot")}
     ${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`; };
