@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1124-1795186139">
+<meta name="skwyd-build" content="1125-1795186349">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2878,7 +2878,7 @@ html body #ccBox .ccx .cctools .cctool .cchn{position:absolute;top:8px;right:8px
 /* five tool buttons fill the row; the customer column is wider */
 html body #ccBox .ccx.s2 .cctools{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important}
 html body #ccBox .ccx.s2 .cctools .cctool.cctool.cctool{width:auto!important;min-width:0!important;height:auto!important;min-height:0!important;aspect-ratio:1/1;max-height:124px}
-html body #ccBox .ccx.s2:has(.ccobx) .cctools .ccxbtn{display:none!important}
+html body #ccBox .ccx.s2 .cctools{grid-template-columns:repeat(5,minmax(0,1fr)) 44px!important}html body #ccBox .ccx.s2 .cctools .ccxbtn{display:grid!important;align-self:start;justify-self:end;grid-column:-2/-1;grid-row:1}
 @media (min-width:1100px){html body #ccBox .ccx.s2{grid-template-columns:360px minmax(0,1fr) 400px!important}}
 /* ===== Call center customer card: order type switch ===== */
 html body #ccBox #oTSF,html body #ccBox #oBBF{display:none!important}html body #ccBox .ccctop2{display:grid;grid-template-columns:1fr 1fr;gap:8px}html body #ccBox .ccctop2 .sel{min-width:0}   /* order type and source are picked on top of the cart */
@@ -2899,6 +2899,9 @@ html body #ccBox .ccobar .ccobx{width:38px!important;height:38px!important;min-w
 /* modifier option steppers: round buttons, icon centred */
 html body .smp .og .qs button{border-radius:50%!important;display:grid!important;place-items:center!important;padding:0!important;line-height:1!important}
 html body .smp .og .qs button svg{display:block;margin:0!important}
+/* every × turns like the system one */
+html body #ccBox .ccxbtn{transition:transform .18s cubic-bezier(.2,.8,.2,1),background .15s,border-color .15s!important}
+html body #ccBox .ccxbtn:hover{transform:rotate(90deg)!important}html body #ccBox .ccxbtn:active{transform:scale(.86) rotate(90deg)!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6259,7 +6262,7 @@ function ccSide(){
   const keep = [].map(id => document.getElementById(id)).filter(Boolean); keep.forEach(n => n.remove());   // order type, source, brand and branch live in this card
   const bits = [$("#oSource")?.value || "", branchName($("#oBranch")?.value || "")].filter(Boolean);   // no address here
   const so = ccEdit && S.orders.find(x => x.id===ccEdit);   // a placed order: its reference and status on top, as on the POS
-  el.innerHTML = `${so ? `<div class="ccobar"><b>${esc(ccRef(so))}</b><span class="ccpill s-${esc(so.status)}">${esc(CC_SUB[so.status] || so.status)}</span><button type="button" class="ccobx" data-ccclose aria-label="Close">×</button></div>` : `<div class="ccobar ccnew"><b>New Order</b><button type="button" class="ccobx" data-ccclose aria-label="Close">×</button></div>`}<div class="ccctx">${(() => { const tb = [...document.querySelectorAll("#oType [data-ot]")].filter(b => b.style.display!=="none" && !b.hidden), lock = !tb.length || tb.every(b => b.disabled);
+  el.innerHTML = `${so ? `<div class="ccobar"><b>${esc(ccRef(so))}</b><span class="ccpill s-${esc(so.status)}">${esc(CC_SUB[so.status] || so.status)}</span></div>` : `<div class="ccobar ccnew"><b>New Order</b></div>`}<div class="ccctx">${(() => { const tb = [...document.querySelectorAll("#oType [data-ot]")].filter(b => b.style.display!=="none" && !b.hidden), lock = !tb.length || tb.every(b => b.disabled);
     return lock ? `<div class="ccothd"><span class="ccib">${svgIco(type==="delivery" ? "pscoot" : "pbag")}</span><b>${type==="delivery" ? "Delivery" : "Pickup"}</b></div>`
       : ""; })()}<div class="ccctxh"><div class="ccctxn"><b>${esc($("#oName").value.trim() || "No customer yet")}</b>${bits.length ? `<small>${bits.map(esc).join(" / ")}</small>` : ""}</div>${c?.blacklisted ? `<span class="tag" style="background:#fde8eb;color:#9e0c24">⚠ Blacklisted</span>` : ""}<div class="ccctxb">${$("#oPhone")?.disabled ? `<button type="button" class="btn sm" data-ccstep="1">Customer Details</button>` : `<button type="button" class="btn sm" data-ccstep="1">${$("#oName").value.trim() ? "Edit Customer" : "Add Customer"}</button>`}</div></div>
     <div class="ccctxf" id="oCtxF"></div></div>`;
