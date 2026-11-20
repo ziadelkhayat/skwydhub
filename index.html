@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1093-1795180284">
+<meta name="skwyd-build" content="1094-1795180375">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6282,7 +6282,7 @@ function ccActions(o){
   const b = [];
   if(o.status==="active" && ccEditable(o)) b.push(erPending(o) ? `<p class="note" style="text-align:center;margin:0;padding:10px 0">Waiting for the branch to answer the last change</p>` : `<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
   else if(ccEditable(o)) b.push(`<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
-  if(o.status==="review") b.push(`<button type="button" class="btn danger" data-ostatus="declined">Decline</button><button type="button" class="btn pri" data-ostatus="pending">Accept & Send to Branch</button>`);
+  if(o.status==="review") b.push(`<button type="button" class="btn danger" data-ostatus="declined">Decline</button><button type="button" class="btn pri" data-ostatus="pending" title="Accept and send to the branch">Accept</button>`);
   // the branch accepts and completes orders on its POS; the call center can only cancel one the branch hasn't accepted yet
   if(o.status==="pending") b.push(`<button type="button" class="btn danger" data-ostatus="declined">Cancel order</button>`);
   if(["closed","declined","void","returned","refund"].includes(o.status)) b.push(`<button type="button" class="btn pri" data-ccreorder="${esc(o.id)}">Reorder</button>`);
