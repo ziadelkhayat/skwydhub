@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1062-1795043272">
+<meta name="skwyd-build" content="1091-1795179810">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1098,6 +1098,9 @@ html body .ocard.tl>.spill.s-declined,html body .ocard.tl>.spill.s-void,html bod
 html body .ocard.tl .pdmap{font-size:13.5px;font-weight:600;color:var(--acc);text-decoration:none}
 .chpill{display:inline-flex;align-self:flex-start;align-items:center;font-size:12px!important;font-weight:600;line-height:1;padding:6px 10px;border-radius:999px;margin-top:2px;white-space:nowrap;background:#F2F2F7;color:#4A5272}
 .chpill.ch-callcenter{background:#EEF2FF;color:#1E3A8A}.chpill.ch-online{background:#F3E8FF;color:#6D28D9}.chpill.ch-pos{background:#E7F6EC;color:#067647}.chpill.ch-integration{background:#FFF4E5;color:#B54708}
+/* bottom bar count: same red badge as the new-order notification */
+html body .bnav .badge.badge{background:#dc2626!important;color:#fff!important;min-width:22px;height:22px;border-radius:999px;font-size:12px!important;font-weight:400;font-style:normal;display:inline-grid;place-items:center;padding:0 5px!important;line-height:1;animation:none}
+html body .bnav .badge.badge.hide{display:none!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
