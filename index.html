@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1125-1795186349">
+<meta name="skwyd-build" content="1126-1795186648">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2902,6 +2902,14 @@ html body .smp .og .qs button svg{display:block;margin:0!important}
 /* every × turns like the system one */
 html body #ccBox .ccxbtn{transition:transform .18s cubic-bezier(.2,.8,.2,1),background .15s,border-color .15s!important}
 html body #ccBox .ccxbtn:hover{transform:rotate(90deg)!important}html body #ccBox .ccxbtn:active{transform:scale(.86) rotate(90deg)!important}
+/* order tile icons: one colour per detail */
+html body .ocard.tl .ocr2 .oci.oci-user{stroke:#2563EB!important}
+html body .ocard.tl .ocr2 :is(.oci-bike,.oci-bag,.oci-dine){stroke:#0E7C66!important}
+html body .ocard.tl .ocr2 :is(.oci-phone,.oci-globe,.oci-tablet,.oci-link){stroke:#7C3AED!important}
+html body .ocard.tl .ocr2 .oci.oci-headset{stroke:#DB2777!important}
+html body .ocard.tl .ocr2 .oci.oci-clock{stroke:#B54708!important}
+html body .ocard.tl .ocr2 .oci.oci-money{stroke:#067647!important}
+html body .ocard.tl .ocr2 .oci.oci-store{stroke:#92400E!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6067,7 +6075,7 @@ const OCI = { user:'<circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"
   headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   money:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5a2.5 2 0 0 0-2.5-1.5h-1a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4h-1A2.5 2 0 0 1 9 14.5M12 6.5v1.5m0 8v1.5"/>', store:'<path d="M4 10v10h16V10"/><path d="M3 10l2-6h14l2 6"/><path d="M3 10a3 3 0 0 0 6 0a3 3 0 0 0 6 0a3 3 0 0 0 6 0"/><path d="M10 20v-5h4v5"/>' };
 // one line per detail on an order tile: icon, then the main text and an optional second line
-const ocRow = (k, main, sub, cls) => `<span class="ocr2 ${cls || ""}"><svg class="oci" viewBox="0 0 24 24" aria-hidden="true">${OCI[k]}</svg><span><span class="ocm">${main}</span>${sub ? `<span class="ocs">${sub}</span>` : ""}</span></span>`;
+const ocRow = (k, main, sub, cls) => `<span class="ocr2 ${cls || ""}"><svg class="oci oci-${k}" viewBox="0 0 24 24" aria-hidden="true">${OCI[k]}</svg><span><span class="ocm">${main}</span>${sub ? `<span class="ocs">${sub}</span>` : ""}</span></span>`;
 const ocChIco = c => c==="pos" ? "tablet" : c==="callcenter" ? "phone" : c==="online" ? "globe" : "link";
 const ocTypeIco = t => t==="delivery" ? "bike" : t==="pickup" || t==="takeaway" ? "bag" : "dine";
 const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", ok = v => v && v!=="—";
