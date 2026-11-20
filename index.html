@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1089-1795179611">
+<meta name="skwyd-build" content="1090-1795179709">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -5981,7 +5981,9 @@ function viewCallCenter(){
   if(state.fullName && !ccUsers.includes(state.fullName)) ccUsers.unshift(state.fullName);
   const agents = [...new Set(ccUsers)].sort((a,b)=>a.localeCompare(b));
   const byUser = (o, n) => o.agent===n || o.agent===String(n).split(/\s+/)[0];
-  const list = S.orders.filter(o => o.channel!=="pos" && (state.ccBrand ? o.brandId===state.ccBrand : brandFilter(o)) && bizDate(o.createdAt, o.branchId)===(state.ccDate || bizDate(new Date(), o.branchId)))   // one business date: once the branch ends its day, its orders leave the board
+  // web & API orders show here only for brands whose call center accepts them; otherwise they go straight to the branch
+  const ccWeb = o => o.channel==="callcenter" || o.status==="review" || (brandSet(o.brandId).webOrderRoute || company().webOrderRoute || "branch")==="callcenter";
+  const list = S.orders.filter(o => o.channel!=="pos" && ccWeb(o) && (state.ccBrand ? o.brandId===state.ccBrand : brandFilter(o)) && bizDate(o.createdAt, o.branchId)===(state.ccDate || bizDate(new Date(), o.branchId)))   // one business date: once the branch ends its day, its orders leave the board
     .filter(o => state.ccBranch==="all" || o.branchId===state.ccBranch).filter(o => state.ccAgent==="all" || byUser(o, state.ccAgent))
     .sort((a,b)=> b.createdAt.localeCompare(a.createdAt));
   let h = `<div class="phead"><h1>Call Center</h1><div class="sp"></div>
