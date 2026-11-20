@@ -1083,6 +1083,21 @@ html body .modal.dn2.hasman #dsOpenGo{display:none}
 html body .smp.smp.disc .g:has(+ .dz){display:none!important}
 /* bottom bar count badge in the system blue, not red */
 html body .bnav .badge{background:var(--acc)!important;color:#fff!important}
+/* Pickup & Delivery tiles: same look as the portal's call center tiles */
+html body .ocard.tl{gap:6px!important;padding:16px 18px!important}
+html body .ocard.tl>b{font-size:17px!important;font-weight:600!important}
+html body .ocard.tl>small{font-size:13.5px!important;color:#5b5a66!important}
+html body .ocard.tl>em{font-size:18px!important;font-weight:700!important;margin:4px 0 2px!important}
+html body .ocard.tl>.spill{display:inline-flex!important;align-items:center;gap:7px;font-size:12px!important;font-weight:600!important;padding:5px 11px!important;border-radius:999px!important;white-space:nowrap;border:0!important}
+html body .ocard.tl>.spill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.75}
+html body .ocard.tl>.spill.s-pending{background:#FFF1E6!important;color:#9A3B00!important}
+html body .ocard.tl>.spill.s-active{background:#EEF2FF!important;color:#1E3A8A!important}
+html body .ocard.tl>.spill.s-out,html body .ocard.tl>.spill.s-review{background:#F3EDFF!important;color:#5B21B6!important}
+html body .ocard.tl>.spill.s-closed{background:#EEF0F5!important;color:#4A5272!important}
+html body .ocard.tl>.spill.s-declined,html body .ocard.tl>.spill.s-void,html body .ocard.tl>.spill.s-returned,html body .ocard.tl>.spill.s-refund{background:#FDECEC!important;color:#B42318!important}
+html body .ocard.tl .pdmap{font-size:13.5px;font-weight:600;color:var(--acc);text-decoration:none}
+.chpill{display:inline-flex;align-self:flex-start;align-items:center;font-size:12px!important;font-weight:600;line-height:1;padding:6px 10px;border-radius:999px;margin-top:2px;white-space:nowrap;background:#F2F2F7;color:#4A5272}
+.chpill.ch-callcenter{background:#EEF2FF;color:#1E3A8A}.chpill.ch-online{background:#F3E8FF;color:#6D28D9}.chpill.ch-pos{background:#E7F6EC;color:#067647}.chpill.ch-integration{background:#FFF4E5;color:#B54708}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -2532,7 +2547,7 @@ $("#modal").addEventListener("click", async e => {
   const hg = e.target.closest("[data-hget]"); if(hg) return retrieveHeld(hg.dataset.hget);
   const hd = e.target.closest("[data-hdel]"); if(hd){ if(!(await askYes("Delete this held order?", "Delete", true))) return; heldSave(heldList().filter(x => x.id!==hd.dataset.hdel)); return openHeld(); }
   // every order (any channel, any status, older ones from history too) opens in the cart; there is no separate order details page
-  const ov = e.target.closest("[data-ov]"); if(ov){ let o = S.orders.find(x=>x.id===ov.dataset.ov); if(!o){ const h = (OV.hist||[]).find(x => x.id===ov.dataset.ov); if(!h) return; S.orders.push(h); o = h; }
+  const ov = e.target.closest("a.pdmap") ? null : e.target.closest("[data-ov]"); if(ov){ let o = S.orders.find(x=>x.id===ov.dataset.ov); if(!o){ const h = (OV.hist||[]).find(x => x.id===ov.dataset.ov); if(!h) return; S.orders.push(h); o = h; }
     return loadOrder(o.id); }
   if(e.target.closest("[data-ovback]")){ const b = OV.back; OV.back = ""; if(b==="board") return openBoard(); if(b==="incoming") return openIncoming(); return closeModal(); }   // every Back returns to the cart
   const ovo = e.target.closest("[data-ovopen]"); if(ovo) return closeModal();
@@ -3202,13 +3217,13 @@ function openNotes(kind){
 function openBoard(){
   if(!can("pos_orders") && !can("pos_incoming")) return deny("seeing orders");
   const t = v => v ? new Date(v).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"}) : "";
-  const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web";
+  const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering";
   const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(Boolean).map(esc).join(" / ");
   // the same tile as the orders history: reference, status, invoice / order, customer / phone, address (delivery), created, modified, total, type / source, channel / user
   const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : outDel(o) ? "out" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
-    ${sm(jn([o.invoiceNo ? invNo(o.invoiceNo) : "", o.no ? "Order " + o.no : ""]))}${sm(jn([o.customerName, telFmt(o.phone)]))}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "")) : ""}
+    ${sm(esc(o.customerName || "Guest"))}${o.phone ? `<small style="white-space:nowrap">${esc(telFmt(o.phone))}</small>` : ""}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName) + (DRV_ST[o.driverStatus] && o.driverStatus!=="declined" ? " · " + DRV_ST[o.driverStatus] : "")) : ""}${o.type==="delivery" && o.lat && o.lng ? `<a class="lnk pdmap" href="https://www.google.com/maps?q=${o.lat},${o.lng}" target="_blank" rel="noopener">📍 Open pinned location</a>` : ""}
     ${sm("Created " + t(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + t(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
-    ${sm(jn([typLbl(o.type), o.source && o.source!=="Website" && String(o.source).toUpperCase()!=="POS" ? o.source : ""]))}${sm(jn([chn(o), o.agent || ""]))}${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`;
+    ${sm(jn([S.brands?.find(x => x.id===o.brandId)?.name, S.branches?.find(x => x.id===o.branchId)?.name]))}${sm(jn([typLbl(o.type), o.agent || ""]))}${(() => { const c = o.channel || "", src = o.source && o.source!=="Website" && String(o.source).toUpperCase()!=="POS" ? o.source : "", l = chn(o); return `<span class="chpill ch-${esc(c || "other")}">${esc([l, src].filter(Boolean).join(" · "))}</span>`; })()}${o.status==="pending" ? (canAccept() ? `<span class="ocacts"><button class="btn bad" data-inc="${esc(o.id)}:declined">Decline</button><button class="btn pri" data-inc="${esc(o.id)}:active">Accept</button></span>` : `<span class="mut oc-s">${esc(masterNote())}</span>`) : ""}${erPending(o) ? `${erLines(o).map(x => sm(esc(x))).join("")}${o.editRequest.summary?.voidAll ? "" : sm("New total " + usd(o.editRequest.data?.total ?? o.total))}<span class="ocacts"><button class="btn bad" data-er="${esc(o.id)}:0">Reject</button><button class="btn pri" data-er="${esc(o.id)}:1">Approve</button></span>` : ""}</div>`;
   const q = OV.q; OV.q = BQ;
   const PD_COLS = [...OV_COLS.slice(0,2), ["out","Dispatched","Delivery orders on the way with their driver"], OV_COLS[2], ["declined","Declined","Declined today"]];   // pickup & delivery: no void / returns column
   const cols = PD_COLS.map(([k,title,tip]) => [k, title, tip, boardOrders(k, true)]); OV.q = q;
