@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1081-1795104053">
+<meta name="skwyd-build" content="1082-1795177674">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2835,6 +2835,19 @@ html body .app .dbxbar{display:flex;align-items:center;gap:10px;margin:0 0 10px}
 html body .app .dbxgrid > .dbx[draggable="true"]{cursor:grab}
 html body .app .dbxgrid > .dbx.dragging{opacity:.45}
 html body .app .dbxgrid > .dbx.dropon{outline:2px dashed #1E3A8A;outline-offset:3px}
+/* ===== Sales channel pill + call center order view fixes ===== */
+.chpill{display:inline-flex;align-self:flex-start;align-items:center;font-size:12px!important;font-weight:600;line-height:1;padding:5px 9px;border-radius:999px;margin-top:2px;white-space:nowrap;background:#F2F2F7;color:#3A3A3C}
+.chpill.ch-callcenter{background:#EEF2FF;color:#1E3A8A}.chpill.ch-online{background:#F3E8FF;color:#6D28D9}.chpill.ch-pos{background:#E7F6EC;color:#067647}.chpill.ch-integration{background:#FFF4E5;color:#B54708}
+html body #ccBox .ccx .ccctxh{flex-wrap:wrap!important;row-gap:12px}
+html body #ccBox .ccx .ccctxh>.ccctxn{flex:1 1 100%!important;min-width:0}
+html body #ccBox .ccx .ccctxh>.ccctxb{margin-left:0!important;width:100%;justify-content:flex-start}
+html body #ccBox .ccx .ccctxn b{overflow-wrap:normal;word-break:normal}
+.cins-h{flex-wrap:wrap}.cins-h .cins-since{white-space:nowrap}
+html body #ccBox .ccx .cc1b>.insbox{align-self:stretch!important;width:auto!important;max-width:none!important}
+@media (min-width:1100px){
+  html body #ccBox .ccx.s2:not(:has(.ccmenu)){grid-template-columns:minmax(360px,620px) 400px!important;justify-content:center}
+  html body #ccBox .ccx.s2:not(:has(.ccmenu))>.ccside,html body #ccBox .ccx.s2:not(:has(.ccmenu))>.ccleft{grid-column:2!important}
+}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -5983,11 +5996,13 @@ const ordRef = o => o.status==="draft" && !o.no ? "Draft" : o.status==="refund" 
 const invNo = n => n ? String(n).padStart(6,"0") : "";   // invoice number as shown
 const ccTime = t => { if(!t) return "—"; const d = new Date(t), today = bizDate()===bizDate(d); return d.toLocaleString("en-GB", today ? { hour:"2-digit", minute:"2-digit" } : { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }); };
 // the same tile as the orders history: reference, status, customer / phone, address (delivery), created, modified, total, brand / branch, type / source / user
+// sales channel (and the source when there is one, e.g. Toters) in its own colour
+const chPill = o => { const c = o.channel || "", src = srcOf(o), l = CH_LBL[c] || cap(c || ""); return l || src ? `<span class="chpill ch-${esc(c || "other")}">${esc([l, src].filter(Boolean).join(" · "))}</span>` : ""; };
 const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(x => x && x!=="—").map(esc).join(" / ");
   return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>
   ${sm(esc(o.customerName || "Guest"))}${o.phone ? `<small style="white-space:nowrap">${esc(telFmt(o.phone))}</small>` : ""}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}${o.type==="delivery" && o.lat ? `<div class="oline">${mapLink(o)}</div>` : ""}
   ${sm("Created " + ccTime(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + ccTime(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
-  ${sm(jn([brandName(o.brandId), branchName(o.branchId)]))}${sm(jn([ordTypeLbl(o.type), srcOf(o) || o.source || "", o.agent || ""]))}${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
+  ${sm(jn([brandName(o.brandId), branchName(o.branchId)]))}${sm(jn([ordTypeLbl(o.type), o.agent || ""]))}${chPill(o)}${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
 
 const ccVO = () => { const o = ccEdit && S.orders.find(x => x.id===ccEdit); return o && o.status==="void" ? o : null; };   // a voided order: every line shows the void and its reason
 let ccEdit = null, cart = [], ccVoids = [], ccVoidReason = "", ccVoidStock = "", ccSig0 = null;
@@ -9224,7 +9239,7 @@ async function ccLookup(view){
   const fav = {}; ok.forEach(o => (o.items||[]).forEach(i => fav[i.name] = (fav[i.name]||0) + (+i.qty||1)));
   const top = Object.entries(fav).sort((a,b)=>b[1]-a[1]).slice(0,3), last = ok[0], first = ok[ok.length-1];
   const d = t => t ? new Date(t).dmy() : "—";
-  $("#oInsights").innerHTML = `<div class="cins"><div class="cins-h"><b>Customer insights</b><span class="note">Since ${d(data.created_at || first?.created_at)}</span></div>
+  $("#oInsights").innerHTML = `<div class="cins"><div class="cins-h"><b>Customer insights</b><span class="note cins-since">Since ${d(data.created_at || first?.created_at)}</span></div>
     <div class="cins-g"><div><span>Orders</span><b>${ok.length}</b></div><div><span>Total spent</span><b>${usd(spent)}</b></div><div><span>Avg. order</span><b>${usd(ok.length ? spent/ok.length : 0)}</b></div><div><span>Last order</span><b>${last ? d(last.created_at) : "—"}</b></div></div>
     ${ok.length ? (() => { const n = k => ok.filter(o => o.type===k || (k==="takeaway" && o.type==="pickup")).length, st = n("dinein") + n("fast"); return `<div class="cmix">${n("delivery")} delivery · ${n("takeaway")} pickup${st ? ` · ${st} in store` : ""}</div>`; })() : ""}
     </div>`;
