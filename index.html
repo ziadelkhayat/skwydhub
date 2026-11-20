@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1146-1795196291">
+<meta name="skwyd-build" content="1147-1795196417">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2933,6 +2933,8 @@ html body .app .board .bempty.bempty{display:block!important;min-height:0!import
   html body .app>.side,html body .app aside.side.side{position:sticky!important;top:0!important;height:100dvh!important;overflow-y:auto}
   html body .app>.main{height:auto!important;min-height:100dvh;overflow:visible!important;position:relative;z-index:41}
 }
+/* ===== Tablets and wide phones: the account button stays at the foot of the side menu ===== */
+@media (max-width:1180px) and (min-width:761px){html body:not(.navopen) .app aside.side .sidefoot.sidefoot{display:flex!important}}
 /* ===== One sort handle everywhere (the sales channel one) ===== */
 html body .bmgrip,html body .bmgrip.rsgrip,html body .bmgrip.igrip,html body .bmgrip.mgrip{width:16px!important;min-width:16px;height:22px!important;padding:0!important;margin:0 6px 0 0;border-radius:6px;color:#8f8ba3;font-size:0!important;letter-spacing:0}
 html body .bmgrip::before{width:18px!important;height:18px!important}
@@ -7646,17 +7648,20 @@ function bmScopeAsk(){
         <b style="flex:1;min-width:0">${esc(b.name)}</b>
         <div style="width:260px;flex:none"><div class="multi" data-skm="${esc(b.id)}" data-empty="No sales channels in this branch">${chs.map(([c, n]) => `<label><input type="checkbox" value="${esc(c)}" data-skc="${esc(c)}" data-skcb="${esc(b.id)}"> ${esc(n)}</label>`).join("")}</div></div></div>`; };
     const w = document.createElement("div"); w.className = "slk-ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
-    w.innerHTML = `<div class="slk-ask-b" style="max-width:560px;width:min(560px,94vw);text-align:left;overflow:visible"><h3 class="slk-ask-h">Where should this change apply?</h3>
+    w.innerHTML = `<div class="slk-ask-b" style="max-width:560px;width:min(560px,94vw);text-align:left;overflow:visible"><h3 class="slk-ask-h" style="display:flex;align-items:center;gap:12px">Where should this change apply?<button type="button" class="x slk-ask-x" aria-label="Close" style="margin-left:auto">×</button></h3>
       
       <div style="margin:0 0 10px;padding:0 24px 4px">${brs.map(grp).join("") || `<p class="note" style="margin:8px 0">No other sales channels</p>`}</div>
       <div data-skerr style="color:#c62828;font-size:13px;padding:0 24px 10px"></div><div class="slk-ask-f" style="border-radius:0 0 var(--skr,20px) var(--skr,20px)"><button type="button" class="slk-ask-no">Cancel</button><button type="button" class="slk-ask-yes">Save</button></div></div>`;
     const sync = () => w.querySelectorAll(".msel[data-skm]").forEach(m => { if(typeof msPaint==="function") msPaint(m); });
     w.addEventListener("change", e => { const t = e.target;
       w.querySelector("[data-skerr]").textContent = ""; sync(); });
-const done = v => { w.remove(); document.removeEventListener("keydown", key, true); res(v); };
+let fin = false; const done = v => { if(fin) return; fin = true; w.remove(); document.removeEventListener("keydown", key, true); res(v); };
     const go = () => { const map = { [curB]: [curC] }; w.querySelectorAll("[data-skc]:checked").forEach(c => (map[c.dataset.skcb] = map[c.dataset.skcb] || []).push(c.dataset.skc)); done({ map }); };
     const key = e => { if(e.key==="Escape"){ e.preventDefault(); done(null); } else if(e.key==="Enter"){ e.preventDefault(); go(); } };
-    w.querySelector(".slk-ask-no").onclick = () => done(null); w.querySelector(".slk-ask-yes").onclick = go;
+    const no = e => { e.preventDefault(); e.stopPropagation(); done(null); };
+    ["click", "pointerup"].forEach(ev => { w.querySelector(".slk-ask-no").addEventListener(ev, no); w.querySelector(".slk-ask-x").addEventListener(ev, no); });
+    w.addEventListener("click", e => { if(e.target===w) done(null); });   // a tap outside the box cancels too
+    w.querySelector(".slk-ask-yes").onclick = go;
     document.addEventListener("keydown", key, true); document.body.appendChild(w); w.querySelector(".slk-ask-yes").focus();
   });
 }   // changes wait for Save   // every toggle, price and stock change saves straight away
