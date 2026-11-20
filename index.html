@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1094-1795180375">
+<meta name="skwyd-build" content="1095-1795180486">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2847,7 +2847,7 @@ html body #ccBox .ccx .cc1b>.insbox{align-self:stretch!important;width:auto!impo
 /* ===== Call center cards: channel + source pills, tiles never cut off ===== */
 .chpills{display:flex;flex-wrap:wrap;gap:6px;align-self:stretch;margin-top:2px}.chpills .chpill{margin-top:0}
 .chpill.ch-src{background:#E6F6F4;color:#0E7C66}.chpill.ch-brand{background:#FCE7F3;color:#9D174D}.chpill.ch-branch{background:#FEF3C7;color:#92400E}
-.ocard.tl>.chpills{margin:0 0 4px}.ocard.tl>.chpills.cploc{margin:4px 0 0}
+.ocard.tl>.chpills{margin:0 0 4px}.ocard.tl>.chpills.cploc{margin:4px 0 0}html body .ocard.tl>small.ocreason{color:#B42318!important;margin:-2px 0 4px}
 html body #ccBox .ccobar .ccobx{margin-left:auto;flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid #cfccd9;font-size:0;color:transparent;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232a2738' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7 7 17'/%3E%3C/svg%3E") center/18px 18px no-repeat;cursor:pointer;padding:0;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .15s,border-color .15s}
 html body #ccBox .ccobar .ccobx:hover{background-color:#f3f4f8;border-color:#a9a5b8;transform:rotate(90deg)}html body #ccBox .ccobar .ccobx:active{transform:scale(.86) rotate(90deg);background-color:#ecf0fa;border-color:var(--accent)}.chpill.ch-type{background:#E0F2FE;color:#075985}.chpill.ch-agent{background:#F2F2F7;color:#3A3A3C}
 html body .ocard.tl>small.occust{font-size:14.5px!important;color:var(--ink)!important;font-weight:500}
@@ -6011,10 +6011,10 @@ const chPill = (o, part) => { const c = o.channel || "", l = CH_LBL[c] || cap(c 
   const top = a + b + c3 + c4, loc = c1 + c2;   // channel, source, type and user under the status; brand and branch under the total
   return part==="loc" ? (loc ? `<span class="chpills cploc">${loc}</span>` : "") : (top ? `<span class="chpills">${top}</span>` : ""); };
 const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(x => x && x!=="—").map(esc).join(" / ");
-  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>${chPill(o)}
+  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>${o.status==="declined" && o.voidReason ? `<small class="ocreason">Reason: ${esc(o.voidReason)}</small>` : ""}${chPill(o)}
   <small class="occust">${esc(o.customerName || "Guest")}</small>${o.phone ? `<small class="occust" style="white-space:nowrap">${esc(telFmt(o.phone))}</small>` : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}
   ${sm("Created " + ccTime(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + ccTime(o.updatedAt)) : ""}<em>${usd(o.total)}</em>${chPill(o, "loc")}
-  ${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
+  ${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
 
 const ccVO = () => { const o = ccEdit && S.orders.find(x => x.id===ccEdit); return o && o.status==="void" ? o : null; };   // a voided order: every line shows the void and its reason
 let ccEdit = null, cart = [], ccVoids = [], ccVoidReason = "", ccVoidStock = "", ccSig0 = null;
@@ -6070,7 +6070,7 @@ function ccReorder(id){
   if(miss.length) toast(`Not available now: ${miss.join(", ")}`);
 }
 // call-center orders stay editable until the branch closes them (pending = sent, active = in the kitchen)
-const ccEditable = o => !o || o.status==="draft" || (o.channel==="callcenter" && ["pending","active"].includes(o.status));
+const ccEditable = o => !o || o.status==="draft" || o.status==="review" || (["pending","active"].includes(o.status) && (o.channel==="callcenter" || (o.channel!=="pos" && ccAccepts(o))));
 function openOrder(id){
   const o = id ? S.orders.find(x=>x.id===id) : null;
   ccEdit = o ? o.id : null; cart = o ? o.items.map(i=>({...i, ...(o.status==="active" ? { saved:+i.qty } : {})})) : []; ccTags = null; ccVoids = []; ccVoidReason = ""; ccSig0 = null; clearTimeout(openOrder.sigT); openOrder.sigT = setTimeout(() => { const cur = ccEdit && S.orders.find(x => x.id===ccEdit); if(cur && ["pending","active"].includes(cur.status)){ ccSig0 = ccSig() + "|" + ($("#oNotes")?.value || "") + "|" + ($("#oRNotes")?.value || ""); ccSendSync(); } }, 600);   // the starting point is taken once the screen has settled   // an accepted order: its items are in the kitchen, so they can only be voided (and the branch approves every change)
@@ -6281,7 +6281,7 @@ function ccActions(o){
   if(!o || o.status==="draft") return `<button type="button" class="btn" data-osave="draft">Save as Draft</button><button type="button" class="btn pri" data-osave="pending">Send</button>${o ? `<button type="button" class="btn danger" data-ccdeldraft>Cancel Draft</button>` : ""}`;
   const b = [];
   if(o.status==="active" && ccEditable(o)) b.push(erPending(o) ? `<p class="note" style="text-align:center;margin:0;padding:10px 0">Waiting for the branch to answer the last change</p>` : `<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
-  else if(ccEditable(o)) b.push(`<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
+  else if(ccEditable(o) && o.status!=="review") b.push(`<button type="button" class="btn pri" data-osave="keep" id="ccSendEdit" disabled>Edit & Send</button>`);
   if(o.status==="review") b.push(`<button type="button" class="btn danger" data-ostatus="declined">Decline</button><button type="button" class="btn pri" data-ostatus="pending" title="Accept and send to the branch">Accept</button>`);
   // the branch accepts and completes orders on its POS; the call center can only cancel one the branch hasn't accepted yet
   if(o.status==="pending") b.push(`<button type="button" class="btn danger" data-ostatus="declined">Cancel order</button>`);
@@ -6551,7 +6551,7 @@ function renderCart(ro){
   const td = $("#ccToolDisc"); if(td) td.hidden = !ccMayDisc();
   if(grew){ const cl = document.querySelector("#oCart .clist"); if(cl) requestAnimationFrame(() => { cl.scrollTop = cl.scrollHeight; }); }
 }
-async function saveOrder(status){
+async function saveOrder(status, extra){
   const o = ccEdit ? S.orders.find(x=>x.id===ccEdit) : null;
   if(!o || o.status==="draft"){ let e1 = ccStep1Err(); if(e1 && status==="draft" && !["oPhone","oName"].includes(e1[1])) e1 = null; if(e1){ if(ccCustErr(e1)) await ccStep(1, true); toast(e1[0]); if(e1[1]) setTimeout(() => $("#"+e1[1])?.focus(), 30); return; } }   // the customer details come first: open them with what's missing
   if(status==="keep") status = o?.status || "draft";
@@ -6601,7 +6601,7 @@ async function saveOrder(status){
     try{ await put("orders", ccEdit, { editRequest: er }); toast(`Changes sent to ${branchName(o.branchId)} for approval`); $("#ccScrim").classList.remove("show"); }
     catch(err){ console.error(err); $("#oErr").textContent = "Couldn't send the changes."; }
     return; }
-  const oid = ccEdit || uid("ord");
+  const oid = ccEdit || uid("ord"); if(extra) Object.assign(data, extra);
   try{ await put("orders", oid, data); if(ccTags) await tagSetFor("order", oid, ccTags); ccTags = null; toast(o && o.status!=="draft" ? `Order ${ccRef(o)} updated · ${branchName(o.branchId)} sees the changes` : status==="pending" ? `Order sent to ${branchName(branchId)}` : "Draft saved"); $("#ccScrim").classList.remove("show"); }
   catch(err){ console.error(err); $("#oErr").textContent = "Couldn't save the order."; }
 }
@@ -6625,7 +6625,9 @@ function askReason(title, reasons, yes){
 }
 async function setOrderStatus(s){
   if(s==="active" || s==="closed") return toast("Only the branch can accept or close an order, on its POS.");
-  if(s==="pending"){ const cur = S.orders.find(x => x.id===ccEdit); if(!cur || cur.status!=="review") return;   // a web order the call center accepts goes on to its branch
+  if(s==="pending"){ const cur = S.orders.find(x => x.id===ccEdit); if(!cur || cur.status!=="review") return;
+    const changed = ccSig0!=null && (ccSig() + "|" + ($("#oNotes")?.value || "") + "|" + ($("#oRNotes")?.value || "")!==ccSig0 || ccVoids.length || ccTags);
+    if(changed) return saveOrder("keep", { status:"pending", agent: state.fullName || state.userName || "Operator" });   // a web order the call center accepts goes on to its branch
     try{ await put("orders", ccEdit, { status:"pending", agent: state.fullName || state.userName || "Operator" }); toastOk("Order accepted and sent to " + (branchName(cur.branchId) || "the branch")); $("#ccScrim").classList.remove("show"); }
     catch(err){ console.error(err); $("#oErr").textContent = "Couldn't update the order."; }
     return; }
