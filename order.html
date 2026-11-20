@@ -1055,6 +1055,8 @@ let addrs = lsGet(AK, []), addr = null, LS = { view:"main", draft:null, res:[], 
 { const s = lsGet(AK + "_sel", null); addr = typeof s==="string" ? addrs.find(a => a.id===s) || null : s?.temp || null; if(addr){ pin = [addr.lat, addr.lng]; zoneId = zoneList().find(z => inside(pin, z.polygon))?.id || ""; } }   // the saved address picks its delivery zone on load
 /* ---------- customer accounts: ordering needs an account. Supabase Auth keeps the password; skwyd hub never sees it ---------- */
 let USER = null, PROF = null, AU = { view:"in", then:null, msg:"", email:"" }, AC = { view:"home", pts:null, then:null, msg:"" };
+// one Name field: the first word is kept as first name, the rest as last name
+const splitName = n => { const w = String(n||"").trim().replace(/\s+/g," ").split(" "); return { first_name: w[0] || "", last_name: w.slice(1).join(" ") || null }; };
 const fullName = () => [PROF?.first_name, PROF?.last_name].filter(Boolean).join(" ");
 const inits = () => ((((PROF?.first_name||"")[0]||"") + ((PROF?.last_name||"")[0]||"")) || (USER?.email||"?")[0]).toUpperCase();
 const backUrl = () => location.href.split("#")[0];
@@ -1111,7 +1113,7 @@ function drawAuth(){
   if(v==="code"){ sh.innerHTML = head("Enter the code") + `<p class="info" style="margin:-4px 0 14px">We sent a code on WhatsApp to <b>${esc(AU.phone)}</b>.</p><form id="auF" novalidate>${codeF}${btn("Continue")}</form>
       <p class="info" style="text-align:center;margin-top:12px">Didn't get it? <button type="button" class="lnk2" data-aresend>Send again</button></p>`; setTimeout(() => $("#aCode")?.focus(), 60); return; }
   if(v==="up"){ sh.innerHTML = head("Complete your account") + `<p class="info" style="margin:-4px 0 14px">Welcome! Tell us your name so the restaurant knows who's ordering.</p><form id="auF" novalidate>
-      <div class="f2">${fld("aFirst","First name *","text","given-name",PROF?.first_name)}${fld("aLast","Last name *","text","family-name",PROF?.last_name)}</div>
+      ${fld("aName","Name *","text","name",fullName())}
       <div class="f"><label>Date of birth</label>${bdSel("aDob", PROF?.dob)}</div>
       ${fld("aEmail","Email (optional)","email","email",PROF?.email || "")}
       ${btn("Save")}</form>`; return; }
@@ -1128,10 +1130,10 @@ async function authSubmit(){
     busy("Checking…"); const { data, error } = await sb.auth.verifyOtp({ phone: phE164(AU.phone), token: k, type: "sms" });
     if(error){ busy(); return err(otpErr(error.message)); }
     USER = data.user; await loadProf();
-    if(!PROF?.first_name || !PROF?.last_name){ AU.view = "up"; return drawAuth(); }
+    if(!PROF?.first_name){ AU.view = "up"; return drawAuth(); }
     return afterAuth(); }
-  if(AU.view==="up"){ const m = { first_name:v("aFirst"), last_name:v("aLast"), dob:v("aDob")||null }, email = v("aEmail").toLowerCase();
-    if(!m.first_name || !m.last_name) return err("Enter your first and last name.");
+  if(AU.view==="up"){ const m = { ...splitName(v("aName")), dob:v("aDob")||null }, email = v("aEmail").toLowerCase();
+    if(!m.first_name) return err("Enter your name.");
     if(email && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email, or leave it empty.");
     busy("Saving…"); const r = await sb.from("web_customers").update({ ...m, email: email || null, updated_at: new Date().toISOString() }).eq("id", USER.id).select().single();
     if(r.error){ busy(); return err("We couldn't save your details. Please try again."); }
@@ -1151,7 +1153,7 @@ function drawAcct(){
   const head = t => `<div class="grab"></div><div class="lshead">${v==="home" ? "<span></span>" : `<button type="button" class="x" data-acv="home" aria-label="Back">‹</button>`}<h3>${t}</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
   const fld = (id, lbl, type, ac, val, ph) => `<div class="f"><label for="${id}">${lbl}</label><input id="${id}" type="${type||"text"}"${ac ? ` autocomplete="${ac}"` : ""} value="${esc(val||"")}"${ph ? ` placeholder="${esc(ph)}"` : ""}></div>`;
   if(v==="profile"){ sh.innerHTML = head("Profile") + (AC.msg ? `<p class="info" style="margin:-4px 0 14px">${esc(AC.msg)}</p>` : "") + `<form id="acF" novalidate>
-      <div class="f2">${fld("pFirst","First name *","text","given-name",p.first_name)}${fld("pLast","Last name *","text","family-name",p.last_name)}</div>
+      ${fld("pName","Name *","text","name",[p.first_name, p.last_name].filter(Boolean).join(" "))}
       <div class="f"><label>Date of birth</label>${bdSel("pDob", p.dob)}</div>
       ${fld("pEmail","Email (optional)","email","email",p.email || USER.email || "")}${USER.phone ? `<div class="f"><label>Phone number</label><input value="${esc(p.phone || "+" + USER.phone)}" disabled></div><p class="info" style="margin:-6px 0 10px">You sign in with this number.</p>` : phField("pPhone","Phone number *",p.phone)}
       <div class="aok" id="acOk"></div><div class="err" id="acErr"></div><button class="primary" id="acGo">Save changes</button></form>`; return; }
@@ -1174,8 +1176,8 @@ async function acctSubmit(){
     if(pw.length < 6) return err("Use a password of at least 6 characters."); if(pw !== $("#pPw2").value) return err("The passwords don't match.");
     busy("Saving…"); const { error } = await sb.auth.updateUser({ password:pw }); busy();
     if(error) return err(error.message); $("#pPw").value = $("#pPw2").value = ""; return ok("Your password is changed."); }
-  const m = { first_name:v("pFirst"), last_name:v("pLast"), dob:v("pDob")||null, phone: USER.phone ? (PROF?.phone || "+" + USER.phone) : phVal("pPhone") }, email = v("pEmail").toLowerCase();
-  if(!m.first_name || !m.last_name) return err("Enter your first and last name.");
+  const m = { ...splitName(v("pName")), dob:v("pDob")||null, phone: USER.phone ? (PROF?.phone || "+" + USER.phone) : phVal("pPhone") }, email = v("pEmail").toLowerCase();
+  if(!m.first_name) return err("Enter your name.");
   if(m.phone.replace(/\D/g,"").length < 8) return err("Enter a valid phone number.");
   if(email && !/^\S+@\S+\.\S+$/.test(email)) return err("Enter a valid email, or leave it empty.");
   m.email = email || null;
@@ -1834,7 +1836,7 @@ function openCart(step){
       <button type="button" class="primary" data-costep ${min && sub()<min ? "disabled" : ""} style="margin-top:10px">Continue · ${usd(grand())}${btn2(grand())}</button>`;
     $("#scrim").classList.add("show"); return; }
   if(!USER && !PREVIEW) return openAuth("in", () => openCart("details"), "Sign in or create an account to place your order.");
-  if(USER && PROF && !PREVIEW && (!PROF.first_name || !PROF.last_name || String(PROF.phone||"").replace(/\D/g,"").length < 8)){ AC.then = () => openCart("details"); AC.msg = "Add your name and phone number to finish your profile before ordering."; return openAcct("profile"); }
+  if(USER && PROF && !PREVIEW && (!PROF.first_name || String(PROF.phone||"").replace(/\D/g,"").length < 8)){ AC.then = () => openCart("details"); AC.msg = "Add your name and phone number to finish your profile before ordering."; return openAcct("profile"); }
   $("#sheet").className = "sheet";
   $("#sheet").innerHTML = `<h3><span style="display:flex;align-items:center;gap:10px"><button type="button" class="x" data-coback aria-label="Back to basket">‹</button>Your details</span><button class="x" data-close aria-label="Close">×</button></h3>
     <div class="costep"><i class="on">✓</i>Basket<span class="ln"></span><i class="on">2</i>Your details</div>
