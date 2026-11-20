@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1133-1795188738">
+<meta name="skwyd-build" content="1134-1795189924">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -7305,7 +7305,7 @@ function viewBranchMenu(){
     return `<div class="mmdh"><b>${esc(nm)}</b><small>Prices and availability at ${esc(br.name)}</small></div>
       <div class="mmdrow mmdbase"><span>Price</span><span class="scprice${st.price!=="" ? " cust" : ""}"><span class="cur">${esc(SYM())}</span><input inputmode="decimal" class="sel" data-bmprice="${esc(sp.id)}" value="${esc(st.price)}" placeholder="${esc(String(st.fallback))}" aria-label="${esc(nm)} price"></span></div>
       ${bmTypes().map(([t, tl]) => `<div class="mmdrow"><label class="toggle" title="Sell as ${esc(tl)}"><input type="checkbox" data-bmtype="${esc(sp.id)}|${t}" ${st.types[t]?"checked":""} aria-label="${esc(nm)} as ${esc(tl)}"><span class="trk"></span></label><b>${esc(tl)}</b><input inputmode="decimal" class="sel bmdin${st.tprices[t]!=="" ? " cust" : ""}" data-bmtprice="${esc(sp.id)}|${t}" value="${esc(st.tprices[t])}" placeholder="${esc(String(base))}" aria-label="${esc(nm)} ${esc(tl)} price" ${st.types[t] ? "" : "disabled"}></div>`).join("")}
-      <div class="mmdft">${Object.values(st.tprices).some(Boolean) ? `<button type="button" class="btn sm" data-bmsame="${esc(sp.id)}">Same price for all</button>` : `<span class="note">Same price for every order type</span>`}${bmLinks(sp).length ? `<button type="button" class="btn sm" data-bmopen="${esc(sp.id)}">Modifiers</button>` : ""}</div>`; })();
+      <div class="mmdft">${Object.values(st.tprices).some(Boolean) ? `<button type="button" class="btn sm" data-bmsame="${esc(sp.id)}">Same price for all</button>` : ""}${bmLinks(sp).length ? `<button type="button" class="btn sm" data-bmopen="${esc(sp.id)}">Modifiers</button>` : ""}</div>`; })();
   return h + `</div></section><aside class="mmdet">${det}</aside></div>${bmSaveBar(nDraft)}</div>` + bmDrawer(br, ch, types);
 }
 // one item in a sales channel: its price per order type and its modifiers (each group with its rule, options on/off, price, stock)
