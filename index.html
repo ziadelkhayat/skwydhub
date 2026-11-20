@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1103-1795181830">
+<meta name="skwyd-build" content="1104-1795181943">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3658,6 +3658,8 @@ function dashSoon(){ clearTimeout(DASH.t); DASH.t = setTimeout(() => loadDash(tr
 setInterval(() => { if((HASH().slice(1)||"dashboard")==="dashboard" && !document.hidden && !state.dateSet) loadDash(true); }, 60000);
 const hours24 = (rows, f) => { const a = Array(24).fill(0), sh = dayStartH(); (rows||[]).forEach(r => a[(r.h - sh + 24) % 24] = +r[f]||0); return a; };   // starts at the business day's first hour
 const TYPE_LBL = { dinein:"Dine-in", pickup:"Pickup", takeaway:"Pickup", delivery:"Delivery", fast:"Fast Order", other:"Other" };
+// API / marketplace channels show the name they were given in Sales Channels
+const salesChName = c => CH_LBL[c] || ((typeof S!=="undefined" ? S.settings : []).find(x => x.id==="sales_channels")?.list || []).find(x => (x.code || x.kind)===c)?.name || (String(c||"").startsWith("int_") ? "API" : cap(c || ""));
 const CH_LBL = { pos:"POS", online:"Web Ordering", callcenter:"Call center", other:"Other" };
 const PAY_LBL = { cash:"Cash", card:"Card", other:"Other", "on delivery":"Pay on delivery" };
 const cap = s => String(s||"").charAt(0).toUpperCase() + String(s||"").slice(1);
@@ -3841,10 +3843,10 @@ function viewDashboard(){
     h += `<div class="dgrid3">
       <div class="card"><div class="kh"><h3>Order types</h3></div>${barList(D.types.map(t=>({name:TYPE_LBL[t.k]||cap(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>
       <div class="card"><div class="kh"><h3>Payment methods</h3></div>${barList(D.payMethods.map(t=>({name:PAY_LBL[t.k]||cap(t.k), v:+t.v, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>
-      ${shift || `<div class="card"><div class="kh"><h3>Sales channels</h3></div>${barList(D.channels.map(t=>({name:CH_LBL[t.k]||cap(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>`}
+      ${shift || `<div class="card"><div class="kh"><h3>Sales channels</h3></div>${barList(D.channels.map(t=>({name:salesChName(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>`}
     </div>
     <div class="grid two">
-      ${shift ? `<div class="card"><div class="kh"><h3>Sales channels</h3></div>${barList(D.channels.map(t=>({name:CH_LBL[t.k]||cap(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>` : ""}
+      ${shift ? `<div class="card"><div class="kh"><h3>Sales channels</h3></div>${barList(D.channels.map(t=>({name:salesChName(t.k), v:+t.net, sub:t.n+" orders"})).sort((a,b)=>b.v-a.v))}</div>` : ""}
       
     </div>`;
   } else if(state.dashTab==="branches"){
@@ -3985,7 +3987,7 @@ function rptKey(o, k, line){
     case "branch": return branchName(o.branchId) || "—";
     case "type": return ordTypeLbl(o.type);
     case "source": return srcOf(o) || "—";
-    case "channel": return CH_LBL[o.channel] || cap(o.channel || "—");
+    case "channel": return o.channel ? salesChName(o.channel) : "—";
     case "cashier": return cashierOf(o);
     case "payment": return payOf(o);
     case "customer": return o.customerName || o.phone || "Walk-in";
@@ -6007,7 +6009,7 @@ const invNo = n => n ? String(n).padStart(6,"0") : "";   // invoice number as sh
 const ccTime = t => { if(!t) return "—"; const d = new Date(t), today = bizDate()===bizDate(d); return d.toLocaleString("en-GB", today ? { hour:"2-digit", minute:"2-digit" } : { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }); };
 // the same tile as the orders history: reference, status, customer / phone, address (delivery), created, modified, total, brand / branch, type / source / user
 // sales channel (and the source when there is one, e.g. Toters) in its own colour
-const chPill = (o, part) => { const c = o.channel || "", l = CH_LBL[c] || cap(c || ""), src = c==="online" && (!o.source || o.source==="Website") ? "Web" : String(o.source || "").trim();
+const chPill = (o, part) => { const c = o.channel || "", l = c ? salesChName(c) : "", src = c && !["pos","callcenter"].includes(c) && (!o.source || o.source==="Website") ? "Web" : String(o.source || "").trim();
   const a = l ? `<span class="chpill ch-${esc(c || "other")}" title="Sales channel">${esc(l)}</span>` : "", b = src && src.toLowerCase()!==l.toLowerCase() ? `<span class="chpill ch-src" title="Order source">${esc(src)}</span>` : "";
   const bn = brandName(o.brandId), br = branchName(o.branchId), ok = v => v && v!=="—";
   const c1 = ok(bn) ? `<span class="chpill ch-brand" title="Brand">${esc(bn)}</span>` : "", c2 = ok(br) ? `<span class="chpill ch-branch" title="Branch">${esc(br)}</span>` : "";
@@ -8701,7 +8703,7 @@ async function openOrderDetail(id, quiet){
       <div><span>Check Number</span>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : (o.channel!=="pos" && ["pending","draft"].includes(o.status) ? '<span class="note">From the POS when accepted</span>' : "—")}</div>
       <div><span>Brand</span>${esc(brandName(o.brandId) || "—")}</div>
       <div><span>Branch</span>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>
-      <div><span>Sales channel</span>${esc(CH_LBL[o.channel] || cap(o.channel))}</div>
+      <div><span>Sales channel</span>${esc(salesChName(o.channel))}</div>
       <div><span>Order type</span>${esc(ordTypeLbl(o.type))}${o.table?` · Table ${esc(o.table)}`:""}</div>
       <div><span>Order source</span>${o.source && o.source!=="POS" && !(o.channel==="online" && o.source==="Website") ? esc(o.source) : "—"}</div>
       <div><span>Tags</span>${tagsOf("order", o.id).map(t => `<span class="tag cc">${esc(tagName(t))}</span>`).join(" ") || "—"} <a href="#orders" class="lnk" data-otags="${esc(o.id)}">Edit</a></div>
