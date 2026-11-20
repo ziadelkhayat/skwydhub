@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1083-1795178259">
+<meta name="skwyd-build" content="1084-1795178676">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2850,7 +2850,8 @@ html body #ccBox .ccx .cc1b>.insbox{align-self:stretch!important;width:auto!impo
 }
 /* ===== Call center cards: channel + source pills, tiles never cut off ===== */
 .chpills{display:flex;flex-wrap:wrap;gap:6px;align-self:stretch;margin-top:2px}.chpills .chpill{margin-top:0}
-.chpill.ch-src{background:#E6F6F4;color:#0E7C66}
+.chpill.ch-src{background:#E6F6F4;color:#0E7C66}.chpill.ch-brand{background:#FCE7F3;color:#9D174D}.chpill.ch-branch{background:#FEF3C7;color:#92400E}
+.ocard.tl>.chpills{margin:0 0 4px}
 html body .board .ocard{flex-shrink:0!important;overflow:visible!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
@@ -6003,12 +6004,14 @@ const ccTime = t => { if(!t) return "—"; const d = new Date(t), today = bizDat
 // sales channel (and the source when there is one, e.g. Toters) in its own colour
 const chPill = o => { const c = o.channel || "", l = CH_LBL[c] || cap(c || ""), src = String(o.source || "").trim();
   const a = l ? `<span class="chpill ch-${esc(c || "other")}" title="Sales channel">${esc(l)}</span>` : "", b = src && src.toLowerCase()!==l.toLowerCase() ? `<span class="chpill ch-src" title="Order source">${esc(src)}</span>` : "";
-  return a || b ? `<span class="chpills">${a}${b}</span>` : ""; };
+  const bn = brandName(o.brandId), br = branchName(o.branchId), ok = v => v && v!=="—";
+  const c1 = ok(bn) ? `<span class="chpill ch-brand" title="Brand">${esc(bn)}</span>` : "", c2 = ok(br) ? `<span class="chpill ch-branch" title="Branch">${esc(br)}</span>` : "";
+  return c1 || c2 || a || b ? `<span class="chpills">${c1}${c2}${a}${b}</span>` : ""; };
 const ccCard = o => { const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(x => x && x!=="—").map(esc).join(" / ");
-  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>
+  return `<button class="ocard tl" data-order="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${o.status==="active" && o.dispatchedAt ? "review" : o.status}">${o.status==="active" && o.dispatchedAt ? "Dispatched" : CC_SUB[o.status]}</span>${chPill(o)}
   ${sm(esc(o.customerName || "Guest"))}${o.phone ? `<small style="white-space:nowrap">${esc(telFmt(o.phone))}</small>` : ""}${o.type==="delivery" && o.address ? sm(esc(o.address)) : ""}${o.type==="delivery" && o.driverName ? sm("Driver: " + esc(o.driverName)) : ""}${o.type==="delivery" && o.lat ? `<div class="oline">${mapLink(o)}</div>` : ""}
   ${sm("Created " + ccTime(o.createdAt))}${o.updatedAt && o.updatedAt!==o.createdAt ? sm("Modified " + ccTime(o.updatedAt)) : ""}<em>${usd(o.total)}</em>
-  ${sm(jn([brandName(o.brandId), branchName(o.branchId)]))}${sm(jn([ordTypeLbl(o.type), o.agent || ""]))}${chPill(o)}${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
+  ${sm(jn([ordTypeLbl(o.type), o.agent || ""]))}${o.status==="declined" && o.voidReason ? sm("Reason: " + esc(o.voidReason)) : ""}${o.editRequest && o.status==="active" ? sm(o.editRequest.status==="pending" ? "Order edit: waiting for the branch" : o.editRequest.status==="approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + esc(o.editRequest.reason) : "")) : ""}</button>`; };
 
 const ccVO = () => { const o = ccEdit && S.orders.find(x => x.id===ccEdit); return o && o.status==="void" ? o : null; };   // a voided order: every line shows the void and its reason
 let ccEdit = null, cart = [], ccVoids = [], ccVoidReason = "", ccVoidStock = "", ccSig0 = null;
