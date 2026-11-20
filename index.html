@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1087-1795179166">
+<meta name="skwyd-build" content="1088-1795179387">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2847,7 +2847,9 @@ html body #ccBox .ccx .cc1b>.insbox{align-self:stretch!important;width:auto!impo
 /* ===== Call center cards: channel + source pills, tiles never cut off ===== */
 .chpills{display:flex;flex-wrap:wrap;gap:6px;align-self:stretch;margin-top:2px}.chpills .chpill{margin-top:0}
 .chpill.ch-src{background:#E6F6F4;color:#0E7C66}.chpill.ch-brand{background:#FCE7F3;color:#9D174D}.chpill.ch-branch{background:#FEF3C7;color:#92400E}
-.ocard.tl>.chpills{margin:0 0 4px}.chpill.ch-type{background:#E0F2FE;color:#075985}.chpill.ch-agent{background:#F2F2F7;color:#3A3A3C}
+.ocard.tl>.chpills{margin:0 0 4px}
+html body #ccBox .ccobar .ccobx{margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;border:1.5px solid #cfccd9;background:#fff;color:#3A3A3C;font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer;padding:0}
+html body #ccBox .ccobar .ccobx:hover{background:#F2F2F7}.chpill.ch-type{background:#E0F2FE;color:#075985}.chpill.ch-agent{background:#F2F2F7;color:#3A3A3C}
 html body .ocard.tl>small.occust{font-size:14.5px!important;color:var(--ink)!important;font-weight:500}
 html body .board .ocard{flex-shrink:0!important;overflow:visible!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
@@ -6167,7 +6169,7 @@ function ccSide(){
   const keep = [].map(id => document.getElementById(id)).filter(Boolean); keep.forEach(n => n.remove());   // order type, source, brand and branch live in this card
   const bits = [$("#oSource")?.value || "", branchName($("#oBranch")?.value || "")].filter(Boolean);   // no address here
   const so = ccEdit && S.orders.find(x => x.id===ccEdit);   // a placed order: its reference and status on top, as on the POS
-  el.innerHTML = `${so ? `<div class="ccobar"><b>${esc(ccRef(so))}</b><span class="ccpill s-${esc(so.status)}">${esc(CC_SUB[so.status] || so.status)}</span></div>` : ""}<div class="ccctx"><div class="ccothd"><span class="ccib">${svgIco(type==="delivery" ? "pscoot" : "pbag")}</span><b>${type==="delivery" ? "Delivery" : "Pickup"}</b></div><div class="ccctxh"><div class="ccctxn"><b>${esc($("#oName").value.trim() || "No customer yet")}</b>${bits.length ? `<small>${bits.map(esc).join(" / ")}</small>` : ""}</div>${c?.blacklisted ? `<span class="tag" style="background:#fde8eb;color:#9e0c24">⚠ Blacklisted</span>` : ""}<div class="ccctxb">${$("#oPhone")?.disabled ? `<button type="button" class="btn sm" data-ccstep="1">Customer Details</button>` : `<button type="button" class="btn sm" data-ccstep="1">${$("#oName").value.trim() ? "Edit Customer" : "Add Customer"}</button>`}${$(".ccx .ccmenu") ? "" : `<button type="button" class="btn sm" data-ccclose>Close</button>`}</div></div>
+  el.innerHTML = `${so ? `<div class="ccobar"><b>${esc(ccRef(so))}</b><span class="ccpill s-${esc(so.status)}">${esc(CC_SUB[so.status] || so.status)}</span>${$(".ccx .ccmenu") ? "" : `<button type="button" class="ccobx" data-ccclose aria-label="Close">×</button>`}</div>` : ""}<div class="ccctx"><div class="ccothd"><span class="ccib">${svgIco(type==="delivery" ? "pscoot" : "pbag")}</span><b>${type==="delivery" ? "Delivery" : "Pickup"}</b></div><div class="ccctxh"><div class="ccctxn"><b>${esc($("#oName").value.trim() || "No customer yet")}</b>${bits.length ? `<small>${bits.map(esc).join(" / ")}</small>` : ""}</div>${c?.blacklisted ? `<span class="tag" style="background:#fde8eb;color:#9e0c24">⚠ Blacklisted</span>` : ""}<div class="ccctxb">${$("#oPhone")?.disabled ? `<button type="button" class="btn sm" data-ccstep="1">Customer Details</button>` : `<button type="button" class="btn sm" data-ccstep="1">${$("#oName").value.trim() ? "Edit Customer" : "Add Customer"}</button>`}</div></div>
     <div class="ccctxf" id="oCtxF"></div></div>`;
   const f = $("#oCtxF"); if(f){ keep.forEach(n => f.appendChild(n));
   }
@@ -9306,7 +9308,9 @@ function ccPastRender(){
 }
 const CC_OHFS = [["","All"],["closed","Done"],["void","Void"],["refund","Refund"],["declined","Declined"]];
 // every tile in a board takes the size of the biggest one
-const eqTiles = (root, sel) => { const t = [...root.querySelectorAll(sel)]; t.forEach(x => x.style.minHeight = ""); const h = Math.max(0, ...t.map(x => x.offsetHeight)); if(h) t.forEach(x => x.style.minHeight = h + "px"); };
+const eqTiles = (root, sel) => { const t = [...root.querySelectorAll(sel)]; t.forEach(x => x.style.minHeight = ""); const h = Math.max(0, ...t.map(x => x.offsetHeight)); if(h) t.forEach(x => x.style.minHeight = h + "px");
+  if(root.classList?.contains("board") && innerWidth > 1000) root.querySelectorAll(".bcol").forEach(c => { const top = c.getBoundingClientRect().top; c.style.maxHeight = Math.max(320, Math.floor(innerHeight - top - 16)) + "px"; });   // each column reaches the bottom of the screen
+};
 addEventListener("resize", () => { const bd = document.querySelector("#view .board"); if(bd) eqTiles(bd, ".ocard"); });
 try{ document.fonts?.ready?.then(() => { const bd = document.querySelector("#view .board"); if(bd) eqTiles(bd, ".ocard"); }); }catch(_){}
 const ohEqual = root => { const t = [...root.querySelectorAll(".ohtile")]; t.forEach(x => x.style.height = ""); const h = Math.max(0, ...t.map(x => x.offsetHeight)); if(h) t.forEach(x => x.style.height = h + "px"); };   // every history tile takes the height of the tallest one
