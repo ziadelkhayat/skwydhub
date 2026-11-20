@@ -1991,6 +1991,17 @@ function setupApp(){
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content = m.short_name;
 }
 setupApp();
+// item page: pull down from the top to close it (like a phone sheet)
+(function(){ let st = null;
+  document.addEventListener("touchstart", e => { const pg = e.target.closest?.("#ipg.show .pg"); if(!pg || e.target.closest("input,textarea,select,.ipft")) return;
+    st = pg.scrollTop <= 0 ? { pg, y:e.touches[0].clientY, x:e.touches[0].clientX, d:0, on:null } : null; }, { passive:true });
+  document.addEventListener("touchmove", e => { if(!st) return; const dy = e.touches[0].clientY - st.y, dx = e.touches[0].clientX - st.x;
+    if(st.on===null){ if(Math.abs(dy) < 6 && Math.abs(dx) < 6) return; st.on = dy > 0 && dy > Math.abs(dx) && st.pg.scrollTop <= 0; if(!st.on){ st = null; return; } }
+    e.preventDefault(); st.d = Math.max(0, dy); st.pg.style.transition = "none"; st.pg.style.transform = `translateY(${st.d}px)`; }, { passive:false });
+  document.addEventListener("touchend", () => { if(!st) return; const { pg, d } = st; st = null; pg.style.transition = "transform .22s ease";
+    if(d > 110){ pg.style.transform = "translateY(100%)"; setTimeout(() => { pg.style.transition = ""; pg.style.transform = ""; closeItem(); }, 200); }
+    else { pg.style.transform = ""; setTimeout(() => { pg.style.transition = ""; }, 230); } }, { passive:true });
+})();
 // back to top: a round arrow shows once the customer has scrolled down the menu
 { const b = document.createElement("button"); b.type = "button"; b.id = "toTop"; b.setAttribute("aria-label", "Back to top"); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
   b.addEventListener("click", () => scrollTo({ top:0, behavior:"smooth" })); document.body.appendChild(b);
