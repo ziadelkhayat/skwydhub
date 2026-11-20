@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1130-1795187110">
+<meta name="skwyd-build" content="1132-1795188054">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1135,6 +1135,10 @@ html body .ocard.tl .ocr2 .oci.oci-money{stroke:#067647!important}
 html body .ocard.tl .ocr2 .oci.oci-store{stroke:#92400E!important}
 /* dine-in card: order type big and bold, table and guests under it */
 html body .ctx b.ctxtype{font-size:18px!important;font-weight:700!important;letter-spacing:.01em}
+/* ===== Every × turns on hover and press, then closes ===== */
+html body button.x,html body button.ccxbtn,html body button.ccobx,html body button.mnx,html body button.ix,html body button.dlx,html body button.onx,html body button.qrx,html body button[aria-label="Close"],html body button[aria-label="Dismiss"]{transition:transform .2s ease,background-color .15s,border-color .15s}
+html:root body:not(.zz) button.x:not(:disabled):hover,html:root body:not(.zz) button.ccxbtn:not(:disabled):hover,html:root body:not(.zz) button.ccobx:not(:disabled):hover,html:root body:not(.zz) button.mnx:not(:disabled):hover,html:root body:not(.zz) button.ix:not(:disabled):hover,html:root body:not(.zz) button.dlx:not(:disabled):hover,html:root body:not(.zz) button.onx:not(:disabled):hover,html:root body:not(.zz) button.qrx:not(:disabled):hover,html:root body:not(.zz) button[aria-label="Close"]:not(:disabled):hover,html:root body:not(.zz) button[aria-label="Dismiss"]:not(:disabled):hover{transform:rotate(90deg)!important;box-shadow:none!important}
+html:root body:not(.zz) button.x:not(:disabled):active,html:root body:not(.zz) button.ccxbtn:not(:disabled):active,html:root body:not(.zz) button.ccobx:not(:disabled):active,html:root body:not(.zz) button.mnx:not(:disabled):active,html:root body:not(.zz) button.ix:not(:disabled):active,html:root body:not(.zz) button.dlx:not(:disabled):active,html:root body:not(.zz) button.onx:not(:disabled):active,html:root body:not(.zz) button.qrx:not(:disabled):active,html:root body:not(.zz) button[aria-label="Close"]:not(:disabled):active,html:root body:not(.zz) button[aria-label="Dismiss"]:not(:disabled):active{transform:scale(.86) rotate(90deg)!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
