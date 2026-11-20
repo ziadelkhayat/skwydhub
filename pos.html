@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1122-1795185832">
+<meta name="skwyd-build" content="1123-1795186047">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1114,6 +1114,15 @@ html body .ocard.tl>.ochd{display:flex;align-items:center;flex-wrap:wrap;gap:6px
 .drvc.open .drvchev{transform:rotate(90deg)}.drvc .drvls{display:none}.drvc.open .drvls{display:block}
 /* every window with an × also shows Cancel */
 html body .modal.modal.modal .mf .btn[data-close]:not(.pri):not(.danger){display:inline-flex!important;align-items:center;justify-content:center}
+/* modifier option steppers: round buttons, icon centred */
+html body .smp .og .qs button{border-radius:50%!important;display:grid!important;place-items:center!important;padding:0!important;line-height:1!important}
+html body .smp .og .qs button svg{display:block;margin:0!important}
+/* POS customer window: same header and white body as the call center */
+html body .modal .mh.cdhd{display:flex;align-items:center;gap:16px;padding:18px 24px!important;background:#fff!important;border-bottom:1px solid #E6E8F2}
+html body .modal .mh.cdhd h2{margin:0 auto 0 0!important;font-size:20px!important;font-weight:500!important}
+html body .modal .mh.cdhd .cdico{width:54px;height:54px;border-radius:14px;background:#EEF2FF;display:grid;place-items:center;flex:none}
+html body .modal .mh.cdhd .cdico svg{width:24px;height:24px;fill:none;stroke:#1E3A8A;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+html body .modal:has(.mh.cdhd) .mb{background:#fff!important}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)
@@ -3339,7 +3348,7 @@ function openPDNew(opt = {}){
         return `<button type="button" class="acard${isDel && addrJoin(PD.addr)===addrJoin(p)?" on":""}" data-pdaddr="${i}"><span class="aci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span class="act"><b>${esc(p.label || "Address " + (i+1))}</b><span>${esc(p.street || a.address)}</span>${p.building || p.floor ? `<small>${esc([p.building && "Bldg " + p.building, p.floor && "Floor " + p.floor].filter(Boolean).join(" · "))}</small>` : ""}${p.extra ? `<small>${esc(p.extra)}</small>` : ""}</span><span class="acok">✓</span></button>`; }).join("")}
         ${allowedTypes().includes("delivery") ? `<button type="button" class="acard new${!isDel || saved.some(a => addrJoin(PD.addr)===addrJoin(addrParts(a.address))) ? "" : " on"}" data-pdnewaddr><span class="aci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="act"><b>New address</b></span></button>` : ""}</div></div>` : "";
   const side = PD.cust ? pdSide("") : `<div class="pdside0"><b>Customer details</b></div>`;
-  modal("pdnew", `<div class="mh"><h2>Customer Details</h2></div><div class="mb pdcols"><div class="pdform">
+  modal("pdnew", `<div class="mh cdhd"><span class="cdico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></span><h2>Customer Details</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb pdcols"><div class="pdform">
     <div class="pdts"><div class="tseg">${types.map(t => `<button type="button" data-pdt="${t}" class="${PD.type===t?"on":""}">${ico(t==="delivery" ? "scooter" : "bag")}${t==="delivery" ? "Delivery" : "Pickup"}</button>`).join("")}</div>
     <div class="f"><select id="pdSrc" data-noseg aria-label="Order source"><option value="">Order source *</option>${posSources().map(s => `<option ${PD.source===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div></div>
     <div class="f"><div class="npw"><div class="pdph"><select id="pdCc" aria-label="Country code">${Object.entries(CC_OF).map(([n,c]) => `<option value="${c}" ${(PD.cc||skwCountryDial(coS().country||"Lebanon")||"+961")===c?"selected":""}>${esc(n)} (${c})</option>`).join("")}</select><input id="pdPhone" inputmode="none" data-np="tel" data-ph placeholder="Customer phone *" aria-label="Customer phone" value="${esc(PD.phone)}" autocomplete="off"></div></div><div class="mut" id="pdHint" style="min-height:18px">${PD.cust && !side ? pdHint(PD.cust) : ""}</div></div>
@@ -3452,7 +3461,7 @@ async function pdSaveCust(){
 let CL = null;
 function openCustLite(){
   const sp = telSplit(cust.phone) || { cc: skwCountryDial(coS().country || "Lebanon") || "+961", num: cust.phone || "" }; CL = { cust:null };
-  modal("custlite", `<div class="mh"><h2>Customer Details</h2></div><div class="mb pdcols"><div class="pdform">
+  modal("custlite", `<div class="mh cdhd"><span class="cdico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></span><h2>Customer Details</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb pdcols"><div class="pdform">
     <div class="f"><div class="npw"><div class="pdph"><select id="clCc" aria-label="Country code">${Object.entries(CC_OF).map(([n,c]) => `<option value="${c}" ${sp.cc===c?"selected":""}>${esc(n)} (${c})</option>`).join("")}</select><input id="clPhone" inputmode="none" data-np="tel" data-ph placeholder="Customer phone *" aria-label="Customer phone" value="${esc(sp.num)}" autocomplete="off"></div></div></div>
     <div class="f"><input id="clName" data-ph placeholder="Customer name *" aria-label="Customer name" value="${esc(cust.name || "")}"></div>
     <div class="err" id="clErr"></div></div><div class="pdright" id="clSide"></div></div>

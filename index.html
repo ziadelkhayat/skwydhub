@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1122-1795185831">
+<meta name="skwyd-build" content="1123-1795186047">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2896,6 +2896,9 @@ html body #ccBox .ccotsel button svg{width:20px;height:20px}html body #ccBox .cc
 html body .modal.modal.modal footer .btn[data-ccclose]:not(.pri):not(.danger),html body .modal.modal.modal footer .btn[data-cclose]:not(.pri):not(.danger),html body .modal.modal.modal footer .btn[data-close]:not(.pri):not(.danger),html body .modal.modal.modal > form footer .btn[data-close]:not(.pri):not(.danger),html body #ccBox#ccBox footer .btn[data-ccclose]:not(.pri):not(.danger),html body #crudBox#crudBox footer .btn[data-cclose]:not(.pri):not(.danger){display:inline-flex!important;align-items:center;justify-content:center}
 html body #ccBox .ccnext{display:flex;align-items:center;justify-content:flex-end;gap:10px}html body #ccBox .ccnext .err{margin-right:auto}html body #ccBox .ccnext [data-cccancel]{min-width:110px}
 html body #ccBox .ccobar .ccobx{width:38px!important;height:38px!important;min-width:38px;box-sizing:border-box}
+/* modifier option steppers: round buttons, icon centred */
+html body .smp .og .qs button{border-radius:50%!important;display:grid!important;place-items:center!important;padding:0!important;line-height:1!important}
+html body .smp .og .qs button svg{display:block;margin:0!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
