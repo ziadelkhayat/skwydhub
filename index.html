@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1109-1795183632">
+<meta name="skwyd-build" content="1110-1795183874">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2868,6 +2868,13 @@ html body .ocard.tl>.ochd{margin-bottom:6px!important}html body .ocard.tl>.ochd>
 .cchr{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:1px solid #E6E8F2;background:#fff;border-radius:14px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer}
 .cchr:hover{border-color:#1E3A8A;background:#F7F8FD}.cchr>b{font-size:15px;color:#1E3A8A}.cchr>span>span{display:block;font-weight:600}.cchr small{color:#6B7392;font-size:12.5px}.cchr .cchm{font-weight:600;white-space:nowrap}
 html body #ccBox .cctool .cchn{font-style:normal;min-width:20px;height:20px;border-radius:999px;background:#dc2626;color:#fff!important;font-size:11.5px;display:inline-grid;place-items:center;padding:0 5px;margin-left:2px}
+/* ===== Call center tools: square POS-style buttons (icon over an upper-case label) ===== */
+html body #ccBox .ccx .cctools .cctool.cctool.cctool{flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:10px!important;width:112px!important;min-width:112px!important;height:112px!important;min-height:112px!important;padding:8px!important;border-radius:18px!important;background:#1E3A8A!important;color:#fff!important;position:relative}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool *{color:#fff!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool svg,html body #ccBox .ccx .cctools .cctool.cctool.cctool svg *{width:26px!important;height:26px!important;stroke:#fff!important;stroke-width:2!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool span{font-size:13px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.03em!important;white-space:nowrap!important}
+html body #ccBox .ccx .cctools .cctool.cctool.cctool:hover{background:#172D6A!important}html body #ccBox .ccx .cctools .cctool.cctool.cctool:active{background:#172D6A!important;transform:scale(.97)}
+html body #ccBox .ccx .cctools .cctool .cchn{position:absolute;top:8px;right:8px;margin:0!important}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
