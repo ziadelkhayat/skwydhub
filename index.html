@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1143-1795194406">
+<meta name="skwyd-build" content="1144-1795194467">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3149,8 +3149,7 @@ const dmyS = s => s ? String(s).slice(8,10) + "-" + String(s).slice(5,7) + "-" +
       <div class="f full"><div class="note">Sales before this time count on the previous business day. Set it after your closing time, e.g. 03:00 if you close at 2 AM. Must be between 12:00 AM and 11:59 AM.</div></div>
       <h4 class="fsec">Opening hours</h4>
       <div class="f full"><div class="hours" id="fHours"></div></div>
-      <h4 class="fsec">Sections & tables</h4>
-      <div class="f full"><div id="fTables"></div></div>
+      <div id="fTables" hidden></div>
       <h4 class="fsec">Tags</h4><div id="fTagsWrap" class="full" style="grid-column:1/-1"></div>
       <h4 class="fsec">Receipt</h4>
       <div class="f full"><label for="fRHead">Receipt header</label><textarea id="fRHead" rows="2" maxlength="300" placeholder="e.g. Welcome to The Wok Hamra"></textarea></div>
