@@ -488,9 +488,36 @@ async function drvPoll(){
   const fresh = l.filter(o => o.driverStatus==="assigned"), ids = new Set(fresh.map(o => o.id));
   if(drvKnown){ const n = fresh.filter(o => !drvKnown.has(o.id)); if(n.length){ beep(); newOrderAlert(n[0]); } }
   drvKnown = ids; const d = $("#ddot"); if(d) d.hidden = !fresh.length;
+  drvChanges(l);
   drvTrack(l.some(o => o.driverStatus==="picked" && o.status!=="closed"));
   if(S.tab==="deliv" && !$("#scrim")) paintDeliv();
 }
+// an order the driver already has that is changed (items, total, address, notes…) or cancelled: alert the driver
+let drvSig = null;
+const drvKey = o => JSON.stringify([o.items ? o.items.map(i => [i.name, +i.qty, (i.options||[]).map(x => x.name || x.id), i.note || ""]) : null, +o.total||0, +o.deliveryFee||0, o.address||"", o.notes||"", o.phone||"", o.customerName||"", o.payment||null]);
+function drvChanges(l){
+  const now = new Map(l.filter(o => o.driverStatus!=="delivered" && o.status!=="closed").map(o => [o.id, { k: drvKey(o), o }]));
+  if(drvSig){
+    const chg = [...now.values()].filter(x => drvSig.has(x.o.id) && drvSig.get(x.o.id).k !== x.k && x.o.driverStatus!=="assigned");
+    const gone = [...drvSig.values()].filter(x => !now.has(x.o.id) && !l.some(o => o.id===x.o.id && (o.driverStatus==="delivered" || o.status==="closed")) && x.o.driverStatus!=="assigned");
+    if(chg.length){ beep(); orderChangedAlert(chg[0].o, drvSig.get(chg[0].o.id).o); }
+    else if(gone.length){ beep(); sheet(`<div style="text-align:center"><h3 style="margin-bottom:6px">Order cancelled</h3><p class="note" style="margin:0 0 16px">${gone[0].o.no ? "Order #" + esc(gone[0].o.no) + " · " : ""}${esc(gone[0].o.customerName || "")} was cancelled or taken off you. Don't deliver it.</p></div><div class="acts"><button class="btn" data-drvok>OK</button></div>`); }
+  }
+  drvSig = now;
+}
+function orderChangedAlert(o, was){
+  const what = [];
+  if(JSON.stringify(o.items) !== JSON.stringify(was.items)) what.push("Items");
+  if((+o.total||0) !== (+was.total||0)) what.push(`Total ${money(was.total)} → <b>${money(o.total)}</b>`);
+  if((o.address||"") !== (was.address||"")) what.push("Address: " + esc(addrShort(o.address) || o.address || "—"));
+  if((o.notes||"") !== (was.notes||"")) what.push("Notes: " + esc(o.notes || "—"));
+  if((o.phone||"") !== (was.phone||"") || (o.customerName||"") !== (was.customerName||"")) what.push("Customer: " + esc([o.customerName, o.phone].filter(Boolean).join(" · ")));
+  if(JSON.stringify(o.payment||null) !== JSON.stringify(was.payment||null)) what.push("Payment");
+  sheet(`<div style="text-align:center"><div style="width:64px;height:64px;border-radius:50%;background:#FFF4E5;color:#B54708;display:grid;place-items:center;margin:0 auto 10px;font-size:30px;font-weight:700">!</div><h3 style="margin-bottom:4px">Order changed</h3>
+    <p class="note" style="margin:0 0 12px">${o.no ? "Order #" + esc(o.no) + " · " : ""}${esc(o.customerName || "")}</p>${what.length ? `<p style="margin:0 0 16px;line-height:1.6">${what.join("<br>")}</p>` : ""}</div>
+    <div class="acts"><button class="btn" data-drvview="${esc(o.id)}">View order</button></div>`);
+}
+document.addEventListener("click", e => { if(e.target.closest?.("[data-drvok]")) return closeSheet(); const b = e.target.closest?.("[data-drvview]"); if(!b) return; const o = (S.drv||[]).find(x => x.id===b.dataset.drvview); closeSheet(); if(o) orderSheet(o); });
 function drvTrack(on){   // the customer follows the driver while an order is on its way
   if(on && drvWatch==null && navigator.geolocation){ drvWatch = navigator.geolocation.watchPosition(p => { if(Date.now() - drvLast < 20000 || !navigator.onLine) return; drvLast = Date.now(); rpc("skwyd_drv_location", { p_lat:p.coords.latitude, p_lng:p.coords.longitude }).catch(() => {}); }, () => {}, { enableHighAccuracy:true, maximumAge:10000 }); }
   if(!on && drvWatch!=null){ navigator.geolocation.clearWatch(drvWatch); drvWatch = null; }
