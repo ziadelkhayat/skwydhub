@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1121-1795185677">
+<meta name="skwyd-build" content="1122-1795185832">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1112,6 +1112,8 @@ html body .ocard.tl>.ochd{display:flex;align-items:center;flex-wrap:wrap;gap:6px
 /* drivers page: each driver's orders expand from the row */
 .drvc .drvh[data-drvx]{cursor:pointer;user-select:none}.drvc .drvchev{width:18px;height:18px;flex:none;fill:none;stroke:#1E3A8A;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px;transition:transform .18s}
 .drvc.open .drvchev{transform:rotate(90deg)}.drvc .drvls{display:none}.drvc.open .drvls{display:block}
+/* every window with an × also shows Cancel */
+html body .modal.modal.modal .mf .btn[data-close]:not(.pri):not(.danger){display:inline-flex!important;align-items:center;justify-content:center}
 </style>
 <script>
 // every date is written 15-11-2026 (with time: 15-11-2026 19:08)

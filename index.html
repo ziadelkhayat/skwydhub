@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1121-1795185676">
+<meta name="skwyd-build" content="1122-1795185831">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2892,6 +2892,10 @@ html body #ccBox .ccotsel button svg{width:20px;height:20px}html body #ccBox .cc
   html body #ccBox .ccx.s2>.ccside{border-radius:22px 22px 0 0!important;border-bottom:0!important;padding-bottom:4px!important;margin-bottom:0!important}
   html body #ccBox .ccx.s2>.ccleft{border-radius:0 0 22px 22px!important;border-top:0!important;margin-top:0!important;padding-top:4px!important}
 }
+/* ===== Every window with an × also shows Cancel next to its main button ===== */
+html body .modal.modal.modal footer .btn[data-ccclose]:not(.pri):not(.danger),html body .modal.modal.modal footer .btn[data-cclose]:not(.pri):not(.danger),html body .modal.modal.modal footer .btn[data-close]:not(.pri):not(.danger),html body .modal.modal.modal > form footer .btn[data-close]:not(.pri):not(.danger),html body #ccBox#ccBox footer .btn[data-ccclose]:not(.pri):not(.danger),html body #crudBox#crudBox footer .btn[data-cclose]:not(.pri):not(.danger){display:inline-flex!important;align-items:center;justify-content:center}
+html body #ccBox .ccnext{display:flex;align-items:center;justify-content:flex-end;gap:10px}html body #ccBox .ccnext .err{margin-right:auto}html body #ccBox .ccnext [data-cccancel]{min-width:110px}
+html body #ccBox .ccobar .ccobx{width:38px!important;height:38px!important;min-width:38px;box-sizing:border-box}
 /* ===== Foodics motion: no page entrance, dialogs fade in and settle from 110% in 0.2s, menus and pop-ups 0.15s, toasts slide 0.3s, buttons 0.3s, menu links 0.1s; one easing: cubic-bezier(.4,0,.2,1) ===== */
 :root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.4,0,.2,1);--fd:cubic-bezier(.4,0,.2,1)}
 @keyframes fdFade{from{opacity:0}to{opacity:1}}
@@ -6126,6 +6130,8 @@ document.addEventListener("keydown", e => { const cx = $("#ccX"); if(!cx || !cx.
   if(($("#oAddrPop") && !$("#oAddrPop").hidden) || document.querySelector(".askdlg, .msel.open, .wk-gate")) return;
   if(e.key==="Enter" && !e.target.closest?.("select, textarea, .msel")){ e.preventDefault(); e.stopPropagation(); const b = document.querySelector('.ccnext [data-ccstep="2"]'); if(b && !b.disabled) b.click(); else ccStep(2); }
   else if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); ccSnapBack(); ccStep(2, true); } }, true);
+// Cancel in the customer window: nothing typed there is kept, back to the cart
+document.addEventListener("click", e => { if(!e.target.closest?.("[data-cccancel]")) return; e.preventDefault(); ccSnapBack(); ccStep(2, true); });
 // the customer window of a new order sits over its cart: × goes back to the cart instead of closing the order
 document.addEventListener("click", e => { const x = e.target.closest && e.target.closest("[data-ccclose]"), cx = $("#ccX"); if(!x || !cx || !cx.classList.contains("s1") || !x.closest(".cc1top,.cc1")) return;
   e.stopImmediatePropagation(); e.preventDefault(); ccSnapBack(); ccStep(2, true); }, true);   // × cancels: nothing typed here is kept
@@ -6180,7 +6186,7 @@ function openOrder(id){
       <button type="button" class="acard adbar" id="oAddrBar" data-ccadpop></button>
      </div>
     </div>
-    <div class="ccnext"><span class="err" id="oErr1"></span><button type="button" class="btn pri" data-ccstep="2"${ro ? " disabled" : ""}>Save</button></div>
+    <div class="ccnext"><span class="err" id="oErr1"></span><button type="button" class="btn" data-cccancel>Cancel</button><button type="button" class="btn pri" data-ccstep="2"${ro ? " disabled" : ""}>Save</button></div>
    </section>
    <aside class="ccside" id="oSide"></aside>
    ${ro ? "" : `<section class="ccmenu"><div class="ccprods"><div class="cctools"><button type="button" class="cctool" data-cctool="disc" id="ccToolDisc">${ccIco("pct")}<span>Discount</span></button><button type="button" class="cctool" data-cctool="chg">${ccIco("plus")}<span>Charges</span></button><button type="button" class="cctool" data-cctool="tags">${ccIco("tag")}<span>Tags</span></button><button type="button" class="cctool" data-cctool="notes">${ccIco("note")}<span>Notes</span></button>${!o ? `<button type="button" class="cctool" data-cctool="hold" id="ccHoldB"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>Hold</span></button><button type="button" class="cctool" data-cctool="retr" id="ccRetrB"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/></svg><span>Retrieve</span></button>` : ""}${o?.status==="active" && !erPending(o) ? `<button type="button" class="cctool" data-cctool="void"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg><span>Void</span></button>` : ""}<button type="button" class="ccxbtn" data-ccclose aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="ccbar"><div class="cchead" id="oCatTitle"></div><input class="sel search" type="search" id="oSearch" placeholder="Search items" autocomplete="off"></div><div class="pgrid" id="oProducts"></div></div></section>`}
