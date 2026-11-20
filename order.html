@@ -1945,7 +1945,10 @@ function tkSteps(o){ const t = o.type || "delivery", last = t==="delivery" ? ["D
 function tkStep(o){ return TBAD.includes(o.status) ? -1 : TFIN.includes(o.status) ? 3 : o.status==="active" ? ((o.type==="delivery" ? o.dispatched_at : o.ready) ? 2 : 1) : 0; }
 const tkTitle = o => TBAD.includes(o.status) ? (o.status==="declined" ? "Order declined" : "Order cancelled") : tkSteps(o)[tkStep(o)][0];
 async function tkFetch(){ if(!USER) return TK.list; const r = await sb.rpc("skwyd_my_orders", { p_brand: brandId }).then(x => x, () => ({ error:true }));
-  if(!r.error && Array.isArray(r.data)){ const tmp = TK.id==="_new" ? TK.list.find(x => x.id==="_new") : null; TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x); if(tmp) TK.list.unshift(tmp); } return TK.list; }
+  if(!r.error && Array.isArray(r.data)){ const tmp = TK.id==="_new" ? TK.list.find(x => x.id==="_new") : null; TK.list = r.data.map(x => typeof x === "string" ? JSON.parse(x) : x);
+    // the order just placed: once the server has it, follow the real order (its status, decline, number…) instead of the placeholder
+    if(tmp){ const m = TK.list.find(x => Math.abs((+x.total||0) - (+tmp.total||0)) < .01 && Math.abs(new Date(x.created_at) - new Date(tmp.created_at)) < 6e5);
+      if(m){ TK.id = m.id; TK.placed = m.id; if(/^#track=/.test(location.hash) || $("#trk")?.classList.contains("show")) history.replaceState(null, "", "#track=" + m.id); } else TK.list.unshift(tmp); } } return TK.list; }
 function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order " + o.no + " · " : "") + (TBAD.includes(o.status) ? "Please contact the restaurant for details." : tkSteps(o)[Math.max(0, tkStep(o))][1]);
   try{ navigator.vibrate?.([180, 90, 180]); }catch(e){}
   try{ const a = new (window.AudioContext || window.webkitAudioContext)(), g = a.createGain(); g.connect(a.destination); [880, 1175].forEach((f, i) => { const os = a.createOscillator(); os.frequency.value = f; os.connect(g); g.gain.setValueAtTime(.08, a.currentTime); os.start(a.currentTime + i * .18); os.stop(a.currentTime + i * .18 + .15); }); }catch(e){}
@@ -1985,11 +1988,11 @@ function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find
       <div class="trktot"><span>Total</span><b>${usd(+o.total||0)}</b></div></div>
     ${TK.wa && (o.id==="_new" || o.id===TK.placed) ? `<a class="ghost" href="${esc(TK.wa)}" target="_blank" rel="noopener">${ic("chat")}Send it on WhatsApp</a>` : ""}
     <button type="button" class="ghost" data-trkx>Back to the menu</button></div>`; }
-async function trkAfterPlace(total){ const list = await tkFetch(), o = list.find(x => Math.abs((+x.total||0) - (+total||0)) < .01 && Date.now() - new Date(x.created_at) < 6e5) || list[0];
+async function trkAfterPlace(total){ const list = (await tkFetch()).filter(x => x.id!=="_new"), o = total!=null ? list.find(x => Math.abs((+x.total||0) - (+total||0)) < .01 && Date.now() - new Date(x.created_at) < 6e5) : list.find(x => Date.now() - new Date(x.created_at) < 6e5);
   if(o?.id){ TK.seen[o.id] = o.status; TK.placed = o.id; if(TK.id==="_new"){ TK.id = o.id; history.replaceState(null, "", "#track=" + o.id); } } trkPill(); trkPoll(); }
 document.addEventListener("click", async e => { let t;
   if(t = e.target.closest("[data-track]")){ e.preventDefault(); $("#scrim").classList.remove("show"); return trkOpen(t.dataset.track); }
-  if(e.target.closest("[data-trkplaced]")){ $("#scrim").classList.remove("show"); if(!TK.placed) await trkAfterPlace(); if(TK.placed) trkOpen(TK.placed); else openOrders(); if("Notification" in window && Notification.permission==="default") Notification.requestPermission().then(() => trkDraw()); return; }
+  if(e.target.closest("[data-trkplaced]")){ $("#scrim").classList.remove("show"); if(!TK.placed || TK.placed==="_new") await trkAfterPlace(TK.list.find(x => x.id==="_new")?.total); if(TK.placed) trkOpen(TK.placed); else openOrders(); if("Notification" in window && Notification.permission==="default") Notification.requestPermission().then(() => trkDraw()); return; }
   if(e.target.closest("[data-trkx]")) return trkClose();
   if(e.target.closest("[data-trknot]")){ const r = await Notification.requestPermission(); if(r==="denied") toast("Notifications are blocked in your browser settings"); trkDraw(); return; }
   if(e.target.closest("[data-umenu]")){ const sh = $("#sheet"); sh.className = "sheet locsheet otsheet";
