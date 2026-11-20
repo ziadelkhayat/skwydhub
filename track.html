@@ -27,6 +27,7 @@ textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px
 .err{color:var(--bad);text-align:center;min-height:20px;margin-top:8px}.note{color:var(--mut);font-size:13px;text-align:center}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}.chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}.chips button.on{border-color:var(--acc);background:#eef2fc;color:var(--acc)}
 .brand{text-align:center;color:var(--mut);font-size:12px;margin-top:18px}
+html.embed body{background:transparent;padding:0;margin:0}html.embed .card:not(.mapc),html.embed .brand{display:none!important}html.embed .card.mapc{margin:0;padding:0;border:0;box-shadow:none;background:transparent}html.embed .card.mapc>b{display:none}html.embed #map{height:300px;margin:0}
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="/skwyd-icon-32.png?v=6"><link rel="apple-touch-icon" href="/skwyd-icon-180.png?v=4"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -59,7 +60,9 @@ function draw(){
   let h = `<div class="card hero ${s===3 ? "ok" : ""}"><div class="ic">${s===3 ? CHECK : BIKE}</div><h1>${esc(title)}</h1><p class="sub">${esc(O.brand || "")}${O.no ? " · Order #" + esc(O.no) : ""}</p>
     ${O.driver && s >= 1 && s < 3 ? `<div class="drv" style="justify-content:center">${BIKE.replace("<svg", '<svg style="width:20px;height:20px"')}<span>Your driver <b>${esc(O.driver)}</b>${s===2 && O.pickedAt ? " · left at " + hm(O.pickedAt) : ""}</span></div>` : ""}</div>`;
   if(!bad) h += `<div class="card"><ol class="steps">${steps.map((t, i) => `<li class="${i < s || s===3 ? "done" : i===s ? "now" : ""}"><i></i>${t}</li>`).join("")}</ol></div>`;
-  if(s === 2 && O.driverLat != null) h += `<div class="card"><b>Live location</b><div id="map"></div><p class="note" style="margin-top:8px">${O.driverAt ? "Updated " + hm(O.driverAt) : ""}</p></div>`;
+  if(/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("embed");
+  if(s === 2 && O.driverLat == null && document.documentElement.classList.contains("embed")) h += `<div class="card mapc"><p class="sub" style="text-align:center;padding:30px 0">Waiting for the driver's location…</p></div>`;
+  if(s === 2 && O.driverLat != null) h += `<div class="card mapc"><b>Live location</b><div id="map"></div><p class="note" style="margin-top:8px">${O.driverAt ? "Updated " + hm(O.driverAt) : ""}</p></div>`;
   if(s === 3 && !O.rated && !rated){
     if(O.canRate) h += `<div class="card"><h1 style="text-align:center;font-size:19px">How was it?</h1>
       <div class="lbl">Your driver${O.driver ? ", " + esc(O.driver) : ""}</div><div class="stars" data-r="d">${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}" aria-label="${n} stars">${STAR}</button>`).join("")}</div>

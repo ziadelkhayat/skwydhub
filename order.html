@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1062-1795043272">
+<meta name="skwyd-build" content="1102-1795181679">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -839,6 +839,7 @@ html body .trks b{display:block!important;font-size:15px!important;line-height:2
 .coad.on{border-color:var(--acc);background:var(--accs)}.coad.on .cori{border:5px solid var(--acc)}
 .coad:disabled{opacity:.5;cursor:not-allowed}
 .coad.coadd{border-style:dashed;color:var(--acc)}.coad.coadd svg{width:18px;height:18px;flex:none}.coad.coadd b{color:var(--acc)}
+.trkmap{background:#fff;border:1px solid #E6E8F2;border-radius:18px;padding:12px 12px 6px;margin:12px 0}.trkmap>b{display:block;font-size:15px;margin:0 2px 8px}.trkmap iframe{display:block;width:100%;height:340px;border:0;border-radius:12px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1956,9 +1957,16 @@ function tkNotify(o){ const t = tkTitle(o), body = (o.no ? "Order " + o.no + " �
   if(!("Notification" in window) || Notification.permission !== "granted") return;
   const opt = { body, tag:"skwyd-order-" + o.id, renotify:true, icon:(cfg.theme||{}).logo || undefined, data:{ url: location.href.split("#")[0] + "#track=" + o.id } };
   (navigator.serviceWorker?.getRegistration?.() || Promise.resolve(null)).then(r => r ? r.showNotification(brand.name + " · " + t, opt) : new Notification(brand.name + " · " + t, opt)).catch(() => { try{ new Notification(brand.name + " · " + t, opt); }catch(e){} }); }
+function tkDrvNotify(o, name){ const t = "Your driver is " + name, body = (o.no ? "Order " + o.no + " · " : "") + "Tap to track your order";
+  try{ navigator.vibrate?.([180, 90, 180]); }catch(e){} toast(t + (o.no ? " · #" + o.no : ""));
+  if(!("Notification" in window) || Notification.permission !== "granted") return;
+  const opt = { body, tag:"skwyd-order-" + o.id + "-drv", renotify:true, icon:(cfg.theme||{}).logo || undefined, data:{ url: location.href.split("#")[0] + "#track=" + o.id } };
+  (navigator.serviceWorker?.getRegistration?.() || Promise.resolve(null)).then(r => r ? r.showNotification(brand.name + " · " + t, opt) : new Notification(brand.name + " · " + t, opt)).catch(() => { try{ new Notification(brand.name + " · " + t, opt); }catch(e){} }); }
 async function trkPoll(){ if(!TK){ setTimeout(trkPoll, 0); return; }   // called during start-up, before the tracker is set up
   clearTimeout(TK.timer); if(!USER || PREVIEW) return trkPill();
   const list = await tkFetch(), day = Date.now() - 864e5;
+  list.forEach(o => { if(!o.id) return; const dk = o.id + ":d", dn = o.driver_status && o.driver_status!=="declined" ? (o.driver_name || "") : "";
+    if(dn && TK.seen[o.id] && TK.seen[dk] !== dn && o.type==="delivery" && tkLive(o) && new Date(o.created_at) > day) tkDrvNotify(o, dn); TK.seen[dk] = dn; });
   list.forEach(o => { if(!o.id) return; const was = TK.seen[o.id]; if(was && was !== o.status && !(was==="review" && o.status==="pending") && new Date(o.created_at) > day) tkNotify(o); TK.seen[o.id] = o.status; });
   lsSet("skwyd_trk_" + brandId, Object.fromEntries(Object.entries(TK.seen).slice(-60)));
   trkPill(); if(TK.id && $("#trk")?.classList.contains("show")) trkDraw();
@@ -1972,6 +1980,7 @@ function trkOpen(id){ TK.id = id; let el = $("#trk"); if(!el){ el = document.cre
   trkDraw(); requestAnimationFrame(() => el.classList.add("show")); document.documentElement.classList.add("trkon"); trkPoll(); }
 function trkClose(){ const el = $("#trk"); if(el) el.classList.remove("show"); document.documentElement.classList.remove("trkon"); TK.id = null; if(/^#track=/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search); }
 function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find(x => String(x.id)===String(TK.id));
+  { const sig = JSON.stringify([o || null, "Notification" in window ? Notification.permission : ""]); if(el.dataset.sig===sig && el.innerHTML) return; el.dataset.sig = sig; }   // nothing changed: keep the page (and the live map) as it is
   const head = `<div class="trkh"><button type="button" class="x" data-trkx aria-label="Close">×</button><b>Track order</b><span></span></div>`;
   if(!o){ el.innerHTML = head + `<div class="trkb"><div class="info" style="text-align:center;padding:40px 0">${USER ? "Loading your order…" : "Sign in to track your order."}</div></div>`; return; }
   const st = tkStep(o), bad = st < 0, steps = tkSteps(o), br = branches.find(b => b.id===o.branch_id), d = new Date(o.created_at), its = o.items || [];
@@ -1979,8 +1988,9 @@ function trkDraw(){ const el = $("#trk"); if(!el) return; const o = TK.list.find
   const np = "Notification" in window ? Notification.permission : "unsupported";
   el.innerHTML = head + `<div class="trkb">
     <div class="trkhero ${bad ? "bad" : st===3 ? "ok" : ""}"><div class="trki">${ic(bad ? "out" : st===3 ? "check" : o.type==="delivery" && st===2 ? "bike" : st===0 ? "clock" : "dine")}</div>
-      <h2>${esc(tkTitle(o))}</h2>${o.type==="delivery" && o.driver_name && st===2 ? `<p class="trkdrv">${ic("bike")}Your driver: <b>${esc(o.driver_name)}</b></p>` : ""}<p>${bad ? "Sorry, the restaurant couldn't take this order. Please contact them for details." : esc(steps[st][1])}</p>
+      <h2>${esc(tkTitle(o))}</h2>${o.type==="delivery" && o.driver_name && o.driver_status!=="declined" && st >= 1 && st < 3 ? `<p class="trkdrv">${ic("bike")}Your driver: <b>${esc(o.driver_name)}</b></p>` : ""}<p>${bad ? "Sorry, the restaurant couldn't take this order. Please contact them for details." : esc(steps[st][1])}</p>
       ${o.no ? `<span class="trkno">Order #${esc(o.no)}</span>` : ""}</div>
+    ${o.type==="delivery" && o.track && o.picked_at && !o.delivered_at && tkLive(o) ? `<div class="trkmap"><b>Live location</b><iframe src="/track/${encodeURIComponent(o.track)}?embed=1" title="Where your order is" loading="lazy"></iframe></div>` : ""}
     ${bad ? "" : `<ol class="trks">${steps.map((x, i) => `<li class="${i < st ? "done" : i===st ? "done now" : ""}"><span class="dt">${i <= st ? ic("check") : ""}</span><div><b>${esc(x[0])}</b>${i===st && st < 3 ? `<small>${esc(x[1])}</small>` : ""}</div></li>`).join("")}</ol>`}
     ${tkLive(o) && np !== "granted" && np !== "unsupported" ? `<button type="button" class="trknot" data-trknot>${ic("mega")}<span><b>Turn on notifications</b><small>We'll let you know as soon as your order status changes</small></span></button>` : tkLive(o) && np==="granted" ? `<div class="trkon1">${ic("check")}Notifications are on for this order</div>` : ""}
     <div class="trkc"><div class="trkr"><span>${ic(o.type==="delivery" ? "bike" : o.type==="pickup" ? "bag" : "dine")}</span><div><b>${esc(br?.name || brand.name)}</b><small>${o.type==="delivery" ? "Delivery" : o.type==="pickup" ? "Pickup" : "Dine-in"} · ${isNaN(d) ? "" : d.dmy() + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" })}</small></div>${ph ? `<a class="trkcall" href="tel:${esc(ph)}" aria-label="Call the restaurant">${ic("phone")}</a>` : ""}</div>

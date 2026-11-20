@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1100-1795181199">
+<meta name="skwyd-build" content="1102-1795181679">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -2229,7 +2229,8 @@ function openDriver(eo){ if(!eo || eo.dispatchedAt) return; const l = driverList
 let DRV_O = null;
 document.addEventListener("click", async e => { const b = e.target.closest("#modal [data-drv]"); if(!b || modalKind!=="driver" || !DRV_O) return; const eo = S.orders.find(x => x.id===DRV_O); if(!eo) return; const u = S.users.find(x => x.id===b.dataset.drv);
     const now = new Date().toISOString();   // the driver gets it in the SKWYD Driver app to accept or decline
-    try{ await db.collection("orders").doc(eo.id).update({ driverId: u ? u.id : null, driverName: u ? u.name : null, driverStatus: u ? "assigned" : null, driverAssignedAt: u ? now : null, driverAcceptedAt: null, updatedAt: now }); closeModal(); toast(u ? `Sent to ${u.name} · waiting for them to accept` : "Driver removed"); renderCart(); }
+    try{ await db.collection("orders").doc(eo.id).update({ driverId: u ? u.id : null, driverName: u ? u.name : null, driverStatus: u ? "assigned" : null, driverAssignedAt: u ? now : null, driverAcceptedAt: null, updatedAt: now }); closeModal(); toast(u ? `Sent to ${u.name} · waiting for them to accept` : "Driver removed");
+      const ed = editOrder(); if(ed && ed.id===eo.id){ if(unsentItems().length || VOID_CHG===eo.id) await sendOrder(); else unloadOrder(); } renderCart(); }
     catch(err){ console.error(err); toast("Couldn't save the driver"); } });
 async function dispatchOrder(eo){ if(!eo || eo.dispatchedAt) return;
   try{ await db.collection("orders").doc(eo.id).update({ dispatchedAt: new Date().toISOString(), dispatchedBy: cashier?.name || device.name, updatedAt: new Date().toISOString() });
