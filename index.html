@@ -4213,7 +4213,7 @@ document.addEventListener("click", e => {
     const lines = [B.head.map(h=>h[0]), ...B.rows, ...(B.foot ? [B.foot] : [])].map(l => l.map(q).join(","));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" })); a.download = `skwyd-${B.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${RPT.from}-to-${RPT.to}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); return; }
   if(e.target.closest("#rptPrint")){ const B = rptBuild(), w = window.open("", "_blank"); if(!w) return toast("Allow pop-ups to print");
-    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : RPT.brand ? (brandList().find(b => b.id===RPT.brand)?.name || "") + " · All Branches" : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); return; }
+    w.document.write(`<!doctype html><title>${esc(B.title)}</title><style>body{font:12px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left}.num{text-align:right}h2{margin:0 0 4px}.rinfo{display:none}</style><h2>${esc(B.title)}</h2><p>${esc(drpLabel(RPT.from, RPT.to))} · ${esc(RPT.branch ? branchName(RPT.branch) : RPT.brand ? (brandList().find(b => b.id===RPT.brand)?.name || "") + " · All Branches" : "All Branches")}</p>${rptTable(B.head, B.rows, B.foot)}<script>print()<\/script>`); w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){} return; }
 });
 document.addEventListener("change", e => {
   if(e.target.id==="rptDim"){ RPT.dim = e.target.value; if(RPT.group===RPT.dim) RPT.group = ""; render(); }
@@ -8898,7 +8898,7 @@ function printOrder(){
     <table>${items.map(i=>`<tr><td>${+i.qty||1} x ${esc(i.name)}${modLines(i).map(m => `<br>&nbsp;&nbsp;&nbsp;- ${esc(m)}`).join("")}</td><td class="r">${((+i.qty||1)*(+i.price||0)).toFixed(2)}</td></tr>`).join("")}</table><hr>
     <table>${+o.discount?`<tr><td>Discount</td><td class="r">-${(+o.discount).toFixed(2)}</td></tr>`:""}${(o.charges||[]).filter(c=>+c.amount).map(c=>`<tr><td>${esc(c.name)}</td><td class="r">${(+c.amount).toFixed(2)}</td></tr>`).join("")}${+o.deliveryFee?`<tr><td>Delivery</td><td class="r">${(+o.deliveryFee).toFixed(2)}</td></tr>`:""}<tr><td>Subtotal</td><td class="r">${((+o.total||0)-(+o.tax||0)).toFixed(2)}</td></tr><tr><td>Tax</td><td class="r">${(+o.tax||0).toFixed(2)}</td></tr><tr><td><b>TOTAL ${esc(SYM())}</b></td><td class="r"><b>${(+o.total||0).toFixed(2)}</b></td></tr>${o.payment?`<tr><td>Paid (${esc(o.payment.method)})</td><td class="r">${(+o.payment.tendered||+o.total||0).toFixed(DEC())}</td></tr>${+o.payment.tendered2 ? `${+o.payment.tendered1 ? `<tr><td>&nbsp; ${esc(SYM())}</td><td class="r">${(+o.payment.tendered1).toFixed(DEC())}</td></tr>` : ""}<tr><td>&nbsp; ${esc(o.payment.currency2)}</td><td class="r">${(+o.payment.tendered2).toLocaleString("en-US",{minimumFractionDigits:+o.payment.decimals2||0,maximumFractionDigits:+o.payment.decimals2||0})}</td></tr>` : ""}${+o.payment.change ? `<tr><td>Change</td><td class="r">${(+o.payment.change).toFixed(DEC())}</td></tr>` : ""}`:""}</table>
     ${o.receiptNotes?`<p class="c">${esc(o.receiptNotes)}</p>`:""}${o.status==="void"?"<h2>*** VOID ***</h2>":o.status==="returned"?"<h2>*** RETURNED ***</h2>":""}<hr><p class="c">Thank you!</p><script>window.onload=()=>{window.print();}<\/script>`);
-  w.document.close();
+  w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){}
 }
 async function exportOrders(){
   toast("Preparing export…");
@@ -12126,12 +12126,12 @@ function printDoc(){
     w.document.write(`<!doctype html><title>${esc(d.name||K.title)}</title><style>body{font:13px/1.4 "Plus Jakarta Sans",Arial,sans-serif;padding:24px;color:#1b1830}h2{font-weight:500;margin:0 0 6px;padding-bottom:10px;border-bottom:1px solid #ddd}b.h{display:block;margin:14px 0 6px}table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;text-align:left;border-bottom:1px solid #e3e1ea}th{font-weight:700}.ln{display:inline-block;width:56px;border-bottom:1px solid #b9b5c8;margin-right:8px;vertical-align:middle}</style>
       <h2>${esc(d.name||K.title)}</h2><b class="h">Items</b><table><thead><tr><th>Name</th><th>SKU</th><th>Storage UOM</th><th>Ingredients UOM</th></tr></thead><tbody>
       ${d.items.map(l => { const it = itemOf(l.itemId) || {}; return `<tr><td>${esc(it.name||"")}</td><td>${esc(it.sku||"")}</td><td>${ln(storUnit(it))}</td><td>${ln(ingUnit(it))}</td></tr>`; }).join("")}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
-    return w.document.close(); }
+    return w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){} }
   const rows = d.items.map(l => { const it = itemOf(l.itemId) || {}; return `<tr><td>${esc(it.name||"")}</td><td>${esc(it.sku||"")}</td><td>${esc(it.storageUnit||"")}</td>${K.kind==="sheet"?"<td></td>":K.kind==="cost"?`<td>${l.cost??""}</td>`:`<td>${l.qty??""}</td>`}</tr>`; }).join("");
   w.document.write(`<!doctype html><title>${esc(d.ref||K.title)}</title><style>body{font:13px/1.4 "Plus Jakarta Sans",Arial,sans-serif;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#f2f3f7}</style>
     <h2>${esc(K.title)} ${esc(d.ref||"")}${d.name?" — "+esc(d.name):""}</h2><p>${K.loc?"Branch: "+esc(locName(d.locationId))+" · ":""}${d.reason?"Reason: "+esc(d.reason)+" · ":""}${d.businessDate?"Date: "+esc(d.businessDate):""}</p>
     <table><thead><tr><th>Name</th><th>SKU</th><th>Unit</th><th>${K.kind==="sheet"||K.kind==="spot"?"Counted":K.kind==="cost"?"New cost":"Quantity"}</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
-  w.document.close();
+  w.document.close(); try{ window.SKW_FIX?.(w.document.body); }catch(e){}
 }
 /* Foodics filtering on the inventory transaction lists: a Filter button opens the fields that page has
    (reference, business date, status, places, supplier, reason, creator, submitter); no brand / branch pickers */
@@ -12704,6 +12704,24 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   let q = 0; const run = () => { q = 0; document.querySelectorAll('input[placeholder$="*"], textarea[placeholder$="*"]').forEach(fix); document.querySelectorAll(".phstar").forEach(s => { const i = s.previousElementSibling; if(i && i._star===s) place(i); else s.remove(); }); };
   new MutationObserver(() => { if(!q) q = requestAnimationFrame(run); }).observe(document.documentElement, { childList:true, subtree:true });
   addEventListener("resize", () => requestAnimationFrame(run)); setInterval(run, 1200); if(document.readyState!=="loading") run(); else document.addEventListener("DOMContentLoaded", run);
+})();</script>
+<script>/* naming, on what's shown only (data and links keep their names): Branch → Store, Dine-in → In-Store */
+(function(){ const RX = /\b(branch(?:es)?)\b|\b(dine[\s-]?in)\b/gi;
+  const cs = (src, w) => src === src.toUpperCase() ? w.toUpperCase() : src[0] === src[0].toUpperCase() ? w.replace(/(^|-)([a-z])/g, (m, a, c) => a + c.toUpperCase()) : w;
+  const tx = t => t.replace(RX, (m, br, di) => br ? cs(m, br.length > 6 ? "stores" : "store") : cs(m, "in-store"));
+  const skip = el => !el || el.closest("script,style,textarea,[contenteditable],.nm-keep");
+  const SEEN = new WeakMap();
+  function fix(root){ if(!root) return;
+    if(root.nodeType === 3){ const p = root.parentElement; if(skip(p) || SEEN.get(root) === root.data) return; if(RX.test(root.data)){ RX.lastIndex = 0; const v = tx(root.data); if(v !== root.data) root.data = v; } RX.lastIndex = 0; SEEN.set(root, root.data); return; }
+    if(root.nodeType !== 1 || skip(root)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while((n = w.nextNode())) fix(n);
+    [root, ...root.querySelectorAll("[placeholder],[title],[aria-label]")].forEach(el => ["placeholder","title","aria-label"].forEach(a => { const v = el.getAttribute(a); if(v && /branch|dine/i.test(v)){ const nv = tx(v); if(nv !== v) el.setAttribute(a, nv); } })); }
+  let Q = new Set(), on = false;
+  new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") Q.add(m.target); else m.addedNodes.forEach(x => Q.add(x)); });
+    if(!on){ on = true; queueMicrotask(() => { on = false; const q = [...Q]; Q = new Set(); q.forEach(x => { if(x.isConnected) fix(x); }); }); } })
+    .observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+  if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
+  window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
 </body>
 </html>

@@ -2768,7 +2768,7 @@ async function completeSale(){
 // item name in the receipt's print language (Brands → Settings → Receipt)
 function receiptText(o){
   const w = 32, row = (a,b) => a.slice(0, w-b.length-1).padEnd(w-b.length) + b, a = appSet(), net = (+o.total||0) - (+o.tax||0) - (a.showRounding ? (+o.payment?.rounding||0) : 0);
-  const typ = o.type==="dinein" ? "Dine-in"+(o.table?" T"+o.table:"") : o.type==="pickup"||o.type==="takeaway" ? "Pickup" : o.type==="fast" ? "Dine-in" : "Delivery";
+  const typ = o.type==="dinein" ? "In-Store"+(o.table?" T"+o.table:"") : o.type==="pickup"||o.type==="takeaway" ? "Pickup" : o.type==="fast" ? "In-Store" : "Delivery";
   const lines = [ (()=>{ const n = (S.brands.find(b=>b.id===branch?.brandId)?.name || "skwyd hub").toUpperCase(); return n.padStart((w+n.length)/2); })(), (branch?.name||"").padStart((w+(branch?.name||"").length)/2), ...rcptHead(w), "",
     ...(a.invoiceTitle && o.status!=="refund" ? [a.invoiceTitle.slice(0,w).padStart((w+Math.min(w,a.invoiceTitle.length))/2), ""] : []),
     ...(o.status==="refund" ? ["*** REFUND ***".padStart((w+14)/2), row("Return " + ordRef(o), typ), ...(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo ? ["Original invoice " + invNo(o.invoiceRef || S.orders.find(x=>x.id===o.refundOf)?.invoiceNo)] : []), ...(o.returnReason ? ["Reason: " + o.returnReason] : [])]
@@ -2796,7 +2796,7 @@ function receiptText(o){
 }
 // kitchen ticket: big order number, type, time, then each item with its modifiers listed under it (no prices)
 function kitchenText(o){
-  const w = 32, typ = o.type==="dinein" ? "DINE-IN"+(o.table?" T"+o.table:"") : o.type==="pickup"||o.type==="takeaway" ? "PICKUP" : o.type==="fast" ? "DINE-IN" : "DELIVERY";
+  const w = 32, typ = o.type==="dinein" ? "IN-STORE"+(o.table?" T"+o.table:"") : o.type==="pickup"||o.type==="takeaway" ? "PICKUP" : o.type==="fast" ? "IN-STORE" : "DELIVERY";
   const ctr = t => t.padStart((w + t.length)/2);
   const lines = [ctr("KITCHEN"), ctr("ORDER #" + (o.no || "—")), ctr(typ), ...(o.ref ? [ctr(o.ref)] : []), ...(o.source && o.channel!=="pos" && o.source!=="Website" ? [ctr(o.source)] : []),
     new Date(o.createdAt).toLocaleString("en-GB"), "=".repeat(w)];
@@ -3647,7 +3647,7 @@ const RP_CSS = `.rc{text-align:center;display:flex;flex-direction:column;gap:2px
 // Direct printing on the printers set in Devices → Printers (network printers, raw ESC/POS on port 9100, through the skwyd hub POS app)
 const RAWP = () => window.Capacitor?.Plugins?.RawPrinter;
 function escpos(text, copies){
-  const enc = new TextEncoder(), body = enc.encode(String(text).replace(/\r/g, "") + "\n\n\n\n"), one = [0x1b, 0x40, ...body, 0x1d, 0x56, 0x42, 0x00];   // init, text, feed, cut
+  const enc = new TextEncoder(), body = enc.encode((window.SKW_NAME || String)(String(text)).replace(/\r/g, "") + "\n\n\n\n"), one = [0x1b, 0x40, ...body, 0x1d, 0x56, 0x42, 0x00];   // init, text, feed, cut
   const all = []; for(let k = 0; k < Math.max(1, +copies || 1); k++) all.push(...one);
   let s = ""; for(let i = 0; i < all.length; i += 0x8000) s += String.fromCharCode.apply(null, all.slice(i, i + 0x8000)); return btoa(s);
 }
@@ -3694,6 +3694,7 @@ function rcptNames(i, a){ const ar = S.products.find(p => p.id===i.productId)?.n
 const printReceipt = (o, title) => printJob("receipt", () => receiptText(o), title);
 const printKitchen = (o, title) => printJob("kitchen", pr => { const items = (o.items||[]).filter(i => prHasItem(pr, i)); return items.length ? kitchenText({ ...o, items }) : null; }, title);
 function printText(text, title){
+  text = (window.SKW_NAME || String)(String(text));
   const f = document.createElement("iframe"); f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0"; document.body.appendChild(f);
   const doc = f.contentWindow.document;
   doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title||"Print")}</title><style>@page{size:80mm auto;margin:2mm 3mm}html,body{margin:0}body{width:72mm}pre{margin:0;font:12px/1.35 "Courier New",monospace;white-space:pre-wrap;color:#000}</style></head><body><pre>${esc(text)}</pre></body></html>`); doc.close();
@@ -3703,7 +3704,7 @@ function printReport(){
   const f = document.createElement("iframe"); f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0"; document.body.appendChild(f);
   const doc = f.contentWindow.document;
   doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>Report</title><style>@page{size:80mm auto;margin:2mm 3mm}html,body{margin:0}body{width:72mm;font:12px/1.35 Arial,Helvetica,sans-serif;color:#000}${RP_CSS}
-</style></head><body>${reportHtml()}</body></html>`); doc.close();
+</style></head><body>${reportHtml()}</body></html>`); doc.close(); try{ window.SKW_FIX?.(doc.body); }catch(e){}
   setTimeout(() => { try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(e){ toast("Couldn't print on this device"); } setTimeout(() => f.remove(), 2000); }, 250);
 }
 function reportText(){
@@ -3782,6 +3783,24 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   let q = 0; const run = () => { q = 0; document.querySelectorAll('input[placeholder$="*"], textarea[placeholder$="*"]').forEach(fix); document.querySelectorAll(".phstar").forEach(s => { const i = s.previousElementSibling; if(i && i._star===s) place(i); else s.remove(); }); };
   new MutationObserver(() => { if(!q) q = requestAnimationFrame(run); }).observe(document.documentElement, { childList:true, subtree:true });
   addEventListener("resize", () => requestAnimationFrame(run)); setInterval(run, 1200); if(document.readyState!=="loading") run(); else document.addEventListener("DOMContentLoaded", run);
+})();</script>
+<script>/* naming, on what's shown only (data and links keep their names): Branch → Store, Dine-in → In-Store */
+(function(){ const RX = /\b(branch(?:es)?)\b|\b(dine[\s-]?in)\b/gi;
+  const cs = (src, w) => src === src.toUpperCase() ? w.toUpperCase() : src[0] === src[0].toUpperCase() ? w.replace(/(^|-)([a-z])/g, (m, a, c) => a + c.toUpperCase()) : w;
+  const tx = t => t.replace(RX, (m, br, di) => br ? cs(m, br.length > 6 ? "stores" : "store") : cs(m, "in-store"));
+  const skip = el => !el || el.closest("script,style,textarea,[contenteditable],.nm-keep");
+  const SEEN = new WeakMap();
+  function fix(root){ if(!root) return;
+    if(root.nodeType === 3){ const p = root.parentElement; if(skip(p) || SEEN.get(root) === root.data) return; if(RX.test(root.data)){ RX.lastIndex = 0; const v = tx(root.data); if(v !== root.data) root.data = v; } RX.lastIndex = 0; SEEN.set(root, root.data); return; }
+    if(root.nodeType !== 1 || skip(root)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while((n = w.nextNode())) fix(n);
+    [root, ...root.querySelectorAll("[placeholder],[title],[aria-label]")].forEach(el => ["placeholder","title","aria-label"].forEach(a => { const v = el.getAttribute(a); if(v && /branch|dine/i.test(v)){ const nv = tx(v); if(nv !== v) el.setAttribute(a, nv); } })); }
+  let Q = new Set(), on = false;
+  new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") Q.add(m.target); else m.addedNodes.forEach(x => Q.add(x)); });
+    if(!on){ on = true; queueMicrotask(() => { on = false; const q = [...Q]; Q = new Set(); q.forEach(x => { if(x.isConnected) fix(x); }); }); } })
+    .observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+  if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
+  window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
 </body>
 </html>

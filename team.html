@@ -601,5 +601,23 @@ boot();
   new MutationObserver(() => { if(!q) q = requestAnimationFrame(run); }).observe(document.documentElement, { childList:true, subtree:true });
   addEventListener("resize", () => requestAnimationFrame(run)); setInterval(run, 1200); if(document.readyState!=="loading") run(); else document.addEventListener("DOMContentLoaded", run);
 })();</script>
+<script>/* naming, on what's shown only (data and links keep their names): Branch → Store, Dine-in → In-Store */
+(function(){ const RX = /\b(branch(?:es)?)\b|\b(dine[\s-]?in)\b/gi;
+  const cs = (src, w) => src === src.toUpperCase() ? w.toUpperCase() : src[0] === src[0].toUpperCase() ? w.replace(/(^|-)([a-z])/g, (m, a, c) => a + c.toUpperCase()) : w;
+  const tx = t => t.replace(RX, (m, br, di) => br ? cs(m, br.length > 6 ? "stores" : "store") : cs(m, "in-store"));
+  const skip = el => !el || el.closest("script,style,textarea,[contenteditable],.nm-keep");
+  const SEEN = new WeakMap();
+  function fix(root){ if(!root) return;
+    if(root.nodeType === 3){ const p = root.parentElement; if(skip(p) || SEEN.get(root) === root.data) return; if(RX.test(root.data)){ RX.lastIndex = 0; const v = tx(root.data); if(v !== root.data) root.data = v; } RX.lastIndex = 0; SEEN.set(root, root.data); return; }
+    if(root.nodeType !== 1 || skip(root)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while((n = w.nextNode())) fix(n);
+    [root, ...root.querySelectorAll("[placeholder],[title],[aria-label]")].forEach(el => ["placeholder","title","aria-label"].forEach(a => { const v = el.getAttribute(a); if(v && /branch|dine/i.test(v)){ const nv = tx(v); if(nv !== v) el.setAttribute(a, nv); } })); }
+  let Q = new Set(), on = false;
+  new MutationObserver(ms => { ms.forEach(m => { if(m.type === "characterData") Q.add(m.target); else m.addedNodes.forEach(x => Q.add(x)); });
+    if(!on){ on = true; queueMicrotask(() => { on = false; const q = [...Q]; Q = new Set(); q.forEach(x => { if(x.isConnected) fix(x); }); }); } })
+    .observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+  if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
+  window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
+})();</script>
 </body>
 </html>
