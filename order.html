@@ -10,7 +10,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1102-1795181679">
+<meta name="skwyd-build" content="1103-1795181830">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -1915,7 +1915,7 @@ async function placeOrder(e){
   if(PREVIEW) return err("This is a preview. Orders can't be placed here.");
   if(!USER) return openAuth("in", openCart, "Sign in or create an account to place your order.");
   $("#place").disabled = true; $("#place").textContent = "Placing your order…";
-  const row = { brand_id: brandId, channel:"online", status:"pending", source: qrBranch ? "Table QR" : null, type: mode==="takeaway" ? "pickup" : mode,
+  const row = { brand_id: brandId, channel:"online", status:"pending", source: qrBranch ? "Table QR" : "Web", type: mode==="takeaway" ? "pickup" : mode,
     branch_id:b, zone_id: mode==="delivery" ? zoneId : null, table_no: mode==="dinein" ? (tableNo||null) : null,
     lat: mode==="delivery" ? pin[0] : null, lng: mode==="delivery" ? pin[1] : null,
     customer_name:$("#cName").value.trim(), phone, address: mode==="delivery" ? addrJoin(Object.fromEntries(["label","street","building","floor","door","extra"].map(k => [k, $("#cA_"+k).value]))) : null, notes: note || null,

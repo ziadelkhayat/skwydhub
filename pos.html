@@ -11,7 +11,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1102-1795181679">
+<meta name="skwyd-build" content="1103-1795181830">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -3220,7 +3220,7 @@ function openNotes(kind){
 function openBoard(){
   if(!can("pos_orders") && !can("pos_incoming")) return deny("seeing orders");
   const t = v => v ? new Date(v).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"}) : "";
-  const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering";
+  const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web Ordering";
   const sm = x => x ? `<small>${x}</small>` : "", jn = a => a.filter(Boolean).map(esc).join(" / ");
   // the same tile as the orders history: reference, status, invoice / order, customer / phone, address (delivery), created, modified, total, type / source, channel / user
   const card = o => `<div class="ocard tl" role="button" tabindex="0" data-ov="${esc(o.id)}"><b>${esc(o.ref || ordRef(o))}</b><span class="spill s-${erPending(o) ? "pending" : outDel(o) ? "out" : o.status}">${erPending(o) ? "Order Edit" : stLbl(o)}</span>
@@ -3564,7 +3564,7 @@ function reportData(){
   const voidItems = all.concat(sales).flatMap(o => o.voidedItems || []).filter((x,i,a) => a.indexOf(x)===i);
   const gross = sum(sales, o => o.total), ref = -sum(refunds, o => o.total);
   return { sh, all, sales, refunds, voids, gross, ref, net: +(gross - ref).toFixed(2), tax: +(sum(sales, o => o.tax) + sum(refunds, o => o.tax)).toFixed(2), disc: sum(sales, o => o.discount), chg: sum(sales, o => o.chargesTotal),
-    pay: grp([...sales, ...refunds], o => o.payment?.method, o => o.total), types: grp(sales, o => typLbl(o.type), o => o.total), chans: grp(sales, o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web ordering", o => o.total),
+    pay: grp([...sales, ...refunds], o => o.payment?.method, o => o.total), types: grp(sales, o => typLbl(o.type), o => o.total), chans: grp(sales, o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web Ordering", o => o.total),
     staff: grp(sales, o => o.handledBy || o.agent, o => o.total), drivers: grp(sales.filter(o => o.type==="delivery" && o.driverId && o.driverName), o => o.driverName, o => o.total), prodRows, catRows, voidTotal: sum(voids, o => o.total), voidItemsTotal: +voidItems.reduce((s,i) => s + (+i.price||0)*(+i.qty||1), 0).toFixed(2), voidItemsN: voidItems.reduce((s,i) => s + (+i.qty||1), 0) };
 }
 const RP_L = { shift:"This shift", device:"Today · this register", branch:"Today · whole branch" };
