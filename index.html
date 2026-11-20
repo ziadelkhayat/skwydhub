@@ -27,7 +27,7 @@ var skwDialCodes = function(){ var by = {}; SKW_WORLD.c.forEach(function(r){ (by
 
 
 <meta charset="utf-8">
-<meta name="skwyd-build" content="1120-1795185573">
+<meta name="skwyd-build" content="1121-1795185676">
 <script>/* a refresh opens the newest version: after the page has loaded, read only the top of the server's copy (not the whole page again) and reload once if it is a newer build */
 (function(){ var m = document.querySelector('meta[name="skwyd-build"]'), b = m && m.content; if(!b || !window.fetch || !window.TextDecoder) return;
   var ts = function(x){ return +(String(x).split("-")[1]) || 0; };
@@ -6203,10 +6203,6 @@ function openOrder(id){
   </div>`;
   state.oCat = ""; fillOrderBranches(o?.branchId); renderOrderMenu(); renderCart(ro); ccAddrVis(); setTimeout(ccGoState, 0);
   $("#ccScrim").classList.add("show");
-  if(!o){   // a new order opens on the menu: start on the brand (when there is one) and its first branch; both can be changed with the customer
-    const bs = $("#oBrand"), bb = $("#oBranch");
-    if(bs && !bs.value){ const l = brandList(); if(l.length===1){ bs.value = l[0].id; bs.dispatchEvent(new Event("change", { bubbles:true })); } }
-    if(bb && !bb.value){ const op = [...bb.options].find(x => x.value && !x.disabled); if(op){ bb.value = op.value; bb.dispatchEvent(new Event("change", { bubbles:true })); } } }
   ccStep(2, true);   // every order opens on the menu; the customer is added from the card on the right
   if(o && o.phone) ccLookup(o.status!=="draft");
 }
@@ -12671,5 +12667,20 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   document.addEventListener("input", e => { const el = e.target, re = bad(el); if(!re) return; const v = el.value, c = v.replace(re, ""); if(c===v) return;
     const p = Math.max(0, (el.selectionStart ?? c.length) - (v.length - c.length)); el.value = c; try{ el.setSelectionRange(p, p); }catch(_){} }, true); })();
 </script>
+<style>.phstar{position:absolute;transform:translateY(-50%);color:#d92d20;pointer-events:none;line-height:1;z-index:2;white-space:nowrap}</style>
+<script>/* a required field's "*" in its placeholder shows in red, everywhere */
+(function(){
+  const cv = document.createElement("canvas").getContext("2d");
+  const place = i => { const s = i._star; if(!s) return; if(!i.isConnected){ s.remove(); return; } const cs = getComputedStyle(i), f = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; cv.font = f;
+    s.style.font = f; s.style.left = (i.offsetLeft + parseFloat(cs.borderLeftWidth || 0) + parseFloat(cs.paddingLeft || 0) + cv.measureText(i._ph).width + 3) + "px";
+    s.style.top = (i.offsetTop + i.offsetHeight / 2) + "px"; s.hidden = !!i.value || !i.offsetParent || cs.visibility==="hidden"; };
+  const fix = i => { if(i._star) return place(i); const m = /^(.*?)\s*\*\s*$/.exec(i.getAttribute("placeholder") || ""); if(!m) return;
+    i._ph = m[1]; i.setAttribute("placeholder", m[1]); const p = i.parentElement; if(!p) return; if(getComputedStyle(p).position==="static") p.style.position = "relative";
+    const s = document.createElement("span"); s.className = "phstar"; s.textContent = "*"; s.setAttribute("aria-hidden", "true"); p.insertBefore(s, i.nextSibling); i._star = s;
+    ["input","change","focus","blur"].forEach(ev => i.addEventListener(ev, () => place(i))); place(i); };
+  let q = 0; const run = () => { q = 0; document.querySelectorAll('input[placeholder$="*"], textarea[placeholder$="*"]').forEach(fix); document.querySelectorAll(".phstar").forEach(s => { const i = s.previousElementSibling; if(i && i._star===s) place(i); else s.remove(); }); };
+  new MutationObserver(() => { if(!q) q = requestAnimationFrame(run); }).observe(document.documentElement, { childList:true, subtree:true });
+  addEventListener("resize", () => requestAnimationFrame(run)); setInterval(run, 1200); if(document.readyState!=="loading") run(); else document.addEventListener("DOMContentLoaded", run);
+})();</script>
 </body>
 </html>
