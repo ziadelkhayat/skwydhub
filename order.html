@@ -831,6 +831,14 @@ html body .trks li.done .dt{background:var(--acc)!important;border-color:var(--a
 html body .trks li.now .dt{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)!important}
 html body .trks li > div{padding-top:0!important;margin:0!important;text-align:left!important;flex:1;min-width:0}
 html body .trks b{display:block!important;font-size:15px!important;line-height:24px!important;margin:0!important}
+/* checkout: saved addresses to pick from, and Add new address */
+.coaddrs{display:grid;gap:8px;margin:2px 0 14px}
+.coad{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:14px;background:var(--s);padding:12px 14px;cursor:pointer;color:var(--ink);font:inherit}
+.coad b{display:block;font-size:14px;font-weight:600}.coad small{display:block;color:var(--mut);font-size:12.5px;margin-top:1px}
+.coad .cori{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none}
+.coad.on{border-color:var(--acc);background:var(--accs)}.coad.on .cori{border:5px solid var(--acc)}
+.coad:disabled{opacity:.5;cursor:not-allowed}
+.coad.coadd{border-style:dashed;color:var(--acc)}.coad.coadd svg{width:18px;height:18px;flex:none}.coad.coadd b{color:var(--acc)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -1365,7 +1373,7 @@ $("#sheet").addEventListener("click", e => {
   if(t = g("[data-lmore]")){ LS.menu = LS.menu===t.dataset.lmore ? "" : t.dataset.lmore; return drawLoc(); }
   if(t = g("[data-ledit]")){ const a = addrs.find(x => x.id===t.dataset.ledit); if(a){ LS.draft = { ...a, edit:true }; openLoc("form"); } return; }
   if(t = g("[data-ldel]")){ addrs = addrs.filter(x => x.id!==t.dataset.ldel); saveAddrs(); if(addr?.id===t.dataset.ldel) setAddr(null); LS.menu = ""; return drawLoc(); }
-  if(g("[data-lback]")){ if(LS.ret && !(LS.view==="map" && LS.draft?.back)){ LS.ret = ""; return openAcct("addrs"); } } if(g("[data-lback]")) return openLoc(LS.view==="map" && (LS.draft?.edit || LS.draft?.forNew) && LS.draft?.back ? "form" : "main");
+  if(g("[data-lback]")){ if(LS.ret && !(LS.view==="map" && LS.draft?.back)){ const r = LS.ret; LS.ret = ""; return r==="checkout" ? openCart("details") : openAcct("addrs"); } } if(g("[data-lback]")) return openLoc(LS.view==="map" && (LS.draft?.edit || LS.draft?.forNew) && LS.draft?.back ? "form" : "main");
   if(g("[data-lgpsmap]")) return lsGps((lat, lng) => lmap?.setView([lat, lng], 17));
   if(g("[data-lconfirm]")){ const d = LS.draft || {}; if(!d.lat) return;
     if(d.forNew || d.edit){ d.back = true; return openLoc("form"); }
@@ -1378,6 +1386,7 @@ $("#sheet").addEventListener("click", e => {
     if(!a.lat) return $("#lErr").textContent = "Pin the address on the map first.";
     if(!a.street || !a.building || !a.floor) return $("#lErr").textContent = "Fill in the street, building and floor.";
     addrs = d.edit ? addrs.map(x => x.id===a.id ? a : x) : [a, ...addrs]; saveAddrs();
+    if(LS.ret==="checkout"){ LS.ret = ""; goCart = false; setAddr(a); return openCart("details"); }
     if(LS.ret){ LS.ret = ""; if(addr?.id===a.id) setAddr(a); return openAcct("addrs"); }
     setAddr(a); return closeLoc(); }
 });
@@ -1736,7 +1745,9 @@ function openFavs(){
     (list.length ? `<div class="favlist">${list.map(p => `<div class="favw">${itemCard(p)}<button type="button" class="unfav" data-unfav="${esc(p.id)}" aria-label="Remove ${esc(p.name)} from favorites">${ic("heart")}</button></div>`).join("")}</div>` : `<div class="fvempty">${ic("heart")}<b>No favorites yet</b>Tap the heart on any item to save it here.</div><button type="button" class="primary" data-nav="order" style="margin-top:18px">Browse the menu</button>`);
   $("#scrim").classList.add("show"); $("#scrim").scrollTop = 0;
 }
-$("#sheet").addEventListener("click", e => { const uf = e.target.closest("[data-unfav]"); if(uf){ togFav(uf.dataset.unfav); toast("Removed from favorites"); return; }
+$("#sheet").addEventListener("click", e => { const ca = e.target.closest("[data-coaddr]"); if(ca){ const a = addrs.find(x => x.id===ca.dataset.coaddr); if(a && a.id!==addr?.id){ goCart = false; setAddr(a); openCart("details"); } return; }
+  if(e.target.closest("[data-coaddnew]")){ LS.draft = { forNew:true }; LS.ret = "checkout"; return openLoc("map"); }
+  const uf = e.target.closest("[data-unfav]"); if(uf){ togFav(uf.dataset.unfav); toast("Removed from favorites"); return; }
   const it = e.target.closest(".favlist [data-item]"); if(!it || it.classList.contains("oos")) return; $("#scrim").classList.remove("show"); openItem(products.find(x => x.id===it.dataset.item)); });
 /* ---------- bottom navigation ---------- */
 const NAV = { cur:"order" };
@@ -1864,7 +1875,9 @@ function openCart(step){
     <div class="f"><label for="cName">Name *</label><input id="cName" required autocomplete="name"></div>
     ${phField("cPhone","Phone *",PROF?.phone||"")}
     ${em !== "off" ? `<div class="f"><label for="cEmail">Email (optional)</label><input id="cEmail" type="email" autocomplete="email"></div>` : ""}
-    ${mode==="delivery"?`<div class="sec">Address details</div><div class="f"><label for="cA_label">Address name</label><input id="cA_label" placeholder="Home, Work…"></div>
+    ${mode==="delivery"?`<div class="sec">Address details</div>${USER ? `<div class="coaddrs">${addrs.map(a => { const inZ = !!zoneAt(a.lat, a.lng), on = addr?.id===a.id;
+      return `<button type="button" class="coad${on ? " on" : ""}" data-coaddr="${esc(a.id)}"${inZ ? "" : " disabled"}><span class="cori"></span><span><b>${esc(a.label || "Address")}</b><small>${esc([a.street, a.building].filter(Boolean).join(", ") || "Pinned location")}${inZ ? "" : " · Outside the delivery area"}</small></span></button>`; }).join("")}
+      <button type="button" class="coad coadd" data-coaddnew>${ic("plus")}<span><b>Add new address</b></span></button></div>` : ""}<div class="f"><label for="cA_label">Address name</label><input id="cA_label" placeholder="Home, Work…"></div>
     <div class="f"><label for="cA_street">Area / street *</label><input id="cA_street" required autocomplete="street-address"></div>
     <div class="f2"><div class="f"><label for="cA_building">Building name / no. *</label><input id="cA_building" required></div><div class="f"><label for="cA_floor">Floor / Apartment no. *</label><input id="cA_floor" required></div></div>
     <div class="f"><label for="cA_door">Door details / Name on intercom</label><input id="cA_door"></div>
