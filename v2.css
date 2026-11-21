@@ -264,3 +264,4 @@ html body .app #view.hasset#view > .v3{margin-left:0!important}
   html body.v2 #view#view .rptv .rchart{border-radius:16px!important;box-shadow:none!important;padding:14px 16px!important}
   html body.v2 #view#view .rptv .rchart .kh h3,html body.v2 #view#view .rptv .rchart .kh b{font-size:17px!important;font-weight:700!important}
 }
+html body #view > .v3 button.v3selrow,html body #view > .v3 button.v3selrow:hover{background:rgba(10,102,216,.1)!important}
