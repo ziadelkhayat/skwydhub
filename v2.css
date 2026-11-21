@@ -239,3 +239,5 @@ html body.v2{letter-spacing:-.2px}
   html body.v2 aside.side > .v3side input.v3sq::placeholder{color:#6C6C70!important}
   html body.v2 aside.side > .v3side > div:first-child > div:first-child{line-height:36px}
 }
+html body.v2 #view#view > .v3,html body.v2 #view#view > .v3 *:not(h1),html body.v2 aside.side > .v3side,html body.v2 aside.side > .v3side *{line-height:normal}
+html body.v2 aside.side > .v3side .v3me svg{stroke:#6C6C70!important;color:#6C6C70!important}
