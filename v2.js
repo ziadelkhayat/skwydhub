@@ -26,7 +26,7 @@
     document.body.classList.toggle("v2", WIDE());
     document.body.classList.toggle("v2p", innerWidth <= 760);
     if (!WIDE()) { if (innerWidth <= 760) phoneBar(v); return; }
-    if (v.querySelector(":scope > .v2cols")) return;
+    if (v.querySelector(":scope > .v2cols, :scope > .v3")) return;
     const split = v.querySelector(":scope > .splitv, :scope .catr > .splitv"), src = split ? split.querySelector(".splitl") : v;
     const phead = src.querySelector(".phead"), list = src.querySelector(".card.tbl, .card:has(> table), .card:has(.olisttbl)");
     const ptabs = v.querySelector(":scope > .ptabs:not(.ptset), :scope > nav.ptabs"), catl = v.querySelector(".catl"), ptset = v.querySelector(".ptset");

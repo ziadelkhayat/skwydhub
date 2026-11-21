@@ -164,3 +164,23 @@ html body #view#view .v3l1 b{font-weight:600!important}
   html body.v2 #view#view .v2list table.ios-ltable > tbody > tr:has(> td.ios-t1 :is(img,.pthumb,.thumb,.pimg,[class*=thumb])) > td.ios-sub{padding-left:56px!important}
   html body.v2 #view#view .v2det .phead{flex-wrap:wrap!important}
 }
+
+/* v3 screens */
+@media (min-width:1100px){
+  html:not(.v3showsheet) body.v2:has(#view > .v3) #ccScrim:has(> .odrawer){display:none!important}
+  html body.v2 #view > .v3 .v3sel{height:30px;border-radius:999px;border:0;background:rgba(118,118,128,.12);font:inherit;font-size:13px;color:#000;padding:0 12px;-webkit-appearance:none;appearance:none;cursor:pointer}
+  html body.v2 #view > .v3 .v3flt .fltbtn{width:40px!important;height:40px!important;min-width:40px!important;padding:0!important;border-radius:999px!important;border:0!important;background:rgba(118,118,128,.12)!important;color:#000!important;font-size:0!important;display:grid!important;place-items:center!important;position:relative}
+  html body.v2 #view > .v3 .v3flt .fltbtn svg{width:20px!important;height:20px!important;margin:0!important}
+  html body.v2 #view > .v3 .v3flt .fltbtn .fcount{position:absolute;top:-2px;right:-2px;font-size:11px!important;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#0A66D8;color:#fff}
+  html body.v2 #view > .v3 a[data-oid]:hover{background:rgba(118,118,128,.08)!important}
+  html body.v2 #view > .v3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;letter-spacing:-.2px;color:#000}
+}
+@media (min-width:1100px){
+  html body.v2 #view#view > .v3 h1{font-size:34px!important;line-height:41px!important;font-weight:700!important;letter-spacing:-.8px!important;margin:0!important;color:#000!important}
+  html body.v2 #view#view > .v3 .v3sel{height:30px!important;min-height:30px!important;border-radius:999px!important;border:0!important;background:rgba(118,118,128,.12)!important;font-size:13px!important;color:#000!important;padding:0 12px!important;box-shadow:none!important;width:auto!important;font-weight:500!important}
+  html body.v2 #view#view > .v3 input::placeholder{text-transform:none!important;color:#8E8E93!important}
+  html body.v2 #view#view > .v3 input{height:auto!important;min-height:0!important;padding:0!important;box-shadow:none!important}
+  html body.v2 #view#view > .v3 b{font-weight:600!important}
+  html body.v2 #view#view > .v3 .msel{display:contents}
+  html body.v2 #view#view > .v3 .msel-f{height:30px!important;min-height:30px!important;border-radius:999px!important;border:0!important;background:rgba(118,118,128,.12)!important;font-size:13px!important;padding:0 12px!important;box-shadow:none!important}
+}

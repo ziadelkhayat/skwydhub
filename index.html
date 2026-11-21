@@ -9457,6 +9457,7 @@ const ordSources = () => [...new Set([...S.order_sources.filter(r => String(r.na
 const ordPays = () => [...new Set([...S.payment_methods.filter(r=>live(r)).sort(bySort).map(r=>r.name), "Cash", "Card", "Other"])];
 function viewOrders(){
   if(storeMode!=="db") return `<h1>Orders</h1>` + placeholder("Orders", "Sign in to see orders.");
+  if(window.V3 && V3.on()) return V3.orders({ loadOrders, ORD, ORD_TABS, ORD_ST, branches, brandList, ordTypeLbl, telFmt, fltBtn, drpLabel, modLines, salesChName, PAY_LBL, invNo, money, openOrderDetail, render });   // iPad / computer: drawn from the approved design file
   loadOrders();
   const sel = (id, val, opts) => `<select class="sel" id="${id}">${opts.map(([v,t])=>`<option value="${v}" ${val===v?"selected":""}>${t}</option>`).join("")}</select>`;
   const pages = Math.max(1, Math.ceil(ORD.count/ORD.per)), a = ORD.count ? (ORD.page-1)*ORD.per+1 : 0, b = Math.min(ORD.count, ORD.page*ORD.per);
@@ -13530,6 +13531,7 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   let t = 0; new MutationObserver(() => { if(t) return; t = setTimeout(() => { t = 0; fill(document); }, 30); }).observe(document.body, { childList:true, subtree:true }); })();
 </script>
 <script src="ioskit.js?v=5" data-app="portal"></script>
+<script src="v3.js?v=1"></script>
 <script src="v2.js?v=1"></script>
 </body>
 </html>
