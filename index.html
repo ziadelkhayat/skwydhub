@@ -3378,6 +3378,51 @@ html body .msel-q,html body .msel-q::placeholder{text-transform:none!important}
 html body .app #view .card{min-width:0}
 html body .app #view .olgrid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}
 html body .app #view .olgrid > *,html body .app #view .olgrid input{min-width:0!important;max-width:100%}
+/* dashboard number boxes (design: coloured dot + coloured title, big rounded number, area chart in the same colour) */
+html body .app #view .nubox{padding:16px 18px 12px!important;border-radius:26px!important;gap:4px}
+html body .app #view .nubox .hch{display:flex;align-items:center;gap:8px;margin:0 0 6px!important}
+html body .app #view .nubox .hch b{font-size:15px!important;line-height:20px;font-weight:600!important;color:var(--bc)!important}
+html body .app #view .nubox .hci{order:-1;width:28px!important;height:28px!important;border-radius:999px!important;background:var(--bc)!important;color:#fff!important;display:grid!important;place-items:center;flex:none;box-shadow:none!important}
+html body .app #view .nubox .hci svg{width:16px!important;height:16px!important;stroke:#fff!important;color:#fff!important;stroke-width:2.2!important}
+html body .app #view .nubox .vr{display:inline-flex!important;align-items:center;gap:4px;font-size:13px!important;font-weight:400!important;color:#6C6C70!important;text-decoration:none!important;background:transparent!important;padding:0!important}
+html body .app #view .nubox .vr svg{color:#C4C4C7}
+html body .app #view .nubox .vr:hover span{color:#007AFF}
+html body .app #view .nubox .hcv{font-family:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif!important;font-size:34px!important;line-height:40px!important;font-weight:700!important;color:#000!important;letter-spacing:0!important}
+html body .app #view .nubox .hsub{font-size:13px!important;color:#6C6C70!important}
+html body .app #view .nubox .dbxl{font-size:12px!important;color:#6C6C70!important}
+html body .app #view .dbxbar .note{font-size:15px!important}
+/* filter rows: glass capsules for pickers, iOS segmented control for the period */
+html body .app #view .fbar .msel-f,html body .app #view .fbar input[type=date],html body .app #view .fbar .dpick{background:rgba(255,255,255,.8)!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,.06)!important;border-radius:999px!important}
+html body .app #view .dmseg{display:inline-flex!important;gap:2px!important;padding:4px!important;border-radius:999px!important;background:rgba(118,118,128,.12)!important;border:0!important;height:auto!important}
+html body .app #view .dmseg > button{height:36px!important;min-height:36px!important;padding:0 18px!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#000!important;font-size:15px!important;font-weight:400!important;box-shadow:none!important}
+html body .app #view .dmseg > button.on,html body .app #view .dmseg > button[aria-pressed=true]{background:#fff!important;box-shadow:0 2px 6px rgba(0,0,0,.1)!important;font-weight:600!important;color:#000!important}
+html body .app #view .card > h3,html body .app #view .card .ct,html body .app #view .card > b:first-child{font-size:20px!important;line-height:25px!important;font-weight:600!important}
+html body .app #view .nubox .vr span{display:none!important}
+html body .app #view .nubox .hch b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* order details: a floating panel on the right, like the design's split view */
+@media (min-width:761px){
+  html body .scrim.show:has(> .modal.odrawer){background:rgba(0,0,0,.12)!important;padding:10px!important}
+  html body .scrim .modal.odrawer{height:calc(100vh - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:30px!important;background:#fff!important;box-shadow:0 20px 60px rgba(0,0,0,.18)!important}
+}
+html body .modal.odrawer > header{justify-content:flex-start!important;padding:22px 76px 10px 26px!important;background:#fff!important;min-height:0}
+html body .modal.odrawer > header h2{font-size:28px!important;line-height:34px!important;font-weight:700!important;text-align:left!important}
+html body .modal.odrawer > header .x{left:auto!important;right:18px!important;background:rgba(120,120,128,.12)!important;border:0!important;box-shadow:none!important}
+html body .modal.odrawer .odet{background:#F2F2F7;border-radius:20px;padding:14px 16px;gap:12px 18px!important}
+html body .modal.odrawer .odet div{font-size:17px}
+html body .modal.odrawer .odet div span{font-size:13px!important;font-weight:600;color:#6C6C70!important;margin-bottom:2px}
+html body .modal.odrawer .tbl{border-radius:0!important}
+html body .modal.odrawer h3,html body .modal.odrawer h4{font-size:13px!important;font-weight:600!important;color:#6C6C70!important;text-transform:uppercase;letter-spacing:.3px}
+/* windows: each field is a white rounded row on the grey sheet, label above the value (design: grouped rows) */
+html body .modal .body .f{background:#fff;border-radius:16px;padding:10px 14px 8px;margin:0;display:flex;flex-direction:column;gap:2px;min-width:0;box-sizing:border-box}
+html body .modal .body .f:focus-within{box-shadow:0 0 0 3px rgba(0,122,255,.3)}
+html body .modal .body .f > label{margin:0!important}
+html body .modal .body .f input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),html body .modal .body .f select,html body .modal .body .f textarea,html body .modal .body .f .msel-f{background-color:transparent!important;min-height:34px!important;padding-left:0!important;border-radius:0!important;box-shadow:none!important;border:0!important}
+html body .modal .body .f select,html body .modal .body .f .msel-f{background-position:right 0 center!important;padding-right:22px!important}
+html body .modal .body .f input:focus,html body .modal .body .f select:focus,html body .modal .body .f textarea:focus{box-shadow:none!important}
+html body .modal .body .f .note{margin-top:2px}
+html body .modal .body .f:has(> .toggle),html body .modal .body .f:has(> label.chk){flex-direction:row;align-items:center;justify-content:space-between;min-height:52px}
+html body .modal .body .fsec{margin-top:14px!important;padding:0 14px!important;border-top:0!important}
+html body .modal .body .f .row,html body .modal .body .f > div{min-width:0}
 </style>
 </head>
 <body>
@@ -4188,10 +4233,11 @@ function viewDashboard(){
     // all ten number boxes look the same (Foodics row style): title, View report, icon, number, the change vs the period before, a soft line by hour
     { const sum = a => a.reduce((x,y) => x + y, 0), hPay = hours24(D.hours,"pay"), X = D.voids?.hrs || {}, z = Array(24).fill(0);
       const hl = i => { const h = (i + dayStartH()) % 24; return (h % 12 || 12) + (h < 12 ? "am" : "pm"); };
-      const area = vals => { const w = 300, ht = 64, mx = Math.max(...vals.map(v => Math.abs(v)), 0) || 1, p = vals.map((v, i) => [i * w / (vals.length - 1), ht - 4 - (Math.max(0, v) / mx) * (ht - 12)]);
+      const area = (vals, col = "#007AFF") => { const w = 300, ht = 64, mx = Math.max(...vals.map(v => Math.abs(v)), 0) || 1, p = vals.map((v, i) => [i * w / (vals.length - 1), ht - 4 - (Math.max(0, v) / mx) * (ht - 12)]);
         const d = p.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" ");
-        return `<svg class="dbxc" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${w} ${ht} L0 ${ht}Z" fill="#6D28D9" opacity=".08"/><path d="${d}" fill="none" stroke="#6D28D9" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="dbxl">${[0,6,12,18,23].map(i => `<span>${hl(i)}</span>`).join("")}</div>`; };
-      const box = (label, value, sub, vals, rep, icon) => `<div class="card hcard hmini dbx"><div class="hch"><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr">View report</a><i class="hci">${svgIco(icon)}</i></div><div class="hcv" data-countup>${value}</div><div class="hsub">${sub || "&nbsp;"}</div>${area(vals)}</div>`;
+        return `<svg class="dbxc" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${w} ${ht} L0 ${ht}Z" fill="${col}" opacity=".13"/><path d="${d}" fill="none" stroke="${col}" stroke-linejoin="round" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg><div class="dbxl">${[0,6,12,18,23].map(i => `<span>${hl(i)}</span>`).join("")}</div>`; };
+      const BOXC = { Orders:"#FF9500", "Net sales":"#007AFF", "Net payments":"#34C759", "Average ticket":"#AF52DE", "Active orders":"#007AFF", Declined:"#FF3B30", Discounts:"#5856D6", Tax:"#30B0C7", Returns:"#30B0C7", Voids:"#FF2D55" };
+      const box = (label, value, sub, vals, rep, icon) => { const c = BOXC[label] || "#007AFF"; return `<div class="card hcard hmini dbx nubox" style="--bc:${c}"><div class="hch"><i class="hci">${svgIco(icon)}</i><b>${label}</b><span class="sp"></span><a href="#dashboard" data-report="${esc(rep)}" class="vr" aria-label="View report: ${esc(label)}"><span>View report</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="hcv" data-countup>${value}</div><div class="hsub">${sub || "&nbsp;"}</div>${area(vals, c)}</div>`; };
       const tr = (c, p) => state.compare && P ? trend(c, p) : "";
       const hAvg = hNet.map((v, i) => hN[i] ? v / hN[i] : 0);
       // the boxes can be dragged into any order and hidden or shown (Customize); each user's choice is kept on this browser

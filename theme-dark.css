@@ -1084,6 +1084,19 @@ html[data-theme=dark] body .msel-c{color:#7bb5f4!important}
 html[data-theme=dark] body .msel-p{background:rgba(16,20,32,.82)!important;border:1px solid rgba(40,45,62,.95)!important;box-shadow:0 24px 60px rgba(0,0,0,0.396),0 2px 6px rgba(0,0,0,0.132)!important}
 html[data-theme=dark] body .msel-o{color:#ededed!important}
 html[data-theme=dark] body .msel-o.on, html[data-theme=dark] body .msel .msel-o:has(input:checked){color:#ededed!important}
+html[data-theme=dark] body .app #view .nubox .vr{color:#afafb2!important}
+html[data-theme=dark] body .app #view .nubox .vr:hover span{color:#7bb5f4}
+html[data-theme=dark] body .app #view .nubox .hcv{color:#ededed!important}
+html[data-theme=dark] body .app #view .nubox .hsub{color:#afafb2!important}
+html[data-theme=dark] body .app #view .nubox .dbxl{color:#afafb2!important}
+html[data-theme=dark] body .app #view .fbar .msel-f, html[data-theme=dark] body .app #view .fbar input[type=date], html[data-theme=dark] body .app #view .fbar .dpick{background:rgba(16,20,32,.8)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,0.132)!important}
+html[data-theme=dark] body .app #view .dmseg > button{color:#ededed!important}
+html[data-theme=dark] body .app #view .dmseg > button.on, html[data-theme=dark] body .app #view .dmseg > button[aria-pressed=true]{background:#101420!important;box-shadow:0 2px 6px rgba(0,0,0,0.22000000000000003)!important;color:#ededed!important}
+html[data-theme=dark] body .modal.odrawer > header{background:#101420!important}
+html[data-theme=dark] body .modal.odrawer .odet{background:#1a1a22}
+html[data-theme=dark] body .modal.odrawer .odet div span{color:#afafb2!important}
+html[data-theme=dark] body .modal.odrawer h3, html[data-theme=dark] body .modal.odrawer h4{color:#afafb2!important}
+html[data-theme=dark] body .modal .body .f{background:#101420}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1154,6 +1167,9 @@ html[data-theme=dark] body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6p
 }
 @media (min-width:1181px){
 html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.72)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 10px 40px rgba(0,0,0,0.17600000000000002),0 1px 2px rgba(0,0,0,0.11000000000000001)!important}
+}
+@media (min-width:761px){
+html[data-theme=dark] body .scrim .modal.odrawer{background:#101420!important;box-shadow:0 20px 60px rgba(0,0,0,0.396)!important}
 }
 html[data-theme=dark] [style*="background:#34C759"]{background:#487754!important}
 html[data-theme=dark] [style*="background:#99C9FF"]{background:#273441!important}
