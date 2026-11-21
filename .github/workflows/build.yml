@@ -26,7 +26,7 @@ jobs:
         run: |
           rm -rf node_modules   # the committed node_modules is incomplete (.gitignore drops @capacitor/cli/dist/web), so install fresh
           npm install
-          mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js www/
+          mkdir -p www && cp pos.html www/index.html && cp wokdb.js modpick.js ioskit.js ioskit.css theme-dark-pos.css www/
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
           npx cap add android
           # app icon: each app has its own (android-icons/<app>/<density>__<file>.png -> res/mipmap-<density>/<file>.png); Insights uses the main "hub" logo
@@ -102,7 +102,7 @@ jobs:
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk skwydhub-pos.apk   # keep the POS app before building the next one
           rm -rf android www
-          mkdir -p www && cp team.html www/index.html && cp team-icon-192.png www/
+          mkdir -p www && cp team.html www/index.html && cp team-icon-192.png strips.js ioskit.js ioskit.css theme-dark-team.css www/
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
           printf '{ "appId": "com.skwydhub.team", "appName": "SKWYD Team", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json
           npx cap add android
@@ -119,7 +119,7 @@ jobs:
       - name: Build Android Driver app (APK)
         run: |
           rm -rf android www
-          mkdir -p www && sed 's#<head>#<head><script>window.SKWYD_APP="driver"</script>#' team.html > www/index.html && cp team-icon-192.png www/
+          mkdir -p www && sed 's#<head>#<head><script>window.SKWYD_APP="driver"</script>#' team.html > www/index.html && cp team-icon-192.png strips.js ioskit.js ioskit.css theme-dark-team.css www/
           grep -q 'SKWYD_APP="driver"' www/index.html
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js www/supabase.js || curl -fsSL https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js -o www/supabase.js
           printf '{ "appId": "com.skwydhub.driver", "appName": "SKWYD Driver", "webDir": "www", "server": { "androidScheme": "https" } }\n' > capacitor.config.json

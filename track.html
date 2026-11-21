@@ -30,6 +30,8 @@ textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px
 html.embed body{background:transparent;padding:0;margin:0}html.embed .card:not(.mapc),html.embed .brand{display:none!important}html.embed .card.mapc{margin:0;padding:0;border:0;box-shadow:none;background:transparent}html.embed .card.mapc>b{display:none}html.embed #map{height:300px;margin:0}
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="/skwyd-icon-32.png?v=6"><link rel="apple-touch-icon" href="/skwyd-icon-180.png?v=4"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.documentElement.dataset.ios="order"</script>
+<link rel="stylesheet" href="ioskit.css?v=1">
 </head>
 <body>
 <div class="w" id="app"><div class="card"><p class="sub" style="text-align:center">Loading your order…</p></div></div>
@@ -106,5 +108,6 @@ document.addEventListener("visibilitychange", () => { if(!document.hidden) load(
   if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
   window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
+<script src="ioskit.js?v=1" data-app="order"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ Run: python3 scripts/gen-dark.py index.html theme-dark.css   (the build runs it 
 import re, sys, colorsys
 
 SRC, OUT = sys.argv[1], sys.argv[2]
+APPLE = len(sys.argv) > 3 and sys.argv[3] == "apple"   # newer apps: Apple greys (black page, #1C1C1E cards) instead of navy
 P = "html[data-theme=dark]"
 
 def hex2rgb(h):
@@ -22,6 +23,13 @@ def lum(rgb): r, g, b = rgb; return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 def dark_bg(rgb):
     h, l, s = colorsys.rgb_to_hls(*rgb)
+    if APPLE and s < 0.12:
+        if l >= 0.985: return hex2rgb('1c1c1e')     # cards and sheets
+        if l >= 0.93: return (0, 0, 0)               # grouped page background
+        if l >= 0.86: return hex2rgb('2c2c2e')       # fills
+        v = 0.11 + (1 - l) * 0.5; return (v, v, v)
+    if APPLE and l > 0.88: return hex2rgb('2c2c2e')   # pale tints: secondary fills
+    if APPLE: return colorsys.hls_to_rgb(h, 0.16 + (1 - l) * 0.4, min(s, 0.5))
     # white → #141a2c (navy-tinted night), light tints keep their hue, faintly
     L = 0.095 + (1 - l) * 0.55
     S = min(s, 0.45) * (0.55 if s > 0.05 else 1)
@@ -30,12 +38,14 @@ def dark_bg(rgb):
 
 def light_fg(rgb):
     h, l, s = colorsys.rgb_to_hls(*rgb)
+    if APPLE and s < 0.15: v = 1 - l * 0.62; return (v, v, min(1, v + 0.02))
     L = 0.93 - l * 0.55
     if s > 0.35: L = max(L, 0.72)            # navy/brand text becomes a readable light blue
     return colorsys.hls_to_rgb(h, L, min(s, 0.85))
 
 def dark_line(rgb):
     h, l, s = colorsys.rgb_to_hls(*rgb)
+    if APPLE and s < 0.12: return hex2rgb('38383a')
     return colorsys.hls_to_rgb(0.63 if s < 0.08 else h, 0.2 + (1 - l) * 0.35, 0.22 if s < 0.08 else min(s, 0.4))
 
 HEX = re.compile(r'#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b')
@@ -69,9 +79,9 @@ def conv_value(prop, val):
     if 'url(' in val and kind == 'bg' and not HEX.search(val.split('url(')[0]): return None
     v2 = HEX.sub(f_hex, val); v2 = RGBA.sub(f_rgba, v2)
     if kind == 'bg' and re.search(r'(^|[\s,])white\b', v2):
-        v2 = re.sub(r'(^|[\s,])white\b', lambda m: m.group(1) + '#141a2c', v2); changed = True
+        v2 = re.sub(r'(^|[\s,])white\b', lambda m: m.group(1) + ('#1c1c1e' if APPLE else '#141a2c'), v2); changed = True
     if kind == 'fg' and re.search(r'(^|\s)black\b', v2):
-        v2 = re.sub(r'(^|\s)black\b', lambda m: m.group(1) + '#e7e9f2', v2); changed = True
+        v2 = re.sub(r'(^|\s)black\b', lambda m: m.group(1) + ('#ffffff' if APPLE else '#e7e9f2'), v2); changed = True
     return v2 if changed else None
 
 def prefix_sel(sel):

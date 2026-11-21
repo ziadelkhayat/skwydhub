@@ -223,6 +223,9 @@ html body .btn:active,html body button.primary:active,html body .cats button:act
 html body .btn,html body button.primary,html body .cats button,html body nav.tabs button{transition:transform .25s cubic-bezier(.34,1.3,.5,1),background-color .2s,color .2s!important}
 @media (prefers-reduced-motion:reduce){html body *{animation:none!important;transition:none!important}}
 </style>
+<script>(function(){var r=document.documentElement,m=matchMedia("(prefers-color-scheme: dark)");r.dataset.ios="team";function t(){if(m.matches)r.setAttribute("data-theme","dark");else r.removeAttribute("data-theme")}t();m.addEventListener&&m.addEventListener("change",t)})()</script>
+<link rel="stylesheet" href="theme-dark-team.css?v=1">
+<link rel="stylesheet" href="ioskit.css?v=1">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -336,7 +339,7 @@ function shell(){
   app.innerHTML = `<div class="top"><span class="tav">${esc(String(S.me.name||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase())}</span><div class="who"><small>${hello}</small><b>${esc(S.me.name)}</b></div><div class="mk">${MARK}</div><button class="out" id="so" aria-label="Sign out">Sign Out</button></div>
     <main id="main"></main>
     <nav class="tabs"><div>${(DRIVER ? [["deliv","Orders","bike"],["clock","Clock","clock"],["sched","Schedule","cal"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]] : [["clock","Clock","clock"],["sched","Schedule","cal"],["tasks","Tasks","task"],["chat","Chat","chat"],["reqs","Requests","req"],["kb","Guides","kb"]]).map(([k,t,i]) => `<button data-tab="${k}">${ic(i)}${t}${k==="kb" ? `<span class="dot" id="kdot" hidden></span>` : ""}${k==="chat" ? `<span class="dot" id="cdot" hidden></span>` : k==="deliv" ? `<span class="dot" id="ddot" hidden></span>` : ""}</button>`).join("")}</div></nav>`;
-  $("#so").onclick = async () => { if(Q().length) return toast("Connect to the internet first: some punches haven't synced yet.", "bad"); if(!confirm("Sign out?")) return; await sb.auth.signOut(); S.me = null; loginView(); };
+  $("#so").onclick = async () => { if(Q().length) return toast("Connect to the internet first: some punches haven't synced yet.", "bad"); if(!(await iosConfirm("Sign out?", { yes:"Sign Out", danger:true }))) return; await sb.auth.signOut(); S.me = null; loginView(); };
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => go(b.dataset.tab));
 }
 function go(tab){ S.tab = tab; clearInterval(chatT); S.chat = null; document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab===tab)); window.scrollTo(0, 0);
@@ -648,7 +651,7 @@ function orderSheet(o){
       const r = await rpc("skwyd_drv_action", { p_order:o.id, p_action:"picked", p_photo:path }); if(r?.error) throw new Error(r.error);
       toast("Order picked up · the customer can follow you", "ok"); await drvPoll(); orderSheet((S.drv||[]).find(x => x.id===o.id)); }
     catch(err){ $("#de").textContent = isNet(err) ? "No internet connection. Try again." : (err.message || "Couldn't save the picture."); pk.disabled = false; pk.innerHTML = "Order Picked Up"; } }; }
-  const dl = $("#ddl"); if(dl) dl.onclick = async () => { if(!confirm(`Collected ${money(o.total)} and delivered the order?`)) return; dl.disabled = true;
+  const dl = $("#ddl"); if(dl) dl.onclick = async () => { if(!(await iosConfirm(`Collected ${money(o.total)} and delivered the order?`, { title:"Delivered?", yes:"Delivered", danger:false }))) return; dl.disabled = true;
     try{ const r = await rpc("skwyd_drv_action", { p_order:o.id, p_action:"delivered" }); if(r?.error) throw new Error(r.error); toast("Delivered · order closed", "ok"); await drvPoll(); orderSheet((S.drv||[]).find(x => x.id===o.id)); }
     catch(err){ $("#de").textContent = isNet(err) ? "No internet connection. Try again." : (err.message || "Couldn't close the order."); dl.disabled = false; } };
 }
@@ -658,7 +661,7 @@ function shrink(file){ return new Promise((res, rej) => { const img = new Image(
 document.addEventListener("click", async e => {
   const op = e.target.closest("[data-dopen]"); if(op && !e.target.closest("[data-dact]")){ orderSheet((S.drv||[]).find(o => o.id===op.dataset.dopen)); return; }
   const b = e.target.closest("[data-dact]"); if(!b) return; const [act, id] = b.dataset.dact.split(":");
-  if(act==="decline" && !confirm("Decline this order? The branch will assign another driver.")) return;
+  if(act==="decline" && !(await iosConfirm("The branch will assign another driver.", { title:"Decline this order?", yes:"Decline", danger:true }))) return;
   b.disabled = true; try{ const r = await rpc("skwyd_drv_action", { p_order:id, p_action:act }); if(r?.error){ toast(r.error, "bad"); b.disabled = false; return; }
     closeSheet(); toast(act==="accept" ? "Order accepted" : "Order declined", act==="accept" ? "ok" : ""); await drvPoll(); if(act==="accept"){ go("deliv"); orderSheet((S.drv||[]).find(o => o.id===id)); } }
   catch(err){ toast(isNet(err) ? "No internet connection." : "Something went wrong", "bad"); b.disabled = false; }
@@ -709,5 +712,6 @@ boot();
   if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
   window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
+<script src="ioskit.js?v=1" data-app="team"></script>
 </body>
 </html>

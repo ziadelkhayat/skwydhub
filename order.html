@@ -914,6 +914,9 @@ html body .btn:active,html body button.primary:active,html body .cats button:act
 html body .btn,html body button.primary,html body .cats button,html body nav.tabs button{transition:transform .25s cubic-bezier(.34,1.3,.5,1),background-color .2s,color .2s!important}
 @media (prefers-reduced-motion:reduce){html body *{animation:none!important;transition:none!important}}
 </style>
+<script>document.documentElement.dataset.ios="order"</script>
+<link rel="stylesheet" href="theme-dark-order.css?v=1">
+<link rel="stylesheet" href="ioskit.css?v=1">
 </head>
 <body class="lay-grid">
 <div class="splash" id="splash" aria-live="polite" aria-label="Loading"><div class="spl"><span class="splogo" id="splLogo"></span><b id="splName"></b><i class="spin"></i></div></div>
@@ -1004,7 +1007,9 @@ function lum(hex){ const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(he
 function applyTheme(t){
   t = t || {}; const root = document.documentElement, acc = /^#[\da-f]{6}$/i.test(t.accent||"") ? t.accent : "#1e3a8a";
   root.style.setProperty("--acc", acc); root.style.setProperty("--on-acc", lum(acc) > .45 ? "#16151c" : "#fff");
-  root.classList.toggle("dark", t.bg==="dark"); root.classList.toggle("warm", t.bg==="warm");
+  const dk = t.bg==="dark" || (t.bg==="auto" && matchMedia("(prefers-color-scheme: dark)").matches);   // "Same As Device" follows the phone's dark mode
+  root.classList.toggle("dark", dk); root.classList.toggle("warm", t.bg==="warm"); if(dk) root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
+  if(t.bg==="auto" && !applyTheme._mq){ applyTheme._mq = 1; matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme(t)); }
   document.querySelector('meta[name="theme-color"]').content = acc;
   // default look (like ChatFood): system font for text, Nunito Sans headings, Inter in the top bar
   const cf = false, f = ["Plus Jakarta Sans", "Plus Jakarta Sans", "IBM Plex Sans Arabic"];   // Abyss: Inter for text, Plus Jakarta Sans for headings   // IBM Plex Sans everywhere, same as the back office and POS
@@ -2288,5 +2293,6 @@ new MutationObserver(() => msEnhance()).observe(document.body, { childList: true
   if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
   window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
+<script src="ioskit.js?v=1" data-app="order"></script>
 </body>
 </html>
