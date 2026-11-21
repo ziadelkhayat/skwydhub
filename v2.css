@@ -264,4 +264,28 @@ html body .app #view.hasset#view > .v3{margin-left:0!important}
   html body.v2 #view#view .rptv .rchart{border-radius:16px!important;box-shadow:none!important;padding:14px 16px!important}
   html body.v2 #view#view .rptv .rchart .kh h3,html body.v2 #view#view .rptv .rchart .kh b{font-size:17px!important;font-weight:700!important}
 }
-html body #view > .v3 button.v3selrow,html body #view > .v3 button.v3selrow:hover{background:rgba(10,102,216,.1)!important}
+html body #view > .v3 .v3selrow,html body #view > .v3 .v3selrow:hover{background:rgba(10,102,216,.1)!important}
+/* sizes exactly as the design file */
+@media (min-width:1100px){
+  html body.v2 #view .v2sec{width:250px!important}
+  html body.v2 #view .v2sec .v2title{font-size:34px!important;line-height:41px!important;padding:42px 20px 0!important;letter-spacing:-.8px!important}
+  html body.v2 #view#view .v2sec .v2title + * h3,html body.v2 #view#view .v2sec > h3:first-of-type{margin-top:8px!important}
+  html body #view label[style*="border-radius:999px"]{margin:0!important;line-height:normal!important}
+  html body #view label[style*="border-radius:999px"] > span{font-size:15px!important;font-weight:600!important;line-height:20px!important}
+  html body.v2 #view#view .rptv .rkpis .kmini:first-child:nth-last-child(5){display:none!important}
+  html body.v2 #view#view .rptv .rkpis .kmini b{font-size:20px!important;line-height:24px!important}
+  html body.v2 #view#view .rptv .rkpis .kmini{padding:10px 14px!important}
+}
+@media (min-width:1100px){
+  html body.v2 #view#view .v2sec .catl > h3:first-child{margin-top:32px!important}
+  html body.v2 #view#view .v2sec .catl > h3:not(:first-child){margin-top:22px!important}
+  html body.v2 #view#view .v3rhead + .rkpis{margin-top:-10px!important}
+}
+@media (min-width:1100px){
+  html body.v2 #view#view .v2sec .catl > h3:first-child{margin-top:25px!important}
+  html body.v2 #view#view .v2sec .catl > h3:not(:first-child){margin-top:10px!important}
+  html body.v2 #view#view .v2sec .catl{gap:0!important;row-gap:0!important}
+  html body.v2 #view#view .v2sec .catl a{margin-top:0!important;margin-bottom:0!important}
+}
+@media (min-width:1100px){ html body.v2 #view#view > .v3 .v3sel{height:22px!important;min-height:22px!important;font-size:12px!important;font-weight:600!important;padding:0 8px!important;line-height:22px!important} }
+html body #view#view > .v3 .v3selrow,html body #view#view > .v3 .v3selrow.ios-sel,html body #view#view > .v3 .v3selrow:hover{background:rgba(10,102,216,.1)!important}
