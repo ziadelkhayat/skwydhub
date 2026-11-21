@@ -172,6 +172,7 @@
   function lists() {
     $$("#view table").forEach(t => {
       if (t.classList.contains("olisttbl") || t.closest(".modal,.odrawer")) return;
+      if (!phone() && !t.closest(".splitl") && !document.body.classList.contains("ios-splitm")) return;
       const rows = $$(":scope > tbody > tr", t); if (!t.tHead || !rows.length) return;
       const tap = r => r.classList.contains("clk") || r.classList.contains("click") || [...r.attributes].some(a => /^data-(.*open|cid|oid|co|inv)$/.test(a.name));
       if ((t.tHead.rows[t.tHead.rows.length - 1] || { cells: [] }).cells.length > 8 && !rows.some(tap)) return;   // wide reports keep their columns and scroll sideways
@@ -193,7 +194,12 @@
   }
 
   // ---------- keep it all in step with the page
-  const run = () => { backs(); title(); tabbar(); segs(); grabbers(); if (phone()) lists(); };
+  const split = () => { const v = document.querySelector("#view .splitv[data-split]"); if (!v) return; const id = v.dataset.split;
+    $$(".splitl tbody > tr", v).forEach(r => r.classList.toggle("ios-sel", [...r.attributes].some(a => a.name.startsWith("data-") && (a.value === id || a.value.endsWith(":" + id))))); };
+  const splitm = () => { if (APP !== "admin") return; const m = document.getElementById("m"); const on = !!(m && m.classList.contains("on") && innerWidth >= 1100 && document.querySelector("#view [data-co]"));
+    document.body.classList.toggle("ios-splitm", on); if (!on) return; const v = document.getElementById("view"); if (v) root.style.setProperty("--ios-splitx", Math.round(v.getBoundingClientRect().right + 16) + "px"); };
+  let coSel = ""; document.addEventListener("click", e => { const r = e.target.closest && e.target.closest("[data-co]"); if (r) coSel = r.dataset.co; }, true);
+  const run = () => { splitm(); if (APP === "admin") $$("#view tr[data-co]").forEach(r => r.classList.toggle("ios-sel", document.body.classList.contains("ios-splitm") && r.dataset.co === coSel)); backs(); title(); tabbar(); segs(); grabbers(); if (phone() || document.querySelector(".splitl") || document.body.classList.contains("ios-splitm")) lists(); split(); };
   const start = () => { run(); new MutationObserver(() => soon(run)).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style"] }); };
   document.addEventListener("click", () => setTimeout(() => soon(run), 30), true);
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
