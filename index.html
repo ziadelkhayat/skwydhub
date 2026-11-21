@@ -3531,6 +3531,53 @@ html:root[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f
   html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.toggle,html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .toggle{display:flex!important;flex-direction:row-reverse;justify-content:space-between;align-items:center;width:100%;font-size:17px!important;font-weight:400!important;color:#000!important}
   html body .modal input::placeholder{color:#AEAEB2!important}
 }
+@media (min-width:600px){
+  /* section titles sit above their group */
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec{background:transparent!important;border:0!important;border-radius:0!important;padding:18px 16px 8px!important;margin:0 0 2px!important;display:block!important;box-sizing:border-box!important;line-height:18px!important;min-height:44px!important;height:auto!important;overflow:visible!important;box-shadow:none!important;position:relative;z-index:1}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec + .f{margin-top:0!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec h3{display:block!important;position:static!important;font-size:13px!important;line-height:18px;font-weight:600!important;color:#6C6C70!important;text-transform:uppercase;letter-spacing:.3px;margin:0!important;border:0!important;padding:0!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec + .f{border-top-left-radius:16px!important;border-top-right-radius:16px!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:has(+ .f.fsec){border-bottom-left-radius:16px!important;border-bottom-right-radius:16px!important;border-bottom:0!important}
+  /* switches: the name on the left, the switch on the right */
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.chk{display:flex!important;flex-direction:row;justify-content:flex-start;align-items:center;width:100%;min-height:42px;gap:12px;font-size:17px!important;font-weight:400!important;color:#000!important;margin:0!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.chk > input[type=checkbox]{margin:0 0 0 auto!important;flex:none;order:99}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.chk > .ib{order:1;margin-left:-6px}
+  /* multi-choice fields blend into their row */
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .multi,html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .multi .msel-f{background:transparent!important;border:0!important;box-shadow:none!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .multi .msel-cs{justify-content:flex-end}
+}
+html:root[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.chk{color:#fff!important}
+html:root[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec h3{color:#8E8E93!important}
+/* ==== iOS motion ==== */
+:root{--ios-spring:cubic-bezier(.32,.72,0,1);--ios-bounce:cubic-bezier(.34,1.3,.5,1)}
+html body .scrim{transition:opacity .35s ease,visibility 0s linear .42s!important}
+html body .scrim.show{transition:opacity .3s ease,visibility 0s!important}
+html body .scrim > .modal,html body .scrim > form.modal,html body .scrim.show > .modal,html body .scrim.show > form.modal,html body .scrim.show > *:first-child{animation:none!important}
+html body .scrim > .modal,html body .scrim > form.modal{transform:translateY(105vh);transition:transform .45s var(--ios-spring)!important;will-change:transform}
+html body .scrim.show > .modal,html body .scrim.show > form.modal{transform:none}
+@media (min-width:761px){
+  html body .scrim > .modal.odrawer,html body .scrim > .modal.fltpanel{transform:translateX(calc(100% + 24px))}
+  html body .scrim.show > .modal.odrawer,html body .scrim.show > .modal.fltpanel{transform:none}
+}
+/* menus grow from where they open */
+html body .numenu,html body .msel-p,html body .ddmenu{animation:iosPop .32s var(--ios-bounce)!important}
+@keyframes iosPop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+/* pages slide in like a navigation push */
+html body.iospush .app #view{animation:iosPush .4s var(--ios-spring) both!important}
+@keyframes iosPush{from{transform:translateX(28px);opacity:0}to{transform:none;opacity:1}}
+/* side menu groups open smoothly, the chevron turns */
+html body .app aside.side nav.nav .grp.open:not(.stay) > .sub{animation:iosDrop .3s var(--ios-spring)}
+@keyframes iosDrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+/* buttons, rows and tiles press in */
+html body .app .btn,html body .modal .btn,html body .app #view .olisttbl tr.orow,html body .app aside.side nav.nav a,html body .app .ttabs a,html body .app #view .dmseg > button,html body .fchip button{transition:transform .25s var(--ios-bounce),background-color .2s ease,box-shadow .2s ease,opacity .2s ease!important}
+html body .app .btn:active,html body .modal .btn:active,html body .app aside.side nav.nav a:active,html body .app .ttabs a:active,html body .app #view .dmseg > button:active{transform:scale(.96)}
+html body .app #view .olisttbl tr.orow:active{transform:scale(.99)}
+/* the selected tab and the selected menu item fade in */
+html body .app .ttabs a.on,html body .app #view .dmseg > button.on,html body .app aside.side nav.nav > a.on{animation:iosFade .25s ease}
+@keyframes iosFade{from{opacity:.6}to{opacity:1}}
+/* filter tags pop in */
+html body .app .fchip{animation:iosPop .3s var(--ios-bounce)}
+@media (prefers-reduced-motion:reduce){html body *,html body *::before,html body *::after{animation:none!important;transition:none!important}}
 /* ==== Dark mode, Apple style (black page, #1C1C1E cards, #2C2C2E fields, system blue #0A84FF) ==== */
 html:root[data-theme=dark]{--bg:#000!important;--accent:#0A84FF!important;color-scheme:dark}
 html:root[data-theme=dark] body,html:root[data-theme=dark] body .app,html:root[data-theme=dark] body .app .main,html:root[data-theme=dark] body .app #view,html:root[data-theme=dark] body .app #view .ostick{background:#000!important;color:#fff!important}

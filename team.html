@@ -215,6 +215,13 @@ html body .wrap .bal small{color:#6C6C70!important;font-size:13px!important}
 html body .wrap input.in[placeholder^="Search"]{border-radius:999px!important}
 html body .wrap .btn.sm,html body .wrap .btn.ghost.sm{min-height:36px!important;font-size:15px!important;padding:0 14px!important}
 html body .wrap .card .empty,html body .wrap p.empty{color:#6C6C70!important;font-size:17px!important}
+/* ==== iOS motion ==== */
+@keyframes iosUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes iosPop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+html body .scrim.show > .sheet,html body .scrim > .sheet{animation:iosUp .45s cubic-bezier(.32,.72,0,1)!important}
+html body .btn:active,html body button.primary:active,html body .cats button:active,html body nav.tabs button:active{transform:scale(.96)}
+html body .btn,html body button.primary,html body .cats button,html body nav.tabs button{transition:transform .25s cubic-bezier(.34,1.3,.5,1),background-color .2s,color .2s!important}
+@media (prefers-reduced-motion:reduce){html body *{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>

@@ -906,6 +906,13 @@ html:root body #ipg h1,html:root body #ipg h2{font-size:28px!important;line-heig
 html:root body #sheet [data-coback]{font-size:0!important;color:#000!important}
 html:root body #sheet button.x[data-coback]::before{content:""!important;position:absolute;left:50%;top:50%;width:11px;height:11px;border-left:2.4px solid currentColor;border-bottom:2.4px solid currentColor;transform:translate(-30%,-50%) rotate(45deg)!important;background:none!important;mask:none!important;-webkit-mask:none!important}
 html:root body #sheet [data-coback]::after{display:none}
+/* ==== iOS motion ==== */
+@keyframes iosUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes iosPop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+html body .scrim.show > .sheet,html body .scrim > .sheet{animation:iosUp .45s cubic-bezier(.32,.72,0,1)!important}
+html body .btn:active,html body button.primary:active,html body .cats button:active,html body nav.tabs button:active{transform:scale(.96)}
+html body .btn,html body button.primary,html body .cats button,html body nav.tabs button{transition:transform .25s cubic-bezier(.34,1.3,.5,1),background-color .2s,color .2s!important}
+@media (prefers-reduced-motion:reduce){html body *{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body class="lay-grid">
