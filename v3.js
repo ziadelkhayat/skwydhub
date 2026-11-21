@@ -97,3 +97,40 @@ ${chipsRow}<div>${list}</div>
   const go = () => { fix(); const s = document.querySelector("aside.side"); if (s) new MutationObserver(() => { clearTimeout(go.t); go.t = setTimeout(fix, 30); }).observe(s, { childList: true, subtree: true }); else setTimeout(go, 300); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
 })();
+// ---------- Catalog (items): categories · items · item, drawn from the design file
+(function () {
+  const T = "#0066D6", TF = "#0A66D8", SEP = "#E3E3E8", L2 = "#6C6C70", RED = "#D70015";
+  const e = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const svg = (d, s = 20, c = "currentColor", w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const D = { plus: '<path d="M12 5v14M5 12h14"/>', share: '<path d="M12 15V3M7.5 7.5L12 3l4.5 4.5M5 12v8h14v-8"/>', search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>', fork: '<path d="M7 3v8a2 2 0 0 0 4 0V3M9 11v10M16 3c-2 2-2 6 0 8v10"/>', doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>' };
+  const gbtn = (d, label, attrs, tint) => `<button type="button" aria-label="${e(label)}" title="${e(label)}" ${attrs} class="v3g" style="width:40px;height:40px;border-radius:999px;border:0;background:rgba(118,118,128,.12);display:grid;place-items:center;cursor:pointer;color:${tint ? T : "#000"};padding:0;position:relative">${svg(d)}</button>`;
+  const thumb = (p, s) => p.imageUrl ? `<img src="${e(p.imageUrl)}" alt="" style="width:${s}px;height:${s}px;border-radius:${Math.round(s / 4.8)}px;object-fit:cover;flex:none">` : `<span style="width:${s}px;height:${s}px;border-radius:${Math.round(s / 4.8)}px;background:linear-gradient(135deg,#FFE3C2,#F7B977);display:grid;place-items:center;flex:none">${svg(D.fork, Math.round(s / 2.2), "#8A4B08", 1.8)}</span>`;
+  window.V3.catalog = function (C) {
+    const { S, state, DET, CRUD, money, live, bySort, crudFltBtn, ptabs } = C, key = "products", cfg = CRUD[key];
+    const f = ((state.cflt ||= {})[key] ||= {}), cat = f.cat || "", tab = state.tabs[key] || "all", q = (state.q[key] || "").toLowerCase();
+    const cats = S.categories.filter(c => live(c) && !c.channel).sort(bySort), all = S.products.filter(p => live(p));
+    let list = S.products.filter(cfg.tabs.find(t => t[0] === tab)[2]).filter(p => !cat || p.categoryId === cat).filter(r => !q || cfg.search(r).toLowerCase().includes(q)).filter(C.crudFltOk(key));
+    list.sort(cfg.sort);
+    const catName = id => (cats.find(c => c.id === id) || {}).name || "";
+    const title = cat ? catName(cat) || "Items" : "All Items";
+    const catRow = (id, name, n) => { const on = cur => cur === id; return `<a href="#products" data-catpick="${e(id)}" style="display:flex;justify-content:space-between;align-items:center;height:44px;padding:0 16px;margin:0 8px;border-radius:10px;text-decoration:none;color:${on(cat) ? "#fff" : "#000"};background:${on(cat) ? TF : "transparent"};font-size:17px"><span>${e(name)}</span><span style="color:${on(cat) ? "#fff" : L2}">${n}</span></a>`; };
+    const more = (ptabs || []).filter(([r]) => r !== "products").map(([r, t, ico]) => `<a href="#${r}" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 16px;margin:0 8px;text-decoration:none;color:#000;font-size:17px;border-radius:10px">${ico || ""}${e(t)}</a>`).join("");
+    const sec = `<section class="v3col" aria-label="Categories" style="width:230px;flex:none;border-right:1px solid ${SEP};background:#F7F7FA;overflow:auto;height:100vh;box-sizing:border-box">
+<div style="padding:10px 16px 0"><div style="display:flex;justify-content:flex-end;min-height:44px;align-items:center">${gbtn(D.plus, "New category", 'data-create="categories"', true)}</div><div style="padding:2px 0 8px"><h1>Catalog</h1></div></div>
+<div style="padding:4px 0">${catRow("", "All Items", all.length)}${cats.map(c => catRow(c.id, c.name, all.filter(p => p.categoryId === c.id).length)).join("")}</div>
+${more ? `<div style="padding:16px 24px 4px;font-size:13px;font-weight:600;color:${L2}">More</div><div class="v3more">${more}</div>` : ""}</section>`;
+    const openId = DET.key === key ? DET.id : "";
+    const rows = list.slice(0, 200).map(p => { const sel = p.id === openId, st = p.deleted ? "Deleted" : p.active === false ? "Inactive" : catName(p.categoryId) || "Active";
+      return `<button type="button" data-open="${key}:${e(p.id)}" style="display:flex;gap:12px;align-items:center;width:calc(100% - 16px);padding:8px 16px;margin:0 8px;border:0;border-radius:10px;text-align:left;font:inherit;color:#000;cursor:pointer;background:${sel ? "rgba(10,102,216,.1)" : "transparent"}">${thumb(p, 48)}<span style="flex:1;min-width:0"><span style="display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(p.name)}</span><span style="display:block;font-size:13px;color:${p.active === false || p.deleted ? RED : L2}">${e(st)}</span></span><span style="font-size:17px;white-space:nowrap">${e(money(+p.price || 0))}</span></button>`; }).join("")
+      || `<div style="padding:40px 16px;text-align:center;color:${L2};font-size:15px">No items here yet.</div>`;
+    const segs = cfg.tabs.map(([k, t]) => `<a href="#products" data-tab="${key}:${k}" style="flex:1;height:28px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:${tab === k ? 600 : 500};color:#000;text-decoration:none;background:${tab === k ? "#fff" : "transparent"};box-shadow:${tab === k ? "0 3px 8px rgba(0,0,0,.12)" : "none"}">${e(t)}</a>`).join("");
+    const lst = `<section class="v3col" aria-label="Items" style="width:360px;flex:none;border-right:1px solid ${SEP};background:#fff;overflow:auto;height:100vh;box-sizing:border-box">
+<div style="padding:10px 16px 0"><div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:44px"><span class="v3flt">${crudFltBtn(key)}</span><span class="ddwrap iewrap" style="position:relative">${gbtn(D.share, "Import or export", "data-iemenu")}<span class="ddmenu iemenu" hidden><button type="button" data-imp="${key}">Import</button><button type="button" data-exp="${key}">Export</button></span></span>${gbtn(D.plus, "Create item", `data-create="${key}"`, true)}</div>
+<div style="padding:2px 0 8px"><h1>${e(title)}</h1></div></div>
+<div style="padding:0 16px 10px"><label style="display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:10px;background:rgba(118,118,128,.12);color:${L2};font-size:17px">${svg(D.search, 17, L2)}<input type="search" data-search="${key}" value="${e(state.q[key] || "")}" placeholder="Name or SKU" aria-label="Search items" autocomplete="off" style="border:0;background:transparent;outline:none;font:inherit;font-size:17px;color:#000;flex:1;min-width:0"></label></div>
+<div style="padding:0 16px 10px"><div role="group" style="display:flex;gap:2px;padding:2px;border-radius:9px;background:rgba(118,118,128,.12)">${segs}</div></div>${rows}</section>`;
+    let det = `<div style="height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:${L2};text-align:center">${svg(D.doc, 44, "#C7C7CC", 1.6)}<b style="font-size:20px;color:#000;font-weight:600;margin-top:6px">No Item Selected</b><span style="font-size:15px">Choose an item to see it here.</span></div>`;
+    if (openId) { const r = S.products.find(x => x.id === openId); if (r) det = `<div class="v3det">${cfg.detail(r)}</div>`; }
+    return `<div class="v3" style="display:flex;height:100vh">${sec}${lst}<main class="v3col" style="flex:1;min-width:0;overflow:auto;height:100vh;padding:10px 16px 40px;box-sizing:border-box">${det}</main></div>`;
+  };
+})();

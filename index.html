@@ -5996,6 +5996,7 @@ document.addEventListener("click", e => { const v = e.target.closest("[data-pvie
   const c = e.target.closest("[data-bkclear]"); if(c){ (state.sel ||= {})[c.dataset.bkclear]?.clear(); render(); } });
 try{ state.pview = localStorage.getItem("skwydPView") || "list"; }catch(e){ state.pview = "list"; }
 function crudView(key){
+  if(key==="products" && window.V3 && V3.on() && !DET.edit && !crudView._v3in){ crudView._v3in = 1; try{ return V3.catalog({ S, state, DET, CRUD, money, live, bySort, crudFltBtn, crudFltOk, ptabs: (NAV.find(n => (n.kids||[]).some(k => k[0]==="products"))?.kids || []).filter(k => !k[0].startsWith("@")).map(k => [k[0], k[1]]) }); } finally{ crudView._v3in = 0; } }
   // iPad / computer: Items get a categories column on the left (iOS three-column layout)
   if(key==="products" && innerWidth >= 1100 && !crudView._cat && !(DET.key==="products" && DET.id)){ crudView._cat = 1; let h = ""; try{ h = crudView(key); } finally{ crudView._cat = 0; }
     const f = (state.cflt ||= {}).products || {}, cur = f.cat || "", live0 = S.products.filter(p => live(p));

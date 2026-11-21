@@ -194,3 +194,12 @@ html body #view#view .v3l1 b{font-weight:600!important}
   html body.v2 aside.side nav > a,html body.v2 aside.side nav .grp > button,html body.v2 aside.side > a{height:40px!important;min-height:40px!important;margin:1px 10px!important;padding:0 10px!important;gap:12px!important}
   html body.v2 aside.side .nusearch{margin:4px 12px 6px!important;height:36px!important;border-radius:10px!important}
 }
+@media (min-width:1100px){
+  html body.v2 #view#view > .v3 .v3det .phead{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;margin:0 0 14px!important}
+  html body.v2 #view#view > .v3 .v3det .phead h1{font-size:24px!important;line-height:30px!important;letter-spacing:-.4px!important;flex:1 1 auto}
+  html body.v2 #view#view > .v3 .v3det .ios-back{display:none!important}
+  html body.v2 #view#view > .v3 button[data-open]:hover{background:rgba(118,118,128,.08)!important}
+  html body.v2 #view#view > .v3 .v3more a:hover{background:rgba(118,118,128,.1)}
+  html body.v2 #view#view > .v3 .iewrap .ddmenu{position:absolute;right:0;top:46px;z-index:30}
+}
+@media (min-width:1100px){ html body.v2 #view#view:has(> .v3) > :not(.v3){display:none!important} }
