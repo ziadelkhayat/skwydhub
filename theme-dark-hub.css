@@ -180,6 +180,19 @@ html[data-theme=dark] body table th{color:#afafb2!important}
 html[data-theme=dark] body .modal{background:#1a1a22!important;box-shadow:0 30px 80px rgba(0,0,0,0.55)!important}
 html[data-theme=dark] body .app aside.side nav.nav > a svg.ico, html[data-theme=dark] body .app aside.side nav.nav > a svg.ico *{stroke:#7bb5f4!important;color:#7bb5f4!important}
 html[data-theme=dark] body #root h1, html[data-theme=dark] body #root .app h1{color:#ededed!important}
+html[data-theme=dark] body .main label, html[data-theme=dark] body .modal label{color:#afafb2!important}
+html[data-theme=dark] body .main p.sub, html[data-theme=dark] body .main h1 + p{color:#afafb2!important}
+html[data-theme=dark] body .msel-p{background:rgba(16,20,32,.86)!important;border:1px solid rgba(40,45,62,.95)!important;box-shadow:0 24px 60px rgba(0,0,0,0.396)!important}
+html[data-theme=dark] body .msel-o{color:#ededed!important}
+html[data-theme=dark] body .modal > header .x, html[data-theme=dark] body .modal > header button[aria-label=Close], html[data-theme=dark] body .modal .mh .x{color:#ededed!important}
+html[data-theme=dark] body .modal h4, html[data-theme=dark] body .modal .fsec, html[data-theme=dark] body .modal .body > b:first-child{color:#afafb2!important}
+html[data-theme=dark] body #dlg{background:#1a1a22!important;box-shadow:0 30px 80px rgba(0,0,0,0.55)!important}
+html[data-theme=dark] body #dlg > header{background:rgba(26,26,34,.9)!important}
+html[data-theme=dark] body #dlg > header .x{background:rgba(16,20,32,.9)!important;box-shadow:0 2px 10px rgba(0,0,0,0.17600000000000002)!important;color:#ededed!important}
+html[data-theme=dark] body #dlg h3, html[data-theme=dark] body #dlg h4{color:#afafb2!important}
+html[data-theme=dark] body #dlg input:not([type=checkbox]):not([type=radio]), html[data-theme=dark] body #dlg select, html[data-theme=dark] body #dlg textarea{background-color:#101420!important}
+html[data-theme=dark] body #dlg footer{background:rgba(26,26,34,.92)!important}
+html[data-theme=dark] body #dlg#dlg select, html[data-theme=dark] body #dlg#dlg .msel-f{background-color:#101420!important}
 @media (max-width:899px){
 html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 20px 60px rgba(0,0,0,0.55)}
 html[data-theme=dark] body .app .main .top .menuBtn{background:#1a1a22;color:#dcdcde}
