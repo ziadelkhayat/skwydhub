@@ -883,6 +883,29 @@ html:root body .hero .hin{background:#fff!important;border-radius:26px!important
 html:root body .hero h1{font-size:28px!important;line-height:34px!important;font-weight:700!important}
 html:root body.lay-list .item{padding:12px 16px!important;box-sizing:border-box}
 html:root{background:#F2F2F7!important}
+/* basket and checkout: grey sheet with white rounded groups (design) */
+html:root body #sheet.sheet{background:#F2F2F7!important;border-radius:34px 34px 0 0!important}
+html:root body #sheet > h3{font-size:22px!important;line-height:28px!important;font-weight:700!important}
+html:root body #sheet > h3 .x{width:44px!important;height:44px!important;border-radius:999px!important;background:rgba(120,120,128,.12)!important;border:0!important}
+html:root body #sheet .lsw,html:root body #sheet > .line{background:#fff!important;margin:0!important}
+html:root body #sheet .lsw > .line{background:#fff!important;padding:12px 16px!important;border:0!important}
+html:root body #sheet .costep + .lsw,html:root body #sheet .costep + .line{border-radius:22px 22px 0 0;margin-top:10px!important}
+html:root body #sheet .lsw:has(+ .tot),html:root body #sheet .line:has(+ .tot){border-radius:0 0 22px 22px}
+html:root body #sheet .costep + .lsw:has(+ .tot),html:root body #sheet .costep + .line:has(+ .tot){border-radius:22px}
+html:root body #sheet .lsw + .lsw{border-top:.5px solid rgba(60,60,67,.29)}
+html:root body #sheet .tot{background:#fff;border-radius:22px;padding:14px 16px;margin:12px 0!important;font-size:17px!important;gap:8px!important}
+html:root body #sheet .tot > div:last-child,html:root body #sheet .tot .g{font-size:20px!important}
+html:root body #sheet button.ghost{background:#fff!important;border:0!important;border-radius:999px!important;min-height:50px;font-size:17px!important;font-weight:600!important}
+html:root body #sheet button.primary,html:root body .ipft button.primary,html:root body #bar #cartBtn{border-radius:999px!important;min-height:52px;font-size:17px!important;font-weight:600!important}
+html:root body #sheet .f input,html:root body #sheet input:not([type=checkbox]):not([type=radio]),html:root body #sheet textarea,html:root body #sheet select{background:#fff!important;border:0!important;border-radius:14px!important;min-height:48px;font-size:17px!important;box-shadow:none!important}
+/* item page: grey page with white rounded groups */
+html:root body #ipg .pg{background:#F2F2F7!important}
+html:root body #ipg .ipgg{background:#fff!important;border-radius:22px!important;margin:10px 16px!important;padding:6px 16px 10px!important;border:0!important}
+html:root body #ipg .ipft{background:rgba(242,242,247,.92)!important;-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-top:.5px solid rgba(60,60,67,.2)!important}
+html:root body #ipg h1,html:root body #ipg h2{font-size:28px!important;line-height:34px!important;font-weight:700!important}
+html:root body #sheet [data-coback]{font-size:0!important;color:#000!important}
+html:root body #sheet button.x[data-coback]::before{content:""!important;position:absolute;left:50%;top:50%;width:11px;height:11px;border-left:2.4px solid currentColor;border-bottom:2.4px solid currentColor;transform:translate(-30%,-50%) rotate(45deg)!important;background:none!important;mask:none!important;-webkit-mask:none!important}
+html:root body #sheet [data-coback]::after{display:none}
 </style>
 </head>
 <body class="lay-grid">
