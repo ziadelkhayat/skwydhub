@@ -83,3 +83,17 @@ ${chipsRow}<div>${list}</div>
   });
   function $$scrimHide() { document.getElementById("ccScrim")?.classList.remove("show"); document.documentElement.classList.remove("v3showsheet"); }
 })();
+// sidebar exactly like the design: business name under the title, a "Today" section, "Employees"
+(function () {
+  const fix = () => {
+    const side = document.querySelector("aside.side"); if (!side) return;
+    const head = side.querySelector(".nuhead"); const biz = (side.querySelector(".cocard b, .nuacct b") || {}).textContent;
+    if (head && biz && !head.querySelector(".v3sub")) head.insertAdjacentHTML("beforeend", `<span class="v3sub">${biz.replace(/[<>&]/g, "")}</span>`);
+    const nav = side.querySelector("nav") || side; const first = [...nav.querySelectorAll(":scope > a, :scope > .grp")][0];
+    if (first && !nav.querySelector(".v3today")) first.insertAdjacentHTML("beforebegin", '<div class="nsec v3today">Today</div>');
+    side.querySelectorAll("a, .grp > button").forEach(a => a.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim() === "Employee Management") n.textContent = "Employees"; }));
+    side.querySelectorAll("a span, .grp > button span").forEach(s => { if (s.children.length === 0 && s.textContent.trim() === "Employee Management") s.textContent = "Employees"; });
+  };
+  const go = () => { fix(); const s = document.querySelector("aside.side"); if (s) new MutationObserver(() => { clearTimeout(go.t); go.t = setTimeout(fix, 30); }).observe(s, { childList: true, subtree: true }); else setTimeout(go, 300); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
+})();

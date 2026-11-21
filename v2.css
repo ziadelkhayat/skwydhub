@@ -184,3 +184,13 @@ html body #view#view .v3l1 b{font-weight:600!important}
   html body.v2 #view#view > .v3 .msel{display:contents}
   html body.v2 #view#view > .v3 .msel-f{height:30px!important;min-height:30px!important;border-radius:999px!important;border:0!important;background:rgba(118,118,128,.12)!important;font-size:13px!important;padding:0 12px!important;box-shadow:none!important}
 }
+@media (min-width:1100px){
+  html body.v2 aside.side .nuhead .v3sub{display:block;font-size:13px;color:#6C6C70;margin-top:1px;font-weight:400}
+  html body.v2 aside.side .nuhead h2{font-size:30px!important;letter-spacing:-.6px!important;margin:0!important}
+  html body.v2 aside.side .nsec{font-size:13px!important;font-weight:600!important;color:#6C6C70!important;padding:12px 20px 4px!important;text-transform:none!important}
+}
+@media (min-width:1100px){
+  html body.v2 aside.side .nuhead{display:flex!important;flex-direction:column!important;align-items:flex-start!important;padding:18px 16px 8px!important;gap:0!important}
+  html body.v2 aside.side nav > a,html body.v2 aside.side nav .grp > button,html body.v2 aside.side > a{height:40px!important;min-height:40px!important;margin:1px 10px!important;padding:0 10px!important;gap:12px!important}
+  html body.v2 aside.side .nusearch{margin:4px 12px 6px!important;height:36px!important;border-radius:10px!important}
+}
