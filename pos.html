@@ -1247,6 +1247,43 @@ html body .sw input:checked + i::after{left:20px!important;background:#fff!impor
 html body input[type=radio],html body input[type=checkbox]{accent-color:#0A60D0}
 :root{--bg:#F2F2F7!important}
 html body{background-color:#F2F2F7}
+/* ==== New iPad-style system: POS (no animations) ==== */
+html body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"IBM Plex Sans Arabic",sans-serif!important;background:#F2F2F7!important;-webkit-font-smoothing:antialiased}
+html body *{text-transform:none!important;letter-spacing:0!important}
+/* action buttons: blue rounded tiles, sentence case */
+html body .abar .abtn{border-radius:22px!important;background:#007AFF!important;color:#fff!important;font-size:15px!important;font-weight:600!important;box-shadow:none!important;border:0!important}
+html body .abar .abtn svg{color:#fff!important;stroke:#fff!important}
+/* search: grey capsule */
+html body .msrch{background:rgba(118,118,128,.12)!important;border:0!important;border-radius:999px!important;min-height:52px;box-shadow:none!important}
+html body .msrch input{background:transparent!important;font-size:17px!important;border:0!important}
+/* category and item tiles: white rounded cards */
+html body .grid .ctile,html body .grid button{border:0!important;border-radius:24px!important;background:#fff!important;box-shadow:none!important;overflow:hidden;font-size:17px!important;font-weight:600!important}
+/* order panel */
+html body aside.cart{border-radius:28px!important;background:#fff!important;border:0!important;box-shadow:none!important}
+html body aside.cart .ctx{border-radius:20px!important;background:#F2F2F7!important;border:0!important}
+html body aside.cart button,html body .rside .btn,html body .btn{border-radius:999px!important}
+/* bottom bar: floating light glass capsule */
+html body nav.bnav{border-radius:999px!important;background:rgba(255,255,255,.85)!important;-webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);border:1px solid rgba(255,255,255,.95)!important;box-shadow:0 10px 30px rgba(0,0,0,.10)!important}
+html body nav.bnav button{font-size:13px!important;font-weight:600!important;color:#3C3C43!important;border-radius:999px!important}
+html body nav.bnav button svg{color:#007AFF!important;stroke:#007AFF}
+/* pay and main actions: tall capsules */
+html body .pay,html body .paybtn,html body button.pri{border-radius:999px!important}
+/* windows */
+html body .modal,html body .sheet,html body .dlg{border-radius:28px!important}
+html body input:not([type=checkbox]):not([type=radio]),html body select,html body textarea{border-radius:12px!important;font-size:17px!important}
+/* POS stays still */
+html body *,html body *::before,html body *::after{animation:none!important;transition:none!important}
+html:root body #abar .abtn,html:root body #abar .abtn *{text-transform:none!important}
+html:root body #abar .abtn{border-radius:22px!important;background:#007AFF!important;font-size:15px!important;font-weight:600!important}
+html:root body #grid .ctile,html:root body #grid > button{border:0!important;border-radius:24px!important;background:#fff!important;overflow:hidden}
+html:root body #grid .ctile *{text-transform:none!important}
+html:root body #bnav button,html:root body #bnav button *{text-transform:none!important}
+html:root body #bnav button{font-size:13px!important}
+html:root body #app #abar .abtn.abtn.abtn.abtn,html:root body #app #abar .abtn.abtn.abtn.abtn.off{background:#007AFF!important;border-radius:22px!important}
+html:root body #app #abar .abtn.abtn.abtn.abtn span,html:root body #app #abar .abtn.abtn.abtn.abtn b,html:root body #app .bnav.bnav.bnav button,html:root body #app .bnav.bnav.bnav button span{text-transform:none!important;letter-spacing:0!important;font-size:14px!important}
+html:root body #app #abar .abtn.abtn .rti svg,html:root body #app #abar .abtn.abtn .rti svg *,html:root body #app #abar .abtn.abtn svg{color:#fff!important;stroke:#fff!important}
+html:root body #app #grid .ctile.ctile,html:root body #app #grid .ctile.ctile2{border:0!important;border-radius:24px!important;background:#fff!important;overflow:hidden}
+html:root body #app #grid#grid#grid>.prod,html:root body #app #grid#grid#grid>.ctile{border:0!important;border-radius:24px!important;background:#fff!important;overflow:hidden!important;box-shadow:none!important}
 </style>
 </head>
 <body>
