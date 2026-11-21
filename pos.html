@@ -1304,6 +1304,36 @@ html:root body #actForm #code.codein{border:0!important;border-radius:14px!impor
 html:root body #lock#lock .pinkeys button,html:root body #lock#lock [data-pin],html:root body #activate#activate [data-ak],html:root body #activate#activate .pinpad button{background:rgba(120,120,128,.12)!important;color:#000!important;border:0!important;border-radius:999px!important}
 html:root body #activate#activate #actBtn,html:root body #activate#activate button.big{background:#007AFF!important;border-radius:999px!important;box-shadow:none!important}
 html:root body #activate#activate #code{border:0!important;border-radius:14px!important;background:rgba(118,118,128,.12)!important}
+/* payment window and order lines (design) */
+html:root body #modal.modal{border-radius:34px!important;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.25)!important;border:0!important}
+html:root body #modal .payl{background:#F2F2F7!important}
+html:root body #modal .payl .paym button{border-radius:20px!important;background:#fff!important;border:0!important;box-shadow:none!important;color:#000!important}
+html:root body #modal .payl .paym button.on{background:#fff!important;box-shadow:0 0 0 2.5px #007AFF!important;color:#007AFF!important}
+html:root body #modal .payl .paym button svg{color:#007AFF!important;stroke:#007AFF}
+html:root body #modal .splb{border-radius:999px!important;background:rgba(120,120,128,.12)!important;border:0!important;color:#007AFF!important;box-shadow:none!important}
+html:root body #modal #tender.tender{border:0!important;border-radius:14px!important;background:rgba(118,118,128,.12)!important;font-size:24px!important;font-weight:600!important;min-height:52px;box-shadow:none!important}
+html:root body #modal .quick button{border-radius:999px!important;background:rgba(0,122,255,.12)!important;color:#007AFF!important;border:0!important;font-weight:600!important}
+html:root body #modal .kpad button{border-radius:16px!important;background:rgba(120,120,128,.12)!important;border:0!important;box-shadow:none!important;color:#000!important;font-size:24px!important;font-weight:500!important}
+html:root body #modal .payact .btn{border-radius:999px!important;min-height:56px!important;font-size:17px!important;font-weight:600!important;border:0!important;box-shadow:none!important}
+html:root body #modal .payact .btn.paycx{background:rgba(120,120,128,.12)!important;color:#007AFF!important}
+html:root body #modal .payact #confirmPay.btn.pri{background:#34C759!important;color:#fff!important}
+html:root body #modal .payact #confirmPay.btn.pri:disabled{opacity:.35!important}
+/* the big total button: green capsule, sentence case */
+html:root body #app .acts .pay,html:root body .acts .pay{background:#34C759!important;color:#fff!important;border:0!important;border-radius:999px!important;font-size:20px!important;font-weight:700!important;letter-spacing:0!important;box-shadow:none!important}
+html:root body #app .acts .pay:disabled{opacity:.35!important}
+/* order lines: hairlines, quantity as a capsule stepper */
+html:root body aside.cart #lines > *{border-bottom:.5px solid rgba(60,60,67,.29)!important;border-top:0!important}
+html:root body aside.cart #lines button{border-radius:999px!important;border:0!important;background:rgba(120,120,128,.12)!important;box-shadow:none!important}
+/* back tile in the item grid */
+html:root body #app #grid#grid#grid > .back,html:root body #app #grid#grid#grid > button:not(.prod):not(.ctile){border:0!important;border-radius:24px!important;background:#fff!important}
+html:root body #app .acts .pay,html:root body #app .acts .pay *,html:root body #modal .payact .btn,html:root body #modal .payact .btn *{text-transform:none!important;letter-spacing:0!important}
+/* full-screen panes: round Back and header buttons; toasts as dark pills */
+html:root body .ohdr .hbtn,html:root body .ohdr button{border-radius:999px!important;box-shadow:none!important;border:0!important;min-height:44px}
+html:root body .ohdr .hbtn[data-close],html:root body .ohdr .hbtn[data-drvback]{background:rgba(120,120,128,.12)!important;color:#007AFF!important}
+html:root body #toast#toast.toast{border-radius:999px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:auto!important;max-width:min(560px,90vw);padding:12px 22px!important;top:14px!important;background:rgba(28,28,30,.92)!important;color:#fff!important;box-shadow:0 10px 30px rgba(0,0,0,.2)!important;font-size:15px!important}
+html:root body #toast#toast.toast.ok{background:#34C759!important}
+html:root body #toast#toast.toast.del,html:root body #toast#toast.toast.err{background:#FF3B30!important}
+html:root body .ddmenu,html:root body .fnmenu,html:root body .menu-pop{border-radius:22px!important}
 </style>
 </head>
 <body>
@@ -2736,7 +2766,7 @@ function openPay(){
       <div class="kpad">${["1","2","3","4","5","6","7","8","9",".","0","C"].map(k => `<button type="button" data-kp="${k}" aria-label="${k==="C"?"Clear":k}">${k}</button>`).join("")}</div>
       <div class="change"><span id="chgL">Change</span><span class="chgv"><b id="chg">${usd(0)}</b>${c2 ? `<small id="chg2"></small>` : ""}</span></div></div>
       <div class="cardnote" id="cardNote" style="display:${pms[0].type==="cash"?"none":"grid"}"><div><b style="color:var(--ink)">Take the payment on the card machine</b><br>then complete the sale</div></div>
-      <div class="payact"><button type="button" class="btn paycx" data-close>Cancel</button><button class="btn pri" id="confirmPay">${ico("check")} ${last ? "COMPLETE SALE" : "PAY " + SPL.lbl.toUpperCase() + " " + (SPL.i + 1)}</button></div></div></div>`);
+      <div class="payact"><button type="button" class="btn paycx" data-close>Cancel</button><button class="btn pri" id="confirmPay">${ico("check")} ${last ? "Complete Sale" : "Pay " + SPL.lbl + " " + (SPL.i + 1)}</button></div></div></div>`);
   $("#modal").classList.add("paym2"); updChange();
 }
 /* ---------- split check: equally, by items (each unit to a guest), or by amount; each part is paid on its own ---------- */
