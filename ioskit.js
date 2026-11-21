@@ -199,7 +199,11 @@
   const splitm = () => { if (APP !== "admin") return; const m = document.getElementById("m"); const on = !!(m && m.classList.contains("on") && innerWidth >= 1100 && document.querySelector("#view [data-co]"));
     document.body.classList.toggle("ios-splitm", on); if (!on) return; const v = document.getElementById("view"); if (v) root.style.setProperty("--ios-splitx", Math.round(v.getBoundingClientRect().right + 16) + "px"); };
   let coSel = ""; document.addEventListener("click", e => { const r = e.target.closest && e.target.closest("[data-co]"); if (r) coSel = r.dataset.co; }, true);
-  const run = () => { splitm(); if (APP === "admin") $$("#view tr[data-co]").forEach(r => r.classList.toggle("ios-sel", document.body.classList.contains("ios-splitm") && r.dataset.co === coSel)); backs(); title(); tabbar(); segs(); grabbers(); if (phone() || document.querySelector(".splitl") || document.body.classList.contains("ios-splitm")) lists(); split(); };
+  let oSel = ""; document.addEventListener("click", e => { const r = e.target.closest && e.target.closest("[data-oid]"); if (r) oSel = r.dataset.oid; }, true);
+  const splito = () => { if (APP !== "portal") return; const on = !!(document.querySelector(".scrim.show > .modal.odrawer") && innerWidth >= 1100 && document.querySelector("#view .orow, #view tr[data-oid]"));
+    document.body.classList.toggle("ios-splito", on); $$("#view [data-oid]").forEach(r => r.classList.toggle("ios-sel", on && r.dataset.oid === oSel));
+    if (on) { const v = document.getElementById("view"); if (v) root.style.setProperty("--ios-splitx", Math.round(v.getBoundingClientRect().right + 16) + "px"); } };
+  const run = () => { splitm(); splito(); if (APP === "admin") $$("#view tr[data-co]").forEach(r => r.classList.toggle("ios-sel", document.body.classList.contains("ios-splitm") && r.dataset.co === coSel)); backs(); title(); tabbar(); segs(); grabbers(); if (phone() || document.querySelector(".splitl") || document.body.classList.contains("ios-splitm")) lists(); split(); };
   const start = () => { run(); new MutationObserver(() => soon(run)).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style"] }); };
   document.addEventListener("click", () => setTimeout(() => soon(run), 30), true);
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
