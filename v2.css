@@ -94,3 +94,39 @@
 /* summary title */
 html body #view .dhead .dsub{margin:2px 0 0;font-size:15px;color:#6C6C70}
 html body #view .dhead h1{font-size:34px!important;letter-spacing:-.8px!important}
+
+/* orders · rows exactly as the design */
+html body #view#view tr.orow > td.v3row{display:flex!important;gap:12px!important;align-items:flex-start!important;padding:11px 16px!important;border:0!important;background:none!important;width:100%!important;box-sizing:border-box}
+html body #view#view tr.orow{display:block!important;border-bottom:1px solid #E3E3E8!important;background:none!important;padding:0!important;margin:0!important}
+html body #view#view tr.orow::after{display:none!important}
+html body #view#view tr.orow.ios-sel,html body #view#view tr.orow:hover{background:rgba(10,102,216,.08)!important}
+html body #view .v3tile{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;flex:none}
+html body #view .v3mid{flex:1;min-width:0;display:flex;flex-direction:column}
+html body #view .v3l1,html body #view .v3l2{display:flex;justify-content:space-between;gap:8px}
+html body #view .v3l1 b{font-size:17px!important;font-weight:600!important;color:#000}
+html body #view .v3l1 span{font-size:15px;color:#6C6C70}
+html body #view .v3l2{font-size:15px;color:#6C6C70;margin-top:1px}
+html body #view .v3sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body #view .v3amt{color:#000;white-space:nowrap}
+html body #view .v3chip{align-self:flex-start;display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;margin-top:5px}
+html[data-theme=dark] body #view .v3l1 b,html[data-theme=dark] body #view .v3amt{color:#fff}
+html body #view#view table.olisttbl,html body #view#view table.olisttbl tbody{display:block!important;width:100%!important}
+
+/* the open order (docked or as a sheet): grouped like the design */
+html body .modal.odrawer.odrawer > header{border:0!important;background:transparent!important;padding:16px 20px 6px!important}
+html body .modal.odrawer.odrawer > header h2{font-size:34px!important;font-weight:700!important;letter-spacing:-.8px!important;gap:10px!important}
+html body .modal.odrawer.odrawer > header .x{width:36px!important;height:36px!important;border-radius:50%!important;background:rgba(118,118,128,.12)!important;border:0!important;color:#000!important}
+html body .modal.odrawer.odrawer > div{padding:6px 20px 20px!important;max-height:none!important}
+html body #ccBox#ccBox .odet{display:block!important;background:#fff!important;border-radius:12px!important;padding:0 16px!important;margin:22px 0 22px!important;position:relative}
+html body #ccBox#ccBox .odet::before{content:"DETAILS";position:absolute;top:-22px;left:16px;font-size:13px;color:#6C6C70;letter-spacing:.2px}
+html body #ccBox#ccBox .odet > div{display:flex!important;flex-direction:row!important;align-items:center!important;gap:16px!important;min-height:44px!important;padding:0!important;margin:0!important;border-bottom:1px solid #E3E3E8!important;font-size:17px!important;color:#6C6C70!important;justify-content:flex-end!important;text-align:right!important;flex-wrap:nowrap!important}
+html body #ccBox#ccBox .odet > div:last-child{border-bottom:0!important}
+html body #ccBox#ccBox .odet > div > span:first-child{display:inline!important;width:auto!important;flex:0 0 auto!important;margin:0 auto 0 0!important;color:#000!important;font-size:17px!important;text-align:left!important;text-transform:none!important;letter-spacing:0!important;font-weight:400!important}
+html body .modal.odrawer > div > .card{background:#fff!important;border-radius:12px!important;box-shadow:none!important;border:0!important;padding:12px 16px!important}
+html body .modal.odrawer > div > .card.tbl{padding:0!important;overflow:hidden}
+html body .modal.odrawer > div > .card.tbl th{font-size:13px!important;font-weight:400!important;color:#6C6C70!important;text-transform:uppercase!important;background:transparent!important;border-bottom:1px solid #E3E3E8!important;padding:10px 16px!important}
+html body .modal.odrawer > div > .card.tbl td{font-size:17px!important;padding:11px 16px!important;border-bottom:1px solid #E3E3E8!important}
+html body .modal.odrawer > div > .card.tbl tr:last-child td{border-bottom:0!important;font-weight:700!important}
+html body .modal.odrawer > div > p{font-size:15px!important;color:#6C6C70!important;padding:0 16px!important}
+html body.v2 #ccBox#ccBox.odrawer > footer{display:none!important}
+html body #view#view .v3l1 b{font-weight:600!important}
