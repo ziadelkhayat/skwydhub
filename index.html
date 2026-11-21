@@ -3423,6 +3423,87 @@ html body .modal .body .f .note{margin-top:2px}
 html body .modal .body .f:has(> .toggle),html body .modal .body .f:has(> label.chk){flex-direction:row;align-items:center;justify-content:space-between;min-height:52px}
 html body .modal .body .fsec{margin-top:14px!important;padding:0 14px!important;border-top:0!important}
 html body .modal .body .f .row,html body .modal .body .f > div{min-width:0}
+/* Manage: its pages listed on the left like Settings, each with a colour tile */
+@media (min-width:1001px){
+  html body .app #view.hasset > nav.ptset{float:left;position:sticky;top:14px;width:270px;margin:0 22px 0 0!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:0!important;padding:6px!important;background:#fff!important;border:0!important;border-radius:22px!important;box-shadow:none!important}
+  html body .app #view.hasset > *:not(.ptset){margin-left:292px!important}
+  html body .app #view.hasset > nav.ptset::before{content:"Settings";display:block;font-size:34px;line-height:41px;font-weight:700;color:#000;padding:0 8px 12px;margin:-6px -6px 6px;background:#F2F2F7}
+  html body .app #view.hasset > nav.ptset a{display:flex!important;align-items:center!important;gap:12px!important;height:44px!important;padding:0 10px!important;margin:0!important;border-radius:999px!important;font-size:17px!important;color:#000!important;background:transparent!important;box-shadow:none!important;font-weight:400!important;white-space:nowrap}
+  html body .app #view.hasset > nav.ptset a.on{background:#007AFF!important;color:#fff!important;font-weight:600!important}
+  html body .app #view.hasset > nav.ptset a > svg,html body .app #view.hasset > nav.ptset a > span:first-child,html body .app #view.hasset > nav.ptset a > i{display:grid!important;place-items:center;width:30px!important;height:30px!important;padding:6px;box-sizing:border-box;border-radius:9px!important;background:var(--tc,#8E8E93)!important;color:#fff!important;stroke:#fff!important;flex:none}
+  html body .app #view.hasset > nav.ptset a svg *{stroke:#fff!important}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+1){--tc:#FF9500}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+2){--tc:#5856D6}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+3){--tc:#007AFF}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+4){--tc:#FF3B30}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+5){--tc:#34C759}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+6){--tc:#30B0C7}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+7){--tc:#AF52DE}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+8){--tc:#FF2D55}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+9){--tc:#5AC8FA}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+10){--tc:#FFCC00}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+11){--tc:#FF9F0A}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+12){--tc:#64D2FF}
+  html body .app #view.hasset > nav.ptset a:nth-child(13n+13){--tc:#8E8E93}
+}
+/* Orders as a list (design): icon, order · type, store · customer · time, total and status */
+html body .sr-only{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;padding:0!important;border:0!important}
+html body .app #view .olisttbl{width:100%;min-width:0!important;table-layout:fixed}
+html body .app #view .olisttbl td.ocell{display:flex!important;align-items:center;gap:14px;height:auto!important;min-height:68px;padding:8px 18px!important;text-align:left!important;cursor:pointer}
+html body .app #view .olisttbl .oic{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;flex:none;color:#fff;background:#8E8E93}
+html body .app #view .olisttbl .oic.s-pending,html body .app #view .olisttbl .oic.s-draft{background:#FF9500}
+html body .app #view .olisttbl .oic.s-active,html body .app #view .olisttbl .oic.s-open,html body .app #view .olisttbl .oic.s-accepted{background:#007AFF}
+html body .app #view .olisttbl .oic.s-dispatched,html body .app #view .olisttbl .oic.s-ready{background:#AF52DE}
+html body .app #view .olisttbl .oic.s-closed,html body .app #view .olisttbl .oic.s-done{background:#34C759}
+html body .app #view .olisttbl .oic.s-declined,html body .app #view .olisttbl .oic.s-void,html body .app #view .olisttbl .oic.s-refund,html body .app #view .olisttbl .oic.s-returned{background:#FF3B30}
+html body .app #view .olisttbl .omain{flex:1;min-width:0;display:flex;flex-direction:column}
+html body .app #view .olisttbl .omain b{font-size:17px;line-height:22px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .app #view .olisttbl .omain .note{font-size:15px!important;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .app #view .olisttbl .oend{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+html body .app #view .olisttbl .oend b{font-size:17px;font-weight:600;white-space:nowrap}
+html body .app #view .olisttbl .ochev{color:#C4C4C7;flex:none}
+/* Filter button: blue with a count when filters are on */
+html body .app .btn.fltbtn{background:rgba(255,255,255,.8)!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,.06)!important;color:#000!important;font-weight:600!important}
+html body .app .btn.fltbtn.fon{background:#007AFF!important;color:#fff!important;border-color:#007AFF!important;padding-right:10px!important}
+html body .app .btn.fltbtn .fcount{min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#fff;color:#007AFF;font-size:13px;font-weight:700;display:inline-grid;place-items:center;margin-left:2px}
+html body .app .btn.fltbtn .fltx{display:none!important}
+/* active filters as tags under the toolbar */
+html body .app .fchips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 20px 4px}
+html body .app .fchip{height:36px;padding:0 6px 0 14px;border-radius:999px;background:rgba(0,122,255,.12);color:#0062CC;font-size:15px;display:inline-flex;align-items:center;gap:6px;max-width:100%}
+html body .app .fchip span{color:#3C3C43}
+html body .app .fchip b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+html body .app .fchip button{width:26px;height:26px;border:0;border-radius:999px;background:rgba(0,122,255,.16);display:grid;place-items:center;cursor:pointer;padding:0;color:#0062CC;flex:none}
+html body .app .fchips .fclear{height:36px;padding:0 10px;border:0;background:transparent;color:#007AFF;font:inherit;font-size:15px;cursor:pointer}
+/* filter window: a panel on the right with one row per filter */
+@media (min-width:761px){
+  html body .scrim.show:has(> .modal.fltpanel){justify-content:flex-end!important;align-items:stretch!important;padding:10px!important;background:rgba(0,0,0,.12)!important}
+  html body .scrim .modal.fltpanel{width:min(440px,100%)!important;max-width:none!important;height:calc(100vh - 20px);max-height:calc(100vh - 20px)!important;margin:0!important;border-radius:30px!important;display:flex;flex-direction:column}
+}
+html body .modal.fltpanel{position:relative}
+html body .modal.fltpanel > .body{display:flex!important;flex-direction:column!important;gap:0!important;flex:1;overflow:auto;margin:0 16px 16px;padding:0!important;background:#fff!important;border-radius:22px;align-self:stretch;height:max-content;max-height:none}
+html body .modal.fltpanel > .body .f{flex-direction:row!important;align-items:center;gap:12px;min-height:50px;padding:0 16px!important;border-radius:0!important;border-bottom:.5px solid rgba(60,60,67,.29);background:transparent!important;box-shadow:none!important}
+html body .modal.fltpanel > .body .f:last-child{border-bottom:0}
+html body .modal.fltpanel > .body .f > label{flex:none;width:140px;font-size:17px!important;font-weight:400!important;color:#000!important}
+html body .modal.fltpanel > .body .f > input,html body .modal.fltpanel > .body .f > select,html body .modal.fltpanel > .body .f .msel{flex:1;min-width:0;text-align:right;text-align-last:right}
+html body .modal.fltpanel > .body .f .msel-f{justify-content:flex-end}
+html body .modal.fltpanel > .body .f input::placeholder{color:#AEAEB2}
+html body .modal.fltpanel > footer{border-top:.5px solid rgba(60,60,67,.2)!important;padding:12px 16px 16px!important}
+html body .modal.fltpanel > footer > span{display:none}
+html body .modal.fltpanel > footer .btn.pri{flex:1;min-height:50px!important}
+html body .modal.fltpanel > footer #cfReset,html body .modal.fltpanel > footer #ofReset,html body .modal.fltpanel > footer .freset{position:absolute;top:14px;right:16px;min-height:44px!important;min-width:0!important;padding:0 6px!important;background:transparent!important;color:#007AFF!important;font-weight:400!important}
+html body .modal.fltpanel > header{justify-content:center!important}
+html body .app #view .olisttbl,html body .app #view .olisttbl tbody,html body .app #view .olisttbl tr.orow{display:block!important;width:100%!important}
+html body .app #view .olisttbl tr.orow{border-bottom:.5px solid rgba(60,60,67,.29)}
+html body .app #view .olisttbl tr.orow:last-child{border-bottom:0}
+html body .app #view .olisttbl td.ocell{border:0!important;width:100%!important;box-sizing:border-box}
+html body .app #view .olisttbl .omain,html body .app #view .olisttbl .omain *{text-align:left!important}
+html body .app #view .olisttbl tr.orow:hover td{background:rgba(120,120,128,.06)!important}
+html body .app #view .btn.fltbtn.fon,html body .app #view .ttop .btn.fltbtn.fon{background:#007AFF!important;color:#fff!important;border-color:#007AFF!important}
+html body .app #view .btn.fltbtn.fon svg{color:#fff!important;stroke:#fff!important}
+html body .modal.fltpanel > .body .f > select,html body .modal.fltpanel > .body .f > input{text-align:right!important;text-align-last:right!important}
+html body .modal.fltpanel > footer #ofReset,html body .modal.fltpanel > footer #cfReset{opacity:1!important}
+html body .modal.fltpanel > .body .f .msel-f{justify-content:flex-end!important;text-align:right}
+html body .modal.fltpanel > .body .f .msel-v,html body .modal.fltpanel > .body .f .msel-ph{flex:1;text-align:right}
 </style>
 </head>
 <body>
@@ -4896,6 +4977,7 @@ function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout
   if(subLocked()){ $("#nav").innerHTML = ""; v.innerHTML = viewLocked(); if(!SUB) subLoad(); return; }   // subscription ended: nothing else opens until it's paid
   if(!planHas(route)){ v.innerHTML = viewNotInPlan(route); return; }
   if(!canOpen(route)){ v.innerHTML = `<h1>${esc(TITLES[route]||"")}</h1>` + placeholder("No access", "Your role doesn't include this area. Ask the owner to change your role under Employee Management → Roles."); return; }
+  v.classList.remove("hasset");
   if(RPT_HUB[route]) v.innerHTML = viewReports(route);
   else if(route==="marketplace") v.innerHTML = viewMarketplace();
   else if(route==="dashboard") v.innerHTML = viewDashboard();
@@ -4909,8 +4991,9 @@ function render0(){ setTimeout(fitOtbl, 0); setTimeout(fitOtbl, 300); setTimeout
     const dk = (tg.drop||[]).map(r => ks.find(k => k[0]===r)).filter(k => k && canOpen(k[0])), dOn = dk.some(k => k[0]===troute);
     if(dOn){ const home = ks.find(k => canOpen(k[0]) && !(tg.drop||[]).includes(k[0]));
       v.insertAdjacentHTML("afterbegin", `<nav class="ptabs ptmorepg" aria-label="${esc(tg.t)} more">${home ? `<a href="#${home[0]}" class="ptback">${svgIco("back")}${esc(tg.t)}</a>` : ""}${dk.map(k => `<a href="#${k[0]}" class="${k[0]===troute ? "on" : ""}">${tabIco(SUBI[k[0]]||"list", tg.i)}${esc(k[1])}</a>`).join("")}</nav>`); }
-    else v.insertAdjacentHTML("afterbegin", `<nav class="ptabs" aria-label="${esc(tg.t)}">${(mi >= 0 ? ks.slice(0, mi+1) : ks).filter(k => canOpen(k[0]) && !(tg.drop||[]).includes(k[0])).map(k=>`<a href="#${k[0]}" class="${k[0]===troute || (k[0]===tg.more && inMore)?"on":""}">${tabIco(SUBI[k[0]]||"list", tg.i)}${esc(k[1])}</a>`).join("")}${dk.length ? `<a href="#${dk[0][0]}">${tabIco("list", tg.i)}More</a>` : ""}</nav>`);
+    else { if(tg.t==="Manage") v.classList.add("hasset"); v.insertAdjacentHTML("afterbegin", `<nav class="ptabs${tg.t==="Manage" ? " ptset" : ""}" aria-label="${esc(tg.t)}">${(mi >= 0 ? ks.slice(0, mi+1) : ks).filter(k => canOpen(k[0]) && !(tg.drop||[]).includes(k[0])).map(k=>`<a href="#${k[0]}" class="${k[0]===troute || (k[0]===tg.more && inMore)?"on":""}">${tabIco(SUBI[k[0]]||"list", tg.i)}${esc(k[1])}</a>`).join("")}${dk.length ? `<a href="#${dk[0][0]}">${tabIco("list", tg.i)}More</a>` : ""}</nav>`); }
     if(inMore && troute!==tg.more) v.querySelector(".phead, h1")?.insertAdjacentHTML("beforebegin", `<a href="#${tg.more}" class="btn morebk" style="text-decoration:none;margin:0 0 10px">${svgIco("back")}${esc(tg.t)}</a>`); }
+  try{ paintFltChips(v); }catch(e){}
   v.querySelectorAll(".chart").forEach(wireLine);
   if(route==="delivery-zones") setTimeout(initZonesOverview, 0);
   if(route!=="dashboard" && !(route==="discounts" && DS.open)) stickHead(v);
@@ -5049,7 +5132,7 @@ function stickHead(v){
   if(v.querySelector(".ostick")) return;
   if(DET.key && DET.id) return;   // detail pages: sections stay as they are
   const card = [...v.children].find(el => el.classList.contains("card") && !el.classList.contains("secbox") && el.querySelector("table")); if(!card) return;
-  const before = []; for(const el of v.children){ if(el===card) break; before.push(el); }
+  const before = []; for(const el of v.children){ if(el===card) break; if(!el.classList.contains("ptset")) before.push(el); }   // the Settings list (Manage) stays beside the page, not in the pinned header
   if(!before.some(el => el.classList.contains("phead"))) return;
   const w = document.createElement("div"); w.className = "ostick"; v.insertBefore(w, before[0]); before.forEach(el => w.appendChild(el));
   const tt = card.querySelector(":scope > .ttop"); if(tt){ const c = document.createElement("div"); c.className = "card otabsc"; c.appendChild(tt); const cs = card.querySelector(":scope > .crsrch"); if(cs) c.appendChild(cs); w.appendChild(c); card.classList.add("obody"); }
@@ -9213,12 +9296,14 @@ function viewOrders(){
   return `<div class="ostick"><div class="phead"><h1>Orders</h1><span class="sp"></span><div class="ordtools"><select class="sel" id="ordBrand" aria-label="Brand"><option value="">All Brands</option>${brandList().map(b => `<option value="${esc(b.id)}" ${ORD.brand===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select><select class="sel" id="ordBranch" aria-label="Branch"><option value="">All Branches</option>${branches.filter(b => live(b) && (!ORD.brand || b.brandId===ORD.brand)).map(b => `<option value="${esc(b.id)}" ${ORD.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select>
     <button type="button" class="sel drpbtn" id="ordRange" aria-haspopup="dialog" title="Business date">${svgIco("calendar")}<span class="${ORD.from ? "" : "dfph"}">${ORD.from ? esc(drpLabel(ORD.from, ORD.to)) : "Business Date"}</span></button></div><button class="btn" id="ordCsv">Export CSV</button></div>
   <div class="card otabsc"><div class="ttop"><div class="ttabs">${ORD_TABS.map(([k,t])=>`<a href="#orders" data-otab="${k}" class="${ORD.tab===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span><span class="note" style="margin-right:12px">${ORD.loading && !ORD.rows.length ? "Loading…" : ""}</span>${fltBtn("data-ordflt", "orders", ordFltN() > 0)}</div><label class="osrch">${svgIco("search")}<input id="ordQ" type="search" autocomplete="off" placeholder="Search" value="${esc(ORD.q)}" aria-label="Search orders by order number, customer or phone"></label></div></div>
-  <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : !ORD.rows.length && !ORD.loading ? `<div class="empty">${ORD.q || ORD.channel || ORD.type || ORD.pay || ORD.source || ORD.from || ORD.to || ORD.branch || ORD.brand || ORD.ref || ORD.num || ORD.cust ? "No orders match these filters." : ORD.tab==="today" ? "You don't have orders today" : youDontHave(ORD_TABS, ORD.tab, "orders")}</div>` : `<table><thead><tr><th>Reference</th><th>Check Number</th><th>Order</th><th>Branch</th><th>Customer</th><th>Status</th><th>Order type</th><th>Order source</th><th>Business date</th><th>Opened at</th><th>Payment Type</th><th class="num">Total</th></tr></thead><tbody>${
-    ORD.rows.length ? ORD.rows.map(o => `<tr class="clk" data-oid="${esc(o.id)}"><td><b>${esc(o.ref || "—")}</b></td><td>${o.status==="refund" ? esc(ordRef(o)) : o.invoiceNo ? esc(invNo(o.invoiceNo)) : '<span title="Gets its check number when a POS accepts it">—</span>'}</td><td>${o.status==="refund" ? "–" : o.no ? esc(o.no) : '<span title="Gets its number when a POS bills it">—</span>'}</td>
-      <td><div>${esc(branches.find(x=>x.id===o.branchId)?.name || "—")}</div>${brandList().length > 1 ? `<div class="note">${esc(brandName(o.brandId) || "—")}</div>` : ""}</td>
-      <td><b style="font-weight:500;display:block">${esc(o.customerName || "—")}</b>${o.phone?`<span class="note" style="display:block;white-space:nowrap">${esc(telFmt(o.phone))}</span>`:""}</td><td><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></td>
-      <td><div>${esc(ordTypeLbl(o.type))}</div>${o.type==="dinein" && o.table ? `<div class="note">${esc(/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table)}</div>` : ""}</td><td>${esc(srcOf(o) || "—")}</td>
-      <td>${o.createdAt ? (d => `<div style="white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</div>`)(bizDate(o.createdAt, o.branchId).split("-")) : "—"}</td><td>${o.createdAt ? (t => `<div class="odt">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)}</div><div class="note odt">${t.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}).toLowerCase()}</div>`)(new Date(o.createdAt)) : "—"}</td><td>${esc(o.payment?.method || "—")}</td><td class="num">${money(+o.total||0)}</td></tr>`).join("")
+  <div class="card tbl otbl obody">${ORD.err ? `<p class="note" style="padding:16px">Couldn't load orders: ${esc(ORD.err)}</p>` : !ORD.rows.length && !ORD.loading ? `<div class="empty">${ORD.q || ORD.channel || ORD.type || ORD.pay || ORD.source || ORD.from || ORD.to || ORD.branch || ORD.brand || ORD.ref || ORD.num || ORD.cust ? "No orders match these filters." : ORD.tab==="today" ? "You don't have orders today" : youDontHave(ORD_TABS, ORD.tab, "orders")}</div>` : `<table class="olisttbl"><thead class="sr-only"><tr><th>Order</th></tr></thead><tbody>${
+    ORD.rows.length ? ORD.rows.map(o => { const tm = o.createdAt ? new Date(o.createdAt).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}) : "", ty = ordTypeLbl(o.type),
+      ic = o.type==="delivery" ? "M3 16V9h11v7M14 11h4l3 3v2h-7M6.5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17.5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" : o.type==="dinein" || o.type==="fast" ? "M4 10v10h16V10M3 10l2-6h14l2 6M10 20v-5h4v5" : "M5 8h14l-1 12H6L5 8ZM9 8a3 3 0 0 1 6 0",
+      who = o.customerName || (o.phone ? telFmt(o.phone) : ""), tbl = o.type==="dinein" && o.table ? (/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : String(o.table)) : "";
+      return `<tr class="clk orow" data-oid="${esc(o.id)}"><td class="ocell"><span class="oic s-${esc(o.status)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ic}"/></svg></span>
+        <span class="omain"><b>${esc(o.ref || "—")} · ${esc(ty)}${tbl ? " · " + esc(tbl) : ""}</b><span class="note">${[branches.find(x=>x.id===o.branchId)?.name, brandList().length > 1 ? brandName(o.brandId) : "", who, tm].filter(Boolean).map(esc).join(" · ")}</span></span>
+        <span class="oend"><b>${money(+o.total||0)}</b><span class="spill s-${o.status}">${ORD_ST[o.status]||o.status}</span></span>
+        <svg class="ochev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></td></tr>`; }).join("")
     : `<tr><td colspan="13" class="note" style="padding:24px;text-align:center">${ORD.loading ? "Loading orders…" : "No orders match these filters."}</td></tr>`
   }</tbody></table>`}
   <div class="pager"><span class="note">${a}–${b} of ${ORD.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="ordPrev" ${ORD.page<=1?"disabled":""}>Previous</button><span class="note">Page ${ORD.page} of ${pages}</span><button class="btn" id="ordNext" ${ORD.page>=pages?"disabled":""}>Next</button></div></div>`;
@@ -9556,7 +9641,7 @@ function viewCustomers(){
       <button class="btn pri" id="cusAdd">Add Customer</button></div>
   <div class="card tbl otbl"><div class="ttop"><div class="ttabs">${CUS_TABS.map(([k,t])=>`<a href="#customers" data-ctab="${k}" class="${CUS.filter===k?"on":""}">${t}</a>`).join("")}</div><span class="sp"></span>
     <select class="sel" id="cusSort">${[["last","Last order"],["spent","Total spent"],["orders","Most orders"],["new","Newest"],["name","Name A–Z"]].map(([v,t])=>`<option value="${v}" ${CUS.sort===v?"selected":""}>Sort: ${t}</option>`).join("")}</select>
-    ${fltBtn("data-cusflt", "customers", nAdv > 0)}</div>
+    ${fltBtn("data-cusflt", "customers", nAdv > 0, nAdv)}</div>
   ${CUS.err ? `<p class="note" style="padding:16px">Couldn't load customers: ${esc(CUS.err)}</p>` : `<table><thead><tr><th class="bkc"><input type="checkbox" data-cusall ${rows.length && rows.every(c => CUS.sel.has(c.id)) ? "checked" : ""} aria-label="Select all on this page"></th>${CUS.sel.size
       ? `<th colspan="5" class="bkbar"><b>${CUS.sel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" id="cusBk">Actions ▾</button><span class="ddmenu" id="cusBkM" hidden>${(CUS.filter==="deleted" ? [["restore","Restore"]] : CUS_BULK).map(([k,t]) => `<button type="button" data-cusbk="${k}">${t}</button>`).join("")}</span></span></th>`
       : `<th>Name</th><th>Phone</th><th>Email</th><th class="num">Total Orders</th><th>Last Order</th>`}</tr></thead><tbody>${
@@ -12547,7 +12632,7 @@ const docFltOk = (route, K) => { const f = docFlt(route), day = d => String(d.bu
     && (!f.status || d.status===f.status) && (!f.brand || (d.brandId ? d.brandId===f.brand : brandHasLoc(f.brand, d.locationId) && brandHasLoc(f.brand, d.destId))) && (!f.loc || (K.kind==="torder" ? d.locationId===f.loc : (d.locationId===f.loc || (K.kind==="transfer" && d.destId===f.loc))))
     && (!f.dest || d.destId===f.dest) && (!f.sup || d.supplierId===f.sup) && (!f.reason || d.reason===f.reason) && (!f.by || d.createdBy===f.by) && (!f.sub || d.submittedBy===f.sub); };
 const docFltBtn = (route, K) => { if(!docFltFields(K).length) return ""; const n = Object.values(docFlt(route)).filter(v => v).length;
-  return fltBtn("data-docflt", route, n > 0); };
+  return fltBtn("data-docflt", route, n > 0, n); };
 const docExpMenu = (route, K) => `<span class="ddwrap iewrap"><button type="button" class="btn" data-iemenu>${svgIco("download")}Export <span class="iecv">▾</span></button><span class="ddmenu iemenu" hidden>
   <button type="button" data-docexport="${route}" data-exlvl="docs">Export ${esc(K.plural)}</button>${K.kind!=="sheet" ? `<button type="button" data-docexport="${route}" data-exlvl="items">Export ${esc(K.plural)} Items</button>` : ""}</span></span>`;
 function docFltDlg(route, draft){
@@ -12577,7 +12662,8 @@ document.addEventListener("click", e => {
 /* Foodics Filter on the inventory setup lists (products, suppliers, categories, warehouses) */
 const FLTX = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`;
 // Foodics: the Filter button; once a filter is applied it shows a small x inside it that resets the filter
-const fltBtn = (attr, key, on) => `<button type="button" class="btn fltbtn${on ? " fon" : ""}" ${attr}="${esc(key)}">${svgIco("filter")}Filter${on ? `<span class="fltx" role="button" tabindex="0" data-fltclr="${esc(attr)}|${esc(key)}" title="Reset Filter" aria-label="Reset Filter">${FLTX}</span>` : ""}</button>`;
+const fltBtn = (attr, key, on, n) => { const ch = (() => { try{ return fltChips(attr, key); }catch(e){ return null; } })(), c = ch ? ch.length : (n || 0); on = ch ? c > 0 : (on || c > 0);
+  return `<button type="button" class="btn fltbtn${on ? " fon" : ""}" ${attr}="${esc(key)}" data-fattr="${esc(attr)}">${svgIco("filter")}Filter${on && c ? `<span class="fcount">${c}</span>` : ""}</button>`; };
 const ffYN = (k, l, get) => [k, l, "sel", r => get(r) ? "yes" : "no", () => [["yes","Yes"],["no","No"]]];
 const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
   "inv-items": [ffTxt("name","Name",r=>r.name), ffTxt("sku","SKU",r=>r.sku), ffTxt("barcode","Barcode",r=>r.barcode),
@@ -12644,7 +12730,7 @@ const crudFltOk = key => { const ff = CRUD_FF[key], f = crudFlt(key); if(!ff) re
     if(t==="date") return String(x||"").slice(0,10) >= v;
     return Array.isArray(x) ? x.includes(v) : x===v; }); };
 const crudFltBtn = key => { const n = Object.values(crudFlt(key)).filter(Boolean).length;
-  return fltBtn("data-cflt", key, n > 0); };
+  return fltBtn("data-cflt", key, n > 0, n); };
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-cflt]"); if(b){ e.preventDefault(); const key = b.dataset.cflt, f = crudFlt(key), box = $("#ccBox"); box.className = "modal";
     box.innerHTML = `<header><h2>Filter</h2><button type="button" class="x" data-ccclose aria-label="Close">×</button></header><div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px">
@@ -12657,6 +12743,61 @@ document.addEventListener("click", e => {
   const a = e.target.closest("#cfApply"); if(a){ const key = a.dataset.key, o = {}; CRUD_FF[key].forEach(([k]) => { const v = $("#cf2_" + k)?.value?.trim(); if(v) o[k] = v; });
     (state.cflt ||= {})[key] = o; state.page[key] = 1; $("#ccScrim").classList.remove("show"); return render(); }
 });
+/* Filters (new design): active filters shown as tags under the toolbar, a panel with one row per filter, and the Apply button showing how many results it will give */
+const ORD_FLBL = { ref:"Reference", num:"Number", cust:"Customer", brand:"Brand", status:"Status", type:"Type", channel:"Sales Channel", source:"Source", pay:"Payment Type", ahead:"Ahead", due:"Due Date", device:"Device", rnotes:"Receipt Notes", knotes:"Kitchen Notes" };
+const ORD_FSTL = { pending:"Pending", open:"Active", declined:"Declined", closed:"Done", returns:"Returned", voids:"Void", draft:"Draft" };
+const ORD_FCHL = { pos:"POS", callcenter:"Call Center", online:"Web Ordering" };
+const fDay = v => { const d = String(v||"").slice(0,10).split("-"); return d.length===3 ? `${d[2]}-${d[1]}-${d[0]}` : String(v||""); };
+function fltChips(attr, key){
+  if(attr==="data-cflt"){ const ff = CRUD_FF[key], f = crudFlt(key); if(!ff) return null;
+    return ff.filter(([k]) => f[k]).map(([k, l, t, , opts]) => ({ k, l, v: t==="sel" ? ((opts ? opts() : []).find(o => o[0]===f[k])?.[1] ?? f[k]) : t==="date" ? "after " + fDay(f[k]) : f[k] })); }
+  if(attr==="data-ordflt") return Object.keys(ORD_FLBL).filter(k => String(ORD[k]||"").trim()).map(k => { const v = ORD[k];
+    return { k, l: ORD_FLBL[k], v: k==="status" ? (ORD_FSTL[v] || v) : k==="type" ? ordTypeLbl(v) : k==="channel" ? (ORD_FCHL[v] || v) : k==="brand" ? (brandName(v) || v)
+      : k==="device" ? ((S.devices||[]).find(d => d.id===v)?.name || v) : k==="ahead" ? (v==="yes" ? "Yes" : "No") : k==="due" ? fDay(v) : v }; });
+  return null;
+}
+function paintFltChips(v){
+  v.querySelectorAll(".fchips").forEach(x => x.remove());
+  v.querySelectorAll(".fltbtn.fon").forEach(b => { const attr = b.dataset.fattr, key = b.getAttribute(attr); if(!attr) return;
+    let ch = null; try{ ch = fltChips(attr, key); }catch(e){}
+    const x = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+    const h = `<div class="fchips" aria-label="Active filters">${(ch||[]).map(c => `<span class="fchip"><span>${esc(c.l)}:</span><b>${esc(c.v)}</b><button type="button" data-fchip="${esc(attr)}|${esc(key)}|${esc(c.k)}" aria-label="Remove the ${esc(c.l)} filter">${x}</button></span>`).join("")}<button type="button" class="fclear" data-fltclr="${esc(attr)}|${esc(key)}">${ch ? "Clear All" : "Clear Filters"}</button></div>`;
+    const host = b.closest(".ttop") || b.parentElement; host.insertAdjacentHTML("afterend", h); });
+}
+document.addEventListener("click", e => { const x = e.target.closest?.("[data-fchip]"); if(!x) return; e.preventDefault(); e.stopImmediatePropagation();
+  const [attr, key, k] = x.dataset.fchip.split("|");
+  if(attr==="data-cflt"){ const f = { ...crudFlt(key) }; delete f[k]; (state.cflt ||= {})[key] = f; state.page[key] = 1; }
+  else if(attr==="data-ordflt"){ ORD[k] = ""; ORD.page = 1; }
+  render(); }, true);
+// how many results the filter in the panel will give
+function crudCount(key, f){ const keep = (state.cflt ||= {})[key]; state.cflt[key] = f;
+  try{ let base;
+    if(key==="devices"){ const dt = state.devTab || "all"; base = S.devices.filter(live).filter(d => dt==="all" || d.type===dt); }
+    else if(key==="discounts") base = dsList().filter(d => !d.deleted);
+    else if(CRUD[key] && S[CRUD[key].col]){ const cfg = CRUD[key], tab = state.tabs[key] || "all", q = (state.q[key]||"").toLowerCase();
+      base = S[cfg.col].filter(cfg.tabs.find(t=>t[0]===tab)[2]).filter(cfg.filter||(()=>true)).filter(r => !q || cfg.search(r).toLowerCase().includes(q)); }
+    else return null;
+    return base.filter(crudFltOk(key)).length; }
+  catch(e){ return null; } finally { state.cflt[key] = keep; } }
+let fltSeq = 0;
+async function fltPanelCount(){
+  const box = $("#ccBox"); if(!box || !box.classList.contains("fltpanel")) return;
+  const btn = box.querySelector("footer .btn.pri"); if(!btn) return; const kind = box.dataset.fkind, seq = ++fltSeq;
+  const say = (n, noun) => { if(seq!==fltSeq) return; btn.textContent = n==null ? "Show Results" : `Show ${n.toLocaleString()} ${n===1 ? noun.replace(/s$/, "") : noun}`; };
+  if(kind==="data-cflt"){ const key = btn.dataset.key, o = {}; (CRUD_FF[key]||[]).forEach(([k]) => { const v = $("#cf2_" + k)?.value?.trim(); if(v) o[k] = v; }); return say(crudCount(key, o), "Results"); }
+  if(kind==="data-ordflt" && window.WOK && storeMode==="db"){ const keep = { ...ORD };
+    try{ Object.keys(ORD_FX).forEach(k => { if(!["from","to","branch","q"].includes(k)) ORD[k] = $("#of_" + k)?.value?.trim() || ""; });
+      const p = ordQuery("id", { count:"exact", head:true }, true); Object.assign(ORD, keep); const { count, error } = await p; return say(error ? null : count, "Orders"); }
+    catch(e){ Object.assign(ORD, keep); return say(null, "Orders"); } }
+  say(null, "Results");
+}
+document.addEventListener("click", e => { const b = e.target.closest?.("[data-cflt],[data-ordflt],[data-cusflt],[data-docflt],[data-ccflt]"); if(!b || b.closest("#ccBox") || e.target.closest("[data-fltclr],[data-fchip]")) return;
+  const attr = ["data-cflt","data-ordflt","data-cusflt","data-docflt","data-ccflt"].find(a => b.hasAttribute(a));
+  setTimeout(() => { const box = $("#ccBox"); if(!box || !$("#ccScrim")?.classList.contains("show")) return; box.classList.add("fltpanel"); box.dataset.fkind = attr;
+    box.querySelectorAll(".body input:not([type=date]):not([type=checkbox])").forEach(i => { if(!i.placeholder) i.placeholder = "Any"; });
+    const ok = box.querySelector("footer .btn.pri"); if(ok) ok.textContent = "Show Results"; fltPanelCount(); }, 0); });
+let fltT = 0; document.addEventListener("input", e => { if(!e.target.closest?.("#ccBox.fltpanel")) return; clearTimeout(fltT); fltT = setTimeout(fltPanelCount, 250); });
+document.addEventListener("change", e => { if(!e.target.closest?.("#ccBox.fltpanel")) return; clearTimeout(fltT); fltT = setTimeout(fltPanelCount, 100); });
 // Export (Foodics): pick the business dates (up to 31 days), brand and branch first; the list's own filters don't apply
 function exportDlg(route, lvl){
   const K = DOC_KINDS[route], box = $("#ccBox"); box.className = "modal sm"; const to = bizDate(), from = dAdd(to, -6);

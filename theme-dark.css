@@ -1097,6 +1097,17 @@ html[data-theme=dark] body .modal.odrawer .odet{background:#1a1a22}
 html[data-theme=dark] body .modal.odrawer .odet div span{color:#afafb2!important}
 html[data-theme=dark] body .modal.odrawer h3, html[data-theme=dark] body .modal.odrawer h4{color:#afafb2!important}
 html[data-theme=dark] body .modal .body .f{background:#101420}
+html[data-theme=dark] body .app #view .olisttbl .oic.s-pending, html[data-theme=dark] body .app #view .olisttbl .oic.s-draft{background:#766247}
+html[data-theme=dark] body .app #view .olisttbl .oic.s-closed, html[data-theme=dark] body .app #view .olisttbl .oic.s-done{background:#487754}
+html[data-theme=dark] body .app .btn.fltbtn{background:rgba(16,20,32,.8)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,0.132)!important;color:#ededed!important}
+html[data-theme=dark] body .app .btn.fltbtn .fcount{background:#101420;color:#7bb5f4}
+html[data-theme=dark] body .app .fchip{color:#7bb5f4}
+html[data-theme=dark] body .app .fchip span{color:#c7c7cd}
+html[data-theme=dark] body .app .fchip button{color:#7bb5f4}
+html[data-theme=dark] body .app .fchips .fclear{color:#7bb5f4}
+html[data-theme=dark] body .modal.fltpanel > .body{background:#101420!important}
+html[data-theme=dark] body .modal.fltpanel > .body .f > label{color:#ededed!important}
+html[data-theme=dark] body .modal.fltpanel > footer #cfReset, html[data-theme=dark] body .modal.fltpanel > footer #ofReset, html[data-theme=dark] body .modal.fltpanel > footer .freset{color:#7bb5f4!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1141,6 +1152,9 @@ html[data-theme=dark] body.x, html[data-theme=dark] body[data-route="account"] #
 html[data-theme=dark] body[data-route="account"] .app #view > .tabs{background:#101420;border:1px solid #272e4c!important}
 html[data-theme=dark] body[data-route="account"] #view > .tabs a{color:#abb1c8}
 html[data-theme=dark] body[data-route="account"] #view > .tabs a.on{background:#181f27}
+html[data-theme=dark] body .app #view.hasset > nav.ptset{background:#101420!important}
+html[data-theme=dark] body .app #view.hasset > nav.ptset::before{color:#ededed;background:#1a1a22}
+html[data-theme=dark] body .app #view.hasset > nav.ptset a{color:#ededed!important}
 }
 @media (min-width:1100px){
 html[data-theme=dark] body #ccBox .ccx.s2{background:#171923!important}
@@ -1211,6 +1225,7 @@ html[data-theme=dark] [style*="background:#FBD9D9"]{background:#2d1b1b!important
 html[data-theme=dark] [style*="background:#FCE7F3"]{background:#271821!important}
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
 html[data-theme=dark] [style*="background:#FEF3C7"]{background:#322e1e!important}
+html[data-theme=dark] [style*="background:#FF9500"]{background:#766247!important}
 html[data-theme=dark] [style*="background:#FFF1E6"]{background:#271e17!important}
 html[data-theme=dark] [style*="background:#FFF4E5"]{background:#272118!important}
 html[data-theme=dark] [style*="background:#FFFFFF"]{background:#101420!important}
