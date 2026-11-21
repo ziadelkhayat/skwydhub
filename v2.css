@@ -256,3 +256,11 @@ html body .app #view.hasset#view > .v3{margin-left:0!important}
   html body.v2 #view#view .v2sec .catl a.catp > span:not(.v3rt){flex:1;text-align:left}
   html body.v2 #view#view .v3rt svg,html body.v2 #view#view .v3rt svg *{stroke:#fff!important;color:#fff!important}
 }
+@media (min-width:1100px){
+  html body.v2 #view#view .rptv .rkpis{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:4px 0 14px!important}
+  html body.v2 #view#view .rptv .rkpis .kmini{padding:12px 14px!important;border-radius:14px!important;min-height:0!important;box-shadow:none!important}
+  html body.v2 #view#view .rptv .rkpis .kmini span{font-size:13px!important;color:#6C6C70!important}
+  html body.v2 #view#view .rptv .rkpis .kmini b{font-size:22px!important;font-weight:700!important;line-height:28px!important}
+  html body.v2 #view#view .rptv .rchart{border-radius:16px!important;box-shadow:none!important;padding:14px 16px!important}
+  html body.v2 #view#view .rptv .rchart .kh h3,html body.v2 #view#view .rptv .rchart .kh b{font-size:17px!important;font-weight:700!important}
+}
