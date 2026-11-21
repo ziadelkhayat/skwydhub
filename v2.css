@@ -289,3 +289,64 @@ html body #view > .v3 .v3selrow,html body #view > .v3 .v3selrow:hover{background
 }
 @media (min-width:1100px){ html body.v2 #view#view > .v3 .v3sel{height:22px!important;min-height:22px!important;font-size:12px!important;font-weight:600!important;padding:0 8px!important;line-height:22px!important} }
 html body #view#view > .v3 .v3selrow,html body #view#view > .v3 .v3selrow.ios-sel,html body #view#view > .v3 .v3selrow:hover{background:rgba(10,102,216,.1)!important}
+/* New Item form sheet, as in the design file */
+@media (min-width:1100px){
+  html body #crudBox.v3sheet{position:fixed!important;left:calc(50% + 140px)!important;top:40px!important;bottom:40px!important;transform:translateX(-50%)!important;width:620px!important;max-width:620px!important;max-height:none!important;margin:0!important;border-radius:14px!important;background:#F2F2F7!important;box-shadow:0 30px 80px rgba(0,0,0,.25)!important;padding:0!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif!important;line-height:normal!important}
+  html body #crudBox.v3sheet > header{display:flex!important;align-items:center!important;justify-content:space-between!important;height:52px!important;min-height:52px!important;padding:0 20px!important;background:rgba(249,249,249,.94)!important;border-bottom:1px solid #E3E3E8!important;position:relative}
+  html body #crudBox.v3sheet > header h2{position:absolute;left:50%;transform:translateX(-50%);margin:0!important;font-size:17px!important;font-weight:600!important;color:#000!important}
+  html body #crudBox.v3sheet .v3tb{border:0!important;background:none!important;color:#0066D6!important;font:inherit!important;font-size:17px!important;padding:0!important;cursor:pointer;box-shadow:none!important;height:auto!important;min-height:0!important}
+  html body #crudBox.v3sheet .v3tbb{font-weight:600!important}
+  html body #crudBox.v3sheet > footer{display:none!important}
+  html body #crudBox.v3sheet > .body{display:flex!important;flex-direction:column!important;gap:22px!important;padding:18px 36px 30px!important;background:#F2F2F7!important;grid-template-columns:none!important}
+  html body #crudBox.v3sheet .v3photo{margin:0 -16px!important;padding:0!important;background:none!important;border:0!important}
+  html body #crudBox.v3sheet .v3photo > label{display:none!important}
+  html body #crudBox.v3sheet .v3photo .imgf{display:flex!important;align-items:center!important;gap:16px!important}
+  html body #crudBox.v3sheet .v3photo .imgprev{width:84px!important;height:84px!important;min-width:84px!important;border-radius:18px!important;background:#E5E5EA!important;border:0!important;font-size:0!important}
+  html body #crudBox.v3sheet .v3photo .imgprev:not(:has(img))::after{content:"+";font-size:40px;font-weight:200;color:#6C6C70;line-height:84px;display:block;text-align:center}
+  html body #crudBox.v3sheet .v3photo .imgprev:not(:has(img)) > *{display:none!important}
+  html body #crudBox.v3sheet .v3photo .imgside > :not(.v3phl):not([id$=_st]):not(input){display:none!important}
+  html body #crudBox.v3sheet .v3phl{display:flex;flex-direction:column;cursor:pointer}
+  html body #crudBox.v3sheet .v3phl b{font-size:17px;font-weight:400;color:#0066D6}
+  html body #crudBox.v3sheet .v3phl span{font-size:13px;color:#6C6C70}
+  html body #crudBox.v3sheet .v3gh{padding:0 16px 7px;font-size:13px;color:#6C6C70;text-transform:uppercase;letter-spacing:.2px}
+  html body #crudBox.v3sheet .v3gf{padding:7px 16px 0;font-size:13px;color:#6C6C70}
+  html body #crudBox.v3sheet .v3gb{background:#fff;border-radius:12px;overflow:hidden}
+  html body #crudBox.v3sheet .v3gb > *{display:flex!important;align-items:center!important;gap:10px!important;min-height:45px!important;padding:0 16px!important;margin:0!important;border:0!important;border-top:1px solid #E3E3E8!important;background:#fff!important;box-shadow:none!important;flex-direction:row!important;flex-wrap:nowrap!important}
+  html body #crudBox.v3sheet .v3gb > :first-child{border-top:0!important}
+  html body #crudBox.v3sheet .v3gb .v3fl,html body #crudBox.v3sheet .v3gb > .v3f > label{font-size:17px!important;font-weight:400!important;color:#000!important;margin:0!important;flex:none!important;text-transform:none!important;letter-spacing:0!important;white-space:nowrap}
+  html body #crudBox.v3sheet .v3gb .v3fl :is(.ib,.phstar,svg){display:none!important}
+  html body #crudBox.v3sheet .v3gb .v3fv{margin-left:auto;font-size:17px;color:#C4C4C7}
+  html body #crudBox.v3sheet .v3gb .v3fr > .v3fl + button{margin-left:auto}
+  html body #crudBox.v3sheet .v3gb > .v3f > :is(input,select,div){flex:1 1 auto!important;min-width:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;text-align:right!important;text-align-last:right;font:inherit!important;font-size:17px!important;color:#6C6C70!important;height:44px!important;padding:0!important;outline:0!important}
+  html body #crudBox.v3sheet .v3gb > .v3f > div{display:flex!important;justify-content:flex-end}
+  html body #crudBox.v3sheet .v3gb > .v3f > div > input{border:0!important;background:transparent!important;text-align:right!important;font-size:17px!important;color:#6C6C70!important;box-shadow:none!important}
+  html body #crudBox.v3sheet .v3gb > .v3f > div > button{display:none!important}
+  html body #crudBox.v3sheet .v3gb > .v3f input::placeholder{color:#C4C4C7!important}
+  html body #crudBox.v3sheet .v3gb > .v3f .phstar{display:none!important}
+  html body #crudBox.v3sheet .v3more{background:#fff;border-radius:12px;padding:0 16px}
+  html body #crudBox.v3sheet .v3more > summary{min-height:45px;display:flex;align-items:center;font-size:17px;color:#0066D6;cursor:pointer;list-style:none}
+  html body #crudBox.v3sheet .v3more > summary::-webkit-details-marker{display:none}
+  html body #crudBox.v3sheet .v3moreb{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;padding:0 0 14px}
+}
+@media (min-width:1100px){
+  html body #crudBox.v3sheet > header > .x{display:none!important}
+  html body #crudBox.v3sheet .v3gb > .v3f > .msel{position:relative!important;height:auto!important;display:block!important}
+  html body #crudBox.v3sheet .v3gb .msel-f{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:6px;border:0!important;background:transparent!important;box-shadow:none!important;color:#6C6C70!important;font-size:17px!important;height:44px!important;padding:0!important;text-align:right!important}
+  html body #crudBox.v3sheet .v3gb .msel-f::after{content:"";width:8px;height:8px;border-right:2.2px solid #C4C4C7;border-top:2.2px solid #C4C4C7;transform:rotate(45deg);margin-left:4px;background:none!important;position:static!important}
+  html body #crudBox.v3sheet .v3gb .msel-ph{color:#6C6C70!important}
+  html body #crudBox.v3sheet .v3gb .msel-p{text-align:left!important}
+  html body #crudBox.v3sheet .v3phl span,html body #crudBox.v3sheet .v3phl b{text-transform:none!important}
+  html body #crudBox.v3sheet .v3gb > .v3f{border-radius:0!important}
+}
+@media (min-width:1100px){
+  html body #crudBox.v3sheet .v3gb .msel-f::after{content:none!important;display:none!important}
+  html body #crudBox.v3sheet .v3gb > .v3f > .msel{flex:1 1 auto!important;width:auto!important;min-width:0!important}
+  html body #crudBox.v3sheet .v3gb .msel-f{width:100%!important}
+  html body #crudBox.v3sheet .v3gb .reqst{display:none!important}
+}
+@media (min-width:1100px){
+  html body #crudBox.v3sheet .v3gb .msel-f{background-image:none!important}
+  html body #crudBox.v3sheet .v3gb .msel-f > span{margin-left:auto!important;flex:none!important;text-align:right!important}
+  html body #crudBox.v3sheet .v3gb .msel-f::after{content:""!important;display:block!important;width:7px;height:7px;border-right:2.2px solid #C4C4C7;border-top:2.2px solid #C4C4C7;transform:rotate(45deg);margin:0 3px 0 6px;flex:none}
+}
+@media (min-width:1100px){html body #crudBox.v3sheet .v3gb .msel-f > :not(span){display:none!important}}

@@ -461,3 +461,38 @@ ${grp("Setup", [row("Modifiers", mods.join(", ") || "None", "data-v3catmore"), r
 ${grp("Availability", [tog("Sell on POS", !off("pos"), "pos"), tog("Show on Web Ordering", !off("online"), "online"), tog("Out of Stock" + (oosL.length && oosL.length < brs.length ? ` (${oosL.length} of ${brs.length} stores)` : ""), oosL.length > 0, "oos")])}</div>`;
   };
 })();
+// ---------- New Item, the form sheet from the design file (the same fields and ids, so saving works as before)
+(function () {
+  const T = "#0066D6", SEP = "#E3E3E8", L2 = "#6C6C70";
+  const sw = (id, on, l) => `<button type="button" role="switch" id="${id}" aria-checked="${on}" aria-label="${l}" data-v3sw style="width:51px;height:31px;border-radius:999px;border:0;padding:2px;cursor:pointer;background:${on ? "#34C759" : "rgba(120,120,128,.16)"};display:flex;justify-content:${on ? "flex-end" : "flex-start"};flex:none"><span style="width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15)"></span></button>`;
+  const line = (l, right) => `<div class="v3fr"><span class="v3fl">${l}</span>${right}</div>`;
+  window.V3.newItem = function (box, o) {
+    const body = box.querySelector(".body"); if (!body) return;
+    const F = k => { const el = body.querySelector("#cf_" + k); return el ? el.closest(".f") : null; };
+    const take = k => { const f = F(k); if (!f) return null; f.classList.add("v3f"); const lab = f.querySelector(":scope > label"); if (lab) lab.classList.add("v3fl"); return f; };
+    box.classList.add("v3sheet");
+    box.querySelector(":scope > header").innerHTML = `<button type="button" data-cclose class="v3tb">Cancel</button><h2>New Item</h2><button type="submit" class="v3tb v3tbb">Add</button>`;
+    const img = F("imageUrl"); if (img) { img.classList.add("v3photo"); const side = img.querySelector(".imgside"); if (side) side.insertAdjacentHTML("afterbegin", `<label for="cf_imageUrl_file" class="v3phl"><b>Add Photo</b><span>Square, at least 800 × 800</span></label>`); }
+    const name = take("name"), ar = take("nameAr"), cat = take("categoryId"), sku = take("sku"), price = take("price"), tax = take("taxGroup");
+    if (ar) { const l = ar.querySelector(".v3fl"); if (l) l.firstChild.textContent = "Arabic Name"; const i = ar.querySelector("input"); if (i) i.placeholder = "Optional"; }
+    if (name) { const i = name.querySelector("input"); if (i) i.placeholder = "Required"; }
+    if (sku) { const i = sku.querySelector("input"); if (i) { i.placeholder = "Made automatically"; } }
+    if (price) { const l = price.querySelector(".v3fl"); if (l) l.firstChild.textContent = "Price"; const i = price.querySelector("input"); if (i) i.placeholder = "USD 0.00"; }
+    const cs = cat && cat.querySelector("select"); if (cs && o.cat && !cs.value) cs.value = o.cat;
+    const g = (h, nodes, foot) => { const d = document.createElement("div"); d.className = "v3grp"; d.innerHTML = (h ? `<div class="v3gh">${h}</div>` : "") + `<div class="v3gb"></div>` + (foot ? `<div class="v3gf">${foot}</div>` : ""); const gb = d.firstElementChild.classList.contains("v3gb") ? d.firstElementChild : d.querySelector(".v3gb"); nodes.filter(Boolean).forEach(n => gb.appendChild(typeof n === "string" ? Object.assign(document.createElement("div"), { innerHTML: n }).firstElementChild : n)); return d; };
+    const g1 = g("", [name, ar, cat, sku]);
+    const g2 = g("Price", [price, tax, line("Price Changes by Store", `<span class="v3fv">After adding</span>`)], o.money2 && o.money2(1) ? "The second currency is worked out from today's rate." : "");
+    const g3 = g("Setup", [line("Modifiers", `<span class="v3fv">After adding</span>`), line("Recipe", `<span class="v3fv">After adding</span>`), line("Sell on POS", sw("v3sw_pos", true, "Sell on POS")), line("Show on Web Ordering", sw("v3sw_online", true, "Show on Web Ordering"))]);
+    const rest = [...body.querySelectorAll(":scope > .f, :scope > .tagpick, :scope > [id^=cf__]")].filter(n => n !== img);
+    const more = document.createElement("details"); more.className = "v3more"; more.innerHTML = `<summary>More Options</summary><div class="v3moreb"></div>`; rest.forEach(n => more.lastElementChild.appendChild(n));
+    const st = body.querySelector("#cf_imageUrl_st"); if (st) st.textContent = "";
+    const ph = () => [["cf_name", "Required"], ["cf_nameAr", "Optional"], ["cf_sku", "Made automatically"], ["cf_price", "USD 0.00"]].forEach(([id, t]) => { const i = body.querySelector("#" + id); if (i) i.setAttribute("placeholder", t); });
+    const ph2 = () => { ph(); const i = ar && ar.querySelector("input"); if (i) i.setAttribute("placeholder", "Optional"); };
+    ph2(); setTimeout(ph2, 60); setTimeout(ph2, 400);
+    const mo = new MutationObserver(() => { if (!box.classList.contains("v3sheet")) return mo.disconnect(); [["cf_name", "Required"], ["cf_price", "USD 0.00"]].forEach(([id, t]) => { const i = body.querySelector("#" + id); if (i && !i.getAttribute("placeholder")) i.setAttribute("placeholder", t); }); const a = ar && ar.querySelector("input"); if (a && !a.getAttribute("placeholder")) a.setAttribute("placeholder", "Optional"); });
+    mo.observe(body, { subtree: true, attributes: true, attributeFilter: ["placeholder"] });
+    const err = body.querySelector("#cErr");
+    body.prepend(...[img, g1, g2, g3, more].filter(Boolean)); if (err) body.appendChild(err);
+  };
+  document.addEventListener("click", ev => { const b = ev.target.closest("[data-v3sw]"); if (!b) return; ev.preventDefault(); const on = b.getAttribute("aria-checked") !== "true"; b.setAttribute("aria-checked", on); b.style.background = on ? "#34C759" : "rgba(120,120,128,.16)"; b.style.justifyContent = on ? "flex-end" : "flex-start"; });
+})();

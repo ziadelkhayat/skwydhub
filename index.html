@@ -6283,6 +6283,7 @@ function openCrud(key, id, inline, draft){
   $("#crudBox").classList.toggle("onecol", !!cfg.oneCol);   // Foodics-style narrow dialog: one field per row
   if(cfg.oneCol && r && !r.deleted){ const d = $("#cDelete"); if(d){ d.className = "btn lnkdel"; d.textContent = "Delete"; } }
   if(cfg.formTop){ const g = $("#crudBox .body") || $("#crudBox form"); if(g) g.insertAdjacentHTML("afterbegin", cfg.formTop(r)); }
+  if(key==="products" && !r && window.V3 && V3.on() && V3.newItem) V3.newItem($("#crudBox"), { cat: ((state.cflt||{}).products||{}).cat || "", money2 });
   crudWhen();
   $("#crudScrim").classList.add("show");
   if(cfg.fields.some(f=>f.t==="polygon")) setTimeout(()=>{ try{ zoneEditor(r?.polygon || [], r?.id); }catch(err){ console.error(err); const z = $("#zInfo"); if(z) z.textContent = "The map couldn't start: " + err.message; } }, 60);
@@ -6590,6 +6591,8 @@ async function submitCrud(e){
   }
   if(cfg.col==="warehouses" && !crudEdit.id && SUB && !SUB.complimentary && SUB.warehouses!=null && S.warehouses.filter(live).length >= +SUB.warehouses){   // warehouses are charged: the plan sets how many
     CQ("#cErr").textContent = `Your plan includes ${SUB.warehouses} warehouse${+SUB.warehouses===1?"":"s"}. Add more warehouses to your Skwyd Hub subscription to create this one.`; return; }
+  if(crudEdit.key==="products" && !crudEdit.id && CQ("#v3sw_pos")){ const brs = branches.filter(x => x.active!==false && !x.deleted).map(x => x.id), ib = [];   // the New Item sheet's "Sell on POS" / "Show on Web Ordering"
+    if(CQ("#v3sw_pos").getAttribute("aria-checked")!=="true") ib.push(...brs.map(id => id + ":pos")); if(CQ("#v3sw_online").getAttribute("aria-checked")!=="true") ib.push(...brs.map(id => id + ":online")); if(ib.length) data.inactiveBranchIds = ib; }
   if(cfg.prep){ const msg = await cfg.prep(data, crudEdit.id); if(msg){ CQ("#cErr").textContent = msg; return; } }
   if(cfg.fields.some(f=>f.k==="sku") && data.sku && S[cfg.col].some(r=>r.id!==crudEdit.id && live(r) && r.sku===data.sku)){ CQ("#cErr").textContent = "That SKU is already used."; return; }
   if(cfg.unique && S[cfg.col].some(r=>r.id!==crudEdit.id && live(r) && String(r[cfg.unique]||"").toLowerCase()===String(data[cfg.unique]||"").toLowerCase())){ CQ("#cErr").textContent = `That ${cfg.unique} is already used by another ${cfg.one.toLowerCase()}.`; return; }
