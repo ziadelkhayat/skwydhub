@@ -167,6 +167,43 @@ html body .sw input:checked + i::after{left:20px!important;background:#fff!impor
 html body input[type=radio],html body input[type=checkbox]{accent-color:#0A60D0}
 :root{--bg:#F2F2F7!important}
 html body{background-color:#F2F2F7}
+/* ==== New iPad-style system: team app ==== */
+html body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"IBM Plex Sans Arabic",sans-serif!important;background:#F2F2F7!important;color:#000;-webkit-font-smoothing:antialiased}
+html body .top{background:rgba(242,242,247,.86)!important;-webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);color:#000!important}
+html body .top *{color:inherit}
+html body .top .btn,html body .top button{background:rgba(120,120,128,.12)!important;color:#007AFF!important;border:0!important;border-radius:999px!important;font-weight:600!important}
+html body .top svg{color:#007AFF!important;stroke:#007AFF}
+html body .top small,html body .top span:not([class]){color:#6C6C70!important}
+/* clock: white rounded card, big rounded time, Apple-green Clock In / red Clock Out capsule */
+html body .card.clock{background:#fff!important;color:#000!important;margin:4px 0 14px!important;border-radius:26px!important;padding:18px 18px 20px!important;box-shadow:none!important}
+html body .clock .now{color:#000!important;font-family:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif!important;font-size:48px!important;line-height:54px;font-weight:700!important}
+html body .clock *{color:inherit}
+html body .clock .dt,html body .clock small,html body .clock p{color:#6C6C70!important}
+html body .cbtn{width:100%!important;max-width:320px;height:56px!important;border-radius:999px!important;margin:16px auto 12px!important;grid-auto-flow:column;gap:10px!important;font-size:17px!important;font-weight:600!important;background:#34C759!important;color:#fff!important;box-shadow:none!important;font-family:inherit!important}
+html body .cbtn svg{width:22px!important;height:22px!important;color:#fff!important;stroke:#fff!important}
+html body .cbtn.outb{background:#FF3B30!important;color:#fff!important;box-shadow:none!important}
+html body .cbtn.outb svg{color:#fff!important;stroke:#fff!important}
+html body .clock .st{background:rgba(120,120,128,.12)!important;color:#3C3C43!important;border-radius:999px!important}
+/* cards, buttons, titles */
+html body .card{background:#fff!important;border:0!important;border-radius:26px!important;box-shadow:none!important}
+html body h1,html body h2{font-weight:700!important;color:#000!important}
+html body .btn{border-radius:999px!important;min-height:44px;font-weight:600!important;font-size:17px!important;border:0!important;box-shadow:none!important}
+html body .btn.pri{background:#007AFF!important;color:#fff!important}
+html body .btn:not(.pri):not(.danger),html body .btn.ghost{background:rgba(120,120,128,.12)!important;color:#007AFF!important}
+html body input:not([type=checkbox]):not([type=radio]),html body select,html body textarea{border-radius:12px!important;border:0!important;background:rgba(118,118,128,.12)!important;font-size:17px!important;min-height:44px}
+/* tab bar: floating light glass capsule */
+html body nav.tabs{background:rgba(255,255,255,.82)!important;-webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);border:1px solid rgba(255,255,255,.95)!important;border-radius:999px!important;box-shadow:0 10px 30px rgba(0,0,0,.12)!important;padding:6px!important}
+html body nav.tabs button{color:#3C3C43!important;border-radius:999px!important;background:transparent!important}
+html body nav.tabs button svg{color:#3C3C43!important;stroke:currentColor}
+html body nav.tabs button.on{background:rgba(0,122,255,.12)!important;color:#007AFF!important;border-radius:999px!important}
+html body nav.tabs button.on svg{color:#007AFF!important}
+html body .wrap .top .who b,html body .wrap .top .who{color:#000!important}
+html body .wrap .top .who small,html body .wrap .top .who span{color:#6C6C70!important}
+html body .wrap .top .av,html body .wrap .top [class*=av]{color:#fff!important;background:linear-gradient(#5AC8FA,#007AFF)!important}
+html body .wrap .top button,html body .wrap .top .btn{background:rgba(120,120,128,.12)!important;color:#007AFF!important;border:0!important}
+html body .wrap .cbtn{display:flex!important;justify-content:center!important;align-items:center!important;gap:10px!important}
+html body .wrap .clock .loc,html body .wrap .clock .note,html body .wrap .clock p,html body .wrap .clock small{color:#6C6C70!important}
+html body .wrap .clock .loc svg,html body .wrap .clock .note svg{color:#6C6C70!important;stroke:#6C6C70!important}
 </style>
 </head>
 <body>
