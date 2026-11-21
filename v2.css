@@ -350,3 +350,29 @@ html body #view#view > .v3 .v3selrow,html body #view#view > .v3 .v3selrow.ios-se
   html body #crudBox.v3sheet .v3gb .msel-f::after{content:""!important;display:block!important;width:7px;height:7px;border-right:2.2px solid #C4C4C7;border-top:2.2px solid #C4C4C7;transform:rotate(45deg);margin:0 3px 0 6px;flex:none}
 }
 @media (min-width:1100px){html body #crudBox.v3sheet .v3gb .msel-f > :not(span){display:none!important}}
+html body.v2p #view#view:has(> .v3) > :not(.v3){display:none!important}
+@media (max-width:760px){
+  html body.v2p #view#view:has(> .v3){padding:0!important;margin:0!important;max-width:none!important}
+  html body.v2p .content:has(#view > .v3),html body.v2p main:has(#view > .v3){padding-left:0!important;padding-right:0!important}
+  html body.v2p #view > .v3 h1{font-size:34px!important;line-height:41px!important;font-weight:700!important;letter-spacing:-.8px!important;margin:0!important;color:#000!important}
+  html body.v2p #view > .v3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;line-height:normal}
+}
+/* iPhone tab bar exactly as the design file */
+@media (max-width:760px){
+  html:root body.v2p nav#tabbar.tabbar{left:14px!important;right:14px!important;bottom:calc(20px + env(safe-area-inset-bottom))!important;height:62px!important;box-sizing:border-box!important;background:rgba(250,250,250,.92)!important}
+  html:root body.v2p nav#tabbar.tabbar a{color:#6C6C70!important;font-weight:600!important;font-size:10px!important}
+  html:root body.v2p nav#tabbar.tabbar a.on{color:#0066D6!important}
+}
+html:not(.v3showsheet) body.v2p:has(#view > .v3) #ccScrim:has(> .odrawer){display:none!important}
+@media (max-width:760px){ html body.v2p #view > .v3 input::placeholder{text-transform:none!important} html body.v2p #view > .v3 input{text-transform:none!important} }
+html:not(.v3showsheet) body.v2p:has(#view > .v3) nav#tabbar.tabbar{display:flex!important}
+#v3morepage{position:fixed;inset:0;z-index:55;background:#F2F2F7;overflow:auto;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;line-height:normal;-webkit-overflow-scrolling:touch}
+#v3morepage[hidden]{display:none}
+html[data-theme=dark] #v3morepage{background:#000}
+#v3morepage{z-index:58!important}
+#v3morepage h1{font-size:34px!important;line-height:41px!important;font-weight:700!important;letter-spacing:-.8px!important;color:#000!important}
+html body.v2p #view > .v3 :is(button,a,span,b){text-transform:none!important}
+html:root body.v3moreon nav#tabbar.tabbar a{color:#6C6C70!important;background:none!important}
+html:root body.v3moreon nav#tabbar.tabbar a[data-more]{color:#0066D6!important;background:rgba(118,118,128,.12)!important}
+html:root body.v3moreon nav#tabbar.tabbar{display:flex!important}
+#v3morepage input{font-size:17px!important;border:0!important;box-shadow:none!important}
