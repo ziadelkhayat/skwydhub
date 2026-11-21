@@ -9373,7 +9373,7 @@ const ORD_TABS = [["all","All"],["today","Today"],["draft","Draft"],["pending","
 const ORD_SGRP = { draft:["draft"], pending:["pending","review"], open:["active"], closed:["closed"], declined:["declined"], voids:["void"], returns:["refund","returned"] };
 const ORD_TABQ = { today: q => { const d = bizDate(), [t0, t1] = dayBounds(d, d, ORD.branch || ""); return q.gte("created_at", t0.toISOString()).lt("created_at", t1.toISOString()); },
   draft: q => q.eq("status","draft"), pending: q => q.eq("status","pending"), active: q => q.eq("status","active"), dispatched: q => q.eq("status","active").not("dispatched_at","is",null),
-  ahead: q => q.not("scheduled_at","is",null).in("status",["draft","pending","active"]), callcenter: q => q.eq("channel","callcenter"), online: q => q.eq("channel","online") };
+  ahead: q => q.not("scheduled_at","is",null).in("status",["draft","pending","active"]), done: q => q.eq("status","closed"), callcenter: q => q.eq("channel","callcenter"), online: q => q.eq("channel","online") };
 const ORD_GRP = { pending:["draft","pending"], open:["active"], closed:["closed"], declined:["declined"], voids:["void"], returns:["refund","returned"] };
 const ORD_ALLST = ["draft","pending","active","closed","declined","void","refund","returned"];
 const ORD_ST = { review:"Call Center Review", draft:"Draft", pending:"Pending", active:"Active", closed:"Done", declined:"Declined", void:"Void", returned:"Returned", refund:"Refund" };

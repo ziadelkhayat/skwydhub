@@ -203,3 +203,11 @@ html body #view#view .v3l1 b{font-weight:600!important}
   html body.v2 #view#view > .v3 .iewrap .ddmenu{position:absolute;right:0;top:46px;z-index:30}
 }
 @media (min-width:1100px){ html body.v2 #view#view:has(> .v3) > :not(.v3){display:none!important} }
+
+@media (min-width:1100px){
+  html body.v2 #view > .v3 .v3omenu{position:absolute;right:0;top:46px;z-index:40;min-width:200px;background:rgba(242,242,247,.96);backdrop-filter:blur(30px);border-radius:13px;box-shadow:0 18px 60px rgba(0,0,0,.2);overflow:hidden;display:flex;flex-direction:column}
+  html body.v2 #view > .v3 .v3omenu[hidden]{display:none}
+  html body.v2 #view > .v3 .v3omenu a{padding:12px 16px;font-size:17px;color:#000;text-decoration:none;border-top:1px solid rgba(60,60,67,.18)}
+  html body.v2 #view > .v3 .v3omenu a:first-child{border-top:0}
+  html body.v2 #view > .v3 .v3omenu a:hover{background:rgba(0,0,0,.05)}
+}
