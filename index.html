@@ -3504,6 +3504,12 @@ html body .modal.fltpanel > .body .f > select,html body .modal.fltpanel > .body 
 html body .modal.fltpanel > footer #ofReset,html body .modal.fltpanel > footer #cfReset{opacity:1!important}
 html body .modal.fltpanel > .body .f .msel-f{justify-content:flex-end!important;text-align:right}
 html body .modal.fltpanel > .body .f .msel-v,html body .modal.fltpanel > .body .f .msel-ph{flex:1;text-align:right}
+html body .modal.fltpanel > footer [data-autocancel]{display:none!important}
+/* Call Center board: columns keep a readable width and the board scrolls sideways */
+html body .app #view .board{grid-template-columns:repeat(6,minmax(200px,1fr))!important;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+html body .app #view .board .bcol > *:first-child{border-radius:16px!important;border:0!important}
+/* setting rows with a switch: the label on the left, the switch on the right */
+html body .app #view .card > label.toggle:only-child,html body .app #view .card > .toggle:first-child:last-child{display:flex!important;flex-direction:row-reverse;justify-content:space-between;width:100%;font-size:17px!important}
 </style>
 </head>
 <body>
@@ -12662,7 +12668,7 @@ document.addEventListener("click", e => {
 /* Foodics Filter on the inventory setup lists (products, suppliers, categories, warehouses) */
 const FLTX = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`;
 // Foodics: the Filter button; once a filter is applied it shows a small x inside it that resets the filter
-const fltBtn = (attr, key, on, n) => { const ch = (() => { try{ return fltChips(attr, key); }catch(e){ return null; } })(), c = ch ? ch.length : (n || 0); on = ch ? c > 0 : (on || c > 0);
+const fltBtn = (attr, key, on, n) => { const ch = (() => { try{ return fltChips(attr, key); }catch(e){ return null; } })(), known = attr==="data-cflt" || attr==="data-ordflt"; let c = ch ? ch.length : (n || 0); on = known ? c > 0 : !!on; if(!on) c = 0;
   return `<button type="button" class="btn fltbtn${on ? " fon" : ""}" ${attr}="${esc(key)}" data-fattr="${esc(attr)}">${svgIco("filter")}Filter${on && c ? `<span class="fcount">${c}</span>` : ""}</button>`; };
 const ffYN = (k, l, get) => [k, l, "sel", r => get(r) ? "yes" : "no", () => [["yes","Yes"],["no","No"]]];
 const ffTxt = (k, l, get) => [k, l, "text", get], CRUD_FF = {
@@ -12754,8 +12760,19 @@ function fltChips(attr, key){
   if(attr==="data-ordflt") return Object.keys(ORD_FLBL).filter(k => String(ORD[k]||"").trim()).map(k => { const v = ORD[k];
     return { k, l: ORD_FLBL[k], v: k==="status" ? (ORD_FSTL[v] || v) : k==="type" ? ordTypeLbl(v) : k==="channel" ? (ORD_FCHL[v] || v) : k==="brand" ? (brandName(v) || v)
       : k==="device" ? ((S.devices||[]).find(d => d.id===v)?.name || v) : k==="ahead" ? (v==="yes" ? "Yes" : "No") : k==="due" ? fDay(v) : v }; });
-  return null;
+  return FLT_SNAP[attr + "|" + key] || null;
 }
+// the other filter windows (customers, call center, inventory documents): what was picked is read from the window when Apply is pressed
+const FLT_SNAP = {}, FLT_APPLY = { cusFApply:"data-cusflt", dfApply:"data-docflt", ccfApply:"data-ccflt" }, FLT_CLR = { cusFClr:"data-cusflt", dfReset:"data-docflt", ccfReset:"data-ccflt" };
+document.addEventListener("click", e => { const b = e.target.closest?.("#cusFApply,#dfApply,#ccfApply,#cusFClr,#dfReset,#ccfReset,[data-fltclr]"); if(!b) return;
+  const box = $("#ccBox"), attr = FLT_APPLY[b.id] || FLT_CLR[b.id] || (b.dataset.fltclr||"").split("|")[0], key = box?.dataset.fkey || (b.dataset.fltclr||"").split("|")[1] || "";
+  const sk = Object.keys(FLT_SNAP).find(x => x.startsWith(attr + "|") && (!key || x===attr + "|" + key)) || (attr + "|" + key);
+  if(!FLT_APPLY[b.id]){ Object.keys(FLT_SNAP).filter(x => x.startsWith(attr + "|")).forEach(x => delete FLT_SNAP[x]); return; }
+  const list = [...box.querySelectorAll(".body .f")].map(f => { const c = f.querySelector("select[id],input[id]"); if(!c || !c.value || c.type==="checkbox") return null;
+    if(c.id==="ccf_date" && c.value===bizDate()) return null;
+    const l = (f.querySelector("label")?.textContent || "").replace(/\s*\*\s*$/, "").trim(), v = c.tagName==="SELECT" ? c.options[c.selectedIndex]?.text : c.type==="date" ? fDay(c.value) : c.value;
+    return l ? { k: c.id, l, v } : null; }).filter(Boolean);
+  FLT_SNAP[attr + "|" + (box.dataset.fkey || "")] = list; }, true);
 function paintFltChips(v){
   v.querySelectorAll(".fchips").forEach(x => x.remove());
   v.querySelectorAll(".fltbtn.fon").forEach(b => { const attr = b.dataset.fattr, key = b.getAttribute(attr); if(!attr) return;
@@ -12768,6 +12785,9 @@ document.addEventListener("click", e => { const x = e.target.closest?.("[data-fc
   const [attr, key, k] = x.dataset.fchip.split("|");
   if(attr==="data-cflt"){ const f = { ...crudFlt(key) }; delete f[k]; (state.cflt ||= {})[key] = f; state.page[key] = 1; }
   else if(attr==="data-ordflt"){ ORD[k] = ""; ORD.page = 1; }
+  else { const btn = document.querySelector(`#view [${attr}="${CSS.escape(key)}"]`); if(!btn) return; btn.click();
+    const c = document.getElementById(k); if(c){ c.value = c.id==="ccf_date" ? bizDate() : ""; c.dispatchEvent(new Event("change", { bubbles:true })); }
+    const ok = $("#ccBox footer .btn.pri"); if(ok) ok.click(); return; }
   render(); }, true);
 // how many results the filter in the panel will give
 function crudCount(key, f){ const keep = (state.cflt ||= {})[key]; state.cflt[key] = f;
@@ -12793,9 +12813,10 @@ async function fltPanelCount(){
 }
 document.addEventListener("click", e => { const b = e.target.closest?.("[data-cflt],[data-ordflt],[data-cusflt],[data-docflt],[data-ccflt]"); if(!b || b.closest("#ccBox") || e.target.closest("[data-fltclr],[data-fchip]")) return;
   const attr = ["data-cflt","data-ordflt","data-cusflt","data-docflt","data-ccflt"].find(a => b.hasAttribute(a));
-  setTimeout(() => { const box = $("#ccBox"); if(!box || !$("#ccScrim")?.classList.contains("show")) return; box.classList.add("fltpanel"); box.dataset.fkind = attr;
+  setTimeout(() => { const box = $("#ccBox"); if(!box || !$("#ccScrim")?.classList.contains("show")) return; box.classList.add("fltpanel"); box.dataset.fkind = attr; box.dataset.fkey = b.getAttribute(attr) || "";
     box.querySelectorAll(".body input:not([type=date]):not([type=checkbox])").forEach(i => { if(!i.placeholder) i.placeholder = "Any"; });
     const ok = box.querySelector("footer .btn.pri"); if(ok) ok.textContent = "Show Results"; fltPanelCount(); }, 0); });
+document.addEventListener("change", e => { if(e.target.id!=="df_brand") return; setTimeout(() => { const box = $("#ccBox"); if(box && box.dataset.fkind==="data-docflt" && !box.classList.contains("fltpanel")){ box.classList.add("fltpanel"); const ok = box.querySelector("footer .btn.pri"); if(ok) ok.textContent = "Show Results"; } }, 0); });
 let fltT = 0; document.addEventListener("input", e => { if(!e.target.closest?.("#ccBox.fltpanel")) return; clearTimeout(fltT); fltT = setTimeout(fltPanelCount, 250); });
 document.addEventListener("change", e => { if(!e.target.closest?.("#ccBox.fltpanel")) return; clearTimeout(fltT); fltT = setTimeout(fltPanelCount, 100); });
 // Export (Foodics): pick the business dates (up to 31 days), brand and branch first; the list's own filters don't apply
