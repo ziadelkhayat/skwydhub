@@ -18,7 +18,7 @@
     b.dataset.v2label = label; b.innerHTML = svg(icon) + (b.querySelector(".fcount") ? b.querySelector(".fcount").outerHTML : "");
     return b;
   }
-  const SIMPLE = /^(schedule|time-clock|payroll|dashboard|call-center|team-chat|tasks|knowledge|online-ordering|loyalty|subscription|marketplace)$/;
+  const SIMPLE = /^([a-z]+-reports|schedule|time-clock|payroll|dashboard|call-center|team-chat|tasks|knowledge|online-ordering|loyalty|subscription|marketplace)$/;
   function sectionTitle() { const on = $(".side a.on, .side .on > a, .side [aria-current=page]"); const grp = on && on.closest(".grp"); const g = grp && grp.querySelector(":scope > button"); return ((g || on || {}).textContent || "").replace(/[^\p{L}\p{N} &'-]/gu, "").replace(/\s+/g, " ").trim(); }
 
   function shape() {
