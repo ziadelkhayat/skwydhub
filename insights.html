@@ -7,7 +7,7 @@
 <title>skwyd insights</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%2210%204%20100%20112%22%3E%3Crect%20x%3D%2210%22%20y%3D%224%22%20width%3D%22100%22%20height%3D%22112%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%231E3A8A%22%20stroke-width%3D%227.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M60%2010%20C82%2010%2094%2032%2094%2054%20C94%2070%2082%2078%2060%2078%20C38%2078%2026%2070%2026%2054%20C26%2032%2038%2010%2060%2010Z%22%2F%3E%3Cpath%20d%3D%22M38%2074%20C34%2092%2022%2094%2024%20104%20C26%20110%2034%20106%2030%20101%20M50%2078%20C50%2094%2044%20104%2048%20110%20M60%2078%20V108%20C60%20112%2066%20112%2064%20107%20M70%2078%20C70%2094%2076%20104%2072%20110%20M82%2074%20C86%2092%2098%2094%2096%20104%20C94%20110%2086%20106%2090%20101%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M48%2048h0M72%2048h0%22%20stroke%3D%22%231E3A8A%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <style>
-:root{--nav:#0B1330;--nav2:#141E44;--acc:#1E3A8A;--lime:#6D28D9;--ink:#0C1738;--ink2:#4B5563;--mut:#8A90A6;--line:#E6E8F2;--bg:#F3F4F8;--ok:#16a34a;--bad:#b42318;--warn:#d97706}
+:root{--nav:#0B1330;--nav2:#141E44;--acc:#0A60D0;--lime:#6D28D9;--ink:#0C1738;--ink2:#4B5563;--mut:#8A90A6;--line:#E6E8F2;--bg:#F3F4F8;--ok:#16a34a;--bad:#b42318;--warn:#d97706}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Plus Jakarta Sans","IBM Plex Sans Arabic",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit}
 .hd{position:sticky;top:0;z-index:20;background:var(--nav);color:#fff;padding:max(14px,env(safe-area-inset-top)) 18px 14px;display:flex;align-items:center;gap:12px}
@@ -27,7 +27,7 @@ h2{font-size:22px;margin:4px 4px 12px}h3{font-size:15px;margin:18px 4px 8px;colo
 .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}.row:last-child{border-bottom:0}
 .row .t{flex:1;min-width:0}.row .t b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row .t small{display:block;color:var(--mut);font-size:12.5px}
 .row em{font-style:normal;font-weight:700;font-size:14px;white-space:nowrap}
-.av{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#EEF2FF;color:var(--acc);font-weight:700;font-size:13px}
+.av{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#E8F0FC;color:var(--acc);font-weight:700;font-size:13px}
 .bar{height:8px;border-radius:9px;background:#EEF0F6;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--acc);border-radius:9px}
 .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700;background:#EEF0F6;color:var(--ink2)}.pill.ok{background:#e7f7ec;color:var(--ok)}.pill.bad{background:#fdecec;color:var(--bad)}.pill.warn{background:#fff4e0;color:var(--warn)}.pill.blue{background:#e8eefe;color:var(--acc)}
 .empty{text-align:center;color:var(--mut);padding:22px 10px;margin:0}
@@ -42,6 +42,41 @@ h2{font-size:22px;margin:4px 4px 12px}h3{font-size:15px;margin:18px 4px 8px;colo
 .kbt h3,.kbt h4{color:var(--ink);margin:12px 0 4px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="iosSkin">
+/* ===== iOS-style skin (look only: layout and features unchanged) ===== */
+html body,html body button,html body input,html body select,html body textarea,html body .btn,html body h1,html body h2,html body h3,html body h4{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:normal}
+html body h1{letter-spacing:-.4px}
+/* buttons: pills */
+html body .btn{border-radius:999px!important}
+html body .btn.pri{background:#0A60D0!important;border-color:#0A60D0!important;color:#fff!important}
+html body .btn.pri:hover{background:#084BA3!important;border-color:#084BA3!important}
+html body .btn.danger{color:#C42B1C!important}
+html body .btn.pri.danger{background:#C42B1C!important;border-color:#C42B1C!important;color:#fff!important}
+/* cards: rounder, no borders */
+html body .card{border-radius:20px!important;border-color:transparent!important;box-shadow:none!important}
+/* text fields: grey filled, no border, rounded */
+html body .card input.sel,html body .card select.sel,html body .card textarea.sel,html body .modal input.sel,html body .modal select.sel,html body .modal textarea.sel,html body .modal input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),html body .modal textarea,html body .modal select{background-color:#EFEFF4!important;border-color:transparent!important;border-radius:10px!important;box-shadow:none!important}
+html body .card input.sel:focus,html body .modal input:focus,html body .modal textarea:focus,html body .modal select:focus{border-color:#0A60D0!important;box-shadow:0 0 0 3px rgba(10,96,208,.18)!important}
+/* dialogs: rounder, frosted backdrop */
+html body .modal{border-radius:22px!important}
+/* switches: iOS (green when on) */
+html body .toggle .trk,html body .toggle.sm .trk,html body .toggle.xs .trk{width:46px!important;height:28px!important;border-radius:999px!important;margin:0!important;background:#E3E3E8!important;position:relative!important}
+html body .toggle .trk::after{top:2px!important;left:2px!important;width:24px!important;height:24px!important;background:#fff!important;box-shadow:0 2px 5px rgba(0,0,0,.2)!important}
+html body .toggle input:checked+.trk{background:#34C759!important}
+html body .toggle input:checked+.trk::after{left:20px!important;background:#fff!important;box-shadow:0 2px 5px rgba(0,0,0,.2)!important}
+html body label.chk > input[type=checkbox][id],html body .f > label.chk > input[type=checkbox]{width:46px!important;min-width:46px!important;height:28px!important;border-radius:999px!important;margin:0 10px 0 0!important;background:#E3E3E8!important}
+html body label.chk > input[type=checkbox][id]::after,html body .f > label.chk > input[type=checkbox]::after{top:2px!important;left:2px!important;width:24px!important;height:24px!important;background:#fff!important;box-shadow:0 2px 5px rgba(0,0,0,.2)!important}
+html body label.chk > input[type=checkbox][id]:checked,html body .f > label.chk > input[type=checkbox]:checked{background:#34C759!important}
+html body label.chk > input[type=checkbox][id]:checked::after,html body .f > label.chk > input[type=checkbox]:checked::after{left:20px!important;background:#fff!important}
+html body .sw input{width:46px!important;height:28px!important}
+html body .sw i{width:46px!important;height:28px!important;border-radius:999px!important;margin:0!important;background:#E3E3E8!important}
+html body .sw i::after{top:2px!important;left:2px!important;width:24px!important;height:24px!important;background:#fff!important;box-shadow:0 2px 5px rgba(0,0,0,.2)!important}
+html body .sw input:checked + i{background:#34C759!important}
+html body .sw input:checked + i::after{left:20px!important;background:#fff!important}
+html body input[type=radio],html body input[type=checkbox]{accent-color:#0A60D0}
+:root{--bg:#F2F2F7!important}
+html body{background-color:#F2F2F7}
+</style>
 </head>
 <body>
 <div id="app"></div>
