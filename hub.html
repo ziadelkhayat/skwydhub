@@ -545,6 +545,34 @@ html body .app aside.side{background:rgba(255,255,255,.78)!important;border-righ
 html body .app aside.side nav.nav > a.on,html body .app aside.side nav.nav .sub a.on,html body .app aside.side nav.nav > a.on:hover,html body .app aside.side .nav a.on,html body .app aside.side .nav a.on:hover{background:#0A60D0!important;color:#fff!important;font-weight:600!important;border-radius:12px!important}
 html body .app aside.side .nav a.on svg,html body .app aside.side .nav a.on svg *{color:#fff!important;stroke:#fff!important}
 html body .app h1,html body .app .content h1,html body .app main h1,html body #view h1{font-size:30px!important;font-weight:700!important;letter-spacing:-.4px!important}
+/* ---- iOS skin, part 2: tabs, tables, fields, buttons, menus ---- */
+/* underline tabs become a segmented control */
+html body .app #view .ttabs{display:inline-flex!important;align-items:center!important;gap:2px!important;background:rgba(118,118,128,.12)!important;border-radius:10px!important;padding:2px!important;border:0!important;box-shadow:none!important;max-width:100%!important;overflow-x:auto!important;scrollbar-width:none}
+html body .app #view .ttabs::-webkit-scrollbar{display:none}
+html body .app #view .ttabs a,html body .app #view .ttabs button{border:0!important;border-radius:8px!important;padding:6px 14px!important;margin:0!important;box-shadow:none!important;background:transparent!important;color:#000!important;font-weight:500!important;white-space:nowrap}
+html body .app #view .ttabs a.on,html body .app #view .ttabs button.on{background:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)!important;font-weight:600!important;color:#000!important}
+/* tables: quiet headers, hairline rows */
+html body .app #view .tbl th,html body .app #view table th{color:#6C6C70!important;font-size:12.5px!important;font-weight:600!important;background:transparent!important;border-color:rgba(60,60,67,.12)!important}
+html body .app #view .tbl td,html body .app #view table td{border-color:rgba(60,60,67,.1)!important}
+html body .app #view .tbl tbody tr:hover td{background:#F7F7FA!important}
+/* text fields and pickers: filled, no outline; grey on white cards and windows, white on the grey page */
+html body .app #view .sel,html body .app #view input[type=text],html body .app #view input[type=search],html body .app #view input[type=number],html body .app #view input[type=email],html body .app #view input[type=tel],html body .app #view input[type=date],html body .app #view input[type=time],html body .app #view select,html body .app #view textarea{border-color:transparent!important;border-radius:10px!important;box-shadow:none!important}
+html body .app #view .card .sel,html body .app #view .card input[type=text],html body .app #view .card input[type=number],html body .app #view .card input[type=email],html body .app #view .card input[type=tel],html body .app #view .card input[type=date],html body .app #view .card input[type=time],html body .app #view .card select,html body .app #view .card textarea,html body .modal .sel,html body .modal input[type=text],html body .modal input[type=number],html body .modal input[type=email],html body .modal input[type=tel],html body .modal input[type=date],html body .modal input[type=time],html body .modal select,html body .modal textarea{background-color:#F2F2F7!important;border-color:transparent!important;border-radius:10px!important}
+html body .app #view .sel:focus,html body .app #view input:focus,html body .app #view select:focus,html body .app #view textarea:focus,html body .modal input:focus,html body .modal select:focus,html body .modal textarea:focus{border-color:#0A60D0!important;box-shadow:0 0 0 3px rgba(10,96,208,.16)!important;outline:0!important}
+html body .app #view .osrch,html body .app #view .search{background:rgba(118,118,128,.12)!important;border-color:transparent!important;border-radius:10px!important;box-shadow:none!important}
+html body .app #view .osrch input,html body .app #view .search input{background:transparent!important}
+/* field labels: small and grey, like iOS forms */
+html body .f > label:not(.chk){color:#6C6C70!important;font-size:13px!important;font-weight:500!important}
+/* secondary buttons: grey fill with blue text (iOS "gray" buttons) */
+html body .app .btn:not(.pri):not(.danger):not(.on),html body .modal .btn:not(.pri):not(.danger):not(.on){background:rgba(118,118,128,.12)!important;border-color:transparent!important;color:#0A60D0!important;box-shadow:none!important}
+html body .app .btn:not(.pri):not(.danger):not(.on):hover,html body .modal .btn:not(.pri):not(.danger):not(.on):hover{background:rgba(118,118,128,.2)!important}
+html body .app .btn.danger:not(.pri),html body .modal .btn.danger:not(.pri){background:#FDECEC!important;border-color:transparent!important;color:#C42B1C!important}
+/* drop-down menus: floating rounded panels */
+html body .ddmenu{border:0!important;border-radius:14px!important;box-shadow:0 12px 40px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.06)!important}
+/* card titles */
+html body .app #view .card h2,html body .app #view .card h3{font-weight:600!important}
+html body .modal .multi,html body .app #view .card .multi{background-color:#F2F2F7!important;border-color:transparent!important;border-radius:10px!important}
+html body .modal header h2,html body .modal h2{font-weight:600!important}
 </style>
 </head>
 <body>

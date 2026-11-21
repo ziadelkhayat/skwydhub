@@ -1014,6 +1014,16 @@ html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.78)!importa
 html[data-theme=dark] body .app aside.side .nav .grp:has(a.on) > button{color:#7bb0f4!important}
 html[data-theme=dark] body .app aside.side nav.nav a.on .nti, html[data-theme=dark] body .app aside.side a.on .nti, html[data-theme=dark] body .app aside.side a.on .ni, html[data-theme=dark] body .app aside.side a.on .ico{background:rgba(16,20,32,.22)!important}
 html[data-theme=dark] body .app aside.side nav.nav a.on .nti{background:rgba(16,20,32,.2)!important}
+html[data-theme=dark] body .app #view .ttabs a, html[data-theme=dark] body .app #view .ttabs button{color:#ededed!important}
+html[data-theme=dark] body .app #view .ttabs a.on, html[data-theme=dark] body .app #view .ttabs button.on{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.264),0 0 0 .5px rgba(0,0,0,0.08800000000000001)!important;color:#ededed!important}
+html[data-theme=dark] body .app #view .tbl th, html[data-theme=dark] body .app #view table th{color:#afafb2!important}
+html[data-theme=dark] body .app #view .tbl tbody tr:hover td{background:#18181f!important}
+html[data-theme=dark] body .app #view .card .sel, html[data-theme=dark] body .app #view .card input[type=text], html[data-theme=dark] body .app #view .card input[type=number], html[data-theme=dark] body .app #view .card input[type=email], html[data-theme=dark] body .app #view .card input[type=tel], html[data-theme=dark] body .app #view .card input[type=date], html[data-theme=dark] body .app #view .card input[type=time], html[data-theme=dark] body .app #view .card select, html[data-theme=dark] body .app #view .card textarea, html[data-theme=dark] body .modal .sel, html[data-theme=dark] body .modal input[type=text], html[data-theme=dark] body .modal input[type=number], html[data-theme=dark] body .modal input[type=email], html[data-theme=dark] body .modal input[type=tel], html[data-theme=dark] body .modal input[type=date], html[data-theme=dark] body .modal input[type=time], html[data-theme=dark] body .modal select, html[data-theme=dark] body .modal textarea{background-color:#1a1a22!important}
+html[data-theme=dark] body .f > label:not(.chk){color:#afafb2!important}
+html[data-theme=dark] body .app .btn:not(.pri):not(.danger):not(.on), html[data-theme=dark] body .modal .btn:not(.pri):not(.danger):not(.on){color:#7bb0f4!important}
+html[data-theme=dark] body .app .btn.danger:not(.pri), html[data-theme=dark] body .modal .btn.danger:not(.pri){background:#251717!important;color:#ed8c82!important}
+html[data-theme=dark] body .ddmenu{box-shadow:0 12px 40px rgba(0,0,0,0.35200000000000004),0 0 0 .5px rgba(0,0,0,0.132)!important}
+html[data-theme=dark] body .modal .multi, html[data-theme=dark] body .app #view .card .multi{background-color:#1a1a22!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1112,6 +1122,7 @@ html[data-theme=dark] [style*="background:#F3EDFF"]{background:#1b1624!important
 html[data-theme=dark] [style*="background:#F4F5FA"]{background:#171923!important}
 html[data-theme=dark] [style*="background:#F5F7FF"]{background:#141722!important}
 html[data-theme=dark] [style*="background:#F6F7FA"]{background:#181a20!important}
+html[data-theme=dark] [style*="background:#F7F7FA"]{background:#18181f!important}
 html[data-theme=dark] [style*="background:#F7F8FA"]{background:#181b1f!important}
 html[data-theme=dark] [style*="background:#F7F8FB"]{background:#161921!important}
 html[data-theme=dark] [style*="background:#F7F8FC"]{background:#151722!important}
@@ -1334,6 +1345,7 @@ html[data-theme=dark] [style*="color:#64748b"]{color:#9ea9b9!important}
 html[data-theme=dark] [style*="color:#666"]{color:#b5b5b5!important}
 html[data-theme=dark] [style*="color:#6B6B70"]{color:#afafb3!important}
 html[data-theme=dark] [style*="color:#6B7392"]{color:#9aa0b5!important}
+html[data-theme=dark] [style*="color:#6C6C70"]{color:#afafb2!important}
 html[data-theme=dark] [style*="color:#6D28D9"]{color:#ad86ea!important}
 html[data-theme=dark] [style*="color:#6b6879"]{color:#aba9b5!important}
 html[data-theme=dark] [style*="color:#6b6880"]{color:#a7a5b6!important}
