@@ -6693,6 +6693,7 @@ function viewCallCenter(){
   const list = S.orders.filter(o => o.channel!=="pos" && ccWeb(o) && (state.ccBrand ? o.brandId===state.ccBrand : brandFilter(o)) && bizDate(o.createdAt, o.branchId)===(state.ccDate || bizDate(new Date(), o.branchId)))   // one business date: once the branch ends its day, its orders leave the board
     .filter(o => state.ccBranch==="all" || o.branchId===state.ccBranch).filter(o => state.ccAgent==="all" || byUser(o, state.ccAgent))
     .sort((a,b)=> b.createdAt.localeCompare(a.createdAt));
+  if(window.V3 && V3.callCenter && V3.on()){ window.__v3state = state; window.__v3render = render; return V3.callCenter({ state, list, agents, ccRef, telFmt, ordTypeLbl, branchName, money, fltOn: !!((state.ccDate && state.ccDate!==bizDate()) || (state.ccBranch && state.ccBranch!=="all") || (state.ccAgent && state.ccAgent!=="all") || state.ccBrand), local: storeMode==="local" }); }
   let h = `<div class="phead"><h1>Call Center</h1><div class="sp"></div>
     ${fltBtn("data-ccflt", "cc", !!((state.ccDate && state.ccDate!==bizDate()) || (state.ccBranch && state.ccBranch!=="all") || (state.ccAgent && state.ccAgent!=="all") || state.ccBrand))}
     <button class="btn pri" id="ccNew">${svgIco("phone")} New Call Center Order</button></div>
