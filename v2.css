@@ -37,7 +37,7 @@
   html body.v2 #view#view .v2rows > .ttop,html body.v2 #view#view .v2rows > .crsrch{display:none!important}
   html body.v2 #view .v2rows .pager{padding:10px 16px!important;border:0!important}
   /* section column rows */
-  html body.v2 #view .v2sec h3{margin:16px 20px 4px;font-size:13px;font-weight:600;color:#6C6C70}
+  html body.v2 #view#view .v2sec h3{margin:16px 20px 4px!important;font-size:13px!important;line-height:18px!important;font-weight:600!important;color:#6C6C70!important}
   html body.v2 #view .v2sec .catl{position:static!important;padding:0!important}
   html body.v2 #view .v2secl{display:flex;flex-direction:column;gap:2px;padding:4px 0}
   html body.v2 #view .v2sec :is(.v2secl a,.catl a){display:flex!important;align-items:center!important;gap:12px!important;min-height:44px!important;padding:0 12px!important;margin:0 8px!important;border-radius:10px!important;font-size:17px!important;font-weight:400!important;color:#000!important;text-decoration:none!important;background:none!important;box-shadow:none!important;white-space:nowrap}
