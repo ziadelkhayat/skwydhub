@@ -1,6 +1,6 @@
 /* skwyd hub POS — keeps the register's files on the device so it opens without internet.
    Network first (always the latest version when online), cached copy when offline. */
-const CACHE = "skwyd-pos-v449";
+const CACHE = "skwyd-pos-v450";
 
 const FILES = [];   // the POS is only the Android app now (it carries its own files), so nothing is kept offline here
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
