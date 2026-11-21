@@ -1197,6 +1197,10 @@ html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.72)!importa
 @media (min-width:761px){
 html[data-theme=dark] body .scrim .modal.odrawer{background:#101420!important;box-shadow:0 20px 60px rgba(0,0,0,0.396)!important}
 }
+@media (min-width:600px){
+html[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])), html[data-theme=dark] :has(> label + select), html[data-theme=dark] :has(> label + .msel)):not(:has(textarea)) > label{color:#ededed!important}
+html[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.toggle, html[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .toggle{color:#ededed!important}
+}
 html[data-theme=dark] [style*="background:#30D158"]{background:#477552!important}
 html[data-theme=dark] [style*="background:#34C759"]{background:#487754!important}
 html[data-theme=dark] [style*="background:#99C9FF"]{background:#273441!important}

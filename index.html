@@ -3510,6 +3510,27 @@ html body .app #view .board{grid-template-columns:repeat(6,minmax(200px,1fr))!im
 html body .app #view .board .bcol > *:first-child{border-radius:16px!important;border:0!important}
 /* setting rows with a switch: the label on the left, the switch on the right */
 html body .app #view .card > label.toggle:only-child,html body .app #view .card > .toggle:first-child:last-child{display:flex!important;flex-direction:row-reverse;justify-content:space-between;width:100%;font-size:17px!important}
+/* windows: one column of grouped rows, the name on the left and the value on the right (design) */
+@media (min-width:600px){
+  html body .modal:not(.fltpanel):not(.odrawer) > .body:has(> .f){grid-template-columns:minmax(0,1fr)!important;gap:0!important;row-gap:0!important;column-gap:0!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f{border-radius:0!important;box-shadow:none!important;border-bottom:.5px solid rgba(60,60,67,.29);grid-column:auto!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:not(.f + .f){border-top-left-radius:16px!important;border-top-right-radius:16px!important;margin-top:10px}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:not(:has(+ .f)){border-bottom-left-radius:16px!important;border-bottom-right-radius:16px!important;border-bottom:0;margin-bottom:6px}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)){flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:4px 12px!important;min-height:50px;padding:4px 16px!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)) > label{flex:0 0 38%;font-size:17px!important;font-weight:400!important;color:#000!important;margin:0!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)) > :is(input,select,.msel){flex:1;min-width:0;text-align:right;text-align-last:right}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)) .msel-f{justify-content:flex-end!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)) .msel-v,html body .modal:not(.fltpanel):not(.odrawer) > .body > .f:is(:has(> label + input:not([type=checkbox]):not([type=radio]):not([type=file])),:has(> label + select),:has(> label + .msel)):not(:has(textarea)) .msel-ph{flex:1;text-align:right}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .note{flex-basis:100%;text-align:left}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .fsec{margin:14px 0 0!important;padding:0 16px!important}
+}
+html:root[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f{border-bottom-color:rgba(84,84,88,.65)}
+html:root[data-theme=dark] body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label{color:#fff!important}
+@media (min-width:600px){
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f .msel-f{background:transparent!important}
+  html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > label.toggle,html body .modal:not(.fltpanel):not(.odrawer) > .body > .f > .toggle{display:flex!important;flex-direction:row-reverse;justify-content:space-between;align-items:center;width:100%;font-size:17px!important;font-weight:400!important;color:#000!important}
+  html body .modal input::placeholder{color:#AEAEB2!important}
+}
 /* ==== Dark mode, Apple style (black page, #1C1C1E cards, #2C2C2E fields, system blue #0A84FF) ==== */
 html:root[data-theme=dark]{--bg:#000!important;--accent:#0A84FF!important;color-scheme:dark}
 html:root[data-theme=dark] body,html:root[data-theme=dark] body .app,html:root[data-theme=dark] body .app .main,html:root[data-theme=dark] body .app #view,html:root[data-theme=dark] body .app #view .ostick{background:#000!important;color:#fff!important}
@@ -13420,6 +13441,11 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   addEventListener("resize", close); document.addEventListener("scroll", e => { if(menu && !menu.contains(e.target)) close(); }, true);
   addEventListener("hashchange", close);
 })();
+</script>
+<script>/* window fields in rows: an empty field says Required or Optional, like iPhone Settings */
+(function(){ const fill = root => root.querySelectorAll(".modal:not(.fltpanel) > .body > .f > input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=date]):not([type=color]):not([placeholder])").forEach(i => {
+  const l = i.parentElement.querySelector(":scope > label"); i.placeholder = l && /\*/.test(l.textContent) ? "Required" : "Optional"; });
+  let t = 0; new MutationObserver(() => { if(t) return; t = setTimeout(() => { t = 0; fill(document); }, 30); }).observe(document.body, { childList:true, subtree:true }); })();
 </script>
 </body>
 </html>
