@@ -1036,6 +1036,54 @@ html[data-theme=dark] body .spill.s-out, html[data-theme=dark] body .spill.s-rev
 html[data-theme=dark] body .spill.s-closed{color:#c7c7cd!important}
 html[data-theme=dark] body .spill.s-declined, html[data-theme=dark] body .spill.s-void, html[data-theme=dark] body .spill.s-returned, html[data-theme=dark] body .spill.s-refund{color:#f47b87!important}
 html[data-theme=dark] body .app aside.side .nav .grp:has(a.on) > button{color:#7bb5f4!important}
+html[data-theme=dark] body{background:#1a1a22!important;color:#ededed}
+html[data-theme=dark] body .app, html[data-theme=dark] body .app .main{background:#1a1a22!important}
+html[data-theme=dark] body aside.side .nuhead h2{color:#ededed}
+html[data-theme=dark] body aside.side .nusearch{color:#afafb2}
+html[data-theme=dark] body aside.side .nusearch input{color:#ededed}
+html[data-theme=dark] body .app aside.side nav.nav .nsec{color:#afafb2}
+html[data-theme=dark] body .app aside.side nav.nav > a, html[data-theme=dark] body .app aside.side nav.nav .grp > button{color:#ededed!important}
+html[data-theme=dark] body .app aside.side nav.nav > a:hover, html[data-theme=dark] body .app aside.side nav.nav .grp > button:hover, html[data-theme=dark] body .app aside.side nav.nav .sub a:hover{color:#ededed!important}
+html[data-theme=dark] body .app aside.side nav.nav .grp:has(a.on) > button{color:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side nav.nav .sub a{color:#ededed!important}
+html[data-theme=dark] body .app aside.side nav.nav .sub .lbl{color:#afafb2!important}
+html[data-theme=dark] body .app aside.side nav.nav .nti{color:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side nav.nav .nti svg, html[data-theme=dark] body .app aside.side nav.nav > a > svg, html[data-theme=dark] body .app aside.side nav.nav .grp > button > svg{stroke:#7bb5f4!important;color:#7bb5f4!important}
+html[data-theme=dark] body aside.side .nuacct{color:#ededed}
+html[data-theme=dark] body aside.side .nuacct .av{background:linear-gradient(#354e59,#007AFF)}
+html[data-theme=dark] body aside.side .nuacct span.s{color:#afafb2}
+html[data-theme=dark] body .app #view .phead h1, html[data-theme=dark] body .app #view .dhead h1, html[data-theme=dark] body .app #view > h1{color:#ededed!important}
+html[data-theme=dark] body .app #view .card{background:#101420!important}
+html[data-theme=dark] body .app .btn:not(.pri):not(.danger), html[data-theme=dark] body .modal .btn:not(.pri):not(.danger), html[data-theme=dark] body .scrim .btn:not(.pri):not(.danger){color:#7bb5f4!important}
+html[data-theme=dark] body .app .btn.danger, html[data-theme=dark] body .modal .btn.danger{color:#f4817b!important}
+html[data-theme=dark] body .app #view .phead .btn:not(.pri){background:rgba(16,20,32,.8)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,0.132)!important;color:#ededed!important}
+html[data-theme=dark] body .app .ttabs:not(.rqtabs) a{color:#ededed!important}
+html[data-theme=dark] body .app .ttabs:not(.rqtabs) a.on{background:#101420!important;box-shadow:0 2px 6px rgba(0,0,0,0.22000000000000003)!important;color:#ededed!important}
+html[data-theme=dark] body .app #view input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), html[data-theme=dark] body .app #view select, html[data-theme=dark] body .app #view textarea, html[data-theme=dark] body .modal input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), html[data-theme=dark] body .modal select, html[data-theme=dark] body .modal textarea{color:#ededed!important}
+html[data-theme=dark] body .app #view .f > label, html[data-theme=dark] body .modal .f > label{color:#afafb2!important}
+html[data-theme=dark] body .app #view .note, html[data-theme=dark] body .modal .note{color:#afafb2!important}
+html[data-theme=dark] body .app #view .tbl{background:#101420!important}
+html[data-theme=dark] body .app #view .tbl th{color:#afafb2!important}
+html[data-theme=dark] body .toggle input:checked + .trk, html[data-theme=dark] body .toggle .trk.on{background:#487754!important}
+html[data-theme=dark] body .modal{background:#1a1a22!important;box-shadow:0 30px 80px rgba(0,0,0,0.55)!important}
+html[data-theme=dark] body .modal > header{background:rgba(26,26,34,.85)!important}
+html[data-theme=dark] body .modal > header .x{border:1px solid rgba(40,45,62,.9)!important;background:rgba(16,20,32,.85)!important;box-shadow:0 2px 10px rgba(0,0,0,0.17600000000000002)!important;color:#ededed!important}
+html[data-theme=dark] body .modal .body .fsec, html[data-theme=dark] body .modal h4.fsec{color:#afafb2!important}
+html[data-theme=dark] body .modal > footer, html[data-theme=dark] body .modal .mfoot{background:rgba(26,26,34,.9)!important}
+html[data-theme=dark] body .ddmenu, html[data-theme=dark] body .numenu{background:rgba(16,20,32,.82)!important;border:1px solid rgba(40,45,62,.95)!important;box-shadow:0 24px 60px rgba(0,0,0,0.396),0 2px 6px rgba(0,0,0,0.132)!important}
+html[data-theme=dark] body .ddmenu > a, html[data-theme=dark] body .ddmenu > button, html[data-theme=dark] body .ddmenu label{color:#ededed!important}
+html[data-theme=dark] body .numenu .nuopt{color:#ededed}
+html[data-theme=dark] body .numenu .nugrp{color:#afafb2}
+html[data-theme=dark] body #nav a svg.nls, html[data-theme=dark] body #nav a svg.nls *, html[data-theme=dark] body #nav .grp > button svg.nls, html[data-theme=dark] body #nav .grp > button svg.nls *{stroke:#7bb5f4!important;color:#7bb5f4!important}
+html[data-theme=dark] body .app #view .empty{color:#afafb2!important}
+html[data-theme=dark] body .msel-f{color:#ededed!important}
+html[data-theme=dark] body .phead .msel-f, html[data-theme=dark] body .app #view .phead .msel-f{background:rgba(16,20,32,.8)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 4px 16px rgba(0,0,0,0.132)!important}
+html[data-theme=dark] body .msel-ph{color:#afafb2!important}
+html[data-theme=dark] body .msel-k{color:#afafb2!important}
+html[data-theme=dark] body .msel-c{color:#7bb5f4!important}
+html[data-theme=dark] body .msel-p{background:rgba(16,20,32,.82)!important;border:1px solid rgba(40,45,62,.95)!important;box-shadow:0 24px 60px rgba(0,0,0,0.396),0 2px 6px rgba(0,0,0,0.132)!important}
+html[data-theme=dark] body .msel-o{color:#ededed!important}
+html[data-theme=dark] body .msel-o.on, html[data-theme=dark] body .msel .msel-o:has(input:checked){color:#ededed!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1103,6 +1151,9 @@ html[data-theme=dark] body .app .main .top .menuBtn{background:#1a1a22}
 @media (hover:hover){
 html[data-theme=dark] body .btn.danger:not(:disabled):hover, html[data-theme=dark] body .modal .btn.danger:not(:disabled):hover, html[data-theme=dark] body .scrim .btn.danger:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.35200000000000004)!important}
 html[data-theme=dark] body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.35200000000000004)!important}
+}
+@media (min-width:1181px){
+html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.72)!important;border:1px solid rgba(40,45,62,.9)!important;box-shadow:0 10px 40px rgba(0,0,0,0.17600000000000002),0 1px 2px rgba(0,0,0,0.11000000000000001)!important}
 }
 html[data-theme=dark] [style*="background:#34C759"]{background:#487754!important}
 html[data-theme=dark] [style*="background:#99C9FF"]{background:#273441!important}
