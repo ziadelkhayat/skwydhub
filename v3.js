@@ -44,7 +44,7 @@ ${tile(TYI(o.type), c)}<div style="flex:1;min-width:0"><div style="display:flex;
       const segs = MAIN.map(segBtn).join("");
       const moreMenu = `<span class="ddwrap v3omore" style="position:relative">${gbtn("more", "More order lists", 'data-v3om')}<span class="ddmenu v3omenu" hidden>${EXTRA.map(([k, t]) => `<a href="#orders" data-otab="${k}">${e(t)}</a>`).join("")}</span></span>`;
       const flt0 = C.fltBtn ? C.fltBtn("data-ordflt", "orders", !!(C.ORD.channel || C.ORD.type || C.ORD.pay || C.ORD.source || C.ORD.branch || C.ORD.brand), [C.ORD.channel, C.ORD.type, C.ORD.pay, C.ORD.source, C.ORD.branch, C.ORD.brand].filter(Boolean).length) : "";
-      const flt = String(flt0 || "").replace(/<svg[\s\S]*?<\/svg>/, ic("filter", 20, "currentColor", 2));
+      const fn = (String(flt0 || "").match(/class="fcount">(\d+)</) || [])[1]; const flt = `<button type="button" class="v3g v3fltb" data-ordflt="orders" data-fattr="data-ordflt" aria-label="Filter" title="Filter" style="width:40px;height:40px;border-radius:999px;border:0;background:${fn ? "rgba(10,102,216,.14)" : "rgba(118,118,128,.12)"};display:grid;place-items:center;cursor:pointer;color:${fn ? T : "#000"};padding:0;position:relative">${ic("filter", 20, "currentColor", 2)}${fn ? `<span style="position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:${TF};color:#fff;font-size:11px;font-weight:600;line-height:18px;text-align:center">${fn}</span>` : ""}</button>`;
       const pages = Math.max(1, Math.ceil(C.ORD.count / C.ORD.per));
       const chipsRow = `<div style="display:flex;gap:6px;padding:0 16px 8px;flex-wrap:wrap">
 <select class="v3sel" id="ordBrand" aria-label="Brand"><option value="">All Brands</option>${C.brandList().map(b => `<option value="${e(b.id)}" ${C.ORD.brand === b.id ? "selected" : ""}>${e(b.name)}</option>`).join("")}</select>
@@ -71,7 +71,15 @@ ${chipsRow}<div>${list}</div>
       tot.push(row("Total", C.money(+o.total || 0), { bold: true, vcol: "#000" }));
       const cus = []; if (o.customerName || o.phone) cus.push(row(o.customerName || "Customer", null, { icon: "people", icolor: TEAL, sub: o.phone ? C.telFmt(o.phone) : null, chev: true }));
       if (o.address) cus.push(row(typeof o.address === "string" ? o.address : [o.address.area, o.address.street, o.address.building].filter(Boolean).join(", "), null, { icon: "pin", icolor: RED, sub: o.address.extra || null }));
-      if (o.driverName) cus.push(row("Driver: " + o.driverName, null, { icon: "truck", icolor: ORANGE, sub: o.dispatchedAt ? "On the road since " + new Date(o.dispatchedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "Assigned", chev: true }));
+      if (o.type === "delivery") {
+        const du = o.driverId && C.S && (C.S.users || []).find(u => u.id === o.driverId || u.uid === o.driverId);
+        const tm2 = t => t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "";
+        const dn = o.driverName || (du && du.name) || "";
+        const bits = [o.driverAssignedAt ? "Assigned " + tm2(o.driverAssignedAt) : "", o.dispatchedAt ? "On the road since " + tm2(o.dispatchedAt) : "", du && du.phone ? C.telFmt(du.phone) : ""].filter(Boolean).join(" · ");
+        if (dn) { const st = { assigned: "Assigned", accepted: "Accepted", picked: "Picked Up", delivered: "Delivered", declined: "Declined" }[o.driverStatus] || (o.dispatchedAt ? "On the road" : "Assigned");
+          window.__v3drv = [row("Name", dn), row("Phone", du && du.phone ? C.telFmt(du.phone) : "—", { vcol: du && du.phone ? T : null }), row("Status", st), row("Assigned", o.driverAssignedAt ? tm2(o.driverAssignedAt) : "—"), row("On the road", o.dispatchedAt ? tm2(o.dispatchedAt) : "—"), row("Delivered", o.doneAt && o.status === "closed" ? tm2(o.doneAt) : "—")]; } else window.__v3drv = null;
+        cus.push(dn ? row("Driver: " + dn, null, { icon: "truck", icolor: ORANGE, sub: bits || "Assigned", chev: true }) : row("No driver yet", null, { icon: "truck", icolor: "#8E8E93", sub: "The store assigns a driver from the POS" }));
+      }
       const det = [row("Store", bname || "—"), row("Channel", C.salesChName ? C.salesChName(o.channel) : o.channel), row("Created", o.createdAt ? new Date(o.createdAt).dmy(true) : "—"), row("Payment", o.payment ? (C.PAY_LBL[o.payment.method] || o.payment.method) : "—")];
       if (o.invoiceNo) det.unshift(row("Check Number", C.invNo ? C.invNo(o.invoiceNo) : o.invoiceNo));
       const tm = t => t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "—";
@@ -83,7 +91,7 @@ ${chipsRow}<div>${list}</div>
 <div style="padding:0 20px 12px"><div style="display:flex;align-items:center;gap:10px"><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.8px">${e(o.ref || "")}</h1>${chip(C.ORD_ST[o.status] || o.status, c, c + "1A")}</div><div style="font-size:15px;color:${L2};margin-top:2px">${e(C.ordTypeLbl(o.type))}${bname ? " · " + e(bname) : ""}${o.createdAt ? " · " + e(ago(o.createdAt)) + " ago" : ""}</div></div>
 <div style="display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);padding:0 4px">
 <div style="display:flex;flex-direction:column;gap:18px">${lines.length ? group(lines, "Items") : ""}${group(tot)}</div>
-<div style="display:flex;flex-direction:column;gap:18px">${cus.length ? group(cus, "Customer") : ""}<div style="margin:0 16px"><div style="padding:0 16px 7px;font-size:13px;color:${L2};text-transform:uppercase;letter-spacing:.2px">Progress</div><div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">${prog}</div></div></div></div>`;
+<div style="display:flex;flex-direction:column;gap:18px">${cus.length ? group(cus, "Customer") : ""}${o.type === "delivery" && window.__v3drv ? group(window.__v3drv, "Driver") : ""}<div style="margin:0 16px"><div style="padding:0 16px 7px;font-size:13px;color:${L2};text-transform:uppercase;letter-spacing:.2px">Progress</div><div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">${prog}</div></div></div></div>`;
     }
   };
   // open order: draw it in the detail column (the old sheet stays available under "More Details")
