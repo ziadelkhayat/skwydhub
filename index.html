@@ -6007,7 +6007,7 @@ function crudView(key){
   if(CRUD[dk].detail && DET.key===dk && DET.id){ const r = S[CRUD[dk].col].find(x=>x.id===DET.id);
     if(r){ const det = CRUD[dk].detail(r);
       // iPad and computer: the list stays on the left, the open record on the right (iOS split view)
-      if(innerWidth >= 1100 && !DET.edit){ const k = DET.key, id = DET.id, c0 = crudView._cat; let lst = ""; DET.key = ""; DET.id = ""; crudView._cat = 1; try{ lst = crudView(key); }catch(_){ lst = ""; } finally{ DET.key = k; DET.id = id; crudView._cat = c0; }
+      if(innerWidth >= 1100 && !DET.edit){ const k = DET.key, id = DET.id, c0 = crudView._cat; let lst = ""; DET.key = ""; DET.id = ""; crudView._cat = key==="products" ? 0 : 1; try{ lst = crudView(key); }catch(_){ lst = ""; } finally{ DET.key = k; DET.id = id; crudView._cat = c0; }
         if(lst) return `<div class="splitv" data-split="${esc(id)}"><section class="splitl" aria-label="List">${lst}</section><section class="splitr" aria-label="Details">${det}</section></div>`; }
       return det; }
     closeDetail(); }

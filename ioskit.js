@@ -188,7 +188,8 @@
           if (!first && tx && !c.classList.contains("bkc") && !c.classList.contains("grc") && !c.hasAttribute("colspan")) first = c;
           if (tx && /^(USD|LBP|\$)?\s?-?[\d.,]+\s?(USD|LBP|%)?$/.test(tx)) last = c;
         });
-        [...r.cells].forEach(c => { c.classList.toggle("ios-t1", c === first); c.classList.toggle("ios-num", c === last && c !== first); });
+        let sub = null; [...r.cells].forEach(c => { c.classList.toggle("ios-t1", c === first); c.classList.toggle("ios-num", c === last && c !== first); if (!sub && c !== first && c !== last && !c.classList.contains("bkc") && !c.classList.contains("grc") && !c.classList.contains("ios-empty") && !c.hasAttribute("colspan") && c.textContent.trim()) sub = c; });
+        [...r.cells].forEach(c => c.classList.toggle("ios-sub", c === sub));
       });
     });
   }
