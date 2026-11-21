@@ -230,3 +230,12 @@ html body #view#view .v3l1 b{font-weight:600!important}
 }
 
 @media (min-width:1100px){ html body.v2 #view#view > .v3 :is(.v3p,.v3g,button,a){text-transform:none!important} }
+/* one font everywhere, the same as the design file */
+html body.v2,html body.v2 :is(button,input,select,textarea){font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif!important}
+html body.v2{letter-spacing:-.2px}
+@media (min-width:1100px){
+  html body.v2 aside.side.side{padding:0!important}
+  html body.v2 aside.side > .v3side input.v3sq{font-size:17px!important;height:auto!important;min-height:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+  html body.v2 aside.side > .v3side input.v3sq::placeholder{color:#6C6C70!important}
+  html body.v2 aside.side > .v3side > div:first-child > div:first-child{line-height:36px}
+}
