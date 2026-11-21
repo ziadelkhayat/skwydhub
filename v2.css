@@ -251,3 +251,8 @@ html body .app #view.hasset#view > .v3{margin-left:0!important}
   html body.v2 #view .v3rhead .v3omenu[hidden]{display:none}
   html body.v2 #view .v3rhead .v3omenu a{padding:12px 16px;font-size:17px;color:#000;text-decoration:none}
 }
+@media (min-width:1100px){
+  html body.v2 #view#view .v2sec .catl a.catp{justify-content:flex-start!important}
+  html body.v2 #view#view .v2sec .catl a.catp > span:not(.v3rt){flex:1;text-align:left}
+  html body.v2 #view#view .v3rt svg,html body.v2 #view#view .v3rt svg *{stroke:#fff!important;color:#fff!important}
+}
