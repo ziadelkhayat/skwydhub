@@ -730,6 +730,7 @@ html:root[data-theme=dark] body #root .btn.pri,html:root[data-theme=dark] body #
 html:root[data-theme=dark] body #dlg h3,html:root[data-theme=dark] body #dlg h4,html:root[data-theme=dark] body #dlg .body > b,html:root[data-theme=dark] body #dlg .sec{color:#8E8E93!important}
 </style>
 <link rel="stylesheet" href="ioskit.css?v=5">
+<link rel="stylesheet" href="v2.css?v=1">
 </head>
 <body>
 <div id="root"></div>
@@ -1330,5 +1331,6 @@ document.addEventListener("click", e => { if(!e.target.closest?.("aside [data-vi
   let t = 0; new MutationObserver(() => { if(t) return; t = setTimeout(() => { t = 0; fill(); }, 30); }).observe(document.body, { childList:true, subtree:true }); })();
 </script>
 <script src="ioskit.js?v=5" data-app="admin"></script>
+<script src="v2.js?v=1"></script>
 </body>
 </html>
