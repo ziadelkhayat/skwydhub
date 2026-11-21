@@ -71,22 +71,25 @@ ${chipsRow}<div>${list}</div>
       tot.push(row("Total", C.money(+o.total || 0), { bold: true, vcol: "#000" }));
       const cus = []; if (o.customerName || o.phone) cus.push(row(o.customerName || "Customer", null, { icon: "people", icolor: TEAL, sub: o.phone ? C.telFmt(o.phone) : null, chev: true }));
       if (o.address) cus.push(row(typeof o.address === "string" ? o.address : [o.address.area, o.address.street, o.address.building].filter(Boolean).join(", "), null, { icon: "pin", icolor: RED, sub: o.address.extra || null }));
+      if (o.driverName) cus.push(row("Driver: " + o.driverName, null, { icon: "truck", icolor: ORANGE, sub: o.dispatchedAt ? "On the road since " + new Date(o.dispatchedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "Assigned", chev: true }));
       const det = [row("Store", bname || "—"), row("Channel", C.salesChName ? C.salesChName(o.channel) : o.channel), row("Created", o.createdAt ? new Date(o.createdAt).dmy(true) : "—"), row("Payment", o.payment ? (C.PAY_LBL[o.payment.method] || o.payment.method) : "—")];
       if (o.invoiceNo) det.unshift(row("Check Number", C.invNo ? C.invNo(o.invoiceNo) : o.invoiceNo));
       const tm = t => t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "—";
-      const steps = [["Placed", o.createdAt], ["Accepted", o.acceptedAt]].concat(o.type === "delivery" ? [["On the road", o.dispatchedAt], [o.status === "declined" ? "Declined" : "Delivered", o.doneAt]] : [[o.status === "declined" ? "Declined" : "Done", o.doneAt]]);
+      const steps = [["Placed", o.createdAt], ["Accepted by " + (bname || "the store"), o.acceptedAt], ["Preparing", o.acceptedAt && o.status === "active" ? o.acceptedAt : (o.doneAt || o.dispatchedAt ? o.acceptedAt : null)]].concat(o.type === "delivery" ? [["On the road", o.dispatchedAt], [o.status === "declined" ? "Declined" : "Delivered", o.doneAt]] : [[o.status === "declined" ? "Declined" : "Done", o.doneAt]]);
       const lastDone = steps.reduce((n, s, i) => s[1] ? i : n, -1);
       const prog = steps.map(([t, at], i) => `<div style="display:flex;gap:10px;align-items:center;font-size:15px"><span style="width:10px;height:10px;border-radius:50%;background:${at ? (i === lastDone && o.status !== "closed" ? TF : GREEN) : "#C7C7CC"}"></span><span style="flex:1">${e(t)}</span><span style="color:${L2}">${tm(at)}</span></div>`).join("");
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px">${pill("Print", false, "printer", "data-oprint")}<div style="display:flex;gap:8px">${gbtn("more", "More details", "data-v3more")}${gbtn("x", "Close order", "data-v3close")}</div></div>
+      const canRoad = o.type === "delivery" && o.status === "active" && !o.dispatchedAt;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px">${pill("Print", false, "printer", "data-oprint")}<div style="display:flex;gap:8px">${gbtn("edit", "Edit", "data-v3more")}${gbtn("more", "More", "data-v3more")}${canRoad ? pill("Mark On the Road", true, "truck", `data-v3road="${e(o.id)}"`) : ""}</div></div>
 <div style="padding:0 20px 12px"><div style="display:flex;align-items:center;gap:10px"><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.8px">${e(o.ref || "")}</h1>${chip(C.ORD_ST[o.status] || o.status, c, c + "1A")}</div><div style="font-size:15px;color:${L2};margin-top:2px">${e(C.ordTypeLbl(o.type))}${bname ? " · " + e(bname) : ""}${o.createdAt ? " · " + e(ago(o.createdAt)) + " ago" : ""}</div></div>
 <div style="display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);padding:0 4px">
 <div style="display:flex;flex-direction:column;gap:18px">${lines.length ? group(lines, "Items") : ""}${group(tot)}</div>
-<div style="display:flex;flex-direction:column;gap:18px">${cus.length ? group(cus, "Customer") : ""}<div style="margin:0 16px"><div style="padding:0 16px 7px;font-size:13px;color:${L2};text-transform:uppercase;letter-spacing:.2px">Progress</div><div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">${prog}</div></div>${group(det, "Details")}</div></div>`;
+<div style="display:flex;flex-direction:column;gap:18px">${cus.length ? group(cus, "Customer") : ""}<div style="margin:0 16px"><div style="padding:0 16px 7px;font-size:13px;color:${L2};text-transform:uppercase;letter-spacing:.2px">Progress</div><div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">${prog}</div></div></div></div>`;
     }
   };
   // open order: draw it in the detail column (the old sheet stays available under "More Details")
   document.addEventListener("click", ev => {
     const oa = ev.target.closest("#view .v3 a[data-oid]"); if (oa) { ev.preventDefault(); ev.stopPropagation(); C.ORD.open = oa.dataset.oid; Promise.resolve(C.openOrderDetail(oa.dataset.oid)).then(() => { document.documentElement.classList.remove("v3showsheet"); C.render(); }); return; }
+    const rd = ev.target.closest("[data-v3road]"); if (rd) { ev.preventDefault(); const id = rd.dataset.v3road; Promise.resolve(C.askDlg ? C.askDlg({ title: "Mark On the Road?", msg: "The store will see this order as on the road.", yes: "On the Road", no: "Cancel" }) : true).then(async ok => { if (!ok) return; rd.disabled = true; const at = new Date().toISOString(); const { error } = await WOK.sb.from("orders").update({ dispatched_at: at }).eq("id", id); if (error) { rd.disabled = false; return C.toast ? C.toast("Couldn't update the order.") : null; } if (window.__ordOpen && window.__ordOpen.id === id) window.__ordOpen.dispatchedAt = at; C.toastOk && C.toastOk("Order on the road"); C.render(); }); return; }
     if (ev.target.closest("[data-v3close]")) { ev.preventDefault(); C.ORD.open = null; window.__ordOpen = null; $$scrimHide(); C.render(); }
     const om = ev.target.closest("[data-v3om]"); if (om) { ev.preventDefault(); const m = om.parentElement.querySelector(".v3omenu"); m.hidden = !m.hidden; return; } else document.querySelectorAll(".v3omenu").forEach(m => m.hidden = true);
     if (ev.target.closest("[data-v3more]")) { ev.preventDefault(); document.documentElement.classList.add("v3showsheet"); document.getElementById("ccScrim")?.classList.add("show"); }
@@ -143,4 +146,58 @@ ${more ? `<div style="padding:16px 24px 4px;font-size:13px;font-weight:600;color
     if (openId) { const r = S.products.find(x => x.id === openId); if (r) det = `<div class="v3det">${cfg.detail(r)}</div>`; }
     return `<div class="v3" style="display:flex;height:100vh">${sec}${lst}<main class="v3col" style="flex:1;min-width:0;overflow:auto;height:100vh;padding:10px 16px 40px;box-sizing:border-box">${det}</main></div>`;
   };
+})();
+// ---------- the sidebar, drawn exactly as in the design file (same icons, sizes and sections); each row clicks the app's own link
+(function () {
+  const I = {
+    home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>', bag: '<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>',
+    people: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.8M17.5 19a5 5 0 0 0-2.2-4.1"/>',
+    chart: '<path d="M5 20V10M12 20V4M19 20v-7"/>', megaphone: '<path d="M4 10v4h3l8 4V6L7 10H4z"/><path d="M18 9a4 4 0 0 1 0 6"/>',
+    fork: '<path d="M7 3v8a2 2 0 0 0 4 0V3M9 11v10M16 3c-2 2-2 6 0 8v10"/>', box: '<path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+    badge: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="10" cy="11" r="2"/><path d="M7 16a3 3 0 0 1 6 0M15 10h3M15 13h3"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+    store: '<path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5 11v9h14v-9"/>',
+    search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>', more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'
+  };
+  const svg = (n, s, c, w) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+  const SECS = [["Today", [["Summary", "home", /^Summary|^Dashboard/], ["Orders", "bag", /^Orders/], ["Call Center", "phone", /^Call Center/]]],
+    ["Sales", [["Customers", "people", /^Customers/], ["Reports", "chart", /^Reports/], ["Marketing", "megaphone", /^Marketing/]]],
+    ["Menu & Stock", [["Catalog", "fork", /^Catalog/], ["Inventory", "box", /^Inventory/], ["Web Ordering", "globe", /^Web Ordering/]]],
+    ["Business", [["Employees", "badge", /^Employee/], ["Manage", "gear", /^Manage/], ["Marketplace", "store", /^Marketplace/]]]];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function topItems(side) {   // the app's own top-level rows: links and group buttons, with their labels
+    const out = []; side.querySelectorAll("nav > a, nav .grp").forEach(el => {
+      if (el.matches(".grp")) { const b = el.querySelector(":scope > button, :scope > a"); const kid = el.querySelector("a[href]"); out.push({ label: (b || el).textContent.replace(/\s+/g, " ").trim(), el: kid || b, on: !!el.querySelector("a.on") || el.classList.contains("on") }); }
+      else out.push({ label: el.textContent.replace(/\s+/g, " ").trim(), el, on: el.classList.contains("on") });
+    }); return out;
+  }
+  function draw() {
+    const side = document.querySelector("aside.side"); if (!side || innerWidth < 1100) return;
+    const items = topItems(side); if (!items.length) return;
+    const biz = ((side.querySelector(".cocard b, .nuacct b") || {}).textContent || "").trim();
+    const who = ((document.getElementById("who") || document.getElementById("amName") || {}).textContent || "").trim();
+    const role = ((document.getElementById("amRole") || {}).textContent || "").trim();
+    let html = `<div style="padding:18px 16px 8px"><div style="font-size:30px;font-weight:700;letter-spacing:-.6px">Skwyd</div><div style="font-size:13px;color:#6C6C70;margin-top:1px">${esc(biz)}</div></div>
+<div style="padding:4px 12px 10px"><label style="display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:10px;background:rgba(118,118,128,.12);color:#6C6C70;font-size:17px">${svg("search", 17, "#6C6C70", 2)}<input type="search" class="v3sq" placeholder="Search" aria-label="Search the menu" style="border:0;background:transparent;outline:none;font:inherit;font-size:17px;color:#000;flex:1;min-width:0"></label></div>`;
+    SECS.forEach(([sec, rows]) => {
+      const got = rows.map(([lab, icon, re]) => { const it = items.find(x => re.test(x.label)); return it ? [lab, icon, it] : null; }).filter(Boolean);
+      if (!got.length) return;
+      html += `<div style="padding:12px 20px 4px;font-size:13px;font-weight:600;color:#6C6C70">${esc(sec)}</div>`;
+      got.forEach(([lab, icon, it], i) => { const on = it.on; html += `<a href="${esc(it.el.getAttribute("href") || "#")}" data-v3nav="${esc(lab)}" class="${on ? "v3on" : ""}" style="margin:1px 10px;height:40px;padding:0 10px;border-radius:10px;display:flex;align-items:center;gap:12px;background:${on ? "#0A66D8" : "transparent"};color:${on ? "#FFFFFF" : "#000"};text-decoration:none;font-size:17px;font-weight:${on ? 600 : 400}">${svg(icon, 22, on ? "#FFFFFF" : "#0066D6", 1.8)}<span>${esc(lab)}</span></a>`; });
+    });
+    const ini = (who || biz || "?").split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    html += `<button type="button" class="v3me" style="position:absolute;left:12px;right:12px;bottom:12px;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;border:0;background:rgba(118,118,128,.1);font:inherit;text-align:left;cursor:pointer;color:#000"><span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(#8E8E93,#636366);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:600;flex:none">${esc(ini)}</span><span style="flex:1;min-width:0"><span style="display:block;font-size:15px;font-weight:600">${esc(who)}</span><span style="display:block;font-size:12px;color:#6C6C70">${esc(role.split("·")[0].trim())}${role ? " · " : ""}All Stores</span></span>${svg("more", 20, "#6C6C70", 2)}</button>`;
+    let box = side.querySelector(":scope > .v3side"); if (!box) { box = document.createElement("div"); box.className = "v3side"; side.prepend(box); }
+    if (box._h !== html) { box._h = html; box.innerHTML = html; }
+  }
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest(".v3side a[data-v3nav]"); if (a) { ev.preventDefault(); const it = topItems(document.querySelector("aside.side")).find(x => x.label.startsWith(a.dataset.v3nav) || (a.dataset.v3nav === "Summary" && /^Dashboard|^Summary/.test(x.label)) || (a.dataset.v3nav === "Employees" && /^Employee/.test(x.label))); if (it) it.el.click(); setTimeout(draw, 60); return; }
+    if (ev.target.closest(".v3side .v3me")) { ev.preventDefault(); ev.stopPropagation(); document.getElementById("acctBtn")?.click(); }
+  });
+  document.addEventListener("input", ev => { if (!ev.target.matches(".v3sq")) return; const q = ev.target.value.toLowerCase(); document.querySelectorAll(".v3side a[data-v3nav]").forEach(a => a.style.display = !q || a.textContent.toLowerCase().includes(q) ? "flex" : "none"); });
+  const go = () => { draw(); const s = document.querySelector("aside.side"); if (s) new MutationObserver(() => { clearTimeout(go.t); go.t = setTimeout(draw, 40); }).observe(s, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] }); else setTimeout(go, 300); };
+  addEventListener("resize", draw); addEventListener("popstate", () => setTimeout(draw, 60)); addEventListener("hashchange", () => setTimeout(draw, 60));
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
 })();
