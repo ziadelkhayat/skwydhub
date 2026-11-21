@@ -2,10 +2,10 @@
 html[data-theme=dark] .drp{background:var(--surface,#101420);box-shadow:0 18px 44px rgba(0,0,0,0.396)}
 html[data-theme=dark] .drp .dq{background:#171e1e}
 html[data-theme=dark] .drp .dq button{color:#a9baed}
-html[data-theme=dark] .drp .dq button:hover{background:#181e27}
+html[data-theme=dark] .drp .dq button:hover{background:#181f27}
 html[data-theme=dark] .drp .dh button{background:#101420}
-html[data-theme=dark] .drp .dh button:hover:not(:disabled){background:#181e27;border-color:#243054}
-html[data-theme=dark] .drp .dd:hover:not(:disabled)::after{background:#181e27}
+html[data-theme=dark] .drp .dh button:hover:not(:disabled){background:#181f27;border-color:#243054}
+html[data-theme=dark] .drp .dd:hover:not(:disabled)::after{background:#181f27}
 html[data-theme=dark] .drp .dd.in{background:#171b26}
 html[data-theme=dark] .drp .dd.ed.st{background:linear-gradient(90deg,transparent 50%,#171b26 50%)}
 html[data-theme=dark] .drp .dd.ed.en{background:linear-gradient(90deg,#171b26 50%,transparent 50%)}
@@ -20,7 +20,7 @@ html[data-theme=dark] .dsec h3{color:var(--mut,#9a99a4)}
 html[data-theme=dark] .nrow{border-bottom:1px dashed var(--line,#2d3445)}
 html[data-theme=dark] .nrow i{color:var(--mut,#9a99a4)}
 html[data-theme=dark] .algs .multi label.chk{border:1px solid var(--line,#2d3445)}
-html[data-theme=dark] .algs .multi label.chk:has(input:checked){background:var(--accent-soft,#181b27);border-color:#242f54;color:var(--accent-ink,#87b7f5)}
+html[data-theme=dark] .algs .multi label.chk:has(input:checked){background:var(--accent-soft,#181b27);border-color:#242f54;color:var(--accent-ink,#7bb5f4)}
 html[data-theme=dark] tr.click:hover td{background:#171e1e}
 html[data-theme=dark] .lnk{color:#88a6e7}
 html[data-theme=dark] .bempty{background:#1e1e24}
@@ -104,7 +104,7 @@ html[data-theme=dark] .bswrap .bsnav a{color:#bdc5d2}
 html[data-theme=dark] .bswrap .bsnav a:hover{background:#151a23}
 html[data-theme=dark] .bswrap .bsnav a.on{background:#171b26!important;color:#b5c1eb!important}
 html[data-theme=dark] .bswrap .bsbody h3{color:#b5c1eb}
-html[data-theme=dark] .apic{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .apic{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .apcard p{color:#b4bcc6}
 html[data-theme=dark] .kbav{border:2px solid #282d3e}
 html[data-theme=dark] .kbst.pb{background:#18291f;color:#86f2b5}
@@ -113,10 +113,10 @@ html[data-theme=dark] .kbst.ar{background:#181c24;color:#a5aab4}
 html[data-theme=dark] .kbpill{background:#181c24;color:#a5aab4}
 html[data-theme=dark] .kbpill.b{background:#172027;color:#8bd0f6}
 html[data-theme=dark] .kbrowc:hover td{background:#141820}
-html[data-theme=dark] .kbib:hover{background:#181c24;color:#7bb0f4}
+html[data-theme=dark] .kbib:hover{background:#181c24;color:#7bb5f4}
 html[data-theme=dark] .kbdet>aside{border-right:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .kbov{background:#101420;color:#b5c1eb}
-html[data-theme=dark] .kbov.on{background:#181e27}
+html[data-theme=dark] .kbov.on{background:#181f27}
 html[data-theme=dark] .kbtn:hover{background:#151a23}
 html[data-theme=dark] .kbtn.on{background:#171b26}
 html[data-theme=dark] .kbrh{border-bottom:1px solid var(--line,#2d3445)}
@@ -133,7 +133,7 @@ html[data-theme=dark] .kbmenu{background:#101420;border:1px solid var(--line,#2d
 html[data-theme=dark] .kbmenu button:hover{background:#151a23}
 html[data-theme=dark] .kbrowi{border:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .kbrowi:hover{background:#141820}
-html[data-theme=dark] .kbrowi>.ico{color:#7bb0f4}
+html[data-theme=dark] .kbrowi>.ico{color:#7bb5f4}
 html[data-theme=dark] .kbempt{color:#b4bcc6}
 html[data-theme=dark] .kbtiles button{color:#bdc5d2}
 html[data-theme=dark] .kbtiles button .ico{background:#101420}
@@ -153,27 +153,27 @@ html[data-theme=dark] .kbstp span{border:2px solid #373e4c}
 html[data-theme=dark] .kbstp.on span{color:#b5c1eb}
 html[data-theme=dark] .kbstp.on small, html[data-theme=dark] .kbstp.done small{color:#b5c1eb}
 html[data-theme=dark] .kbln{background:#2b2d33}
-html[data-theme=dark] body .ttabs.rqtabs a.on{color:var(--accent,#7bb0f4)!important}
+html[data-theme=dark] body .ttabs.rqtabs a.on{color:var(--accent,#7bb5f4)!important}
 html[data-theme=dark] .schg th:first-child, html[data-theme=dark] .schg td:first-child{background:var(--card,#101420)}
 html[data-theme=dark] .schg thead th{background:var(--bg2,#161621)}
-html[data-theme=dark] .schg td.cell:hover:empty::after, html[data-theme=dark] .schg td.cell .add{color:#7bb0f4}
-html[data-theme=dark] .shc.draft{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .schg td.cell:hover:empty::after, html[data-theme=dark] .schg td.cell .add{color:#7bb5f4}
+html[data-theme=dark] .shc.draft{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .schg tr.open td.emp b{color:#f5b17e}
-html[data-theme=dark] .schleg i.d{background:#181e27}
+html[data-theme=dark] .schleg i.d{background:#181f27}
 html[data-theme=dark] .schleg i.c{background:#101420}
 html[data-theme=dark] .shpre button{background:var(--card,#101420)}
-html[data-theme=dark] .shpre button:hover{color:#7bb0f4}
+html[data-theme=dark] .shpre button:hover{color:#7bb5f4}
 html[data-theme=dark] .fz{background:#101420}
-html[data-theme=dark] .fz:hover, html[data-theme=dark] .fz:focus-visible, html[data-theme=dark] .fz.drag{background:#181e27}
-html[data-theme=dark] .fz .fzi{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .fz:hover, html[data-theme=dark] .fz:focus-visible, html[data-theme=dark] .fz.drag{background:#181f27}
+html[data-theme=dark] .fz .fzi{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .fz p{color:var(--ink,#d5d3e2)}
-html[data-theme=dark] .fz p u{color:#7bb0f4}
+html[data-theme=dark] .fz p u{color:#7bb5f4}
 html[data-theme=dark] .fz small{color:var(--muted,#9996a6)}
 html[data-theme=dark] .fzc{border:1px solid var(--line,#312e47);background:#101420}
-html[data-theme=dark] .fzc .fzt{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .fzc .fzt{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .fzc .fzt.pdf{background:#251717;color:#ee8981}
 html[data-theme=dark] .fzc .fzn small{color:var(--muted,#9996a6)}
-html[data-theme=dark] .fzc button{color:#7bb0f4}
+html[data-theme=dark] .fzc button{color:#7bb5f4}
 html[data-theme=dark] .fzc button.fzx{color:var(--muted,#9996a6)}
 html[data-theme=dark] .fzerr{color:#ee8981}
 html[data-theme=dark] .imgpick:hover, html[data-theme=dark] .imgpick.drag{background:#151923!important}
@@ -185,10 +185,10 @@ html[data-theme=dark] .cins{background:var(--bg,#171a1f)}
 html[data-theme=dark] .cins-g div{background:#101420}
 html[data-theme=dark] .spill.s-refund{background:#271717;color:#f5879a}
 html[data-theme=dark] .ptabs a:hover{background:var(--bg,#191b22)}
-html[data-theme=dark] .ptabs a.on{background:#181b27;color:#7bb0f4;border-color:#253156}
+html[data-theme=dark] .ptabs a.on{background:#181b27;color:#7bb5f4;border-color:#253156}
 html[data-theme=dark] .mlist{color:#adacb4}
 html[data-theme=dark] .tblc{border:1px solid var(--line,#2e2e46);background:#131720}
-html[data-theme=dark] .tbn:hover{color:#7bb0f4}
+html[data-theme=dark] .tbn:hover{color:#7bb5f4}
 html[data-theme=dark] .tblc{border:1px solid var(--line,#2e2e46)}
 html[data-theme=dark] .rsn{border-bottom:1px solid var(--line,#353047)}
 html[data-theme=dark] .rcard:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22000000000000003)}
@@ -197,7 +197,7 @@ html[data-theme=dark] .cflt{background:#161920}
 html[data-theme=dark] .ddmenu{background:#101420;box-shadow:0 8px 24px rgba(0,0,0,0.264)}
 html[data-theme=dark] .ddmenu button:hover{background:#191c23}
 html[data-theme=dark] .bsnav{background:#101420}
-html[data-theme=dark] .bsnav a.on{background:#171b25;color:#7bb0f4}
+html[data-theme=dark] .bsnav a.on{background:#171b25;color:#7bb5f4}
 html[data-theme=dark] .bsnav a:hover{background:#191b21}
 html[data-theme=dark] .bsimg img{background:#101420}
 html[data-theme=dark] .ofpill{border:1px dashed #323a52;background:var(--surface,#101420)}
@@ -248,7 +248,7 @@ html[data-theme=dark] .mmtbl{border:.8px solid #353542}
 html[data-theme=dark] .mmth{background:#17171e;color:#ccccce}
 html[data-theme=dark] .mmrow{border-top:.8px solid #32323e}
 html[data-theme=dark] .mmrow.chg{background:#131720}
-html[data-theme=dark] .mmimg{border:1.5px dashed #2b375a;background:#141721;color:#7bb0f4}
+html[data-theme=dark] .mmimg{border:1.5px dashed #2b375a;background:#141721;color:#7bb5f4}
 html[data-theme=dark] .mmsub{background:#141820;border-top:.8px solid #32323e}
 html[data-theme=dark] .mmsg{color:#b5b5b7}
 html[data-theme=dark] .mmrow.mmvar{background:#131720}
@@ -318,8 +318,8 @@ html[data-theme=dark] .pbtn.ccp.sel{box-shadow:0 0 0 2px var(--accent) inset,0 4
 html[data-theme=dark] .ccx1{background:#1c1f26;color:#b9b6c9}
 html[data-theme=dark] .ccseg button{background:#101420}
 html[data-theme=dark] .ccseg button.on{background:#151923}
-html[data-theme=dark] .qtcode{background:#171b26;color:#7bb0f4}
-html[data-theme=dark] .qtcnt{background:#181b27;color:#7bb0f4}
+html[data-theme=dark] .qtcode{background:#171b26;color:#7bb5f4}
+html[data-theme=dark] .qtcnt{background:#181b27;color:#7bb5f4}
 html[data-theme=dark] .qtchip{background:#101420}
 html[data-theme=dark] .qtx:hover{background:#191c23}
 html[data-theme=dark] .olseg{background:#1b1d25}
@@ -380,8 +380,8 @@ html[data-theme=dark] .modal header>.x:hover, html[data-theme=dark] #ccBox heade
 html[data-theme=dark] .sk-ph{outline:2px dashed #293760}
 html[data-theme=dark] .sk-ghost{background:var(--surface,#101420);box-shadow:0 14px 34px rgba(0,0,0,0.48400000000000004),0 2px 6px rgba(0,0,0,0.264)!important}
 html[data-theme=dark] table.sk-ghost-t td{background:var(--surface,#101420)}
-html[data-theme=dark] .bmgrip:hover{background:#1b2423;color:var(--accent,#7bb0f4)}
-html[data-theme=dark] .bmgrip:active{background:#191e2a;color:var(--accent,#7bb0f4)}
+html[data-theme=dark] .bmgrip:hover{background:#1b2423;color:var(--accent,#7bb5f4)}
+html[data-theme=dark] .bmgrip:active{background:#191e2a;color:var(--accent,#7bb5f4)}
 html[data-theme=dark] .rslist .rsn[data-rsedit]:hover, html[data-theme=dark] .rslist .rsn[data-tagren]:hover{background:#171e1e}
 html[data-theme=dark] .rsempty{color:var(--ink2,#a7a5b6)}
 html[data-theme=dark] .ccchr input[type=checkbox]{border:2px solid #313952;background:#101420 center/16px no-repeat}
@@ -403,21 +403,21 @@ html[data-theme=dark] .stbadge.off{background:#1c1d23;color:var(--muted,#a2a0af)
 html[data-theme=dark] .pdbr{border-bottom:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .morelist a{border-bottom:1px solid var(--line,#2d3445);color:var(--ink,#dad8e0)}
 html[data-theme=dark] .morelist a:hover{background:var(--bg,#171922)}
-html[data-theme=dark] .morelist .ico{color:#7bb0f4}
+html[data-theme=dark] .morelist .ico{color:#7bb5f4}
 html[data-theme=dark] .msel>.msel-f{border:1px solid var(--line2,#373349);background:#101420}
 html[data-theme=dark] .msel>.msel-f.dis{background:var(--bg,#171922)}
 html[data-theme=dark] .msel-k{color:var(--muted,#a2a0af)}
-html[data-theme=dark] .msel-c{background:#181b27;color:#87b7f5}
+html[data-theme=dark] .msel-c{background:#181b27;color:#7bb5f4}
 html[data-theme=dark] .msel>.msel-p{background:#101420;border:1px solid var(--line2,#373349);box-shadow:0 12px 32px rgba(0,0,0,0.35200000000000004)}
 html[data-theme=dark] .msel-q{border:1px solid var(--line2,#373349)}
 html[data-theme=dark] .msel .msel-o{color:var(--ink,#dad8e0)}
 html[data-theme=dark] .msel .msel-o:hover{background:var(--bg,#191b22)!important}
-html[data-theme=dark] .msel .msel-o.on, html[data-theme=dark] .msel .msel-o:has(input:checked){color:#87b7f5}
+html[data-theme=dark] .msel .msel-o.on, html[data-theme=dark] .msel .msel-o:has(input:checked){color:#7bb5f4}
 html[data-theme=dark] .segtabs{background:var(--bg,#1b1d23)}
 html[data-theme=dark] .segtabs a{color:var(--ink2,#b3b1c2)}
-html[data-theme=dark] .segtabs a.on{background:#101420;color:#7bb0f4;box-shadow:0 1px 4px rgba(0,0,0,0.22000000000000003)}
+html[data-theme=dark] .segtabs a.on{background:#101420;color:#7bb5f4;box-shadow:0 1px 4px rgba(0,0,0,0.22000000000000003)}
 html[data-theme=dark] .mmrow[data-bmitem]:hover{background:#151922}
-html[data-theme=dark] .mmtp{color:#7bb0f4;background:#181b27}
+html[data-theme=dark] .mmtp{color:#7bb5f4;background:#181b27}
 html[data-theme=dark] .bmdrawer{background:var(--bg,#171922);box-shadow:-12px 0 40px rgba(0,0,0,0.396)}
 html[data-theme=dark] .bmdrawer header{background:#101420;border-bottom:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .bmdrawer header .x{border:1.5px solid #3d394c;background:#101420}
@@ -426,16 +426,16 @@ html[data-theme=dark] .btn.trashbtn{color:var(--ink,#dad8e0)}
 html[data-theme=dark] .btn.trashbtn:hover{color:#e48b91;border-color:#5a272b;background:#211414}
 html[data-theme=dark] .bmdtbl th{background:#171e1e;border-bottom:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .bmdtbl td{border-bottom:1px solid var(--line,#2d3445)}
-html[data-theme=dark] .bmdin.cust{border-color:#293861;background:#151822;color:#87b7f5}
+html[data-theme=dark] .bmdin.cust{border-color:#293861;background:#151822;color:#7bb5f4}
 html[data-theme=dark] .modal>header, html[data-theme=dark] #ccBox>header, html[data-theme=dark] #crudBox>header, html[data-theme=dark] .bmdrawer>header{background:#101420}
 html[data-theme=dark] .bmdmx{background:#101420;box-shadow:0 1px 4px rgba(0,0,0,0.132)}
 html[data-theme=dark] .bmdmx tr.bmdgrow td{background:#181b23}
 html[data-theme=dark] #ccBox .btn.lnkdel{color:#e48b91!important}
 html[data-theme=dark] .msel-none{color:var(--muted,#9391a8)}
-html[data-theme=dark] .ptabs a .ico{color:#7bb0f4}
-html[data-theme=dark] .nav .ico, html[data-theme=dark] .nav .grp.open > button .ico, html[data-theme=dark] .nav .sub a .ico{color:#7bb0f4!important}
-html[data-theme=dark] .btn .ico{color:#7bb0f4}
-html[data-theme=dark] .scch .ico, html[data-theme=dark] .mmcat .scimg .ico, html[data-theme=dark] .kicon .ico, html[data-theme=dark] .iemenu .ico{color:#7bb0f4}
+html[data-theme=dark] .ptabs a .ico{color:#7bb5f4}
+html[data-theme=dark] .nav .ico, html[data-theme=dark] .nav .grp.open > button .ico, html[data-theme=dark] .nav .sub a .ico{color:#7bb5f4!important}
+html[data-theme=dark] .btn .ico{color:#7bb5f4}
+html[data-theme=dark] .scch .ico, html[data-theme=dark] .mmcat .scimg .ico, html[data-theme=dark] .kicon .ico, html[data-theme=dark] .iemenu .ico{color:#7bb5f4}
 html[data-theme=dark] tr:has(.qcell):hover td{background:#151922}
 html[data-theme=dark] .qitem{border-bottom:1px solid var(--line,#2d3445)}
 html[data-theme=dark] .bmdsec td{color:#9391a8;background:#101420}
@@ -449,9 +449,9 @@ html[data-theme=dark] .mmpn .mmpr{color:var(--muted,#a2a0af)}
 html[data-theme=dark] #bmApplyBar{box-shadow:0 14px 40px rgba(0,0,0,0.6)}
 html[data-theme=dark] .sctrow:hover{background:#171922}
 html[data-theme=dark] .sctbd+.sctbd{border-top:1px solid var(--line,#2d3445)}
-html[data-theme=dark] .sctci{background:var(--accent-soft,#171a26);color:var(--accent,#7bb0f4)}
-html[data-theme=dark] .sctadd{color:var(--accent,#7bb0f4)}
-html[data-theme=dark] .ptmb.on{background:var(--accent-soft,#171a26);color:var(--accent,#7bb0f4)}
+html[data-theme=dark] .sctci{background:var(--accent-soft,#171a26);color:var(--accent,#7bb5f4)}
+html[data-theme=dark] .sctadd{color:var(--accent,#7bb5f4)}
+html[data-theme=dark] .ptmb.on{background:var(--accent-soft,#171a26);color:var(--accent,#7bb5f4)}
 html[data-theme=dark] .ptmm{background:#101420;border:1px solid var(--line,#2d3445);box-shadow:0 18px 44px rgba(0,0,0,0.396)}
 html[data-theme=dark] .ptmm a:hover, html[data-theme=dark] .ptmm a.on{background:#171922}
 html[data-theme=dark] .card.otbl.obody>table>thead>tr>th{background:#141420}
@@ -461,7 +461,7 @@ html[data-theme=dark] .fdet .finfo>div{border-bottom:1px solid var(--line,#2d344
 html[data-theme=dark] .mmrow.off .mmpn b, html[data-theme=dark] .mmcat.off .mmct b, html[data-theme=dark] .bmdmx tr.off b, html[data-theme=dark] .bmdmx tr.bmdgrow.off b{color:var(--muted,#9391a8)}
 html[data-theme=dark] .qty button.qdel{color:#ed8a83}
 html[data-theme=dark] .brtbl{background:var(--surface,#101420)}
-html[data-theme=dark] .brsec{background:var(--accent-soft,#181e27)}
+html[data-theme=dark] .brsec{background:var(--accent-soft,#181f27)}
 html[data-theme=dark] .brsec small{color:var(--muted,#a5a2b4)}
 html[data-theme=dark] .rlcard{background:var(--surface,#101420);box-shadow:0 1px 3px rgba(0,0,0,0.11000000000000001)}
 html[data-theme=dark] .rlcard small{color:var(--muted,#a5a2b4)}
@@ -517,7 +517,7 @@ html[data-theme=dark] .ccpill.s-active{background:#2b241a;color:#f4bd7b}
 html[data-theme=dark] .ccpill.s-closed{background:#192a1f;color:#9fe7b9}
 html[data-theme=dark] .ccpill.s-void, html[data-theme=dark] .ccpill.s-declined, html[data-theme=dark] .ccpill.s-returned, html[data-theme=dark] .ccpill.s-refund{background:#271717;color:#f5879a}
 html[data-theme=dark] .ccx.s2 .ccctxn small{color:#a5a2b4}
-html[data-theme=dark] .ccx.s2 .ccctxb .btn{color:#7bb0f4!important}
+html[data-theme=dark] .ccx.s2 .ccctxb .btn{color:#7bb5f4!important}
 html[data-theme=dark] .ccx.s2 .citem .cname small{color:#b5b4bd!important}
 html[data-theme=dark] .ccx.s2 .citem.vi .vds{color:#ee8981!important}
 html[data-theme=dark] .ccx.s2 .citem .ceach, html[data-theme=dark] .ccx.s2 .cccart .ctot.tax{color:#a5a2b4!important}
@@ -565,7 +565,7 @@ html[data-theme=dark] body .btn:not(.pri):not(.bad){background:#101420;border-co
 html[data-theme=dark] body .ptabs a{color:#c6c5d0!important}
 html[data-theme=dark] body .ptabs a .ico{color:#adacb4!important}
 html[data-theme=dark] body .ptabs a.on{background:#101420!important;color:#dad8e0!important;border-color:#3a3845!important;box-shadow:0 1px 2px rgba(0,0,0,0.132)}
-html[data-theme=dark] body .ptabs a.on .ico{color:var(--accent,#7bb0f4)!important}
+html[data-theme=dark] body .ptabs a.on .ico{color:var(--accent,#7bb5f4)!important}
 html[data-theme=dark] body .spill.s-active{background:#1c1d23!important;color:#c6c5d0!important}
 html[data-theme=dark] body aside.side nav button, html[data-theme=dark] body aside.side nav summary, html[data-theme=dark] body aside.side nav [aria-expanded], html[data-theme=dark] body aside.side nav .grp, html[data-theme=dark] body aside.side nav .has{color:#c6c5d0!important}
 html[data-theme=dark] body aside.side nav button svg, html[data-theme=dark] body aside.side nav summary svg, html[data-theme=dark] body aside.side nav [aria-expanded] svg, html[data-theme=dark] body aside.side nav .grp svg{color:#adacb4!important}
@@ -585,11 +585,11 @@ html[data-theme=dark] body #view .ttop>b:first-child{color:var(--ink,#ccd6f5)}
 html[data-theme=dark] body aside.side .brand .logo{background:#101420!important;color:#b5c1eb!important}
 html[data-theme=dark] body aside.side a:hover, html[data-theme=dark] body aside.side nav .grp>button:hover{background:rgba(16,20,32,.07)!important}
 html[data-theme=dark] body aside.side a.on{background:rgba(16,20,32,.13)!important}
-html[data-theme=dark] body .tti, html[data-theme=dark] body .hico.hnt{color:#7bb0f4!important}
-html[data-theme=dark] body .tti svg, html[data-theme=dark] body .hico.hnt svg{color:#7bb0f4!important;stroke:#7bb0f4!important}
+html[data-theme=dark] body .tti, html[data-theme=dark] body .hico.hnt{color:#7bb5f4!important}
+html[data-theme=dark] body .tti svg, html[data-theme=dark] body .hico.hnt svg{color:#7bb5f4!important;stroke:#7bb5f4!important}
 html[data-theme=dark] body #view .card.otbl.obody>table>thead>tr>th{background:#171a1f!important}
 html[data-theme=dark] body .lysum{background:#151923;color:#c6c5d0}
-html[data-theme=dark] body .lysum b{color:#7bb0f4}
+html[data-theme=dark] body .lysum b{color:#7bb5f4}
 html[data-theme=dark] body .lyfoot{border-top:1px solid #303441}
 html[data-theme=dark] body .skhub{border:2px solid #282d3e}
 html[data-theme=dark] body #view .card.otbl::-webkit-scrollbar-thumb{background:#2c2f36;border:2px solid #282d3e}
@@ -609,11 +609,11 @@ html[data-theme=dark] body .app aside.side .skword b{color:#b5c1eb!important}
 html[data-theme=dark] body .app aside.side a, html[data-theme=dark] body .app aside.side nav .grp>button, html[data-theme=dark] body .app aside.side nav .grp, html[data-theme=dark] body .app aside.side .chev{color:#9ea9b9!important}
 html[data-theme=dark] body .app aside.side a svg, html[data-theme=dark] body .app aside.side button svg, html[data-theme=dark] body .app aside.side a .ico, html[data-theme=dark] body .app aside.side .nav .ico, html[data-theme=dark] body .app aside.side .nav .sub a .ico{color:#9ea9b9!important}
 html[data-theme=dark] body .app aside.side .nti.nln svg.nls{stroke:#9ea9b9!important;color:#9ea9b9!important}
-html[data-theme=dark] body .app aside.side a:hover, html[data-theme=dark] body .app aside.side nav .grp>button:hover{background:#151a23!important;color:#7bb0f4!important}
-html[data-theme=dark] body .app aside.side a:hover svg.nls, html[data-theme=dark] body .app aside.side nav .grp>button:hover svg.nls{stroke:#7bb0f4!important}
-html[data-theme=dark] body .app aside.side a.on{background:#181e27!important;color:#7bb0f4!important}
-html[data-theme=dark] body .app aside.side a.on svg, html[data-theme=dark] body .app aside.side a.on .ico, html[data-theme=dark] body .app aside.side a.on svg.nls{color:#7bb0f4!important;stroke:#7bb0f4!important}
-html[data-theme=dark] body .app aside.side .nav .grp.open > button, html[data-theme=dark] body .app aside.side .nav .grp.open > button svg.nls{color:#7bb0f4!important;stroke:#7bb0f4!important}
+html[data-theme=dark] body .app aside.side a:hover, html[data-theme=dark] body .app aside.side nav .grp>button:hover{background:#151a23!important;color:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side a:hover svg.nls, html[data-theme=dark] body .app aside.side nav .grp>button:hover svg.nls{stroke:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side a.on{background:#181f27!important;color:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side a.on svg, html[data-theme=dark] body .app aside.side a.on .ico, html[data-theme=dark] body .app aside.side a.on svg.nls{color:#7bb5f4!important;stroke:#7bb5f4!important}
+html[data-theme=dark] body .app aside.side .nav .grp.open > button, html[data-theme=dark] body .app aside.side .nav .grp.open > button svg.nls{color:#7bb5f4!important;stroke:#7bb5f4!important}
 html[data-theme=dark] body .brand.skb .skmark.f2 svg g{stroke:#b5c1eb!important}
 html[data-theme=dark] body .dalbl .lnk{color:#7ca1f3}
 html[data-theme=dark] body .fltbtn .fltx:hover{color:#b5b5b7}
@@ -623,7 +623,7 @@ html[data-theme=dark] body .modal header h2{color:#ededed}
 html[data-theme=dark] body table thead th, html[data-theme=dark] body #view th{color:#dcdcde!important}
 html[data-theme=dark] body .f label, html[data-theme=dark] body .modal label{color:#dcdcde!important}
 html[data-theme=dark] body .dinfo .note{color:#b5b5b7!important}
-html[data-theme=dark] .subbar{background:#181e27;color:#7bb0f4;border:1px solid #252e55}
+html[data-theme=dark] .subbar{background:#181f27;color:#7bb5f4;border:1px solid #252e55}
 html[data-theme=dark] .subbar.warn{background:#241e16;color:#f1a48a;border-color:#5c4428}
 html[data-theme=dark] .bizcard input.sel:disabled{background:#191b22}
 html[data-theme=dark] .drp .dq{background:var(--surface,#101420)}
@@ -658,7 +658,7 @@ html[data-theme=dark] body .sel, html[data-theme=dark] body input[type=text], ht
 html[data-theme=dark] body .card{background:#101420}
 html[data-theme=dark] body .kpi{background:#101420}
 html[data-theme=dark] body .tbl table tbody tr:hover{background:#151722}
-html[data-theme=dark] body .tag.on{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .tag.on{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .modal footer{border-top:1px solid #232c4b}
 html[data-theme=dark] body .app aside.side .skhub{border-color:#282d3e!important}
 html[data-theme=dark] body .app aside.side nav .lbl{color:#8992af!important}
@@ -672,7 +672,7 @@ html[data-theme=dark] body .app .empty, html[data-theme=dark] body .app td[colsp
 html[data-theme=dark] body .app .bempty{border:1.5px dashed #2c344f!important}
 html[data-theme=dark] body .app .bcol{background:#1a1c26}
 html[data-theme=dark] body .app .bhead{background:#101420!important;box-shadow:0 1px 2px rgba(0,0,0,0.11000000000000001)}
-html[data-theme=dark] body .app .bhead .cnt{background:#181e27!important}
+html[data-theme=dark] body .app .bhead .cnt{background:#181f27!important}
 html[data-theme=dark] body .app .ocard{box-shadow:0 1px 2px rgba(0,0,0,0.08800000000000001)}
 html[data-theme=dark] body .app .rhub .rcard:hover{border-color:#263158!important;box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body .app .f > label, html[data-theme=dark] body .app label.lbl, html[data-theme=dark] body .app .f > span:first-child{color:#abb1c8}
@@ -684,7 +684,7 @@ html[data-theme=dark] body .modal.odrawer .card{background:#151722!important;bor
 html[data-theme=dark] body .modal.odrawer .card.tbl{background:#101420!important}
 html[data-theme=dark] body .spill.s-draft, html[data-theme=dark] body .spill.s-review{background:#1b1624!important;color:#ad86e9!important}
 html[data-theme=dark] body .spill.s-pending{background:#271e17!important;color:#f6b790!important}
-html[data-theme=dark] body .spill.s-active{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .spill.s-active{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .spill.s-closed{background:#1b1e24!important;color:#abb1c8!important}
 html[data-theme=dark] body .spill.s-declined, html[data-theme=dark] body .spill.s-void, html[data-theme=dark] body .spill.s-refund, html[data-theme=dark] body .spill.s-returned{background:#251717!important;color:#ee8981!important}
 html[data-theme=dark] .crsrch{background:#101420}
@@ -698,7 +698,7 @@ html[data-theme=dark] .pcs{color:#9aa0b5}
 html[data-theme=dark] .pcsel{background:#101420;box-shadow:0 1px 4px rgba(0,0,0,0.33)}
 html[data-theme=dark] .bkfloat{box-shadow:0 20px 50px rgba(0,0,0,0.6)}
 html[data-theme=dark] .bkfloat .ddmenu.up{background:#101420;box-shadow:0 20px 50px rgba(0,0,0,0.55)}
-html[data-theme=dark] .bkfloat .ddmenu.up button:hover{background:#181e27}
+html[data-theme=dark] .bkfloat .ddmenu.up button:hover{background:#181f27}
 html[data-theme=dark] body .app .culeft .card.odet > div{border-bottom:1px solid #232c4b}
 html[data-theme=dark] body .app .culeft .card.odet > div > span:first-child{color:#9aa0b5}
 html[data-theme=dark] body .app .curight .cstats > div{background:#101420;border:1px solid #272e4c}
@@ -706,22 +706,22 @@ html[data-theme=dark] body .app .curight .cstats span{color:#9aa0b5}
 html[data-theme=dark] .cutabs{background:#1b1d27}
 html[data-theme=dark] .cutabs button{color:#abb1c8}
 html[data-theme=dark] .cutabs button.on{background:#101420;box-shadow:0 2px 8px rgba(0,0,0,0.17600000000000002)}
-html[data-theme=dark] .pdhead .pdimg{background:#181e27}
+html[data-theme=dark] .pdhead .pdimg{background:#181f27}
 html[data-theme=dark] .pdh .crumb{color:#9aa0b5}
-html[data-theme=dark] .dlgico{background:#181e27}
+html[data-theme=dark] .dlgico{background:#181f27}
 html[data-theme=dark] body .modal .f > label, html[data-theme=dark] body .modal .f label:not(.chk){color:#c9d1ef!important}
 html[data-theme=dark] body .modal footer{background:#101420!important}
 html[data-theme=dark] body .app .schbar .wkn{background:#101420;border:1px solid #2a314d}
-html[data-theme=dark] .schav{background:#181e27}
+html[data-theme=dark] .schav{background:#181f27}
 html[data-theme=dark] .schav.o{background:#1b1624;color:#ad86ea}
 html[data-theme=dark] body .app .schg th{background:#101420!important}
-html[data-theme=dark] body .app .shc.draft{background:#101420!important;color:#7bb0f4!important}
+html[data-theme=dark] body .app .shc.draft{background:#101420!important;color:#7bb5f4!important}
 html[data-theme=dark] body .ccx{background:#171923}
 html[data-theme=dark] body #ccBox .ccx .cctools .cctool{background:#101420!important;color:#c9d1ef!important;border:1px solid #272e4c!important}
 html[data-theme=dark] body #ccBox .ccx .cctools .cctool:hover{border-color:#263158!important;background:#151722!important}
 html[data-theme=dark] body .ccx .pgrid .ctile, html[data-theme=dark] body .ccx .pgrid .pbtn{background:#101420!important;border:1px solid #272e4c!important}
 html[data-theme=dark] body .ccx .pgrid .ctile:hover, html[data-theme=dark] body .ccx .pgrid .pbtn:hover{box-shadow:0 12px 28px rgba(0,0,0,0.17600000000000002)!important;border-color:#263158!important}
-html[data-theme=dark] body .ccx .pgrid.cats .ctile{background:linear-gradient(135deg,#181e27,#1b1624)!important}
+html[data-theme=dark] body .ccx .pgrid.cats .ctile{background:linear-gradient(135deg,#181f27,#1b1624)!important}
 html[data-theme=dark] body .cccart{background:#101420!important;border:1px solid #272e4c!important}
 html[data-theme=dark] body .ccctx{background:#101420!important;border:1px solid #272e4c!important}
 html[data-theme=dark] body #ccBox .ccx .ccacts .btn.pri:disabled{background:#212436!important;border-color:#262e58!important}
@@ -737,9 +737,9 @@ html[data-theme=dark] .dvtypes button svg{color:#abb1c8}
 html[data-theme=dark] .dvtypes button b{color:#c9d1ef}
 html[data-theme=dark] .dvtypes button span{color:#9aa0b5}
 html[data-theme=dark] .dvtypes button.on{background:#141722}
-html[data-theme=dark] .dvtypes button.on svg, html[data-theme=dark] .dvtypes button.on b{color:#7bb0f4}
+html[data-theme=dark] .dvtypes button.on svg, html[data-theme=dark] .dvtypes button.on b{color:#7bb5f4}
 html[data-theme=dark] .dvrow{border:1px solid #272e4c}
-html[data-theme=dark] .dvri{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .dvri{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .dvrt b{color:#c9d1ef}
 html[data-theme=dark] .dvrt span{color:#9aa0b5}
 html[data-theme=dark] .sw i{background:#252832}
@@ -747,10 +747,10 @@ html[data-theme=dark] .sw i::after{background:#101420;box-shadow:0 1px 3px rgba(
 html[data-theme=dark] .dvcode{background:#171923}
 html[data-theme=dark] .dvcode b{color:#c9d1ef}
 html[data-theme=dark] .dvcode > span span{color:#9aa0b5}
-html[data-theme=dark] .dvcode em{color:#7bb0f4}
+html[data-theme=dark] .dvcode em{color:#7bb5f4}
 html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn, html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{border:1px solid #272e4c!important}
 html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.pbtn:hover, html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile:hover{border-color:#263158!important;box-shadow:0 10px 24px rgba(0,0,0,0.17600000000000002)!important}
-html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#181e27,#1b1624)!important}
+html[data-theme=dark] body #ccBox .ccx.s2 #oProducts>.ctile{background:linear-gradient(135deg,#181f27,#1b1624)!important}
 html[data-theme=dark] body .app aside.side nav.nav .grp > button:hover, html[data-theme=dark] body .app aside.side nav.nav > a:hover, html[data-theme=dark] body .app aside.side nav.nav .sub a:hover{background:rgba(16,20,32,.07)!important}
 html[data-theme=dark] body label.chk > input[type=checkbox][id]{background:#252832!important}
 html[data-theme=dark] body label.chk > input[type=checkbox][id]::after{background:#101420;box-shadow:0 1px 3px rgba(0,0,0,0.55)}
@@ -769,13 +769,13 @@ html[data-theme=dark] body .bmdmx .bmdhc .bmdct{color:#dcdcde}
 html[data-theme=dark] body .bmdmx .bmdgrow td{background:#181a20}
 html[data-theme=dark] body .toggle .trk, html[data-theme=dark] body .toggle.sm .trk, html[data-theme=dark] body .toggle.xs .trk{background:#2d3036!important}
 html[data-theme=dark] body .toggle .trk::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
-html[data-theme=dark] body .toggle input:checked+.trk{background:#293544!important}
+html[data-theme=dark] body .toggle input:checked+.trk{background:#273441!important}
 html[data-theme=dark] body label.chk > input[type=checkbox][id], html[data-theme=dark] body .f > label.chk > input[type=checkbox]{background:#2d3036!important}
 html[data-theme=dark] body label.chk > input[type=checkbox][id]::after, html[data-theme=dark] body .f > label.chk > input[type=checkbox]::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
-html[data-theme=dark] body label.chk > input[type=checkbox][id]:checked, html[data-theme=dark] body .f > label.chk > input[type=checkbox]:checked{background:#293544!important}
+html[data-theme=dark] body label.chk > input[type=checkbox][id]:checked, html[data-theme=dark] body .f > label.chk > input[type=checkbox]:checked{background:#273441!important}
 html[data-theme=dark] body .sw i{background:#2d3036!important}
 html[data-theme=dark] body .sw i::after{background:#101420!important;box-shadow:0 1px 3px rgba(0,0,0,0.6)!important}
-html[data-theme=dark] body .sw input:checked + i{background:#293544!important}
+html[data-theme=dark] body .sw input:checked + i{background:#273441!important}
 html[data-theme=dark] body .app aside.side .abrand span{color:#8992af}
 html[data-theme=dark] .sidefoot .acctbtn{background:rgba(16,20,32,.06)!important}
 html[data-theme=dark] .sidefoot .acctbtn:hover{background:rgba(16,20,32,.12)!important}
@@ -785,7 +785,7 @@ html[data-theme=dark] .gsearch kbd{background:#101420;border:1px solid #2a314d;c
 html[data-theme=dark] .gsearch:focus-within{background:#101420}
 html[data-theme=dark] .gsres{background:#101420;border:1px solid #272e4c;box-shadow:0 24px 60px rgba(0,0,0,0.396)}
 html[data-theme=dark] .gsres a span{color:#9aa0b5}
-html[data-theme=dark] .gsres a.on, html[data-theme=dark] .gsres a:hover{background:#181e27}
+html[data-theme=dark] .gsres a.on, html[data-theme=dark] .gsres a:hover{background:#181f27}
 html[data-theme=dark] .gsnone{color:#9aa0b5}
 html[data-theme=dark] .dht .eyebrow{color:#9aa0b5}
 html[data-theme=dark] body .app .tabs.dtabs{background:#1b1d27}
@@ -854,9 +854,9 @@ html[data-theme=dark] body .app #view table td, html[data-theme=dark] body .app 
 html[data-theme=dark] body .app #view table thead th, html[data-theme=dark] body .app #view table th{border-bottom:1px solid #3c3c47!important}
 html[data-theme=dark] body .app #view .drow, html[data-theme=dark] body .app #view .brow{border-bottom-color:#383844!important}
 html[data-theme=dark] body .app #view .igrid>div>div:last-child, html[data-theme=dark] body .app #view .card.odet>div{color:#dcdcde!important}
-html[data-theme=dark] body .app #view .sctadd span:last-child{color:#7bb0f4!important}
-html[data-theme=dark] body .app .hcard .hci{background:#181e27;color:#7bb0f4}
-html[data-theme=dark] body .btn, html[data-theme=dark] body .app .btn, html[data-theme=dark] body .app #view .btn, html[data-theme=dark] body .app #view .card .btn, html[data-theme=dark] body .app #view .ttop .btn, html[data-theme=dark] body .app #view .mm .btn, html[data-theme=dark] body .app #view .mmhd .btn, html[data-theme=dark] body .modal .btn, html[data-theme=dark] body .dlg .btn, html[data-theme=dark] body .scrim .btn, html[data-theme=dark] body .app .main .top .btn, html[data-theme=dark] body .content .btn{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .app #view .sctadd span:last-child{color:#7bb5f4!important}
+html[data-theme=dark] body .app .hcard .hci{background:#181f27;color:#7bb5f4}
+html[data-theme=dark] body .btn, html[data-theme=dark] body .app .btn, html[data-theme=dark] body .app #view .btn, html[data-theme=dark] body .app #view .card .btn, html[data-theme=dark] body .app #view .ttop .btn, html[data-theme=dark] body .app #view .mm .btn, html[data-theme=dark] body .app #view .mmhd .btn, html[data-theme=dark] body .modal .btn, html[data-theme=dark] body .dlg .btn, html[data-theme=dark] body .scrim .btn, html[data-theme=dark] body .app .main .top .btn, html[data-theme=dark] body .content .btn{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .btn:hover, html[data-theme=dark] body .app #view .btn:hover, html[data-theme=dark] body .modal .btn:hover, html[data-theme=dark] body .dlg .btn:hover{background:#191c29!important}
 html[data-theme=dark] body .btn.danger, html[data-theme=dark] body .btn.bad, html[data-theme=dark] body .app #view .btn.danger, html[data-theme=dark] body .app #view .btn.bad, html[data-theme=dark] body .modal .btn.danger, html[data-theme=dark] body .dlg .btn.danger, html[data-theme=dark] body .scrim .btn.danger, html[data-theme=dark] body .btn.imgrm{background:#251717!important;color:#ee8981!important}
 html[data-theme=dark] body .btn.danger:hover, html[data-theme=dark] body .app #view .btn.danger:hover, html[data-theme=dark] body .modal .btn.danger:hover{background:#2d1b1b!important}
@@ -864,7 +864,7 @@ html[data-theme=dark] body .modal footer .btn.danger:hover, html[data-theme=dark
 html[data-theme=dark] body .btn.ghost, html[data-theme=dark] body .app #view .btn.ghost, html[data-theme=dark] body .modal .btn.ghost{color:#b5b5b7!important}
 html[data-theme=dark] body .btn.ghost:hover, html[data-theme=dark] body .app #view .btn.ghost:hover{background:#1a1a22!important}
 html[data-theme=dark] body .vr, html[data-theme=dark] body a.vr{color:#b5b5b7!important}
-html[data-theme=dark] body .vr:hover{color:#7bb0f4!important}
+html[data-theme=dark] body .vr:hover{color:#7bb5f4!important}
 html[data-theme=dark] body .nutr .nrow span{color:#dcdcde}
 html[data-theme=dark] body .nutr .nrow input{border:1px solid #3c3c47!important;background:#101420!important}
 html[data-theme=dark] body .modal footer .btn.danger:not(:first-child), html[data-theme=dark] body .dlg footer .btn.danger:not(:first-child), html[data-theme=dark] body .scrim footer .btn.danger:not(:first-child){background:#251717!important}
@@ -872,30 +872,30 @@ html[data-theme=dark] body select option{color:#dcdcde}
 html[data-theme=dark] body .bsf input:not([type=checkbox]):not([type=radio]):not([type=hidden]), html[data-theme=dark] body .bsf select, html[data-theme=dark] body .bsf textarea{border:1px solid #3c3c47!important;background:#101420!important;color:#dcdcde}
 html[data-theme=dark] body .app #view .phead.hero{background:#101420!important;border:1px solid #353542;color:#b5b5b7}
 html[data-theme=dark] body .app #view .phead.hero h1{color:#dcdcde!important}
-html[data-theme=dark] body .app #view .phead.hero .hback{background:#181e27;color:#7bb0f4}
-html[data-theme=dark] body .app #view .phead.hero .htile{background:#181e27;color:#7bb0f4}
-html[data-theme=dark] body .app #view .phead.hero .htile svg{stroke:#7bb0f4!important;color:#7bb0f4!important}
+html[data-theme=dark] body .app #view .phead.hero .hback{background:#181f27;color:#7bb5f4}
+html[data-theme=dark] body .app #view .phead.hero .htile{background:#181f27;color:#7bb5f4}
+html[data-theme=dark] body .app #view .phead.hero .htile svg{stroke:#7bb5f4!important;color:#7bb5f4!important}
 html[data-theme=dark] body .app #view .phead.hero .hcode, html[data-theme=dark] body .app #view .phead.hero .acode{background:#1a1a22!important;color:#b5b5b7!important}
 html[data-theme=dark] body .app #view .phead.hero .hmeta{color:#b5b5b7}
-html[data-theme=dark] body .app #view .phead.hero .btn{background:#181e27!important;color:#7bb0f4!important}
-html[data-theme=dark] body .app #view .phead.hero .btn svg{stroke:#7bb0f4!important;color:#7bb0f4!important}
+html[data-theme=dark] body .app #view .phead.hero .btn{background:#181f27!important;color:#7bb5f4!important}
+html[data-theme=dark] body .app #view .phead.hero .btn svg{stroke:#7bb5f4!important;color:#7bb5f4!important}
 html[data-theme=dark] body .app .bswrap .bsnav{background:#202025!important}
 html[data-theme=dark] body .app .bswrap .bsnav a{color:#ccccce!important}
 html[data-theme=dark] body .app .bswrap .bsnav a:hover{background:rgba(16,20,32,.6)!important}
 html[data-theme=dark] body .app .bswrap .bsnav a.on{background:#101420!important;color:#dcdcde!important;box-shadow:0 1px 3px rgba(0,0,0,0.17600000000000002)}
 html[data-theme=dark] body .slk-ask-f{background:#101420!important;border-top:1px solid #353542}
-html[data-theme=dark] body .slk-ask-no{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .slk-ask-no{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .slk-ask-yes.red{background:#251717!important;color:#ee8981!important}
-html[data-theme=dark] body .ccvdf button{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .ccvdf button{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .ccvdf button.bad{background:#251717!important;color:#ee8981!important}
 html[data-theme=dark] body .app .cuprof{background:#101420!important;border:1px solid #353542;color:#b5b5b7!important}
-html[data-theme=dark] body .app .cuprof .cuav{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .app .cuprof .cuav{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .app #view .cuprof h2{color:#dcdcde!important}
 html[data-theme=dark] body .app .cuprof .cusub{color:#b5b5b7}
 html[data-theme=dark] body .app .custats>div{background:#1a1a22!important}
 html[data-theme=dark] body .app .custats b{color:#dcdcde!important}
 html[data-theme=dark] body .app .custats span{color:#b5b5b7}
-html[data-theme=dark] body .app .cuprof .btn.ghost{color:#7bb0f4!important;background:#181e27!important}
+html[data-theme=dark] body .app .cuprof .btn.ghost{color:#7bb5f4!important;background:#181f27!important}
 html[data-theme=dark] body .app .curight .cstats>div{border:1px solid #353542!important}
 html[data-theme=dark] body .app .curight .cstats span{color:#b5b5b7!important}
 html[data-theme=dark] body .app .curight .cstats b{color:#dcdcde}
@@ -904,9 +904,9 @@ html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub), ht
 html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>img, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>.pic, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>img, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>.pic{background:var(--tint,#1a1a22)!important}
 html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>b, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>span:not(.pic){color:#dcdcde!important}
 html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.ctile:not(.ccsub)>small.ccn, html[data-theme=dark] body #ccBox .ccx.ccx.ccx #oProducts>.pbtn>b{color:#b5b5b7!important}
-html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool{background:#181e27!important;color:#7bb0f4!important}
-html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool *{color:#7bb0f4!important}
-html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg, html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg *{stroke:#7bb0f4!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool{background:#181f27!important;color:#7bb5f4!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool *{color:#7bb5f4!important}
+html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg, html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool svg *{stroke:#7bb5f4!important}
 html[data-theme=dark] body #ccBox .ccx .cctools .cctool.cctool:hover{background:#191c29!important}
 html[data-theme=dark] body #ccBox .ccx.s1, html[data-theme=dark] body #ccBox .ccx.s1 .ccleft{background:#101420!important}
 html[data-theme=dark] body #ccBox:has(.ccx.s1){background:#101420!important}
@@ -914,35 +914,35 @@ html[data-theme=dark] body #ccBox .ccx.s1 .cc1{background:#101420!important}
 html[data-theme=dark] body #ccBox .ccx.s1 input:not([type=checkbox]):not([type=radio]):not([type=hidden]), html[data-theme=dark] body #ccBox .ccx.s1 select, html[data-theme=dark] body #ccBox .ccx.s1 .sel{border:1px solid #3c3c47!important;color:#dcdcde!important;background-color:#101420!important}
 html[data-theme=dark] body #ccBox .ccx.s1 .ccseg, html[data-theme=dark] body #ccBox .ccx.s1 .seg{background:#1a1a22!important}
 html[data-theme=dark] body #ccBox:has(.ccx.s1) .ccnext{background:#101420!important;border-top:1px solid #353542!important}
-html[data-theme=dark] body #ccBox .adgo{color:#7bb0f4!important}
+html[data-theme=dark] body #ccBox .adgo{color:#7bb5f4!important}
 html[data-theme=dark] body .smp.smp .og label{border:1.5px solid #353542!important;background:#101420!important;color:#dcdcde!important}
 html[data-theme=dark] body .smp.smp .og label .p{color:#b5b5b7!important}
-html[data-theme=dark] body .smp.smp .og label:has(input:checked), html[data-theme=dark] body .smp.smp .og label.qrow.on{background:#181e27!important;color:#dcdcde!important}
+html[data-theme=dark] body .smp.smp .og label:has(input:checked), html[data-theme=dark] body .smp.smp .og label.qrow.on{background:#181f27!important;color:#dcdcde!important}
 html[data-theme=dark] body .smp.smp .og label.qrow .qs b{color:#dcdcde}
 html[data-theme=dark] body .smp.smp .g .req{color:#ee8981!important;background:#251717}
-html[data-theme=dark] body .smp.smp footer .smc, html[data-theme=dark] body .smp.smp footer button[data-x]{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .smp.smp footer .smc, html[data-theme=dark] body .smp.smp footer button[data-x]{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .smp.smp .og label.qrow.on .nm{color:#dcdcde!important}
 html[data-theme=dark] body .smp.smp textarea{border:1px solid #3c3c47!important}
 html[data-theme=dark] body #ccBox .ccx.s2 .ccleft, html[data-theme=dark] body #ccBox .ccx.s2 .ccleft .cc1, html[data-theme=dark] body #ccBox .ccx.s2 .ccleft .pdstyle{background:#101420!important}
 html[data-theme=dark] body #ccBox .ccx.s2 .insbox{background:#101420!important}
-html[data-theme=dark] body .app aside.side .nti.nln, html[data-theme=dark] body aside.side .nti.nln{background:var(--nb,#181e27)!important;color:var(--nc,#7bb0f4)!important}
-html[data-theme=dark] body .app aside.side .nti.nln svg.nls, html[data-theme=dark] body aside.side .nti.nln svg.nls{stroke:var(--nc,#7bb0f4)!important;color:var(--nc,#7bb0f4)!important}
+html[data-theme=dark] body .app aside.side .nti.nln, html[data-theme=dark] body aside.side .nti.nln{background:var(--nb,#181f27)!important;color:var(--nc,#7bb5f4)!important}
+html[data-theme=dark] body .app aside.side .nti.nln svg.nls, html[data-theme=dark] body aside.side .nti.nln svg.nls{stroke:var(--nc,#7bb5f4)!important;color:var(--nc,#7bb5f4)!important}
 html[data-theme=dark] body .ccdman{border:1px solid #353542!important}
 html[data-theme=dark] body .ccdseg{background:#202025!important}
 html[data-theme=dark] body .ccdseg button{color:#ccccce!important}
 html[data-theme=dark] body .ccdseg button.on{background:#101420!important;color:#dcdcde!important;box-shadow:0 1px 3px rgba(0,0,0,0.17600000000000002)!important}
 html[data-theme=dark] body #ccDmV, html[data-theme=dark] body #ccDsOpenV{border:1px solid #3c3c47!important}
 html[data-theme=dark] body .ccnp button{border:1px solid #353542;background:#101420;color:#dcdcde}
-html[data-theme=dark] body .ccnp button:active{background:#181e27}
+html[data-theme=dark] body .ccnp button:active{background:#181f27}
 html[data-theme=dark] body .ccnp button[data-npk2="⌫"]{color:#b5b5b7}
 html[data-theme=dark] body .smp.smp.disc .dz input{border:1px solid #3c3c47!important}
 html[data-theme=dark] body .dn2 .dh2{border-bottom:1px solid #353542}
 html[data-theme=dark] body .dz2 button{border:1px solid #3c3c47;background:#101420;color:#dcdcde}
-html[data-theme=dark] body .dz2 button.on{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] body .dz2 button.on{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] body .dz2 input{border:1px solid #3c3c47;background:#101420}
 html[data-theme=dark] body .dnote{color:#e5938a}
 html[data-theme=dark] body .dn2 .slk-ask-f{background:#101420!important;border-top:1px solid #353542}
-html[data-theme=dark] body .dn2 .slk-ask-f .slk-ask-no{background:#181e27!important;color:#7bb0f4!important}
+html[data-theme=dark] body .dn2 .slk-ask-f .slk-ask-no{background:#181f27!important;color:#7bb5f4!important}
 html[data-theme=dark] body .dn2 #ccDsOpenV{border:1px solid #3c3c47}
 html[data-theme=dark] body .app .hcard.hmini .hsub{color:#9aa0b5}
 html[data-theme=dark] body .app #view .empty, html[data-theme=dark] body .app #view .brempty, html[data-theme=dark] body .app #view td .empty{background:#202025!important}
@@ -950,7 +950,7 @@ html[data-theme=dark] body .app #view .card.tbl::-webkit-scrollbar-thumb, html[d
 html[data-theme=dark] body .app #view .brcard>table::-webkit-scrollbar-thumb, html[data-theme=dark] body .app #view .secbox>table::-webkit-scrollbar-thumb{background:#242c47!important}
 html[data-theme=dark] body .app #view .schwrap::-webkit-scrollbar-thumb, html[data-theme=dark] body .app #view .card:has(> table)::-webkit-scrollbar-thumb{background:#242c47!important}
 html[data-theme=dark] .chpill{background:#1a1a22;color:#ccccce}
-html[data-theme=dark] .chpill.ch-callcenter{background:#181e27;color:#7bb0f4}
+html[data-theme=dark] .chpill.ch-callcenter{background:#181f27;color:#7bb5f4}
 html[data-theme=dark] .chpill.ch-online{background:#1e1726;color:#ad86ea}
 html[data-theme=dark] .chpill.ch-pos{background:#192a1f;color:#9ff7d2}
 html[data-theme=dark] .chpill.ch-integration{background:#272118;color:#f5a97e}
@@ -965,17 +965,17 @@ html[data-theme=dark] body #ccBox .ccobar .ccobx:active{background-color:#171c26
 html[data-theme=dark] .chpill.ch-type{background:#192329;color:#97d5f7}
 html[data-theme=dark] .chpill.ch-agent{background:#1a1a22;color:#ccccce}
 html[data-theme=dark] body .ocard.tl .ocr2{color:var(--ink,#dcdcde)}
-html[data-theme=dark] body .ocard.tl .ocr2 .oci{stroke:#7bb0f4}
+html[data-theme=dark] body .ocard.tl .ocr2 .oci{stroke:#7bb5f4}
 html[data-theme=dark] body .ocard.tl .ocr2 .ocs{color:#9aa0b5}
 html[data-theme=dark] body .ocard.tl .ocr2.cus .ocs{color:var(--ink,#dcdcde)}
 html[data-theme=dark] body .ocard.tl .ocr2.tot .oci{stroke:#9ff7d2}
 html[data-theme=dark] .cchr{border:1px solid #272e4c;background:#101420}
 html[data-theme=dark] .cchr:hover{background:#141722}
-html[data-theme=dark] .cchr>b{color:#7bb0f4}
+html[data-theme=dark] .cchr>b{color:#7bb5f4}
 html[data-theme=dark] .cchr small{color:#9aa0b5}
 html[data-theme=dark] body #ccBox .ccotsel{background:#1a1a22}
 html[data-theme=dark] body #ccBox .ccotsel button{color:#b5b5b7}
-html[data-theme=dark] body #ccBox .ccotsel button.on{background:#101420;color:#7bb0f4;box-shadow:0 1px 4px rgba(0,0,0,0.264)}
+html[data-theme=dark] body #ccBox .ccotsel button.on{background:#101420;color:#7bb5f4;box-shadow:0 1px 4px rgba(0,0,0,0.264)}
 html[data-theme=dark] body #ccBox .ccctop .sel:disabled{background:#161921;color:#ccccce}
 html[data-theme=dark] body .ocard.tl .ocr2 .oci.oci-user{stroke:#7ca1f3!important}
 html[data-theme=dark] body .ocard.tl .ocr2 :is(.oci-bike, html[data-theme=dark] .oci-bag, html[data-theme=dark] .oci-dine){stroke:#9bf4e2!important}
@@ -984,7 +984,7 @@ html[data-theme=dark] body .ocard.tl .ocr2 .oci.oci-headset{stroke:#eb85b2!impor
 html[data-theme=dark] body .ocard.tl .ocr2 .oci.oci-clock{stroke:#f5a97e!important}
 html[data-theme=dark] body .ocard.tl .ocr2 .oci.oci-money{stroke:#9ff7d2!important}
 html[data-theme=dark] body .ocard.tl .ocr2 .oci.oci-store{stroke:#f4b58e!important}
-html[data-theme=dark] body .mmmain .mmrow.sel{background:#181e27!important}
+html[data-theme=dark] body .mmmain .mmrow.sel{background:#181f27!important}
 html[data-theme=dark] body .mmdet{border-left:.8px solid #353542;background:#17171e}
 html[data-theme=dark] body .mmdet .mmdh small{color:#9aa0b5}
 html[data-theme=dark] body .mmdet .mmdrow{border-bottom:1px solid #292e45}
@@ -994,7 +994,7 @@ html[data-theme=dark] body .app #view .card.secbox > table, html[data-theme=dark
 html[data-theme=dark] body .app #view .tscroll thead th, html[data-theme=dark] body .app #view .card.tbl:not(:has(.tscroll)) > table thead th{background:#181a20}
 html[data-theme=dark] .ingact{background:#1a2921;color:#9fe7c3}
 html[data-theme=dark] .ingact.rm{background:#251717;color:#ee8981}
-html[data-theme=dark] .ingact.rp{background:#181e27;color:#919ede}
+html[data-theme=dark] .ingact.rp{background:#181f27;color:#919ede}
 html[data-theme=dark] body .btn.danger{color:#ed8c82!important}
 html[data-theme=dark] body .modal input.sel, html[data-theme=dark] body .modal select.sel, html[data-theme=dark] body .modal textarea.sel, html[data-theme=dark] body .modal input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]), html[data-theme=dark] body .modal textarea, html[data-theme=dark] body .modal select{background-color:#1c1c23!important}
 html[data-theme=dark] body .toggle .trk, html[data-theme=dark] body .toggle.sm .trk, html[data-theme=dark] body .toggle.xs .trk{background:#242428!important}
@@ -1011,7 +1011,7 @@ html[data-theme=dark] body .sw input:checked + i{background:#487754!important}
 html[data-theme=dark] body .sw input:checked + i::after{background:#101420!important}
 html[data-theme=dark] body{background-color:#1a1a22}
 html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.78)!important}
-html[data-theme=dark] body .app aside.side .nav .grp:has(a.on) > button{color:#7bb0f4!important}
+html[data-theme=dark] body .app aside.side .nav .grp:has(a.on) > button{color:#7bb5f4!important}
 html[data-theme=dark] body .app aside.side nav.nav a.on .nti, html[data-theme=dark] body .app aside.side a.on .nti, html[data-theme=dark] body .app aside.side a.on .ni, html[data-theme=dark] body .app aside.side a.on .ico{background:rgba(16,20,32,.22)!important}
 html[data-theme=dark] body .app aside.side nav.nav a.on .nti{background:rgba(16,20,32,.2)!important}
 html[data-theme=dark] body .app #view .ttabs a, html[data-theme=dark] body .app #view .ttabs button{color:#ededed!important}
@@ -1020,10 +1020,22 @@ html[data-theme=dark] body .app #view .tbl th, html[data-theme=dark] body .app #
 html[data-theme=dark] body .app #view .tbl tbody tr:hover td{background:#18181f!important}
 html[data-theme=dark] body .app #view .card .sel, html[data-theme=dark] body .app #view .card input[type=text], html[data-theme=dark] body .app #view .card input[type=number], html[data-theme=dark] body .app #view .card input[type=email], html[data-theme=dark] body .app #view .card input[type=tel], html[data-theme=dark] body .app #view .card input[type=date], html[data-theme=dark] body .app #view .card input[type=time], html[data-theme=dark] body .app #view .card select, html[data-theme=dark] body .app #view .card textarea, html[data-theme=dark] body .modal .sel, html[data-theme=dark] body .modal input[type=text], html[data-theme=dark] body .modal input[type=number], html[data-theme=dark] body .modal input[type=email], html[data-theme=dark] body .modal input[type=tel], html[data-theme=dark] body .modal input[type=date], html[data-theme=dark] body .modal input[type=time], html[data-theme=dark] body .modal select, html[data-theme=dark] body .modal textarea{background-color:#1a1a22!important}
 html[data-theme=dark] body .f > label:not(.chk){color:#afafb2!important}
-html[data-theme=dark] body .app .btn:not(.pri):not(.danger):not(.on), html[data-theme=dark] body .modal .btn:not(.pri):not(.danger):not(.on){color:#7bb0f4!important}
+html[data-theme=dark] body .app .btn:not(.pri):not(.danger):not(.on), html[data-theme=dark] body .modal .btn:not(.pri):not(.danger):not(.on){color:#7bb5f4!important}
 html[data-theme=dark] body .app .btn.danger:not(.pri), html[data-theme=dark] body .modal .btn.danger:not(.pri){background:#251717!important;color:#ed8c82!important}
 html[data-theme=dark] body .ddmenu{box-shadow:0 12px 40px rgba(0,0,0,0.35200000000000004),0 0 0 .5px rgba(0,0,0,0.132)!important}
 html[data-theme=dark] body .modal .multi, html[data-theme=dark] body .app #view .card .multi{background-color:#1a1a22!important}
+html[data-theme=dark] body .app #view .hcard .hch{color:#ccccce!important}
+html[data-theme=dark] body{color:#ededed}
+html[data-theme=dark] body .app .btn:not(.pri):not(.danger):not(.on), html[data-theme=dark] body .modal .btn:not(.pri):not(.danger):not(.on){color:#7bb5f4!important}
+html[data-theme=dark] body .app .btn.danger:not(.pri), html[data-theme=dark] body .modal .btn.danger:not(.pri){color:#f4817b!important}
+html[data-theme=dark] body .app #view .note, html[data-theme=dark] body .app #view small{color:#9f9fa2}
+html[data-theme=dark] body .app a.lnk, html[data-theme=dark] body .app #view a:not(.btn){color:#7bb5f4}
+html[data-theme=dark] body .spill.s-pending{background:rgba(118,98,71,.15)!important;color:#f49a7b!important}
+html[data-theme=dark] body .spill.s-active{color:#7bb5f4!important}
+html[data-theme=dark] body .spill.s-out, html[data-theme=dark] body .spill.s-review{color:#c299d6!important}
+html[data-theme=dark] body .spill.s-closed{color:#c7c7cd!important}
+html[data-theme=dark] body .spill.s-declined, html[data-theme=dark] body .spill.s-void, html[data-theme=dark] body .spill.s-returned, html[data-theme=dark] body .spill.s-refund{color:#f47b87!important}
+html[data-theme=dark] body .app aside.side .nav .grp:has(a.on) > button{color:#7bb5f4!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1067,7 +1079,7 @@ html[data-theme=dark] body.navopen .app aside.side{box-shadow:0 0 0 100vmax rgba
 html[data-theme=dark] body.x, html[data-theme=dark] body[data-route="account"] #view > .tabs{border-bottom:1px solid #272e4c!important}
 html[data-theme=dark] body[data-route="account"] .app #view > .tabs{background:#101420;border:1px solid #272e4c!important}
 html[data-theme=dark] body[data-route="account"] #view > .tabs a{color:#abb1c8}
-html[data-theme=dark] body[data-route="account"] #view > .tabs a.on{background:#181e27}
+html[data-theme=dark] body[data-route="account"] #view > .tabs a.on{background:#181f27}
 }
 @media (min-width:1100px){
 html[data-theme=dark] body #ccBox .ccx.s2{background:#171923!important}
@@ -1093,7 +1105,7 @@ html[data-theme=dark] body .btn.danger:not(:disabled):hover, html[data-theme=dar
 html[data-theme=dark] body .slk-ask-yes.red:not(:disabled):hover{box-shadow:0 6px 16px rgba(0,0,0,0.35200000000000004)!important}
 }
 html[data-theme=dark] [style*="background:#34C759"]{background:#487754!important}
-html[data-theme=dark] [style*="background:#9EC2F2"]{background:#293544!important}
+html[data-theme=dark] [style*="background:#99C9FF"]{background:#273441!important}
 html[data-theme=dark] [style*="background:#C7C7CC"]{background:#242c47!important}
 html[data-theme=dark] [style*="background:#C9CED9"]{background:#2d3036!important}
 html[data-theme=dark] [style*="background:#C9CFF0"]{background:#212436!important}
@@ -1104,10 +1116,10 @@ html[data-theme=dark] [style*="background:#E0E7FF"]{background:#191c29!important
 html[data-theme=dark] [style*="background:#E0F2FE"]{background:#192329!important}
 html[data-theme=dark] [style*="background:#E3E3E8"]{background:#242428!important}
 html[data-theme=dark] [style*="background:#E5E5EA"]{background:#232327!important}
+html[data-theme=dark] [style*="background:#E5F1FF"]{background:#181f27!important}
 html[data-theme=dark] [style*="background:#E6E8F2"]{background:#1d1f29!important}
 html[data-theme=dark] [style*="background:#E6F6F4"]{background:#192a28!important}
 html[data-theme=dark] [style*="background:#E7F6EC"]{background:#192a1f!important}
-html[data-theme=dark] [style*="background:#E8F0FC"]{background:#181e27!important}
 html[data-theme=dark] [style*="background:#E9E9EE"]{background:#202025!important}
 html[data-theme=dark] [style*="background:#E9EBF4"]{background:#1b1d27!important}
 html[data-theme=dark] [style*="background:#ECEEF6"]{background:#1a1c26!important}
@@ -1289,11 +1301,11 @@ html[data-theme=dark] [style*="border-color:#f3d9a4"]{border-color:#614e29!impor
 html[data-theme=dark] [style*="border-color:#f6cfd2"]{border-color:#552528!important}
 html[data-theme=dark] [style*="border-color:#fed7aa"]{border-color:#5c4428!important}
 html[data-theme=dark] [style*="color:#000"]{color:#ededed!important}
+html[data-theme=dark] [style*="color:#0062CC"]{color:#7bb5f4!important}
+html[data-theme=dark] [style*="color:#007AFF"]{color:#7bb5f4!important}
 html[data-theme=dark] [style*="color:#0369a1"]{color:#8bd0f6!important}
 html[data-theme=dark] [style*="color:#067647"]{color:#9ff7d2!important}
 html[data-theme=dark] [style*="color:#075985"]{color:#97d5f7!important}
-html[data-theme=dark] [style*="color:#084BA3"]{color:#87b7f5!important}
-html[data-theme=dark] [style*="color:#0A60D0"]{color:#7bb0f4!important}
 html[data-theme=dark] [style*="color:#0B1330"]{color:#c8d1f2!important}
 html[data-theme=dark] [style*="color:#0B2E5C"]{color:#adccf5!important}
 html[data-theme=dark] [style*="color:#0C1738"]{color:#c3cff2!important}
@@ -1325,6 +1337,7 @@ html[data-theme=dark] [style*="color:#2c5fb8"]{color:#8cace3!important}
 html[data-theme=dark] [style*="color:#3346a8"]{color:#919ede!important}
 html[data-theme=dark] [style*="color:#374151"]{color:#bdc5d2!important}
 html[data-theme=dark] [style*="color:#3A3A3C"]{color:#ccccce!important}
+html[data-theme=dark] [style*="color:#3C3C43"]{color:#c7c7cd!important}
 html[data-theme=dark] [style*="color:#3a3650"]{color:#c1bed3!important}
 html[data-theme=dark] [style*="color:#3a3846"]{color:#c6c5d0!important}
 html[data-theme=dark] [style*="color:#3a3850"]{color:#c0bed2!important}
@@ -1356,6 +1369,8 @@ html[data-theme=dark] [style*="color:#6f6b85"]{color:#a5a2b4!important}
 html[data-theme=dark] [style*="color:#77738c"]{color:#a19eb0!important}
 html[data-theme=dark] [style*="color:#7E88A8"]{color:#8992af!important}
 html[data-theme=dark] [style*="color:#7a7689"]{color:#a3a0ae!important}
+html[data-theme=dark] [style*="color:#8944AB"]{color:#c299d6!important}
+html[data-theme=dark] [style*="color:#8A8A8E"]{color:#9f9fa2!important}
 html[data-theme=dark] [style*="color:#8a5a00"]{color:#f7d698!important}
 html[data-theme=dark] [style*="color:#8a8799"]{color:#9996a6!important}
 html[data-theme=dark] [style*="color:#8a87a0"]{color:#9391a8!important}
@@ -1367,6 +1382,9 @@ html[data-theme=dark] [style*="color:#9e0c24"]{color:#f5879a!important}
 html[data-theme=dark] [style*="color:#B42318"]{color:#ee8981!important}
 html[data-theme=dark] [style*="color:#B54708"]{color:#f5a97e!important}
 html[data-theme=dark] [style*="color:#C42B1C"]{color:#ed8c82!important}
+html[data-theme=dark] [style*="color:#C93400"]{color:#f49a7b!important}
+html[data-theme=dark] [style*="color:#D70015"]{color:#f47b87!important}
+html[data-theme=dark] [style*="color:#FF3B30"]{color:#f4817b!important}
 html[data-theme=dark] [style*="color:#b42318"]{color:#ee8981!important}
 html[data-theme=dark] [style*="color:#b45309"]{color:#f5b17e!important}
 html[data-theme=dark] [style*="color:#b45a12"]{color:#f2b17d!important}
