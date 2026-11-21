@@ -225,7 +225,7 @@ html body .btn,html body button.primary,html body .cats button,html body nav.tab
 </style>
 <script>(function(){var r=document.documentElement,m=matchMedia("(prefers-color-scheme: dark)");r.dataset.ios="team";function t(){if(m.matches)r.setAttribute("data-theme","dark");else r.removeAttribute("data-theme")}t();m.addEventListener&&m.addEventListener("change",t)})()</script>
 <link rel="stylesheet" href="theme-dark-team.css?v=1">
-<link rel="stylesheet" href="ioskit.css?v=4">
+<link rel="stylesheet" href="ioskit.css?v=5">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -352,7 +352,7 @@ async function viewClock(){
   clearInterval(clk);
   const o = openNow(), br = o ? (S.me.branches.find(b => b.id===o.branchId)?.name || "") : "";
   let next = null; try{ const today = new Date(); const l = await rpc("skwyd_team_shifts", { p_from: ymd(today), p_to: ymd(addD(today, 14)) }); next = l.find(x => new Date(x.day + "T" + t5(x.end) + ":00") > new Date() || x.day > ymd(today)) || null; }catch(_){}
-  main().innerHTML = `<div class="card clock"><div class="now" id="cnow">${hm(new Date())}</div><div class="date">${new Date().toLocaleDateString("en-GB", { weekday:"long" })} · ${dmy(new Date())}</div>
+  main().innerHTML = `<h2>Today</h2><div class="card clock"><div class="now" id="cnow">${hm(new Date())}</div><div class="date">${new Date().toLocaleDateString("en-GB", { weekday:"long" })} · ${dmy(new Date())}</div>
       <button class="cbtn ${o ? "outb" : ""}" id="cb">${ic(o ? "out" : "in")}${o ? "Clock Out" : "Clock In"}</button>
       <div><span class="st ${o ? "on" : ""}"><i></i>${o ? `Clocked in since ${hm(o.at)}${br ? " · " + esc(br) : ""}` : "Not clocked in"}</span></div>
       <div class="loc" id="cq" style="color:var(--warn);font-weight:600" hidden></div><div class="loc" id="cloc">${ic("pin").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"')} Your location is checked when you press the button</div></div>
@@ -712,6 +712,6 @@ boot();
   if(document.body) fix(document.body); document.addEventListener("DOMContentLoaded", () => fix(document.body));
   window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
-<script src="ioskit.js?v=4" data-app="team"></script>
+<script src="ioskit.js?v=5" data-app="team"></script>
 </body>
 </html>
