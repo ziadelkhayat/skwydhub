@@ -90,3 +90,7 @@
   html[data-theme=dark] body.v2p #view .v2title{color:#fff}
   html[data-theme=dark] body.v2p #view#view .v2rb{background:rgba(118,118,128,.24)!important;color:#fff!important}
 }
+
+/* summary title */
+html body #view .dhead .dsub{margin:2px 0 0;font-size:15px;color:#6C6C70}
+html body #view .dhead h1{font-size:34px!important;letter-spacing:-.8px!important}

@@ -384,7 +384,7 @@ async function clockPress(){
 /* ---------- schedule + shift swaps ---------- */
 async function viewSched(){
   const a = S.week, z = addD(a, 6), today = ymd(new Date());
-  main().innerHTML = `<div class="wk"><button id="wp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="wn" aria-label="Next week">›</button></div><div class="card" id="sc"><p class="empty">Loading…</p></div>`;
+  main().innerHTML = `<h2>Schedule</h2><div class="wk"><button id="wp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="wn" aria-label="Next week">›</button></div><div class="card" id="sc"><p class="empty">Loading…</p></div>`;
   $("#wp").onclick = () => { S.week = addD(S.week, -7); viewSched(); }; $("#wn").onclick = () => { S.week = addD(S.week, 7); viewSched(); };
   try{ S.shifts = await rpc("skwyd_team_shifts", { p_from: ymd(a), p_to: ymd(z) }); }catch(e){ $("#sc").innerHTML = `<p class="empty">Couldn't load your schedule.</p>`; return; }
   try{ if(!S.reqs.length) S.reqs = await rpc("skwyd_team_requests"); }catch(_){}
@@ -407,7 +407,7 @@ async function swapSheet(x){
 /* ---------- requests & leave ---------- */
 async function viewReqs(){
   const left = S.me.leaveDays != null ? Math.max(0, +S.me.leaveDays - +S.me.leaveUsed) : null;
-  main().innerHTML = `<div class="card"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Leave</h2><span class="sp"></span><button class="btn sm" id="nr">+ New Request</button></div>
+  main().innerHTML = `<h2>Requests</h2><div class="card"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Leave</h2><span class="sp"></span><button class="btn sm" id="nr">+ New Request</button></div>
       <div class="bal"><div><b>${left != null ? left : "—"}</b><small>Days left</small></div><div><b>${+S.me.leaveUsed || 0}</b><small>Used this year</small></div><div><b>${S.me.leaveDays != null ? +S.me.leaveDays : "—"}</b><small>Per year</small></div></div></div>
     <div class="seg">${[["all","All"],["pending","Pending"],["done","Answered"]].map(([k,t]) => `<button data-rt="${k}" class="${S.rqTab===k ? "on" : ""}">${t}</button>`).join("")}</div>
     <div class="card" id="rl"><p class="empty">Loading…</p></div>`;
@@ -439,7 +439,7 @@ function newReq(){
 /* ---------- hours (my timesheet) ---------- */
 async function viewHrs(){
   const a = S.hwk, z = addD(a, 6);
-  main().innerHTML = `<div class="wk"><button id="hp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="hn" aria-label="Next week">›</button></div><div id="hc"><div class="card"><p class="empty">Loading…</p></div></div>`;
+  main().innerHTML = `<h2>My Hours</h2><div class="wk"><button id="hp" aria-label="Previous week">‹</button><b>${dmy(a)} – ${dmy(z)}</b><button id="hn" aria-label="Next week">›</button></div><div id="hc"><div class="card"><p class="empty">Loading…</p></div></div>`;
   $("#hp").onclick = () => { S.hwk = addD(S.hwk, -7); viewHrs(); }; $("#hn").onclick = () => { S.hwk = addD(S.hwk, 7); viewHrs(); };
   let l = []; try{ l = await rpc("skwyd_team_timesheet", { p_from: ymd(a), p_to: ymd(z) }); }catch(e){ $("#hc").innerHTML = `<div class="card"><p class="empty">Couldn't load your hours.</p></div>`; return; }
   const on = openNow(), o = on && new Date(on.at) >= a && new Date(on.at) <= addD(z, 1) ? { in:on.at, out:null, branch: S.me.branches.find(b => b.id===on.branchId)?.name, late: on.late } : null;
@@ -455,7 +455,7 @@ const seen = () => LS.get("skwyd_team_seen", {}), markSeen = (id, at) => { const
 const unread = g => g.last && !g.last.mine && (!seen()[g.id] || g.last.at > seen()[g.id]);
 async function chatDot(){ try{ const l = await rpc("skwyd_team_chats"); S.chats = l; const d = $("#cdot"); if(d) d.hidden = !l.some(unread); return l; }catch(_){ return S.chats || []; } }
 async function viewChats(){
-  main().innerHTML = `<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1">Chat</h2>${S.me.canChat || S.me.canGroup || S.me.canChannel ? `<button class="btn sm" id="chn">${ic("plus").replace("<svg", '<svg style="width:16px;height:16px;vertical-align:-3px"')} New</button>` : ""}</div><div class="card" id="chl" style="padding:6px"><p class="empty">Loading…</p></div>`;
+  main().innerHTML = `<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1;margin:0">Chat</h2>${S.me.canChat || S.me.canGroup || S.me.canChannel ? `<button class="btn sm" id="chn">${ic("plus").replace("<svg", '<svg style="width:16px;height:16px;vertical-align:-3px"')} New</button>` : ""}</div><div class="card" id="chl" style="padding:6px"><p class="empty">Loading…</p></div>`;
   const nb = $("#chn"); if(nb) nb.onclick = newChat;
   const l = await chatDot();
   $("#chl").innerHTML = l.length ? l.map(g => `<button class="chg" data-chat="${esc(g.id)}"><span class="av">${esc((g.name || "?").trim()[0] || "?").toUpperCase()}</span><span class="t"><b>${esc(g.name)}</b><small>${g.last ? esc((g.last.mine ? "You: " : (g.last.by || "") + ": ") + g.last.body) : g.direct ? "Private chat" : (g.channel ? "Channel · " : "") + g.members + " members"}</small></span>${g.last ? `<em>${chT(g.last.at)}</em>` : ""}${unread(g) ? `<i class="ud"></i>` : ""}</button>`).join("") : `<p class="empty">No chats yet.${S.me.canChat ? " Press New Chat to message a coworker." : " Your manager adds you to group chats."}</p>`;

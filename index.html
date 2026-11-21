@@ -4440,7 +4440,7 @@ function viewDashboard(){
   const tabs = [["general","General"],["branches","Branches"],["inventory","Inventory"],["call-center","Call Center"]];
   const now = new Date(), hr = now.getHours(), hello = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   const bday = new Date((state.date || now.toISOString().slice(0,10)) + "T12:00:00");
-  let h = `<div class="dhead"><div class="dht"><h1>${hello}, ${esc(state.userName||"Admin")}</h1></div>
+  let h = `<div class="dhead"><div class="dht"><h1>Summary</h1><p class="dsub">${bday.toLocaleDateString("en-GB", { weekday:"long" })} · ${bday.dmy ? bday.dmy() : ""}</p></div>
     </div>
     <div class="tabs dtabs">${tabs.map(([k,t])=>`<a href="#dashboard" data-dt="${k}" class="${state.dashTab===k?"on":""}">${t}${k==="kitchen"?' <span class="new">New!</span>':""}</a>`).join("")}</div>`;
   if(!act.length) return h + `<div class="card empty">No active branches yet.<br><br><a class="btn pri" href="#branches">Add your first branch</a></div>`;
