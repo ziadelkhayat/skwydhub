@@ -71,3 +71,22 @@
   html[data-theme=dark] body.v2 #view .v2title,html[data-theme=dark] body.v2 #view .v2sec :is(.v2secl a,.catl a):not(.on),html[data-theme=dark] body.v2 #view .v2empty b{color:#fff!important}
   html[data-theme=dark] body.v2 #view#view .v2rb{background:rgba(118,118,128,.24)!important;color:#fff!important}
 }
+
+/* phones: no top bar (the tab bar's More holds the menu); large titles with round buttons */
+@media (max-width:760px){
+  html body.v2p .app > .main > .top{display:none!important}
+  html body.v2p #view .ttabs{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none}
+  html body.v2p #view .ttabs > a{flex:none!important;white-space:nowrap!important}
+  html body.v2p #view .phead.v2gone h1,html body.v2p #view .phead.v2gone .hico{display:none!important}
+  html body.v2p #view .phead.v2gone:not(:has(> :not(h1):not(.hico):not(.sp):not(.ios-back))){display:none!important}
+  html body.v2p #view .v2bar{padding:6px 0 4px}
+  html body.v2p #view .v2btns{display:flex;align-items:center;gap:8px;min-height:44px}
+  html body.v2p #view .v2title{margin:2px 0 10px!important;font-size:34px!important;line-height:41px!important;font-weight:700!important;letter-spacing:-.8px!important}
+  html body.v2p #view#view .v2rb{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;border:0!important;border-radius:999px!important;background:rgba(118,118,128,.12)!important;color:#000!important;display:grid!important;place-items:center!important;box-shadow:none!important;position:relative}
+  html body.v2p #view#view .v2rb svg{width:20px!important;height:20px!important;stroke:currentColor!important;color:currentColor!important;margin:0!important}
+  html body.v2p #view#view .v2rb.v2tint{color:#0066D6!important}
+  html body.v2p #view#view .v2rb .fcount{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#0A66D8;color:#fff;font-size:11px;line-height:18px;text-align:center}
+  html body.v2p #view .app{padding-top:0}
+  html[data-theme=dark] body.v2p #view .v2title{color:#fff}
+  html[data-theme=dark] body.v2p #view#view .v2rb{background:rgba(118,118,128,.24)!important;color:#fff!important}
+}
