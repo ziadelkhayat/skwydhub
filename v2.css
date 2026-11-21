@@ -241,3 +241,4 @@ html body.v2{letter-spacing:-.2px}
 }
 html body.v2 #view#view > .v3,html body.v2 #view#view > .v3 *:not(h1),html body.v2 aside.side > .v3side,html body.v2 aside.side > .v3side *{line-height:normal}
 html body.v2 aside.side > .v3side .v3me svg{stroke:#6C6C70!important;color:#6C6C70!important}
+html body .app #view.hasset#view > .v3{margin-left:0!important}

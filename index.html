@@ -4871,6 +4871,10 @@ function viewBranch(b){
     <div id="bdData"></div><div class="dzsec"><h3>Delete Branch</h3><div class="dzcard"><p>If you delete this branch, all of its data will be permanently deleted. A branch can be deleted once it has no orders and no inventory transactions.</p><button class="btn danger" data-brdel="${esc(b.id)}">Delete</button></div></div></div>`;
 }
 function viewBranches(){
+  if(window.V3 && V3.on() && state.brTab!=="deleted"){ V3._brMore = v => { state.v3brMore = v; render(); };
+    const links = (NAV.find(n => n.t==="Manage")?.kids || []).filter(k => !k[0].startsWith("@") && (typeof canOpen!=="function" || canOpen(k[0]))).map(k => ["#" + k[0], k[1]==="Branches" ? "Stores" : k[1]]);
+    if(state.brOpen) setTimeout(() => { const ob = branches.find(x => x.id===state.brOpen); if(ob && state.v3brMore) paintBranchData(ob.id); }, 0);
+    return V3.stores({ branches, state, S, live, t12, brandName, links, tblList, viewBranch }); }
   const ob = state.brOpen && branches.find(x => x.id===state.brOpen); if(ob){ setTimeout(() => paintBranchData(ob.id), 0); const det = viewBranch(ob);
     if(innerWidth >= 1100){ const k = state.brOpen; let lst = ""; state.brOpen = ""; try{ lst = viewBranches(); }catch(_){ lst = ""; } finally{ state.brOpen = k; }   // iPad / computer: list left, store right
       if(lst) return `<div class="splitv" data-split="${esc(k)}"><section class="splitl" aria-label="Stores">${lst}</section><section class="splitr" aria-label="Store">${det}</section></div>`; }
@@ -5357,7 +5361,7 @@ $("#view").addEventListener("click", e => {
   if(e.target.closest(".noedit")) return;   // the Active switch in the branches list
   const bt = e.target.closest("[data-brtab]"); if(bt){ e.preventDefault(); e.stopPropagation(); state.brTab = bt.dataset.brtab; (state.brSel ||= new Set()).clear(); return render(); }
   const bd = e.target.closest("[data-bropen]"); if(bd && state.brTab==="deleted" && !e.target.closest(".bkc")){ e.preventDefault(); const b = branchesDel.find(x => x.id===bd.dataset.bropen); if(b) (async () => { if(!(await askYes(`Restore ${b.name}? It comes back to the branch list as active.`))) return; try{ await restoreBranch(b.id); toastOk("Branch restored"); }catch(err){ console.error(err); toast("Couldn't restore. Only the owner or an admin can do this."); } })(); return; }
-  const bo = e.target.closest("[data-bropen]"); if(bo){ e.preventDefault(); state.brOpen = bo.dataset.bropen; state.brMore = false; render(); window.scrollTo(0,0); return; }
+  const bo = e.target.closest("[data-bropen]"); if(bo){ e.preventDefault(); state.brOpen = bo.dataset.bropen; state.brMore = false; state.v3brMore = false; render(); window.scrollTo(0,0); return; }
   if(e.target.closest("[data-brback]")){ e.preventDefault(); state.brOpen = null; render(); return; }
   if(e.target.closest("[data-brmore]")){ state.brMore = !state.brMore; render(); return; }
   const bdl = e.target.closest("[data-brdel]"); if(bdl){ editing = bdl.dataset.brdel; $("#delBtn").click(); return; }
