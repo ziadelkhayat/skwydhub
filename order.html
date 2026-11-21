@@ -1106,6 +1106,7 @@ let goCart = false, zoneId = "", branchId = qrBranch || "", tableNo = qrTable ||
 const zoneList = () => zones.filter(z => modeOn("delivery", z.branch_id) && Array.isArray(z.polygon) && z.polygon.length >= 3);
 // is the branch open at a time? its weekly hours (Manage → Branches), with overnight hours running past midnight
 function brOpenNow(b, t){ t = t || new Date(); if(!b) return true;
+  const bs = b.settings || {}; if(bs.webOff) return false; if(mode==="delivery" && bs.pauseDelivery) return false;   // Manage → Stores: Accept Web Orders off, or Pause Deliveries on
   const H = (b.settings||{}).hours, D = ["sun","mon","tue","wed","thu","fri","sat"], hm = s => { const m = /^(\d{1,2}):(\d{2})/.exec(String(s||"")); return m ? +m[1]*60 + +m[2] : null; };
   const day = k => { const d = H && H[k]; if(d) return d.closed ? null : [hm(d.open), hm(d.close)]; return [hm(b.open_time ?? b.open), hm(b.close_time ?? b.close)]; };
   const now = t.getHours()*60 + t.getMinutes(), a = day(D[t.getDay()]), y = day(D[(t.getDay()+6)%7]);
