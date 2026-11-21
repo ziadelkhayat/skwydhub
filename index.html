@@ -3510,6 +3510,75 @@ html body .app #view .board{grid-template-columns:repeat(6,minmax(200px,1fr))!im
 html body .app #view .board .bcol > *:first-child{border-radius:16px!important;border:0!important}
 /* setting rows with a switch: the label on the left, the switch on the right */
 html body .app #view .card > label.toggle:only-child,html body .app #view .card > .toggle:first-child:last-child{display:flex!important;flex-direction:row-reverse;justify-content:space-between;width:100%;font-size:17px!important}
+/* ==== Dark mode, Apple style (black page, #1C1C1E cards, #2C2C2E fields, system blue #0A84FF) ==== */
+html:root[data-theme=dark]{--bg:#000!important;--accent:#0A84FF!important;color-scheme:dark}
+html:root[data-theme=dark] body,html:root[data-theme=dark] body .app,html:root[data-theme=dark] body .app .main,html:root[data-theme=dark] body .app #view,html:root[data-theme=dark] body .app #view .ostick{background:#000!important;color:#fff!important}
+html:root[data-theme=dark] body .app .main{box-shadow:none!important;border:0!important;margin:0!important}
+html:root[data-theme=dark] body .app aside.side{background:rgba(28,28,30,.78)!important;border-color:rgba(255,255,255,.08)!important;box-shadow:0 10px 40px rgba(0,0,0,.5)!important}
+html:root[data-theme=dark] body aside.side .nuhead h2,html:root[data-theme=dark] body .app aside.side nav.nav > a,html:root[data-theme=dark] body .app aside.side nav.nav .grp > button,html:root[data-theme=dark] body .app aside.side nav.nav .sub a{color:#fff!important}
+html:root[data-theme=dark] body .app aside.side nav.nav > a.on,html:root[data-theme=dark] body .app aside.side nav.nav .sub a.on{background:#0A84FF!important;color:#fff!important}
+html:root[data-theme=dark] body .app aside.side nav.nav .nsec,html:root[data-theme=dark] body .app aside.side nav.nav .sub .lbl{color:#8E8E93!important}
+html:root[data-theme=dark] body #nav a svg.nls,html:root[data-theme=dark] body #nav a svg.nls *,html:root[data-theme=dark] body #nav .grp > button svg.nls,html:root[data-theme=dark] body #nav .grp > button svg.nls *{stroke:#0A84FF!important;color:#0A84FF!important}
+html:root[data-theme=dark] body #nav > a.on svg.nls,html:root[data-theme=dark] body #nav > a.on svg.nls *{stroke:#fff!important;color:#fff!important}
+html:root[data-theme=dark] body aside.side .nusearch,html:root[data-theme=dark] body aside.side .nuacct{background:rgba(118,118,128,.24)!important;color:#8E8E93}
+html:root[data-theme=dark] body aside.side .nusearch input,html:root[data-theme=dark] body aside.side .nuacct b{color:#fff!important}
+/* cards, lists, tables */
+html:root[data-theme=dark] body .app #view .card,html:root[data-theme=dark] body .app #view .tbl,html:root[data-theme=dark] body .app #view .nubox,html:root[data-theme=dark] body .app #view.hasset > nav.ptset{background:#1C1C1E!important;color:#fff!important;border:0!important}
+html:root[data-theme=dark] body .app #view.hasset > nav.ptset::before{background:#000!important;color:#fff!important}
+html:root[data-theme=dark] body .app #view.hasset > nav.ptset a{color:#fff!important}
+html:root[data-theme=dark] body .app #view.hasset > nav.ptset a.on{background:#0A84FF!important}
+html:root[data-theme=dark] body .app #view .tbl th,html:root[data-theme=dark] body .app #view .tbl td,html:root[data-theme=dark] body .app #view .olisttbl tr.orow{border-color:rgba(84,84,88,.65)!important;color:inherit}
+html:root[data-theme=dark] body .app #view .tbl th{color:#8E8E93!important}
+html:root[data-theme=dark] body .app #view .tbl td{color:#fff!important}
+html:root[data-theme=dark] body .app #view .tbl tbody tr:hover td{background:rgba(255,255,255,.05)!important}
+html:root[data-theme=dark] body .app #view h1,html:root[data-theme=dark] body .app #view h2,html:root[data-theme=dark] body .app #view h3,html:root[data-theme=dark] body .app #view .nubox .hcv,html:root[data-theme=dark] body .app #view .olisttbl b{color:#fff!important}
+html:root[data-theme=dark] body .app #view .note,html:root[data-theme=dark] body .app #view small,html:root[data-theme=dark] body .app #view .nubox .hsub,html:root[data-theme=dark] body .app #view .olisttbl .note,html:root[data-theme=dark] body .app #view .f > label{color:#8E8E93!important}
+/* tabs, segmented controls, pickers, fields, buttons */
+html:root[data-theme=dark] body .app .ttabs:not(.rqtabs),html:root[data-theme=dark] body .app #view .dmseg,html:root[data-theme=dark] body .app #view .tabs,html:root[data-theme=dark] body .app #view .ptabs:not(.ptset){background:rgba(118,118,128,.24)!important}
+html:root[data-theme=dark] body .app .ttabs:not(.rqtabs) a,html:root[data-theme=dark] body .app #view .dmseg > button,html:root[data-theme=dark] body .app #view .tabs a,html:root[data-theme=dark] body .app #view .ptabs:not(.ptset) a{color:#fff!important}
+html:root[data-theme=dark] body .app .ttabs:not(.rqtabs) a.on,html:root[data-theme=dark] body .app #view .dmseg > button.on,html:root[data-theme=dark] body .app #view .tabs a.on,html:root[data-theme=dark] body .app #view .ptabs:not(.ptset) a.on{background:#636366!important;color:#fff!important;box-shadow:none!important}
+html:root[data-theme=dark] body .app #view input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),html:root[data-theme=dark] body .app #view select,html:root[data-theme=dark] body .app #view textarea,html:root[data-theme=dark] body .msel-f,html:root[data-theme=dark] body .app #view .osrch{background-color:rgba(118,118,128,.24)!important;color:#fff!important}
+html:root[data-theme=dark] body .app #view .osrch input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]){background:transparent!important}
+html:root[data-theme=dark] body .app #view .fbar .msel-f,html:root[data-theme=dark] body .app #view .phead .msel-f,html:root[data-theme=dark] body .app #view .phead .btn:not(.pri),html:root[data-theme=dark] body .app .btn.fltbtn:not(.fon),html:root[data-theme=dark] body .app #view .fbar input[type=date],html:root[data-theme=dark] body .app #view .drpbtn{background:rgba(44,44,46,.9)!important;border-color:rgba(255,255,255,.08)!important;color:#fff!important;box-shadow:none!important}
+html:root[data-theme=dark] body .app .btn:not(.pri):not(.danger),html:root[data-theme=dark] body .modal .btn:not(.pri):not(.danger),html:root[data-theme=dark] body .scrim .btn:not(.pri):not(.danger){background:rgba(118,118,128,.24)!important;color:#0A84FF!important}
+html:root[data-theme=dark] body .app .btn.pri,html:root[data-theme=dark] body .modal .btn.pri,html:root[data-theme=dark] body .scrim .btn.pri,html:root[data-theme=dark] body .app #view .btn.fltbtn.fon{background:#0A84FF!important;color:#fff!important;border-color:#0A84FF!important}
+html:root[data-theme=dark] body .app .fchip{background:rgba(10,132,255,.2)!important;color:#64B5FF!important}
+html:root[data-theme=dark] body .app .fchip span{color:#EBEBF5!important}
+/* windows and menus */
+html:root[data-theme=dark] body .scrim{background:rgba(0,0,0,.5)!important}
+html:root[data-theme=dark] body .modal{background:#1C1C1E!important;color:#fff!important}
+html:root[data-theme=dark] body .modal > header,html:root[data-theme=dark] body .modal > footer,html:root[data-theme=dark] body .modal .mfoot{background:rgba(28,28,30,.92)!important;border-color:rgba(84,84,88,.65)!important}
+html:root[data-theme=dark] body .modal > header .x{background:rgba(118,118,128,.24)!important;border:0!important;color:#fff!important}
+html:root[data-theme=dark] body .modal .body .f,html:root[data-theme=dark] body .modal.fltpanel > .body,html:root[data-theme=dark] body .modal.odrawer .odet{background:#2C2C2E!important;color:#fff!important}
+html:root[data-theme=dark] body .modal.odrawer,html:root[data-theme=dark] body .modal.odrawer > header{background:#1C1C1E!important}
+html:root[data-theme=dark] body .modal.fltpanel > .body .f{border-color:rgba(84,84,88,.65)!important}
+html:root[data-theme=dark] body .modal .body .f > label,html:root[data-theme=dark] body .modal.fltpanel > .body .f > label{color:#fff!important}
+html:root[data-theme=dark] body .modal input:not([type=checkbox]):not([type=radio]),html:root[data-theme=dark] body .modal select,html:root[data-theme=dark] body .modal textarea{color:#fff!important}
+html:root[data-theme=dark] body .ddmenu,html:root[data-theme=dark] body .numenu,html:root[data-theme=dark] body .msel-p{background:rgba(44,44,46,.88)!important;border-color:rgba(255,255,255,.08)!important;box-shadow:0 24px 60px rgba(0,0,0,.6)!important}
+html:root[data-theme=dark] body .ddmenu > a,html:root[data-theme=dark] body .ddmenu > button,html:root[data-theme=dark] body .numenu .nuopt,html:root[data-theme=dark] body .msel-o{color:#fff!important}
+html:root[data-theme=dark] body .numenu .ck svg,html:root[data-theme=dark] body .msel-o.on::before{filter:invert(1)}
+html:root[data-theme=dark] body .msel-q{background:rgba(118,118,128,.24)!important;color:#fff!important}
+html:root[data-theme=dark] body .app #view .olisttbl .oic{filter:none!important;color:#fff!important}
+html:root[data-theme=dark] body .app #view .olisttbl .oic.s-pending,html:root[data-theme=dark] body .app #view .olisttbl .oic.s-draft{background:#FF9F0A!important}
+html:root[data-theme=dark] body .app #view .olisttbl .oic.s-active,html:root[data-theme=dark] body .app #view .olisttbl .oic.s-open,html:root[data-theme=dark] body .app #view .olisttbl .oic.s-accepted{background:#0A84FF!important}
+html:root[data-theme=dark] body .app #view .olisttbl .oic.s-closed,html:root[data-theme=dark] body .app #view .olisttbl .oic.s-done{background:#30D158!important}
+html:root[data-theme=dark] body .app #view .olisttbl .oic.s-declined,html:root[data-theme=dark] body .app #view .olisttbl .oic.s-void{background:#FF453A!important}
+html:root[data-theme=dark] body .app #view .tbl th,html:root[data-theme=dark] body .app #view .tbl td{border-left:0!important;border-right:0!important}
+html:root[data-theme=dark] body .app #view .ttabs:not(.rqtabs) a.on,html:root[data-theme=dark] body .app #view .card .ttabs a.on,html:root[data-theme=dark] body .app #view .otabsc .ttabs a.on{background:#636366!important;color:#fff!important}
+html:root[data-theme=dark] body .app #view .phead .btn.pri,html:root[data-theme=dark] body .app #view .btn.pri{background:#0A84FF!important;color:#fff!important;border:0!important}
+html:root[data-theme=dark] body .app #view .btn.fltbtn:not(.fon),html:root[data-theme=dark] body .app #view .ttop .btn.fltbtn:not(.fon){background:rgba(44,44,46,.9)!important;color:#fff!important;border:1px solid rgba(255,255,255,.08)!important}
+html:root[data-theme=dark] body .app #view .pager,html:root[data-theme=dark] body .app #view .card .pager{background:transparent!important}
+html:root[data-theme=dark] body .app #view .pager .btn{background:rgba(118,118,128,.24)!important;color:#0A84FF!important}
+html:root[data-theme=dark] body .app #view .dbxbar .btn,html:root[data-theme=dark] body .app #view [data-dashcust]{background:rgba(10,132,255,.18)!important;color:#0A84FF!important}
+html:root[data-theme=dark] body .app #view .toggle .trk{background:rgba(120,120,128,.32)!important}
+html:root[data-theme=dark] body .app #view .toggle input:checked + .trk{background:#30D158!important}
+html:root[data-theme=dark] body .app #view .tti,html:root[data-theme=dark] body .app #view .ptabs a > span:first-child{background:transparent!important}
+html:root[data-theme=dark] body .app #view .btn.pri:disabled{background:#0A84FF!important;opacity:.35!important}
+html:root[data-theme=dark] body #ccBox > header .x,html:root[data-theme=dark] body .modal#crudBox > header .x,html:root[data-theme=dark] body .scrim .modal > header .x{background:rgba(118,118,128,.24)!important;color:#fff!important;border:0!important;box-shadow:none!important}
+html:root[data-theme=dark] body .scrim .modal > header h2{border:0!important;background:transparent!important;color:#fff!important}
+html:root[data-theme=dark] body .app aside.side nav.nav .grp,html:root[data-theme=dark] body .app aside.side nav.nav .grp.open,html:root[data-theme=dark] body .app aside.side nav.nav .sub{background:transparent!important}
+html:root[data-theme=dark] body .app #view .card .ttop,html:root[data-theme=dark] body .app #view .card .crsrch,html:root[data-theme=dark] body .app #view .card.otabsc{background:#1C1C1E!important;border-color:rgba(84,84,88,.65)!important}
+html:root[data-theme=dark] body .app #view .empty{background:transparent!important}
 </style>
 </head>
 <body>

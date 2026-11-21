@@ -1108,6 +1108,18 @@ html[data-theme=dark] body .app .fchips .fclear{color:#7bb5f4}
 html[data-theme=dark] body .modal.fltpanel > .body{background:#101420!important}
 html[data-theme=dark] body .modal.fltpanel > .body .f > label{color:#ededed!important}
 html[data-theme=dark] body .modal.fltpanel > footer #cfReset, html[data-theme=dark] body .modal.fltpanel > footer #ofReset, html[data-theme=dark] body .modal.fltpanel > footer .freset{color:#7bb5f4!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app aside.side{border-color:rgba(40,45,62,.08)!important;box-shadow:0 10px 40px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] html:root[data-theme=dark] body #nav a svg.nls, html[data-theme=dark] html:root[data-theme=dark] body #nav a svg.nls *, html[data-theme=dark] html:root[data-theme=dark] body #nav .grp > button svg.nls, html[data-theme=dark] html:root[data-theme=dark] body #nav .grp > button svg.nls *{stroke:#7bb7f4!important;color:#7bb7f4!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .tbl tbody tr:hover td{background:rgba(16,20,32,.05)!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .fbar .msel-f, html[data-theme=dark] html:root[data-theme=dark] body .app #view .phead .msel-f, html[data-theme=dark] html:root[data-theme=dark] body .app #view .phead .btn:not(.pri), html[data-theme=dark] html:root[data-theme=dark] body .app .btn.fltbtn:not(.fon), html[data-theme=dark] html:root[data-theme=dark] body .app #view .fbar input[type=date], html[data-theme=dark] html:root[data-theme=dark] body .app #view .drpbtn{border-color:rgba(40,45,62,.08)!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app .btn:not(.pri):not(.danger), html[data-theme=dark] html:root[data-theme=dark] body .modal .btn:not(.pri):not(.danger), html[data-theme=dark] html:root[data-theme=dark] body .scrim .btn:not(.pri):not(.danger){color:#7bb7f4!important}
+html[data-theme=dark] html:root[data-theme=dark] body .ddmenu, html[data-theme=dark] html:root[data-theme=dark] body .numenu, html[data-theme=dark] html:root[data-theme=dark] body .msel-p{border-color:rgba(40,45,62,.08)!important;box-shadow:0 24px 60px rgba(0,0,0,0.6)!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .olisttbl .oic.s-pending, html[data-theme=dark] html:root[data-theme=dark] body .app #view .olisttbl .oic.s-draft{background:#726145!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .olisttbl .oic.s-closed, html[data-theme=dark] html:root[data-theme=dark] body .app #view .olisttbl .oic.s-done{background:#477552!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .btn.fltbtn:not(.fon), html[data-theme=dark] html:root[data-theme=dark] body .app #view .ttop .btn.fltbtn:not(.fon){border:1px solid rgba(40,45,62,.08)!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .pager .btn{color:#7bb7f4!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .dbxbar .btn, html[data-theme=dark] html:root[data-theme=dark] body .app #view [data-dashcust]{color:#7bb7f4!important}
+html[data-theme=dark] html:root[data-theme=dark] body .app #view .toggle input:checked + .trk{background:#477552!important}
 html[data-theme=dark] th, html[data-theme=dark] td{border-bottom:1px solid #31374d}
 html[data-theme=dark] body{color:#d5d3e2}
 html[data-theme=dark] h2{color:#aba9b5}
@@ -1185,6 +1197,7 @@ html[data-theme=dark] body .app aside.side{background:rgba(16,20,32,.72)!importa
 @media (min-width:761px){
 html[data-theme=dark] body .scrim .modal.odrawer{background:#101420!important;box-shadow:0 20px 60px rgba(0,0,0,0.396)!important}
 }
+html[data-theme=dark] [style*="background:#30D158"]{background:#477552!important}
 html[data-theme=dark] [style*="background:#34C759"]{background:#487754!important}
 html[data-theme=dark] [style*="background:#99C9FF"]{background:#273441!important}
 html[data-theme=dark] [style*="background:#C7C7CC"]{background:#242c47!important}
@@ -1226,6 +1239,7 @@ html[data-theme=dark] [style*="background:#FCE7F3"]{background:#271821!important
 html[data-theme=dark] [style*="background:#FDECEC"]{background:#251717!important}
 html[data-theme=dark] [style*="background:#FEF3C7"]{background:#322e1e!important}
 html[data-theme=dark] [style*="background:#FF9500"]{background:#766247!important}
+html[data-theme=dark] [style*="background:#FF9F0A"]{background:#726145!important}
 html[data-theme=dark] [style*="background:#FFF1E6"]{background:#271e17!important}
 html[data-theme=dark] [style*="background:#FFF4E5"]{background:#272118!important}
 html[data-theme=dark] [style*="background:#FFFFFF"]{background:#101420!important}
@@ -1388,6 +1402,7 @@ html[data-theme=dark] [style*="color:#007AFF"]{color:#7bb5f4!important}
 html[data-theme=dark] [style*="color:#0369a1"]{color:#8bd0f6!important}
 html[data-theme=dark] [style*="color:#067647"]{color:#9ff7d2!important}
 html[data-theme=dark] [style*="color:#075985"]{color:#97d5f7!important}
+html[data-theme=dark] [style*="color:#0A84FF"]{color:#7bb7f4!important}
 html[data-theme=dark] [style*="color:#0B1330"]{color:#c8d1f2!important}
 html[data-theme=dark] [style*="color:#0B2E5C"]{color:#adccf5!important}
 html[data-theme=dark] [style*="color:#0C1738"]{color:#c3cff2!important}
