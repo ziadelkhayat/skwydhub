@@ -4443,6 +4443,7 @@ function viewDashboard(){
   let h = `<div class="dhead"><div class="dht"><h1>Summary</h1><p class="dsub">${bday.toLocaleDateString("en-GB", { weekday:"long" })} · ${bday.dmy ? bday.dmy() : ""}</p></div>
     </div>
     <div class="tabs dtabs">${tabs.map(([k,t])=>`<a href="#dashboard" data-dt="${k}" class="${state.dashTab===k?"on":""}">${t}${k==="kitchen"?' <span class="new">New!</span>':""}</a>`).join("")}</div>`;
+  if(act.length && storeMode==="db" && window.V3 && V3.on() && (!state.dashTab || state.dashTab==="general")){ const v3 = V3.summary({ DASH, state, money, hours24, perLbl, rangeDays, dmode, brandList, activeBranches, branches, PAY_LBL, loadDash }); if(v3) return v3; }
   if(!act.length) return h + `<div class="card empty">No active branches yet.<br><br><a class="btn pri" href="#branches">Add your first branch</a></div>`;
   if(storeMode!=="db") return h + placeholder("Dashboard", "Sign in to see live sales.");
   loadDash();
