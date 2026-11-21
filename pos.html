@@ -1284,6 +1284,23 @@ html:root body #app #abar .abtn.abtn.abtn.abtn span,html:root body #app #abar .a
 html:root body #app #abar .abtn.abtn .rti svg,html:root body #app #abar .abtn.abtn .rti svg *,html:root body #app #abar .abtn.abtn svg{color:#fff!important;stroke:#fff!important}
 html:root body #app #grid .ctile.ctile,html:root body #app #grid .ctile.ctile2{border:0!important;border-radius:24px!important;background:#fff!important;overflow:hidden}
 html:root body #app #grid#grid#grid>.prod,html:root body #app #grid#grid#grid>.ctile{border:0!important;border-radius:24px!important;background:#fff!important;overflow:hidden!important;box-shadow:none!important}
+/* the order panel sits on the right (design) */
+@media (min-width:701px){
+  html:root body #app .main.main{grid-template-columns:minmax(0,1fr) 42%!important}
+  html:root body #app .main.main.sqfit{grid-template-columns:var(--rw) minmax(0,1fr)!important}
+  html:root body #app .main.main > section.rside{order:1}
+  html:root body #app .main.main > aside.cart{order:2}
+}
+/* sign-in and activation screens */
+html:root body .center .panel{border-radius:34px!important;box-shadow:0 20px 60px rgba(0,0,0,.10)!important;border:0!important}
+html:root body .center .codein,html:root body .center input{border:0!important;border-radius:14px!important;background:rgba(118,118,128,.12)!important;font-size:22px!important;box-shadow:none!important}
+html:root body .center .codein:focus,html:root body .center input:focus{box-shadow:0 0 0 3px rgba(0,122,255,.35)!important}
+html:root body .center .pinpad button{border:0!important;border-radius:999px!important;background:rgba(120,120,128,.12)!important;color:#000!important;font-size:24px!important;font-weight:500!important;box-shadow:none!important}
+html:root body .center button.big,html:root body #actBtn{border-radius:999px!important;background:#007AFF!important;color:#fff!important;min-height:56px;font-size:17px!important;font-weight:600!important;box-shadow:none!important;border:0!important}
+html:root body .center button.big:disabled,html:root body #actBtn:disabled{opacity:.35!important}
+html:root body #actForm .pinpad.npad button,html:root body #lock .pinpad.npad button{border:0!important;border-radius:999px!important;background:rgba(120,120,128,.12)!important;color:#000!important;box-shadow:none!important}
+html:root body #actForm #actBtn.big{border-radius:999px!important;background:#007AFF!important;box-shadow:none!important}
+html:root body #actForm #code.codein{border:0!important;border-radius:14px!important;background:rgba(118,118,128,.12)!important}
 </style>
 </head>
 <body>
