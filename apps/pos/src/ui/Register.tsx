@@ -31,7 +31,7 @@ const TYPE_LBL: Record<OType, string> = { dinein: "Dine-in", takeaway: "Pickup",
 const GAP = 12, PADX = 16;
 
 export function Register() {
-  const { S, device, branch, online, cashier, setCashier, write, pending, reload } = useStore();
+  const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
   const { width: W, height: H } = useWindowDimensions();
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
@@ -115,7 +115,7 @@ export function Register() {
   const pay = async () => {
     if (!cart.length || !ready(true)) return;
     let split = false;
-    const p = await ask<Paid | null | "split">(done => <PayDialog x={x} total={t.total} onDone={done} onSplit={() => done("split")} />);
+    const p = await ask<Paid | null | "split">(done => <PayDialog x={x} total={t.total} phone={live_eo?.phone || cust.phone} onDone={done} onSplit={() => done("split")} />);
     if (!p) return;
     const now = new Date().toISOString(), total = t.total;
     // split check (pos.html): every part is its own sale with its own number from the server, linked by payment.split; each carries its share of the items
@@ -140,9 +140,11 @@ export function Register() {
       if (last.type === "cash") await ask<void>(done => <ChangeShown amount={last.change} title={`Sale complete · ${parts.length} checks`} money={cur} onClose={() => done()} />); else say(`Sale complete · ${money(S, total)} · ${parts.length} checks`);
     }
     if (split || p === "split") { if (device!.settings?.lockAfterSale && usePins(S)) setCashier(null); return; }
-    const payment = { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) };
-    if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no: await takeNo() }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
-    else write("orders", newId("pos"), { ...base(await takeNo()), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
+    const { haId, ...pp } = p, payment = { ...pp, ...(t.rnd ? { rounding: t.rnd } : {}) }, oid = live_eo ? live_eo.id : newId("pos"), no = live_eo?.no || await takeNo();
+    if (haId && sb) { const { error } = await sb.from("house_account_txns").insert({ customer_id: haId, kind: "charge", amount: +total.toFixed(2), method: "House Account", order_id: oid, order_ref: String(no), branch_id: device!.branchId, created_by: who() });
+      if (error) say("Sale saved, but the house account charge failed: " + error.message); }
+    if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
+    else write("orders", oid, { ...base(no), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} second={CUR2(S) ? CUR2(S)!.code + " " + num2(chg2(S, p.change), CUR2(S)!.dec) : ""} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
