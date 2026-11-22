@@ -35,7 +35,7 @@ const useId = () => useSearchParams()[0].get("id") || "";
 const setDoc = async (id: string, data: any, msg: string) => { try { await put("settings", id, data); toast(msg); } catch { toast("Couldn't save", "error"); } };
 
 /* tags of a record: settings "tags" { list:[{id,name,type}], on:{ [type]: { [recordId]: [tagIds] } } } */
-function Tags({ s, type, id }: { s: S; type: string; id: string }) {
+export function Tags({ s, type, id }: { s: S; type: string; id: string }) {
   const [open, setOpen] = useState(false), doc: any = s.settings.find(x => x.id === "tags") || {}, list = (doc.list || []).filter((t: any) => t.type === type && !t.deleted);
   const mine: string[] = (((doc.on || {})[type] || {})[id] || []).filter((t: string) => list.some((x: any) => x.id === t));
   return <Sec title="Tags" act={<Button size="sm" variant="outline" onClick={() => setOpen(true)}>Add</Button>}>
@@ -61,11 +61,28 @@ export function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
       <tr><td colSpan={3} className={TD + " text-end font-medium"}>Total</td><td className={TD + " font-semibold text-gray-800 dark:text-white/90"}>{cost5(ings.reduce((a, g) => a + lineCost(g), 0))}</td><td /></tr></tbody></table></div>}
   </Sec>;
 }
-function Allergens({ s, col, rec }: { s: S; col: string; rec: Row }) {
+export function Allergens({ s, col, rec }: { s: S; col: string; rec: Row }) {
   const [open, setOpen] = useState(false), doc: any = s.settings.find(x => x.id === "allergens") || {}, list: string[] = Array.isArray(doc.list) ? doc.list : DEF_ALLERGENS, mine: string[] = rec.allergens || [];
   return <Sec title="Allergens" act={<Button size="sm" variant="outline" onClick={() => setOpen(true)}>Edit</Button>}>
     {!mine.length ? <None t="No allergens." /> : <div className="flex flex-wrap gap-2">{mine.map(a => <Badge key={a} variant="light" color="warning">{a}</Badge>)}</div>}
     {open && <PickDialog title="Allergens" opts={list.map(a => [a, a])} value={mine} onClose={() => setOpen(false)} onSave={async v => { try { await put(col, rec.id, { allergens: v }); toast("Allergens saved"); setOpen(false); } catch { toast("Couldn't save", "error"); return false; } }} />}
+  </Sec>;
+}
+
+/* nutritional values of an item: product.nutrition { calories, fat, … } */
+const NUTR: [string, string, string][] = [["calories", "Calories", "kcal"], ["fat", "Total fat", "g"], ["satFat", "Saturated fat", "g"], ["transFat", "Trans fat", "g"], ["cholesterol", "Cholesterol", "mg"], ["carbs", "Carbohydrate", "g"], ["fiber", "Fiber", "g"], ["sugars", "Total sugars", "g"], ["addedSugars", "Added sugars", "g"], ["protein", "Protein", "g"], ["salt", "Salt", "g"], ["sodium", "Sodium", "mg"], ["caffeine", "Caffeine", "mg"]];
+export function Nutrition({ col, rec }: { col: string; rec: Row }) {
+  const cur: any = rec.nutrition || {}, [open, setOpen] = useState(false), [v, setV] = useState<Record<string, string>>({});
+  const has = (k: string) => cur[k] != null && cur[k] !== "";
+  const start = () => { setV(Object.fromEntries(NUTR.map(([k]) => [k, has(k) ? String(cur[k]) : ""]))); setOpen(true); };
+  const save = async () => { const o: any = {}; Object.entries(v).forEach(([k, n]) => { if (n.trim() !== "") o[k] = +n; });
+    try { await put(col, rec.id, { nutrition: o }); toast("Nutritional values saved"); setOpen(false); } catch { toast("Couldn't save", "error"); } };
+  return <Sec title="Nutritional Values" act={<Button size="sm" variant="outline" onClick={start}>Edit</Button>}>
+    {!NUTR.some(([k]) => has(k)) ? <None t="No nutritional values." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Ingredient", "Value", "Unit"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
+      {NUTR.filter(([k]) => has(k)).map(([k, l, u]) => <tr key={k} className={TR}><td className={TD}>{l}</td><td className={TD}>{cur[k]}</td><td className={TD}>{u}</td></tr>)}</tbody></table></div>}
+    {open && <Dialog open onOpenChange={x => !x && setOpen(false)}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Nutritional Values</DialogTitle></DialogHeader>
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{NUTR.map(([k, l, u]) => <F key={k} l={`${l} (${u})`}><Input type="number" min="0" step="any" value={v[k]} onChange={e => setV(o => ({ ...o, [k]: e.target.value }))} /></F>)}</div>
+      <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={save}>Save</Button></div></DialogContent></Dialog>}
   </Sec>;
 }
 
