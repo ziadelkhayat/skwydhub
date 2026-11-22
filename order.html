@@ -1339,7 +1339,7 @@ function locCard(){ const b = branches.find(x => x.id===branchId), ch = `<i clas
   const hrs = b ? brHoursToday(b) : "", note = mode==="takeaway" ? "Ready for you to collect" : "Order from your table";
   return b
     ? `<button type="button" class="dlvtop" data-loc><span class="di">${ic(mode==="takeaway" ? "bag" : "dine")}</span><span><b>${mode==="takeaway" ? "Pick up from" : "Dine in at"} ${esc(b.name)}</b><small>${note}${b.settings?.address || bcfg(b.id).address ? " · " + esc(b.settings?.address || bcfg(b.id).address) : ""}</small></span>${ch}</button>`
-    : `<button type="button" class="dlvtop" data-loc><span class="di">${ic(mode==="takeaway" ? "bag" : "dine")}</span><span><b>${mode==="takeaway" ? "Choose a pickup branch" : "Choose a branch"}</b><small>Tap to see the branches near you</small></span>${ch}</button>`; }
+    : `<button type="button" class="dlvtop" data-loc><span class="di">${ic(mode==="takeaway" ? "bag" : "dine")}</span><span><b>${mode==="takeaway" ? "Choose a pickup store" : "Choose a store"}</b><small>Tap to see the stores near you</small></span>${ch}</button>`; }
 function renderTop0(){
   const el = $("#topbar"); if(!el) return;
   const cn = cart.reduce((a,i) => a + i.qty, 0); let ab = `<button type="button" class="tcart" data-tcart aria-label="Basket${cn ? ", " + cn + " items" : ""}">${ic("cart")}<span class="n">${cn || ""}</span></button>`;
@@ -1349,7 +1349,7 @@ function renderTop0(){
   if(qrBranch){ el.innerHTML = `<div class="tbrow tbhead">${tbBrand()}</div>`; $("#locbar").innerHTML = `<div class="tbmode"><span class="otype"><span class="oi">${ic("dine")}</span>Dine-in</span>${sbtn}${ab}</div>`; return; }
   const z = zones.find(x => x.id===zoneId), bn = branches.find(b => b.id===branchId)?.name;
   const loc = mode==="delivery" ? (addr ? `<span><small>Deliver to · ${esc(addr.label || "Pinned location")}</small><b>${esc(addrLine(addr) || addr.label || "Pinned location")}</b></span>` : `<span><b>Set your delivery location</b></span>`)
-    : bn ? `<span><small>${mode==="takeaway" ? "Pick up from" : "Dine in at"}</small><b>${esc(bn)}</b></span>` : `<span><b>${mode==="takeaway" ? "Select pickup branch" : "Select a branch"}</b></span>`;
+    : bn ? `<span><small>${mode==="takeaway" ? "Pick up from" : "Dine in at"}</small><b>${esc(bn)}</b></span>` : `<span><b>${mode==="takeaway" ? "Select pickup store" : "Select a store"}</b></span>`;
   el.innerHTML = `<div class="tbrow tbhead">${tbBrand()}</div>`; $("#locbar").innerHTML = `<div class="tbmode"><button type="button" class="otype" data-otype ${ms.length < 2 ? "disabled" : ""}><span class="oi">${ic(cur[2])}</span>${cur[1]}${ms.length > 1 ? "<i>▾</i>" : ""}</button>${sbtn}${ab}</div>
     ${mode==="delivery" && addr && z ? "" : locCard()}
     ${mode==="delivery" && addr ? (z ? `<button type="button" class="dlvtop" data-loc><span class="di">${ic("pin")}</span><span><b>Delivered from ${esc(branches.find(x => x.id===z.branch_id)?.name || "")}</b><small>${z.eta ? `About ${esc(z.eta)} min · ` : ""}${+z.fee ? usd(z.fee) + " delivery" : "Free delivery"}</small></span><i class="dchev">›</i></button>` : `<div class="tchips"><span class="tchip bad">Not delivering here</span></div>`) : ""}`;
@@ -1415,7 +1415,7 @@ function drawLoc(){
   } else {
     const list = branches.filter(b => modeOn(mode, b.id));
     h += `<div class="lbrs">${list.map(b => { const x = bcfg(b.id), o = brOpenNow(b), ok = (o || CO().schedule) && !x.paused, hh = brHoursToday(b);
-      return `<button type="button" class="lbr${branchId===b.id ? " on" : ""}" data-lbranch="${esc(b.id)}" ${ok ? "" : "disabled"}><span class="li">${ic(mode==="takeaway" ? "bag" : "dine")}</span><span><b>${esc(b.name)}</b><small>${x.paused ? "Not taking orders now" : (o ? '<em class="ok2">Open</em>' : "Closed now") + (hh ? " · " + esc(hh) : "")}${mode==="takeaway" && x.prep ? " · ready in ~" + esc(x.prep) + " min" : ""}</small>${x.address ? `<small>${esc(x.address)}</small>` : ""}</span>${branchId===b.id ? `<i class="ok2">✓</i>` : ""}</button>`; }).join("") || '<div class="info">No branch takes these orders right now.</div>'}</div>`;
+      return `<button type="button" class="lbr${branchId===b.id ? " on" : ""}" data-lbranch="${esc(b.id)}" ${ok ? "" : "disabled"}><span class="li">${ic(mode==="takeaway" ? "bag" : "dine")}</span><span><b>${esc(b.name)}</b><small>${x.paused ? "Not taking orders now" : (o ? '<em class="ok2">Open</em>' : "Closed now") + (hh ? " · " + esc(hh) : "")}${mode==="takeaway" && x.prep ? " · ready in ~" + esc(x.prep) + " min" : ""}</small>${x.address ? `<small>${esc(x.address)}</small>` : ""}</span>${branchId===b.id ? `<i class="ok2">✓</i>` : ""}</button>`; }).join("") || '<div class="info">No store takes these orders right now.</div>'}</div>`;
   }
   sh.innerHTML = h;
 }
@@ -1623,7 +1623,7 @@ function drawItem(first){
       ${nutRows(b||p) ? `<details class="ipnut"><summary>Nutritional values</summary><table>${nutRows(b||p)}</table></details>` : ""}</div>${vg}${gs}
     ${CO().notes !== false ? `<details class="ipgg ipnote"${IT.note ? " open" : ""}><summary class="ght"><div><b>Special instructions</b></div><span class="ipchev" aria-hidden="true"></span></summary><textarea id="ipNote" rows="2" placeholder="Tell Us Here">${esc(IT.note)}</textarea></details>` : ""}
     </div>
-    <div class="ipft">${needLoc ? "" : `<div class="ipq ipqf"><button type="button" data-iq="-1" ${IT.qty <= (IT.edit!=null ? 0 : 1) ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div>`}${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a branch"}</button>`
+    <div class="ipft">${needLoc ? "" : `<div class="ipq ipqf"><button type="button" data-iq="-1" ${IT.qty <= (IT.edit!=null ? 0 : 1) ? "disabled" : ""} aria-label="Less">${ic("minus")}</button><b>${IT.qty}</b><button type="button" data-iq="1" aria-label="More">${ic("plus")}</button></div>`}${needLoc ? `<button type="button" class="primary" data-iloc>${mode==="delivery" ? "Select your location" : "Select a store"}</button>`
       : `${IT.edit!=null && IT.qty===0 ? `<button type="button" class="primary iprm" data-iadd>Remove from cart</button>` : IT.edit!=null && IT.orig && IT.qty===IT.orig.qty && itSig()===IT.orig.sig ? `<button type="button" class="primary ipin" data-iadd>In cart<small>${usd(itUnit() * IT.qty)}</small></button>` : `<button type="button" class="primary" data-iadd>${IT.edit!=null ? "Update item" : `Add ${IT.qty} to basket`}<small>${usd(itUnit() * IT.qty)}</small></button>`}`}</div>`;
   if(!first) el.querySelector(".pg").scrollTop = y;
 }
@@ -1711,7 +1711,7 @@ function renderBar(){ const n = cart.reduce((a,i)=>a+i.qty,0); $("#bar").hidden 
 function renderLocs(){
   const list = branches.filter(b => ["delivery","takeaway","dinein"].some(m => modeOn(m, b.id)));
   if(true || !list.length){ $("#locBox").innerHTML = ""; return; }   // the branches section isn't shown on the ordering page
-  $("#locBox").innerHTML = `<div class="locs"><h2 class="ch">Our branches</h2><div class="grid">${list.map(b => { const x = bcfg(b.id), o = brOpenNow(b) && !x.paused;
+  $("#locBox").innerHTML = `<div class="locs"><h2 class="ch">Our stores</h2><div class="grid">${list.map(b => { const x = bcfg(b.id), o = brOpenNow(b) && !x.paused;
     return `<div class="loc"><b>${esc(b.name)}</b><div>${ic("clock")}${o ? '<span class="ok2">Open</span>' : "Closed"} · ${esc(brHoursToday(b) || "")}</div>${x.address ? `<div>${ic("pin")}${esc(x.address)}</div>` : ""}${x.phone ? `<div>${ic("phone")}<a href="tel:${esc(String(x.phone).replace(/[^\d+]/g,""))}">${esc(x.phone)}</a></div>` : ""}</div>`; }).join("")}</div></div>`;
 }
 
@@ -1862,7 +1862,7 @@ document.addEventListener("click", e => { let t;
 
 /* ---------- past orders: from the account (skwyd_my_orders), else the ones placed on this device ---------- */
 const OHK = () => "skwyd_orders_" + brandId;
-const OST = { review:["Waiting for confirmation","w"], pending:["Waiting for the branch","w"], active:["Being prepared","a"], closed:["Completed","c"], done:["Completed","c"], void:["Cancelled","bad"], voided:["Cancelled","bad"], declined:["Declined","bad"], returned:["Returned","bad"] };
+const OST = { review:["Waiting for confirmation","w"], pending:["Waiting for the store","w"], active:["Being prepared","a"], closed:["Completed","c"], done:["Completed","c"], void:["Cancelled","bad"], voided:["Cancelled","bad"], declined:["Declined","bad"], returned:["Returned","bad"] };
 async function openOrders(){
   const sh = $("#sheet"); sh.className = "sheet locsheet acsheet";
   const head = `<div class="grab"></div><div class="lshead"><span></span><h3>Your orders</h3><button type="button" class="x" data-close aria-label="Close">×</button></div>`;
@@ -1978,9 +1978,9 @@ async function placeOrder(e){
   e.preventDefault();
   const err = t => { $("#coErr").textContent = t; };
   const b = curBranch();
-  if(!b){ err(mode==="delivery" ? (pin ? "We don't deliver to this location. Change it from the top of the page." : "Set your delivery location first.") : "Choose a branch first."); setTimeout(() => openLoc("main"), 900); return; }
+  if(!b){ err(mode==="delivery" ? (pin ? "We don't deliver to this location. Change it from the top of the page." : "Set your delivery location first.") : "Choose a store first."); setTimeout(() => openLoc("main"), 900); return; }
   const bb = branches.find(x => x.id===b), later = document.querySelector('input[name="when"]:checked')?.value === "later", at = later ? new Date(+$("#sTime")?.value) : null;
-  if(bcfg(b).paused) return err(`${bb?.name || "This branch"} isn't taking web orders right now.`);
+  if(bcfg(b).paused) return err(`${bb?.name || "This store"} isn't taking web orders right now.`);
   if(!later && bb && !brOpenNow(bb)){ const hh = brHoursToday(bb); return err(`${bb.name} is closed now${hh && hh!=="closed today" ? " · opening hours today " + hh : ""}.${CO().schedule ? " Schedule your order instead." : " Please order when it's open."}`); }
   if(later && !(at && +at)) return err("Pick a time for your order.");
   for(const id of ["cName","cPhone","cA_street","cA_building","cA_floor"]){ const el = $("#"+id); if(el && !el.value.trim()){ el.focus(); return err("Please fill in the required fields."); } }

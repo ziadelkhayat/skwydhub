@@ -358,7 +358,7 @@ async function viewClock(){
       <button class="cbtn ${o ? "outb" : ""}" id="cb">${ic(o ? "out" : "in")}${o ? "Clock Out" : "Clock In"}</button>
       <div><span class="st ${o ? "on" : ""}"><i></i>${o ? `Clocked in since ${hm(o.at)}${br ? " · " + esc(br) : ""}` : "Not clocked in"}</span></div>
       <div class="loc" id="cq" style="color:var(--warn);font-weight:600" hidden></div><div class="loc" id="cloc">${ic("pin").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"')} Your location is checked when you press the button</div></div>
-    <button class="btn ghost" style="margin-bottom:14px" id="myh">${ic("hrs").replace("<svg", '<svg style="width:18px;height:18px"')} My Hours</button><div class="card"><h2 style="margin-top:0">Next Shift</h2>${next ? `<div class="kv"><span>Day</span><b>${next.day===ymd(new Date()) ? "Today" : new Date(next.day + "T12:00:00").toLocaleDateString("en-GB", { weekday:"long" }) + " " + dmy(next.day)}</b></div><div class="kv"><span>Time</span><b>${t5(next.start)} – ${t5(next.end)}</b></div><div class="kv"><span>Branch</span><b>${esc(next.branch || "—")}</b></div>${next.jobTitle ? `<div class="kv"><span>Job</span><b>${esc(next.jobTitle)}</b></div>` : ""}` : `<p class="empty" style="padding:6px">No upcoming shifts</p>`}</div>`;
+    <button class="btn ghost" style="margin-bottom:14px" id="myh">${ic("hrs").replace("<svg", '<svg style="width:18px;height:18px"')} My Hours</button><div class="card"><h2 style="margin-top:0">Next Shift</h2>${next ? `<div class="kv"><span>Day</span><b>${next.day===ymd(new Date()) ? "Today" : new Date(next.day + "T12:00:00").toLocaleDateString("en-GB", { weekday:"long" }) + " " + dmy(next.day)}</b></div><div class="kv"><span>Time</span><b>${t5(next.start)} – ${t5(next.end)}</b></div><div class="kv"><span>Store</span><b>${esc(next.branch || "—")}</b></div>${next.jobTitle ? `<div class="kv"><span>Job</span><b>${esc(next.jobTitle)}</b></div>` : ""}` : `<p class="empty" style="padding:6px">No upcoming shifts</p>`}</div>`;
   clk = setInterval(() => { const n = $("#cnow"); if(n) n.textContent = hm(new Date()); else clearInterval(clk); }, 10000);
   $("#cb").onclick = clockPress; paintQ(); const mh = $("#myh"); if(mh) mh.onclick = () => { S.tab = "hrs"; document.querySelectorAll("[data-tab]").forEach(b => b.classList.remove("on")); viewHrs(); };
 }
@@ -371,8 +371,8 @@ async function clockPress(){
   let c; try{ c = await here(); }catch(e){ return fail(e.message); }   // GPS works without internet
   // check the distance on the phone too, so an offline punch isn't saved from the wrong place
   const near = (S.me.branches||[]).filter(x => x.lat != null && x.lng != null).map(x => ({ ...x, m: distM(c.latitude, c.longitude, +x.lat, +x.lng) })).sort((a, z) => a.m - z.m)[0];
-  if(!near) return fail("Your branch has no location yet. Ask your manager to set it in Manage → Branches.");
-  if(near.m > 150 + Math.min(c.accuracy || 0, 100)) return fail(`You are ${Math.round(near.m)} m from ${near.name}. Clock in at the branch.`);
+  if(!near) return fail("Your store has no location yet. Ask your manager to set it in Manage → Stores.");
+  if(near.m > 150 + Math.min(c.accuracy || 0, 100)) return fail(`You are ${Math.round(near.m)} m from ${near.name}. Clock in at the store.`);
   const punch = { lat:c.latitude, lng:c.longitude, acc:c.accuracy, at:new Date().toISOString(), in:goIn, branchId:near.id };
   const save = () => { setQ([...Q(), punch]); toast(`${goIn ? "Clocked in" : "Clocked out"} at ${hm(punch.at)} · saved on this phone, will sync when you're online`, "ok"); viewClock(); };
   if(!navigator.onLine || Q().length) return save();   // offline, or older punches still waiting: keep the order
@@ -644,7 +644,7 @@ function orderSheet(o){
     ${its.length ? `<div style="margin:10px 0 4px;font-weight:700">Items</div>${its.map(i => `<div class="kv"><span>${+i.qty || 1}× ${esc(i.name)}</span><b>${money((+i.price || 0) * (+i.qty || 1))}</b></div>`).join("")}` : ""}
     <div class="kv" style="font-size:17px"><span>Collect</span><b>${o.payment && o.status==="closed" ? "Paid" : money(o.total)}</b></div>
     <div class="acts" style="flex-wrap:wrap">${mu ? `<a class="btn ghost" href="${esc(mu)}" target="_blank" rel="noopener" style="text-decoration:none">${ic("map").replace("<svg", '<svg style="width:18px;height:18px"')} Map</a>` : ""}${o.phone ? `<a class="btn ghost" href="tel:${esc(o.phone)}" style="text-decoration:none">${ic("phone").replace("<svg", '<svg style="width:18px;height:18px"')} Call</a>` : ""}</div>
-    ${st==="accepted" ? `<input type="file" accept="image/*" capture="environment" id="dph" hidden><div class="err" id="de"></div><button class="btn" id="dpk">${ic("cam").replace("<svg", '<svg style="width:20px;height:20px"')} Order Picked Up</button><p class="note" style="text-align:center;margin-top:8px">Take a picture of the order when you leave the branch.</p>` : ""}
+    ${st==="accepted" ? `<input type="file" accept="image/*" capture="environment" id="dph" hidden><div class="err" id="de"></div><button class="btn" id="dpk">${ic("cam").replace("<svg", '<svg style="width:20px;height:20px"')} Order Picked Up</button><p class="note" style="text-align:center;margin-top:8px">Take a picture of the order when you leave the store.</p>` : ""}
     ${st==="picked" ? `${ph && o.channel!=="online" ? `<a class="btn ghost" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/${ph}?text=${encodeURIComponent("Your order is on its way! Track it here: " + trackUrl(o))}">${ic("wa").replace("<svg", '<svg style="width:18px;height:18px"')} Send Tracking Link</a>` : ""}<div class="err" id="de"></div><button class="btn" id="ddl" style="background:var(--ok)">Paid &amp; Delivered</button>` : ""}
     ${st==="delivered" && ph && o.channel!=="online" ? `<a class="btn ghost" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/${ph}?text=${encodeURIComponent("Thank you! Please rate your order and driver: " + trackUrl(o))}">${ic("wa").replace("<svg", '<svg style="width:18px;height:18px"')} Send Rating Link</a>` : ""}
     <button class="btn ghost" data-x style="margin-top:10px">Close</button>`);
@@ -663,7 +663,7 @@ function shrink(file){ return new Promise((res, rej) => { const img = new Image(
 document.addEventListener("click", async e => {
   const op = e.target.closest("[data-dopen]"); if(op && !e.target.closest("[data-dact]")){ orderSheet((S.drv||[]).find(o => o.id===op.dataset.dopen)); return; }
   const b = e.target.closest("[data-dact]"); if(!b) return; const [act, id] = b.dataset.dact.split(":");
-  if(act==="decline" && !(await iosConfirm("The branch will assign another driver.", { title:"Decline this order?", yes:"Decline", danger:true }))) return;
+  if(act==="decline" && !(await iosConfirm("The store will assign another driver.", { title:"Decline this order?", yes:"Decline", danger:true }))) return;
   b.disabled = true; try{ const r = await rpc("skwyd_drv_action", { p_order:id, p_action:act }); if(r?.error){ toast(r.error, "bad"); b.disabled = false; return; }
     closeSheet(); toast(act==="accept" ? "Order accepted" : "Order declined", act==="accept" ? "ok" : ""); await drvPoll(); if(act==="accept"){ go("deliv"); orderSheet((S.drv||[]).find(o => o.id===id)); } }
   catch(err){ toast(isNet(err) ? "No internet connection." : "Something went wrong", "bad"); b.disabled = false; }

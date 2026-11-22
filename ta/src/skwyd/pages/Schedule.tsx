@@ -153,7 +153,7 @@ function ShiftForm({ s, br, f, onClose }: { s: S; br: string; f: { id?: string; 
   const used: Record<string, number> = {}; shifts.filter(y => y.branchId === br).forEach(y => { const k = t5(y.startTime) + "-" + t5(y.endTime); used[k] = (used[k] || 0) + 1; });
   const pre = Object.entries(used).sort((a, b) => b[1] - a[1]).slice(0, 6).map(e => e[0]); ["09:00-17:00", "12:00-20:00", "16:00-00:00"].forEach(p => { if (pre.length < 6 && !pre.includes(p)) pre.push(p); });
   const wk = [...Array(7)].map((_, i) => addDays(monOf(d10s(cur.day)), i));
-  const jobs = [...new Set(s.users.map(u => u.jobTitle).filter(Boolean).concat(["Cashier", "Waiter", "Cook", "Chef", "Driver", "Branch Manager", "Supervisor", "Cleaner"]))];
+  const jobs = [...new Set(s.users.map(u => u.jobTitle).filter(Boolean).concat(["Cashier", "Waiter", "Cook", "Chef", "Driver", "Store Manager", "Supervisor", "Cleaner"]))];
   const len = shHrs({ startTime: v.a, endTime: v.b, breakMin: v.brk }), nextDay = !!v.b && tMin(v.b) <= tMin(v.a);
   const nameOf = (id: string) => s.users.find(u => u.id === id)?.name || "This employee";
   async function save() {
