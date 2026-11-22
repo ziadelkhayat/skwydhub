@@ -10073,6 +10073,13 @@ async function exportCustomers(){
   const blob = new Blob([[["Name","Phone","Email","Total Orders","Last Order","Total Spent","Tags","Blacklisted"], ...rows].map(l=>l.map(q).join(",")).join("\n")], { type:"text/csv" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `skwyd-customers-${todayStr()}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
+// iPad / iPhone: the customer list keeps loading as you scroll to the bottom (no Previous / Next), like a list on iOS
+(() => { let sig = "", io = null, busy = false;
+  const watch = () => { if(!(window.V3 && (V3.on() || V3.ph()))) return; const pg = document.querySelector("#view .pager:has(#cusNext)"); if(!pg) return;
+    const k = JSON.stringify([CUS.filter, CUS.q, CUS.sort, CUS.flt]); if(k !== sig){ sig = k; if(CUS.per !== 50){ CUS.per = 50; CUS.page = 1; CUS.key = ""; } }
+    pg.classList.add("v3inf"); if(io) io.disconnect();
+    io = new IntersectionObserver(en => { if(!en[0].isIntersecting || busy || CUS.loading) return; if(CUS.per >= CUS.count || CUS.page !== 1) return; busy = true; CUS.per += 50; CUS.key = ""; render(); setTimeout(() => busy = false, 600); }, { rootMargin: "300px" }); io.observe(pg); };
+  new MutationObserver(watch).observe(document.getElementById("view"), { childList: true }); })();
 let cusQT; $("#view").addEventListener("input", e => { if(e.target.id==="cusQ"){ clearTimeout(cusQT); const v = e.target.value; cusQT = setTimeout(() => { CUS.q = v; CUS.page = 1; render(); const el = $("#cusQ"); if(el){ el.focus(); el.setSelectionRange(v.length, v.length); } }, 350); } });
 $("#view").addEventListener("change", e => { if(e.target.id==="cusSort"){ CUS.sort = e.target.value; CUS.page = 1; render(); } });
 document.addEventListener("click", e => { const m = $("#cusIEm"); if(m && !e.target.closest("#cusIE")) m.hidden = true; });

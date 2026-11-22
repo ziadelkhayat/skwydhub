@@ -541,3 +541,6 @@ html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug){flex-wrap:wr
 html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug) > label{flex:1 1 100%!important;max-width:none}
 html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug) > .olslug{flex:1 1 100%!important;justify-content:flex-start!important;margin-top:4px}
 html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslug input{flex:1 1 auto!important;width:auto!important;min-width:6ch}
+html body:is(.v2,.v2p):is(#_z,body):is(#_y,body) #view .pager.v3inf :is(button,.note:not(:first-child)){display:none!important}
+html body:is(.v2,.v2p):is(#_z,body):is(#_y,body) #view .pager.v3inf{justify-content:center!important;border:0!important;background:transparent!important}
+html body:is(.v2,.v2p):is(#_z,body):is(#_y,body) #view .pager.v3inf > .note:first-child{font-size:13px;color:#6C6C70}
