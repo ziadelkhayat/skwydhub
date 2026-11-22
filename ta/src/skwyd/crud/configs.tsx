@@ -1,5 +1,7 @@
 // The lists ported from the current portal's CRUD config (index.html): same tabs, columns, fields and rules.
-import { StoreForm } from "../pages/Store";
+import { lazy } from "react";
+// the full store form loads with the store page, not with every list
+const StoreForm = lazy(() => import("../pages/Store").then(m => ({ default: m.StoreForm })));
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, money } from "@/lib/util";
 import type { Row } from "@/lib/db";

@@ -21,6 +21,10 @@ import "./index.css";
   if (/^#[a-z]/i.test(hash) && !/^#(access_token|error|type)=/.test(hash)) history.replaceState(null, "", location.pathname + location.search + "#" + to(hash.slice(1).split("?")[0], hash.includes("?") ? "?" + hash.split("?")[1] : ""));
 })();
 
+// after an update, a page left open may ask for a page file the new version replaced: load the new version once
+addEventListener("vite:preloadError", e => { e.preventDefault(); if (sessionStorage.getItem("skwyd-reloaded") !== "1") { sessionStorage.setItem("skwyd-reloaded", "1"); location.reload(); } });
+setTimeout(() => sessionStorage.removeItem("skwyd-reloaded"), 10000);
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>

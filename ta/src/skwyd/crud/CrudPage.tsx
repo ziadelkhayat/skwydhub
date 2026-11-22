@@ -1,5 +1,6 @@
 // A Skwyd list page in TailAdmin style: title + breadcrumb, one card (tabs · search · add button), table, pages, and a dialog to add or edit.
 // Driven by the same kind of config as the current portal (CRUD in index.html): tabs, columns, fields, unique name, prep.
+import { Suspense } from "react";
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -104,7 +105,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
         </div>
         {list.length > PER && <Pager className="border-t border-gray-100 dark:border-white/5" currentPage={cur} totalPages={pages} onPageChange={setPage} />}
       </div>
-      {edit !== undefined && s && (cfg.form ? cfg.form({ s, row: edit, onClose: () => setEdit(undefined) }) : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
+      {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
   );
 }

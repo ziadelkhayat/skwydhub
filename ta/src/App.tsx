@@ -1,42 +1,62 @@
 import AppLayout from "@/components/layout/app-layout";
 import { useAuth } from "@/lib/auth";
-import CrudPage from "@/skwyd/crud/CrudPage";
-import { CRUD } from "@/skwyd/crud/configs";
-import Dashboard from "@/skwyd/pages/Dashboard";
-import NotMoved from "@/skwyd/pages/NotMoved";
-import OrdersPage from "@/skwyd/pages/Orders";
-import CustomersPage from "@/skwyd/pages/Customers";
-import ItemPage from "@/skwyd/pages/ItemPage";
-import DevicesPage from "@/skwyd/pages/Devices";
-import DiscountsPage from "@/skwyd/pages/Discounts";
-import PromotionsPage from "@/skwyd/pages/Promotions";
-import WebOrderingPage from "@/skwyd/pages/WebOrdering";
-import DeliveryZonesPage from "@/skwyd/pages/DeliveryZones";
-import DeliveryChargesPage from "@/skwyd/pages/DeliveryCharges";
-import CurrencyPage from "@/skwyd/pages/Currency";
-import { RequestsPage, TimeClockPage } from "@/skwyd/pages/Team";
-import SchedulePage from "@/skwyd/pages/Schedule";
-import PayrollPage from "@/skwyd/pages/Payroll";
-import StaffDocsPage from "@/skwyd/pages/StaffDocs";
-import TasksPage from "@/skwyd/pages/Tasks";
-import KnowledgePage from "@/skwyd/pages/Knowledge";
-import InvDocsPage, { DOC_KINDS } from "@/skwyd/pages/InvDocs";
-import CallCenterPage from "@/skwyd/pages/CallCenter";
-import ReportsPage, { RPT_HUB } from "@/skwyd/pages/Reports";
-import OrderTxPage from "@/skwyd/pages/OrderTx";
-import EmployeePage from "@/skwyd/pages/Employee";
-import SalesChannelsPage from "@/skwyd/pages/SalesChannels";
-import BrandPage from "@/skwyd/pages/Brand";
-import StorePage from "@/skwyd/pages/Store";
-import { ApplicationsPage, TeamChatPage } from "@/skwyd/pages/TeamChat";
-import { InvItemPage, OptionPage, SupplierPage, WarehousePage } from "@/skwyd/pages/Details";
-import { AccountPage, MarketplacePage, SubscriptionPage } from "@/skwyd/pages/Account";
-import { InvHistoryPage, InvLevelsPage, PurchasingReportPage } from "@/skwyd/pages/InvReports";
-import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
-import { ReasonsPage, TagsPage, AllergensPage, CombosPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
 import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
+import NotMoved from "@/skwyd/pages/NotMoved";
+import { CRUD } from "@/skwyd/crud/configs";
+import { lazy } from "react";
+
+// every page loads only when it is opened (smaller first download, faster on phones)
+const CrudPage = lazy(() => import("@/skwyd/crud/CrudPage"));
+const Dashboard = lazy(() => import("@/skwyd/pages/Dashboard"));
+const OrdersPage = lazy(() => import("@/skwyd/pages/Orders"));
+const CustomersPage = lazy(() => import("@/skwyd/pages/Customers"));
+const ItemPage = lazy(() => import("@/skwyd/pages/ItemPage"));
+const DevicesPage = lazy(() => import("@/skwyd/pages/Devices"));
+const DiscountsPage = lazy(() => import("@/skwyd/pages/Discounts"));
+const PromotionsPage = lazy(() => import("@/skwyd/pages/Promotions"));
+const WebOrderingPage = lazy(() => import("@/skwyd/pages/WebOrdering"));
+const DeliveryZonesPage = lazy(() => import("@/skwyd/pages/DeliveryZones"));
+const DeliveryChargesPage = lazy(() => import("@/skwyd/pages/DeliveryCharges"));
+const CurrencyPage = lazy(() => import("@/skwyd/pages/Currency"));
+const RequestsPage = lazy(() => import("@/skwyd/pages/Team").then(m => ({ default: m.RequestsPage })));
+const TimeClockPage = lazy(() => import("@/skwyd/pages/Team").then(m => ({ default: m.TimeClockPage })));
+const SchedulePage = lazy(() => import("@/skwyd/pages/Schedule"));
+const PayrollPage = lazy(() => import("@/skwyd/pages/Payroll"));
+const StaffDocsPage = lazy(() => import("@/skwyd/pages/StaffDocs"));
+const TasksPage = lazy(() => import("@/skwyd/pages/Tasks"));
+const KnowledgePage = lazy(() => import("@/skwyd/pages/Knowledge"));
+const InvDocsPage = lazy(() => import("@/skwyd/pages/InvDocs"));
+const CallCenterPage = lazy(() => import("@/skwyd/pages/CallCenter"));
+const ReportsPage = lazy(() => import("@/skwyd/pages/Reports"));
+const OrderTxPage = lazy(() => import("@/skwyd/pages/OrderTx"));
+const EmployeePage = lazy(() => import("@/skwyd/pages/Employee"));
+const SalesChannelsPage = lazy(() => import("@/skwyd/pages/SalesChannels"));
+const BrandPage = lazy(() => import("@/skwyd/pages/Brand"));
+const StorePage = lazy(() => import("@/skwyd/pages/Store"));
+const ApplicationsPage = lazy(() => import("@/skwyd/pages/TeamChat").then(m => ({ default: m.ApplicationsPage })));
+const TeamChatPage = lazy(() => import("@/skwyd/pages/TeamChat").then(m => ({ default: m.TeamChatPage })));
+const InvItemPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.InvItemPage })));
+const OptionPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.OptionPage })));
+const SupplierPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.SupplierPage })));
+const WarehousePage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.WarehousePage })));
+const AccountPage = lazy(() => import("@/skwyd/pages/Account").then(m => ({ default: m.AccountPage })));
+const MarketplacePage = lazy(() => import("@/skwyd/pages/Account").then(m => ({ default: m.MarketplacePage })));
+const SubscriptionPage = lazy(() => import("@/skwyd/pages/Account").then(m => ({ default: m.SubscriptionPage })));
+const InvHistoryPage = lazy(() => import("@/skwyd/pages/InvReports").then(m => ({ default: m.InvHistoryPage })));
+const InvLevelsPage = lazy(() => import("@/skwyd/pages/InvReports").then(m => ({ default: m.InvLevelsPage })));
+const PurchasingReportPage = lazy(() => import("@/skwyd/pages/InvReports").then(m => ({ default: m.PurchasingReportPage })));
+const CouponsPage = lazy(() => import("@/skwyd/pages/Marketing").then(m => ({ default: m.CouponsPage })));
+const GiftCardsPage = lazy(() => import("@/skwyd/pages/Marketing").then(m => ({ default: m.GiftCardsPage })));
+const LoyaltyPage = lazy(() => import("@/skwyd/pages/Marketing").then(m => ({ default: m.LoyaltyPage })));
+const ReasonsPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default: m.ReasonsPage })));
+const TagsPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default: m.TagsPage })));
+const AllergensPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default: m.AllergensPage })));
+const CombosPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default: m.CombosPage })));
+// the addresses of the inventory document lists and the report hubs (InvDocs DOC_KINDS, Reports RPT_HUB)
+const DOC_ROUTES = ["quantity-adjustments", "cost-adjustments", "inventory-count", "spot-check", "po", "purchase-orders", "transfer-orders", "transfers", "production", "count-sheets"];
+const RPT_ROUTES = ["sales-reports", "inventory-reports", "business-reports", "employee-reports", "analysis-reports"];
 import "flatpickr/dist/flatpickr.css";
 import { Route, Routes } from "react-router";
 import { Locked, useSub } from "@/lib/access";
@@ -98,8 +118,8 @@ function Gate() {
           <Route path="/inv-item" element={<InvItemPage />} />
           <Route path="/warehouse" element={<WarehousePage />} />
           <Route path="/purchasing" element={<PurchasingReportPage />} />
-          {Object.keys(RPT_HUB).map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
-          {Object.keys(DOC_KINDS).map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
+          {RPT_ROUTES.map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
+          {DOC_ROUTES.map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
