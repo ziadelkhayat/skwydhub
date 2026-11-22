@@ -11,3 +11,5 @@ cp skwyd-icon-32.png skwyd-icon-180.png skwyd-icon-512.png portal-icon-32.png po
 for f in pos.html pos.webmanifest pos-icon-192.png pos-icon-512.png theme-dark-pos.css posv3.js; do if [ -f "$f" ]; then cp "$f" web/; fi; done
 cp cloudflare/_redirects cloudflare/_headers web/
 echo "Built web/: $(ls web | tr '\n' ' ')"
+# the back office (React, TailAdmin template) is the site's home page: its index.html replaces the previous portal's; the old /v2/ address redirects here
+(cd ta && npm ci --no-audit --no-fund && SKWYD_BASE=/ npx vite build) && cp -r ta/dist/. web/ && echo "Built the back office (React) at /"
