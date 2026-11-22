@@ -87,11 +87,20 @@ function taxParts(x: Ctx, items: Line[], disc: number) {
   if (g > 0 && disc > 0) { const k = 1 - Math.min(disc, g) / g; t *= k; add *= k; }
   return { tax: +t.toFixed(2), added: +add.toFixed(2) };
 }
-export type Totals = { sub: number; disc: number; tax: number; total: number; rnd: number; net: number };
-export function totals(x: Ctx, cart: Line[], disc = 0): Totals {
-  const sub = cart.reduce((a, i) => a + lineNet(i), 0), d = +Math.min(disc, sub).toFixed(2), tp = taxParts(x, cart, d);
-  const raw = +(sub - d + tp.added).toFixed(2), total = +rrApply(raw, DEC(x.S), coS(x.S).roundRules1).toFixed(2);
-  return { sub, disc: d, tax: tp.tax, total, rnd: +(total - raw).toFixed(2), net: +(raw - tp.tax).toFixed(2) };
+export type Charge = { id: string; name: string; type: string; value: number; amount: number; taxGroup?: string };
+// charges of this order type, brand and store (Manage → Charges); the cashier adds them
+export const chargeList = (x: Ctx) => x.S.charges.filter(c => !c.deleted && c.active !== false && (!(c.orderTypes || []).length || c.orderTypes.includes(typeKey(x.otype)))
+  && (!(c.brandIds || []).length || c.brandIds.includes(x.branch?.brandId)) && (!(c.branchIds || []).length || c.branchIds.includes(x.device.branchId))).sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(b.name));
+export type Disc = { type: "pct" | "amt"; value: number; name?: string } | null;
+export type Totals = { sub: number; disc: number; charges: Charge[]; chT: number; tax: number; total: number; rnd: number; net: number };
+export function totals(x: Ctx, cart: Line[], d: Disc = null, picked: string[] = [], open: Record<string, number> = {}, fee = 0): Totals {
+  const sub = cart.reduce((a, i) => a + lineNet(i), 0), disc = !d ? 0 : +(d.type === "amt" ? Math.min(d.value, sub) : sub * Math.min(d.value, 100) / 100).toFixed(2);
+  const charges: Charge[] = chargeList(x).filter(c => picked.includes(c.id)).map(c => { const amount = +(c.type === "percent" ? (coS(x.S).chargesBeforeDisc !== false ? sub : sub - disc) * (+c.value || 0) / 100 : c.type === "open" ? +(open[c.id] || 0) : +c.value || 0).toFixed(2);
+    return { id: c.id, name: c.name, type: c.type, value: c.type === "open" ? amount : +c.value || 0, amount, ...(c.taxGroup ? { taxGroup: c.taxGroup } : {}) }; });
+  const chT = +charges.reduce((a, c) => a + c.amount, 0).toFixed(2), tp = taxParts(x, cart, disc);
+  charges.forEach(c => { const r = rates(x, c.taxGroup), base = c.amount / (1 + r.inc); tp.tax = +(tp.tax + (c.amount - base) + base * r.exc).toFixed(2); tp.added = +(tp.added + base * r.exc).toFixed(2); });
+  const raw = +(sub - disc + chT + fee + tp.added).toFixed(2), total = +rrApply(raw, DEC(x.S), coS(x.S).roundRules1).toFixed(2);
+  return { sub, disc, charges, chT, tax: tp.tax, total, rnd: +(total - raw).toFixed(2), net: +(raw - tp.tax).toFixed(2) };
 }
 
 /* ---------- cashiers ---------- */
@@ -164,10 +173,10 @@ export const payMethods = (x: Ctx): PayMethod[] => {
 };
 export const newId = (p: string) => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 // what goes into the order: the type, the lines (without screen-only fields) and the totals
-export function orderFields(x: Ctx, cart: Line[], t: Totals, extra: { table?: string; customerName?: string; phone?: string; guests?: number } = {}) {
+export function orderFields(x: Ctx, cart: Line[], t: Totals, extra: { table?: string; customerName?: string; phone?: string; guests?: number; disc?: Disc; receiptNotes?: string; notes?: string } = {}) {
   return { type: x.otype === "takeaway" ? "pickup" : x.otype, table: x.otype === "dinein" ? extra.table || "" : "", customerName: (extra.customerName || "").trim(), phone: (extra.phone || "").trim(), address: "",
-    items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: [], chargesTotal: 0, discountPct: t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: "pct", discount: t.disc, promo: null,
-    total: t.total, tax: t.tax, receiptNotes: "", notes: "", ...(x.otype === "dinein" && extra.guests ? { guests: extra.guests } : {}) };
+    items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: t.charges, chargesTotal: t.chT, discountPct: extra.disc?.type === "pct" ? extra.disc.value : t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: extra.disc?.type || "pct", discount: t.disc, promo: null,
+    total: t.total, tax: t.tax, receiptNotes: (extra.receiptNotes || "").trim(), notes: (extra.notes || "").trim(), ...(x.otype === "dinein" && extra.guests ? { guests: extra.guests } : {}) };
 }
 
 /* ---------- customers for pickup and delivery (pos.html openPDNew) ---------- */
@@ -188,3 +197,6 @@ export function custMissing(t: OType, c: Cust, needSource = true) {
   if (t === "delivery") ([["street", "area / street"], ["building", "building"], ["floor", "floor"]] as const).forEach(([k, l]) => { if (!String(c.addr[k] || "").trim()) need.push(l); });
   return need.length ? "Enter the customer's " + need.join(", ").replace(/, ([^,]*)$/, " and $1") : "";
 }
+
+/* ---------- what the signed-in cashier may do (roles; owners and admins everything; no PIN users = open register) ---------- */
+export const can = (S: Data, cashier: Row | null, perm: string) => !usePins(S) || (!!cashier && (isAdminUser(cashier) || userPerms(S, cashier).includes(perm)));

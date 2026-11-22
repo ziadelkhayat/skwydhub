@@ -1,14 +1,16 @@
 // The sale screen, laid out like the current POS (cart on the left, menu on the right, 5×4 square tiles,
 // search above the menu, square action buttons, bottom navigation with names) in the TailAdmin look.
-// Step 1: browse the POS menu of this branch, build the cart, see the totals. Saving and paying come next.
+// The action buttons and the bottom bar are the current POS's: Print, Kitchen, Void, Hold, Retrieve, Discount, Charges, Tags, Notes;
+// Functions, Orders, Tables, Pickup & Delivery, New.
 import { useMemo, useState, type ReactNode } from "react";
 import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
-import { addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
+import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
 import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
+import { ChargesDialog, DiscountDialog, NotesDialog, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from "../lib/store";
@@ -20,21 +22,23 @@ const TYPE_LBL: Record<OType, string> = { dinein: "Dine-in", takeaway: "Pickup",
 const GAP = 12, PADX = 16;
 
 export function Register() {
-  const { S, device, branch, online, cashier, setCashier, write, pending } = useStore();
+  const { S, device, branch, online, cashier, setCashier, write, pending, reload } = useStore();
   const { width: W, height: H } = useWindowDimensions();
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
   const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
   const [cat, setCat] = useState(""), [q, setQ] = useState(""), [note, setNote] = useState(""), [more, setMore] = useState(false);
+  const [disc, setDisc] = useState<Disc>(null), [picked, setPicked] = useState<string[]>([]), [openCh, setOpenCh] = useState<Record<string, number>>({}), [notes, setNotes] = useState({ receipt: "", kitchen: "" });
   const x: Ctx = { S, device: device!, branch, otype };
+  const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]);
   const top = cat || m.tops[0]?.id || "", curTop = m.parentOf(top) || top;
-  const t = totals(x, cart);
+  const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
 
   // tile size: 4 rows fit the height, 5 across; the cart takes the rest of the width
-  const fixedH = 76 + 44 + 40 + 76 + GAP * 4 + 24;
+  const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
   const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
-  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2);
+  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
   const say = (s: string) => { setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), 2500); };
 
   // a window over the sale (variant, modifiers, open price) that answers once
@@ -69,12 +73,12 @@ export function Register() {
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
   const takeNo = async () => { const k = "skwydNo_" + device!.branchId; let last = null; try { last = JSON.parse((await AsyncStorage.getItem(k)) || "null"); } catch {}
     const r = nextOrderNo(x, last); AsyncStorage.setItem(k, JSON.stringify({ since: r.since, n: r.n })).catch(() => {}); return r.no; };
-  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); };
-  const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
+  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); setDisc(null); setPicked([]); setOpenCh({}); setNotes({ receipt: "", kitchen: "" }); };
   // an order from Orders: its lines (already sent ones marked), type and table
-  const openOrder = (o: Row) => { setDlg(null); setEo(o); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
+  const openOrder = (o: Row) => { setDlg(null); setEo(o); setNotes({ receipt: o.receiptNotes || "", kitchen: o.notes || "" }); setPicked((o.charges || []).map((c: any) => c.id)); setOpenCh(Object.fromEntries((o.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount])));
+    setDisc(+o.discount ? (o.discountType === "amt" ? { type: "amt", value: +o.discount } : { type: "pct", value: +o.discountPct || 0 }) : null); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
   // an existing order keeps its customer, address, source and channel
-  const fields = () => { const f: any = orderFields(x, cart, t, { table, customerName: cust.name, phone: cust.phone });
+  const fields = () => { const f: any = orderFields(x, cart, t, { table, customerName: cust.name, phone: cust.phone, disc, receiptNotes: notes.receipt, notes: notes.kitchen });
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
   const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
@@ -85,7 +89,7 @@ export function Register() {
   // the checks before an order is saved or paid (pos.html saleBlock, openShift, orderInfoOk)
   const ready = (paying: boolean) => {
     const blk = saleBlock(x); if (blk) { say(blk); return false; }
-    if (!openShift(x)) { say(paying ? "Open the till before taking payments" : "Open till"); setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); return false; }
+    if (!openShift(x)) { say(paying ? "Open the till before taking payments" : "Open till"); tillDlg(); return false; }
     if (otype !== "dinein" && !live_eo && custMissing(otype, cust, posSources(S).length > 0)) { say("Add the customer first"); askCust(otype); return false; }
     return true;
   };
@@ -110,6 +114,31 @@ export function Register() {
     else say("Sale complete · " + money(S, total));
   };
   const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
+
+  // Hold: the cart is put aside on this register (H1, H2…) and retrieved later
+  const HK = "skwyd_held_" + device!.id;
+  const heldList = async (): Promise<Held[]> => { try { return JSON.parse((await AsyncStorage.getItem(HK)) || "[]"); } catch { return []; } };
+  const hold = async () => { if (!cart.length || live_eo) return say(live_eo ? "Save the open order instead" : "Nothing to hold");
+    const l = await heldList(), n = Math.max(0, ...l.map(h => h.n)) + 1;
+    await AsyncStorage.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes } }]));
+    reset(); say("Order held as H" + n); };
+  const retrieve = async () => { const l = await heldList(); const h = await ask<Held | null>(done => <RetrieveDialog held={l} cur={cur} onDone={done} />); if (!h) return;
+    if (cart.length) return say("Finish or hold the current order first");
+    const d = h.data; setCart(d.cart); setOtype(d.otype); setTable(d.table); setCust(d.cust); setDisc(d.disc); setPicked(d.picked); setOpenCh(d.openCh); setNotes(d.notes);
+    await AsyncStorage.setItem(HK, JSON.stringify(l.filter(y => y.id !== h.id))); };
+  const action = async (a: string) => {
+    if (ro && a !== "Print") return say("This order is done");
+    if (a === "Discount") { const p = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), am = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
+      if (!p && !am) return say("Your role doesn't allow discounts.");
+      const d = await ask<Disc | undefined>(done => <DiscountDialog cur={cur} sym={String(S.settings.find(z => z.id === "company")?.currencySymbol || "$")} allowPct={p} allowAmt={am} init={disc} onDone={done} />); if (d !== undefined) setDisc(d); return; }
+    if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges.");
+      const r = await ask<{ picked: string[]; open: Record<string, number> } | null>(done => <ChargesDialog x={x} cur={cur} picked={picked} open={openCh} onDone={done} />); if (r) { setPicked(r.picked); setOpenCh(r.open); } return; }
+    if (a === "Notes") { const r = await ask<{ receipt: string; kitchen: string } | null>(done => <NotesDialog init={notes} onDone={done} />); if (r) setNotes(r); return; }
+    if (a === "Hold") return hold();
+    if (a === "Retrieve") return retrieve();
+    say(a + " comes in the next step.");
+  };
+  const tillDlg = () => setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />);
 
   const qty = (i: number, d: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
@@ -155,6 +184,9 @@ export function Register() {
               </View>))}
         </ScrollView>
         <View style={{ paddingHorizontal: 18, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line, gap: 6 }}>
+          {t.disc ? <Row l={disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
+          {t.charges.map(c => <Row key={c.id} l={c.name} r={money(S, c.amount)} />)}
+          {notes.kitchen || notes.receipt ? <T size={13} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
           <Row l="Subtotal" r={money(S, t.net)} />
           <Row l="Tax" r={money(S, t.tax)} muted />
           {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
@@ -174,13 +206,13 @@ export function Register() {
 
       {/* ---------- menu ---------- */}
       <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
-        <View style={{ flexDirection: "row", gap: 10, height: 76 }}>
-          {([["table", "Table"], ["user", "Customer"], ["tag", "Discount"], ["note", "Notes"], ["void", "Void"], ["print", "Print"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "Table" ? askTable() : l === "Customer" ? askCust(otype === "dinein" ? (types.find(k => k !== "dinein") || "takeaway") : otype) : say(l + " comes in the next step."))}
-              style={({ pressed }) => [{ width: 76, height: 76, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 10 }}>
+          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).map(([ic, l]) => (
+            <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
+              style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 1, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 }]}>
               <Icon name={ic} color={C.brand} /><T w="m" size={12} color={C.ink2}>{l}</T>
             </Pressable>))}
-        </View>
+        </ScrollView>
         <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff" }, shadowXs]}>
           <Icon name="search" size={20} color={C.mut} />
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
@@ -199,18 +231,21 @@ export function Register() {
           {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
         </ScrollView>
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
-          {([["grid", "New"], ["list", "Orders"], ["scooter", "Pickup & Delivery"], ["table", "Tables"], ["till", "Till"], ["clock", "Time Clock"], ["more", "More"]] as const).map(([ic, l], i) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "More" ? setMore(v => !v) : l === "Till" ? setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />) : say(l + " comes in the next step."))}
-              style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: i === 0 ? C.brand50 : pressed ? C.line2 : "transparent" }]}>
-              <Icon name={ic} color={i === 0 ? C.brand : C.mut} /><T w={i === 0 ? "s" : "m"} size={11} color={i === 0 ? C.brand600 : C.mut} numberOfLines={1}>{l}</T>
+          {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+                : l === "Tables" ? askTable() : askCust(types.find(k => k !== "dinein") || "takeaway"))}
+              style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
+              <Icon name={ic} color={C.mut} /><T w="m" size={11} color={C.mut} numberOfLines={1}>{l}</T>
             </Pressable>))}
         </View>
       </View>
 
       {more && (
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
-          <Card style={{ position: "absolute", right: PADX, bottom: 100, width: 220, padding: 6 }}>
-            <Btn kind="ghost" label="Log out" style={{ justifyContent: "flex-start" }} onPress={() => { setMore(false); setCart([]); setCashier(null); }} />
+          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 100, width: 240, padding: 6 }}>
+            <Btn kind="ghost" label={openShift(x) ? "Close Till" : "Open Till"} style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
+            <Btn kind="ghost" label="Sync data" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
+            <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
       {dlg}
