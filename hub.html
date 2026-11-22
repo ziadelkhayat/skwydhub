@@ -730,8 +730,8 @@ html:root[data-theme=dark] body #root .main > *:not(.card):not(.top),html:root[d
 html:root[data-theme=dark] body #root .btn.pri,html:root[data-theme=dark] body #dlg .btn.pri{background:#0A84FF!important;color:#fff!important;box-shadow:none!important}
 html:root[data-theme=dark] body #dlg h3,html:root[data-theme=dark] body #dlg h4,html:root[data-theme=dark] body #dlg .body > b,html:root[data-theme=dark] body #dlg .sec{color:#8E8E93!important}
 </style>
-<link rel="stylesheet" href="ioskit.css?v=5">
-<link rel="stylesheet" href="v2.css?v=1">
+<link rel="stylesheet" href="ioskit.css?v=6">
+<link rel="stylesheet" href="v2.css?v=2">
 </head>
 <body>
 <div id="root"></div>
@@ -1331,8 +1331,8 @@ document.addEventListener("click", e => { if(!e.target.closest?.("aside [data-vi
 (function(){ const fill = () => document.querySelectorAll("#dlg .grid > .fld > input:not([type=checkbox]):not([type=radio]):not([type=date]):not([type=file])").forEach(i => { if(i.placeholder) return; const l = i.parentElement.querySelector(":scope > label"); i.placeholder = l && l.querySelector(".req") ? "Required" : "Optional"; });
   let t = 0; new MutationObserver(() => { if(t) return; t = setTimeout(() => { t = 0; fill(); }, 30); }).observe(document.body, { childList:true, subtree:true }); })();
 </script>
-<script src="ioskit.js?v=5" data-app="admin"></script>
-<script src="v2.js?v=1"></script>
-<script src="hubv3.js?v=1"></script>
+<script src="ioskit.js?v=6" data-app="admin"></script>
+<script src="v2.js?v=2"></script>
+<script src="hubv3.js?v=2"></script>
 </body>
 </html>
