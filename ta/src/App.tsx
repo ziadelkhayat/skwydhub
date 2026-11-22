@@ -23,6 +23,7 @@ import KnowledgePage from "@/skwyd/pages/Knowledge";
 import InvDocsPage, { DOC_KINDS } from "@/skwyd/pages/InvDocs";
 import CallCenterPage from "@/skwyd/pages/CallCenter";
 import ReportsPage, { RPT_HUB } from "@/skwyd/pages/Reports";
+import { InvHistoryPage, InvLevelsPage, PurchasingReportPage } from "@/skwyd/pages/InvReports";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
 import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
@@ -64,6 +65,9 @@ export default function App() {
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/knowledge" element={<KnowledgePage />} />
           <Route path="/call-center" element={<CallCenterPage />} />
+          <Route path="/inv-levels" element={<InvLevelsPage />} />
+          <Route path="/inv-history" element={<InvHistoryPage />} />
+          <Route path="/purchasing" element={<PurchasingReportPage />} />
           {Object.keys(RPT_HUB).map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
           {Object.keys(DOC_KINDS).map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
