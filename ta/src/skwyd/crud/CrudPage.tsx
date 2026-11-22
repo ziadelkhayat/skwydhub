@@ -153,7 +153,7 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
                 ? <h4 key={"h" + i} className="col-span-full mt-2 text-base font-medium text-gray-800 dark:text-white/90">{f.l}</h4>
                 : <FieldBox key={f.k} f={f} v={d[f.k]} set={v => set(f.k, v)} s={s} locked={!!(row && f.lockEdit)} />)}
               {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
-              <div className="sticky bottom-0 col-span-full -mx-6 flex flex-col-reverse gap-3 border-t border-gray-100 bg-white px-6 py-3 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-3 sm:pb-0 dark:border-white/5 dark:bg-[#1E2635] sm:dark:bg-transparent">
+              <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
                 {row && (row.deleted
                   ? <Button type="button" variant="outline" className="sm:me-auto" disabled={busy} onClick={() => del(false)}>Restore</Button>
                   : <Button type="button" variant="outline" className="text-red-500 sm:me-auto" disabled={busy} onClick={() => del(true)}>Delete</Button>)}
