@@ -22,15 +22,15 @@ import { toast } from "../ui/toast";
 const n2 = (v: any) => (+v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 3 });
 const cost5 = (v: any) => money(+v || 0);
 const DEF_ALLERGENS = ["Celery", "Cereals containing gluten", "Crustaceans", "Eggs", "Fish", "Lupin", "Milk", "Molluscs", "Mustard", "Tree nuts", "Peanuts", "Sesame", "Soy", "Sulphites"];
-const Head = ({ back, backTo, title, children }: { back: string; backTo: string; title: string; children?: React.ReactNode }) => <>
+export const Head = ({ back, backTo, title, children }: { back: string; backTo: string; title: string; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={back} current={title} />
   <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to={backTo} />}><ArrowLeftIcon className="size-5" />{back}</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h2><div className="ms-auto flex gap-3">{children}</div></div></>;
-const Info = ({ rows }: { rows: [string, React.ReactNode][] }) => <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{rows.map(([l, v]) =>
+export const Info = ({ rows }: { rows: [string, React.ReactNode][] }) => <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{rows.map(([l, v]) =>
   <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{v}</b></div>)}</div>;
-const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => (
+export const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => (
   <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
-const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
-const Missing = ({ back, to }: { back: string; to: string }) => { const nav = useNavigate(); return <><PageBreadcrumb pageTitle={back} /><EmptyState text="This record wasn't found."><Button variant="outline" onClick={() => nav(to)}>{back}</Button></EmptyState></>; };
+export const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
+export const Missing = ({ back, to }: { back: string; to: string }) => { const nav = useNavigate(); return <><PageBreadcrumb pageTitle={back} /><EmptyState text="This record wasn't found."><Button variant="outline" onClick={() => nav(to)}>{back}</Button></EmptyState></>; };
 const useId = () => useSearchParams()[0].get("id") || "";
 const setDoc = async (id: string, data: any, msg: string) => { try { await put("settings", id, data); toast(msg); } catch { toast("Couldn't save", "error"); } };
 
@@ -46,7 +46,7 @@ function Tags({ s, type, id }: { s: S; type: string; id: string }) {
   </Sec>;
 }
 /* the recipe of a modifier option or a produced inventory product: inventory products in their ingredient unit */
-function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
+export function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
   const ings: any[] = rec.ingredients || [], [add, setAdd] = useState(""), item = (id: string) => s.inv_items.find(x => x.id === id);
   const save = async (l: any[], msg = "Ingredients saved") => { try { await put(col, rec.id, { ingredients: l }); toast(msg); } catch { toast("Couldn't save.", "error"); } };
   const lineCost = (g: any) => { const it = item(g.itemId); return it ? (+g.qty || 0) / (+it.factor || 1) * (+it.cost || 0) : 0; };
