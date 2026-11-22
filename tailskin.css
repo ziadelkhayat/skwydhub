@@ -191,6 +191,26 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ordtools > *{flex:1 1 150px!im
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ttabs{width:auto!important;max-width:100%!important}
 @media (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search{flex:1 1 0!important;min-width:0!important}}
 @media (max-width:380px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content .phead > :is(.btn,.ddwrap){flex:1 1 100%!important}}
+
+/* windows always above the header; no ring around a whole field row (only the field itself gets the focus ring) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #confirmScrim{z-index:200000!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(.numenu,.msel-p,.ddmenu,.slk-ask){z-index:200010!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #toast.toast{z-index:2147483000!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .modal .body .f:focus-within{box-shadow:none!important;outline:none!important}
+
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > .body .f{border-radius:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec:first-child{border-top:0!important;padding-top:0!important;margin-top:0!important}
+/* on/off rows (label + switch) in TailAdmin switch style */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]{-webkit-appearance:none!important;appearance:none!important;position:relative!important;width:44px!important;height:24px!important;min-width:44px!important;min-height:24px!important;flex:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:999px!important;background:#E4E7EC!important;background-image:none!important;box-shadow:none!important;cursor:pointer;transition:background .2s!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]::after{content:""!important;position:absolute!important;top:2px!important;left:2px!important;width:20px!important;height:20px!important;border-radius:999px!important;background:#fff!important;box-shadow:0 1px 3px rgba(16,24,40,.1),0 1px 2px rgba(16,24,40,.06)!important;transition:transform .2s!important;transform:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]:checked{background:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]:checked::after{transform:translateX(20px)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]:focus-visible{box-shadow:0 0 0 4px rgba(70,95,255,.12)!important;outline:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body label.chk > input[type=checkbox]:disabled{opacity:.5}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > .body .f > label.chk{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:12px!important;font-size:14px!important;font-weight:500!important;color:#344054!important;min-height:24px!important;width:100%!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body label.chk > input[type=checkbox]{background:rgba(255,255,255,.1)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body label.chk > input[type=checkbox]:checked{background:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal > .body .f > label.chk{color:#D0D5DD!important}
 /* breadcrumb */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:none}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb ol{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;flex-wrap:wrap}
@@ -326,9 +346,9 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body ::-webkit-scrollbar{width:6px;height:
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead{align-items:center!important;min-height:44px}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead .note{font-size:14px!important;color:#667085!important}
 /* checkboxes and radios (TailAdmin 20px) */
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]){-webkit-appearance:none!important;appearance:none!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;padding:0!important;border:1.25px solid #D0D5DD!important;border-radius:6px!important;background:#fff center/14px no-repeat!important;box-shadow:none!important;cursor:pointer;vertical-align:middle;transition:background-color .15s,border-color .15s;flex:none}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):checked{background-color:#465FFF!important;border-color:#465FFF!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M11.667 3.5 5.25 9.917 2.333 7' fill='none' stroke='white' stroke-width='1.94' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):indeterminate{background-color:#465FFF!important;border-color:#465FFF!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):not(label.chk > input){-webkit-appearance:none!important;appearance:none!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;padding:0!important;border:1.25px solid #D0D5DD!important;border-radius:6px!important;background:#fff center/14px no-repeat!important;box-shadow:none!important;cursor:pointer;vertical-align:middle;transition:background-color .15s,border-color .15s;flex:none}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):not(label.chk > input):checked{background-color:#465FFF!important;border-color:#465FFF!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M11.667 3.5 5.25 9.917 2.333 7' fill='none' stroke='white' stroke-width='1.94' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):not(label.chk > input):indeterminate{background-color:#465FFF!important;border-color:#465FFF!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):focus-visible{box-shadow:0 0 0 4px rgba(70,95,255,.12)!important;outline:none!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=checkbox]:disabled{opacity:.5;cursor:default}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) input[type=radio]{-webkit-appearance:none!important;appearance:none!important;width:20px!important;height:20px!important;min-height:20px!important;margin:0!important;border:1.25px solid #D0D5DD!important;border-radius:999px!important;background:#fff!important;cursor:pointer;flex:none}
@@ -639,8 +659,8 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch .hci svg *{stroke:rgba(255,255,255,.9)!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch > b,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hsub{color:#98A2B3!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hcv{color:rgba(255,255,255,.9)!important}
-html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]){background-color:transparent!important;border-color:#344054!important}
-html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):checked{background-color:#465FFF!important;border-color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):not(label.chk > input){background-color:transparent!important;border-color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=checkbox]:not(.toggle input):not([role=switch]):not(label.chk > input):checked{background-color:#465FFF!important;border-color:#465FFF!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=radio]{background:transparent!important;border-color:#344054!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim) input[type=radio]:checked{border-color:#465FFF!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .toggle .trk{background:rgba(255,255,255,.1)!important}
