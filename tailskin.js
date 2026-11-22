@@ -34,8 +34,10 @@
     const mb = $("#menuBtn");
     mb.innerHTML = '<span class="ta-i-menu">' + ICON.menu + '</span><span class="ta-i-x">' + ICON.close + "</span>";
     mb.setAttribute("aria-label", "Toggle sidebar");
-    try { localStorage.removeItem("ta_mini"); } catch (_) {}
-    side.addEventListener("mouseenter", () => document.body.classList.add("ta-hov"));
+    /* iPad / computer: the menu button opens and closes the side menu (closed = icons only, TailAdmin style); phones: slide-in menu */
+    mb.addEventListener("click", e => { if (!XL.matches) return; e.stopImmediatePropagation(); e.stopPropagation(); const on = document.body.classList.toggle("ta-mini"); document.body.classList.remove("ta-hov"); try { localStorage.setItem("ta_mini", on ? "1" : ""); } catch (_) {} }, true);
+    try { if (localStorage.getItem("ta_mini")) document.body.classList.add("ta-mini"); } catch (_) {}
+    if (matchMedia("(hover:hover)").matches) side.addEventListener("mouseenter", () => document.body.classList.add("ta-hov"));
     side.addEventListener("mouseleave", () => document.body.classList.remove("ta-hov"));
 
     /* logo: sidebar (desktop) and middle of the header (phone/tablet) */
