@@ -2004,7 +2004,7 @@ function renderMenu(){
   const tile = p => { const s = cs[cat] || cs[cats.find(c => has(c, p))?.id] || catStyle(null, 0), n = inCart[p.id] || kidsOf(p).reduce((a,k) => a + (inCart[k.p?.id]||0), 0);
     const oos = prodOos(p);
     return `<button class="prod${p.imageUrl?" hasimg":""}${oos?" oos":""}" data-add="${esc(p.id)}" ${oos?'disabled title="Out of stock"':""} style="--hue:${s.hue};--tint:${s.tint}">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" loading="lazy">`:`<span class="pic">${ico(s.icon)}</span>`}<span>${esc(p.name)}</span><b>${oos?"Out of stock":p.pricingMethod==="open"?"Open price":(kidsOf(p).length?"From ":"")+usd(tilePrice(p))}</b></button>`; };
-  const V3P = document.documentElement.classList.contains("posv3");   // the design file's register: category pills above the items
+  const V3P = document.documentElement.classList.contains("posv3pills");   // the design file's register: category pills above the items
   if(V3P && !cat && tops.length && !$("#q").value.trim()) cat = tops[0].id;
   if(V3P){ const topOf = c => c && (isTop(c) ? c.id : catPar(c)), curTop = topOf(cats.find(x => x.id===cat)); $("#mcats").innerHTML = tops.map(c => `<button class="mcat v3pill${c.id===curTop?" on":""}" role="tab" aria-selected="${c.id===curTop}" data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join(""); } else
   $("#mcats").innerHTML = "" && cats.length ? `<button class="mcat${cat?"":" on"}" role="tab" aria-selected="${!cat}" data-cat="" style="--hue:#0A60D0;--tint:#eef2fc"><span class="cdot">${ico("star")}</span>Quick picks</button>` + cats.map(c => `<button class="mcat${c.id===cat?" on":""}" role="tab" aria-selected="${c.id===cat}" data-cat="${esc(c.id)}" style="--hue:${cs[c.id].hue};--tint:${cs[c.id].tint}"><span class="cdot">${ico(cs[c.id].icon)}</span>${esc(c.name)}</button>`).join("") : "";
@@ -2019,7 +2019,7 @@ function renderMenu(){
   const c = cats.find(x=>x.id===cat), l = byCat(cat);   // order set in Sales Channels
   const par = isTop(c) ? null : cats.find(x => x.id===catPar(c)), subs = par ? [] : subsOf(c.id);   // a sub-category goes back to its category
   const subTile = sc => { const k = prods.filter(p => has(sc, p)).length; return `<button class="ctile ctile2 csub" data-cat="${esc(sc.id)}" style="--hue:${cs[sc.id].hue};--tint:${cs[sc.id].tint}"><span>${esc(sc.name)}</span><b class="ccn">${k} item${k===1?"":"s"}</b></button>`; };
-  const V3B = document.documentElement.classList.contains("posv3") && !par;   // with the pills there's nothing to go back to
+  const V3B = document.documentElement.classList.contains("posv3pills") && !par;   // with the pills there's nothing to go back to
   $("#grid").innerHTML = (V3B ? "" : `<button class="cbtile" data-cat="${par ? esc(par.id) : ""}" aria-label="Back">${ico("back")}<span>Back</span></button>`) + subs.map(subTile).join("") + l.map(tile).join("");
 }
 // set discounts: branch, order type, minimum order, and the items / categories / tags they're limited to
