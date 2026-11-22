@@ -2004,6 +2004,9 @@ function renderMenu(){
   const tile = p => { const s = cs[cat] || cs[cats.find(c => has(c, p))?.id] || catStyle(null, 0), n = inCart[p.id] || kidsOf(p).reduce((a,k) => a + (inCart[k.p?.id]||0), 0);
     const oos = prodOos(p);
     return `<button class="prod${p.imageUrl?" hasimg":""}${oos?" oos":""}" data-add="${esc(p.id)}" ${oos?'disabled title="Out of stock"':""} style="--hue:${s.hue};--tint:${s.tint}">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" loading="lazy">`:`<span class="pic">${ico(s.icon)}</span>`}<span>${esc(p.name)}</span><b>${oos?"Out of stock":p.pricingMethod==="open"?"Open price":(kidsOf(p).length?"From ":"")+usd(tilePrice(p))}</b></button>`; };
+  const V3P = document.documentElement.classList.contains("posv3");   // the design file's register: category pills above the items
+  if(V3P && !cat && tops.length && !$("#q").value.trim()) cat = tops[0].id;
+  if(V3P){ const topOf = c => c && (isTop(c) ? c.id : catPar(c)), curTop = topOf(cats.find(x => x.id===cat)); $("#mcats").innerHTML = tops.map(c => `<button class="mcat v3pill${c.id===curTop?" on":""}" role="tab" aria-selected="${c.id===curTop}" data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join(""); } else
   $("#mcats").innerHTML = "" && cats.length ? `<button class="mcat${cat?"":" on"}" role="tab" aria-selected="${!cat}" data-cat="" style="--hue:#0A60D0;--tint:#eef2fc"><span class="cdot">${ico("star")}</span>Quick picks</button>` + cats.map(c => `<button class="mcat${c.id===cat?" on":""}" role="tab" aria-selected="${c.id===cat}" data-cat="${esc(c.id)}" style="--hue:${cs[c.id].hue};--tint:${cs[c.id].tint}"><span class="cdot">${ico(cs[c.id].icon)}</span>${esc(c.name)}</button>`).join("") : "";
   const inCats = p => cats.some(c => has(c, p));
   if(q){   // searching looks through every category
@@ -2016,7 +2019,8 @@ function renderMenu(){
   const c = cats.find(x=>x.id===cat), l = byCat(cat);   // order set in Sales Channels
   const par = isTop(c) ? null : cats.find(x => x.id===catPar(c)), subs = par ? [] : subsOf(c.id);   // a sub-category goes back to its category
   const subTile = sc => { const k = prods.filter(p => has(sc, p)).length; return `<button class="ctile ctile2 csub" data-cat="${esc(sc.id)}" style="--hue:${cs[sc.id].hue};--tint:${cs[sc.id].tint}"><span>${esc(sc.name)}</span><b class="ccn">${k} item${k===1?"":"s"}</b></button>`; };
-  $("#grid").innerHTML = `<button class="cbtile" data-cat="${par ? esc(par.id) : ""}" aria-label="Back">${ico("back")}<span>Back</span></button>` + subs.map(subTile).join("") + l.map(tile).join("");
+  const V3B = document.documentElement.classList.contains("posv3") && !par;   // with the pills there's nothing to go back to
+  $("#grid").innerHTML = (V3B ? "" : `<button class="cbtile" data-cat="${par ? esc(par.id) : ""}" aria-label="Back">${ico("back")}<span>Back</span></button>`) + subs.map(subTile).join("") + l.map(tile).join("");
 }
 // set discounts: branch, order type, minimum order, and the items / categories / tags they're limited to
 const dsAll = () => ((S.settings.find(x => x.id==="discounts") || {}).list || []).filter(d => !d.deleted);
@@ -2127,6 +2131,7 @@ function renderCart(){
   if(ro){ const T = eo; $("#totals").innerHTML = `${+T.discount?`<div><span>Discount</span><span>−${usd(T.discount)}</span></div>`:""}${(T.charges||[]).filter(c=>+c.amount).map(c=>`<div><span>${esc(c.name)}</span><span>${usd(c.amount)}</span></div>`).join("")}
     <div><span>Subtotal</span><span>${usd((+T.total||0)-(+T.tax||0))}</span></div><div class="mut" style="font-size:13px"><span>Tax</span><span>${usd(T.tax)}</span></div><div class="g"><span>Total</span><span>${usd(T.total)}</span></div>`; }
   try{ if($("#grid")?.children.length) renderMenu(); }catch(e){}   // keeps the item counts on the menu tiles current
+  window.__posv3sync?.();
 }
 
 /* ---------- an order opened into the billing section ---------- */
@@ -3020,6 +3025,7 @@ function boardOrders(col, pd){
 function openIncoming(){
   ovLoad();
   if(!can("pos_orders") && !can("pos_incoming")) return deny("seeing orders");
+  if(window.POSV3_ORDERS && document.documentElement.classList.contains("posv3") && !OV.v3old) return window.POSV3_ORDERS();   // the design file's split view
   const t = v => v ? new Date(v).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"}) : "";
   const chn = o => o.channel==="pos" ? "POS" : o.channel==="callcenter" ? "Call center" : "Web";
   const card = o => `<button class="ocard" data-ov="${esc(o.id)}"><span class="oc1"><b>${esc(o.invoiceNo ? invNo(o.invoiceNo) : o.no ? "Order " + o.no : (o.ref || ordRef(o)))}</b><span class="spill s-${o.status}">${stLbl(o)}</span></span>
@@ -3867,6 +3873,8 @@ async function openDiag(){
     ${f.length ? `<p style="margin-top:12px"><b>Rejected changes</b></p>${f.map(o=>`<p class="mut">${esc(o.col)} · ${esc(o.data?.no ? "Order "+o.data.no : o.id)} — ${esc(o.lastError||"")}</p>`).join("")}` : ""}</div>
     <div class="mf">${f.length?'<button class="btn" id="retryFailed">Retry rejected</button>':""}<button class="btn" id="diagReload" style="margin-right:auto">Reload app</button><button class="btn pri" id="syncNow">Sync now</button></div>`);
 }
+// for posv3.js (the design-file layout): read-only state and the app's own functions
+window.POSAPI = { state: () => ({ otype, tableNo, tbl: tableNo ? tblLbl(tableNo) : "", eid: (editOrder() || {}).id || null }), S: () => S, OV, boardOrders, ovLoad, can, deny, usd, usd2, stLbl, typLbl, telFmt, ordRef, invNo, modList, lineNet, loadOrder, closeModal, modal, withNav, isOpenOrd, outDel, renderMenu, tblLbl };
 })();
 if("serviceWorker" in navigator && !window.Capacitor && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
@@ -3933,5 +3941,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.SKW_NAME = tx; window.SKW_FIX = fix; if(/branch|dine/i.test(document.title)) document.title = tx(document.title);
 })();</script>
 <script src="ioskit.js?v=5" data-app="pos"></script>
+<script src="posv3.js?v=1"></script>
 </body>
 </html>
