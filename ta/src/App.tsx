@@ -18,6 +18,8 @@ import { RequestsPage, TimeClockPage } from "@/skwyd/pages/Team";
 import SchedulePage from "@/skwyd/pages/Schedule";
 import PayrollPage from "@/skwyd/pages/Payroll";
 import StaffDocsPage from "@/skwyd/pages/StaffDocs";
+import TasksPage from "@/skwyd/pages/Tasks";
+import KnowledgePage from "@/skwyd/pages/Knowledge";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
 import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
@@ -56,6 +58,8 @@ export default function App() {
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/payroll" element={<PayrollPage />} />
           <Route path="/documents" element={<StaffDocsPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/knowledge" element={<KnowledgePage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
