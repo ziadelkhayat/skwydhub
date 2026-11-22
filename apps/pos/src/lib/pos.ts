@@ -101,3 +101,71 @@ export const posUsers = (S: Data, branchId: string) => S.users.filter(u => live(
 export const pinHash = (id: string, pin: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, "slick:" + id + ":" + pin);
 export async function pinUser(list: Row[], pin: string) { for (const u of list) if ((await pinHash(u.id, pin)) === u.pinHash) return u; return null; }
 export const userPerms = (S: Data, u?: Row | null) => { const ids = (u?.roleIds || []).length ? u!.roleIds : [u?.roleId]; return S.roles.filter(r => ids.includes(r.id) && !r.deleted).flatMap(r => r.permissions || []); };
+
+/* ---------- modifiers (same rules as pos.html modData + modpick.js) ---------- */
+export type ModLink = { modifierId: string; min?: number; max?: number; free?: number; multi?: boolean; defaults?: string[] };
+export type ModOpt = { id: string; modifierId: string; name: string; price: number; oos: boolean };
+export type ModData = { links: ModLink[]; groups: Record<string, { name: string }>; options: ModOpt[] };
+const linkOpt = (p: Row, o: Row) => (((p.modifiers || []).find((l: any) => l.modifierId === o.modifierId)?.opts || {})[o.id] || {}) as any;
+export function modData(x: Ctx, p: Row): ModData {
+  const b = x.device.branchId, mt = menuType(x.otype), k = b + ":pos", kt = k + ":" + mt;
+  const groups: Record<string, { name: string }> = {}; x.S.modifiers.forEach(m => { if (!m.deleted) groups[m.id] = { name: m.name }; });
+  const links: any[] = p.modifiers || [], ids = new Set(links.map(l => l.modifierId));
+  const options = x.S.modifier_options.filter(o => !o.deleted && o.active !== false && ids.has(o.modifierId) && !(o.inactiveBranchIds || []).some((y: string) => y === b || y === k || y === kt))
+    .sort((a, z) => (a.sort ?? 999) - (z.sort ?? 999) || String(a.name).localeCompare(z.name))
+    .filter(o => { const s = linkOpt(p, o), l = links.find(y => y.modifierId === o.modifierId); return !(s.off || []).includes(k) && !(s.off || []).includes(kt) && !(l?.offTypes || []).includes(kt); })
+    .filter(o => !((links.find(l => l.modifierId === o.modifierId)?.excluded) || []).includes(o.id))
+    .map(o => { const s = linkOpt(p, o), pt = (s.price || {})[kt], sp = pt != null && pt !== "" ? pt : (s.price || {})[k], c = sp != null && sp !== "" ? sp : (o.customPrices || {})[b];
+      return { id: o.id, modifierId: o.modifierId, name: o.name, price: c != null && c !== "" ? +c : +o.price || 0, oos: (o.outOfStockBranchIds || []).includes(b) || (s.oos || []).includes(b) }; });
+  return { links: links.filter(l => groups[l.modifierId] && options.some(o => o.modifierId === l.modifierId)), groups, options };
+}
+export const modRule = (l: ModLink) => { const mn = +(l.min || 0), mx = +(l.max || 0); if (mn && mx && mn === mx) return `Choose ${mn}`; if (mn && mx) return `Choose ${mn} to ${mx}`; if (mn) return `Choose at least ${mn}`; if (mx) return `Up to ${mx}`; return "Optional"; };
+// the same options on a line mean the same item, so the cart merges them
+export const lineKey = (productId: string, options?: any[]) => productId + "|" + (options || []).map(o => o.id).sort().join(",");
+// the text shown on tickets and receipts: the options, then the cashier's note
+export const modLabel = (mods: string, note?: string) => [mods, note ? "Note: " + note : ""].filter(Boolean).join(" · ");
+
+/* ---------- business day (pos.html bizDate / openDay / saleBlock) ---------- */
+const dayCut = (x: Ctx) => { const v = x.branch?.settings?.dayStart || coS(x.S).dayEnd || ""; const m = /^(\d{1,2}):(\d{2})/.exec(v); return m ? Math.min(719, +m[1] * 60 + +m[2]) : 0; };
+const nextDay = (d: string) => { const t = new Date(d + "T12:00:00"); t.setDate(t.getDate() + 1); return t.toISOString().slice(0, 10); };
+export const dayClosed = (x: Ctx, d: string) => x.S.day_closes.some(c => c.branchId === x.device.branchId && String(c.businessDate).slice(0, 10) === d);
+// ending the day early (before the start time) starts the next business day right then
+export function bizDate(x: Ctx, t: string | Date = new Date()) {
+  const ms = +new Date(t), d0 = new Date(ms - dayCut(x) * 60000); let d = new Date(+d0 - d0.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  for (let i = 0; i < 3; i++) { const c = x.S.day_closes.find(c => c.branchId === x.device.branchId && String(c.businessDate).slice(0, 10) === d); if (c && +new Date(c.closedAt) <= ms) d = nextDay(d); else break; }
+  return d;
+}
+const liveOrder = (x: Ctx, o: Row) => o.branchId === x.device.branchId && !["draft", "declined", "void"].includes(o.status);
+// the latest earlier business day at this store that had sales and wasn't ended; otherwise today
+export function openDay(x: Ctx) { const today = bizDate(x), days = [...new Set(x.S.orders.filter(o => liveOrder(x, o)).map(o => bizDate(x, o.createdAt)))].filter(d => d < today && !dayClosed(x, d)).sort(); return days.length ? days[days.length - 1] : today; }
+export function saleBlock(x: Ctx) { const today = bizDate(x); if (openDay(x) < today) return "End of day to start selling"; if (dayClosed(x, today)) return "Day already ended"; return ""; }
+
+/* ---------- till, order numbers, payment methods ---------- */
+export const openShift = (x: Ctx) => x.S.shifts.find(s => s.deviceId === x.device.id && !s.closedAt) || null;
+export const shiftSales = (x: Ctx, sh: Row) => x.S.orders.filter(o => o.shiftId === sh.id && (o.status === "closed" || o.status === "refund"));
+// cash still with drivers isn't in the drawer
+const owed = (l: Row[]) => l.filter(o => o.type === "delivery" && o.driverId && !o.driverSettledAt && (o.payment?.type || o.payment?.method) === "cash").reduce((a, o) => a + (+o.total || 0), 0);
+export const expectedCash = (x: Ctx, sh: Row) => { const s = shiftSales(x, sh); return (+sh.openingCash || 0) + s.filter(o => (o.payment?.type || o.payment?.method) === "cash").reduce((a, o) => a + (+o.total || 0), 0) - owed(s); };
+export const CUR2 = (S: Data) => { const c = coS(S); return c.currency2 && +c.rate2 ? { code: String(c.currency2), rate: +c.rate2, dec: +c.decimals2 || 0 } : null; };
+// call number: one sequence per store, starting again after each end of day; the server fixes any clash
+export function nextOrderNo(x: Ctx, last: { since: number; n: number } | null) {
+  const since = x.S.day_closes.filter(c => c.branchId === x.device.branchId).reduce((m, c) => Math.max(m, +new Date(c.closedAt) || 0), 0);
+  let n = last && last.since === since ? last.n : 0, lo: Row | null = null;
+  x.S.orders.forEach(o => { if (o.branchId === x.device.branchId && o.no && +new Date(o.createdAt) > since && (!lo || +new Date(o.createdAt) > +new Date(lo.createdAt))) lo = o; });
+  if (lo) n = Math.max(n, parseInt(String((lo as Row).no).replace(/\D/g, ""), 10) || 0);
+  const st = Math.max(1, +(x.device.settings?.callStart || 1)), rs = +(x.device.settings?.callReset || 0);
+  n = n < st - 1 ? st - 1 : n; n++; if (rs && n > rs) n = st;
+  return { no: String(n), since, n };
+}
+export type PayMethod = { id: string; name: string; type: string };
+export const payMethods = (x: Ctx): PayMethod[] => {
+  const l = x.S.payment_methods.filter(m => live(m) && m.active !== false && !(x.branch?.settings?.inactivePayments || []).includes(m.id)).sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(b.name));
+  return l.length ? l.map(m => ({ id: m.id, name: m.name, type: m.type || "other" })) : [{ id: "cash", name: "Cash", type: "cash" }, { id: "card", name: "Card", type: "card" }, { id: "other", name: "Other", type: "other" }];
+};
+export const newId = (p: string) => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+// what goes into the order: the type, the lines (without screen-only fields) and the totals
+export function orderFields(x: Ctx, cart: Line[], t: Totals, extra: { table?: string; customerName?: string; phone?: string; guests?: number } = {}) {
+  return { type: x.otype === "takeaway" ? "pickup" : x.otype, table: x.otype === "dinein" ? extra.table || "" : "", customerName: (extra.customerName || "").trim(), phone: (extra.phone || "").trim(), address: "",
+    items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: [], chargesTotal: 0, discountPct: t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: "pct", discount: t.disc, promo: null,
+    total: t.total, tax: t.tax, receiptNotes: "", notes: "", ...(x.otype === "dinein" && extra.guests ? { guests: extra.guests } : {}) };
+}
