@@ -14,6 +14,8 @@ import WebOrderingPage from "@/skwyd/pages/WebOrdering";
 import DeliveryZonesPage from "@/skwyd/pages/DeliveryZones";
 import DeliveryChargesPage from "@/skwyd/pages/DeliveryCharges";
 import CurrencyPage from "@/skwyd/pages/Currency";
+import { RequestsPage, TimeClockPage } from "@/skwyd/pages/Team";
+import SchedulePage from "@/skwyd/pages/Schedule";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
 import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
@@ -47,6 +49,9 @@ export default function App() {
           <Route path="/delivery-zones" element={<DeliveryZonesPage />} />
           <Route path="/delivery-charges" element={<DeliveryChargesPage />} />
           <Route path="/currency" element={<CurrencyPage />} />
+          <Route path="/time-clock" element={<TimeClockPage />} />
+          <Route path="/requests" element={<RequestsPage />} />
+          <Route path="/schedule" element={<SchedulePage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>

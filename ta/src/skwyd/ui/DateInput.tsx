@@ -27,7 +27,7 @@ export function RangeInput({ from, to, onChange }: { from: string; to: string; o
   const ref = useRef<HTMLInputElement>(null), cb = useRef(onChange); cb.current = onChange;
   useEffect(() => {
     if (!ref.current) return;
-    const f = flatpickr(ref.current, { mode: "range", dateFormat: "d-m-Y", defaultDate: [from, to].filter(Boolean),
+    const f = flatpickr(ref.current, { mode: "range", dateFormat: "d-m-Y", defaultDate: [from, to].filter(Boolean).map(x => new Date(x + "T12:00:00")),
       onClose: (dates) => { const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
         if (!dates.length) cb.current("", ""); else cb.current(iso(dates[0]), iso(dates[1] || dates[0])); } }) as flatpickr.Instance;
     return () => f.destroy();
