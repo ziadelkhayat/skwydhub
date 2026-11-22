@@ -13,6 +13,7 @@ import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
 import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { SplitDialog } from "./Split";
+import { TagsDialog, orderTags, tagDoc } from "./Tags";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
@@ -37,7 +38,7 @@ export function Register() {
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
   const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
   const [cat, setCat] = useState(""), [q, setQ] = useState(""), [note, setNote] = useState(""), [more, setMore] = useState(false);
-  const [disc, setDisc] = useState<Disc>(null), [picked, setPicked] = useState<string[]>([]), [openCh, setOpenCh] = useState<Record<string, number>>({}), [notes, setNotes] = useState({ receipt: "", kitchen: "" });
+  const [disc, setDisc] = useState<Disc>(null), [picked, setPicked] = useState<string[]>([]), [openCh, setOpenCh] = useState<Record<string, number>>({}), [notes, setNotes] = useState({ receipt: "", kitchen: "" }), [tags, setTags] = useState<string[] | null>(null), [guests, setGuests] = useState(0);
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]);
@@ -82,12 +83,12 @@ export function Register() {
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
   const takeNo = async () => { const k = "skwydNo_" + device!.branchId; let last = null; try { last = JSON.parse((await AsyncStorage.getItem(k)) || "null"); } catch {}
     const r = nextOrderNo(x, last); AsyncStorage.setItem(k, JSON.stringify({ since: r.since, n: r.n })).catch(() => {}); return r.no; };
-  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); setDisc(null); setPicked([]); setOpenCh({}); setNotes({ receipt: "", kitchen: "" }); };
+  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); setDisc(null); setPicked([]); setOpenCh({}); setNotes({ receipt: "", kitchen: "" }); setTags(null); setGuests(0); };
   // an order from Orders: its lines (already sent ones marked), type and table
   const openOrder = (o: Row) => { setDlg(null); setEo(o); setNotes({ receipt: o.receiptNotes || "", kitchen: o.notes || "" }); setPicked((o.charges || []).map((c: any) => c.id)); setOpenCh(Object.fromEntries((o.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount])));
-    setDisc(+o.discount ? (o.discountType === "amt" ? { type: "amt", value: +o.discount } : { type: "pct", value: +o.discountPct || 0 }) : null); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
+    setGuests(+o.guests || 0); setDisc(+o.discount ? (o.discountType === "amt" ? { type: "amt", value: +o.discount } : { type: "pct", value: +o.discountPct || 0 }) : null); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
   // an existing order keeps its customer, address, source and channel
-  const fields = () => { const f: any = orderFields(x, cart, t, { table, customerName: cust.name, phone: cust.phone, disc, receiptNotes: notes.receipt, notes: notes.kitchen });
+  const fields = () => { const f: any = orderFields(x, cart, t, { table, guests, customerName: cust.name, phone: cust.phone, disc, receiptNotes: notes.receipt, notes: notes.kitchen });
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
   const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
@@ -106,10 +107,10 @@ export function Register() {
   // Save: the order goes to the kitchen open (active), to be billed later from Orders
   const saveOrder = async () => {
     if (!cart.length || !ready(false)) return;
-    if (live_eo) { write("orders", live_eo.id, { ...fields(), updatedAt: new Date().toISOString() }); say("Saved · order " + ordRef(live_eo)); reset(); return; }
+    if (live_eo) { write("orders", live_eo.id, { ...fields(), updatedAt: new Date().toISOString() }); saveTags(live_eo.id); say("Saved · order " + ordRef(live_eo)); reset(); return; }
     if (otype === "dinein" && !table.trim()) return say("Pick a table to save this order, or take the payment");
     const no = await takeNo(), now = new Date().toISOString();
-    write("orders", newId("pos"), { ...base(no), ...fields(), status: "active", createdAt: now, updatedAt: now }, "set");
+    const nid = newId("pos"); write("orders", nid, { ...base(no), ...fields(), status: "active", createdAt: now, updatedAt: now }, "set"); saveTags(nid);
     reset(); say(`Order #${no} sent to the kitchen`);
   };
   const pay = async () => {
@@ -145,6 +146,7 @@ export function Register() {
       if (error) say("Sale saved, but the house account charge failed: " + error.message); }
     if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
     else write("orders", oid, { ...base(no), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
+    saveTags(oid);
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} second={CUR2(S) ? CUR2(S)!.code + " " + num2(chg2(S, p.change), CUR2(S)!.dec) : ""} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
@@ -177,6 +179,8 @@ export function Register() {
       const r = await ask<{ picked: string[]; open: Record<string, number> } | null>(done => <ChargesDialog x={x} cur={cur} picked={picked} open={openCh} onDone={done} />); if (r) { setPicked(r.picked); setOpenCh(r.open); } return; }
     if (a === "Notes") { const r = await ask<{ receipt: string; kitchen: string } | null>(done => <NotesDialog init={notes} onDone={done} />); if (r) setNotes(r); return; }
     if (a === "Print" || a === "Kitchen") return doPrint(a === "Print" ? "receipt" : "kitchen");
+    if (a === "Tags") { const cur0 = tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : []); const r = await ask<string[] | null>(done => <TagsDialog S={S} init={cur0} onDone={done} />);
+      if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } return; }
     if (a === "Hold") return hold();
     if (a === "Retrieve") return retrieve();
     say(a + " comes in the next step.");
@@ -215,6 +219,8 @@ export function Register() {
   useEffect(() => { const mins = +(device!.settings?.lockMinutes ?? appSetOf().logoutMinutes ?? 10); if (!(mins > 0) || !usePins(S)) return;
     const t = setInterval(() => { if (Date.now() - lastTouch.current > mins * 60000 && !cart.length) setCashier(null); }, 15000); return () => clearInterval(t); }, [cart.length, S.users]);
   const appSetOf = () => appSet(S, branch?.brandId);
+  // the order's tags are kept in settings "tags": on.order[orderId] = [tagIds]
+  const saveTags = (oid: string, ids: string[] | null = tags) => { if (ids == null) return; const d = tagDoc(S), on = JSON.parse(JSON.stringify(d.on || {})); const m = (on.order ||= {}); if (ids.length) m[oid] = ids; else delete m[oid]; write("settings", "tags", { list: d.list || [], on }); };
   const tillDlg = () => setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />);
 
   const qty = (i: number, d: number) => { const l = cart[i];
@@ -234,7 +240,7 @@ export function Register() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
           <View style={{ width: 40, height: 40, borderRadius: R.md, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={18} color="#fff">S</T></View>
           <View style={{ flex: 1, minWidth: 0 }}><T w="s" numberOfLines={1}>{branch?.name || "—"}</T><T size={13} color={C.mut} numberOfLines={1}>{device?.name || "—"}</T></View>
-          {table ? <Pill text={tblLbl(table)} /> : null}
+          {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
           <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : pending ? `Syncing ${pending}…` : "Online"} tone={online && !pending ? "brand" : "warn"} />
           {cashier ? <Pill text={cashier.name} /> : null}
         </View>
@@ -265,6 +271,7 @@ export function Register() {
         <View style={{ paddingHorizontal: 18, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line, gap: 6 }}>
           {t.disc ? <Row l={disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
           {t.charges.map(c => <Row key={c.id} l={c.name} r={money(S, c.amount)} />)}
+          {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={13} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(t => t.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
           {notes.kitchen || notes.receipt ? <T size={13} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
           <Row l="Subtotal" r={money(S, t.net)} />
           <Row l="Tax" r={money(S, t.tax)} muted />
@@ -317,7 +324,8 @@ export function Register() {
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
-                : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein"); }} />) : pdBoard())}
+                : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
+                  const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
               <Icon name={ic} color={C.mut} /><T w="m" size={11} color={C.mut} numberOfLines={1}>{l}</T>
             </Pressable>))}
