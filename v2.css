@@ -454,3 +454,28 @@ html body.v2 #view .rchart.v3rch .kh .note{font-size:13px!important;color:#6C6C7
 html body.v2 #view .rkpis .kmini span{font-size:13px!important;color:#6C6C70!important}
 html body.v2 #view .rkpis .kmini b{font-size:22px!important;font-weight:700!important;letter-spacing:-.4px}
 html body:is(.v2,.v2p):is(#_z,body):is(#_y,body) :is(.modal > .body:has(> .f),#view .acgrid) > .f :is(input,select,textarea,.msel-f):focus{outline:none!important;box-shadow:none!important}
+/* dark appearance for the new sheets, forms, buttons and charts */
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) .modal.sk{background:#000!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) .modal.sk > header{background:rgba(30,30,30,.94)!important;border-color:#38383A!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) .modal.sk > header h2{color:#fff!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) .modal.sk .sktb{color:#0A84FF!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) :is(.modal > .body:has(> .f),#view .acgrid) > .f{background:#1C1C1E!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) :is(.modal > .body:has(> .f),#view .acgrid) > .f + .f::before{background:#38383A}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) :is(.modal > .body:has(> .f),#view .acgrid) > .f > label,html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body):is(#_y,body) :is(.modal > .body:has(> .f),#view .acgrid) > .f :is(input,select,textarea,.msel-f){color:#fff!important}
+html[data-theme=dark] body:is(.v2,.v2p) :is(#view,.modal,.sheet) :is(button,a).btn:not(.ios-back):not(.v2rb):not(.v3g):not(.pri){background:rgba(118,118,128,.24)!important;color:#0A84FF!important}
+html[data-theme=dark] body:is(.v2,.v2p) :is(#view,.modal,.sheet) :is(input:not([type=checkbox]):not([type=radio]),select,textarea,.msel-f){background:rgba(118,118,128,.24)!important;color:#fff!important}
+html[data-theme=dark] body.v2 #view#view .v2list table.ios-ltable > tbody > tr > td.ios-t1{color:#fff!important}
+html[data-theme=dark] body.v2 #view .rchart.v3rch{background:#1C1C1E!important}
+html[data-theme=dark] body .app #view .v2cols > section.v2setc h1{color:#fff!important}
+html[data-theme=dark] body.v2 aside.side,html[data-theme=dark] body.v2 aside.side .v3side{background:#1C1C1E!important;border-color:#38383A!important}
+html[data-theme=dark] body.v2 aside.side .v3side a[data-v3nav]:not(.v3on),html[data-theme=dark] body.v2 aside.side .v3side :is(b,h1,h2,div,span,button){color:#fff!important}
+html[data-theme=dark] body.v2 aside.side .v3side a[data-v3nav]:not(.v3on) svg{stroke:#0A84FF!important}
+html[data-theme=dark] body.v2 aside.side .v3side :is(small,.sub){color:rgba(235,235,245,.6)!important}
+html[data-theme=dark] body.v2 aside.side .v3side label,html[data-theme=dark] body.v2 aside.side .v3side .v3me{background:rgba(118,118,128,.24)!important}
+html[data-theme=dark] body .app #view .v2cols > section.v2setc,html[data-theme=dark] body .app #view section.v3col{background:#000!important;border-color:#38383A!important}
+html[data-theme=dark] body .app #view section.v3col :is(a,button,div)[style*="background:#fff"]{background:#1C1C1E!important}
+html[data-theme=dark] body .app #view section.v3col a[data-v3set]:not([style*="#0A66D8"]),html[data-theme=dark] body .app #view section.v3col [style*="color:#000"]{color:#fff!important}
+html[data-theme=dark] body .app #view section.v3col input{color:#fff!important}
+html[data-theme=dark] body:is(.v2,.v2p) :is(input,textarea)::placeholder{color:rgba(235,235,245,.3)!important}
+html:root[data-theme=dark] body.v2 .app > .main.main{margin:0 0 0 var(--v2side)!important}
+html[data-theme=dark] body .app #view :is(section.v3col,main.v3col) :is(h1,h2,b){color:#fff!important}
