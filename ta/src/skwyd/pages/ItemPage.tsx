@@ -1,10 +1,9 @@
 // An item's page (Catalog → Items → an item), in TailAdmin profile-page style: details card with Edit, then the same sections as the current portal:
-// Modifiers, Ingredients, Custom Price, Inactive In Stores, Out Of Stock.
+// Modifiers and Ingredients. Store prices, active and out of stock are set in Sales Channels, not here.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { ArrowLeftIcon, PencilIcon, PlusIcon, TrashBinIcon } from "@/icons";
 import { put, type Row } from "@/lib/db";
 import { money } from "@/lib/util";
@@ -31,9 +30,7 @@ export default function ItemPage() {
   const p = s.products.find(x => x.id === id);
   if (!p) return <EmptyState text="This item isn't there anymore." />;
   const save = async (data: Record<string, any>, msg = "Item saved") => { try { await put("products", p.id, data); toast(msg); } catch (e: any) { toast(e?.message || "Couldn't save.", "error"); } };
-  const stores = s.branches.filter(b => live(b) && b.active !== false);
   const links: any[] = p.modifiers || [], ings: any[] = p.ingredients || [];
-  const cps: Record<string, any> = p.customPrices || {};
 
   return (
     <>
@@ -86,20 +83,6 @@ export default function ItemPage() {
             </table></div>}
           </Card>
 
-          <Card title="Custom Price">
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">A different price in some stores. Empty = the item's price ({p.pricingMethod === "open" ? "Open" : money(p.price)}).</p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{stores.map(b => (
-              <div key={b.id}><p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-400">{b.name}</p>
-                <Input className="h-11" type="number" step="any" placeholder={String(p.price ?? "")} defaultValue={cps[b.id] ?? ""} onBlur={e => { const v = e.target.value; const n = { ...cps }; if (v === "") delete n[b.id]; else n[b.id] = +v; if (String(cps[b.id] ?? "") !== v) save({ customPrices: n }, "Price saved"); }} /></div>))}</div>
-          </Card>
-
-          <Card title="Inactive In Stores">
-            <StoreSwitches stores={stores} on={(p.inactiveBranchIds || []).filter((x: string) => !String(x).startsWith("only:"))} label="Inactive"
-              set={ids => save({ inactiveBranchIds: [...(p.inactiveBranchIds || []).filter((x: string) => String(x).startsWith("only:")), ...ids] })} />
-          </Card>
-          <Card title="Out Of Stock">
-            <StoreSwitches stores={stores} on={p.outOfStockBranchIds || []} label="Out of stock" set={ids => save({ outOfStockBranchIds: ids })} />
-          </Card>
         </div>
       </div>
       {edit && <EditDialog cfg={CRUD.products} s={s} row={p as Row} onClose={() => setEdit(false)} />}
@@ -112,10 +95,4 @@ function AddPick({ label, opts, onPick }: { label: string; opts: [string, string
   if (!open) return <Button variant="outline" onClick={() => setOpen(true)} disabled={!opts.length}><PlusIcon className="size-5" />{label}</Button>;
   return <select autoFocus className={sel + " w-56"} defaultValue="" onBlur={() => setOpen(false)} onChange={e => { if (e.target.value) onPick(e.target.value); setOpen(false); }}>
     <option value="">Choose…</option>{opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>;
-}
-function StoreSwitches({ stores, on, set, label }: { stores: Row[]; on: string[]; set: (ids: string[]) => void; label: string }) {
-  return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{stores.map(b => (
-    <label key={b.id} className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3 dark:border-gray-800">
-      <span className="text-sm font-medium text-gray-800 dark:text-white/90">{b.name}<span className="block text-theme-xs font-normal text-gray-500">{on.includes(b.id) ? label : "Active"}</span></span>
-      <Switch checked={on.includes(b.id)} onCheckedChange={v => set(v ? [...on, b.id] : on.filter(x => x !== b.id))} /></label>))}</div>;
 }
