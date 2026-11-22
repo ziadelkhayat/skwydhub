@@ -32,24 +32,26 @@ async function assign(s: S, ids: string[], chargeId: string, value?: number) {
 }
 
 export default function DeliveryChargesPage() {
-  const s = useS(["zones", "branches", "charges", "settings"]);
-  const [q, setQ] = useState(""), [br, setBr] = useState(""), [sel, setSel] = useState<Set<string>>(new Set()), [form, setForm] = useState<string[] | null>(null);
+  const s = useS(["zones", "branches", "charges", "settings", "brands"]);
+  const [q, setQ] = useState(""), [br, setBr] = useState(""), [brand, setBrand] = useState(""), [sel, setSel] = useState<Set<string>>(new Set()), [form, setForm] = useState<string[] | null>(null);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const bName = (id?: string) => s.branches.find(b => b.id === id)?.name || "";
   const dmap: Record<string, string> = (s.settings.find(x => x.id === "dcharges") as any)?.map || {};
   const chargeOf = (z: Row) => { const id = dmap[z.id]; return id ? s.charges.find(c => c.id === id && live(c)) : null; };
   const all = s.zones.filter(z => live(z) && z.branchId && s.branches.some(b => b.id === z.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   const qq = q.trim().toLowerCase();
-  const list = all.filter(z => (!br || z.branchId === br) && (!qq || (z.name + " " + bName(z.branchId) + " " + (chargeOf(z)?.name || "")).toLowerCase().includes(qq)));
+  const inB = (id: string) => !brand || s.branches.find(b => b.id === id)?.brandId === brand;
+  const list = all.filter(z => (!br || z.branchId === br) && inB(z.branchId) && (!qq || (z.name + " " + bName(z.branchId) + " " + (chargeOf(z)?.name || "")).toLowerCase().includes(qq)));
   const picked = list.filter(z => sel.has(z.id)).map(z => z.id), allOn = list.length > 0 && picked.length === list.length;
-  const brs = s.branches.filter(b => all.some(z => z.branchId === b.id));
+  const brs = s.branches.filter(b => all.some(z => z.branchId === b.id) && inB(b.id));
   return (
     <>
       <PageBreadcrumb pageTitle="Delivery Charges" />
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set the charge each store adds when it delivers to a delivery zone. Call center orders get it automatically when the customer's address is in the zone and the order is made by that store; web ordering uses it as the delivery fee.</p>
       <div className={BOX}>
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <select aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+          <div className="flex flex-col gap-3 sm:flex-row"><select aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+          <select aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
           <InputGroup className="h-11 sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
             <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
         </div>

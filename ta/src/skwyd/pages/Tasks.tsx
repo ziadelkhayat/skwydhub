@@ -21,15 +21,15 @@ import { d10s, dmy, today, who } from "./em";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function TasksPage() {
-  const s = useS(["tasks", "users", "branches"]), { staff } = useAuth();
-  const [tab, setTab] = useState("open"), [br, setBr] = useState(""), [q, setQ] = useState(""), [form, setForm] = useState<Row | null | undefined>(undefined);
+  const s = useS(["tasks", "users", "branches", "brands"]), { staff } = useAuth();
+  const [tab, setTab] = useState("open"), [br, setBr] = useState(""), [brand, setBrand] = useState(""), [q, setQ] = useState(""), [form, setForm] = useState<Row | null | undefined>(undefined);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
-  const all = s.tasks.filter(t => !t.deleted), stores = s.branches.filter(b => live(b) && b.active !== false);
+  const all = s.tasks.filter(t => !t.deleted), stores = s.branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand));
   const n = (k: string) => all.filter(t => k === "all" || (k === "done") === (t.status === "done")).length;
   const whoOf = (t: Row) => (t.assigneeIds || []).length ? t.assigneeIds.map((id: string) => s.users.find(u => u.id === id)?.name || "—").join(", ") : t.branchId ? "Everyone at " + (s.branches.find(b => b.id === t.branchId)?.name || "") : "Everyone";
   const late = (t: Row) => t.status !== "done" && t.dueDay && d10s(t.dueDay) < today();
   const qq = q.trim().toLowerCase();
-  const rows = all.filter(t => (tab === "all" || (tab === "done") === (t.status === "done")) && (!br || t.branchId === br || (t.assigneeIds || []).some((id: string) => (s.users.find(u => u.id === id)?.branchIds || []).includes(br))) && (!qq || (t.title + " " + (t.notes || "")).toLowerCase().includes(qq)))
+  const rows = all.filter(t => (tab === "all" || (tab === "done") === (t.status === "done")) && (!brand || !t.branchId || stores.some(b => b.id === t.branchId)) && (!br || t.branchId === br || (t.assigneeIds || []).some((id: string) => (s.users.find(u => u.id === id)?.branchIds || []).includes(br))) && (!qq || (t.title + " " + (t.notes || "")).toLowerCase().includes(qq)))
     .sort((a, b) => (+(a.status === "done") - +(b.status === "done")) || String(a.dueDay || "9999").localeCompare(String(b.dueDay || "9999")) || String(b.createdAt).localeCompare(String(a.createdAt)));
   const toggle = async (t: Row) => { const done = t.status !== "done"; try { await put("tasks", t.id, { status: done ? "done" : "open", doneAt: done ? new Date().toISOString() : null, doneBy: done ? who(staff) : null }); } catch { toast("Couldn't save.", "error"); } };
   return (
@@ -40,6 +40,7 @@ export default function TasksPage() {
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            <select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <select aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
         </div>

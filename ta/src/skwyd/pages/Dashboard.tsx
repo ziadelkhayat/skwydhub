@@ -65,7 +65,7 @@ export default function Dashboard() {
     <>
       <PageBreadcrumb pageTitle="Summary" />
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        {brands.length > 1 && <div className="w-full sm:w-52"><select aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>}
+        {<div className="w-full sm:w-52"><select aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>}
         <div className="w-full sm:w-52"><select aria-label="Store" className={SEL} value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
         <SegTabs value={days} onChange={setDays} items={[["1", "Day"], ["7", "Week"], ["30", "Month"], ["c", "Dates"]]} />
         {days === "c" && <div className="w-64"><RangeInput from={rng[0]} to={rng[1]} onChange={(a, b) => setRng([a, b])} /></div>}

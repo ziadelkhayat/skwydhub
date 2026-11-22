@@ -22,7 +22,7 @@ import { addDays, csv, d10s, dayOf, dmy, empStores, hm, inBrand, LEAVE_T, monOf,
 export function StoreFilter({ s, brand, setBrand, branch, setBranch }: { s: S; brand: string; setBrand: (v: string) => void; branch: string; setBranch: (v: string) => void }) {
   const bl = s.brands.filter(b => live(b) && b.active !== false);
   return <>
-    {bl.length > 1 && <select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && !inBrand(s.branches, branch, e.target.value)) setBranch(""); }}>
+    {<select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && !inBrand(s.branches, branch, e.target.value)) setBranch(""); }}>
       <option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
     <select aria-label="Store" className={SEL + " sm:w-44"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>
       {s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>

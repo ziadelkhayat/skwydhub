@@ -32,7 +32,7 @@ function locsOf(s: S, brand: string) {
 const Head = ({ title, back, children }: { title: string; back: () => void; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={title} />
   <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Inventory Reports</Button><div className="flex flex-wrap gap-3">{children}</div></div></>;
-const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => s.brands.filter(live).length > 1 ? <select aria-label="Brand" className={SEL + " sm:w-40"} value={v} onChange={e => set(e.target.value)}><option value="">All Brands</option>{s.brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : null;
+const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <select aria-label="Brand" className={SEL + " sm:w-40"} value={v} onChange={e => set(e.target.value)}><option value="">All Brands</option>{s.brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : null;
 
 export function InvLevelsPage() {
   const s = useS(["inv_items", "inv_categories", "branches", "warehouses", "brands"]), nav = useNavigate();

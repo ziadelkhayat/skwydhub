@@ -106,8 +106,8 @@ export default function OrdersPage() {
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             </InputGroup>
-            {brands.length > 1 && <select aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { setF({ ...F, brand: e.target.value }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
-            <select aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+            {<select aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
+            <select aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <div className="sm:w-56"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
             <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           </div>
