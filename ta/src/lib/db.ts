@@ -115,7 +115,12 @@ export const newId = (p: string) => p + "_" + Date.now().toString(36) + Math.ran
 /** Create or replace (set) / change some fields (update) of one row. */
 export async function put(col: string, id: string | null, data: Record<string, any>) {
   const t = tableOf(col), row = toRow(col, data);
-  const res = id && peek(col).some(r => r.id === id)
+  const exists = id && peek(col).some(r => r.id === id);
+  if (exists && t === "settings") { // settings documents are merged, never replaced (same as wokdb.js)
+    const cur = await sb.from(t).select("data").eq("id", id).maybeSingle(); if (cur.error) throw cur.error;
+    row.data = { ...((cur.data as any)?.data || {}), ...row.data };
+  }
+  const res = exists
     ? await sb.from(t).update(row).eq("id", id)
     : await sb.from(t).insert({ ...row, id: id || newId(col.slice(0, 3)) });
   if (res.error) throw res.error;

@@ -7,6 +7,9 @@ import NotMoved from "@/skwyd/pages/NotMoved";
 import OrdersPage from "@/skwyd/pages/Orders";
 import CustomersPage from "@/skwyd/pages/Customers";
 import ItemPage from "@/skwyd/pages/ItemPage";
+import DevicesPage from "@/skwyd/pages/Devices";
+import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
+import { ConfirmHost } from "@/skwyd/ui/confirm";
 import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
 import "flatpickr/dist/flatpickr.css";
@@ -25,11 +28,15 @@ export default function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/item" element={<ItemPage />} />
+          <Route path="/devices" element={<DevicesPage />} />
+          <Route path="/reasons" element={<ReasonsPage />} />
+          <Route path="/tags" element={<TagsPage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
       </Routes>
       <Toaster />
+      <ConfirmHost />
     </>
   );
 }
