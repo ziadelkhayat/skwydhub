@@ -9,7 +9,7 @@ import { Btn, Pad, T } from "./kit";
 import { Sheet } from "./Pickers";
 
 export type Paid = { method: string; type: string; methodId: string; tendered: number; change: number; tendered1?: number; tendered2?: number; currency2?: string; rate2?: number; decimals2?: number };
-export function PayDialog({ x, total, onDone }: { x: Ctx; total: number; onDone: (p: Paid | null) => void }) {
+export function PayDialog({ x, total, onDone, title, onSplit }: { x: Ctx; total: number; onDone: (p: Paid | null) => void; title?: string; onSplit?: () => void }) {
   const pms = payMethods(x), [pm, setPm] = useState<PayMethod>(pms[0]), [busy, setBusy] = useState(false), c2 = CUR2(x.S);
   // cash can be given in the main currency, the second one, or both: one amount per currency, one pad for the one selected
   const [cur, setCur] = useState<1 | 2>(1), [v1, setV1] = useState(""), [v2, setV2] = useState(""), [touched, setTouched] = useState(false);
@@ -25,7 +25,8 @@ export function PayDialog({ x, total, onDone }: { x: Ctx; total: number; onDone:
     return <Pressable onPress={() => setCur(which)} style={{ flex: 1, height: 56, borderRadius: R.sm, borderWidth: on ? 2 : 1, borderColor: on ? C.brand : C.field, paddingHorizontal: 12, justifyContent: "center" }}>
       <T size={12} color={C.mut}>{which === 1 ? "Main currency" : c2!.code}</T><T w="s" size={20}>{v === "" ? "0" : which === 1 ? m(+v) : c2!.code + " " + num2(+v, c2!.dec)}</T></Pressable>; };
   return (
-    <Sheet title="Payment" width={820} onClose={() => onDone(null)} footer={<>
+    <Sheet title={title || "Payment"} width={820} onClose={() => onDone(null)} footer={<>
+      {onSplit ? <Btn label="Split Check" height={52} onPress={onSplit} /> : null}
       <View style={{ flex: 1 }} />
       <Btn label="Cancel" height={52} onPress={() => onDone(null)} />
       <Btn kind="primary" height={52} label="Complete Sale" disabled={busy || short} onPress={done} />

@@ -12,6 +12,7 @@ import { EndDayDialog, endDayBlock } from "./EndDay";
 import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
 import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
+import { SplitDialog } from "./Split";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
@@ -113,8 +114,33 @@ export function Register() {
   };
   const pay = async () => {
     if (!cart.length || !ready(true)) return;
-    const p = await ask<Paid | null>(done => <PayDialog x={x} total={t.total} onDone={done} />); if (!p) return;
-    const now = new Date().toISOString(), total = t.total, payment = { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) };
+    let split = false;
+    const p = await ask<Paid | null | "split">(done => <PayDialog x={x} total={t.total} onDone={done} onSplit={() => done("split")} />);
+    if (!p) return;
+    const now = new Date().toISOString(), total = t.total;
+    // split check (pos.html): every part is its own sale with its own number from the server, linked by payment.split; each carries its share of the items
+    if (p === "split") {
+      const parts = await ask<number[] | null>(done => <SplitDialog x={x} total={total} cur={cur} onDone={done} />); if (!parts) return;
+      const paid: Paid[] = [];
+      for (let i = 0; i < parts.length; i++) {
+        const r = await ask<Paid | null>(done => <PayDialog x={x} total={parts[i]} title={`Part ${i + 1} of ${parts.length}`} onDone={done} />);
+        if (!r) return say(i ? `Parts 1–${i} were not saved: pay all parts to complete the split` : "Split cancelled");
+        paid.push(r);
+        if (r.type === "cash" && i < parts.length - 1) await ask<void>(done => <ChangeShown amount={r.change} title={`Part ${i + 1} paid`} money={cur} onClose={() => done()} />);
+      }
+      const f0 = fields(), grp = newId("spl"), no = live_eo?.no || await takeNo(), T = total || 1;
+      parts.forEach((amount, i) => { const f = amount / T, sc = (v: any) => +((+v || 0) * f).toFixed(2);
+        const po = { ...f0, items: f0.items.map((it: any) => ({ ...it, qty: +((+it.qty || 1) * f).toFixed(3), ...(+it.disc ? { disc: sc(it.disc) } : {}) })), subtotal: sc(f0.subtotal), discount: sc(f0.discount),
+          charges: (f0.charges || []).map((c: any) => ({ ...c, amount: sc(c.amount) })), chargesTotal: sc(f0.chargesTotal), tax: sc(f0.tax), total: +amount.toFixed(2),
+          status: "closed", updatedAt: now, closedAt: now, payment: { ...paid[i], split: { part: i + 1, of: parts.length, group: grp } } };
+        if (i === 0 && live_eo) write("orders", live_eo.id, { ...po, no, shiftId: openShift(x)?.id || null, handledBy: who() });
+        else write("orders", newId("pos") + "_" + (i + 1), { ...base(no), ...po, createdAt: live_eo?.createdAt || now }, "set"); });
+      reset(); split = true;
+      const last = paid[paid.length - 1];
+      if (last.type === "cash") await ask<void>(done => <ChangeShown amount={last.change} title={`Sale complete · ${parts.length} checks`} money={cur} onClose={() => done()} />); else say(`Sale complete · ${money(S, total)} · ${parts.length} checks`);
+    }
+    if (split || p === "split") { if (device!.settings?.lockAfterSale && usePins(S)) setCashier(null); return; }
+    const payment = { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) };
     if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no: await takeNo() }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
     else write("orders", newId("pos"), { ...base(await takeNo()), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
     reset();
