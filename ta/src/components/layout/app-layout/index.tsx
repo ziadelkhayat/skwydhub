@@ -3,7 +3,7 @@ import AppSidebar from "@/components/layout/app-layout/sidebar";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/utils";
-import React from "react";
+import React, { Suspense } from "react";
 import { Outlet, useLocation } from "react-router";
 import { Blocked, SubBar, useAccess } from "@/lib/access";
 
@@ -33,7 +33,7 @@ export default function AppLayout({
       <SidebarInset className={cn("min-w-0", isAiRoute && "h-svh overflow-hidden")}>
         <AppHeader />
 
-        <div className={getRouteSpecificStyles()}><SubBar />{!acc.ready ? null : acc.canOpen(pathname) ? (children ?? <Outlet />) : <Blocked path={pathname} />}</div>
+        <div className={getRouteSpecificStyles()}><SubBar />{!acc.ready ? null : acc.canOpen(pathname) ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-500" /></div>}>{children ?? <Outlet />}</Suspense> : <Blocked path={pathname} />}</div>
       </SidebarInset>
       <ScrollToTop />
     </SidebarProvider>

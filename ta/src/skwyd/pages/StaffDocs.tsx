@@ -91,7 +91,7 @@ export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; ty
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit Document" : "Add Document"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Employee" req><select className={SEL} disabled={!!d} value={v.emp} onChange={e => set("emp", e.target.value)}><option value="">Choose…</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></F>
@@ -120,7 +120,7 @@ function SettingsDialog({ st, onClose }: { st: any; onClose: () => void }) {
   const lines = (v: string) => [...new Set(v.split("\n").map(x => x.trim()).filter(Boolean))];
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Documents & Onboarding Settings</DialogTitle></DialogHeader>
         <div className="mt-6 space-y-5">
           <F l="Required Documents (one per line)"><Textarea rows={4} value={req} onChange={e => setReq(e.target.value)} /></F>

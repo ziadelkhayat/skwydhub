@@ -96,7 +96,7 @@ function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: 
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[94vh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
+      <DialogContent className="max-h-[94dvh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{z ? "Edit" : "Add"} Delivery Zone</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Zone / area name" req><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>

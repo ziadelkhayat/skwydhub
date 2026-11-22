@@ -144,7 +144,7 @@ function PaySettings({ st, onClose }: { st: any; onClose: () => void }) {
   const num = (k: string, l: string, ph?: string) => <F l={l}><Input className="h-11" type="number" min="0" step="any" placeholder={ph} value={v[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Payroll Settings</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {num("otAfter", "Overtime After (Hours A Day)", "8")}{num("otRate", "Overtime Rate (×)", "1.5")}

@@ -513,7 +513,7 @@ function HeadDialog({ d, K, s, locs, onClose, onSave }: { d: any; K: K; s: S; lo
   const selL = (k: string, l: string, opts: [string, string][]) => <F l={l} req><select className={SEL} value={v[k]} onChange={e => set(k, e.target.value)}><option value="">Choose…</option>{opts.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Edit {K.title}</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {K.kind === "sheet" && <F l="Name" req><Input className="h-11" placeholder="e.g. Store Count Sheet" value={v.name} onChange={e => set("name", e.target.value)} /></F>}
@@ -552,7 +552,7 @@ function QtyDialog({ K, rows, d, rv, itemOf, onClose, onSave, onDelete }: { K: K
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-lg sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">{K.kind === "cost" ? "Update Items Costs" : "Update Items Quantities"}</DialogTitle></DialogHeader>
         <form className="mt-5 space-y-4" onSubmit={e => { e.preventDefault(); save(); }}>
           {rows.map((ix, k) => { const it: any = itemOf(d.items[ix].itemId) || {}, t = two(it), x = v[ix], setX = (p: any) => setV(o => ({ ...o, [ix]: { ...o[ix], ...p } }));

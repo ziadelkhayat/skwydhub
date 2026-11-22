@@ -71,7 +71,7 @@ function TaskForm({ t, s, by, onClose }: { t: Row | null; s: S; by: string; onCl
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{t ? "Edit Task" : "New Task"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Task" req full><Input className="h-11" autoFocus maxLength={200} placeholder="e.g. Clean the fryer" value={v.title} onChange={e => set("title", e.target.value)} /></F>

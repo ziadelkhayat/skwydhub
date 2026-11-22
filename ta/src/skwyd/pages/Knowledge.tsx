@@ -268,7 +268,7 @@ function ItemDialog({ d, E, folder, up, cats, onClose }: { d: any; E: Ed; folder
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className={cn("max-h-[90vh] w-full overflow-y-auto p-6 sm:p-8", d.kind === "text" ? "sm:max-w-2xl" : "sm:max-w-md")}>
+      <DialogContent className={cn("max-h-[90dvh] w-full overflow-y-auto p-6 sm:p-8", d.kind === "text" ? "sm:max-w-2xl" : "sm:max-w-md")}>
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 space-y-5" onSubmit={e => { e.preventDefault(); save(); }}>
           {d.kind === "settings" ? <>
