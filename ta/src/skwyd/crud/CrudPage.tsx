@@ -15,6 +15,7 @@ import { put, softDelete, newId, useCol, type Row } from "@/lib/db";
 import { cn } from "@/utils";
 import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { ImageField } from "../ui/ImageField";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
@@ -201,10 +202,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
   if (f.t === "date") return (<Field className={cn(full && "col-span-full")}>{label}<DateInput value={v || ""} onChange={set} />{note}</Field>);
   if (f.t === "textarea") return (<Field className="col-span-full">{label}<Textarea rows={4} value={v || ""} placeholder={f.ph} onChange={e => set(e.target.value)} />{note}</Field>);
   if (f.t === "image") return (<Field className="col-span-full">{label}
-    <div className="flex items-center gap-4">
-      <div className="size-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/3">{v ? <img src={v} alt="" className="size-full object-cover" /> : null}</div>
-      <Input className="h-11" value={v || ""} placeholder="Image link" onChange={e => set(e.target.value)} />
-    </div>{note}</Field>);
+    <ImageField value={v || ""} onChange={set} />{note}</Field>);
   return (<Field className={cn(full && "col-span-full")}>{label}
     <Input className="h-11" type={f.t === "number" ? "number" : "text"} inputMode={f.t === "number" ? "decimal" : undefined} value={v ?? ""} placeholder={f.ph || (f.req ? "Required" : "Optional")} disabled={locked} onChange={e => set(e.target.value)} />{note}</Field>);
 }
