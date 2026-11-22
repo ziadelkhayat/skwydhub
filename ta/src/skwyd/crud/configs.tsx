@@ -1,4 +1,5 @@
 // The lists ported from the current portal's CRUD config (index.html): same tabs, columns, fields and rules.
+import { StoreForm } from "../pages/Store";
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, money } from "@/lib/util";
 import type { Row } from "@/lib/db";
@@ -68,7 +69,7 @@ export const CRUD: Record<string, CrudCfg> = {
     note: "A modifier is a group of choices, like Sauce or Add Toppings. Add its options, then link it to products (open a product → Modifiers).",
   },
   "modifier-options": {
-    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel, urlFilter: ["mod", "modifierId"],
+    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel, urlFilter: ["mod", "modifierId"], detail: "/option",
     sort: (a, b) => String(a.modifierId).localeCompare(String(b.modifierId)) || bySort(a, b),
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.modifiers.find(m => m.id === r.modifierId)?.name || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "SKU", cell: r => r.sku || "" },
@@ -94,14 +95,14 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const used = s.products.filter(p => live(p) && p.variantSetId === r.id); return used.length ? `This variant set is used by ${used.length} product${used.length === 1 ? "" : "s"}. Remove it from those products first.` : ""; },
   },
   brands: {
-    col: "brands", title: "Brands", one: "Brand", needs: ["branches"], tabs: allDel,
+    col: "brands", title: "Brands", one: "Brand", needs: ["branches"], tabs: allDel, detail: "/brand",
     cols: [{ h: "Brand", cell: nameCell }, { h: "Stores", cell: (r, s) => s.branches.filter(b => b.brandId === r.id).length, num: true }],
     fields: [{ k: "name", l: "Brand Name", req: true }, { k: "nameAr", l: "Name Localized" }],
     canDelete: (r, s) => { const n = s.branches.filter(b => b.brandId === r.id).length; return n ? `Delete this brand's ${n} store${n === 1 ? "" : "s"} first (Manage → Stores).` : ""; },
   },
   branches: {
-    col: "branches", title: "Stores", one: "Store", needs: ["brands", "tax_groups"], tabs: allDel,
-    note: "Opening hours by day, tables, receipt texts and the store's other settings are on the store's page in the current portal.",
+    col: "branches", title: "Stores", one: "Store", needs: ["brands", "tax_groups", "settings"], detail: "/store", form: p => <StoreForm {...p} />,
+    tabs: [["all", "All", r => live(r) && r.active !== false], ["deleted", "Deleted", r => !!r.deleted || r.active === false]],
     cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-theme-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
       { h: "Reference", cell: r => r.code || "—" }, { h: "Tax Group", cell: (r, s) => s.tax_groups.find(g => g.id === r.settings?.taxGroup)?.name || "—" },
       { h: "Active", cell: r => <OnOff on={r.active !== false} /> }, created],
@@ -161,7 +162,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   warehouses: {
-    col: "warehouses", title: "Warehouses", one: "Warehouse", needs: ["brands"], tabs: allDel,
+    col: "warehouses", title: "Warehouses", one: "Warehouse", needs: ["brands"], tabs: allDel, detail: "/warehouse",
     sort: (a, b) => String(a.reference || "").localeCompare(String(b.reference || ""), undefined, { numeric: true }) || String(a.name).localeCompare(String(b.name)),
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref, { h: "Brand", cell: (r, s) => s.brands.find(b => b.id === r.brandId)?.name || "—" }, created],
@@ -171,7 +172,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   suppliers: {
-    col: "suppliers", title: "Suppliers", one: "Supplier", tabs: allDel,
+    col: "suppliers", title: "Suppliers", one: "Supplier", tabs: allDel, detail: "/supplier",
     search: r => [r.name, r.code, r.contactName, r.phone, r.email].join(" "),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "Code", cell: r => r.code || "" }, { h: "Contact", cell: r => r.contactName || "—" }, { h: "Phone", cell: r => r.phone || "—" }, { h: "Email", cell: r => r.email || "—" }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "code", l: "Code", auto: s => "SUP-" + String(s.suppliers.length + 1).padStart(3, "0") }, { k: "contactName", l: "Contact Name" }, { k: "phone", l: "Phone" }, { k: "email", l: "Email" },
@@ -229,7 +230,7 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.users.filter(u => !u.deleted && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length; return n ? `This role is used by ${n} employee${n === 1 ? "" : "s"}. Remove it from ${n === 1 ? "that employee" : "those employees"} first.` : ""; },
   },
   "inv-items": {
-    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"],
+    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item",
     tabs: [["all", "All", live], ["items", "Products", r => live(r) && !(r.ingredients || []).length && !r.menuItem], ["produced", "Production Products", r => live(r) && (r.ingredients || []).length > 0], ["menu", "Product Items", r => live(r) && !!r.menuItem], ["deleted", "Deleted", del]],
     sort: (a, b) => String(b.sku || "").localeCompare(String(a.sku || ""), undefined, { numeric: true }),
     search: r => r.name + " " + (r.sku || "") + " " + (r.category || ""),

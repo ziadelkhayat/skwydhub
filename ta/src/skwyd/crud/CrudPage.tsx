@@ -38,6 +38,7 @@ export type CrudCfg = {
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
   detail?: string;   // open rows on their own page (path?id=)
+  form?: (p: { s: S; row: Row | null; onClose: () => void }) => ReactNode;   // a page of its own form instead of the generic one
   urlFilter?: [string, string];
   saved?: (old: Row | null, data: Record<string, any>) => Promise<void> | void;   // after saving (e.g. update the employee app login)   // e.g. ["cat", "categoryId"]: /products?cat=… shows one category
 };
@@ -104,7 +105,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
         </div>
         {list.length > PER && <Pager className="border-t border-gray-100 dark:border-white/5" currentPage={cur} totalPages={pages} onPageChange={setPage} />}
       </div>
-      {edit !== undefined && s && <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />}
+      {edit !== undefined && s && (cfg.form ? cfg.form({ s, row: edit, onClose: () => setEdit(undefined) }) : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
   );
 }

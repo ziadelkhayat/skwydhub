@@ -26,6 +26,10 @@ import ReportsPage, { RPT_HUB } from "@/skwyd/pages/Reports";
 import OrderTxPage from "@/skwyd/pages/OrderTx";
 import EmployeePage from "@/skwyd/pages/Employee";
 import SalesChannelsPage from "@/skwyd/pages/SalesChannels";
+import BrandPage from "@/skwyd/pages/Brand";
+import StorePage from "@/skwyd/pages/Store";
+import { ApplicationsPage, TeamChatPage } from "@/skwyd/pages/TeamChat";
+import { InvItemPage, OptionPage, SupplierPage, WarehousePage } from "@/skwyd/pages/Details";
 import { AccountPage, MarketplacePage, SubscriptionPage } from "@/skwyd/pages/Account";
 import { InvHistoryPage, InvLevelsPage, PurchasingReportPage } from "@/skwyd/pages/InvReports";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
@@ -79,6 +83,14 @@ export default function App() {
           <Route path="/allergens" element={<AllergensPage />} />
           <Route path="/combos" element={<CombosPage />} />
           <Route path="/branch-menu" element={<SalesChannelsPage />} />
+          <Route path="/brand" element={<BrandPage />} />
+          <Route path="/store" element={<StorePage />} />
+          <Route path="/team-chat" element={<TeamChatPage />} />
+          <Route path="/applications" element={<ApplicationsPage />} />
+          <Route path="/option" element={<OptionPage />} />
+          <Route path="/supplier" element={<SupplierPage />} />
+          <Route path="/inv-item" element={<InvItemPage />} />
+          <Route path="/warehouse" element={<WarehousePage />} />
           <Route path="/purchasing" element={<PurchasingReportPage />} />
           {Object.keys(RPT_HUB).map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
           {Object.keys(DOC_KINDS).map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
