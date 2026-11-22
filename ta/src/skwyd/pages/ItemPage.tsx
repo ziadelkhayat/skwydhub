@@ -42,9 +42,9 @@ export default function ItemPage() {
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Name", "Item", "SKU", "Price"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {kids.map(({ v, k }: any) => <tr key={k.id} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{v.name}</td><td className={TD}><Link className="text-brand-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</Link></td><td className={TD}>{k.sku || "—"}</td><td className={TD}>{money(k.price)}</td></tr>)}</tbody></table></div></Sec>}
     {!kids.length && <>
-    <Sec title="Modifiers" act={<select aria-label="Add modifier" className={SEL + " h-9 w-52"} value="" disabled={!mods.length}
+    <Sec title="Modifiers" act={<div className="flex gap-2"><select aria-label="Add modifier" className={SEL + " h-9 w-52"} value=""
         onChange={e => { const v = e.target.value; if (v) save({ modifiers: [...links, { modifierId: v, min: 1, max: 1, free: 0 }] }, "Modifier added"); }}>
-        <option value="">Add modifier…</option>{mods.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select>}>
+        <option value="">Add modifier…</option>{mods.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>}>
       {!links.length ? <None t="No modifiers on this item." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Modifier", "Options", "Minimum", "Maximum", "Free", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
         {links.map((l, i) => { const upd = (k: string, v: any) => save({ modifiers: links.map((x, j) => j === i ? { ...x, [k]: Math.max(0, parseInt(v) || 0) } : x) });
           return <tr key={l.modifierId} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{s.modifiers.find(m => m.id === l.modifierId)?.name || "(deleted modifier)"}</td>
