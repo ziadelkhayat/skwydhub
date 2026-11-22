@@ -19,8 +19,8 @@ import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 import { addDays, d10s, dmy, today } from "./em";
 
-const DOC_TYPES = ["ID Card", "Passport", "Employment Contract", "Health Certificate", "Work Permit", "Residence Permit", "Driving License", "Criminal Record", "CV", "Bank Details"];
-const DEF = { required: ["ID Card", "Employment Contract", "Health Certificate"], remindDays: 30, checklist: ["Signed the employment contract", "Received the uniform", "Food safety training", "POS training (PIN and register)", "Shown the kitchen and hygiene rules", "Added to the team group chat"] };
+export const DOC_TYPES = ["ID Card", "Passport", "Employment Contract", "Health Certificate", "Work Permit", "Residence Permit", "Driving License", "Criminal Record", "CV", "Bank Details"];
+export const DEF = { required: ["ID Card", "Employment Contract", "Health Certificate"], remindDays: 30, checklist: ["Signed the employment contract", "Received the uniform", "Food safety training", "POS training (PIN and register)", "Shown the kitchen and hygiene rules", "Added to the team group chat"] };
 const isAdminRow = (r: Row) => r.role === "owner" || r.role === "admin";
 let CO: string | null = null;
 const company = async () => { if (CO) return CO; const r = await sb.rpc("skwyd_company"); if (r.error || !r.data) throw r.error || new Error("no company"); return CO = r.data as string; };
@@ -70,8 +70,8 @@ export default function StaffDocsPage() {
   );
 }
 
-function DocForm({ d, s, types, onClose }: { d: Row | null; s: S; types: string[]; onClose: () => void }) {
-  const [v, setV] = useState({ emp: d?.employeeId || "", type: d?.docType || "", no: d?.number || "", iss: d10s(d?.issuedOn), exp: d10s(d?.expiresOn), note: d?.note || "" });
+export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; types: string[]; emp?: string; onClose: () => void }) {
+  const [v, setV] = useState({ emp: d?.employeeId || emp || "", type: d?.docType || "", no: d?.number || "", iss: d10s(d?.issuedOn), exp: d10s(d?.expiresOn), note: d?.note || "" });
   const [file, setFile] = useState<File | null>(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false), inp = useRef<HTMLInputElement>(null);
   const set = (k: string, x: string) => setV(p => ({ ...p, [k]: x }));
   async function save() {

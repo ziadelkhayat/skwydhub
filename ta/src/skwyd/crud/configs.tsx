@@ -179,7 +179,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   users: {
-    col: "users", title: "Employees", one: "Employee", needs: ["roles", "branches"],
+    col: "users", title: "Employees", one: "Employee", needs: ["roles", "branches"], detail: "/employee",
     tabs: [["all", "All", r => live(r) && !isAdminRow(r)], ["deleted", "Deleted", r => del(r) && !isAdminRow(r)]],
     search: r => r.name + " " + (r.email || "") + " " + (r.phone || "") + " " + (r.employeeNo || "") + " " + (r.jobTitle || ""),
     cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-theme-xs text-gray-500">{r.employeeNo}</span> : null}</> },
@@ -201,7 +201,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "socialSecurity", l: "Registered for social security (payroll deducts it)", t: "chk", def: false },
       { k: "@c", l: "Emergency Contact", t: "head" }, { k: "emergencyName", l: "Contact Name" }, { k: "emergencyPhone", l: "Contact Phone", t: "phone" },
       { k: "notes", l: "Notes", t: "textarea" }],
-    note: "POS users sign in on the tablet with their PIN. Back-office passwords are set in the current portal for now.",
+    note: "POS users sign in on the tablet with their PIN. Back-office passwords are set on the employee's page (Create Password).",
     prep: async (data, id, s) => {
       const pin = data.pin; delete data.pin;
       const pn = (v: any) => String(v || "").replace(/\D/g, "");
