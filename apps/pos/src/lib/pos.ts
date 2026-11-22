@@ -169,3 +169,22 @@ export function orderFields(x: Ctx, cart: Line[], t: Totals, extra: { table?: st
     items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: [], chargesTotal: 0, discountPct: t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: "pct", discount: t.disc, promo: null,
     total: t.total, tax: t.tax, receiptNotes: "", notes: "", ...(x.otype === "dinein" && extra.guests ? { guests: extra.guests } : {}) };
 }
+
+/* ---------- customers for pickup and delivery (pos.html openPDNew) ---------- */
+export type Addr = { label?: string; street?: string; building?: string; floor?: string; door?: string; extra?: string };
+export type Cust = { name: string; phone: string; source: string; addr: Addr };
+export const addrJoin = (a: Addr) => { const c = (v?: string) => String(v || "").replace(/\s*·\s*/g, ", ").trim();
+  return [c(a.label) ? "[" + c(a.label).replace(/[\[\]]/g, "") + "]" : "", [c(a.street), c(a.building) && "Bldg: " + c(a.building), c(a.floor) && "Floor: " + c(a.floor), c(a.door) && "Door: " + c(a.door), c(a.extra) && "Info: " + c(a.extra)].filter(Boolean).join(" · ")].filter(Boolean).join(" "); };
+export const addrParts = (v: string): Addr => { const a: any = { label: "", street: "", building: "", floor: "", door: "", extra: "" }; let s = String(v || "").trim(); const m = /^\[(.*?)\]\s*/.exec(s); if (m) { a.label = m[1]; s = s.slice(m[0].length); }
+  s.split(" · ").filter(Boolean).forEach(p => { const k = /^(Bldg|Floor|Door|Info):\s*(.*)$/.exec(p); if (k) a[({ Bldg: "building", Floor: "floor", Door: "door", Info: "extra" } as any)[k[1]]] = k[2]; else a.street = a.street ? a.street + ", " + p : p; }); return a; };
+export const normPhone = (p: string, cc = "+961") => { let d = String(p || "").replace(/[^\d+]/g, ""); if (!d) return ""; if (d.startsWith("00")) d = "+" + d.slice(2); if (d.startsWith("+")) return d.replace(/(?!^)\+/g, ""); const n = d.replace(/\+/g, "").replace(/^0+/, ""); return n.length < 6 ? "" : cc + n; };
+export const phoneVariants = (full: string, cc = "+961") => { const out = new Set([full]); if (full.startsWith(cc)) { const n = full.slice(cc.length); out.add(n); out.add("0" + n); out.add(cc + " " + n); } return [...out]; };
+export const posSources = (S: Data) => S.order_sources.filter(r => !r.deleted && String(r.name || "").trim() && !["POS", "WEB", "API", "WEBSITE"].includes(String(r.name).trim().toUpperCase()))
+  .sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(b.name)).map(r => String(r.name));
+// what pickup and delivery need before the order is saved or paid (Brand settings: customer required for pickup / delivery)
+export function custMissing(t: OType, c: Cust, needSource = true) {
+  if (t === "dinein") return "";
+  const need: string[] = []; if (needSource && !c.source) need.push("order source"); if (!c.name.trim()) need.push("name"); if (c.phone.replace(/\D/g, "").length < 6) need.push("phone number");
+  if (t === "delivery") ([["street", "area / street"], ["building", "building"], ["floor", "floor"]] as const).forEach(([k, l]) => { if (!String(c.addr[k] || "").trim()) need.push(l); });
+  return need.length ? "Enter the customer's " + need.join(", ").replace(/, ([^,]*)$/, " and $1") : "";
+}

@@ -3,11 +3,12 @@
 // Step 1: browse the POS menu of this branch, build the cart, see the totals. Saving and paying come next.
 import { useMemo, useState, type ReactNode } from "react";
 import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
-import { allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
+import { addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
 import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { OrdersDialog, ordRef } from "./Orders";
+import { CustomerDialog } from "./Customer";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from "../lib/store";
@@ -23,7 +24,7 @@ export function Register() {
   const { width: W, height: H } = useWindowDimensions();
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
-  const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null);   // eo: the order opened from Orders
+  const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
   const [cat, setCat] = useState(""), [q, setQ] = useState(""), [note, setNote] = useState(""), [more, setMore] = useState(false);
   const x: Ctx = { S, device: device!, branch, otype };
   const m = useMemo(() => menu(x), [S, otype, device]);
@@ -68,12 +69,15 @@ export function Register() {
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
   const takeNo = async () => { const k = "skwydNo_" + device!.branchId; let last = null; try { last = JSON.parse((await AsyncStorage.getItem(k)) || "null"); } catch {}
     const r = nextOrderNo(x, last); AsyncStorage.setItem(k, JSON.stringify({ since: r.since, n: r.n })).catch(() => {}); return r.no; };
-  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); };
+  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   // an order from Orders: its lines (already sent ones marked), type and table
   const openOrder = (o: Row) => { setDlg(null); setEo(o); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
   // an existing order keeps its customer, address, source and channel
-  const fields = () => { const f: any = orderFields(x, cart, t, { table }); if (live_eo) { delete f.customerName; delete f.phone; delete f.address; } return f; };
+  const fields = () => { const f: any = orderFields(x, cart, t, { table, customerName: cust.name, phone: cust.phone });
+    if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
+    if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
+  const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
   const who = () => cashier?.name || device!.name;
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
     write("orders", o.id, { status: "active", updatedAt: now, acceptedAt: o.acceptedAt || now, handledBy: who(), ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) }); say("Order accepted"); reset(); };
@@ -82,7 +86,7 @@ export function Register() {
   const ready = (paying: boolean) => {
     const blk = saleBlock(x); if (blk) { say(blk); return false; }
     if (!openShift(x)) { say(paying ? "Open the till before taking payments" : "Open till"); setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); return false; }
-    if (otype !== "dinein" && !live_eo) { say("Add the customer first (coming next for pickup and delivery)"); return false; }
+    if (otype !== "dinein" && !live_eo && custMissing(otype, cust, posSources(S).length > 0)) { say("Add the customer first"); askCust(otype); return false; }
     return true;
   };
   const base = (no: string) => ({ no, channel: "pos", source: "", brandId: branch?.brandId || null, branchId: device!.branchId, deviceId: device!.id, shiftId: openShift(x)?.id || null, agent: cashier?.name || device!.name });
@@ -92,7 +96,7 @@ export function Register() {
     if (live_eo) { write("orders", live_eo.id, { ...fields(), updatedAt: new Date().toISOString() }); say("Saved · order " + ordRef(live_eo)); reset(); return; }
     if (otype === "dinein" && !table.trim()) return say("Pick a table to save this order, or take the payment");
     const no = await takeNo(), now = new Date().toISOString();
-    write("orders", newId("pos"), { ...base(no), ...orderFields(x, cart, t, { table }), status: "active", createdAt: now, updatedAt: now }, "set");
+    write("orders", newId("pos"), { ...base(no), ...fields(), status: "active", createdAt: now, updatedAt: now }, "set");
     reset(); say(`Order #${no} sent to the kitchen`);
   };
   const pay = async () => {
@@ -100,7 +104,7 @@ export function Register() {
     const p = await ask<Paid | null>(done => <PayDialog x={x} total={t.total} onDone={done} />); if (!p) return;
     const now = new Date().toISOString(), total = t.total, payment = { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) };
     if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no: await takeNo() }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
-    else write("orders", newId("pos"), { ...base(await takeNo()), ...orderFields(x, cart, t, { table }), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
+    else write("orders", newId("pos"), { ...base(await takeNo()), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
@@ -133,8 +137,10 @@ export function Register() {
           <View style={{ flex: 1 }} /><Btn kind="ghost" height={36} label="Close" onPress={reset} /></View> : null}
         {types.length > 1 && !live_eo && (
           <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
-            {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => switchType(k)} />)}
+            {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => (k === "dinein" ? switchType(k) : askCust(k))} />)}
           </View>)}
+        {otype !== "dinein" && cust.name && !live_eo ? <Pressable onPress={() => askCust(otype)} style={{ marginHorizontal: 18, marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
+          <T w="m" size={14}>{cust.name} · {cust.phone}{cust.source ? " · " + cust.source : ""}</T>{otype === "delivery" ? <T size={13} color={C.mut} numberOfLines={2}>{addrJoin(cust.addr)}</T> : null}</Pressable> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
             : cart.map((l, i) => (
@@ -170,7 +176,7 @@ export function Register() {
       <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
         <View style={{ flexDirection: "row", gap: 10, height: 76 }}>
           {([["table", "Table"], ["user", "Customer"], ["tag", "Discount"], ["note", "Notes"], ["void", "Void"], ["print", "Print"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "Table" ? askTable() : say(l + " comes in the next step."))}
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "Table" ? askTable() : l === "Customer" ? askCust(otype === "dinein" ? (types.find(k => k !== "dinein") || "takeaway") : otype) : say(l + " comes in the next step."))}
               style={({ pressed }) => [{ width: 76, height: 76, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 }]}>
               <Icon name={ic} color={C.brand} /><T w="m" size={12} color={C.ink2}>{l}</T>
             </Pressable>))}
