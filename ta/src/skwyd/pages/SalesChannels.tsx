@@ -259,7 +259,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
     <Input key={v} aria-label={label} inputMode="decimal" defaultValue={v} placeholder={String(ph)} disabled={dis} className={cn("h-9 w-24 text-end", v !== "" && "border-brand-300 bg-brand-25 dark:bg-brand-500/10")} onBlur={e => { const x = e.target.value.trim(); if (x !== v) onSet(x); }} onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />;
 
   return <>
-    <PageBreadcrumb pageTitle="Sales Channels" />
+    <PageBreadcrumb pageTitle="Sales Channels" current={ch.name + (br ? " · " + br.name : "")} />
     <div className="mb-6 flex flex-wrap items-center gap-3">
       <Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Sales Channels</Button>
       <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{ch.name}</h2>

@@ -78,7 +78,7 @@ export default function StorePage() {
   }
   const restore = async () => { const x = { ...st }; delete x.deletedAt; try { await put("branches", b.id, { active: true, deleted: false, settings: x }); toast("Store restored"); } catch { toast("Couldn't restore", "error"); } };
   return <>
-    <PageBreadcrumb pageTitle="Stores" />
+    <PageBreadcrumb pageTitle="Stores" current={b.name} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/branches" />}><ArrowLeftIcon className="size-5" />Stores</Button>
       <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h2>{b.code && <Badge variant="light" color="light">{b.code}</Badge>}{deleted && <Badge variant="light" color="error">Deleted</Badge>}
       <div className="ms-auto flex gap-3">{deleted ? <Button onClick={restore}>Restore</Button> : <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Store</Button>}</div></div>

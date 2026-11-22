@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { PencilIcon, PlusIcon, TrashBinIcon } from "@/icons";
+import { ArrowLeftIcon, PencilIcon, PlusIcon, TrashBinIcon } from "@/icons";
 import { put, type Row } from "@/lib/db";
 import { money } from "@/lib/util";
 import { useState } from "react";
@@ -37,7 +37,10 @@ export default function ItemPage() {
 
   return (
     <>
-      <PageBreadcrumb pageTitle={p.name} />
+      <PageBreadcrumb pageTitle="Items" current={p.name} />
+      <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/products" />}><ArrowLeftIcon className="size-5" />Items</Button>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{p.name}</h2>
+        <div className="ms-auto"><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Item</Button></div></div>
       <div className="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3">
         <div className="space-y-6">
           <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 p-5 lg:p-6 xl:flex-row xl:items-center xl:justify-between dark:border-gray-800">
@@ -48,7 +51,6 @@ export default function ItemPage() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">{s.categories.find(c => c.id === p.categoryId)?.name || "—"} · {p.sku || "No SKU"}</p>
               </div>
             </div>
-            <Button variant="outline" onClick={() => setEdit(true)}><PencilIcon className="size-4.5" />Edit</Button>
           </div>
 
           <Card title="Details">
@@ -98,7 +100,6 @@ export default function ItemPage() {
           <Card title="Out Of Stock">
             <StoreSwitches stores={stores} on={p.outOfStockBranchIds || []} label="Out of stock" set={ids => save({ outOfStockBranchIds: ids })} />
           </Card>
-          <p className="text-sm text-gray-500 dark:text-gray-400"><Link to="/products" className="text-brand-500 hover:underline">← Back to Items</Link></p>
         </div>
       </div>
       {edit && <EditDialog cfg={CRUD.products} s={s} row={p as Row} onClose={() => setEdit(false)} />}
