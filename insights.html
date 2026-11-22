@@ -118,7 +118,7 @@ function rangeFrom(){ const d = new Date(); d.setHours(0,0,0,0); if(S.range==="w
 const sales = () => (D.orders||[]).filter(o => o.status==="closed" && inBr(o.branchId) && new Date(o.closedAt || o.createdAt) >= rangeFrom());
 
 function shell(){
-  $("#app").innerHTML = `<header class="hd"><div style="flex:1"><b id="hdT">Insights</b><small>${esc(co().name || "")}</small></div><select id="brSel"><option value="">All Branches</option>${brs().map(b => `<option value="${esc(b.id)}" ${S.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></header>
+  $("#app").innerHTML = `<header class="hd"><div style="flex:1"><b id="hdT">Insights</b><small>${esc(co().name || "")}</small></div><select id="brSel"><option value="">All Stores</option>${brs().map(b => `<option value="${esc(b.id)}" ${S.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select></header>
     <main id="main"></main>
     <nav class="tabs">${[["home","Sales","home"],["orders","Orders","orders"],["team","Team","team"],["chat","Chats","chat"],["tasks","Tasks","task"],["kb","Guides","kb"]].map(([k,t,i]) => `<button data-tab="${k}" class="${S.tab===k?"on":""}">${ic(i)}${t}</button>`).join("")}</nav>`;
   $("#brSel").onchange = e => { S.branch = e.target.value; paint(); };
@@ -143,12 +143,12 @@ function vHome(){
     <div class="kpis"><div class="kpi hero"><small>Sales</small><b>${money(tot)}</b></div><div class="kpi"><small>Orders</small><b>${n}</b></div><div class="kpi"><small>Average</small><b>${money(avg)}</b></div>
       <div class="kpi"><small>Open Now</small><b>${open}</b></div><div class="kpi"><small>Voids</small><b style="${voids.length ? "color:var(--bad)" : ""}">${voids.length}</b><em style="color:var(--mut)">${money(voids.reduce((s,o) => s + (+o.total||0), 0))}</em></div></div>
     ${chart}
-    ${!S.branch && byBr.length ? `<div class="card"><b>By branch</b>${byBr.map(([nm, v]) => `<div style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>${esc(nm)}</span><b>${money(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join("")}</div>` : ""}
+    ${!S.branch && byBr.length ? `<div class="card"><b>By store</b>${byBr.map(([nm, v]) => `<div style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>${esc(nm)}</span><b>${money(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join("")}</div>` : ""}
     <div class="card"><b>Top items</b>${top.map(([nm, x]) => `<div class="row"><span class="t"><b>${esc(nm)}</b><small>${x.q} sold</small></span><em>${money(x.v)}</em></div>`).join("") || '<p class="empty">No sales yet.</p>'}</div>`;
 }
 
 /* ---------- Orders: live and recent ---------- */
-const ST = { review:["Waiting · call center","warn"], pending:["Waiting · branch","warn"], active:["Preparing","blue"], closed:["Done","ok"], void:["Void","bad"], declined:["Declined","bad"], returned:["Returned","bad"], refund:["Refund","bad"], draft:["Draft",""] };
+const ST = { review:["Waiting · call center","warn"], pending:["Waiting · store","warn"], active:["Preparing","blue"], closed:["Done","ok"], void:["Void","bad"], declined:["Declined","bad"], returned:["Returned","bad"], refund:["Refund","bad"], draft:["Draft",""] };
 const TYP = { dinein:"Dine-in", pickup:"Pickup", takeaway:"Pickup", delivery:"Delivery", fast:"Dine-in" };
 function vOrders(){
   const l = (D.orders||[]).filter(o => inBr(o.branchId) && o.status!=="draft" && day(new Date(o.createdAt))===today()).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -188,8 +188,8 @@ function vTasks(){
   const show = l.filter(t => f==="all" || (f==="done") === (t.status==="done")).sort((a,b) => String(a.dueDay||"9999").localeCompare(String(b.dueDay||"9999")));
   const who = t => (t.assigneeIds||[]).length ? t.assigneeIds.map(uName).join(", ") : (t.branchId ? "Everyone at " + brName(t.branchId) : "Everyone");
   if(S.tnew) return `<button class="back" data-tback>‹ Tasks</button><h2 style="margin-top:0">New Task</h2><div class="card"><input class="in" id="tt" placeholder="Task, e.g. Clean the fryer" maxlength="200"><textarea class="in" id="tn" rows="3" placeholder="Notes"></textarea>
-      <select class="in" id="tb"><option value="">All Branches</option>${brs().map(b => `<option value="${esc(b.id)}" ${S.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select><input class="in" id="td" type="date">
-      <select class="in" id="te"><option value="">Everyone at the branch</option>${users().sort((a,b) => String(a.name).localeCompare(String(b.name))).map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}</select><button class="btn" id="ts" style="width:100%">Add Task</button></div>`;
+      <select class="in" id="tb"><option value="">All Stores</option>${brs().map(b => `<option value="${esc(b.id)}" ${S.branch===b.id?"selected":""}>${esc(b.name)}</option>`).join("")}</select><input class="in" id="td" type="date">
+      <select class="in" id="te"><option value="">Everyone at the store</option>${users().sort((a,b) => String(a.name).localeCompare(String(b.name))).map(u => `<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}</select><button class="btn" id="ts" style="width:100%">Add Task</button></div>`;
   return `<div style="display:flex;align-items:center"><h2 style="flex:1">Tasks</h2><button class="btn" data-tnew>+ New</button></div><div class="seg">${[["open","Open"],["done","Done"],["all","All"]].map(([k,t]) => `<button data-tf="${k}" class="${f===k?"on":""}">${t} (${l.filter(x => k==="all" || (k==="done") === (x.status==="done")).length})</button>`).join("")}</div>
     <div class="card">${show.map(t => { const late = t.status!=="done" && t.dueDay && String(t.dueDay).slice(0,10) < today();
       return `<div class="row"><span class="av" style="${t.status==="done" ? "background:#e7f7ec;color:var(--ok)" : ""}">${ic("task").replace("<svg", '<svg style="width:18px;height:18px"')}</span><span class="t"><b>${esc(t.title)}</b><small>${esc(who(t))}</small><small>${t.status==="done" ? "Done by " + esc(t.doneBy || "—") + " · " + dmy(t.doneAt) : t.dueDay ? (late ? '<span style="color:var(--bad);font-weight:700">Late · due ' + dmy(String(t.dueDay).slice(0,10)) + "</span>" : "Due " + dmy(String(t.dueDay).slice(0,10))) : "No due date"}</small></span></div>`; }).join("") || '<p class="empty">No tasks here.</p>'}</div>`;

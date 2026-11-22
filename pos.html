@@ -1380,7 +1380,7 @@ html:root body .ddmenu,html:root body .fnmenu,html:root body .menu-pop{border-ra
     </section>
   </div>
   <div class="morepop hide" id="morePop" role="menu">
-    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this branch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button><button class="mitem" id="oskBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/></svg><span>On-Screen Keyboard On</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button>
+    <button class="mitem" id="shiftBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18M8 7V4h8v3"/></svg><span>Open Till</span></button><button class="mitem" id="dayBtn" title="End the business day for this store"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg><span>End of day</span></button><button class="mitem" id="reportsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button><button class="mitem" id="syncDataBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 16"/><path d="M20 21v-5h-5"/></svg><span>Sync data</span></button><button class="mitem" id="devicesBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Devices</span></button><button class="mitem" id="soundBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound On</span></button><button class="mitem" id="oskBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/></svg><span>On-Screen Keyboard On</span></button><button class="mitem" id="exitBtn" style="color:var(--bad)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button>
   </div>
 </div>
 
@@ -1867,7 +1867,7 @@ async function openDayEnd(){
   const blockers = [];
   modal("dayend", `<div class="mh"><h2>End day · ${esc(fmtDay(day))}</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
     ${blockers.length ? blockers.join("") : `<div class="stats"><div>Orders<b>${sales.length}</b></div><div>Net sales<b>${usd(sales.reduce((a,o)=>a+(+o.total||0)-(+o.tax||0),0))}</b></div><div>Payments<b>${usd(sales.reduce((a,o)=>a+(+o.total||0),0))}</b></div></div>
-      <p class="mut">Ending the day closes ${esc(fmtDay(day))} for ${esc(branch?.name||"this branch")}. Every device at the branch then starts the next business day.</p>`}</div>
+      <p class="mut">Ending the day closes ${esc(fmtDay(day))} for ${esc(branch?.name||"this store")}. Every device at the store then starts the next business day.</p>`}</div>
     <div class="mf"><button class="btn" data-close>Cancel</button>${blockers.length ? "" : `<button class="btn pri" id="doDayEnd" data-day="${day}">End day</button>`}</div>`);
 }
 async function doDayEnd(day){
@@ -1929,7 +1929,7 @@ function renderAll(){
   $("#dayBtn").style.display = "";   // any register can end the branch's day (the role needs "end of day")
   const sh = openShift();
   $("#shiftPill").textContent = sh ? "Till Open" : "Till Closed"; $("#shiftPill").classList.toggle("off", !sh);
-  const blk = saleBlock(); $("#dayBtn span").textContent = (blk && openDay() < bizDate() ? "⚠ " : "") + "End of day (" + openDay().split("-").reverse().join("/") + ")"; $("#dayBtn").title = blk || "End the business day for this branch";
+  const blk = saleBlock(); $("#dayBtn span").textContent = (blk && openDay() < bizDate() ? "⚠ " : "") + "End of day (" + openDay().split("-").reverse().join("/") + ")"; $("#dayBtn").title = blk || "End the business day for this store";
   $("#shiftBtn span").textContent = sh ? "Close Till" : "Open Till"; paintAbar();
   const inc = incoming(), pend = inc.filter(o=>o.status==="pending" || erPending(o)).length;
   $("#incBadge").textContent = pend; $("#incBadge").classList.toggle("hide", !pend); if(!pend) document.getElementById("incNote")?.remove();
@@ -1985,7 +1985,7 @@ const catStyle = (c, i) => { const m = CAT_ICON.find(([r]) => r.test(c?.name||""
 // a main product is in a channel category when it or one of its variants is listed
 const chPos = (c, p) => { const ids = c.productIds||[], k = [p.id, ...(p.variants||[]).map(v => v.productId)].map(x => ids.indexOf(x)).filter(i => i >= 0); return k.length ? Math.min(...k) : -1; };
 function renderMenu(){
-  if(!posCh()){ const m = $("#grid"); if(m) m.innerHTML = `<div style="grid-column:1/-1;min-height:calc(var(--sh,100vh) * 0.6);display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:600;color:var(--muted)">No POS menu at this branch</div>`; if($("#mcats")) $("#mcats").innerHTML = ""; return; }
+  if(!posCh()){ const m = $("#grid"); if(m) m.innerHTML = `<div style="grid-column:1/-1;min-height:calc(var(--sh,100vh) * 0.6);display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:600;color:var(--muted)">No POS menu at this store</div>`; if($("#mcats")) $("#mcats").innerHTML = ""; return; }
   const kids = kidIds(), prods = products().filter(p => !kids.has(p.id) && (!(p.variants||[]).some(v => v.productId) || kidsOf(p).length));
   // the POS menu's own categories (Sales Channels); older setups without them use the menu categories
   const catAt = c => { const ia = c.inactiveBranchIds||[], b = device.branchId; if(ia.includes("x:" + b)) return false; const only = ia.filter(k => String(k).startsWith("only:")); return !only.length || only.includes("only:" + b); };   // this branch's POS menu
@@ -2014,7 +2014,7 @@ function renderMenu(){
     $("#grid").innerHTML = l.length ? l.map(tile).join("") : `<div class="empty">No items match.</div>`; return; }
   const byCat = id => { const c = cats.find(x => x.id===id); return prods.filter(p => has(c, p)).sort(inOrder(c)); };
   if(!cat){   // the categories, as tiles to open
-    $("#grid").innerHTML = tops.length ? tops.map(c => `<button class="ctile ctile2${c.imageUrl?" hasimg":""}" data-cat="${esc(c.id)}" style="--hue:${cs[c.id].hue};--tint:${cs[c.id].tint}">${c.imageUrl ? `<img class="fill" src="${esc(c.imageUrl)}" alt="" loading="lazy">` : `<span class="pic">${ico(cs[c.id].icon)}</span>`}<span>${esc(c.name)}</span><b class="ccn">${(k => k + " item" + (k===1?"":"s"))(prods.filter(p => has(c, p) || subsOf(c.id).some(sc => has(sc, p))).length)}</b></button>`).join("") : `<div class="empty" style="grid-column:1/-1;min-height:calc(var(--sh,100vh) * 0.6);display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:600;color:var(--muted)">No menu for this branch yet</div>`;
+    $("#grid").innerHTML = tops.length ? tops.map(c => `<button class="ctile ctile2${c.imageUrl?" hasimg":""}" data-cat="${esc(c.id)}" style="--hue:${cs[c.id].hue};--tint:${cs[c.id].tint}">${c.imageUrl ? `<img class="fill" src="${esc(c.imageUrl)}" alt="" loading="lazy">` : `<span class="pic">${ico(cs[c.id].icon)}</span>`}<span>${esc(c.name)}</span><b class="ccn">${(k => k + " item" + (k===1?"":"s"))(prods.filter(p => has(c, p) || subsOf(c.id).some(sc => has(sc, p))).length)}</b></button>`).join("") : `<div class="empty" style="grid-column:1/-1;min-height:calc(var(--sh,100vh) * 0.6);display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:600;color:var(--muted)">No menu for this store yet</div>`;
     return; }
   const c = cats.find(x=>x.id===cat), l = byCat(cat);   // order set in Sales Channels
   const par = isTop(c) ? null : cats.find(x => x.id===catPar(c)), subs = par ? [] : subsOf(c.id);   // a sub-category goes back to its category
@@ -2394,7 +2394,7 @@ function driverList(){ const here = S.users.filter(u => live(u) && u.active!==fa
 const DRV_ST = { assigned:"waiting for the driver", accepted:"accepted", declined:"declined", picked:"on the way", delivered:"delivered" };
 function openDriver(eo){ if(!eo || eo.dispatchedAt) return; const l = driverList();
   modal("driver", `<div class="mh"><h2>Driver</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
-    ${l.length ? `<div class="drvl">${l.map(u => `<button type="button" class="drv ${eo.driverId===u.id?"on":""}" data-drv="${esc(u.id)}"><b>${esc(u.name)}</b>${u.jobTitle ? `<small>${esc(u.jobTitle)}</small>` : ""}</button>`).join("")}</div>` : `<p class="mut">No employees at this branch yet. Add drivers in the back office: Employee Management → Employees, with the job title Driver.</p>`}</div>
+    ${l.length ? `<div class="drvl">${l.map(u => `<button type="button" class="drv ${eo.driverId===u.id?"on":""}" data-drv="${esc(u.id)}"><b>${esc(u.name)}</b>${u.jobTitle ? `<small>${esc(u.jobTitle)}</small>` : ""}</button>`).join("")}</div>` : `<p class="mut">No employees at this store yet. Add drivers in the back office: Employee Management → Employees, with the job title Driver.</p>`}</div>
     <div class="mf"><button class="btn" data-close>Cancel</button>${eo.driverId ? `<button class="btn" data-drv="">Remove Driver</button>` : ""}</div>`);
   DRV_O = eo.id; }
 let DRV_O = null;
@@ -2974,7 +2974,7 @@ const typLbl = t => t==="fast" || t==="dinein" ? "Dine-in" : t==="pickup"||t==="
 const invNo = n => n ? String(n).padStart(6,"0") : "";   // invoice number as shown and printed
 const ordRef = o => o.status==="refund" && !o.no && !o.invoiceNo ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—";   // returns get an order and check number in sequence (older ones kept RET-)
 // Orders: full-screen board, one column per state (like the call center). Tap an order to open it in the billing section
-const OV_COLS = [["pending","Pending","Waiting for this branch to accept"],["active","Preparing","Open orders: add or void items, then bill"],["closed","Done","Billed today: return items or the invoice"],["void","Void & returns","Voided, declined, returned or refunded today"]];
+const OV_COLS = [["pending","Pending","Waiting for this store to accept"],["active","Preparing","Open orders: add or void items, then bill"],["closed","Done","Billed today: return items or the invoice"],["void","Void & returns","Voided, declined, returned or refunded today"]];
 // the Orders list: every order of this branch (lifetime), or a date range. Older orders come from the server
 const ovRow = r => { const o = {}; for(const [k,v] of Object.entries(r)) o[k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase())] = v; if(o.tableNo!=null && o.table==null) o.table = o.tableNo; if(o.no!=null) o.no = +o.no; return o; };
 function ovAll(){ const seen = new Set(), out = []; [...S.orders, ...(OV.hist||[])].forEach(o => { if(o.branchId===device.branchId && !seen.has(o.id)){ seen.add(o.id); out.push(o); } }); return out; }
@@ -3232,7 +3232,7 @@ async function autoCloseTill(){
   }catch(err){ console.error("auto close till", err); }
 }
 const openMore = () => modal("more", `<div class="mh"><h2>Device</h2><button class="x" data-close aria-label="Close">×</button></div><div class="mb">
-  <p><b>${esc(device.name)}</b><br><span class="mut">${esc(branch?.name||"")}</span></p><p class="mut">To move this tablet to another branch, generate a new code in the back office and activate again.</p></div>
+  <p><b>${esc(device.name)}</b><br><span class="mut">${esc(branch?.name||"")}</span></p><p class="mut">To move this tablet to another store, generate a new code in the back office and activate again.</p></div>
   <div class="mf"><a class="btn" href="https://dev.portal.skwydhub.com/devices" target="_blank" rel="noopener" style="margin-right:auto;text-decoration:none">Back office</a><button class="btn bad" id="deact">Deactivate on this tablet</button><button class="btn" data-close>Cancel</button></div>`);
 
 // full-screen Orders / Tables / Pickup & delivery keep the bottom bar, so "New" and the other tabs stay reachable
@@ -3571,7 +3571,7 @@ function ohPop(key, id){ const list = ((key==="pddet" ? PD?.past : key==="cldet"
   if(!o){ el.innerHTML = `<div class="modal"><div class="mh"><h2>Orders history</h2><button class="x" data-ohx aria-label="Close">×</button></div><div class="ohfil">${OH_FS.map(([k, l]) => `<button type="button" class="${OH_F===k ? "on" : ""}" data-ohf="${k}">${l}</button>`).join("")}</div><div class="mb"><div class="ohgrid">${(t => OH_F ? list.filter(x => ohMatch(x, OH_F)).map(t).join("") : OH_GR.map(([k, l]) => { const g = list.filter(x => ohMatch(x, k)); return g.length ? `<div class="ohgh">${l}<span>${g.length}</span></div>` + g.map(t).join("") : ""; }).join(""))(ohTile) || `<div class="ohnone">No orders</div>`}</div></div></div>`; ohEqual(el); return; }
   const br = S.branches?.find(b => b.id===o.branchId), bd = S.brands?.find(b => b.id===(o.brandId || br?.brandId)), it = (o.items||[]).filter(i => !i.voided), kv = (l, v) => v ? `<div class="kv"><span>${l}</span><b>${esc(v)}</b></div>` : "";
   el.innerHTML = `<div class="modal"><div class="mh"><button class="adback" data-ohopen="" aria-label="Back">‹</button><h2>${esc(o.ref || (o.no ? "Order " + o.no : ohNum(o)))}</h2><span class="spill s-${o.status}">${esc(stLbl(o))}</span><button class="x" data-ohx aria-label="Close">×</button></div>
-    <div class="mb"><div class="ohkv">${kv("Check Number", o.inv ? invNo(o.inv) : "")}${kv("Brand", bd?.name)}${kv("Branch", br?.name)}${kv("Order type", OH_T[o.type] || o.type)}${kv("Order source", o.source)}${kv("Date", ohDate(o.at, true))}</div>
+    <div class="mb"><div class="ohkv">${kv("Check Number", o.inv ? invNo(o.inv) : "")}${kv("Brand", bd?.name)}${kv("Store", br?.name)}${kv("Order type", OH_T[o.type] || o.type)}${kv("Order source", o.source)}${kv("Date", ohDate(o.at, true))}</div>
       ${o.address && o.type==="delivery" ? `<div class="ohkv">${kv("Address", addrFull(o.address))}</div>` : ""}
       <div class="podi">${it.map(i => `<div><span class="q">${+i.qty||1}×</span><span class="n">${esc(i.name)}${modLines(i).length ? `<small>${modLines(i).map(esc).join(", ")}</small>` : ""}</span><b>${usd(lineNet(i))}</b></div>`).join("") || '<div class="mut">No items</div>'}</div>
       <div class="ohkv">${o.discount ? kv("Discount", "−" + usd(o.discount)) : ""}${(o.charges||[]).filter(c => +c.amount).map(c => kv(c.name, usd(+c.amount))).join("")}${o.fee ? kv("Delivery fee", usd(o.fee)) : ""}</div>
@@ -3686,7 +3686,7 @@ function openTables(){
   modal("tables", `<div class="ohdr"><button class="hbtn" data-close>Back</button><b style="font-size:18px">${esc(tmT)}</b><span class="sp"></span>
     <button class="btn tmb${TM?.mode==="move" ? " on" : ""}" data-tm="move">${TM?.mode==="move" ? "Cancel" : "Change Table"}</button><button class="btn tmb${TM?.mode==="merge" ? " on" : ""}" data-tm="merge">${TM?.mode==="merge" ? "Cancel" : "Merge Tables"}</button>
     <span class="tleg"><span><i style="background:#fff;border:1px solid #ccc"></i>Free</span><span><i style="background:#f3c18f"></i>Occupied</span><span><i style="background:#f2a3ae"></i>Over 1 hour</span></span></div>
-    <div class="mb">${all.length ? "" : `<p class="mut" style="margin:0 0 12px">No tables set up for this branch yet. Add them in the back office under Manage → Tables.</p>`}
+    <div class="mb">${all.length ? "" : `<p class="mut" style="margin:0 0 12px">No tables set up for this store yet. Add them in the back office under Manage → Tables.</p>`}
     ${secs.map(sc => { const l = all.filter(t => (t.section||"")===sc); return `${secs.length > 1 || sc ? `<h3 class="tsec">${esc(sc || "Tables")}<span class="mut"> · ${l.filter(t => tableOrders(t.name).length).length}/${l.length} occupied</span></h3>` : ""}<div class="tgrid">${l.map(tile).join("")}</div>`; }).join("")}</div>`, true);
   $("#modal").classList.add("full"); $("#scrim").classList.add("fullscr"); withNav();
 }
@@ -3865,7 +3865,7 @@ async function openDiag(){
   const s = syncSt, f = window.WOK?.sync?.failed?.() || [], est = await (navigator.storage?.estimate?.() || Promise.resolve(null)).catch(() => null), today = bizDate();
   const sw = "serviceWorker" in navigator ? (navigator.serviceWorker.controller ? "Active" : "Not active") : "Not supported";
   const rows = [["Connection", s.online ? "Online" : "Offline"], ["Waiting to sync", s.pending], ["Rejected by the server", f.length], ["Last synced", ago(s.lastSync)], ["Signed in", s.needsLogin ? "No · sign in to sync" : "Yes"],
-    ["Device", device.name + (isMaster() ? "" : " (sub-POS)")], ["Branch", branch?.name || "—"], ["Business date", today + (openDay() < today ? ` · ${openDay()} not ended` : "")], ["Shift", openShift() ? "Open" : "Closed"],
+    ["Device", device.name + (isMaster() ? "" : " (sub-POS)")], ["Store", branch?.name || "—"], ["Business date", today + (openDay() < today ? ` · ${openDay()} not ended` : "")], ["Shift", openShift() ? "Open" : "Closed"],
     ["Menu loaded", `${products().length} products · ${S.categories.filter(live).length} categories`], ["Orders on this tablet", S.orders.filter(o => o.branchId===device.branchId).length], ["Users with a PIN", posUsers().length],
     ["Offline app", sw], ["Storage", est ? `${(est.usage/1048576).toFixed(1)} MB used of ${(est.quota/1048576/1024).toFixed(1)} GB` : "—"], ["Screen", `${innerWidth} × ${innerHeight}`], ["Clock", new Date().toLocaleString("en-GB") + " · " + (Intl.DateTimeFormat().resolvedOptions().timeZone || "")],
     ["Printing", window.Capacitor ? "Android app" : "Browser · printing works in the Android app"], ["App", "skwyd hub POS · " + (document.querySelector('script[src^="wokdb.js"]')?.getAttribute("src").split("?v=")[1] ? "data v" + document.querySelector('script[src^="wokdb.js"]').getAttribute("src").split("?v=")[1] : "")]];

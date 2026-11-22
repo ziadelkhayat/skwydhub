@@ -17,7 +17,7 @@ import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
 
-const ORD_TABS: [string, string][] = [["all", "All"], ["today", "Today"], ["draft", "Draft"], ["pending", "Pending"], ["active", "Active"], ["dispatched", "Dispatched"], ["ahead", "Ahead"], ["callcenter", "Call Center"], ["online", "Web Ordering"]];
+const ORD_TABS: [string, string][] = [["all", "All"], ["today", "Today"], ["draft", "Draft"], ["pending", "Pending"], ["active", "Active"], ["dispatched", "Dispatched"], ["ahead", "Ahead"], ["callcenter", "Call Center"], ["online", "API"]];
 export const ORD_ST: Record<string, string> = { review: "Call Center Review", draft: "Draft", pending: "Pending", active: "Active", closed: "Done", declined: "Declined", void: "Void", returned: "Returned", refund: "Refund" };
 export const ST_COLOR: Record<string, any> = { closed: "success", active: "primary", pending: "warning", review: "warning", draft: "gray", declined: "error", void: "error", returned: "error", refund: "error" };
 export const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in", other: "Other" };
@@ -55,7 +55,7 @@ function tabQ(q: any, tab: string) {
   if (tab === "draft") return q.eq("status", "draft"); if (tab === "pending") return q.eq("status", "pending"); if (tab === "active") return q.eq("status", "active");
   if (tab === "dispatched") return q.eq("status", "active").not("dispatched_at", "is", null);
   if (tab === "ahead") return q.not("scheduled_at", "is", null).in("status", ["draft", "pending", "active"]);
-  if (tab === "callcenter") return q.eq("channel", "callcenter"); if (tab === "online") return q.eq("channel", "online");
+  if (tab === "callcenter") return q.eq("channel", "callcenter"); if (tab === "online") return q.in("channel", ["online", "web", "marketplace", "api"]);   // API: web ordering and marketplace orders
   return q;
 }
 

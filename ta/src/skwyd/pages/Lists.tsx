@@ -69,7 +69,7 @@ function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, 
 /* ---------- Reasons ---------- */
 const RS_KINDS: [string, string][] = [["vr", "Void and Return Reason"], ["rejectReasons", "Order Rejection Reason"], ["editRejectReasons", "Order Edit Rejection Reason"], ["cancelReasons", "Order Cancellation Reason"], ["qtyReasons", "Quantity Adjustment Reason"], ["drawerReasons", "Drawer Operation Reason"]];
 const RS_GONE = new Set(["Customer changed mind", "Wrong item entered", "Item not available", "Kitchen mistake", "Quality complaint", "Wrong order delivered", "Late delivery", "Damaged", "Theft", "Staff meal", "Sample", "Found stock"]);
-const RS_DEF: Record<string, string[]> = { qtyReasons: ["Waste", "Expired"], drawerReasons: ["Cash Change"], rejectReasons: ["Item not available", "Branch too busy", "Order already prepared"], editRejectReasons: ["Order already prepared", "Item not available", "Already out for delivery"], cancelReasons: ["Customer cancelled", "Duplicate order", "Wrong order details"] };
+const RS_DEF: Record<string, string[]> = { qtyReasons: ["Waste", "Expired"], drawerReasons: ["Cash Change"], rejectReasons: ["Item not available", "Store too busy", "Order already prepared"], editRejectReasons: ["Order already prepared", "Item not available", "Already out for delivery"], cancelReasons: ["Customer cancelled", "Duplicate order", "Wrong order details"] };
 const split = (v: any) => String(v || "").split("\n").map(x => x.trim()).filter(Boolean);
 
 export function ReasonsPage() {
