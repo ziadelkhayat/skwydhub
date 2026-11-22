@@ -4,6 +4,7 @@ import { fmtDate, money } from "@/lib/util";
 import type { Row } from "@/lib/db";
 import { Link } from "react-router";
 import { live, type CrudCfg, type S } from "./CrudPage";
+import { PERMS } from "./perms";
 
 const del = (r: Row) => !!r.deleted;
 const allDel: CrudCfg["tabs"] = [["all", "All", live], ["deleted", "Deleted", del]];
@@ -95,6 +96,21 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Brand Name", req: true }, { k: "nameAr", l: "Name Localized" }],
     canDelete: (r, s) => { const n = s.branches.filter(b => b.brandId === r.id).length; return n ? `Delete this brand's ${n} store${n === 1 ? "" : "s"} first (Manage → Stores).` : ""; },
   },
+  branches: {
+    col: "branches", title: "Stores", one: "Store", needs: ["brands", "tax_groups"], tabs: allDel,
+    note: "Opening hours by day, tables, receipt texts and the store's other settings are on the store's page in the current portal.",
+    cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-theme-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
+      { h: "Reference", cell: r => r.code || "—" }, { h: "Tax Group", cell: (r, s) => s.tax_groups.find(g => g.id === r.settings?.taxGroup)?.name || "—" },
+      { h: "Active", cell: r => <OnOff on={r.active !== false} /> }, created],
+    fields: [{ k: "brandId", l: "Brand", t: "select", req: true, opts: s => s.brands.filter(live).map(b => [b.id, b.name]), auto: s => { const l = s.brands.filter(live); return l.length === 1 ? l[0].id : ""; } },
+      { k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" },
+      { k: "code", l: "Reference", req: true, auto: s => "B" + (Math.max(-1, ...s.branches.map(b => +((/^B(\d+)$/i.exec(b.code || "") || [])[1] ?? -1))) + 1) },
+      { k: "phone", l: "Phone" }, { k: "city", l: "City" }, { k: "address", l: "Address", full: true },
+      { k: "open", l: "Opens At", ph: "11:00" }, { k: "close", l: "Closes At", ph: "23:30" }, { k: "taxNumber", l: "Tax Registration Number" },
+      { k: "callCenter", l: "Takes call center orders", t: "chk", def: true }, { k: "active", l: "Active", t: "chk", def: true }],
+    unique: "name",
+    prep: (data, id) => { if (!id) data.settings = {}; },
+  },
   taxes: {
     col: "taxes", title: "Taxes", one: "Tax", needs: ["tax_groups"], tabs: allDel,
     cols: [{ h: "Name", cell: nameCell }, { h: "Rate", cell: r => (+r.rate || 0) + " %", num: true }, { h: "Pricing", cell: r => r.inclusive === false ? "Added on top" : "Inclusive" },
@@ -158,5 +174,46 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true }, { k: "code", l: "Code", auto: s => "SUP-" + String(s.suppliers.length + 1).padStart(3, "0") }, { k: "contactName", l: "Contact Name" }, { k: "phone", l: "Phone" }, { k: "email", l: "Email" },
       { k: "address", l: "Address", full: true }, { k: "notes", l: "Notes", t: "textarea" }],
     unique: "name",
+  },
+  roles: {
+    col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]],
+    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.description ? <span className="block text-theme-xs text-gray-500">{r.description}</span> : null}</> },
+      { h: "Back Office", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("bo_")).length; return n ? (r.permissions.includes("bo_manage") ? <Badge variant="light" color="success">Full admin</Badge> : n + " areas") : <Note>No access</Note>; } },
+      { h: "POS", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("pos_")).length; return n ? n + " permissions" : <Note>No access</Note>; } },
+      { h: "Employees", cell: (r, s) => s.users.filter(u => live(u) && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length, num: true }],
+    fields: [{ k: "name", l: "Name", req: true, ph: "The name of the role in the organization." }, { k: "nameAr", l: "Name Localized", ph: "The localized name in a 2nd language" },
+      { k: "permissions", l: "Authorities", t: "multi", opts: () => PERMS.map(p => p[0].startsWith("@") ? [p[0], p[0]] as [string, string] : [p[0], p[1]] as [string, string]) }],
+    unique: "name",
+    canDelete: (r, s) => { const n = s.users.filter(u => !u.deleted && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length; return n ? `This role is used by ${n} employee${n === 1 ? "" : "s"}. Remove it from ${n === 1 ? "that employee" : "those employees"} first.` : ""; },
+  },
+  "inv-items": {
+    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"],
+    tabs: [["all", "All", live], ["items", "Products", r => live(r) && !(r.ingredients || []).length && !r.menuItem], ["produced", "Production Products", r => live(r) && (r.ingredients || []).length > 0], ["menu", "Product Items", r => live(r) && !!r.menuItem], ["deleted", "Deleted", del]],
+    sort: (a, b) => String(b.sku || "").localeCompare(String(a.sku || ""), undefined, { numeric: true }),
+    search: r => r.name + " " + (r.sku || "") + " " + (r.category || ""),
+    cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "SKU", cell: r => r.sku || "" }, { h: "Category", cell: r => r.category || "—" }],
+    fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "sku", l: "SKU", req: true, auto: sku("inv_items", "IN") },
+      { k: "category", l: "Category", t: "select", opts: s => s.inv_categories.filter(live).map(c => [c.name, c.name]) },
+      { k: "storageUnit", l: "Storage Unit", req: true, ph: "e.g. kg, box, gallon" }, { k: "ingredientUnit", l: "Ingredient Unit", req: true, ph: "e.g. gram, ml, piece" },
+      { k: "factor", l: "Storage To Ingredient", t: "number", req: true, ph: "e.g. 1000" },
+      { k: "costingMethod", l: "Costing Method", req: true, t: "select", opts: () => [["transactions", "From Transactions"], ["fixed", "Fixed"]], def: "transactions" },
+      { k: "barcode", l: "Barcode" }, { k: "cost", l: "Cost (Per Storage Unit)", t: "number", req: true, when: { k: "costingMethod", is: "fixed" } }],
+  },
+  charges: {
+    col: "charges", title: "Charges", one: "Charge", needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort,
+    note: "Charges are added on top of the items, e.g. a service charge. The cashier or call center agent adds them to an order.",
+    search: r => r.name + " " + (r.nameAr || ""),
+    cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => r.type === "percent" ? "Percentage" : r.type === "open" ? "Open amount" : "Amount" },
+      { h: "Value", cell: r => r.type === "percent" ? (+r.value || 0) + " %" : r.type === "open" ? "Open" : money(r.value), num: true },
+      { h: "Order Types", cell: r => { const l = r.orderTypes || []; return l.length ? [...new Set(l.map((t: string) => t === "fast" ? "dinein" : t))].map((t: any) => TYPE_LBL[t] || t).join(", ") : "All"; } }],
+    fields: [{ k: "name", l: "Name", req: true, ph: "e.g. Delivery charge, Service charge" }, { k: "nameAr", l: "Name Localized" },
+      { k: "type", l: "Type", t: "select", req: true, opts: () => [["fixed", "Amount"], ["percent", "Percentage"], ["open", "Open amount"]], def: "fixed" },
+      { k: "value", l: "Value", t: "number", ph: "e.g. 2 or 10 (empty for open amount)" },
+      { k: "taxGroup", l: "Tax Group", t: "select", opts: taxGroupOpts },
+      { k: "orderTypes", l: "Order types it applies to", t: "multi", opts: () => [["dinein", "Dine-in"], ["pickup", "Pickup"], ["delivery", "Delivery"]], def: ["delivery"] },
+      { k: "brandIds", l: "Brands", t: "multi", req: true, opts: s => s.brands.filter(live).map(b => [b.id, b.name]), auto: s => s.brands.filter(live).map(b => b.id) as any },
+      { k: "branchIds", l: "Stores", t: "multi", req: true, opts: s => s.branches.filter(b => b.active !== false).map(b => [b.id, b.name]), auto: s => s.branches.filter(b => b.active !== false).map(b => b.id) as any }],
+    unique: "name",
+    prep: data => { if (data.type === "open") { data.value = 0; return ""; } if (data.value == null || !(data.value >= 0)) return "Value is required."; if (data.type === "percent" && data.value > 100) return "A percentage can't be more than 100."; return ""; },
   },
 };

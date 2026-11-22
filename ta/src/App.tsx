@@ -5,6 +5,7 @@ import { CRUD } from "@/skwyd/crud/configs";
 import Dashboard from "@/skwyd/pages/Dashboard";
 import NotMoved from "@/skwyd/pages/NotMoved";
 import OrdersPage from "@/skwyd/pages/Orders";
+import CustomersPage from "@/skwyd/pages/Customers";
 import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
 import "flatpickr/dist/flatpickr.css";
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>

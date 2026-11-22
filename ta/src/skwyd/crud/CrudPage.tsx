@@ -24,7 +24,7 @@ export type S = Record<string, Row[]>;
 export type CField = {
   k: string; l: string; t?: "text" | "number" | "select" | "textarea" | "chk" | "multi" | "items" | "image" | "head";
   req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any;
-  opts?: (s: S) => Opt[]; auto?: (s: S) => string; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
+  opts?: (s: S) => Opt[]; auto?: (s: S) => any; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
 };
 export type CCol = { h: string; cell: (r: Row, s: S) => ReactNode; num?: boolean };
 export type CrudCfg = {
@@ -174,7 +174,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
       </Select>{note}</Field>); }
   if (f.t === "multi") { const opts = f.opts ? f.opts(s) : [], cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
-      <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { const on = cur.includes(value);
+      <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-theme-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);
         return <button type="button" key={value} onClick={() => set(on ? cur.filter(x => x !== value) : [...cur, value])}
           className={cn("rounded-lg border px-3 py-2 text-sm transition-colors", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5")}>{l}</button>; })}</div>{note}</Field>); }
   if (f.t === "items") { const cur: string[] = Array.isArray(v) ? v : [];
