@@ -15,6 +15,7 @@ import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { SplitDialog } from "./Split";
 import { TagsDialog, orderTags, tagDoc } from "./Tags";
 import { PrintersDialog } from "./Printers";
+import { ReportsDialog } from "./Reports";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
@@ -338,6 +339,7 @@ export function Register() {
           <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 100, width: 240, padding: 6 }}>
             <Btn kind="ghost" label={openShift(x) ? "Close Till" : "Open Till"} style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
             <Btn kind="ghost" label="End of day" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
+            <Btn kind="ghost" label="Reports" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
             <Btn kind="ghost" label="Devices" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
             <Btn kind="ghost" label="Sync data" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
             <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
