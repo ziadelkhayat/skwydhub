@@ -3,19 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, shrink-to-fit=no">
-<script>/* iPad sizes between the iPhone layout (up to 760) and the iPad layout (from 1100): lay the page out at the nearest
-   of the two and let the iPad scale it, so every iPad gets the approved design (portrait → the iPhone layout a little larger,
-   1024-wide → the iPad layout a little smaller). Phones and computers are untouched. */
-(function(){ var m = document.querySelector('meta[name="viewport"]'); if(!m) return; var base = m.getAttribute("content"), last = "";
-  function fit(){ var land = window.matchMedia && matchMedia("(orientation: landscape)").matches, a = screen.width, b = screen.height,
-      w = land ? Math.max(a, b) : Math.min(a, b), c = base;
-    var L = w > 760 && w < 900 ? 750 : w >= 900 && w < 1100 ? 1100 : 0, k = L ? (w / L).toFixed(4) : 0;
-    if(L) c = "width=" + L + ", initial-scale=" + k + ", minimum-scale=" + k + ", viewport-fit=cover";   // the minimum keeps the page exactly that wide
-    if(c !== last){ last = c; m.setAttribute("content", c); setTimeout(function(){ dispatchEvent(new Event("resize")); }, 30); } }
-  fit(); addEventListener("orientationchange", function(){ setTimeout(fit, 60); }); addEventListener("resize", fit);
-  // the app draws itself once at start-up: tell it the width again when the page is ready
-  if(last !== base) ["DOMContentLoaded", "load"].forEach(function(e){ addEventListener(e, function(){ setTimeout(function(){ dispatchEvent(new Event("resize")); }, 50); }); }); })();</script>
-
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Admin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)"><link rel="manifest" href="admin.webmanifest">
 <title>skwyd admin</title>
 <meta name="robots" content="noindex">
