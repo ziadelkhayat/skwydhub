@@ -11,3 +11,5 @@ cp skwyd-icon-32.png skwyd-icon-180.png skwyd-icon-512.png portal-icon-32.png po
 for f in pos.html pos.webmanifest pos-icon-192.png pos-icon-512.png theme-dark-pos.css posv3.js; do if [ -f "$f" ]; then cp "$f" web/; fi; done
 cp cloudflare/_redirects cloudflare/_headers web/
 echo "Built web/: $(ls web | tr '\n' ' ')"
+# the new back office (React, TailAdmin template) while it is being rebuilt: <host>/v2/
+if [ -d ta ] && command -v npm >/dev/null 2>&1; then (cd ta && npm ci --no-audit --no-fund && SKWYD_BASE=/v2/ npx vite build) && cp -r ta/dist web/v2 && echo "Built web/v2 (React)"; fi
