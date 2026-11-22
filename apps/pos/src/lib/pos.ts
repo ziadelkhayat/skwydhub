@@ -219,3 +219,10 @@ export function refundOf(o: Row, qs: number[]) {
   const left = +((+o.total || 0) - (+o.refundTotal || 0)).toFixed(2), all = (o.items || []).every((_: any, ix: number) => (qs[ix] || 0) >= retLeft(o, ix));
   return all ? left : Math.min(left, +(o.items || []).reduce((s: number, i: any, ix: number) => s + lineNet(i) / (+i.qty || 1) * (qs[ix] || 0) * share, 0).toFixed(2));
 }
+
+/* ---------- the second currency at the till (Currency settings): what's due in it, and the change in it ---------- */
+const ceilD = (n: number, d: number) => { const f = Math.pow(10, d); return Math.ceil(n * f - 1e-7) / f; };
+export const due2 = (S: Data, t: number) => { const c = CUR2(S); return c ? rrApply(ceilD(t * c.rate, c.dec), c.dec, coS(S).roundRules2) : 0; };
+export const chg2 = (S: Data, t: number) => { const c = CUR2(S); return c ? rrApply(Math.floor(t * c.rate * Math.pow(10, c.dec) + 1e-7) / Math.pow(10, c.dec), c.dec, coS(S).roundRules2) : 0; };
+export const num2 = (n: number, d: number) => (+n || 0).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+export const quickTender = (S: Data, which: 1 | 2) => String(coS(S)[which === 2 ? "quickTender2" : "quickTender"] || "").split(",").map(v => +v.trim()).filter(v => v > 0).sort((a, b) => a - b);

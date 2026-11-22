@@ -11,7 +11,7 @@ import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
 import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
-import { fullyBack } from "../lib/pos";
+import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
 import { kitchenText, printJob, printerHas, receiptText } from "../lib/print";
@@ -116,7 +116,7 @@ export function Register() {
     if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no: await takeNo() }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
     else write("orders", newId("pos"), { ...base(await takeNo()), ...fields(), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
     reset();
-    if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} onClose={() => done()} />);
+    if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} second={CUR2(S) ? CUR2(S)!.code + " " + num2(chg2(S, p.change), CUR2(S)!.dec) : ""} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
   };
   const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
