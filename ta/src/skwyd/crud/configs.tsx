@@ -22,7 +22,7 @@ const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", fast: "Dine-in", p
 const PM_TYPES: [string, string][] = [["cash", "Cash"], ["card", "Card"], ["other", "Other"]];
 const SYS_SRC = (n: string) => /^(web|api)$/i.test(String(n || "").trim());
 const isAdminRow = (r: Row) => !!r && (r.role === "owner" || r.role === "admin");
-async function pinHash(id: string, pin: string) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("slick:" + id + ":" + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+export async function pinHash(id: string, pin: string) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("slick:" + id + ":" + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 const OnOff = ({ on }: { on: boolean }) => <Badge variant="light" color={on ? "success" : "gray"}>{on ? "Active" : "Inactive"}</Badge>;
 
 export const CRUD: Record<string, CrudCfg> = {
