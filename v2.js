@@ -78,6 +78,12 @@
     bar.appendChild(btns); bar.appendChild(t); phead.classList.add("v2gone"); phead.parentElement.insertBefore(bar, phead);
   }
   function sectionColumn(ptabs, catl, ptset) {
+    // Manage: the settings column from the design file (grouped rows with coloured icons and a search field)
+    if (ptset && !catl && window.V3 && V3.settingsColumn) {
+      const links = $$("a", ptset).map(a => [a.getAttribute("href"), a.textContent.replace(/\s+/g, " ").trim()]), on = ptset.querySelector("a.on");
+      const w = document.createElement("div"); w.innerHTML = V3.settingsColumn(links, on ? on.textContent.replace(/\s+/g, " ").trim() : "");
+      const sc = w.firstElementChild; sc.classList.add("v2setc"); return sc;
+    }
     const src = ptset || ptabs; if (!src && !catl) return null;
     const s = document.createElement("nav"); s.className = "v2sec"; s.setAttribute("aria-label", "Section");
     s.innerHTML = `<h1 class="v2title">${sectionTitle() || "Menu"}</h1>`;

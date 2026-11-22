@@ -369,3 +369,36 @@ html[data-ios=pos][data-theme=dark] :is(body,#_a#_b#_c#_d#_e) :is(#abar .abtn sp
 html[data-ios=pos][data-theme=dark] :is(body,#_a#_b#_c#_d#_e) .main{background:#000!important}
 
 @media (prefers-reduced-motion:reduce){.ios-cm-b,.ios-cmenu,html:root body .slk-ask > .slk-ask-b{animation:none!important}html:root body .ios-segc > .ios-thumb,html:root body #toast{transition:none!important}}
+/* One typeface everywhere, as in the design kit: the system font (SF on iPhone, iPad and Mac). Web ordering keeps the restaurant's own font. */
+html[data-ios]:not([data-ios=order]) :is(body,#_a#_b#_c#_d#_e#_f),html[data-ios]:not([data-ios=order]) :is(body,#_a#_b#_c#_d#_e#_f) :is(button,input,select,textarea,h1,h2,h3,h4,h5,b,strong,label,th,td,span,div,a,p,li,small,em){font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important}
+html:not([data-ios]) body.v2,html:not([data-ios]) body.v2 :is(button,input,select,textarea,h1,h2,h3,h4,h5,b,strong,label,th,td,span,div,a,p,li,small,em){font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important}
+html body :is(code,pre,kbd,.mono,.mono *){font-family:ui-monospace,"SF Mono",Menlo,monospace!important}
+/* alert buttons in kit tint/red */
+html:not([data-theme=dark]):root body .slk-ask > .slk-ask-b:not(.ccdlg) .slk-ask-f button{color:#0066D6!important}
+html:not([data-theme=dark]):root body .slk-ask > .slk-ask-b:not(.ccdlg) .slk-ask-f button.slk-ask-yes.red{color:#D70015!important}
+/* ===== iPhone / iPad behaviour (all apps) ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html body{-webkit-tap-highlight-color:transparent}
+html body :is(button,a,[role=button],[role=switch],[role=tab],label,summary,select,.btn,.chip,.prod,.ctile){touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html body :is(button,[role=button],[role=switch],[role=tab],.btn,nav a,.tabbar a){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html body img{-webkit-touch-callout:none;-webkit-user-drag:none}
+/* the whole page doesn't rubber-band away from the app's own bars; inner lists still bounce */
+html[data-ios=pos],html[data-ios=pos] body,html[data-ios=team] body,body.v2{overscroll-behavior-y:none}
+/* touch screens: text fields at least 16px so iOS never zooms the page when you tap one */
+@media (pointer:coarse){
+  html body :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea){font-size:max(16px,1em)!important}
+}
+/* pressed state like iOS (a quick dim, no movement) everywhere except the POS, which stays still */
+@media (hover:none){
+  html:not([data-ios=pos]) body :is(button,a.btn,[role=button]):active:not(:disabled){opacity:.55;transition:opacity 0s}
+}
+/* keep content clear of the notch and the home bar when installed on the home screen */
+@media (display-mode:standalone){
+  html body.v2 aside.side{padding-top:env(safe-area-inset-top)!important}
+  html body.v2 .v2cols > *{padding-bottom:calc(30px + env(safe-area-inset-bottom))!important}
+}
+/* follow Reduce Motion */
+@media (prefers-reduced-motion:reduce){html body *,html body *::before,html body *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Team tab bar in the kit tint */
+html[data-ios=team]:not([data-theme=dark]) :is(body,#_a#_b#_c) :is(nav.tabs,.tabbar) :is(a,button).on,html[data-ios=team]:not([data-theme=dark]) :is(body,#_a#_b#_c) :is(nav.tabs,.tabbar) :is(a,button).on *{color:#0066D6!important;stroke:#0066D6!important}
