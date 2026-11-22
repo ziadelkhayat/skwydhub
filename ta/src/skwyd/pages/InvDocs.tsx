@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, PlusIcon, SearchIcon, UploadIcon } from "@/icons";
+import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, FilterIcon, PlusIcon, SearchIcon, UploadIcon } from "@/icons";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { useAuth } from "@/lib/auth";
 import { newId, put, refresh, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -18,13 +19,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
-import { DateInput } from "../ui/DateInput";
+import { DateInput, RangeInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
 import { BOX, F, L, SEL, TD, TH, TR } from "../ui/kit";
 import { PickDialog } from "../ui/PickDialog";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
-import { dmy, today, who } from "./em";
+import { addDays, csv, dmy, today, who } from "./em";
 
 type K = { kind: string; title: string; plural: string; intro: string; loc?: 1; flow?: 1; po?: 1; count?: 1 };
 export const DOC_KINDS: Record<string, K> = {
@@ -78,10 +79,64 @@ function useLoc(s: S) {
 }
 
 /* ---------------- lists ---------------- */
+/* Filter on the inventory transaction lists, the fields each page has as in the portal: reference, business date, status, brand,
+   places, supplier, reason, creator, submitter */
+const docFltFields = (K: K): [string, string, string][] => { const f: [string, string, string][] = [["ref", "Reference", "text"], ["date", "Business Date", "range"]];
+  if (K.kind === "spot" && !K.count) return [["brand", "Brand", "brand"], ["loc", "Store", "loc"], ["date", "Business Date", "range"]];
+  if (K.kind === "sheet") return [];
+  f.push(["status", "Status", "status"], ["brand", "Brand", "brand"]);
+  if (K.kind === "purchase") f.push(["loc", "Destination", "loc"], ["sup", "Supplier", "sup"]);
+  else if (K.kind === "torder") f.push(["dest", "Warehouse", "loc"], ["loc", "Destination", "loc"]);
+  else f.push(["loc", "Store", "loc"]);
+  if (K.kind === "quantity") f.push(["reason", "Reason", "reason"]);
+  f.push(["by", "Creator", "by"]); if (!(K.kind === "spot" && K.count) && K.kind !== "cost") f.push(["sub", "Submitter", "sub"]);
+  return f; };
+const docDay = (d: Row) => String(d.businessDate || d.createdAt || "").slice(0, 10);
+function docFltOk(s: S, K: K, f: Record<string, string>) {
+  const { locBrand } = locBOf(s), has = (b: string, id?: string) => !b || !id || !locBrand(id) || locBrand(id) === b;
+  return (d: Row) => (!f.ref || String(d.ref || "").toLowerCase().includes(f.ref.toLowerCase())) && (!f.from || docDay(d) >= f.from) && (!f.to || docDay(d) <= f.to)
+    && (!f.status || d.status === f.status) && (!f.brand || (d.brandId ? d.brandId === f.brand : has(f.brand, d.locationId) && has(f.brand, d.destId)))
+    && (!f.loc || (K.kind === "torder" ? d.locationId === f.loc : (d.locationId === f.loc || (K.kind === "transfer" && d.destId === f.loc))))
+    && (!f.dest || d.destId === f.dest) && (!f.sup || d.supplierId === f.sup) && (!f.reason || d.reason === f.reason) && (!f.by || d.createdBy === f.by) && (!f.sub || d.submittedBy === f.sub); }
+const locBOf = (s: S) => ({ locBrand: (id: string) => s.branches.find(b => b.id === id)?.brandId || s.warehouses.find(w => w.id === id)?.brandId || "" });
+function DocFilterDialog({ K, s, f0, onClose, onApply }: { K: K; s: S; f0: Record<string, string>; onClose: () => void; onApply: (f: Record<string, string>) => void }) {
+  const [f, setF] = useState<Record<string, string>>({ ...f0 }), { locBrand } = locBOf(s), set = (k: string, v: string) => setF(o => ({ ...o, [k]: v }));
+  const docs = s.inv_docs.filter(d => docOf(K)(d) && live(d)), people = (k: string) => [...new Set(docs.map(d => d[k]).filter(Boolean))].sort().map(x => [x, x] as [string, string]);
+  const st: [string, string][] = K.flow ? [["draft", "Draft"], ["pending", "Pending"], ["closed", "Closed"], ["rejected", "Declined"]] : [["draft", "Draft"], ["closed", "Closed"]];
+  const has = (id: string) => !f.brand || !locBrand(id) || locBrand(id) === f.brand;
+  const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!f.brand || b.brandId === f.brand)).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name] as [string, string])];
+  const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter((x: string) => x && !GONE.has(x)); })();
+  const opts = (t: string): [string, string][] => t === "status" ? st : t === "brand" ? s.brands.filter(live).map(b => [b.id, b.name]) : t === "loc" ? locs : t === "sup" ? s.suppliers.filter(live).map(x => [x.id, x.name]) : t === "reason" ? qa.map((r: string) => [r, r]) : people(t === "by" ? "createdBy" : "submittedBy");
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Filter</DialogTitle></DialogHeader>
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-11" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
+      : t === "range" ? <F key={k} l={l} full><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => setF(o => ({ ...o, from: a, to: b }))} /></F>
+      : <F key={k} l={l}><select className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
+          <option value="">Any</option>{opts(t).map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select></F>)}</div>
+    <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => onApply({})}>Reset</Button><Button className="ms-auto" onClick={() => onApply(Object.fromEntries(Object.entries(f).filter(([, v]) => v && String(v).trim())))}>Apply</Button></div>
+  </DialogContent></Dialog>;
+}
+// Export: a business date range of up to 31 days, then the documents (one row each) or their items (one row per line)
+function DocExportDialog({ route, K, s, lvl, onClose }: { route: string; K: K; s: S; lvl: "docs" | "items"; onClose: () => void }) {
+  const [from, setFrom] = useState(addDays(today(), -6)), [to, setTo] = useState(today()), [err, setErr] = useState(""), { locName } = useLoc(s);
+  const go = () => { if (!from || !to) return setErr("Pick both dates."); if (to < from) return setErr("The end date is before the start date.");
+    if ((+new Date(to) - +new Date(from)) / 86400000 > 30) return setErr("The date range must be within 31 days.");
+    const docs = s.inv_docs.filter(d => docOf(K)(d) && live(d) && docDay(d) >= from && docDay(d) <= to), sup = (id: string) => s.suppliers.find(x => x.id === id)?.name || "";
+    if (lvl === "docs") csv(route + ".csv", [["Reference", "Name", "Store", "Destination", "Supplier", "Reason", "Status", "Business Date", "Number of Items", "Creator", "Submitter", "Created"],
+      ...docs.map(d => [d.status === "draft" ? "" : refOf(d), d.name, locName(d.locationId), d.destId ? locName(d.destId) : "", d.supplierId ? sup(d.supplierId) : "", d.reason, stTxt(d), d.status === "draft" ? "" : dmy(d.businessDate || ""), (d.items || []).length, d.createdBy, d.submittedBy, fmtDateTime(d.createdAt)])]);
+    else { const out: any[][] = [["Reference", "Name", "Store", "Reason", "Type", "Status", "Business Date", "Item", "SKU", "Quantity", "Cost", "Created"]];
+      docs.forEach(d => (d.items || []).forEach((l: any) => { const it: any = s.inv_items.find(i => i.id === l.itemId) || {}; out.push([refOf(d), d.name, locName(d.locationId), d.reason, d.direction, stTxt(d), d.businessDate ? dmy(d.businessDate) : "", it.name, it.sku, l.qty, l.cost, fmtDateTime(d.createdAt)]); }));
+      csv(route + "-items.csv", out); }
+    onClose(); };
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Export {lvl === "items" ? K.plural + " Items" : K.plural}</DialogTitle></DialogHeader>
+    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Please ensure that the selected date range is within 31 days for exporting.</p>
+    <div className="mt-4"><F l="Business Date" req><RangeInput from={from} to={to} onChange={(a, b) => { setFrom(a); setTo(b); }} /></F></div>
+    {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
+    <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Close</Button><Button onClick={go}>Export</Button></div></DialogContent></Dialog>;
+}
 function DocList({ route, K, s }: { route: string; K: K; s: S }) {
   const nav = useNavigate(), { locName } = useLoc(s);
-  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [nw, setNw] = useState(false);
-  const all = s.inv_docs.filter(d => docOf(K)(d) && live(d)), qq = q.trim().toLowerCase();
+  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [nw, setNw] = useState(false), [f, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false), [ex, setEx] = useState<"" | "docs" | "items">("");
+  const all0 = s.inv_docs.filter(d => docOf(K)(d) && live(d)), fOk = docFltOk(s, K, f), all = all0.filter(fOk), qq = q.trim().toLowerCase(), nF = Object.values(f).filter(Boolean).length;
   const match = (d: Row) => !qq || (refOf(d) + " " + (d.name || "") + " " + locName(d.locationId) + " " + locName(d.destId) + " " + (s.suppliers.find(x => x.id === d.supplierId)?.name || "")).toLowerCase().includes(qq);
   const supName = (id: string) => s.suppliers.find(x => x.id === id)?.name || "—";
   const fmtD = (v?: string) => v ? dmy(v) : "—";
@@ -128,16 +183,21 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
           <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            {docFltFields(K).length > 0 && <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
+            <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}><DownloadIcon className="size-5" />Export<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
             <Button onClick={() => K.kind === "cost" ? nav(`/${route}?id=new`) : setNw(true)}><PlusIcon className="size-5" />New {K.title}</Button></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
-          {!rows.length ? <EmptyState text={all.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
+          {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
             : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{head.map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => nav(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
                 {r.cells.map((c, j) => <td key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</td>)}</tr>)}</tbody></table>}
         </div>
       </div>
       {nw && <NewDialog route={route} K={K} s={s} onClose={() => setNw(false)} />}
+      {fOpen && <DocFilterDialog K={K} s={s} f0={f} onClose={() => setFOpen(false)} onApply={v => { setF(v); setFOpen(false); }} />}
+      {ex && <DocExportDialog route={route} K={K} s={s} lvl={ex} onClose={() => setEx("")} />}
     </>
   );
 }
