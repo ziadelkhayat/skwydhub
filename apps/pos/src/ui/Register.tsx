@@ -10,6 +10,8 @@ import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
+import { kitchenText, printJob, printerHas, receiptText } from "../lib/print";
+import { Sheet } from "./Pickers";
 import { ChargesDialog, DiscountDialog, NotesDialog, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -134,9 +136,21 @@ export function Register() {
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges.");
       const r = await ask<{ picked: string[]; open: Record<string, number> } | null>(done => <ChargesDialog x={x} cur={cur} picked={picked} open={openCh} onDone={done} />); if (r) { setPicked(r.picked); setOpenCh(r.open); } return; }
     if (a === "Notes") { const r = await ask<{ receipt: string; kitchen: string } | null>(done => <NotesDialog init={notes} onDone={done} />); if (r) setNotes(r); return; }
+    if (a === "Print" || a === "Kitchen") return doPrint(a === "Print" ? "receipt" : "kitchen");
     if (a === "Hold") return hold();
     if (a === "Retrieve") return retrieve();
     say(a + " comes in the next step.");
+  };
+  // Print: the bill of this order (or its receipt when done); Kitchen: the ticket of what wasn't sent yet (all of it on a new order)
+  const doPrint = async (kind: "receipt" | "kitchen") => {
+    if (!cart.length && !live_eo) return say("Nothing to print");
+    if (kind === "receipt" && !can(S, cashier, live_eo?.status === "closed" ? "pos_reprint" : "pos_print_check") ) return say("Your role doesn't allow printing this.");
+    const now = new Date().toISOString(), o: any = live_eo && ro ? live_eo : { ...(live_eo || { no: "", createdAt: now }), ...fields(), ...(live_eo ? { customerName: live_eo.customerName, phone: live_eo.phone } : {}), items: cart.map(({ saved, ...i }) => i) };
+    const items = kind === "kitchen" && live_eo && !ro ? cart.filter(l => l.qty > (l.saved || 0)).map(({ saved, ...l }) => ({ ...l, qty: +(l.qty - (saved || 0)).toFixed(3) })) : o.items;
+    const r = await printJob(S, device!, kind, pr => { if (kind === "receipt") return receiptText(S, branch, o); const its = items.filter((i: any) => printerHas(S, pr, i)); return its.length ? kitchenText({ ...o, items: its }) : null; });
+    if (r.preview != null) return setDlg(<Sheet title={kind === "receipt" ? "Receipt (preview)" : "Kitchen ticket (preview)"} width={420} onClose={() => setDlg(null)}><T style={{ fontFamily: "monospace", fontSize: 13 }}>{r.preview}</T></Sheet>);
+    if (r.bad.length) return setDlg(<Sheet title="Printing failed" width={460} onClose={() => setDlg(null)}><T color={C.bad} style={{ lineHeight: 22 }}>{r.bad.join("\n")}</T></Sheet>);
+    say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   const tillDlg = () => setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />);
 
