@@ -506,3 +506,38 @@ html body.v2p #view .rhub > .rcard::after{content:"";width:8px;height:8px;border
 html body.v2p #view .rhub > .rcard svg{display:none!important}
 html[data-theme=dark] body.v2p #view .rhub,html[data-theme=dark] body.v2p #view .rhub > .rcard{background:#1C1C1E!important}
 html body.v2p #view .board > .bcol > .bempty{width:auto!important;max-width:none!important}
+/* ===== Web Ordering settings as grouped rows ===== */
+html body:is(.v2,.v2p):is(#_z,body) #view h3.ct.v3olh{font-size:13px!important;font-weight:400!important;color:#6C6C70!important;text-transform:uppercase;letter-spacing:.2px;margin:22px 16px 7px!important;display:flex;align-items:center;gap:6px}
+html body:is(.v2,.v2p):is(#_z,body) #view .olpane > h3.ct.v3olh:first-child{margin-top:4px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard{padding:0!important;border-radius:12px!important;overflow:hidden!important;box-shadow:none!important;border:0!important;background:#fff!important;margin:0 0 6px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .olhead{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 16px!important;margin:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .olhead h3{font-size:17px!important;font-weight:600!important;margin:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.oltg,.olgrid > .f,.olgrid3 > .f),html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f{position:relative;margin:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard .oltg{display:flex!important;align-items:center;gap:12px;min-height:44px;padding:9px 16px!important;border:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard .oltg b{font-size:17px!important;font-weight:400!important;color:#000}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard .oltg small{font-size:13px!important;color:#6C6C70!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > :is(.oltg,.f,.olgrid) + :is(.oltg,.f,.olgrid)::before,html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .olhead + *::before,html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid,.olgrid3) > .f + .f::before{content:"";position:absolute;left:16px;right:0;top:0;height:1px;background:#E3E3E8}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid,.olgrid3){display:block!important;position:relative;margin:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid > .f,.olgrid3 > .f),html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px;min-height:44px;padding:4px 16px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid > .f,.olgrid3 > .f) > label,html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f > label{text-align:left!important;flex:0 0 38%!important;max-width:220px;font-size:17px!important;color:#000!important;font-weight:400!important;margin:0!important;text-transform:none!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid > .f,.olgrid3 > .f) > :not(label),html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f > :not(label){flex:1 1 0;min-width:0}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid > .f,.olgrid3 > .f) :is(input:not([type=checkbox]),select,.msel-f),html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f :is(input:not([type=checkbox]),select,.msel-f){background:transparent!important;text-align:right!important;padding:0!important;min-height:36px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslug{display:flex;align-items:center;justify-content:flex-end;gap:0;background:transparent!important;border:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslug > span{color:#6C6C70;font-size:17px;white-space:nowrap}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslug input{text-align:left!important;flex:0 1 auto;width:9ch!important;color:#0066D6!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslugrow) {flex-wrap:wrap}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslugrow{flex:1 1 100%!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olseg{gap:2px!important;padding:2px!important;border-radius:9px!important;background:rgba(118,118,128,.12)!important;border:0!important;box-shadow:none!important;margin-bottom:14px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olseg > button{font-size:13px!important;font-weight:500!important;height:30px!important;border-radius:7px!important;border:0!important;background:transparent!important;color:#000!important;box-shadow:none!important;flex:1}
+html body:is(.v2,.v2p):is(#_z,body) #view .olseg > button.on{background:#fff!important;font-weight:600!important;box-shadow:0 3px 8px rgba(0,0,0,.12)!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olseg > button .tti{display:none!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body) #view .olcard{background:#1C1C1E!important}
+html[data-theme=dark] body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.oltg b,label,h3,input){color:#fff!important}
+
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .note{font-size:13px!important;color:#6C6C70!important;padding:10px 16px 2px!important;margin:0!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid,.olgrid3) > .f{text-align:left!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard :is(.olgrid,.olgrid3) > .f :is(input,select)::placeholder{color:rgba(60,60,67,.3)!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug){flex-wrap:wrap!important;padding:10px 16px!important}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug) > label{flex:1 1 100%!important;max-width:none}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f:has(.olslug) > .olslug{flex:1 1 100%!important;justify-content:flex-start!important;margin-top:4px}
+html body:is(.v2,.v2p):is(#_z,body) #view .olcard > .f .olslug input{flex:1 1 auto!important;width:auto!important;min-width:6ch}

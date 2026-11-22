@@ -19,6 +19,10 @@
     if (f) f.querySelectorAll("button").forEach(b => { if (/^(delete|remove|void|deactivate)/i.test(b.textContent.trim())) b.classList.add("skdel"); });
     if (f) { const rest = [...f.querySelectorAll("button, a.btn")].filter(b => b !== pri && !isCancel(b) && !b.hidden && getComputedStyle(b).display !== "none"); if (!rest.length) f.classList.add("skgone"); else { if (pri) pri.classList.add("skhid"); f.querySelectorAll("button").forEach(b => { if (isCancel(b)) b.classList.add("skhid"); }); } }
   }
+
+  // Web Ordering settings: each card's title sits above the card as an iOS section header
+  const olHeads = () => document.querySelectorAll("#view .olcard > h3.ct").forEach(h => { const c = h.parentElement; h.classList.add("v3olh"); c.parentElement.insertBefore(h, c); });
+  new MutationObserver(olHeads).observe(document.documentElement, { subtree: true, childList: true });
   const scan = () => document.querySelectorAll(".scrim.show .modal, .scrim.show form.modal, dialog[open] .modal").forEach(sheet);
   new MutationObserver(scan).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "open"] });
   document.addEventListener("DOMContentLoaded", scan);
