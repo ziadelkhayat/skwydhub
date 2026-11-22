@@ -133,7 +133,7 @@ function DiscountForm({ d, list, onClose, onSave, onDelete }: { d: any; list: an
   const numIn = (k: string, l: string) => <F l={l}><Input className="h-11" type="number" min="0" step="any" value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit" : "Create"} Discount</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Name" req><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>

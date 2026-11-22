@@ -92,7 +92,7 @@ function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () => void; 
   const sel = "h-11 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90";
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{c?.id ? "Edit Customer" : "Add Customer"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Name <span className="text-red-500">*</span></FieldLabel><Input className="h-11" value={name} onChange={e => setName(e.target.value)} /></Field>

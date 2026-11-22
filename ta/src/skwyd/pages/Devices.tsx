@@ -147,7 +147,7 @@ const DangerRow = ({ title, text, btn, onClick }: { title: string; text: string;
 function Modal({ title, wide, onClose, footer, children }: { title: string; wide?: boolean; onClose: () => void; footer: React.ReactNode; children: React.ReactNode }) {
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className={"max-h-[90vh] w-full overflow-y-auto p-6 sm:p-8 " + (wide ? "sm:max-w-3xl" : "sm:max-w-2xl")}>
+      <DialogContent className={"max-h-[90dvh] w-full overflow-y-auto p-6 sm:p-8 " + (wide ? "sm:max-w-3xl" : "sm:max-w-2xl")}>
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
         {children}
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div>

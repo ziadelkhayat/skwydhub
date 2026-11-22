@@ -20,7 +20,7 @@ export function PickDialog({ title, opts, value, onSave, onClose }: { title: str
             <InputGroupInput placeholder="Search" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
           <Button variant="outline" className="h-11" onClick={toggleAll}>Select All</Button>
         </div>
-        <div className="mt-4 max-h-[50vh] space-y-0.5 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">
+        <div className="mt-4 max-h-[50dvh] space-y-0.5 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">
           {!vis.length ? <p className="p-3 text-sm text-gray-500">Nothing to choose yet.</p> : vis.map(([id, t, s]) => (
             <label key={id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
               <Checkbox checked={sel.has(id)} onCheckedChange={c => { const n = new Set(sel); if (c) n.add(id); else n.delete(id); setSel(n); }} />

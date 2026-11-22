@@ -141,7 +141,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
     <i className={"flex size-6 items-center justify-center rounded-full text-xs not-italic " + (step === n ? "bg-brand-500 text-white" : "bg-gray-100 dark:bg-white/5")}>{n}</i>{t}</button>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[92vh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
+      <DialogContent className="max-h-[92dvh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{ed ? "Edit" : "Create"} Promotion</DialogTitle></DialogHeader>
         <nav className="mt-4 flex items-center gap-3" aria-label="Steps">{stepBtn(1, "Offer")}<span className="text-gray-300">›</span>{stepBtn(2, "Schedule")}</nav>
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">

@@ -26,7 +26,7 @@ const today = () => new Date().toLocaleDateString("en-CA");
 function FormDialog({ title, onClose, onSave, onDelete, saveLbl = "Save", busy, err, children }: { title: string; onClose: () => void; onSave: () => void; onDelete?: () => void; saveLbl?: string; busy?: boolean; err?: string; children: React.ReactNode }) {
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); onSave(); }}>
           {children}

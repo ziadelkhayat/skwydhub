@@ -169,7 +169,7 @@ function ShiftForm({ s, br, f, onClose }: { s: S; br: string; f: { id?: string; 
   }
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[92vh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+      <DialogContent className="max-h-[92dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{x ? "Edit Shift" : "Add Shift"}</DialogTitle></DialogHeader>
         <div className="mt-5 flex flex-wrap gap-2">{pre.map(p => <button key={p} type="button" onClick={() => { const [a, b] = p.split("-"); setV(o => ({ ...o, a, b })); }}
           className={cn("h-9 rounded-lg border px-3 text-sm font-medium", v.a + "-" + v.b === p ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400")}>{p.replace("-", " – ")}</button>)}</div>

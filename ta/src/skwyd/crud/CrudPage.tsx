@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -141,8 +140,8 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
 
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] w-full overflow-hidden p-0 sm:max-w-2xl">
-        <ScrollArea scrollbars="vertical" className="max-h-[90vh]">
+      <DialogContent className="w-full p-0 sm:max-w-2xl">
+        <div>
           <div className="p-6 sm:p-8">
             <DialogHeader className="gap-1 sm:gap-2">
               <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{row ? (row.name ? `Edit ${row.name}` : `Edit ${cfg.one}`) : `Add ${cfg.one}`}</DialogTitle>
@@ -153,7 +152,7 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
                 ? <h4 key={"h" + i} className="col-span-full mt-2 text-base font-medium text-gray-800 dark:text-white/90">{f.l}</h4>
                 : <FieldBox key={f.k} f={f} v={d[f.k]} set={v => set(f.k, v)} s={s} locked={!!(row && f.lockEdit)} />)}
               {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
-              <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
+              <div className="sticky bottom-0 col-span-full -mx-6 flex flex-col-reverse gap-3 border-t border-gray-100 bg-white px-6 py-3 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-3 sm:pb-0 dark:border-white/5 dark:bg-[#1E2635] sm:dark:bg-transparent">
                 {row && (row.deleted
                   ? <Button type="button" variant="outline" className="sm:me-auto" disabled={busy} onClick={() => del(false)}>Restore</Button>
                   : <Button type="button" variant="outline" className="text-red-500 sm:me-auto" disabled={busy} onClick={() => del(true)}>Delete</Button>)}
@@ -162,7 +161,7 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
               </div>
             </form>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
