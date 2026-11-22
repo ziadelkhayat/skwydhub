@@ -129,8 +129,8 @@ function SectionDialog({ s, b, sc, onClose }: { s: S; b: string; sc: string | nu
   }
   async function del() { if (!(await askYes(rows.length ? `Delete the section ${sc} and its ${rows.length} tables?` : `Delete the section ${sc}?`, "Delete", true))) return;
     try { await tblSave(b, list.filter(t => (t.section || "") !== sc), secs.filter(x => x && x !== sc)); toast("Section deleted"); onClose(); } catch { setErr("Couldn't save."); } }
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="flex max-h-[90dvh] w-full flex-col p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{isNew ? "Add Section" : "Edit Section"}</DialogTitle></DialogHeader>
-    <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto">
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{isNew ? "Add Section" : "Edit Section"}</DialogTitle></DialogHeader>
+    <div className="mt-4 space-y-4">
       <F l="Name" req={isNew || !!sc}><Input className="h-11" value={name} placeholder={sc === "" ? "No section" : "e.g. Family section, Terrace"} onChange={e => setName(e.target.value)} autoFocus /></F>
       {isNew ? <F l="Number of Tables" req><Input className="h-11" type="number" min="1" max="100" value={n} onChange={e => setN(e.target.value)} /></F> : <div>
         <div className="mb-2 flex items-center"><b className="text-sm font-medium text-gray-800 dark:text-white/90">Tables</b><Button size="sm" variant="outline" className="ms-auto" onClick={() => setRows(r => [...r, { id: newId("tb"), name: String(nextNo([...list, ...r])), section: sc, seats: null }])}><PlusIcon className="size-4" />Add Table</Button></div>
@@ -186,8 +186,8 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
     catch { setErr("Couldn't save. You may not have edit access to this page."); } finally { setBusy(false); }
   }
   const H = ({ t }: { t: string }) => <h4 className="col-span-full mt-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">{t}</h4>;
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="flex max-h-[92dvh] w-full flex-col p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
-    <div className="custom-scrollbar mt-4 grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto pe-1 sm:grid-cols-2">
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <H t="General" />
       <F l="Brand" req><select className={SEL} value={v.brandId} onChange={e => set("brandId", e.target.value)}><option value="">Choose brand…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F>
       <F l="Store name" req><Input className="h-11" maxLength={60} placeholder="e.g. Hamra" value={v.name} onChange={e => set("name", e.target.value)} /></F>

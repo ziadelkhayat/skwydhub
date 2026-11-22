@@ -142,9 +142,9 @@ function LevelsDialog({ it, locs, cur, all, onClose }: { it: Row; locs: [string,
   const [v, setV] = useState<Record<string, Record<string, string>>>(() => Object.fromEntries(locs.map(([k]) => [k, Object.fromEntries(["min", "par", "max"].map(x => [x, cur[k]?.[x] != null ? String(cur[k][x]) : ""]))])));
   const save = async () => { const o: any = {}; Object.entries(v).forEach(([b, x]) => { const r: any = {}; Object.entries(x).forEach(([k, n]) => { if (n.trim() !== "") r[k] = +n; }); if (Object.keys(r).length) o[b] = r; });
     const next = { ...all }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; await setDoc("inv_levels", { levels: next }, "Levels saved"); onClose(); };
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="flex max-h-[90dvh] w-full flex-col p-6 sm:max-w-2xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Inventory Levels</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-2xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Inventory Levels</DialogTitle></DialogHeader>
     <p className="mt-1 text-sm text-gray-500">In {it.storageUnit || "storage units"}. Leave empty where the product isn't tracked.</p>
-    <div className="mt-4 min-h-0 flex-1 overflow-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum", "Par", "Maximum"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
+    <div className="mt-4 overflow-x-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum", "Par", "Maximum"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {locs.map(([k, n]) => <tr key={k} className={TR}><td className={TD}>{n}</td>{["min", "par", "max"].map(x => <td key={x} className={TD}><Input className="h-9 w-24" type="number" min="0" step="any" aria-label={`${x} level in ${n}`} value={v[k][x]} onChange={e => setV(o => ({ ...o, [k]: { ...o[k], [x]: e.target.value } }))} /></td>)}</tr>)}</tbody></table></div>
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={save}>Save</Button></div></DialogContent></Dialog>;
 }
