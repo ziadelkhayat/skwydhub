@@ -7,6 +7,8 @@ import { allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, ki
 import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
+import { OrdersDialog, ordRef } from "./Orders";
+import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from "../lib/store";
 import { C, F, R, shadowXs } from "../lib/theme";
@@ -21,7 +23,7 @@ export function Register() {
   const { width: W, height: H } = useWindowDimensions();
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
-  const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState("");
+  const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null);   // eo: the order opened from Orders
   const [cat, setCat] = useState(""), [q, setQ] = useState(""), [note, setNote] = useState(""), [more, setMore] = useState(false);
   const x: Ctx = { S, device: device!, branch, otype };
   const m = useMemo(() => menu(x), [S, otype, device]);
@@ -41,6 +43,8 @@ export function Register() {
 
   // as in pos.html addProduct: variant first, then open price, then modifiers and the item note; the same item again joins its line
   const add = async (p: any): Promise<void> => {
+    if (ro) return say("This order is done");
+    if (live_eo?.status === "pending") return say("Accept the order first");
     if (prodOos(x, p)) return say(p.name + " is out of stock");
     const kids = kidsOf(x, p);
     if (kids.length) {
@@ -64,19 +68,29 @@ export function Register() {
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
   const takeNo = async () => { const k = "skwydNo_" + device!.branchId; let last = null; try { last = JSON.parse((await AsyncStorage.getItem(k)) || "null"); } catch {}
     const r = nextOrderNo(x, last); AsyncStorage.setItem(k, JSON.stringify({ since: r.since, n: r.n })).catch(() => {}); return r.no; };
-  const reset = () => { setCart([]); setTable(""); setQ(""); };
+  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); };
+  const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
+  // an order from Orders: its lines (already sent ones marked), type and table
+  const openOrder = (o: Row) => { setDlg(null); setEo(o); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
+  // an existing order keeps its customer, address, source and channel
+  const fields = () => { const f: any = orderFields(x, cart, t, { table }); if (live_eo) { delete f.customerName; delete f.phone; delete f.address; } return f; };
+  const who = () => cashier?.name || device!.name;
+  const accept = async () => { const o = live_eo!, now = new Date().toISOString();
+    write("orders", o.id, { status: "active", updatedAt: now, acceptedAt: o.acceptedAt || now, handledBy: who(), ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) }); say("Order accepted"); reset(); };
+  const decline = () => { write("orders", live_eo!.id, { status: "declined", updatedAt: new Date().toISOString(), handledBy: who() }); say("Order declined"); reset(); };
   // the checks before an order is saved or paid (pos.html saleBlock, openShift, orderInfoOk)
   const ready = (paying: boolean) => {
     const blk = saleBlock(x); if (blk) { say(blk); return false; }
     if (!openShift(x)) { say(paying ? "Open the till before taking payments" : "Open till"); setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); return false; }
-    if (otype !== "dinein") { say("Add the customer first (coming next for pickup and delivery)"); return false; }
+    if (otype !== "dinein" && !live_eo) { say("Add the customer first (coming next for pickup and delivery)"); return false; }
     return true;
   };
   const base = (no: string) => ({ no, channel: "pos", source: "", brandId: branch?.brandId || null, branchId: device!.branchId, deviceId: device!.id, shiftId: openShift(x)?.id || null, agent: cashier?.name || device!.name });
   // Save: the order goes to the kitchen open (active), to be billed later from Orders
   const saveOrder = async () => {
     if (!cart.length || !ready(false)) return;
-    if (!table.trim()) return say("Pick a table to save this order, or take the payment");
+    if (live_eo) { write("orders", live_eo.id, { ...fields(), updatedAt: new Date().toISOString() }); say("Saved · order " + ordRef(live_eo)); reset(); return; }
+    if (otype === "dinein" && !table.trim()) return say("Pick a table to save this order, or take the payment");
     const no = await takeNo(), now = new Date().toISOString();
     write("orders", newId("pos"), { ...base(no), ...orderFields(x, cart, t, { table }), status: "active", createdAt: now, updatedAt: now }, "set");
     reset(); say(`Order #${no} sent to the kitchen`);
@@ -84,16 +98,20 @@ export function Register() {
   const pay = async () => {
     if (!cart.length || !ready(true)) return;
     const p = await ask<Paid | null>(done => <PayDialog x={x} total={t.total} onDone={done} />); if (!p) return;
-    const no = await takeNo(), now = new Date().toISOString(), total = t.total;
-    write("orders", newId("pos"), { ...base(no), ...orderFields(x, cart, t, { table }), status: "closed", createdAt: now, updatedAt: now, closedAt: now,
-      payment: { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) } }, "set");
+    const now = new Date().toISOString(), total = t.total, payment = { ...p, ...(t.rnd ? { rounding: t.rnd } : {}) };
+    if (live_eo) write("orders", live_eo.id, { ...fields(), ...(live_eo.no ? {} : { no: await takeNo() }), shiftId: openShift(x)?.id || null, handledBy: who(), status: "closed", updatedAt: now, closedAt: now, payment });   // billing an open order: it keeps its number and channel
+    else write("orders", newId("pos"), { ...base(await takeNo()), ...orderFields(x, cart, t, { table }), status: "closed", createdAt: now, updatedAt: now, closedAt: now, payment }, "set");
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
   };
   const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
 
-  const qty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [{ ...l, qty: +(l.qty + d).toFixed(3) }])));
+  const qty = (i: number, d: number) => { const l = cart[i];
+    if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
+    if (d < 0 && l?.saved && l.qty - 1 < l.saved) return say("Voiding items already sent comes next (manager approval)");
+    setQty(i, d); };
+  const setQty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [{ ...l, qty: +(l.qty + d).toFixed(3) }])));
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : [];
@@ -110,7 +128,10 @@ export function Register() {
           <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : pending ? `Syncing ${pending}…` : "Online"} tone={online && !pending ? "brand" : "warn"} />
           {cashier ? <Pill text={cashier.name} /> : null}
         </View>
-        {types.length > 1 && (
+        {live_eo ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingTop: 12 }}>
+          <T w="s">Order {ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
+          <View style={{ flex: 1 }} /><Btn kind="ghost" height={36} label="Close" onPress={reset} /></View> : null}
+        {types.length > 1 && !live_eo && (
           <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
             {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => switchType(k)} />)}
           </View>)}
@@ -135,8 +156,13 @@ export function Register() {
           {money2(S, t.total) ? <Row l="" r={"≈ " + money2(S, t.total)} muted /> : null}
         </View>
         <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 18, paddingBottom: 18 }}>
-          <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length} onPress={saveOrder} />
-          <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={pay} />
+          {live_eo?.status === "pending" ? <>
+            <Btn kind="danger" height={56} style={{ flex: 1 }} label="Decline" onPress={decline} />
+            <Btn kind="primary" height={56} style={{ flex: 2 }} label="Accept" onPress={accept} />
+          </> : ro ? <Btn height={56} style={{ flex: 1 }} label={"Done · " + ordRef(live_eo!) + " · New Order"} onPress={reset} /> : <>
+            <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length || (!!live_eo && !cart.some(l => l.qty > (l.saved || 0)))} onPress={saveOrder} />
+            <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={pay} />
+          </>}
         </View>
       </Card>
 
@@ -168,7 +194,7 @@ export function Register() {
         </ScrollView>
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "New"], ["list", "Orders"], ["scooter", "Pickup & Delivery"], ["table", "Tables"], ["till", "Till"], ["clock", "Time Clock"], ["more", "More"]] as const).map(([ic, l], i) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "More" ? setMore(v => !v) : l === "Till" ? setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />) : say(l + " comes in the next step."))}
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "More" ? setMore(v => !v) : l === "Till" ? setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />) : say(l + " comes in the next step."))}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: i === 0 ? C.brand50 : pressed ? C.line2 : "transparent" }]}>
               <Icon name={ic} color={i === 0 ? C.brand : C.mut} /><T w={i === 0 ? "s" : "m"} size={11} color={i === 0 ? C.brand600 : C.mut} numberOfLines={1}>{l}</T>
             </Pressable>))}
