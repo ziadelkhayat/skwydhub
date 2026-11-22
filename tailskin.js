@@ -2,7 +2,7 @@
    Design only: every page, list and action stays the app's own. */
 (function () {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const XL = matchMedia("(min-width:1280px)");
+  const XL = matchMedia("(min-width:768px) and (min-height:501px)");
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const ICON = {
     menu: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M.583 1A.75.75 0 0 1 1.333.25h13.334a.75.75 0 0 1 0 1.5H1.333A.75.75 0 0 1 .583 1Zm0 10a.75.75 0 0 1 .75-.75h13.334a.75.75 0 0 1 0 1.5H1.333a.75.75 0 0 1-.75-.75Zm.75-5.75a.75.75 0 0 0 0 1.5H8a.75.75 0 0 0 0-1.5H1.333Z" fill="currentColor"/></svg>',
@@ -34,16 +34,18 @@
     const mb = $("#menuBtn");
     mb.innerHTML = '<span class="ta-i-menu">' + ICON.menu + '</span><span class="ta-i-x">' + ICON.close + "</span>";
     mb.setAttribute("aria-label", "Toggle sidebar");
-    mb.addEventListener("click", e => { if (!XL.matches) return; e.stopImmediatePropagation(); e.stopPropagation(); document.body.classList.toggle("ta-mini"); try { localStorage.setItem("ta_mini", document.body.classList.contains("ta-mini") ? "1" : ""); } catch (_) {} }, true);
-    try { if (localStorage.getItem("ta_mini")) document.body.classList.add("ta-mini"); } catch (_) {}
+    try { localStorage.removeItem("ta_mini"); } catch (_) {}
     side.addEventListener("mouseenter", () => document.body.classList.add("ta-hov"));
     side.addEventListener("mouseleave", () => document.body.classList.remove("ta-hov"));
 
     /* logo: sidebar (desktop) and middle of the header (phone/tablet) */
+    const sk = $(".brand.skb", side), mk = sk && $(".skmark", sk), wd = sk && $(".skword", sk);
+    const clean = el => { const c = el.cloneNode(true); c.querySelectorAll("svg").forEach(v => { v.removeAttribute("style"); v.removeAttribute("width"); v.removeAttribute("height"); }); return c.innerHTML; };
+    const LOGO_SK = mk && wd ? '<span class="ta-skm">' + clean(mk) + '</span><span class="ta-skw">' + clean(wd) + "</span>" : LOGO;
     const nh = $(".nuhead", side);
-    const sl = document.createElement("a"); sl.href = "#dashboard"; sl.className = "ta-logo ta-slogo"; sl.innerHTML = LOGO;
+    const sl = document.createElement("a"); sl.href = "#dashboard"; sl.className = "ta-logo ta-slogo ta-sk"; sl.innerHTML = LOGO_SK;
     if (nh) nh.replaceWith(sl); else side.insertBefore(sl, side.firstChild);
-    const hl = document.createElement("a"); hl.href = "#dashboard"; hl.className = "ta-logo ta-hlogo"; hl.innerHTML = LOGO;
+    const hl = document.createElement("a"); hl.href = "#dashboard"; hl.className = "ta-logo ta-hlogo ta-sk"; hl.innerHTML = LOGO_SK;
     mb.after(hl);
 
     /* header search ("Search or type command…  ⌘K"): finds any page of the menu */
@@ -97,6 +99,9 @@
     const bz = () => { const b = ($("#coNm")?.textContent || "").trim(), h = $(".acchead", am); if (!h) return; let s = $(".ta-biz", h); if (!s) { s = document.createElement("span"); s.className = "ta-biz"; h.appendChild(s); } s.textContent = b; };
     bz(); const cn = $("#coNm"); if (cn) new MutationObserver(bz).observe(cn, { childList: true, characterData: true, subtree: true });
 
+    /* the side menu on phones opens just under the header */
+    const hh = () => document.documentElement.style.setProperty("--ta-hh", Math.round(top.getBoundingClientRect().height) + "px");
+    hh(); if (window.ResizeObserver) new ResizeObserver(hh).observe(top); addEventListener("resize", hh);
     /* close the drawer after picking a page on phones and tablets */
     nav.addEventListener("click", e => { if (!XL.matches && e.target.closest("a[href]")) document.body.classList.remove("navopen"); });
     return true;

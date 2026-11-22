@@ -7,18 +7,19 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body nav#tabbar,html:root:is(html,#_1#_2#_
 /* ===== shell (TailAdmin layout: sidebar 290 / 90, sticky header, content p-4 md:p-6, max 1536) ===== */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app{display:block!important;min-height:100vh;min-height:100dvh;padding:0!important;margin:0!important;max-width:none!important;background:transparent!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #navShade{display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{content:none!important;display:none!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{position:fixed!important;top:0!important;left:0!important;bottom:auto!important;height:100vh!important;height:100dvh!important;width:290px!important;max-width:none!important;margin:0!important;border-radius:0!important;box-shadow:none!important;border:0!important;border-right:1px solid #E4E7EC!important;background:#fff!important;padding:0 20px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:99999!important;transition:width .3s ease,transform .3s ease!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side > :is(.brand,.abrand,.cocard){display:none!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main{margin:0 0 0 290px!important;padding:0!important;max-width:none!important;width:auto!important;min-width:0!important;min-height:100vh;background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important;transition:margin .3s ease!important;display:flex!important;flex-direction:column!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini:not(.ta-hov) .app > aside.side{width:90px!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > .main{margin-left:90px!important}
-@media (max-width:1279px){
+@media (max-width:767px), (max-height:500px){
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{transform:translateX(-100%)!important;top:0!important;width:290px!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen .app > aside.side{transform:none!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main,html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > .main{margin-left:0!important}
-  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{content:"";position:fixed;inset:0;background:rgba(16,24,40,.5);z-index:99998!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{content:none!important;display:none!important}
 }
-@media (min-width:1280px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{display:none!important}}
+@media (min-width:768px) and (min-height:501px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{display:none!important}}
 /* sidebar: logo */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .ta-slogo{display:flex!important;align-items:center;gap:10px;padding:20px 0 32px!important;text-decoration:none!important;flex:none}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo .ta-mark{width:36px;height:36px;border-radius:9px;background:#465FFF;display:grid;place-items:center;flex:none;box-shadow:0 1px 2px rgba(16,24,40,.05)}
@@ -27,7 +28,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini:not(.ta-hov) aside.side .ta-s
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini:not(.ta-hov) aside.side .ta-slogo .ta-word{display:none}
 /* sidebar: search stays for phones (drawer), the header search does it on computers */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch{display:none!important}
-@media (max-width:1279px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch{display:flex!important;align-items:center;gap:8px;margin:0 0 20px!important;height:44px!important;border:1px solid #E4E7EC!important;border-radius:10px!important;background:#fff!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;padding:0 14px!important;flex:none}}
+@media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch{display:flex!important;align-items:center;gap:8px;margin:0 0 20px!important;height:44px!important;border:1px solid #E4E7EC!important;border-radius:10px!important;background:#fff!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;padding:0 14px!important;flex:none}}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch input{font-size:14px!important;height:42px!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;flex:1;min-width:0;outline:none!important;color:#1D2939!important}
 /* sidebar: menu */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav{flex:1 1 auto!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:none;padding:0 0 24px!important;margin:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;background:none!important}
@@ -103,7 +104,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu > :is(a,button) s
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu > :is(a,button):hover{background:#F2F4F7!important;color:#344054!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu > #amSignOut{margin-top:4px!important;border-top:1px solid #E4E7EC!important;border-radius:0 0 8px 8px!important;padding-top:12px!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu .thsw{display:none!important}
-@media (max-width:1279px){
+@media (max-width:767px), (max-height:500px){
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{padding:12px!important;gap:8px!important;justify-content:space-between!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .menuBtn{width:40px!important;height:40px!important;border-color:#D0D5DD!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen .app > .main > .top .menuBtn .ta-i-x{display:flex}
@@ -118,6 +119,78 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu .thsw{display:non
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-row2 .app > .main > .top .ta-right{display:flex}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right #acctMenu{top:calc(100% + 12px)!important}
 }
+
+/* phone / tablet menu: opens under the header (header stays on top with the X), page dimmed behind it */
+@media (max-width:767px), (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{z-index:100000!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{top:var(--ta-hh,65px)!important;bottom:0!important;height:auto!important;padding-top:20px!important;box-shadow:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side .ta-slogo{display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen #navShade{display:block!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:var(--ta-hh,65px)!important;background:rgba(16,24,40,.5)!important;-webkit-backdrop-filter:blur(4px)!important;backdrop-filter:blur(4px)!important;z-index:99998!important;opacity:1!important;pointer-events:auto!important;width:auto!important;height:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen{overflow:hidden!important}
+}
+
+/* the side menu stays open from iPad size up; only phones open it from the menu button */
+@media (min-width:768px) and (min-height:501px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .menuBtn{display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > aside.side{width:290px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > .main{margin-left:290px!important}
+}
+@media (min-width:768px) and (max-width:1023px) and (min-height:501px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side,html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > aside.side{width:250px!important;padding:0 16px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main,html:root:is(html,#_1#_2#_3#_4#_5#_6) body.ta-mini .app > .main{margin-left:250px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search{width:auto;flex:1 1 auto}
+}
+/* old Skwyd logo (squid + skwyd portal) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk{--sk-ink:#24409A;gap:10px!important;align-items:center!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk .ta-skm{display:flex;width:36px;height:42px;flex:none}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk .ta-skm svg{width:100%!important;height:100%!important;display:block}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk .ta-skw{display:flex;height:46px;flex:none;overflow:visible}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk .ta-skw svg{height:46px!important;width:auto!important;display:block}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .ta-slogo.ta-sk{padding:20px 0 28px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .ta-logo.ta-sk{--sk-ink:#fff}
+/* phones: menu button + logo on the left, theme and account always showing, search on its own row */
+@media (max-width:767px), (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{justify-content:flex-start!important;row-gap:12px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo{margin-right:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skm{width:30px;height:35px}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw svg{height:38px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-more{display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-right{display:flex!important;order:3!important;flex:none!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;gap:8px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-ibtn{width:40px;height:40px}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right .acctbtn #avatar{width:40px!important;height:40px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right .acctbtn :is(#who,.ta-chev){display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search{display:flex!important;order:10!important;flex:1 1 100%!important;width:100%!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search kbd{display:none}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch{display:none!important}
+}
+
+@media (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search{order:2!important;flex:1 1 auto!important;width:auto!important;max-width:420px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo{margin-right:0!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-right{margin-left:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{flex-wrap:nowrap!important}
+}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-logo.ta-sk svg{max-width:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .note:empty{display:none!important}
+
+@media (max-height:500px) and (max-width:599px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw{display:none!important}}
+@media (max-width:380px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{gap:6px!important;padding-left:10px!important;padding-right:10px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo{gap:6px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skm{width:26px;height:30px}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw svg{height:32px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .menuBtn,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-ibtn,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ta-right .acctbtn #avatar{width:36px!important;height:36px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-right{gap:6px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:12px!important}
+}
+@media (max-width:300px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-hlogo .ta-skw{display:none!important}}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ordtools{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ordtools > *{flex:1 1 150px!important;min-width:0!important}
+@media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick .phead > .btn{flex:1 1 100%!important}}
+
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ttabs{width:auto!important;max-width:100%!important}
+@media (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search{flex:1 1 0!important;min-width:0!important}}
+@media (max-width:380px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content .phead > :is(.btn,.ddwrap){flex:1 1 100%!important}}
 /* breadcrumb */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:none}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb ol{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;flex-wrap:wrap}
@@ -125,10 +198,10 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li{display:inline-f
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li a{color:#667085;text-decoration:none}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li a[href]:hover{color:#465FFF}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li svg{color:#667085}
-@media (min-width:768px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:block;margin:0 0 12px}}
+@media (min-width:768px) and (min-height:501px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:block;margin:0 0 12px}}
 /* page */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:24px!important;max-width:1536px!important;margin:0 auto!important;background:transparent!important}
-@media (max-width:767px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:16px!important}}
+@media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:16px!important}}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead{margin:0 0 24px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;position:static!important;gap:12px!important;flex-wrap:wrap!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead h1{font-size:20px!important;line-height:30px!important;font-weight:600!important;color:#1D2939!important;letter-spacing:0!important;margin:0!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick{position:static!important;background:none!important;box-shadow:none!important;padding:0!important;margin:0!important}
@@ -277,9 +350,9 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) select:not([
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) :is(input,select,textarea):disabled{background-color:#F9FAFB!important;color:#98A2B3!important;cursor:not-allowed}
 /* dashboard metric cards (TailAdmin "ecommerce metrics") */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .dbxgrid,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hmgrid{gap:16px!important}
-@media (min-width:768px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .dbxgrid,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hmgrid{gap:24px!important}}
+@media (min-width:768px) and (min-height:501px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .dbxgrid,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hmgrid{gap:24px!important}}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx{padding:20px!important;display:flex!important;flex-direction:column!important;gap:0!important;position:relative!important}
-@media (min-width:768px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx{padding:24px!important}}
+@media (min-width:768px) and (min-height:501px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx{padding:24px!important}}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .hch{display:flex!important;align-items:center!important;gap:0!important;margin:0 0 20px!important;padding:0!important;min-height:48px}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .hch .hci{width:48px!important;height:48px!important;min-width:48px!important;border-radius:12px!important;background:#F2F4F7!important;color:#1D2939!important;display:grid!important;place-items:center!important;box-shadow:none!important;border:0!important;margin:0!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .hch .hci svg{width:24px!important;height:24px!important;color:#1D2939!important;stroke:currentColor!important;stroke-width:1.5!important}
@@ -295,7 +368,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .dbxc{margin-top:16px
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .dbxc path[fill]:not([fill=none]){fill:#465FFF!important;opacity:.1!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .dbxc path[stroke]{stroke:#465FFF!important;stroke-width:2!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .dbxl{font-size:12px!important;color:#98A2B3!important;margin-top:8px!important}
-@media (max-width:767px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .hch > b{left:20px;top:92px}}
+@media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.dbx .hch > b{left:20px;top:92px}}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .dbxbar{gap:12px!important;align-items:center!important}
 /* report and big-number cards */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.rcard,.kmini){padding:20px 24px!important}
@@ -348,7 +421,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.o
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer) > .body > .f:has(> label.chk, > label.toggle){display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec{margin:8px 0 12px!important;padding:16px 0 0!important;border-top:1px solid #F2F4F7!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer) > .body > .f.fsec h3{font-size:16px!important;font-weight:600!important;color:#1D2939!important;text-transform:none!important;letter-spacing:0!important;margin:0!important}
-@media (min-width:768px){
+@media (min-width:768px) and (min-height:501px){
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer){max-width:700px!important;width:calc(100vw - 48px)!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header{padding:32px 44px 8px!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header h2{font-size:24px!important;line-height:32px!important}
@@ -365,7 +438,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.odrawer) .body .
 
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table :is(th,td):not(.num):not([style*="text-align:right"]):not(.ios-num){text-align:left!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table :is(th,td).num{text-align:right!important}
-@media (max-width:767px){
+@media (max-width:767px), (max-height:500px){
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs:not(.ptset),.dtabs,.olseg,.tabs){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;max-width:100%!important;scrollbar-width:none;-webkit-overflow-scrolling:touch;width:max-content!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs:not(.ptset),.dtabs,.olseg,.tabs)::-webkit-scrollbar{display:none}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs:not(.ptset),.dtabs,.olseg,.tabs) > :is(a,button){flex:none!important;white-space:nowrap!important}
@@ -418,7 +491,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .vtog{backgrou
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .vtog > button.on{background:#344054!important;color:#fff!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead .hico{display:none!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.rcard,.repcard) :is(b,h3,h2,strong){font-size:16px!important;font-weight:600!important;line-height:24px!important}
-@media (max-width:767px){
+@media (max-width:767px), (max-height:500px){
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead{gap:12px!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead > :is(.btn,.ddwrap){flex:1 1 0!important;min-width:0!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead > .ddwrap > .btn{width:100%!important}
@@ -426,11 +499,11 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.rcard,.repcard) :is(b,h3,h
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc{padding:12px!important}
 }
 
-@media (max-width:767px){
-  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop{flex-wrap:wrap!important}
-  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> :nth-child(4)) > .ttabs{flex:1 1 100%!important;max-width:100%!important;width:auto!important}
-  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> :nth-child(4)) > .sp{display:none!important}
-  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> :nth-child(4)) > :not(.ttabs):not(.sp){flex:1 1 0!important}
+@media (max-width:767px), (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .msel, > select, > .sel){flex-wrap:wrap!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .msel, > select, > .sel) > .ttabs{flex:1 1 100%!important;max-width:100%!important;width:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .msel, > select, > .sel) > .sp{display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .msel, > select, > .sel) > :not(.ttabs):not(.sp){flex:1 1 0!important}
 }
 
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .nti svg *{color:inherit!important}
@@ -440,6 +513,28 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side :is(nav.nav > a.on,nav.nav
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side :is(nav.nav > a,nav.nav .grp > button) .nti{color:#98A2B3!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side :is(nav.nav > a.on,nav.nav .grp:has(a.on) > button) .nti{color:#7592FF!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{grid-column:1/-1!important;flex:1 1 100%!important;width:100%!important}
+
+/* orders table: every column as before */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable{display:table!important;width:100%!important;table-layout:auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable > thead{display:table-header-group!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable > tbody{display:table-row-group!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable tr,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable tr.orow{display:table-row!important;padding:0!important;position:static!important;background:transparent!important;height:auto!important;min-height:0!important;border:0!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable tr::before,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable tr::after{content:none!important;display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable :is(th,td){display:table-cell!important;text-align:left!important;white-space:nowrap!important;padding:14px 16px!important;vertical-align:middle!important;width:auto!important;flex:none!important;order:0!important;font-size:14px!important;background:transparent!important;border:0!important;border-bottom:1px solid #F2F4F7!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable th{font-size:12px!important;font-weight:500!important;color:#667085!important;padding-top:12px!important;padding-bottom:12px!important;position:static!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable :is(th,td).num{text-align:right!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable :is(th,td):first-child{padding-left:24px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable :is(th,td):last-child{padding-right:24px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable td b{font-weight:500!important;color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable td .note{font-size:12px!important;color:#667085!important;display:block}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable tbody tr:hover td{background:#F9FAFB!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable td[data-l]::before{content:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otbl.obody{overflow-x:auto!important;max-height:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otbl.obody .tscroll{overflow-x:auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table.otable :is(th,td){border-color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table.otable td b{color:rgba(255,255,255,.9)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table.otable tbody tr:hover td{background:rgba(255,255,255,.03)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-search input#taQ{border:0!important;box-shadow:none!important;background:transparent!important;height:42px!important;min-height:0!important;padding:0 8px!important}
 /* filter panel and order panel */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal.fltpanel,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal.odrawer{border-radius:0!important;border-left:1px solid #E4E7EC!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal.fltpanel > .body .f{background:transparent!important;border:0!important;border-bottom:1px solid #F2F4F7!important;padding:12px 0!important}
@@ -470,7 +565,7 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #wkGate form input::placeholder{color
 
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #wkGate :is(h1,h2){font-weight:600!important;letter-spacing:-.2px!important}
 @supports (padding:max(0px)){
-  @media (max-width:1279px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{padding-top:max(12px,env(safe-area-inset-top))!important;padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}}
+  @media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{padding-top:max(12px,env(safe-area-inset-top))!important;padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{padding-top:env(safe-area-inset-top)!important;padding-bottom:env(safe-area-inset-bottom)!important}
   html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding-bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px))!important}
 }
