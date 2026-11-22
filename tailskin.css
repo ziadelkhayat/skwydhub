@@ -1,0 +1,182 @@
+
+/* ===== TailAdmin look for the Skwyd back office (design only: every page, button and action is the app's own) ===== */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body{font-family:Outfit,"IBM Plex Sans Arabic",system-ui,-apple-system,sans-serif!important;background:#F9FAFB!important;color:#344054!important;-webkit-font-smoothing:antialiased}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(button,input,select,textarea,h1,h2,h3,h4,h5,b,strong,label,th,td,span,div,a,p,li,small){font-family:Outfit,"IBM Plex Sans Arabic",system-ui,-apple-system,sans-serif!important;letter-spacing:normal!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(h1,h2,h3,h4){color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body nav#tabbar,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .ios-tabbar{display:none!important}
+/* layout: sidebar 290 fixed from 1280, drawer below */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app{display:block!important;min-height:100vh}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100vh!important;height:100dvh!important;width:290px!important;margin:0!important;border-radius:0!important;box-shadow:none!important;border:0!important;border-right:1px solid #E4E7EC!important;background:#fff!important;padding:0 20px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:9999!important;transition:transform .3s ease!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main{margin:0 0 0 290px!important;padding:0!important;max-width:none!important;width:auto!important;min-width:0!important;background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+@media (max-width:1279px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > aside.side{transform:translateX(-100%)!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen .app > aside.side{transform:none!important;box-shadow:0 20px 50px rgba(16,24,40,.18)!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main{margin-left:0!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{content:"";position:fixed;inset:0;background:rgba(16,24,40,.5);z-index:9998!important;backdrop-filter:blur(2px)}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{display:flex!important}
+}
+@media (min-width:1280px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{display:none!important}html:root:is(html,#_1#_2#_3#_4#_5#_6) body.navopen::after{display:none!important}}
+/* sidebar contents */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nuhead{padding:22px 0 26px!important;margin:0!important;border:0!important;background:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nuhead h2{font-size:24px!important;font-weight:600!important;color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch{margin:0 0 18px!important;height:44px!important;border:1px solid #E4E7EC!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;padding:0 12px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .nusearch input{font-size:14px!important;height:42px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav{flex:1 1 auto!important;overflow-y:auto!important;scrollbar-width:none;padding:0 0 16px!important;margin:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav::-webkit-scrollbar{display:none}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .nsec{font-size:12px!important;line-height:20px!important;text-transform:uppercase!important;color:#98A2B3!important;font-weight:400!important;letter-spacing:0!important;padding:16px 12px 8px!important;margin:0!important;height:auto!important;min-height:0!important;background:none!important;border:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a,.grp > button){display:flex!important;align-items:center!important;gap:12px!important;height:auto!important;min-height:0!important;padding:8px 12px!important;margin:0 0 4px!important;border-radius:8px!important;font-size:14px!important;font-weight:500!important;color:#344054!important;background:transparent!important;border:0!important;box-shadow:none!important;width:100%!important;justify-content:flex-start!important;text-align:left!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a,.grp > button):hover{background:#F2F4F7!important;color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a.on,.grp:has(a.on) > button,.grp.open > button:has(+ * a.on)){background:#ECF3FF!important;color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a,.grp > button) :is(svg,.ico,.nti){width:24px!important;height:24px!important;color:#667085!important;stroke:currentColor!important;background:none!important;border-radius:0!important;margin:0!important;padding:0!important;flex:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a.on,.grp:has(a.on) > button) :is(svg,.ico,.nti){color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a,.grp > button) .nti svg *{stroke:currentColor!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .grp .sub{padding:2px 0 6px 36px!important;margin:0!important;background:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .grp .sub a{padding:8px 14px!important;font-size:14px!important;font-weight:500!important;color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .grp .sub a.on{background:#ECF3FF!important;color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .sidefoot{border-top:1px solid #F2F4F7!important;padding:12px 0!important;margin:0!important;background:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side .sidefoot :is(.nuacct,.acctbtn){border-radius:12px!important;background:#F9FAFB!important;border:1px solid #F2F4F7!important;box-shadow:none!important}
+/* phone / tablet header bar */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top{position:sticky!important;top:0!important;z-index:50!important;height:auto!important;min-height:64px!important;padding:12px 16px!important;margin:0!important;background:#fff!important;border:0!important;border-bottom:1px solid #E4E7EC!important;border-radius:0!important;box-shadow:none!important;align-items:center!important;gap:12px!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .menuBtn{width:40px!important;height:40px!important;border-radius:10px!important;border:1px solid #D0D5DD!important;background:#fff!important;color:#667085!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ios-ttl{display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .acct{margin-left:auto!important}
+/* page */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:24px!important;max-width:1536px!important;margin:0 auto!important;background:transparent!important}
+@media (max-width:767px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:16px!important}}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead{margin:0 0 24px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;position:static!important;gap:12px!important;flex-wrap:wrap!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead h1{font-size:20px!important;line-height:30px!important;font-weight:600!important;color:#1D2939!important;letter-spacing:0!important;margin:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick{position:static!important;background:none!important;box-shadow:none!important;padding:0!important;margin:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view h2{font-size:18px!important;font-weight:600!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view h3{font-size:16px!important;font-weight:600!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .note,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view small{color:#667085!important}
+/* cards */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .kmini,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hcard,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .rcard,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .plancard,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .olcard{background:#fff!important;border:1px solid #E4E7EC!important;border-radius:16px!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.tbl,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otbl{padding:0!important;overflow:hidden!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc{padding:16px 20px!important;margin:0 0 16px!important;border-radius:16px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hcard{padding:20px 24px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .hcard .hcv{font-size:30px!important;font-weight:700!important;color:#1D2939!important;letter-spacing:-.5px!important}
+/* tables */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table{border-collapse:collapse!important;width:100%!important;background:transparent!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table thead th{font-size:12px!important;font-weight:500!important;color:#667085!important;text-transform:none!important;letter-spacing:0!important;padding:12px 20px!important;background:#F9FAFB!important;border:0!important;border-bottom:1px solid #E4E7EC!important;white-space:nowrap!important;height:auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table tbody td{font-size:14px!important;color:#344054!important;padding:14px 20px!important;border:0!important;border-bottom:1px solid #F2F4F7!important;background:transparent!important;height:auto!important;vertical-align:middle!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table tbody tr:last-child td{border-bottom:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table tbody tr:hover td{background:#F9FAFB!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table tbody td b{color:#1D2939!important;font-weight:500!important}
+/* order rows (one cell) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view td.v3row{display:flex!important;align-items:center!important;gap:14px!important;padding:14px 20px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3tile{width:40px!important;height:40px!important;border-radius:10px!important;display:grid!important;place-items:center!important;flex:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3mid{flex:1!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:2px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.v3l1,.v3l2){display:flex!important;justify-content:space-between!important;align-items:center!important;gap:12px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3l1 b{font-size:14px!important;font-weight:600!important;color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3l1 > span,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3sub{font-size:13px!important;color:#667085!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3amt{font-size:14px!important;font-weight:600!important;color:#1D2939!important;white-space:nowrap!important}
+/* buttons */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:auto!important;min-height:40px!important;padding:10px 16px!important;border-radius:8px!important;font-size:14px!important;font-weight:500!important;line-height:20px!important;border:1px solid #D0D5DD!important;background:#fff!important;color:#344054!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;text-transform:none!important;letter-spacing:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn:hover{background:#F9FAFB!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn.pri{background:#465FFF!important;border-color:#465FFF!important;color:#fff!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn.pri:hover{background:#3641F5!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn.danger{color:#D92D20!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top) :is(button,a).btn:disabled{opacity:.5!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) .btn svg{width:18px!important;height:18px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .fltbtn{color:#344054!important;background:#fff!important;border:1px solid #D0D5DD!important}
+/* fields */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim,.top,.ddmenu) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea,.sel,.msel-f){height:44px!important;min-height:44px!important;border:1px solid #D0D5DD!important;border-radius:8px!important;background:#fff!important;padding:0 14px!important;font-size:14px!important;color:#1D2939!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important;text-align:left!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) textarea{height:auto!important;padding:10px 14px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) :is(input,select,textarea,.msel-f):focus{border-color:#9CB9FF!important;box-shadow:0 0 0 4px rgba(70,95,255,.12)!important;outline:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) :is(input,textarea)::placeholder{color:#98A2B3!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) .msel-f .msel-v,html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) .msel-f .msel-ph{font-size:14px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) .osrch,html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal,.scrim) .crsrch{background:transparent!important;border:0!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(.modal,.scrim) .f > label,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .f > label{font-size:14px!important;font-weight:500!important;color:#344054!important;text-transform:none!important;margin-bottom:6px!important}
+/* tabs / segments */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs){display:inline-flex!important;gap:2px!important;padding:2px!important;background:#F2F4F7!important;border:0!important;border-radius:8px!important;box-shadow:none!important;flex-wrap:wrap!important;width:auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs) > :is(a,button){height:auto!important;min-height:0!important;padding:8px 14px!important;border-radius:6px!important;font-size:14px!important;font-weight:500!important;color:#667085!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs) > :is(a,button).on{background:#fff!important;color:#1D2939!important;box-shadow:0 1px 3px rgba(16,24,40,.1),0 1px 2px rgba(16,24,40,.06)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs) > :is(a,button) :is(svg,.tti){display:none!important}
+/* badges */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.spill,.ospill,.tag,.badge,.pill){display:inline-flex!important;align-items:center!important;height:22px!important;padding:0 10px!important;border-radius:999px!important;font-size:12px!important;font-weight:500!important;border:0!important;box-shadow:none!important;text-transform:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is([class*="lst-closed"],[class*="s-closed"],.s-done,.lst-done){background:#ECFDF3!important;color:#039855!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is([class*="lst-pending"],[class*="s-pending"]){background:#FFFAEB!important;color:#DC6803!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is([class*="lst-active"],[class*="lst-accepted"],[class*="lst-preparing"],[class*="s-active"]){background:#ECF3FF!important;color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is([class*="declined"],[class*="lst-void"],[class*="s-void"],[class*="cancel"]):is(.spill,.ospill,.tag){background:#FEF3F2!important;color:#D92D20!important}
+/* switches */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal) .toggle .trk{background:#E4E7EC!important;border:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(#view,.modal) .toggle input:checked + .trk{background:#465FFF!important}
+/* modals */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim{background:rgba(16,24,40,.5)!important;-webkit-backdrop-filter:blur(4px)!important;backdrop-filter:blur(4px)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal{border-radius:24px!important;background:#fff!important;border:0!important;box-shadow:0 20px 24px -4px rgba(16,24,40,.08),0 8px 8px -4px rgba(16,24,40,.03)!important;overflow:hidden!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header{padding:24px 28px 12px!important;border:0!important;background:#fff!important;min-height:0!important;height:auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header h2{font-size:20px!important;font-weight:600!important;color:#1D2939!important;position:static!important;transform:none!important;text-align:left!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > .body{padding:12px 28px 20px!important;background:#fff!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > footer{padding:16px 28px 24px!important;border:0!important;background:#fff!important;gap:12px!important;justify-content:flex-end!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal .fsec{font-size:14px!important;font-weight:600!important;color:#1D2939!important;text-transform:none!important;margin:12px 0 4px!important;border:0!important}
+/* dropdowns, alerts, toasts */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(.ddmenu,.iemenu,.acctmenu,.msel-p){background:#fff!important;border:1px solid #E4E7EC!important;border-radius:12px!important;box-shadow:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .slk-ask > .slk-ask-b{border-radius:20px!important;background:#fff!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .slk-ask .slk-ask-f button{border-radius:8px!important;font-size:14px!important;font-weight:500!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #toast,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .toast{border-radius:12px!important;font-size:14px!important}
+
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a.on,.grp:has(a.on) > button) :is(svg,.ico,.nti) *{stroke:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav :is(a,.grp > button):not(.on) :is(svg,.ico,.nti) *{stroke:#667085!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view h1{font-size:20px!important;line-height:30px!important;font-weight:600!important;letter-spacing:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ospill{width:auto!important;max-width:max-content!important;align-self:flex-start!important;margin-top:4px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset{background:#fff!important;border:1px solid #E4E7EC!important;border-radius:16px!important;padding:8px!important;box-shadow:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset::before{font-size:20px!important;line-height:30px!important;font-weight:600!important;background:none!important;padding:4px 8px 10px!important;margin:0!important;color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset a{height:auto!important;min-height:0!important;padding:9px 12px!important;border-radius:8px!important;font-size:14px!important;font-weight:500!important;color:#344054!important;background:transparent!important;gap:12px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset a.on{background:#ECF3FF!important;color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset a > :is(svg,span:first-child,i){width:20px!important;height:20px!important;background:none!important;border-radius:0!important;color:currentColor!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view nav.ptset a svg *{stroke:currentColor!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.catl,.catv .catl) a{border-radius:8px!important;font-size:14px!important;font-weight:500!important;color:#344054!important;padding:9px 12px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.catl,.catv .catl) a.on{background:#ECF3FF!important;color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.catl,.catv .catl) a.on *{color:#465FFF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.catl,.catv .catl) h2{font-size:16px!important;font-weight:600!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.catl a.on,nav.ptset a.on){background:rgba(70,95,255,.12)!important;color:#7592FF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view nav.ptset{background:rgba(255,255,255,.03)!important;border-color:#1D2939!important}
+
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .v3chip{display:inline-flex!important;width:auto!important;max-width:max-content!important;height:22px!important;align-items:center!important;padding:0 10px!important;border-radius:999px!important;font-size:12px!important;font-weight:500!important;margin-top:4px!important}
+/* phones: tables stay tables and scroll sideways inside their card (as in TailAdmin) */
+@media (max-width:760px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.tscroll,.card.tbl,.tblwrap,.tw){overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable{display:table!important;width:max-content!important;min-width:100%!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > thead{display:table-header-group!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody{display:table-row-group!important;width:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr{display:table-row!important;padding:0!important;position:static!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr::before,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr::after{content:none!important;display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr > td{display:table-cell!important;white-space:nowrap!important;font-size:14px!important;line-height:20px!important;color:#344054!important;padding:12px 16px!important;border-bottom:1px solid #F2F4F7!important;width:auto!important;flex:none!important;order:0!important;text-align:left!important;margin:0!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr > td.ios-empty{display:table-cell!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr > td[data-l]::before{content:none!important;display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.ios-ltable > tbody > tr > td.v3row{display:flex!important;white-space:normal!important;min-width:calc(100vw - 34px)}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table.ios-ltable > tbody > tr > td{color:#D0D5DD!important;border-color:#1D2939!important}
+}
+
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;padding-right:64px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header .dlgico{display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header > button.x{position:absolute!important;left:auto!important;right:20px!important;top:20px!important;width:36px!important;height:36px!important;border-radius:999px!important;background:#F2F4F7!important;color:#667085!important;border:0!important;display:grid!important;place-items:center!important;transform:none!important;margin:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header > button.x:hover{background:#E4E7EC!important;color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal > header > button.x{background:#1D2939!important;color:#98A2B3!important}
+/* ===== dark ===== */
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body{background:#101828!important;color:#D0D5DD!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(h1,h2,h3,h4){color:rgba(255,255,255,.9)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .app > aside.side,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .app > .main > .top{background:#101828!important;border-color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side nav.nav :is(a,.grp > button){color:#D0D5DD!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side nav.nav :is(a,.grp > button):hover{background:rgba(255,255,255,.05)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side nav.nav :is(a.on,.grp:has(a.on) > button){background:rgba(70,95,255,.12)!important;color:#7592FF!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side nav.nav :is(a,.grp > button) :is(svg,.ico,.nti){color:#98A2B3!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side :is(.nuhead h2){color:rgba(255,255,255,.9)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side .nusearch,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body aside.side .sidefoot :is(.nuacct,.acctbtn){background:#1D2939!important;border-color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.card,.kmini,.hcard,.rcard,.plancard,.olcard){background:rgba(255,255,255,.03)!important;border-color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table thead th{background:rgba(255,255,255,.02)!important;color:#98A2B3!important;border-color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table tbody td{color:#D0D5DD!important;border-color:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view table tbody tr:hover td{background:rgba(255,255,255,.03)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(table tbody td b,.v3l1 b,.v3amt,.hcard .hcv){color:rgba(255,255,255,.9)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim,.top) :is(button,a).btn:not(.pri){background:#1D2939!important;border-color:#344054!important;color:#D0D5DD!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(#view,.modal,.scrim,.top,.ddmenu) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea,.sel,.msel-f){background:#101828!important;border-color:#344054!important;color:#fff!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs){background:#1D2939!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.ttabs,.ptabs,.dtabs,.olseg,.tabs) > :is(a,button).on{background:#344054!important;color:#fff!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal > :is(header,.body,footer){background:#101828!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(.ddmenu,.iemenu,.acctmenu,.msel-p){background:#1D2939!important;border-color:#344054!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.phead h1,h1,h2,h3),html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal > header h2,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view nav.ptset::before,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .fsec{color:rgba(255,255,255,.9)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.osrch,.crsrch){background:transparent!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.catl,.catv .catl) a:not(.on){color:#D0D5DD!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view :is(.catl,.catv .catl) a:not(.on) *{color:#98A2B3!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view nav.ptset a:not(.on){color:#D0D5DD!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(.app,.app > .main,#view.content){background:#101828!important}
