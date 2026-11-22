@@ -56,6 +56,12 @@ html body h1.v3t{font-size:34px!important;line-height:41px!important;font-weight
 .v3chl .v3rt small{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v3cht{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:15px;color:${L2};align-self:flex-start;padding-top:2px}
 .v3ub{min-width:20px;height:20px;border-radius:10px;background:${T};color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center;padding:0 6px}
+.v3ck{width:24px;height:24px;border-radius:50%;border:2px solid #C4C4C7;display:grid;place-items:center;flex:none;box-sizing:border-box}
+.v3ck.on{background:#0A66D8;border-color:#0A66D8}
+.v3tk{align-items:flex-start!important;padding-top:11px!important;padding-bottom:11px!important}
+.v3g:has(.v3ck) .v3r + .v3r::before{left:52px}
+.v3segs{overflow-x:auto;scrollbar-width:none}.v3segs button{flex:none;padding:0 14px;white-space:nowrap}
+.v3back{display:inline-flex;align-items:center;gap:2px;border:0;background:none;color:#0066D6;font:inherit;font-size:17px;padding:0;cursor:pointer;min-height:44px}
 .v3empty{padding:24px 16px;text-align:center;color:${L2};font-size:15px}
 html[data-theme=dark] .v3g,html[data-theme=dark] .v3r,html[data-theme=dark] .v3card,html[data-theme=dark] .v3bal > div,html[data-theme=dark] .v3chl{background:#1C1C1E}
 html[data-theme=dark] .v3r,html[data-theme=dark] h1.v3t,html[data-theme=dark] .v3seg button{color:#fff}
@@ -84,7 +90,7 @@ ${o ? `<div class="st"><i style="width:8px;height:8px;border-radius:50%;backgrou
 <div class="loc" id="cq" style="color:var(--warn);font-weight:600" hidden></div><div class="loc" id="cloc">${svg(I.pin, 14, L2, 2)} We check you're at the store when you press it</div></div>
 ${grp("Next Shift", rows)}${fy.length ? grp("For You", fy) : ""}`;
       $("#cb").onclick = clockPress; paintQ();
-      $("#myh").onclick = () => { S.tab = "hrs"; document.querySelectorAll("[data-tab]").forEach(b => b.classList.remove("on")); viewHrs(); };
+      $("#myh").onclick = () => { document.querySelectorAll("[data-tab]").forEach(b => b.classList.remove("on")); V.hrs(); };
       $("#v3next").onclick = () => go("sched");
       $("#v3me").onclick = () => $("#so")?.click();
       document.querySelectorAll("[data-v3go]").forEach(b => b.onclick = () => go(b.dataset.v3go));
@@ -98,6 +104,49 @@ ${grp("Next Shift", rows)}${fy.length ? grp("For You", fy) : ""}`;
     try { if (navigator.onLine) S.tasks = await rpc("skwyd_team_tasks"); } catch (_) {}
     try { await kbLoad(); } catch (_) {}
     if (S.tab === "clock") paint(next, hours, S.tasks, S.kb);
+  } };
+
+
+  // ---------- Tasks: like Reminders, a round check on the left
+  const chk = done => `<span class="v3ck${done ? " on" : ""}">${done ? svg(I.check, 14, "#fff", 3) : ""}</span>`;
+  V.tasks = async function () { with (window.TEAMAPI) {
+    mark();
+    const paint = () => { const l = S.tasks || [], open = l.filter(t => t.status !== "done"), done = l.filter(t => t.status === "done"), today = ymd(new Date());
+      const r = t => { const d = t.status === "done", late = !d && t.dueDay && String(t.dueDay).slice(0, 10) < today;
+        return `<button type="button" class="v3r v3tk" data-tk="${e(t.id)}" aria-label="${d ? "Mark not done" : "Mark done"}: ${e(t.title)}">${chk(d)}<span class="v3rt"><b style="${d ? "text-decoration:line-through;color:" + L2 : ""}">${e(t.title)}</b>${t.notes ? `<small>${e(t.notes)}</small>` : ""}<small style="${late ? "color:#D70015;font-weight:600" : ""}">${d ? "Done " + dmy(t.doneAt) : t.dueDay ? (late ? "Late · due " : "Due ") + dmy(t.dueDay) : ""}</small></span></button>`; };
+      main().innerHTML = `${head("Tasks", S.tasks ? (open.length ? open.length + " open" : "All done") : "")}${S.tasks == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` : open.length ? grp("", open.map(r)) : `<div class="v3g"><div class="v3empty">No open tasks. Nice work!</div></div>`}${done.length ? grp("Done this week", done.map(r)) : ""}`;
+      document.querySelectorAll("[data-tk]").forEach(b => b.onclick = async () => { const t = S.tasks.find(x => x.id === b.dataset.tk); if (!t) return; if (!navigator.onLine) return toast("No internet connection.", "bad");
+        const d = t.status !== "done"; b.disabled = true; try { const r = await rpc("skwyd_team_task_done", { p_task: t.id, p_done: d }); if (r?.error) { toast(r.error, "bad"); b.disabled = false; return; }
+          S.tasks = await rpc("skwyd_team_tasks"); if (d) toast("Task done", "ok"); if (S.tab === "tasks") paint(); } catch (_) { toast("Couldn't save. Try again.", "bad"); b.disabled = false; } }); };
+    paint(); if (navigator.onLine) { try { S.tasks = await rpc("skwyd_team_tasks"); } catch (_) { S.tasks = S.tasks || []; } if (S.tab === "tasks") paint(); }
+  } };
+  // ---------- Guides: search, categories as a segmented strip, grouped rows
+  V.kb = async function () { with (window.TEAMAPI) {
+    mark(); if (!S.kb) S.kb = LS.get("skwyd_team_kb", null);
+    const paint = () => { const l = S.kb || [], q = KBQ.q.trim().toLowerCase(), cats = [...new Set(l.map(a => a.category).filter(Boolean))];
+      const f = l.filter(a => (!KBQ.cat || a.category === KBQ.cat) && (!q || (a.title + " " + (a.body || "")).toLowerCase().includes(q))), todo = l.filter(a => a.ack && !a.readAt);
+      const rows = f.map(a => row({ icon: tile("kb", a.ack && !a.readAt ? "#C93400" : "#0071A4"), t: a.title, sub: (a.category || "") + (a.pinned ? " · Pinned" : ""), at: `data-kb="${e(a.id)}"`, pill: a.ack && !a.readAt ? `<span class="v3pill" style="background:rgba(201,52,0,.12);color:#C93400">To read</span>` : "" }));
+      main().innerHTML = `${head("Guides", todo.length ? todo.length + " to read" : "")}<label class="v3srch">${svg(I.search, 17, L2)}<input id="kbq" type="search" placeholder="Search" value="${e(KBQ.q)}"></label>
+${cats.length > 1 ? `<div class="v3seg v3segs">${[["", "All"], ...cats.map(c => [c, c])].map(([k, t]) => `<button type="button" data-kbc="${e(k)}" class="${KBQ.cat === k ? "on" : ""}">${e(t)}</button>`).join("")}</div>` : ""}
+${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` : rows.length ? grp("", rows) : `<div class="v3g"><div class="v3empty">${l.length ? "Nothing matches." : "No guides yet."}</div></div>`}`;
+      $("#kbq").oninput = ev => { KBQ.q = ev.target.value; const p = ev.target.selectionStart; paint(); const i = $("#kbq"); i.focus(); i.setSelectionRange(p, p); };
+      document.querySelectorAll("[data-kbc]").forEach(b => b.onclick = () => { KBQ.cat = b.dataset.kbc; paint(); });
+      document.querySelectorAll("[data-kb]").forEach(b => b.onclick = () => openKb(S.kb.find(a => a.id === b.dataset.kb))); };
+    paint(); if (navigator.onLine) { try { await kbLoad(); } catch (_) {} if (S.tab === "kb" && !$("#kbart")) paint(); }
+  } };
+  // ---------- My Hours: week switcher, three tiles, one row per shift worked
+  V.hrs = async function () { with (window.TEAMAPI) {
+    mark(); S.tab = "hrs";
+    const a = S.hwk, z = addD(a, 6);
+    const draw = (tiles, body) => { main().innerHTML = `<div class="v3h" style="justify-content:space-between"><button type="button" class="v3back" id="v3hb">${svg(I.l, 22, T, 2.4)}Today</button><span style="display:flex;gap:8px">${rb("l", "Previous week", "hp")}${rb("r", "Next week", "hn")}</span></div><h1 class="v3t">My Hours</h1><p class="v3s">${dmy(a)} – ${dmy(z)}</p>${tiles}<div class="v3g">${body}</div>`;
+      $("#hp").onclick = () => { S.hwk = addD(S.hwk, -7); V.hrs(); }; $("#hn").onclick = () => { S.hwk = addD(S.hwk, 7); V.hrs(); }; $("#v3hb").onclick = () => go("clock"); };
+    draw("", `<div class="v3empty">Loading…</div>`);
+    let l = []; try { l = await rpc("skwyd_team_timesheet", { p_from: ymd(a), p_to: ymd(z) }); } catch (_) { draw("", `<div class="v3empty">Couldn't load your hours.</div>`); return; }
+    const on = openNow(), o = on && new Date(on.at) >= a && new Date(on.at) <= addD(z, 1) ? { in: on.at, out: null, branch: S.me.branches.find(b => b.id === on.branchId)?.name, late: on.late } : null;
+    const all = [...(o ? [o] : []), ...l], hrs = x => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000), tot = all.reduce((s, x) => s + hrs(x), 0);
+    const days = {}; all.forEach(x => { const d = ymd(new Date(x.in)); days[d] = (days[d] || 0) + hrs(x); }); const ot = Object.values(days).reduce((s, v) => s + Math.max(0, v - 8), 0);
+    draw(`<div class="v3bal"><div><b>${tot.toFixed(2)}</b><small>Hours</small></div><div><b>${Object.keys(days).length}</b><small>Days</small></div><div><b style="${ot ? "color:#C93400" : ""}">${ot.toFixed(2)}</b><small>Overtime</small></div></div>`,
+      all.length ? all.map(x => row({ t: new Date(x.in).toLocaleDateString("en-GB", { weekday: "short" }) + " " + dmy(x.in), sub: ampm(hm(x.in)) + " – " + (x.out ? ampm(hm(x.out)) : "now") + (x.branch ? " · " + x.branch : ""), v: hrs(x).toFixed(2) + " h", pill: x.late ? `<span class="v3pill" style="background:rgba(201,52,0,.12);color:#C93400">Late ${+x.late}m</span>` : "", chev: false })).join("") : `<div class="v3empty">No hours this week</div>`);
   } };
 
   // ---------- Schedule

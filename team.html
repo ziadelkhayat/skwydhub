@@ -678,7 +678,7 @@ document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); }
 document.addEventListener("visibilitychange", async () => { if(!document.hidden && S.me && S.tab==="clock"){ try{ S.me = await rpc("skwyd_team_me"); viewClock(); }catch(_){} } });
 sb.auth.onAuthStateChange((ev) => { if(ev==="SIGNED_OUT" && S.me){ S.me = null; loginView(); } });
 // for teamv3.js (the design-file screens): the app's own state and functions, nothing new
-window.TEAMAPI = { get S(){ return S; }, $, main, openNow, ymd, addD, dmy, hm, t5, mon, rpc, clockPress, paintQ, viewHrs, swapSheet, newReq, newChat, openChat, chatDot, unread, chT, avc, inits, kbLoad, LEAVE, ST, go, clearClk: () => clearInterval(clk) };
+window.TEAMAPI = { get S(){ return S; }, $, main, openNow, ymd, addD, dmy, hm, t5, mon, rpc, clockPress, paintQ, viewHrs, swapSheet, newReq, newChat, openChat, chatDot, unread, chT, avc, inits, kbLoad, LEAVE, ST, go, clearClk: () => clearInterval(clk), toast, KBQ, openKb, LS, viewHrsOld: viewHrs };
 boot();
 })();
 </script>
