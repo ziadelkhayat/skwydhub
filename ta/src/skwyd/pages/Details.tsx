@@ -25,7 +25,7 @@ const DEF_ALLERGENS = ["Celery", "Cereals containing gluten", "Crustaceans", "Eg
 export const Head = ({ back, backTo, title, children }: { back: string; backTo: string; title: string; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={back} current={title} />
   <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to={backTo} />}><ArrowLeftIcon className="size-5" />{back}</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h2><div className="ms-auto flex gap-3">{children}</div></div></>;
-export const Info = ({ rows }: { rows: [string, React.ReactNode][] }) => <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{rows.map(([l, v]) =>
+export const Info = ({ rows }: { rows: [string, React.ReactNode][] }) => <div className={BOX + " mb-6 grid grid-cols-2 gap-5 p-5 lg:grid-cols-4"}>{rows.map(([l, v]) =>
   <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{v}</b></div>)}</div>;
 export const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => (
   <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);

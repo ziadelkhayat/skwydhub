@@ -40,7 +40,7 @@ const cap = (s: string) => s ? s[0].toUpperCase() + s.slice(1) : "";
 const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };
 const lineNet = (i: any) => Math.max(0, (+i.price || 0) * (+i.qty || 1) - (+i.disc || 0));
 const isSale = (o: any) => o.status === "closed" || o.status === "returned";
-const srcOf = (o: any) => o.source && o.source.toUpperCase() !== "POS" && !(o.source === "Website" && (o.channel === "online" || o.channel === "web")) ? o.source : "";
+const srcOf = (o: any) => ["online", "web", "marketplace", "api"].includes(o.channel) || /^(web|website)$/i.test(o.source || "") ? "API" : o.source && o.source.toUpperCase() !== "POS" ? o.source : "";   // web ordering and marketplace orders come from the API
 const cutOf = (v?: string) => { const m = /^(\d{1,2}):(\d{2})/.exec(v || ""); return m ? Math.min(719, (+m[1]) * 60 + (+m[2])) : 0; };
 const fmt = (v: any, t: string) => t === "m" ? money(v) : t === "p" ? (+v || 0).toFixed(2) + " %" : (+v || 0).toLocaleString("en-US", { maximumFractionDigits: 3 });
 const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
@@ -160,7 +160,7 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
       return { title: "Shifts", head: [["Store"], ["Device"], ["Cashier"], ["Opened At"], ["Closed At"], ["Orders", "", 1], ["Sales", "", 1], ["Opening Cash", "", 1], ["Expected Cash", "", 1], ["Counted Cash", "", 1], ["Difference", "", 1]],
         rows: l.map(x => [bName(x.branchId), devices.find(d => d.id === x.deviceId)?.name || "—", x.cashier || "—", dtm(x.openedAt), x.closedAt ? dtm(x.closedAt) : "Open", +x.orders || 0, money(+x.sales || 0), money(+x.openingCash || 0), x.closedAt ? money(+x.expectedCash || 0) : "—", x.closedAt ? money(+x.countedCash || 0) : "—", x.closedAt ? money(+x.difference || 0) : "—"]) }; }
     if (rk === "voids") { const l: any[][] = [];
-      R.forEach(o => { const ref = o.status === "refund" ? "RET-" + String(o.returnNo || "").padStart(6, "0") : o.invoiceNo ? invNo(o.invoiceNo) : String(o.no || "—");
+      R.forEach(o => { const ref = o.status === "refund" && !o.invoiceNo ? "RET-" + String(o.returnNo || "").padStart(6, "0") : o.invoiceNo ? invNo(o.invoiceNo) : String(o.no || "—");
         if (o.status === "void") (o.items || []).forEach((i: any) => l.push([dtm(o.createdAt), bName(o.branchId), ref, "Void order", i.name, +i.qty || 1, money((+i.price || 0) * (+i.qty || 1)), o.voidReason || "—", o.voidedBy || "—"]));
         (o.voidedItems || []).forEach((i: any) => l.push([dtm(i.voidedAt || o.createdAt), bName(o.branchId), ref, "Void item", i.name, +i.qty || 1, money((+i.price || 0) * (+i.qty || 1)), i.reason || "—", i.voidedBy || "—"]));
         if (o.status === "refund") (o.items || []).forEach((i: any) => l.push([dtm(o.createdAt), bName(o.branchId), ref, "Return", i.name, +i.qty || 1, money(lineNet(i)), o.returnReason || "—", o.returnedBy || o.agent || "—"])); });

@@ -2,7 +2,6 @@
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { FilterIcon, SearchIcon } from "@/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,23 +12,28 @@ import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDate, money } from "@/lib/util";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
 
 const ORD_TABS: [string, string][] = [["all", "All"], ["today", "Today"], ["draft", "Draft"], ["pending", "Pending"], ["active", "Active"], ["dispatched", "Dispatched"], ["ahead", "Ahead"], ["callcenter", "Call Center"], ["online", "Web Ordering"]];
-const ORD_ST: Record<string, string> = { review: "Call Center Review", draft: "Draft", pending: "Pending", active: "Active", closed: "Done", declined: "Declined", void: "Void", returned: "Returned", refund: "Refund" };
-const ST_COLOR: Record<string, any> = { closed: "success", active: "primary", pending: "warning", review: "warning", draft: "gray", declined: "error", void: "error", returned: "error", refund: "error" };
-const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in", other: "Other" };
-const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering" };
+export const ORD_ST: Record<string, string> = { review: "Call Center Review", draft: "Draft", pending: "Pending", active: "Active", closed: "Done", declined: "Declined", void: "Void", returned: "Returned", refund: "Refund" };
+export const ST_COLOR: Record<string, any> = { closed: "success", active: "primary", pending: "warning", review: "warning", draft: "gray", declined: "error", void: "error", returned: "error", refund: "error" };
+export const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in", other: "Other" };
+export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
 const SEL = "h-11 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
-const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
-const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
-const ordRef = (o: any) => o.status === "draft" && !o.no ? "Draft" : o.status === "refund" ? "RET-" + String(o.returnNo || "…").padStart(6, "0") : o.ref || (o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—");
+export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
+export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
+// every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
+export const ordRef = (o: any) => o.status === "draft" && !o.no ? "Draft" : o.ref || (o.status === "refund" ? retNo(o) : o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—");
+const retNo = (o: any) => "RET-" + String(o.returnNo || "…").padStart(6, "0");
+export const chkNo = (o: any) => o.invoiceNo ? invNo(o.invoiceNo) : o.status === "refund" ? retNo(o) : "—";
 const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); const e = new Date(d); e.setDate(e.getDate() + 1); return [d, e]; };
-const srcOf = (o: any) => o.source && o.source.toUpperCase() !== "POS" && !(o.source === "Website" && (o.channel === "online" || o.channel === "web")) ? o.source : "";
-const tel = (p: string) => String(p || "").replace(/^\+961(\d{1,2})(\d{3})(\d{3})$/, "+961 $1 $2 $3");
+// web ordering and the marketplace are sales channels; their orders always come from the API
+export const srcOf = (o: any) => ["online", "web", "marketplace", "api"].includes(o.channel) || /^(web|website)$/i.test(o.source || "") ? "API" : o.source && o.source.toUpperCase() !== "POS" ? o.source : "";
+export const tel = (p: string) => String(p || "").replace(/^\+961(\d{1,2})(\d{3})(\d{3})$/, "+961 $1 $2 $3");
 
 const SGRP: Record<string, string[]> = { draft: ["draft"], pending: ["pending", "review"], open: ["active"], closed: ["closed"], declined: ["declined"], voids: ["void"], returns: ["refund", "returned"] };
 function applyF(q: any, F: Record<string, string>) {
@@ -59,7 +63,7 @@ export default function OrdersPage() {
   const branches = useCol("branches") || [], brands = useCol("brands") || [];
   const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState("");
-  const [open, setOpen] = useState<any>(null);
+  const nav = useNavigate();
   const [tick, setTick] = useState(0);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
   const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
@@ -118,10 +122,10 @@ export default function OrdersPage() {
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                 {rows.map(o => { const t = new Date(o.createdAt);
                   return (
-                    <tr key={o.id} onClick={() => setOpen(o)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                    <tr key={o.id} onClick={() => nav("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
                       <td className={td}><span className="font-medium text-gray-800 dark:text-white/90">{ordRef(o)}</span></td>
-                      <td className={td}>{o.status === "refund" ? ordRef(o) : o.invoiceNo ? invNo(o.invoiceNo) : "—"}</td>
-                      <td className={td}>{o.status === "refund" ? "–" : o.no || "—"}</td>
+                      <td className={td}>{chkNo(o)}</td>
+                      <td className={td}>{o.no || "—"}</td>
                       <td className={td}>{branches.find(b => b.id === o.branchId)?.name || "—"}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</td>
                       <td className={td}><span className="block font-medium text-gray-800 dark:text-white/90">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</td>
                       <td className={td}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td>
@@ -142,59 +146,7 @@ export default function OrdersPage() {
       </div>
       {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)}
         brands={brands} devices={devices} sources={sources.filter(x => !x.deleted).map(x => x.name)} pays={[...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])]} />}
-      <OrderSheet id={open?.id} brief={open} onClose={() => setOpen(null)} branches={branches} brands={brands} />
     </>
-  );
-}
-
-export function OrderSheet({ id, brief, onClose, branches, brands }: { id?: string; brief: any; onClose: () => void; branches: any[]; brands: any[] }) {
-  const [o, setO] = useState<any>(null);
-  useEffect(() => { setO(null); if (!id) return; let off = false;
-    sb.from("orders").select("*").eq("id", id).maybeSingle().then(({ data }) => { if (!off && data) setO(camel(data)); });
-    return () => { off = true; }; }, [id]);
-  const x = o || brief;
-  const L = ({ l, children }: { l: string; children: React.ReactNode }) => <div><p className="mb-1 text-theme-xs text-gray-500 dark:text-gray-400">{l}</p><p className="text-sm font-medium text-gray-800 dark:text-white/90">{children}</p></div>;
-  return (
-    <Sheet open={!!id} onOpenChange={v => !v && onClose()}>
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">
-        {x && <>
-          <SheetHeader className="px-6 pt-6">
-            <SheetTitle className="flex items-center gap-3 text-xl font-semibold text-gray-800 dark:text-white/90">{ordRef(x)} <Badge variant="light" color={ST_COLOR[x.status] || "gray"}>{ORD_ST[x.status] || x.status}</Badge></SheetTitle>
-          </SheetHeader>
-          <div className="space-y-6 p-6">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-2xl border border-gray-200 p-5 dark:border-gray-800">
-              <L l="Order No.">{x.no || "—"}</L><L l="Check Number">{x.invoiceNo ? invNo(x.invoiceNo) : "—"}</L>
-              <L l="Brand">{brands.find(b => b.id === x.brandId)?.name || "—"}</L><L l="Store">{branches.find(b => b.id === x.branchId)?.name || "—"}</L>
-              <L l="Sales Channel">{CHL[x.channel] || x.channel || "—"}</L><L l="Order Type">{TYPE_LBL[x.type] || x.type || "—"}</L>
-              <L l="Order Source">{srcOf(x) || "—"}</L><L l="Business Date">{fmtDate(x.createdAt)}</L>
-              <L l="Opened At">{fmtDate(x.createdAt)} {new Date(x.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()}</L><L l="Payment Type">{x.payment?.method || "—"}</L>
-            </div>
-            {(x.customerName || x.phone) && <div className="rounded-2xl border border-gray-200 p-5 dark:border-gray-800">
-              <h4 className="mb-2 text-base font-medium text-gray-800 dark:text-white/90">Customer</h4>
-              <p className="text-sm text-gray-700 dark:text-gray-400">{x.customerName || "—"}</p>
-              {x.phone && <a href={"tel:" + x.phone} className="text-sm text-brand-500">{tel(x.phone)}</a>}
-            </div>}
-            {o && <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-              <table className="min-w-full">
-                <thead className="border-b border-gray-100 bg-gray-50 dark:border-white/5 dark:bg-white/3"><tr>
-                  <th className="px-4 py-3 text-start text-xs font-medium text-gray-500">Item</th><th className="px-4 py-3 text-end text-xs font-medium text-gray-500">Qty</th>
-                  <th className="px-4 py-3 text-end text-xs font-medium text-gray-500">Price</th><th className="px-4 py-3 text-end text-xs font-medium text-gray-500">Total</th></tr></thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                  {(o.items || []).map((it: any, i: number) => (
-                    <tr key={i}><td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">{it.name}{it.mods && <span className="block text-theme-xs text-gray-500">{String(it.mods)}</span>}</td>
-                      <td className="px-4 py-3 text-end text-sm text-gray-700 dark:text-gray-400">{(+it.qty || 0).toFixed(2)}</td>
-                      <td className="px-4 py-3 text-end text-sm text-gray-700 dark:text-gray-400">{money(it.price)}</td>
-                      <td className="px-4 py-3 text-end text-sm text-gray-700 dark:text-gray-400">{money((+it.price || 0) * (+it.qty || 0))}</td></tr>))}
-                  {[["Subtotal", o.subtotal], ["Discount", o.discount], ["Delivery Fee", o.deliveryFee], ["Tax", o.tax]].filter(([, v]) => v != null && +v !== 0 || false).map(([l, v]) => (
-                    <tr key={l as string}><td colSpan={3} className="px-4 py-3 text-sm text-gray-500">{l}</td><td className="px-4 py-3 text-end text-sm text-gray-700 dark:text-gray-400">{money(v)}</td></tr>))}
-                  <tr><td colSpan={3} className="px-4 py-3 text-sm font-semibold text-gray-800 dark:text-white/90">Total</td><td className="px-4 py-3 text-end text-sm font-semibold text-gray-800 dark:text-white/90">{money(o.total)}</td></tr>
-                </tbody>
-              </table>
-            </div>}
-          </div>
-        </>}
-      </SheetContent>
-    </Sheet>
   );
 }
 
