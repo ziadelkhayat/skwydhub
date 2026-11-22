@@ -129,7 +129,9 @@ export const saveOutbox = (outbox: Op[], failed: Op[]) => AsyncStorage.multiSet(
 export async function send(sb: SupabaseClient, op: Op) {
   const t = tableOf(op.col);
   if (op.op === "set") { const { error } = await sb.from(t).upsert(toRow(op.col, op.id, op.data)); if (error) throw error; }
-  else { const row = toRow(op.col, null, op.data); delete row.id; const { error } = await sb.from(t).update(row).eq("id", op.id); if (error) throw error; }
+  else { const row: any = toRow(op.col, null, op.data); delete row.id;
+    if (t === "settings") { const cur = await sb.from(t).select("data").eq("id", op.id).maybeSingle(); if (cur.error) throw cur.error; row.data = { ...(cur.data?.data || {}), ...row.data }; }   // a settings document is merged, never replaced
+    const { error } = await sb.from(t).update(row).eq("id", op.id); if (error) throw error; }
 }
 // a change shows on screen at once: the list as the server sent it, with the writes still waiting laid over it
 export function applyOp(rows: Row[], op: Op): Row[] {

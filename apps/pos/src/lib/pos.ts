@@ -200,3 +200,29 @@ export function custMissing(t: OType, c: Cust, needSource = true) {
 
 /* ---------- what the signed-in cashier may do (roles; owners and admins everything; no PIN users = open register) ---------- */
 export const can = (S: Data, cashier: Row | null, perm: string) => !usePins(S) || (!!cashier && (isAdminUser(cashier) || userPerms(S, cashier).includes(perm)));
+
+/* ---------- void (open order) and return (done order), pos.html openVR / doVR ---------- */
+export const retLeft = (o: Row, ix: number) => Math.max(0, +((o.items || [])[ix]?.qty || 0) - (o.returnedItems || []).filter((r: any) => r.ix === ix).reduce((s: number, r: any) => s + (+r.qty || 0), 0));
+export const fullyBack = (o: Row) => +o.refundTotal && +o.refundTotal >= +o.total - 0.001;
+export const vrReasons = (a: any) => [...new Set((String(a.voidReasons || "") + "\n" + String(a.returnReasons || "")).split("\n").map(s => s.trim()))].filter(Boolean);
+// the order after some items are voided: what's left, its discount (a % stays a %), charges and tax again
+export function afterVoid(x: Ctx, o: Row, qs: number[]) {
+  const items = (o.items || []).map((i: any, ix: number) => { const left = +i.qty - (qs[ix] || 0); if (left <= 0) return null; const k = { ...i, qty: left }; if (+i.disc) k.disc = +(i.disc * left / i.qty).toFixed(2); return k; }).filter(Boolean);
+  const sub = items.reduce((s: number, i: any) => s + lineNet(i), 0), d = o.discountType === "amt" ? Math.min(+o.discount || 0, sub) : +(sub * (+o.discountPct || 0) / 100).toFixed(2);
+  const charges = (o.charges || []).map((c: any) => ({ ...c, amount: +(c.type === "percent" ? (sub - d) * (+c.value || 0) / 100 : +c.amount || 0).toFixed(2) }));
+  const tp = taxParts(x, items, d), chT = +charges.reduce((s: number, c: any) => s + c.amount, 0).toFixed(2);
+  return { items, subtotal: +sub.toFixed(2), discount: d, discountPct: o.discountType === "amt" ? (sub ? +(d / sub * 100).toFixed(2) : 0) : (+o.discountPct || 0), tax: tp.tax, charges, chargesTotal: chT, total: +(sub - d + chT + tp.added).toFixed(2) };
+}
+// the refund of the picked quantities: each item's price after the order discount, never more than what's left
+export function refundOf(o: Row, qs: number[]) {
+  const gross = (o.items || []).reduce((s: number, i: any) => s + lineNet(i), 0), share = gross ? (+o.total || 0) / gross : 1;
+  const left = +((+o.total || 0) - (+o.refundTotal || 0)).toFixed(2), all = (o.items || []).every((_: any, ix: number) => (qs[ix] || 0) >= retLeft(o, ix));
+  return all ? left : Math.min(left, +(o.items || []).reduce((s: number, i: any, ix: number) => s + lineNet(i) / (+i.qty || 1) * (qs[ix] || 0) * share, 0).toFixed(2));
+}
+
+/* ---------- the second currency at the till (Currency settings): what's due in it, and the change in it ---------- */
+const ceilD = (n: number, d: number) => { const f = Math.pow(10, d); return Math.ceil(n * f - 1e-7) / f; };
+export const due2 = (S: Data, t: number) => { const c = CUR2(S); return c ? rrApply(ceilD(t * c.rate, c.dec), c.dec, coS(S).roundRules2) : 0; };
+export const chg2 = (S: Data, t: number) => { const c = CUR2(S); return c ? rrApply(Math.floor(t * c.rate * Math.pow(10, c.dec) + 1e-7) / Math.pow(10, c.dec), c.dec, coS(S).roundRules2) : 0; };
+export const num2 = (n: number, d: number) => (+n || 0).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+export const quickTender = (S: Data, which: 1 | 2) => String(coS(S)[which === 2 ? "quickTender2" : "quickTender"] || "").split(",").map(v => +v.trim()).filter(v => v > 0).sort((a, b) => a - b);
