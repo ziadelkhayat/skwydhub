@@ -479,3 +479,4 @@ html[data-theme=dark] body .app #view section.v3col input{color:#fff!important}
 html[data-theme=dark] body:is(.v2,.v2p) :is(input,textarea)::placeholder{color:rgba(235,235,245,.3)!important}
 html:root[data-theme=dark] body.v2 .app > .main.main{margin:0 0 0 var(--v2side)!important}
 html[data-theme=dark] body .app #view :is(section.v3col,main.v3col) :is(h1,h2,b){color:#fff!important}
+html body:is(.v2,.v2p):is(#_z,body):is(#_y,body) .modal.sk > footer .btn.skdel{color:#D70015!important}

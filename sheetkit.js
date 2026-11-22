@@ -16,6 +16,7 @@
     // a pop-up that is re-used (same element, new contents) is set up again next time it opens
     new MutationObserver(() => { if (!m.closest(".scrim.show")) { m.querySelectorAll(":scope > header > .sktb").forEach(x => x.remove()); delete m.dataset.sk; m.classList.remove("sk"); m.querySelectorAll(".skhid").forEach(x => x.classList.remove("skhid")); f && f.classList.remove("skgone"); } }).observe(m.closest(".scrim") || m, { attributes: true, attributeFilter: ["class"] });
     // the footer goes away when it held only Cancel and Save; anything else (Delete, Reset…) stays at the bottom
+    if (f) f.querySelectorAll("button").forEach(b => { if (/^(delete|remove|void|deactivate)/i.test(b.textContent.trim())) b.classList.add("skdel"); });
     if (f) { const rest = [...f.querySelectorAll("button, a.btn")].filter(b => b !== pri && !isCancel(b) && !b.hidden && getComputedStyle(b).display !== "none"); if (!rest.length) f.classList.add("skgone"); else { if (pri) pri.classList.add("skhid"); f.querySelectorAll("button").forEach(b => { if (isCancel(b)) b.classList.add("skhid"); }); } }
   }
   const scan = () => document.querySelectorAll(".scrim.show .modal, .scrim.show form.modal, dialog[open] .modal").forEach(sheet);
