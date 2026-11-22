@@ -1,5 +1,6 @@
 // An item's page (Catalog → Items → an item), laid out and behaving like an inventory product's page:
 // back button, details tiles, then Tags, Variants, Modifiers, Ingredients, Nutritional Values and Allergens (as in the current portal). Store prices, active and out of stock are set in Sales Channels.
+import { cn } from "@/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +43,7 @@ export default function ItemPage() {
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Name", "Item", "SKU", "Price"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {kids.map(({ v, k }: any) => <tr key={k.id} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{v.name}</td><td className={TD}><Link className="text-brand-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</Link></td><td className={TD}>{k.sku || "—"}</td><td className={TD}>{money(k.price)}</td></tr>)}</tbody></table></div></Sec>}
     {!kids.length && <>
-    <Sec title="Modifiers" act={<div className="flex gap-2"><select aria-label="Add modifier" className={SEL + " h-9 w-52"} value=""
+    <Sec title="Modifiers" act={<div className="flex gap-2"><select aria-label="Add modifier" className={cn(SEL, "h-10 w-48 sm:w-56")} value=""
         onChange={e => { const v = e.target.value; if (v) save({ modifiers: [...links, { modifierId: v, min: 1, max: 1, free: 0 }] }, "Modifier added"); }}>
         <option value="">Add modifier…</option>{mods.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>}>
       {!links.length ? <None t="No modifiers on this item." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Modifier", "Options", "Minimum", "Maximum", "Free", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
