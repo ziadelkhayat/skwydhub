@@ -49,7 +49,7 @@ export default function EmployeePage() {
   const canPw = !u.userId || staff?.role === "owner";
   return (
     <>
-      <PageBreadcrumb pageTitle="Employees" />
+      <PageBreadcrumb pageTitle="Employees" current={u.name} />
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Button variant="outline" render={<Link to="/users" />}><ArrowLeftIcon className="size-5" />Employees</Button>
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{u.name}</h2>{u.deleted && <Badge variant="light" color="error">Deleted</Badge>}

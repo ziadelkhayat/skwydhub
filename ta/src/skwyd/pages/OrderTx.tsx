@@ -56,7 +56,7 @@ export default function OrderTxPage() {
         <h1>${ret ? "Return" : "Consumption"} from order (${e(r.ref)})</h1><div class="g">${[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no || "—"], ["Total Cost", money(r.total_cost)]].map(([l, v]) => `<div><span>${l}</span>${e(v)}</div>`).join("")}</div>
         <table><thead><tr><th>Name</th><th>Quantity</th></tr></thead><tbody>${(r.items || []).map((x: any) => { const it = item(x.itemId); return `<tr><td>${e(it?.name || "(deleted item)")}</td><td>${n2(x.qty)} ${e(it?.storageUnit || "")}</td></tr>`; }).join("")}</tbody></table><script>window.onload=()=>window.print()<\/script>`); w.document.close(); };
     return <>
-      <PageBreadcrumb pageTitle="Order Transactions" />
+      <PageBreadcrumb pageTitle="Order Transactions" current={r.ref} />
       <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={() => open(null)}><ArrowLeftIcon className="size-5" />Order Transactions</Button>
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{ret ? "Return" : "Consumption"} from order ({r.ref})</h2><Badge variant="light" color="success">Closed</Badge>
         <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></div>

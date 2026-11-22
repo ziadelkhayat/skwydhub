@@ -33,7 +33,7 @@ export default function BrandPage() {
   const brs = s.branches.filter(x => x.brandId === b.id && live(x)), settingsOpen = sp.get("settings") === "1";
   if (settingsOpen) return <Settings s={s} b={b} admin={!staff?.role || ["owner", "admin"].includes(staff.role)} back={() => { const n = new URLSearchParams(sp); n.delete("settings"); setSp(n); }} />;
   return <>
-    <PageBreadcrumb pageTitle="Brands" />
+    <PageBreadcrumb pageTitle="Brands" current={b.name} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/brands" />}><ArrowLeftIcon className="size-5" />Brands</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h2>
       <div className="ms-auto flex gap-3"><Button variant="outline" onClick={() => { const n = new URLSearchParams(sp); n.set("settings", "1"); setSp(n); scrollTo(0, 0); }}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Brand</Button></div></div>
     <div className={BOX + " grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{[["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Stores", String(brs.length)], ["Created", fmtDate(b.createdAt)]].map(([l, v]) =>
@@ -83,7 +83,7 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
     return <div key={f.k} className="border-b border-gray-100 py-4 dark:border-white/5">{lab}{help}{ctl}</div>;
   };
   return <>
-    <PageBreadcrumb pageTitle="Brand Settings" />
+    <PageBreadcrumb pageTitle="Brands" current={b.name + " · Settings"} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />{b.name}</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name} · Settings</h2></div>
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">
       <nav className={BOX + " self-start p-2"}>{tabs.map(([k, t]) => <button key={k} type="button" onClick={() => { setTab(k); setSeen(o => new Set(o).add(k)); }}

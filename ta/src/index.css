@@ -884,3 +884,13 @@ pre[class*="language-"].line-numbers {
 /* Skwyd: date pickers inside dialogs sit inside the field (static) and above everything */
 .flatpickr-wrapper { display: block; width: 100%; }
 .flatpickr-calendar.static { z-index: 1000000 !important; }
+
+/* iPhone zooms the page in when a field with text smaller than 16px is tapped, and the page stays zoomed (looks wider than the screen).
+   On phones every field uses 16px text so tapping it doesn't zoom. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
