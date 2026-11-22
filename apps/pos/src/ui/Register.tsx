@@ -11,6 +11,7 @@ import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
 import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
+import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
@@ -161,6 +162,10 @@ export function Register() {
     if (r.bad.length) return setDlg(<Sheet title="Printing failed" width={460} onClose={() => setDlg(null)}><T color={C.bad} style={{ lineHeight: 22 }}>{r.bad.join("\n")}</T></Sheet>);
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
+  // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
+  const pdBoard = () => setDlg(<OrdersDialog x={x} pd onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
+    onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
+  const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
   const tillDlg = () => setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />);
 
   const qty = (i: number, d: number) => { const l = cart[i];
@@ -187,6 +192,8 @@ export function Register() {
         {live_eo ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingTop: 12 }}>
           <T w="s">Order {ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
           <View style={{ flex: 1 }} /><Btn kind="ghost" height={36} label="Close" onPress={reset} /></View> : null}
+        {live_eo && (live_eo.customerName || live_eo.phone) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
+          <T w="m" size={14}>{[live_eo.customerName, live_eo.phone, live_eo.source].filter(Boolean).join(" · ")}</T>{live_eo.address ? <T size={13} color={C.mut} numberOfLines={2}>{live_eo.address}</T> : null}</View> : null}
         {types.length > 1 && !live_eo && (
           <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
             {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => (k === "dinein" ? switchType(k) : askCust(k))} />)}
@@ -220,6 +227,11 @@ export function Register() {
           {live_eo?.status === "pending" ? <>
             <Btn kind="danger" height={56} style={{ flex: 1 }} label="Decline" onPress={decline} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label="Accept" onPress={accept} />
+          </> : live_eo?.status === "active" && live_eo.type === "delivery" && !live_eo.dispatchedAt ? <>
+            <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.some(l => l.qty > (l.saved || 0))} onPress={saveOrder} />
+            <Btn height={56} style={{ flex: 1 }} label={live_eo.driverId && live_eo.driverName ? live_eo.driverName : "Add Driver"} sub={live_eo.driverId ? DRV_ST[live_eo.driverStatus] : undefined}
+              onPress={() => setDlg(<DriverPick x={x} o={live_eo} onDone={m => { setDlg(null); if (m) say(m); }} />)} />
+            <Btn kind="primary" height={56} style={{ flex: 1 }} label="Dispatch" disabled={cart.some(l => l.qty > (l.saved || 0))} onPress={dispatch} />
           </> : ro ? <Btn height={56} style={{ flex: 1 }} label={"Done · " + ordRef(live_eo!) + " · New Order"} onPress={reset} /> : <>
             <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length || (!!live_eo && !cart.some(l => l.qty > (l.saved || 0)))} onPress={saveOrder} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={pay} />
@@ -256,7 +268,7 @@ export function Register() {
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
-                : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein"); }} />) : askCust(types.find(k => k !== "dinein") || "takeaway"))}
+                : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein"); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
               <Icon name={ic} color={C.mut} /><T w="m" size={11} color={C.mut} numberOfLines={1}>{l}</T>
             </Pressable>))}
