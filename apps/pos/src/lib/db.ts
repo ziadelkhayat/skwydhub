@@ -101,3 +101,40 @@ export function listen(sb: SupabaseClient, topic: string, onChange: (table?: str
     .subscribe((st: string) => onState(st === "SUBSCRIBED"));
   return () => { sb.removeChannel(ch); };
 }
+
+/* ---------- writes: an outbox on the tablet, sent in order when there is a connection (wokdb.js offline layer) ---------- */
+const COLS: Record<string, Set<string>> = Object.fromEntries(Object.entries({
+  orders: "id brand_id no channel source type status branch_id device_id shift_id zone_id customer_name phone address lat lng table_no notes items subtotal discount_pct discount delivery_fee tax invoice_no total payment agent handled_by accepted_at done_at void_reason voided_at voided_by created_at charges charges_total receipt_notes guests voided_items returned_items refund_total stock_action return_reason returned_at returned_by approved_by refund_of return_no discount_type updated_at closed_at scheduled_at edit_request driver_id driver_name dispatched_at dispatched_by driver_status driver_assigned_at driver_accepted_at picked_at pickup_photo delivered_at track_token driver_lat driver_lng driver_loc_at rating_driver rating_order rating_note rated_at driver_settled_at driver_settled_by",
+  shifts: "id device_id branch_id cashier opening_cash opened_at closed_at orders sales expected_cash counted_cash difference",
+  day_closes: "id branch_id business_date closed_at closed_by device_id orders sales created_at",
+  devices: "id name type branch_id code activated_at last_seen deleted created_at reference settings",
+}).map(([k, v]) => [k, new Set(v.split(" "))]));
+const RENAME: Record<string, string> = { open: "open_time", close: "close_time", table: "table_no" };
+const snake = (k: string) => RENAME[k] || k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
+export function toRow(col: string, id: string | null, data: Record<string, any>) {
+  const t = tableOf(col);
+  if (t === "settings") { const d = { ...data }; delete d.updatedAt; delete d.createdAt; delete d.id; return { id, data: d }; }
+  const row: any = id ? { id } : {};
+  for (const [k, v] of Object.entries(data)) { const s = snake(k); if (COLS[t]?.has(s) && s !== "id") row[s] = v === "" && /_id$/.test(s) ? null : v; }
+  if (t === "orders" && row.no != null) row.no = +row.no;
+  return row;
+}
+export type Op = { col: Col; op: "set" | "update"; id: string; data: Record<string, any>; tries?: number; lastError?: string };
+const OUTBOX = "skwyd_outbox", FAILED = "skwyd_failed";
+export async function readOutbox(): Promise<{ outbox: Op[]; failed: Op[] }> {
+  const [[, a], [, b]] = await AsyncStorage.multiGet([OUTBOX, FAILED]);
+  try { return { outbox: a ? JSON.parse(a) : [], failed: b ? JSON.parse(b) : [] }; } catch { return { outbox: [], failed: [] }; }
+}
+export const saveOutbox = (outbox: Op[], failed: Op[]) => AsyncStorage.multiSet([[OUTBOX, JSON.stringify(outbox)], [FAILED, JSON.stringify(failed)]]).catch(() => {});
+export async function send(sb: SupabaseClient, op: Op) {
+  const t = tableOf(op.col);
+  if (op.op === "set") { const { error } = await sb.from(t).upsert(toRow(op.col, op.id, op.data)); if (error) throw error; }
+  else { const row = toRow(op.col, null, op.data); delete row.id; const { error } = await sb.from(t).update(row).eq("id", op.id); if (error) throw error; }
+}
+// a change shows on screen at once: the list as the server sent it, with the writes still waiting laid over it
+export function applyOp(rows: Row[], op: Op): Row[] {
+  const i = rows.findIndex(r => r.id === op.id), out = rows.slice();
+  if (op.op === "set") { const r = { ...op.data, id: op.id } as Row; if (i < 0) out.unshift(r); else out[i] = r; }
+  else if (i >= 0) out[i] = { ...out[i], ...op.data, id: op.id };
+  return out;
+}
