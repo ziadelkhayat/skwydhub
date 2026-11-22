@@ -77,11 +77,10 @@ export default function AppSidebar() {
 
       <SidebarContent className="overflow-y-auto px-5 duration-300 ease-linear">
         <nav className="mb-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
             {activeSections.map((section) => (
               <SidebarNavGroup
                 key={section.type}
-                labelKey={section.labelKey}
                 menuType={section.type}
                 items={section.items}
                 openSubmenu={openSubmenu}

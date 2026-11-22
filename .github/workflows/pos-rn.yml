@@ -8,7 +8,7 @@ permissions:
   contents: write
 concurrency:
   group: pos-rn
-  cancel-in-progress: true
+  cancel-in-progress: false   # a build in progress finishes; the next one waits
 jobs:
   apk:
     runs-on: ubuntu-latest

@@ -1,16 +1,11 @@
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { useTranslations } from "@/i18n";
-import { HorizontalDotsIcon } from "@/icons";
-import { cn } from "@/utils";
 import SidebarMenuItem from "./sidebar-menu-item";
 import type { MenuType, NavItem } from "./types";
 
 interface SidebarNavGroupProps {
-  labelKey: string;
   menuType: MenuType;
   items: NavItem[];
   openSubmenu: { type: MenuType; index: number } | null;
@@ -20,7 +15,6 @@ interface SidebarNavGroupProps {
 }
 
 export default function SidebarNavGroup({
-  labelKey,
   menuType,
   items,
   openSubmenu,
@@ -28,18 +22,9 @@ export default function SidebarNavGroup({
   pathname,
   onToggleSubmenu,
 }: SidebarNavGroupProps) {
-  const t = useTranslations("sidebar");
-
   return (
     <SidebarGroup className="p-0">
-      <SidebarGroupLabel
-        className={cn(
-          "mb-4 flex h-auto p-0 text-xs leading-5 text-gray-400 uppercase",
-          !showContent ? "xl:justify-center" : "justify-start",
-        )}
-      >
-        {showContent ? t(labelKey) : <HorizontalDotsIcon />}
-      </SidebarGroupLabel>
+      {/* one list for the whole menu: no section titles (Ziad, 23-11-2026) */}
       <SidebarMenu className="gap-1">
         {items.map((nav, index) => (
           <SidebarMenuItem
