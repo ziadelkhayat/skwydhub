@@ -8,6 +8,8 @@ import OrdersPage from "@/skwyd/pages/Orders";
 import CustomersPage from "@/skwyd/pages/Customers";
 import ItemPage from "@/skwyd/pages/ItemPage";
 import DevicesPage from "@/skwyd/pages/Devices";
+import DiscountsPage from "@/skwyd/pages/Discounts";
+import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
 import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
 import SignInPage from "@/skwyd/pages/SignIn";
@@ -31,6 +33,10 @@ export default function App() {
           <Route path="/devices" element={<DevicesPage />} />
           <Route path="/reasons" element={<ReasonsPage />} />
           <Route path="/tags" element={<TagsPage />} />
+          <Route path="/discounts" element={<DiscountsPage />} />
+          <Route path="/loyalty" element={<LoyaltyPage />} />
+          <Route path="/gift-cards" element={<GiftCardsPage />} />
+          <Route path="/coupons" element={<CouponsPage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>

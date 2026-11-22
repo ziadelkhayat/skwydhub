@@ -13,3 +13,4 @@ export const money = (n: any) => { const c = coSet(); const dec = c.priceDecimal
   const sym = String(c.currencySymbol || "").trim() || c.currency || "USD"; const v = (+n || 0).toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
   return /[\p{L}.]$/u.test(sym) ? sym + " " + v : sym + v; };
 export const fmtDateTime = (v?: string | null) => { if (!v) return "—"; const d = new Date(v); return isNaN(+d) ? "—" : fmtDate(v) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase(); };
+export const sym = () => { const c = coSet(); return String(c.currencySymbol || "").trim() || c.currency || "USD"; };
