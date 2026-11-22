@@ -1,5 +1,5 @@
 // Who is signed in: the staff row of the business (owner, admin or a user with a role), like the current portal.
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { sb } from "./supabase";
 
 export type Staff = { userId: string; name: string; email?: string; phone?: string; role: string | null; roleId?: string | null; companyId?: string | null; viewAs?: any; locked?: boolean };
@@ -12,9 +12,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  async function load() {
-    setLoading(true);
+  const seqRef = useRef(0), uidRef = useRef<string | null>(null);
+  async function load(quiet = false) {
+    const my = ++seqRef.current; if (!quiet) setLoading(true);
+    // a slow or stuck connection doesn't leave the page on the spinner forever
+    const t = setTimeout(() => { if (my === seqRef.current) { setMessage("Couldn't reach the server. Check your connection and sign in again."); setLoading(false); } }, 20000);
+    try { await load0(); } finally { clearTimeout(t); }
+  }
+  async function load0() {
     const { data: { user } } = await sb.auth.getUser();
+    uidRef.current = user && !user.is_anonymous ? user.id : null;
     if (!user || user.is_anonymous) { setStaff(null); setLoading(false); return; }
     let { data } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle();
     if (!data) { const c = await sb.rpc("skwyd_claim_login"); if (c.data) ({ data } = await sb.from("staff").select("*").eq("user_id", user.id).maybeSingle()); }
@@ -33,7 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
   useEffect(() => {
     load();
-    const { data: sub } = sb.auth.onAuthStateChange(ev => { if (ev === "SIGNED_IN" || ev === "SIGNED_OUT") load(); });
+    // never call Supabase inside this callback (it waits for the auth lock the callback holds, and the page hangs on the spinner): run after it
+    // the same login seen again (another tab, the web ordering preview, a token refresh) changes nothing: only a different person or signing out reloads
+    const { data: sub } = sb.auth.onAuthStateChange((ev, session) => { const uid = session?.user?.id || null;
+      if (ev === "SIGNED_OUT" || (ev === "SIGNED_IN" && uid !== uidRef.current)) setTimeout(() => load(), 0); });
     return () => sub.subscription.unsubscribe();
   }, []);
   const signOut = async () => { await sb.auth.signOut(); setStaff(null); };
