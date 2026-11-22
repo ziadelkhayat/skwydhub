@@ -376,3 +376,5 @@ html:root body.v3moreon nav#tabbar.tabbar a{color:#6C6C70!important;background:n
 html:root body.v3moreon nav#tabbar.tabbar a[data-more]{color:#0066D6!important;background:rgba(118,118,128,.12)!important}
 html:root body.v3moreon nav#tabbar.tabbar{display:flex!important}
 #v3morepage input{font-size:17px!important;border:0!important;box-shadow:none!important}
+html body aside.side .v3side input.hv3sq,html body #view > .v3 input[type=search]{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;height:34px!important;min-height:0!important;border-radius:0!important}
+html body .app aside.side .v3side input.hv3sq.hv3sq{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;height:34px!important;min-height:0!important;border-radius:0!important;outline:0!important}
