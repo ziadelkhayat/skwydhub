@@ -11,11 +11,11 @@ import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { coSet, money } from "@/lib/util";
 import { cn } from "@/utils";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
 import { F, SEL } from "../ui/kit";
-import { OrderSheet } from "./Orders";
 import CallCenterOrder from "./CallCenterOrder";
 
 const COLS: [string, string, string][] = [["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Preparing", "Orders that are currently being prepared in the store"],
@@ -31,9 +31,9 @@ const isoDay = (d: Date) => new Date(+d - d.getTimezoneOffset() * 60000).toISOSt
 
 export default function CallCenterPage() {
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], users = useCol("users") || [], roles = useCol("roles") || [], closes = useCol("day_closes") || [];
-  const { staff } = useAuth();
+  const { staff } = useAuth(); const nav = useNavigate();
   const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" }), [fOpen, setFOpen] = useState(false);
-  const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0), [open, setOpen] = useState<any>(null), [comp, setComp] = useState<any>(undefined);
+  const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0), [comp, setComp] = useState<any>(undefined);
   // the business day: a store's day starts at its day start (or the company's day end); a store that ended its day early starts the next one then
   const cut = (bid?: string) => cutOf(branches.find(b => b.id === bid)?.settings?.dayStart || (sets.find(x => x.id === "company") as any)?.dayEnd);
   const bizDate = (t: any, bid?: string) => { const ms = +new Date(t); let d = isoDay(new Date(ms - cut(bid) * 60000));
@@ -70,12 +70,11 @@ export default function CallCenterPage() {
           <div key={k} className="w-72 shrink-0 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
             <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
-            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {t.toLowerCase()} orders</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={async () => { if (["draft", "review", "pending"].includes(o.status)) { const { data } = await sb.from("orders").select("*").eq("id", o.id).single(); setComp(data ? camel(data) : o); } else setOpen(o); }} />)}</div>
+            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {t.toLowerCase()} orders</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={async () => { if (["draft", "review", "pending"].includes(o.status)) { const { data } = await sb.from("orders").select("*").eq("id", o.id).single(); setComp(data ? camel(data) : o); } else nav("/order?id=" + o.id); }} />)}</div>
           </div>); })}
       </div>
       {fOpen && <FilterDlg F0={F0} today={bizDate(new Date())} brands={brands.filter(live)} branches={branches.filter(b => live(b) && (!F0.brand || b.brandId === F0.brand))} agents={agents} onClose={() => setFOpen(false)} onApply={f => { setF(f); setFOpen(false); }} />}
       {comp !== undefined && <CallCenterOrder order={comp} onClose={() => { setComp(undefined); setTick(t => t + 1); }} />}
-      <OrderSheet id={open?.id} brief={open} onClose={() => setOpen(null)} branches={branches} brands={brands} />
     </>
   );
 }

@@ -2972,7 +2972,7 @@ const outDel = o => o && o.status==="active" && o.type==="delivery" && !!o.dispa
 const stLbl = o => outDel(o) ? "Dispatched" : ({ review:"Call center review", refund:"Returned", pending:"Waiting for you", active:"Preparing", closed:"Done", void:"Void", returned:"Returned", declined:"Declined", draft:"Draft" }[o.status] || o.status);
 const typLbl = t => t==="fast" || t==="dinein" ? "Dine-in" : t==="pickup"||t==="takeaway" ? "Pickup" : t==="delivery" ? "Delivery" : (t||"—");
 const invNo = n => n ? String(n).padStart(6,"0") : "";   // invoice number as shown and printed
-const ordRef = o => o.status==="refund" ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—";
+const ordRef = o => o.status==="refund" && !o.no && !o.invoiceNo ? "RET-" + String(o.returnNo || "…").padStart(6,"0") : o.no ? String(o.no) : o.invoiceNo ? invNo(o.invoiceNo) : "—";   // returns get an order and check number in sequence (older ones kept RET-)
 // Orders: full-screen board, one column per state (like the call center). Tap an order to open it in the billing section
 const OV_COLS = [["pending","Pending","Waiting for this branch to accept"],["active","Preparing","Open orders: add or void items, then bill"],["closed","Done","Billed today: return items or the invoice"],["void","Void & returns","Voided, declined, returned or refunded today"]];
 // the Orders list: every order of this branch (lifetime), or a date range. Older orders come from the server

@@ -13,6 +13,8 @@ const Dashboard = lazy(() => import("@/skwyd/pages/Dashboard"));
 const OrdersPage = lazy(() => import("@/skwyd/pages/Orders"));
 const CustomersPage = lazy(() => import("@/skwyd/pages/Customers"));
 const ItemPage = lazy(() => import("@/skwyd/pages/ItemPage"));
+const OrderPage = lazy(() => import("@/skwyd/pages/OrderPage"));
+const CustomerPage = lazy(() => import("@/skwyd/pages/CustomerPage"));
 const DevicesPage = lazy(() => import("@/skwyd/pages/Devices"));
 const DiscountsPage = lazy(() => import("@/skwyd/pages/Discounts"));
 const PromotionsPage = lazy(() => import("@/skwyd/pages/Promotions"));
@@ -79,6 +81,8 @@ function Gate() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/item" element={<ItemPage />} />
+          <Route path="/order" element={<OrderPage />} />
+          <Route path="/customer" element={<CustomerPage />} />
           <Route path="/devices" element={<DevicesPage />} />
           <Route path="/reasons" element={<ReasonsPage />} />
           <Route path="/tags" element={<TagsPage />} />
