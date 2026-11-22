@@ -173,7 +173,7 @@ export default function WebOrderingPage() {
               <div key={b.id} className={cn("rounded-2xl border bg-white p-5 lg:p-6 dark:bg-white/3", x.paused ? "border-amber-300 dark:border-amber-500/40" : "border-gray-200 dark:border-gray-800")}>
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{b.openTime || b.closeTime ? t12(b.openTime) + " – " + t12(b.closeTime) : "Hours in Manage → Stores"} · {z} delivery zone{z === 1 ? "" : "s"}</p></div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{b.open || b.close ? t12(b.open) + " – " + t12(b.close) : "Hours in Manage → Stores"} · {z} delivery zone{z === 1 ? "" : "s"}</p></div>
                   <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">{x.paused ? "Paused" : "Taking orders"}<Switch checked={!x.paused} onCheckedChange={v => bset(b.id, "paused", !v)} /></label>
                 </div>
                 <div className="mb-5 flex flex-wrap gap-2">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "Dine-in"]].map(([k, t]) => { const on = x[k] !== false; return (
