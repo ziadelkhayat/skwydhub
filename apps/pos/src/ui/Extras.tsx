@@ -83,3 +83,16 @@ export function RetrieveDialog({ held, cur, onDone }: { held: Held[]; cur: (n: n
     </Sheet>
   );
 }
+
+// a reason picked from a list (Manage → Reasons), or written
+export function ReasonAsk({ title, reasons, ok = "OK", onDone }: { title: string; reasons: string[]; ok?: string; onDone: (r: string | null) => void }) {
+  const [r, setR] = useState(""), [other, setOther] = useState(""), why = r === "_other" ? other.trim() : r;
+  return (
+    <Sheet title={title} width={560} onClose={() => onDone(null)} footer={<><View style={{ flex: 1 }} /><Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label={ok} disabled={!why} onPress={() => onDone(why)} /></>}>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{[...reasons, "_other"].map(x => (
+        <Pressable key={x} onPress={() => setR(x)} style={{ paddingHorizontal: 14, height: 44, justifyContent: "center", borderRadius: R.sm, borderWidth: r === x ? 2 : 1, borderColor: r === x ? C.brand : C.line, backgroundColor: r === x ? C.brand50 : "#fff" }}>
+          <T w="m">{x === "_other" ? "Other…" : x}</T></Pressable>))}</View>
+      {r === "_other" ? <TextInput value={other} onChangeText={setOther} placeholder="Write the reason" accessibilityLabel="Reason" style={{ marginTop: 12, height: 46, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 12, fontFamily: F.r, fontSize: 15 }} /> : null}
+    </Sheet>
+  );
+}
