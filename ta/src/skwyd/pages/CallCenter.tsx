@@ -1,6 +1,6 @@
 // Call Center board: the business day's call center and web orders in columns (Pending, Preparing, Dispatched, Done, Void & Returned,
 // Declined), live, with the same filter (brand, store, business date, user) and order tiles as the current portal. Pressing a tile opens the order.
-// New orders are still made in the current portal's order screen (opened in a new tab) until the order composer is rebuilt here.
+// New, draft, waiting and pending orders open in the order screen (CallCenterOrder); the rest open in the order panel.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,14 @@ import { CallIcon, FilterIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { coSet, money, OLD_PORTAL } from "@/lib/util";
+import { coSet, money } from "@/lib/util";
 import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
 import { F, SEL } from "../ui/kit";
 import { OrderSheet } from "./Orders";
+import CallCenterOrder from "./CallCenterOrder";
 
 const COLS: [string, string, string][] = [["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Preparing", "Orders that are currently being prepared in the store"],
   ["dispatched", "Dispatched", "Delivery orders a driver has picked up and is taking to the customer"], ["closed", "Done", "Orders that are completed"],
@@ -32,7 +33,7 @@ export default function CallCenterPage() {
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], users = useCol("users") || [], roles = useCol("roles") || [], closes = useCol("day_closes") || [];
   const { staff } = useAuth();
   const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" }), [fOpen, setFOpen] = useState(false);
-  const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0), [open, setOpen] = useState<any>(null);
+  const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0), [open, setOpen] = useState<any>(null), [comp, setComp] = useState<any>(undefined);
   // the business day: a store's day starts at its day start (or the company's day end); a store that ended its day early starts the next one then
   const cut = (bid?: string) => cutOf(branches.find(b => b.id === bid)?.settings?.dayStart || (sets.find(x => x.id === "company") as any)?.dayEnd);
   const bizDate = (t: any, bid?: string) => { const ms = +new Date(t); let d = isoDay(new Date(ms - cut(bid) * 60000));
@@ -62,17 +63,18 @@ export default function CallCenterPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          <a href={OLD_PORTAL + "#call-center"} target="_blank" rel="noopener"><Button><CallIcon className="size-5" />New Call Center Order</Button></a></div>
+          <Button onClick={() => setComp(null)}><CallIcon className="size-5" />New Call Center Order</Button></div>
       </div>
       <div className="custom-scrollbar flex gap-4 overflow-x-auto pb-4">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
           <div key={k} className="w-72 shrink-0 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
             <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
-            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {t.toLowerCase()} orders</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => setOpen(o)} />)}</div>
+            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {t.toLowerCase()} orders</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={async () => { if (["draft", "review", "pending"].includes(o.status)) { const { data } = await sb.from("orders").select("*").eq("id", o.id).single(); setComp(data ? camel(data) : o); } else setOpen(o); }} />)}</div>
           </div>); })}
       </div>
       {fOpen && <FilterDlg F0={F0} today={bizDate(new Date())} brands={brands.filter(live)} branches={branches.filter(b => live(b) && (!F0.brand || b.brandId === F0.brand))} agents={agents} onClose={() => setFOpen(false)} onApply={f => { setF(f); setFOpen(false); }} />}
+      {comp !== undefined && <CallCenterOrder order={comp} onClose={() => { setComp(undefined); setTick(t => t + 1); }} />}
       <OrderSheet id={open?.id} brief={open} onClose={() => setOpen(null)} branches={branches} brands={brands} />
     </>
   );
