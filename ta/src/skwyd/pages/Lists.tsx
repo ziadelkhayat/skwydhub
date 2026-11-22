@@ -155,3 +155,41 @@ export function TagsPage() {
     </>
   );
 }
+
+// Catalog → Allergens: the list kept in settings "allergens" ({ list, ar }), as in the current portal. Renaming one renames it on every item and
+// modifier option that has it; rows show how many items use it and can be dragged to change their order.
+const DEF_ALLERGENS = ["Celery", "Cereals containing gluten", "Crustaceans", "Eggs", "Fish", "Lupin", "Milk", "Molluscs", "Mustard", "Tree nuts", "Peanuts", "Sesame", "Soy", "Sulphites"];
+export function AllergensPage() {
+  const sets = useCol("settings"), prods = useCol("products"), opts = useCol("modifier_options");
+  const [form, setForm] = useState<{ a?: string } | null>(null);
+  if (!sets || !prods || !opts) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
+  const doc: any = sets.find(x => x.id === "allergens") || {}, list: string[] = Array.isArray(doc.list) ? doc.list : DEF_ALLERGENS, ar: Record<string, string> = { ...(doc.ar || {}) };
+  const used = (a: string) => prods.filter(p => !p.deleted && (p.allergens || []).includes(a)).length + opts.filter(o => !o.deleted && (o.allergens || []).includes(a)).length;
+  const save = async (l: string[], m: Record<string, string> = ar) => { const a2 = { ...m }; Object.keys(a2).forEach(k => { if (!l.includes(k) || !a2[k]) delete a2[k]; });
+    try { await put("settings", "allergens", { list: l, ar: a2 }); return true; } catch { toast("Couldn't save", "error"); return false; } };
+  const rename = async (from: string, to: string) => { for (const [col, rows] of [["products", prods], ["modifier_options", opts]] as const)
+    for (const r of rows.filter(x => (x.allergens || []).includes(from))) await put(col, r.id, { allergens: r.allergens.map((x: string) => x === from ? to : x) }).catch(() => {}); };
+  const a = form?.a;
+  return (
+    <>
+      <PageBreadcrumb pageTitle="Allergens" />
+      <div className="max-w-3xl"><Section title="Allergens" empty="Add the allergens your items can contain. They show on the item page and to customers."
+        items={list.map(x => ({ key: x, name: x, nameAr: ar[x] }))} onNew={() => setForm({})} onOpen={it => setForm({ a: it.key })}
+        onMove={keys => save(keys).then(ok => ok && toast("Order saved"))}
+        action={it => { const n = used(it.key); return <span className="text-xs text-gray-500">{n} item{n === 1 ? "" : "s"}</span>; }} /></div>
+      {form && <NameDialog title={a ?? "Create Allergen"} name={a || ""} nameAr={a ? ar[a] || "" : ""} onClose={() => setForm(null)}
+        onSave={async (n, nar) => {
+          if ((a == null || n !== a) && list.some(x => x.toLowerCase() === n.toLowerCase())) return "This allergen already exists.";
+          if (a == null) { if (!(await save([...list, n], { ...ar, [n]: nar || "" }))) return "Couldn't save."; toast("Allergen created"); return null; }
+          const m = { ...ar }; delete m[a]; m[n] = nar || ""; if (n !== a) await rename(a, n);
+          if (!(await save(list.map(x => x === a ? n : x), m))) return "Couldn't save."; toast("Allergen saved"); return null; }}
+        onDelete={a != null ? async () => { const ok = await save(list.filter(x => x !== a)); if (ok) toast("Allergen deleted"); return ok; } : undefined} />}
+    </>
+  );
+}
+
+// Catalog → Combos: not built in the current portal either (it shows "Coming next"), so this page says the same
+export function CombosPage() {
+  return <><PageBreadcrumb pageTitle="Combos" /><div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-white/3">
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Coming next</h3><p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This screen is part of the plan and will be built in a later step.</p></div></>;
+}

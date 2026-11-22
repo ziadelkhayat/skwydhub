@@ -28,7 +28,7 @@ import EmployeePage from "@/skwyd/pages/Employee";
 import { AccountPage, MarketplacePage, SubscriptionPage } from "@/skwyd/pages/Account";
 import { InvHistoryPage, InvLevelsPage, PurchasingReportPage } from "@/skwyd/pages/InvReports";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
-import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
+import { ReasonsPage, TagsPage, AllergensPage, CombosPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
 import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
@@ -75,6 +75,8 @@ export default function App() {
           <Route path="/account" element={<AccountPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/marketplace" element={<MarketplacePage />} />
+          <Route path="/allergens" element={<AllergensPage />} />
+          <Route path="/combos" element={<CombosPage />} />
           <Route path="/purchasing" element={<PurchasingReportPage />} />
           {Object.keys(RPT_HUB).map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
           {Object.keys(DOC_KINDS).map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
