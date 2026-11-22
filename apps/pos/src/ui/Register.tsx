@@ -9,6 +9,8 @@ import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
+import { VoidReturnDialog } from "./VoidReturn";
+import { fullyBack } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
 import { kitchenText, printJob, printerHas, receiptText } from "../lib/print";
@@ -130,6 +132,11 @@ export function Register() {
     const d = h.data; setCart(d.cart); setOtype(d.otype); setTable(d.table); setCust(d.cust); setDisc(d.disc); setPicked(d.picked); setOpenCh(d.openCh); setNotes(d.notes);
     await AsyncStorage.setItem(HK, JSON.stringify(l.filter(y => y.id !== h.id))); };
   const action = async (a: string) => {
+    if (a === "Void") { // an open order is voided, a done one returned
+      if (!live_eo) return say("Open an order from Orders to void or return it");
+      if (live_eo.status === "closed" && fullyBack(live_eo)) return say("Nothing left to return on this order");
+      if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
+      return setDlg(<VoidReturnDialog x={x} o={live_eo} onDone={m => { setDlg(null); if (m) { say(m); reset(); } }} />); }
     if (ro && a !== "Print") return say("This order is done");
     if (a === "Discount") { const p = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), am = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
       if (!p && !am) return say("Your role doesn't allow discounts.");
@@ -157,7 +164,7 @@ export function Register() {
 
   const qty = (i: number, d: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
-    if (d < 0 && l?.saved && l.qty - 1 < l.saved) return say("Voiding items already sent comes next (manager approval)");
+    if (d < 0 && l?.saved && l.qty - 1 < l.saved) return action("Void");   // an item already sent is voided, with a manager's approval
     setQty(i, d); };
   const setQty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [{ ...l, qty: +(l.qty + d).toFixed(3) }])));
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
