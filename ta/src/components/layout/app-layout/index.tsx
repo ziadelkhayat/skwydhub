@@ -21,14 +21,14 @@ export default function AppLayout({
     if (isAiRoute) {
       return "flex-1 min-h-0 flex flex-col";
     }
-    return "p-4 mx-auto w-full max-w-(--breakpoint-2xl) md:p-6";
+    return "p-4 mx-auto w-full min-w-0 max-w-(--breakpoint-2xl) md:p-6";
   };
 
   return (
     <SidebarProvider className={cn(isAiRoute && "h-svh overflow-hidden")}>
       <AppSidebar />
 
-      <SidebarInset className={cn(isAiRoute && "h-svh overflow-hidden")}>
+      <SidebarInset className={cn("min-w-0", isAiRoute && "h-svh overflow-hidden")}>
         <AppHeader />
 
         <div className={getRouteSpecificStyles()}>{children ?? <Outlet />}</div>

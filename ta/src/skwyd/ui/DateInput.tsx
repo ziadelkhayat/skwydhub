@@ -21,3 +21,22 @@ export function DateInput({ value, onChange, placeholder = "dd-mm-yyyy" }: { val
     </div>
   );
 }
+
+/** a business-date range (from – to), dd-mm-yyyy, empty = all dates */
+export function RangeInput({ from, to, onChange }: { from: string; to: string; onChange: (from: string, to: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null), cb = useRef(onChange); cb.current = onChange;
+  useEffect(() => {
+    if (!ref.current) return;
+    const f = flatpickr(ref.current, { mode: "range", dateFormat: "d-m-Y", defaultDate: [from, to].filter(Boolean),
+      onClose: (dates) => { const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+        if (!dates.length) cb.current("", ""); else cb.current(iso(dates[0]), iso(dates[1] || dates[0])); } }) as flatpickr.Instance;
+    return () => f.destroy();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="relative">
+      <Input ref={ref} type="text" placeholder="Business Date" className="h-11 pe-10" readOnly />
+      {from ? <button type="button" aria-label="Clear dates" onClick={() => { (ref.current as any)?._flatpickr?.clear(); onChange("", ""); }} className="absolute inset-e-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:text-gray-400">×</button>
+        : <span className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"><CalendarIcon className="size-5" /></span>}
+    </div>
+  );
+}
