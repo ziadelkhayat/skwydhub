@@ -207,13 +207,18 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > .body .f > label.ch
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body label.chk > input[type=checkbox]{background:rgba(255,255,255,.1)!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body label.chk > input[type=checkbox]:checked{background:#465FFF!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim > .modal > .body .f > label.chk{color:#D0D5DD!important}
+
+/* empty lists: the Skwyd mascot everywhere (instead of other icons) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .empty::before,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .empty::before{content:""!important;display:block!important;width:56px!important;height:58px!important;margin:0 auto 12px!important;border-radius:0!important;background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20120%20124%27%3E%3Cg%20transform%3D%27translate%280%203%29%27%20fill%3D%27none%27%20stroke%3D%27%2398A2B3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M60%2010%20C82%2010%2094%2032%2094%2054%20C94%2070%2082%2078%2060%2078%20C38%2078%2026%2070%2026%2054%20C26%2032%2038%2010%2060%2010Z%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M38%2074%20C34%2092%2022%2094%2024%20104%20C26%20110%2034%20106%2030%20101%20M50%2078%20C50%2094%2044%20104%2048%20110%20M60%2078%20V108%20C60%20112%2066%20112%2064%20107%20M70%2078%20C70%2094%2076%20104%2072%20110%20M82%2074%20C86%2092%2098%2094%2096%20104%20C94%20110%2086%20106%2090%20101%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M48%2050h0M72%2050h0%27%20stroke-width%3D%278.8%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat!important;box-shadow:none!important;border:0!important;-webkit-mask:none!important;mask:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .empty > svg:first-child,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .empty > .eico,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .empty > i:first-child,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .empty > span:first-child:has(> svg:only-child){display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .empty::before,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .empty::before{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20120%20124%27%3E%3Cg%20transform%3D%27translate%280%203%29%27%20fill%3D%27none%27%20stroke%3D%27%23667085%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M60%2010%20C82%2010%2094%2032%2094%2054%20C94%2070%2082%2078%2060%2078%20C38%2078%2026%2070%2026%2054%20C26%2032%2038%2010%2060%2010Z%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M38%2074%20C34%2092%2022%2094%2024%20104%20C26%20110%2034%20106%2030%20101%20M50%2078%20C50%2094%2044%20104%2048%20110%20M60%2078%20V108%20C60%20112%2066%20112%2064%20107%20M70%2078%20C70%2094%2076%20104%2072%20110%20M82%2074%20C86%2092%2098%2094%2096%20104%20C94%20110%2086%20106%2090%20101%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M48%2050h0M72%2050h0%27%20stroke-width%3D%278.8%27/%3E%3C/g%3E%3C/svg%3E")!important}
 /* breadcrumb */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:none}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb ol{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;flex-wrap:wrap}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;color:#1D2939}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li a{color:#667085;text-decoration:none}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li a[href]:hover{color:#465FFF}
-html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb li svg{color:#667085}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-crumb ol{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;flex-wrap:wrap}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-crumb li{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;color:#1D2939}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-crumb li a{color:#667085;text-decoration:none}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-crumb li a[href]:hover{color:#465FFF}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-crumb li svg{color:#667085}
 @media (min-width:768px) and (min-height:501px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > .ta-crumb{display:block;margin:0 0 12px}}
 /* page */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view.content{padding:24px!important;max-width:1536px!important;margin:0 auto!important;background:transparent!important}
@@ -587,6 +592,76 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6) body #wkGate :is(h1,h2){font-weight:600!im
 }
 /* loading */
 html:root:is(html,#_1#_2#_3#_4#_5#_6) body #bootLoad span[style*="border"]{border-color:#E4E7EC!important;border-top-color:#465FFF!important}
+
+/* ===== TailAdmin page layout pass ===== */
+@font-face{font-family:Outfit;font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/outfit-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Outfit;font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/outfit-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+/* title left, breadcrumb right (mb-6) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead.ta-ph{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:24px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead.ta-ph > .sp{display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead > .ta-crumb{display:block!important;margin:0 0 0 auto!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead.ta-ph > h1{flex:0 1 auto!important}
+@media (max-width:767px), (max-height:500px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead > .ta-crumb{display:none!important}html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .phead.ta-ph > h1{flex:1 1 auto!important}}
+/* one card: header (tabs · filter · page buttons) + search + table + pages */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc.ta-jtop:has(~ .ta-jbot),html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick:has(+ .ta-jbot) > .card.otabsc.ta-jtop{border-bottom-left-radius:0!important;border-bottom-right-radius:0!important;margin-bottom:0!important;border-bottom:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.ta-jbot{border-top-left-radius:0!important;border-top-right-radius:0!important;margin-top:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc{padding:20px 24px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts{display:flex!important;align-items:center!important;gap:12px!important;flex:none!important;flex-wrap:wrap!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts > *{margin:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts .ordtools{display:flex!important;gap:12px!important;flex-wrap:nowrap!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts .ordtools > *{flex:none!important;width:auto!important;min-width:140px!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .ta-acts .ordtools){flex-wrap:wrap!important}
+@media (max-width:1279px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop:has(> .ta-acts){flex-wrap:wrap!important}html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts{flex:1 1 100%!important;order:5}}
+@media (max-width:767px), (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc{padding:16px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts > :is(.btn,.ddwrap){flex:1 1 0!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts .ddwrap > .btn{width:100%!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts .ordtools{flex:1 1 100%!important;flex-wrap:wrap!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .card.otabsc .ttop > .ta-acts .ordtools > *{flex:1 1 140px!important;min-width:0!important}
+}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick{margin-bottom:0!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view > * + *,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ostick > * + *{margin-top:0}
+@media (min-width:768px){html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view :is(.dgrid3,.grid,.dbxgrid,.hmgrid){gap:24px!important}}
+/* pages: ‹ 1 2 3 › squares (TailAdmin) */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .pager.ta-pager{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:16px 24px!important;flex-wrap:wrap!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .pager.ta-pager > .btn,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .pager.ta-pager > .sp,html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .pager.ta-pager > .note:not(:first-of-type){display:none!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .pager.ta-pager > .note{order:2;font-size:14px!important;color:#667085!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pages{display:flex!important;align-items:center!important;gap:8px!important;order:1}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pg{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:40px;padding:0 8px;border:1px solid #D0D5DD;border-radius:8px;background:#fff;color:#344054;font:500 14px/1 Outfit,system-ui,sans-serif;box-shadow:0 1px 2px rgba(16,24,40,.05);cursor:pointer;transition:background .15s,color .15s}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pg:hover:not(:disabled):not(.on){background:#F9FAFB;color:#1D2939}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pg.on{background:#465FFF;border-color:#465FFF;color:#fff;cursor:default}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pg:disabled{opacity:.5;cursor:not-allowed}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .ta-pg.ta-pgd{border:0;box-shadow:none;background:transparent;min-width:20px;cursor:default}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .ta-pg{background:rgba(255,255,255,.03);border-color:#344054;color:#D0D5DD}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .ta-pg.on{background:#465FFF;border-color:#465FFF;color:#fff}
+/* mascot in empty columns too */
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view .bempty::before{content:"";display:block;width:40px;height:42px;margin:0 auto 8px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20120%20124%27%3E%3Cg%20transform%3D%27translate%280%203%29%27%20fill%3D%27none%27%20stroke%3D%27%2398A2B3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M60%2010%20C82%2010%2094%2032%2094%2054%20C94%2070%2082%2078%2060%2078%20C38%2078%2026%2070%2026%2054%20C26%2032%2038%2010%2060%2010Z%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M38%2074%20C34%2092%2022%2094%2024%20104%20C26%20110%2034%20106%2030%20101%20M50%2078%20C50%2094%2044%20104%2048%20110%20M60%2078%20V108%20C60%20112%2066%20112%2064%20107%20M70%2078%20C70%2094%2076%20104%2072%20110%20M82%2074%20C86%2092%2098%2094%2096%20104%20C94%20110%2086%20106%2090%20101%27%20stroke-width%3D%275.5%27/%3E%3Cpath%20d%3D%27M48%2050h0M72%2050h0%27%20stroke-width%3D%278.8%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
+/* motion: TailAdmin fades and zooms (150–200 ms) */
+@keyframes taIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+@keyframes taFade{from{opacity:0}to{opacity:1}}
+@keyframes taDrop{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes taSlide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim.show{animation:taFade .2s ease-out both!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim.show > .modal:not(.odrawer):not(.fltpanel){animation:taIn .2s ease-out both!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim.show > .modal.odrawer,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim.show > .modal.fltpanel{animation:taDrawer .3s ease-out both!important}
+@keyframes taDrawer{from{transform:translateX(100%)}to{transform:none}}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body :is(.ddmenu,.iemenu,.numenu,.msel-p,#acctMenu):not([hidden]),html:root:is(html,#_1#_2#_3#_4#_5#_6) body .app > .main > .top .ta-sres:not([hidden]){animation:taDrop .15s ease-out both}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body aside.side nav.nav .grp.open .sub{animation:taSlide .2s ease-out both}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim:has(> .modal:not(.odrawer):not(.fltpanel)){background:rgba(152,162,179,.5)!important;-webkit-backdrop-filter:blur(32px)!important;backdrop-filter:blur(32px)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .scrim:has(> .modal:not(.odrawer):not(.fltpanel)){background:rgba(0,0,0,.8)!important}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim:has(> .modal.odrawer),html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim:has(> .modal.fltpanel){background:rgba(16,24,40,.5)!important;-webkit-backdrop-filter:blur(4px)!important;backdrop-filter:blur(4px)!important}
+/* windows are centred dialogs on phones too (TailAdmin), not bottom sheets */
+@media (max-width:767px), (max-height:500px){
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim.show:has(> .modal:not(.odrawer):not(.fltpanel)){display:flex!important;align-items:center!important;justify-content:center!important;padding:16px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.odrawer):not(.fltpanel){position:relative!important;inset:auto!important;width:100%!important;max-width:672px!important;max-height:90vh!important;max-height:90dvh!important;margin:0!important;border-radius:24px!important;transform:none!important;bottom:auto!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.odrawer):not(.fltpanel)::before,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal .ios-grab,html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal .sheetgrab{display:none!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header{padding:24px 24px 8px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal:not(.fltpanel):not(.odrawer) > .body{padding:12px 24px 8px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > footer{padding:16px 24px 24px!important}
+  html:root:is(html,#_1#_2#_3#_4#_5#_6) body .scrim > .modal > header > button.x{right:20px!important;top:20px!important}
+}
+@media (prefers-reduced-motion:reduce){html:root:is(html,#_1#_2#_3#_4#_5#_6) body *{animation:none!important;transition:none!important}}
+html:root:is(html,#_1#_2#_3#_4#_5#_6) body #view table.otable td :is(div,b,span){text-align:left!important}
 /* ===== dark ===== */
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body{background:#101828!important;color:#D0D5DD!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body :is(h1,h2,h3,h4){color:rgba(255,255,255,.9)!important}
@@ -649,8 +724,8 @@ html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .ta-right #acctMenu 
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .ta-right #acctMenu > :is(a,button){color:#D0D5DD!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .ta-right #acctMenu > :is(a,button):hover{background:rgba(255,255,255,.05)!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body .ta-right #acctMenu > #amSignOut{border-color:#344054!important}
-html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view > .ta-crumb li{color:rgba(255,255,255,.9)}
-html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view > .ta-crumb li :is(a,svg){color:#98A2B3}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .ta-crumb li{color:rgba(255,255,255,.9)}
+html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .ta-crumb li :is(a,svg){color:#98A2B3}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch .hci{background:#1D2939!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch .hci svg *{stroke:rgba(255,255,255,.9)!important}
 html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hch > b,html:root:is(html,#_1#_2#_3#_4#_5#_6)[data-theme=dark] body #view .card.dbx .hsub{color:#98A2B3!important}
