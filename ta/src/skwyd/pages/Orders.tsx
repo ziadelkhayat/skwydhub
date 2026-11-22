@@ -147,7 +147,7 @@ export default function OrdersPage() {
   );
 }
 
-function OrderSheet({ id, brief, onClose, branches, brands }: { id?: string; brief: any; onClose: () => void; branches: any[]; brands: any[] }) {
+export function OrderSheet({ id, brief, onClose, branches, brands }: { id?: string; brief: any; onClose: () => void; branches: any[]; brands: any[] }) {
   const [o, setO] = useState<any>(null);
   useEffect(() => { setO(null); if (!id) return; let off = false;
     sb.from("orders").select("*").eq("id", id).maybeSingle().then(({ data }) => { if (!off && data) setO(camel(data)); });
