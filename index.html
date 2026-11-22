@@ -4633,7 +4633,11 @@ async function loadReport(force){
   try{
     let rows;
     if(["sales","payments","taxes","voids","menu","trend","speed","employees","drivers"].includes(RPT.key))
-      rows = (await rptFetch("orders", "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of,driver_id,driver_name,driver_status,driver_assigned_at,picked_at,delivered_at,rating_driver,rating_order", "created_at")).map(camelRow);
+      { const fo = () => rptFetch("orders", "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of,driver_id,driver_name,driver_status,driver_assigned_at,picked_at,delivered_at,rating_driver,rating_order", "created_at"); rows = (await fo()).map(camelRow);
+        // the same length of time just before, so the totals can say how they compare (as in the design file)
+        RPT.prev = null; if(RPT.key==="sales"){ try{ const f0 = RPT.from, t0 = RPT.to, d = (a, n) => { const x = new Date(a + "T12:00:00"); x.setDate(x.getDate() + n); return x.toISOString().slice(0,10); };
+          const len = Math.round((new Date(t0 + "T12:00:00") - new Date(f0 + "T12:00:00")) / 864e5) + 1; RPT.from = d(f0, -len); RPT.to = d(f0, -1);
+          try{ RPT.prev = (await fo()).map(camelRow); } finally{ RPT.from = f0; RPT.to = t0; } }catch(e){ console.warn("report prev", e); RPT.prev = null; } } }
     else if(RPT.key==="days") rows = (await rptFetch("day_closes", "*", "closed_at")).map(camelRow);
     else if(RPT.key==="shifts") rows = (await rptFetch("shifts", "*", "opened_at")).map(camelRow);
     else rows = [];
@@ -4698,10 +4702,15 @@ function rptAggregate(rows, dim, group){
 }
 const fmtCell = (v, t) => t==="m" ? money(v) : t==="p" ? (+v||0).toFixed(2) + " %" : (+v||0).toLocaleString("en-US",{maximumFractionDigits:3});
 function rptTop(B){ if(!B.kpis || !B.rows.length) return "";
-  let h = `<div class="rkpis">${B.kpis.map(([l, v]) => `<div class="card kmini"><span>${esc(l)}</span><b>${v}</b></div>`).join("")}</div>`;
+  // previous period's totals (same length, just before) for the "up / down" line under each number
+  let P = null; if(RPT.key==="sales" && RPT.prev && B.T){ const cur = RPT.rows; try{ RPT.rows = RPT.prev; const pb = rptBuild(); P = pb && pb.T; }catch(_){ P = null; } finally{ RPT.rows = cur; } }
+  const dl = (l) => { if(!P || !B.T) return ""; const k = { "Gross sales":"gross", "Net sales":"net", "Orders":"orders", "Average order":"avg", "Discounts":"disc" }[l]; if(!k) return ""; const a = +B.T[k] || 0, b = +P[k] || 0;
+    if(!b) return `<small class="kd">${a ? "New this period" : "—"}</small>`; const pc = (a - b) / Math.abs(b) * 100, up = pc >= 0, good = k==="disc" ? !up : up;
+    return `<small title="Compared with the ${Math.round((new Date(RPT.to) - new Date(RPT.from)) / 864e5) + 1} days before" class="kd ${Math.abs(pc) < .05 ? "" : good ? "up" : "dn"}">${Math.abs(pc) < .05 ? "— Same" : (up ? "▲ " : "▼ ") + Math.abs(pc).toFixed(1) + "%"}</small>`; };
+  let h = `<div class="rkpis">${B.kpis.map(([l, v]) => `<div class="card kmini"><span>${esc(l)}</span><b>${v}</b>${dl(l)}</div>`).join("")}</div>`;
   if(B.series){ const n = B.series.values.length, step = Math.max(1, Math.ceil(n/8));
     if(window.V3 && V3.bars && (V3.on() || V3.ph())){ const short = B.series.labels.map(l => String(l).slice(0, 5));
-      h += `<div class="card rchart v3rch"><div class="kh"><h3>Sales by Day</h3><span class="note">Tap a bar to see it</span></div>${V3.bars(B.series.values, short, { unit:"USD", maxLabels: V3.ph() ? 6 : 10, note: "" })}</div>`; return h; }
+      h += `<div class="card rchart v3rch"><div class="kh"><h3>Sales by Day</h3><span class="note">${RPT.prev ? "▲▼ compared with the " + (Math.round((new Date(RPT.to) - new Date(RPT.from)) / 864e5) + 1) + " days before · " : ""}Tap a bar to see it</span></div>${V3.bars(B.series.values, short, { unit:"USD", maxLabels: V3.ph() ? 6 : 10, note: "" })}</div>`; return h; }
     h += `<div class="card rchart"><div class="kh"><h3>Sales by day</h3><span class="note">${esc(B.series.labels[0])} – ${esc(B.series.labels[n-1])}</span></div>${lineChart(B.series.values, { w:1400, h:240, fs:13, fmt:"m", dots:n <= 31, labelStep: step, labels: B.series.labels, label:"Sales by day" })}</div>`; }
   return h; }
 function rptTable(head, rows, foot){
@@ -4726,7 +4735,7 @@ function rptBuild(){
     const byDay = {}; R.filter(o => isSale(o)).forEach(o => { const d = rptDay(o); byDay[d] = (byDay[d]||0) + (+o.total||0); });
     const days = []; if(RPT.from && RPT.to){ for(let d = RPT.from; d <= RPT.to && days.length < 92; d = dAdd(d, 1)) days.push(d); }
     const kpis = [["Gross sales", fmtCell(T.gross, "m")], ["Net sales", fmtCell(T.net, "m")], ["Orders", fmtCell(T.orders, "n")], ["Average order", fmtCell(T.avg, "m")], ["Discounts", fmtCell(T.disc, "m")]];
-    return { title: SALES_DIMS.find(d => d[0]===RPT.dim)?.[1] || "Sales", head, rows, foot, kpis, series: days.length > 1 ? { labels: days.map(d => fmtD(d)), values: days.map(d => +(byDay[d]||0)) } : null };
+    return { title: SALES_DIMS.find(d => d[0]===RPT.dim)?.[1] || "Sales", head, rows, foot, kpis, T, series: days.length > 1 ? { labels: days.map(d => fmtD(d)), values: days.map(d => +(byDay[d]||0)) } : null };
   }
   if(RPT.key==="payments"){
     const m = new Map(); R.filter(o => isSale(o) || o.status==="refund").forEach(o => { const k = payOf(o) + "\u0001" + (branchName(o.branchId)||"—"); const r = m.get(k) || { p: payOf(o), b: branchName(o.branchId)||"—", n:0, amt:0, ret:0 };
