@@ -96,13 +96,38 @@ ${P}#modal.paym2 .kpad button{border-radius:14px!important;border:0!important;ba
 ${P}#modal.paym2 .kpad button:active{background:#D1D1D6!important}
 ${P}#modal.paym2 #confirmPay{border-radius:16px!important;background:#248A3D!important;color:#fff!important;font-weight:700!important;box-shadow:none!important}
 ${P}#modal.paym2 .paycx{border-radius:16px!important;background:rgba(118,118,128,.12)!important;color:${T}!important;box-shadow:none!important}
+${P}#modal.dlg2 .mh{position:relative!important;display:flex!important;justify-content:center!important;align-items:center!important;min-height:52px!important;padding:0 16px!important;border-bottom:1px solid rgba(60,60,67,.18)!important;background:rgba(249,249,249,.94)!important}
+${P}#modal.dlg2 .mh h2{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;font-size:17px!important;font-weight:600!important;margin:0!important;color:#000!important}
+${P}#modal .v3nb{position:absolute;inset:0 16px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+${P}#modal .v3nb button{pointer-events:auto;border:0!important;background:none!important;color:${T}!important;font-size:17px!important;font-weight:400!important;padding:0!important;min-height:44px;box-shadow:none!important}
+${P}#modal .v3nb button.b{font-weight:600!important}
+${P}#modal .v3hid{display:none!important}
+${P}#modal.dlg2 .npad button{border:0!important;border-radius:14px!important;background:rgba(118,118,128,.12)!important;color:#000!important;box-shadow:none!important;font-weight:500!important}
+${P}#modal.dlg2 .npad button:active{background:#D1D1D6!important}
+${P}#modal.dlg2 .dz2 button{border:0!important;border-radius:9px!important;background:rgba(118,118,128,.12)!important;color:#000!important;box-shadow:none!important}
+${P}#modal.dlg2 .dz2 button.on{background:${T}!important;color:#fff!important}
+${P}#modal.dlg2 .dz2 input{font-size:22px!important;font-weight:600!important;text-align:right!important;border:0!important;border-radius:10px!important;background:rgba(118,118,128,.12)!important}
+${P}#modal.paym2 .v3pcx{display:block;align-self:flex-start;text-align:left;margin-right:auto;border:0;background:none;color:${T};font:inherit;font-size:17px;padding:0 0 10px;cursor:pointer;min-height:44px}
+${P}#modal.paym2 .payact{display:flex!important}${P}#modal.paym2 .payact #confirmPay{flex:1 1 auto!important;width:100%!important}
 `;
   let done = false;
   function setup() { if (done) return; done = true; const st = document.createElement("style"); st.id = "posv3css"; st.textContent = css; document.head.appendChild(st); }
   // the full screens' Back reads "‹ Register", like an iOS back button (it does the same thing)
   const backs = () => document.querySelectorAll("#modal .ohdr .hbtn[data-close]").forEach(b => { if (!b.dataset.v3b) { b.dataset.v3b = 1; b.innerHTML = SV('<path d="M15 5l-7 7 7 7"/>') + "Register"; } });
+
+  // pop-ups (Discount, Charges, Tags, Notes, printers) as iOS sheets: Cancel · Title · Save in the top bar, no motion
+  const sheets = () => { const m = document.getElementById("modal"); if (!m) return;
+    if (m.classList.contains("dlg2") && !m.querySelector(".v3nb")) { const mh = m.querySelector(".mh"), mf = m.querySelector(".mf"); if (!mh) return;
+      const can = (mf && [...mf.querySelectorAll("button")].find(b => /^(cancel|close)$/i.test(b.textContent.trim()))) || mh.querySelector("[data-close]"), pri = mf && mf.querySelector(".btn.pri");
+      const nb = document.createElement("div"); nb.className = "v3nb";
+      const L = document.createElement("button"); L.type = "button"; L.textContent = "Cancel"; L.onclick = () => can && can.click();
+      const R = document.createElement("button"); R.type = "button"; R.className = "b"; R.textContent = pri ? pri.textContent.trim() : ""; if (pri) R.onclick = () => pri.click(); else R.style.visibility = "hidden";
+      nb.append(L, R); mh.appendChild(nb); mh.querySelectorAll(".x").forEach(x => x.classList.add("v3hid"));
+      if (mf) { const rest = [...mf.querySelectorAll("button")].filter(b => b !== pri && b !== can); if (!rest.length) mf.classList.add("v3hid"); else { pri && pri.classList.add("v3hid"); can && can.classList.add("v3hid"); } } }
+    // payment: Cancel at the top left, as in the design file; Complete Sale takes the whole bottom
+    if (m.classList.contains("paym2") && !m.querySelector(".v3pcx")) { const cx = m.querySelector(".paycx"), l = m.querySelector(".payl"); if (cx && l) { const b = document.createElement("button"); b.type = "button"; b.className = "v3pcx"; b.textContent = "Cancel"; b.onclick = () => cx.click(); l.insertBefore(b, l.firstChild); cx.classList.add("v3hid"); } } };
   function apply() { const w = want(); de.classList.toggle("posv3", w); if (w) setup(); const st = document.getElementById("posv3css"); if (st) st.disabled = !w; }
   apply();
   addEventListener("resize", apply);
-  const mo = document.getElementById("modal"); if (mo) new MutationObserver(() => { if (de.classList.contains("posv3")) backs(); }).observe(mo, { childList: true, subtree: true });
+  const mo = document.getElementById("modal"); if (mo) new MutationObserver(() => { if (de.classList.contains("posv3")) { backs(); sheets(); } }).observe(mo, { childList: true, subtree: true });
 })();
