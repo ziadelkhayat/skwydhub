@@ -36,10 +36,10 @@ const catAt = (c: Row, b: string) => { if (!b) return true; const ia = c.inactiv
 const bySort = (a: Row, b: Row) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(String(b.name));
 const brOpenNow = (b: any, t = new Date()) => { if (!b) return true;
   const H = (b.settings || {}).hours, D = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], hm = (s: any) => { const m = /^(\d{1,2}):(\d{2})/.exec(String(s || "")); return m ? +m[1] * 60 + +m[2] : null; };
-  const day = (k: string) => { const d = H && H[k]; if (d) return d.closed ? null : [hm(d.open), hm(d.close)]; return [hm(b.openTime), hm(b.closeTime)]; };
+  const day = (k: string) => { const d = H && H[k]; if (d) return d.closed ? null : [hm(d.open), hm(d.close)]; return [hm(b.open), hm(b.close)]; };
   const now = t.getHours() * 60 + t.getMinutes(), a = day(D[t.getDay()]), y = day(D[(t.getDay() + 6) % 7]);
   if (a && (a[0] == null || a[1] == null || a[0] === a[1])) return true; if (a && (a[1]! > a[0]! ? now >= a[0]! && now < a[1]! : now >= a[0]!)) return true; if (y && y[0] != null && y[1] != null && y[1] < y[0] && now < y[1]) return true; return false; };
-const brHours = (b: any, t = new Date()) => { const H = (b?.settings || {}).hours, d = H && H[["sun", "mon", "tue", "wed", "thu", "fri", "sat"][t.getDay()]]; if (d) return d.closed ? "closed today" : `${d.open}–${d.close}`; return b?.openTime && b?.closeTime ? `${b.openTime}–${b.closeTime}` : ""; };
+const brHours = (b: any, t = new Date()) => { const H = (b?.settings || {}).hours, d = H && H[["sun", "mon", "tue", "wed", "thu", "fri", "sat"][t.getDay()]]; if (d) return d.closed ? "closed today" : `${d.open}–${d.close}`; return b?.open && b?.close ? `${b.open}–${b.close}` : ""; };
 const ccLabel = (o: any) => o.ref || (o.no ? String(o.no) : o.invoiceNo ? String(o.invoiceNo).padStart(6, "0") : "Draft");
 let modsP: Promise<any> | null = null;
 const loadMods = () => (window as any).SkwydMods ? Promise.resolve((window as any).SkwydMods) : modsP ||= new Promise((res, rej) => { const s = document.createElement("script"); s.src = new URL("../modpick.js", location.href.split("#")[0]).href; s.onload = () => res((window as any).SkwydMods); s.onerror = () => { modsP = null; rej(new Error("The modifier picker couldn't load.")); }; document.head.appendChild(s); });
