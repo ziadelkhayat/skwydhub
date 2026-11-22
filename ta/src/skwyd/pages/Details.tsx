@@ -130,7 +130,7 @@ export function SupplierPage() {
 }
 
 export function InvItemPage() {
-  const s = useS(["inv_items", "inv_categories", "suppliers", "settings", "branches", "warehouses", "products"]), id = useId(), [edit, setEdit] = useState(false), [lv, setLv] = useState(false), [stock, setStock] = useState<Record<string, number> | null>(null);
+  const s = useS(["inv_items", "inv_categories", "suppliers", "settings", "branches", "warehouses", "products", "brands"]), id = useId(), [edit, setEdit] = useState(false), [lv, setLv] = useState<string | null>(null), [stock, setStock] = useState<Record<string, number> | null>(null);
   useEffect(() => { sb.rpc("skwyd_stock_all").then(({ data }) => { const m: Record<string, number> = {}; (data || []).forEach((r: any) => { if (r.item_id === id) m[r.location_id] = +r.qty; }); setStock(m); }); }, [id]);
   if (!s) return null; const it = s.inv_items.find(x => x.id === id); if (!it) return <Missing back="Inventory Products" to="/inv-items" />;
   const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(live).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")] as [string, string])];
@@ -145,25 +145,36 @@ export function InvItemPage() {
     <Tags s={s} type="inventory" id={it.id} />
     <Ingredients s={s} col="inv_items" rec={it} />
     <SupLinks s={s} side="item" id={it.id} />
-    <Sec title="Inventory Levels" act={<Button size="sm" variant="outline" onClick={() => setLv(true)}>Edit</Button>}>
-      {!lvb.length ? <None t="Set the minimum, par and maximum level of this product for each store and warehouse." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum Level", "Par Level", "Maximum Level"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {lvb.map(([b, v]) => <tr key={b} className={TR}><td className={TD}>{locs.find(x => x[0] === b)?.[1]}</td><td className={TD}>{v.min ?? "—"}</td><td className={TD}>{v.par ?? "—"}</td><td className={TD}>{v.max ?? "—"}</td></tr>)}</tbody></table></div>}</Sec>
+    <Sec title="Inventory Levels" act={<Button size="sm" variant="outline" disabled={lvb.length >= locs.length} onClick={() => setLv("")}><PlusIcon className="size-4" />Add</Button>}>
+      {!lvb.length ? <None t="Add the minimum, par and maximum level of this product for a store or warehouse." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum Level", "Par Level", "Maximum Level", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
+        {lvb.map(([b, v]) => <tr key={b} className={TR + " cursor-pointer"} onClick={() => setLv(b)}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{locs.find(x => x[0] === b)?.[1]}<span className="block text-xs font-normal text-gray-500">{s.brands.find(x => x.id === s.branches.find(y => y.id === b)?.brandId)?.name || (s.warehouses.some(w => w.id === b) ? "Warehouse" : "")}</span></td><td className={TD}>{v.min ?? "—"}</td><td className={TD}>{v.par ?? "—"}</td><td className={TD}>{v.max ?? "—"}</td>
+          <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={e => { e.stopPropagation(); const o = { ...mine }; delete o[b]; const next = { ...levels }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; void setDoc("inv_levels", { levels: next }, "Level removed"); }}><TrashBinIcon className="size-5 text-red-500" /></Button></td></tr>)}</tbody></table></div>}</Sec>
     <Sec title="Stock">{stock === null ? <None t="Loading…" /> : !Object.keys(stock).length ? <None t="Not counted anywhere yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Store / Warehouse</th><th className={TH + " text-end"}>Quantity</th></tr></thead><tbody>
       {locs.filter(([k]) => stock[k] !== undefined).map(([k, n]) => <tr key={k} className={TR}><td className={TD}>{n}</td><td className={TD + " text-end"}>{n2(stock[k])} {it.storageUnit || ""}</td></tr>)}</tbody></table></div>}</Sec>
     {usedIn.length > 0 && <Sec title="Used In Items"><div className="flex flex-wrap gap-2">{usedIn.map(p => <Link key={p.id} to={"/item?id=" + p.id}><Badge variant="light" color="primary">{p.name}</Badge></Link>)}</div></Sec>}
-    {lv && <LevelsDialog it={it} locs={locs} cur={mine} all={levels} onClose={() => setLv(false)} />}
+    {lv !== null && <LevelsDialog s={s} it={it} loc={lv} free={k => k === lv || !mine[k]} cur={mine} all={levels} onClose={() => setLv(null)} />}
     {edit && <EditDialog cfg={CRUD["inv-items"]} s={s} row={it} onClose={() => setEdit(false)} />}
   </>;
 }
-function LevelsDialog({ it, locs, cur, all, onClose }: { it: Row; locs: [string, string][]; cur: any; all: any; onClose: () => void }) {
-  const [v, setV] = useState<Record<string, Record<string, string>>>(() => Object.fromEntries(locs.map(([k]) => [k, Object.fromEntries(["min", "par", "max"].map(x => [x, cur[k]?.[x] != null ? String(cur[k][x]) : ""]))])));
-  const save = async () => { const o: any = {}; Object.entries(v).forEach(([b, x]) => { const r: any = {}; Object.entries(x).forEach(([k, n]) => { if (n.trim() !== "") r[k] = +n; }); if (Object.keys(r).length) o[b] = r; });
-    const next = { ...all }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; await setDoc("inv_levels", { levels: next }, "Levels saved"); onClose(); };
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-2xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Inventory Levels</DialogTitle></DialogHeader>
-    <p className="mt-1 text-sm text-gray-500">In {it.storageUnit || "storage units"}. Leave empty where the product isn't tracked.</p>
-    <div className="mt-4 overflow-x-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum", "Par", "Maximum"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-      {locs.map(([k, n]) => <tr key={k} className={TR}><td className={TD}>{n}</td>{["min", "par", "max"].map(x => <td key={x} className={TD}><Input className="h-9 w-24" type="number" min="0" step="any" aria-label={`${x} level in ${n}`} value={v[k][x]} onChange={e => setV(o => ({ ...o, [k]: { ...o[k], [x]: e.target.value } }))} /></td>)}</tr>)}</tbody></table></div>
-    <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={save}>Save</Button></div></DialogContent></Dialog>;
+// one store or warehouse at a time: pick it, then its minimum, par and maximum levels
+// the store is picked inside its brand (a business can have several brands, each with its stores); warehouses are their own group
+function LevelsDialog({ s, it, loc, free, cur, all, onClose }: { s: S; it: Row; loc: string; free: (k: string) => boolean; cur: any; all: any; onClose: () => void }) {
+  const stores = s.branches.filter(x => live(x) && x.active !== false), whs = s.warehouses.filter(live), WH = "__wh";
+  const groupOf = (k: string) => whs.some(w => w.id === k) ? WH : stores.find(x => x.id === k)?.brandId || "";
+  const brands = s.brands.filter(x => live(x) && stores.some(st => st.brandId === x.id && free(st.id)) || x.id === groupOf(loc));
+  const [g, setG] = useState(loc ? groupOf(loc) : brands.length === 1 && !whs.some(w => free(w.id)) ? brands[0].id : "");
+  const opts: [string, string][] = g === WH ? whs.filter(w => free(w.id)).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")]) : stores.filter(x => x.brandId === g && free(x.id)).map(x => [x.id, x.name]);
+  const [b, setB] = useState(loc), [v, setV] = useState<Record<string, string>>(() => Object.fromEntries(["min", "par", "max"].map(x => [x, cur[loc]?.[x] != null ? String(cur[loc][x]) : ""])));
+  const save = async () => { const r: any = {}; Object.entries(v).forEach(([k, n]) => { if (n.trim() !== "") r[k] = +n; });
+    const o = { ...cur }; if (loc && loc !== b) delete o[loc]; if (Object.keys(r).length) o[b] = r; else delete o[b];
+    const next = { ...all }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; await setDoc("inv_levels", { levels: next }, "Level saved"); onClose(); };
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{loc ? "Edit Inventory Level" : "Add Inventory Level"}</DialogTitle></DialogHeader>
+    <div className="mt-4 grid grid-cols-1 gap-4">
+      <F l="Brand" req><select className={SEL} value={g} onChange={e => { setG(e.target.value); setB(""); }}><option value="">Choose…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}{whs.some(w => free(w.id) || w.id === loc) && <option value={WH}>Warehouses</option>}</select></F>
+      <F l={g === WH ? "Warehouse" : "Store"} req><select className={SEL} value={b} disabled={!g} onChange={e => setB(e.target.value)}><option value="">Choose…</option>{opts.map(([k, n]) => <option key={k} value={k}>{n}</option>)}</select></F>
+      {([["min", "Minimum Level"], ["par", "Par Level"], ["max", "Maximum Level"]] as const).map(([k, l]) => <F key={k} l={`${l} (${it.storageUnit || "storage unit"})`}><Input type="number" min="0" step="any" value={v[k]} onChange={e => setV(o => ({ ...o, [k]: e.target.value }))} /></F>)}
+    </div>
+    <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={!b} onClick={save}>Save</Button></div></DialogContent></Dialog>;
 }
 
 export function WarehousePage() {
