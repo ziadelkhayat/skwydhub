@@ -13,6 +13,7 @@ import PromotionsPage from "@/skwyd/pages/Promotions";
 import WebOrderingPage from "@/skwyd/pages/WebOrdering";
 import DeliveryZonesPage from "@/skwyd/pages/DeliveryZones";
 import DeliveryChargesPage from "@/skwyd/pages/DeliveryCharges";
+import CurrencyPage from "@/skwyd/pages/Currency";
 import { CouponsPage, GiftCardsPage, LoyaltyPage } from "@/skwyd/pages/Marketing";
 import { ReasonsPage, TagsPage } from "@/skwyd/pages/Lists";
 import { ConfirmHost } from "@/skwyd/ui/confirm";
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/online-ordering" element={<WebOrderingPage />} />
           <Route path="/delivery-zones" element={<DeliveryZonesPage />} />
           <Route path="/delivery-charges" element={<DeliveryChargesPage />} />
+          <Route path="/currency" element={<CurrencyPage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
