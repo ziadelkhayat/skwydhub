@@ -14,6 +14,7 @@ import { PlusIcon, SearchIcon } from "@/icons";
 import { put, softDelete, newId, useCol, type Row } from "@/lib/db";
 import { cn } from "@/utils";
 import { useMemo, useState, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
@@ -34,6 +35,8 @@ export type CrudCfg = {
   cols: CCol[]; fields: CField[]; unique?: string; note?: string;
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
+  detail?: string;   // open rows on their own page (path?id=)
+  urlFilter?: [string, string];   // e.g. ["cat", "categoryId"]: /products?cat=… shows one category
 };
 
 export const live = (r: Row) => !r.deleted;
@@ -52,14 +55,16 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
+  const nav = useNavigate(); const [sp, setSp] = useSearchParams();
+  const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
   const list = useMemo(() => {
     if (!s) return [];
     const f = cfg.tabs.find(t => t[0] === tab)?.[2] || live;
     const needle = q.trim().toLowerCase();
-    return s[cfg.col].filter(f).filter(r => !needle || (cfg.search ? cfg.search(r, s) : String(r.name || "")).toLowerCase().includes(needle))
+    return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf).filter(r => !needle || (cfg.search ? cfg.search(r, s) : String(r.name || "")).toLowerCase().includes(needle))
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
-  }, [s, tab, q, cfg]);
+  }, [s, tab, q, cfg, uf]);
   const pages = Math.max(1, Math.ceil(list.length / PER)), cur = Math.min(page, pages);
   const shown = list.slice((cur - 1) * PER, cur * PER);
 
@@ -77,6 +82,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />{cfg.addLbl || "Add " + cfg.one}</Button>
           </div>
         </div>
+        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-white/5 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "cat" ? "category" : "modifier"}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
         {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-white/5 dark:text-gray-400">{cfg.note}</p>}
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
           {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div>
@@ -87,7 +93,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
               </tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                 {shown.map(r => (
-                  <tr key={r.id} onClick={() => setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                  <tr key={r.id} onClick={() => cfg.detail ? nav(cfg.detail + "?id=" + r.id) : setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
                     {cfg.cols.map(c => <td key={c.h} className={cn("px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400", c.num && "text-end")}>{c.cell(r, s)}</td>)}
                   </tr>))}
               </tbody>
@@ -100,7 +106,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   );
 }
 
-function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: Row | null; onClose: () => void }) {
+export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: Row | null; onClose: () => void }) {
   const init = () => { const d: Record<string, any> = {};
     for (const f of cfg.fields) { if (f.t === "head") continue; d[f.k] = row ? (row[f.k] ?? f.def ?? (f.t === "chk" ? false : f.t === "multi" || f.t === "items" ? [] : "")) : f.auto ? f.auto(s) : f.def ?? (f.t === "chk" ? false : f.t === "multi" || f.t === "items" ? [] : ""); }
     return d; };

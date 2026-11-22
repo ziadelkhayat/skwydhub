@@ -33,7 +33,7 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
   },
   products: {
-    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups"],
+    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups"], detail: "/item", urlFilter: ["cat", "categoryId"],
     tabs: allDel,
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.categories.find(c => c.id === r.categoryId)?.name || ""),
     cols: [
@@ -65,7 +65,7 @@ export const CRUD: Record<string, CrudCfg> = {
     note: "A modifier is a group of choices, like Sauce or Add Toppings. Add its options, then link it to products (open a product → Modifiers).",
   },
   "modifier-options": {
-    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel,
+    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel, urlFilter: ["mod", "modifierId"],
     sort: (a, b) => String(a.modifierId).localeCompare(String(b.modifierId)) || bySort(a, b),
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.modifiers.find(m => m.id === r.modifierId)?.name || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "SKU", cell: r => r.sku || "" },

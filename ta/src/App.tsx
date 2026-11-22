@@ -6,6 +6,7 @@ import Dashboard from "@/skwyd/pages/Dashboard";
 import NotMoved from "@/skwyd/pages/NotMoved";
 import OrdersPage from "@/skwyd/pages/Orders";
 import CustomersPage from "@/skwyd/pages/Customers";
+import ItemPage from "@/skwyd/pages/ItemPage";
 import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
 import "flatpickr/dist/flatpickr.css";
@@ -23,6 +24,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/item" element={<ItemPage />} />
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
