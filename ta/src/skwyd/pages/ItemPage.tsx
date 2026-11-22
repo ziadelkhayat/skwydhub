@@ -36,7 +36,7 @@ export default function ItemPage() {
       ["Category", s.categories.find(c => c.id === p.categoryId)?.name || "—"], ["Price", p.pricingMethod === "open" ? "Open Price" : money(p.price)],
       ["Tax Group", s.tax_groups.find(g => g.id === p.taxGroup)?.name || "—"], ["Costing Method", p.costingMethod === "fixed" ? "Fixed Cost" : "From Ingredients"], [p.costingMethod === "fixed" ? "Fixed Cost" : "Ingredients Cost", money(cost)], ["Cost %", price && cost ? (cost / price * 100).toFixed(1) + " %" : "—"],
       ["Selling Method", p.sellingMethod === "weight" ? "Weight" : "Unit"], ["Preparation Time", p.prepTime ? p.prepTime + " min" : "—"], ["Barcode", p.barcode || "—"],
-      ...(p.description ? [["Description", p.description] as [string, string]] : [])]} />
+      ["Description", p.description || "—"], ["Description Localized", p.descriptionAr || "—"]]} />
     <Tags s={s} type="product" id={p.id} />
     {par && <Sec title="Variant"><p className="text-sm text-gray-700 dark:text-gray-300">{vset(par)} {par.variants.find((v: any) => v.productId === p.id)?.name} of <Link className="text-brand-500 hover:underline" to={"/item?id=" + par.id}>{par.name}</Link>. The POS, call center and web ordering show {par.name} and ask which {vset(par).toLowerCase()}.</p></Sec>}
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Name", "Item", "SKU", "Price"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
