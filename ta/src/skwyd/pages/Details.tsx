@@ -1,5 +1,6 @@
 // Detail pages the lists open, as in the current portal: Modifier Option (ingredients, allergens), Supplier (tags, linked inventory products),
 // Inventory Product (units, cost, tags, ingredients, suppliers, levels per location, stock), Warehouse (details, delete its inventory, delete it).
+import { cn } from "@/utils";
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
   const save = async (l: any[], msg = "Ingredients saved") => { try { await put(col, rec.id, { ingredients: l }); toast(msg); } catch { toast("Couldn't save.", "error"); } };
   const lineCost = (g: any) => { const it = item(g.itemId); return it ? (+g.qty || 0) / (+it.factor || 1) * (+it.cost || 0) : 0; };
   const opts = s.inv_items.filter(x => live(x) && x.id !== rec.id && !ings.some(g => g.itemId === x.id)).sort((a, b) => a.name.localeCompare(b.name));
-  return <Sec title="Ingredients" act={<div className="flex gap-2"><select aria-label="Add ingredient" className={SEL + " h-9 w-52"} value={add} onChange={e => { const v = e.target.value; setAdd(""); if (v) save([...ings, { itemId: v, qty: 1, net: 1, yield: 100 }], "Ingredient added"); }}>
+  return <Sec title="Ingredients" act={<div className="flex gap-2"><select aria-label="Add ingredient" className={cn(SEL, "h-10 w-48 sm:w-56")} value={add} onChange={e => { const v = e.target.value; setAdd(""); if (v) save([...ings, { itemId: v, qty: 1, net: 1, yield: 100 }], "Ingredient added"); }}>
     <option value="">Add ingredient…</option>{opts.map(x => <option key={x.id} value={x.id}>{x.name}{x.ingredientUnit ? ` (${x.ingredientUnit})` : ""}</option>)}</select></div>}>
     {!ings.length ? <None t="No ingredients yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Product", "Quantity", "Unit", "Cost", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {ings.map((g, i) => { const it = item(g.itemId); return <tr key={g.itemId} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it?.name || "(deleted item)"}</td>
@@ -132,13 +133,13 @@ export function SupplierPage() {
 export function InvItemPage() {
   const s = useS(["inv_items", "inv_categories", "suppliers", "settings", "branches", "warehouses", "products", "brands"]), id = useId(), [edit, setEdit] = useState(false), [lv, setLv] = useState<string | null>(null), [stock, setStock] = useState<Record<string, number> | null>(null);
   useEffect(() => { sb.rpc("skwyd_stock_all").then(({ data }) => { const m: Record<string, number> = {}; (data || []).forEach((r: any) => { if (r.item_id === id) m[r.location_id] = +r.qty; }); setStock(m); }); }, [id]);
-  if (!s) return null; const it = s.inv_items.find(x => x.id === id); if (!it) return <Missing back="Inventory Products" to="/inv-items" />;
+  if (!s) return null; const it = s.inv_items.find(x => x.id === id); if (!it) return <Missing back="Products" to="/inv-items" />;
   const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(live).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")] as [string, string])];
   const ingCost = (it.ingredients || []).reduce((a: number, g: any) => { const x = s.inv_items.find(y => y.id === g.itemId); return a + (x ? (+g.qty || 0) / (+x.factor || 1) * (+x.cost || 0) : 0); }, 0);
   const levels: any = ((s.settings.find(x => x.id === "inv_levels") as any)?.levels) || {}, mine = levels[it.id] || {}, lvb = Object.entries(mine).filter(([b]) => locs.some(x => x[0] === b)) as [string, any][];
   const usedIn = s.products.filter(p => live(p) && (p.ingredients || []).some((l: any) => l.itemId === it.id));
   return <>
-    <Head back="Inventory Products" backTo="/inv-items" title={it.name}><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Product</Button></Head>
+    <Head back="Products" backTo="/inv-items" title={it.name}><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Product</Button></Head>
     <Info rows={[["Name", it.name], ["Name Localized", it.nameAr || "—"], ["SKU", it.sku || "—"], ["Storage Unit", it.storageUnit || "—"], ["Ingredient Unit", it.ingredientUnit || "—"],
       ["Factor", it.storageUnit && it.ingredientUnit ? `1 ${it.storageUnit} = ${n2(it.factor || 1)} ${it.ingredientUnit}` : "—"], ["Costing Method", it.costingMethod === "transactions" ? "From Transactions" : "Fixed"], ["Category", it.category || "—"],
       ["Cost", it.cost ? `${cost5(it.cost)} / ${it.storageUnit || "unit"}` : "—"], ...((it.ingredients || []).length ? [["Total Cost of Production", `${cost5(ingCost)} / ${it.storageUnit || "unit"}`] as [string, string]] : [])]} />
