@@ -66,6 +66,39 @@ html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #acts > button:not(.pay):not([data-act=s
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #acts > button.pay{flex:1!important;background:#248A3D!important;color:#fff!important;font-size:20px!important;font-weight:700!important}
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #acts > button.pay:disabled{opacity:.45!important}
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop .mitem.v3x{color:#000}
+/* ---- iOS polish: tinted toolbar icons, inset separators, plain press state (no motion), iOS navigation bars on the full screens */
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #abar#abar#abar .abtn.abtn.abtn svg,html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #abar#abar#abar .abtn.abtn.abtn svg *,html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #bnav#bnav#bnav > button svg,html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #bnav#bnav#bnav > button svg *{stroke:#0066D6!important;color:#0066D6!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) :is(#abar .abtn,#bnav > button,#mcats .v3pill,#grid .prod,#acts > button,.v3seg button,[data-v3oact],[data-v3ord]){transition:none!important;animation:none!important;-webkit-tap-highlight-color:transparent}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) :is(#abar .abtn,#bnav > button,#grid .prod,#acts > button):active{opacity:.55!important;transform:none!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #grid .prod:active{background-color:#E5E5EA!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #lines .line{border-bottom:0!important;position:relative!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #lines .line::after{content:"";position:absolute;left:54px;right:0;bottom:0;height:1px;background:#E3E3E8}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #lines .line.v3one .each{display:none!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #lines .line .p{font-size:17px!important;font-variant-numeric:tabular-nums}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #totals > div{font-variant-numeric:tabular-nums}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) .chead{background:rgba(249,249,249,.94)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop{border-radius:14px!important;box-shadow:0 10px 40px rgba(0,0,0,.18)!important;padding:6px 0!important;background:#fff!important;border:0!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop .mitem{min-height:44px!important;padding:0 16px!important;font-size:17px!important;font-weight:400!important;color:#000!important;border-radius:0!important;border-top:1px solid #E3E3E8!important;display:flex!important;align-items:center!important;gap:12px!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop .mitem:first-child{border-top:0!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop .mitem svg{width:22px!important;height:22px!important;stroke:#0066D6!important;fill:none!important;flex:none}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #morePop .mitem:active{background:#E5E5EA!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr{display:flex!important;align-items:center!important;gap:10px!important;min-height:56px!important;padding:6px 16px!important;background:rgba(249,249,249,.94)!important;border-bottom:1px solid #E3E3E8!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr > b{font-size:22px!important;font-weight:700!important;letter-spacing:-.3px!important;color:#000!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .hbtn[data-close]{background:none!important;border:0!important;box-shadow:none!important;color:#0066D6!important;font-size:17px!important;font-weight:400!important;padding:0 6px 0 0!important;min-width:0!important;height:44px!important;display:inline-flex!important;align-items:center!important;gap:2px!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .hbtn:not([data-close]){height:40px!important;padding:0 18px!important;border-radius:999px!important;border:0!important;box-shadow:none!important;background:#0A66D8!important;color:#fff!important;font-size:15px!important;font-weight:600!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .hbtn.ghost{background:rgba(118,118,128,.12)!important;color:#0066D6!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .ovfbtn,html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .ovrange{height:40px!important;border-radius:999px!important;border:0!important;background:rgba(118,118,128,.12)!important;box-shadow:none!important;color:#0066D6!important;font-weight:600!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .ovsrch{height:36px!important;border-radius:10px!important;background:rgba(118,118,128,.12)!important;border:0!important;box-shadow:none!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr .ovsrch input{background:transparent!important;border:0!important;box-shadow:none!important;font-size:17px!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .mh{background:rgba(249,249,249,.94)!important;border-bottom:1px solid #E3E3E8!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .mh h2{font-size:17px!important;font-weight:600!important;color:#000!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .mf .btn{height:50px!important;border-radius:14px!important;font-size:17px!important;font-weight:600!important;box-shadow:none!important}
+/* 4:3 tablets (1024 x 768): narrower action buttons so the search keeps its room */
+@media (max-width:1180px){ html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #abar > .abtn{flex:0 0 84px!important;width:84px!important} html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #abar > .msrch{min-width:200px!important} html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #bnav > button > span:not(.rti):not(.badge){font-size:12px!important} html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) body #grid#grid#grid#grid{grid-auto-rows:104px!important} html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #grid .prod{height:104px!important;min-height:104px!important} }
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #abar .msrch input::placeholder{text-transform:none!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal .ohdr button:not([data-close]):not(.hbtn){height:40px!important;padding:0 18px!important;border-radius:999px!important;border:0!important;box-shadow:none!important;background:rgba(118,118,128,.12)!important;color:#0066D6!important;font-size:15px!important;font-weight:600!important}
+html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) aside.cart.nocart :is(#totals,#acts),html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #acts.hide{display:none!important}
+
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal.paym2{width:1000px!important;max-width:1000px!important;height:660px!important;max-height:660px!important;border-radius:20px!important;padding:0!important;overflow:hidden!important;background:#F2F2F7!important}
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal.paym2 .payx{display:grid!important;grid-template-columns:1fr 1fr!important;height:100%!important;gap:0!important}
 html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #modal.paym2 .payl{position:relative!important;padding:22px!important;display:flex!important;flex-direction:column!important;gap:16px!important;background:#F2F2F7!important}
@@ -121,7 +154,8 @@ html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #extra .ctx > .sp{display:none!important
     const prox = (a, label, icon) => { const b = document.createElement("button"); b.type = "button"; b.className = "v3prox"; b.dataset.v3a = a; b.innerHTML = `<span class="rti">${SV(I[icon])}</span><span>${label}</span>`; return b; };
     bnav.append(prox("hold", "Hold", "hold"), prox("print", "Print", "print"));
     const pop = document.getElementById("morePop");
-    const mi = (a, label) => { const b = document.createElement("button"); b.className = "mitem v3x"; b.dataset.v3a = a; b.innerHTML = `<span>${label}</span>`; return b; };
+    const MI = { new: '<path d="M12 5v14M5 12h14"/>', kitchen: '<path d="M6 13a4 4 0 0 1 1-7.9A5 5 0 0 1 17 5a4 4 0 0 1 1 8v6H6z"/><path d="M6 17h12"/>', retrieve: '<path d="M9 5v14M15 5v14"/>', void: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>' };
+    const mi = (a, label) => { const b = document.createElement("button"); b.className = "mitem v3x"; b.dataset.v3a = a; b.innerHTML = `${SV(MI[a]).replace(' width="20" height="20"', "")}<span>${label}</span>`; return b; };
     pop.prepend(mi("new", "New Order"), mi("kitchen", "Send to Kitchen"), mi("retrieve", "Held Orders"), mi("void", "Void"));
     // order type on top of the order, like the file; the till, connection and cashier go under •••
     const head = document.querySelector("aside.cart .chead");
@@ -138,6 +172,8 @@ html.posv3 :is(body,#_a#_b#_c#_d#_e#_f) #extra .ctx > .sp{display:none!important
     document.querySelectorAll('#extra .ctx b').forEach(b => b.classList.toggle("v3hide", /^(Dine-in|In-Store)$/i.test(b.textContent.trim())));
     const send = document.querySelector('#acts [data-act=send]'); if (send && send.textContent.trim() === "Save") send.textContent = "Send";
     const pd = document.querySelector('#bnav [data-nav=board] > span:not(.rti):not(.badge)'); if (pd && pd.textContent !== "Pickup & Delivery") pd.textContent = "Pickup & Delivery";
+    document.querySelectorAll("#lines .line").forEach(l => { const q = l.querySelector(".lqty > :not(button)"); l.classList.toggle("v3one", !!q && q.textContent.trim() === "1"); });
+    const sq = document.getElementById("q"); if (sq && sq.placeholder !== "Search items") { sq.placeholder = "Search items"; }
     const hb = document.getElementById("holdBadge"), r = document.querySelector('#morePop [data-v3a=retrieve] span'); if (r && hb) r.textContent = "Held Orders" + (+hb.textContent ? " (" + hb.textContent + ")" : "");
   }
   function menu() {
@@ -250,7 +286,8 @@ ${open ? `<div style="position:absolute;left:20px;right:20px;bottom:16px;display
   // keep the header in step with the order
   const wrap = () => { if (typeof renderCart === "function" && !renderCart._v3) { const rc = renderCart; renderCart = function () { const r = rc.apply(this, arguments); try { sync(); } catch (_) {} return r; }; renderCart._v3 = 1; } };
   apply(); window.__posv3sync = () => { try { sync(); } catch (_) {} };
-  const mo = document.getElementById("modal"); if (mo) new MutationObserver(() => { if (mo.classList.contains("paym2") && !mo.querySelector(".v3ptop")) payV3(); }).observe(mo, { childList: true, attributes: true, attributeFilter: ["class"] });
+  const backs = () => document.querySelectorAll("#modal .ohdr .hbtn[data-close]").forEach(b => { if (!b.dataset.v3b) { b.dataset.v3b = 1; b.innerHTML = SV('<path d="M15 5l-7 7 7 7"/>') + "Register"; } });
+  const mo = document.getElementById("modal"); if (mo) new MutationObserver(() => { if (de.classList.contains("posv3")) backs(); if (mo.classList.contains("paym2") && !mo.querySelector(".v3ptop")) payV3(); }).observe(mo, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   document.addEventListener("click", ev => { if (ev.target.closest("#modal.paym2")) setTimeout(() => { try { recv(); } catch (_) {} }, 0); });
   new MutationObserver(() => { clearTimeout(sync.t); sync.t = setTimeout(() => { if (de.classList.contains("posv3")) sync(); }, 30); }).observe(document.getElementById("extra") || document.body, { childList: true, subtree: true, characterData: true });
   addEventListener("resize", () => { const was = de.classList.contains("posv3"); apply(); if (was !== de.classList.contains("posv3")) try { renderMenu(); } catch (_) {} });
