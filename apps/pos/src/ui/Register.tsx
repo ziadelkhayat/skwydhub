@@ -1,0 +1,151 @@
+// The sale screen, laid out like the current POS (cart on the left, menu on the right, 5×4 square tiles,
+// search above the menu, square action buttons, bottom navigation with names) in the TailAdmin look.
+// Step 1: browse the POS menu of this branch, build the cart, see the totals. Saving and paying come next.
+import { useMemo, useState } from "react";
+import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
+import { allowedTypes, kidsOf, lineNet, menu, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
+import { useStore } from "../lib/store";
+import { C, F, R, shadowXs } from "../lib/theme";
+import { Icon } from "./Icon";
+import { Btn, Card, Pill, T } from "./kit";
+
+const TYPE_LBL: Record<OType, string> = { dinein: "Dine-in", takeaway: "Pickup", delivery: "Delivery" };
+const GAP = 12, PADX = 16;
+
+export function Register() {
+  const { S, device, branch, online, cashier, setCashier } = useStore();
+  const { width: W, height: H } = useWindowDimensions();
+  const types = allowedTypes(S, device!.branchId);
+  const [otype, setOtype] = useState<OType>(types[0] || "dinein");
+  const [cart, setCart] = useState<Line[]>([]);
+  const [cat, setCat] = useState(""), [q, setQ] = useState(""), [note, setNote] = useState(""), [more, setMore] = useState(false);
+  const x: Ctx = { S, device: device!, branch, otype };
+  const m = useMemo(() => menu(x), [S, otype, device]);
+  const top = cat || m.tops[0]?.id || "", curTop = m.parentOf(top) || top;
+  const t = totals(x, cart);
+
+  // tile size: 4 rows fit the height, 5 across; the cart takes the rest of the width
+  const fixedH = 76 + 44 + 40 + 76 + GAP * 4 + 24;
+  const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
+  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2);
+  const say = (s: string) => { setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), 2500); };
+
+  const add = (p: any) => {
+    if (prodOos(x, p)) return;
+    const kids = kidsOf(x, p);
+    if (kids.length || (p.modifiers || []).length || p.pricingMethod === "open") say("Variants, modifiers and open prices come in the next step.");
+    if (kids.length) return;
+    const price = prodPrice(x, p);
+    setCart(c => { const i = c.findIndex(l => l.productId === p.id && !l.options && !l.saved); if (i >= 0) return c.map((l, j) => (j === i ? { ...l, qty: l.qty + 1 } : l)); return [...c, { productId: p.id, name: p.name, price, qty: 1 }]; });
+  };
+  const qty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [{ ...l, qty: +(l.qty + d).toFixed(3) }])));
+  const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: prodPrice(y, p) } : l; })); };
+
+  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : [];
+  const back = !q.trim() && m.parentOf(top);
+
+  return (
+    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }}>
+      {/* ---------- cart ---------- */}
+      <Card style={{ flex: 1, margin: 12, marginRight: 0, overflow: "hidden" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
+          <View style={{ width: 40, height: 40, borderRadius: R.md, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={18} color="#fff">S</T></View>
+          <View style={{ flex: 1, minWidth: 0 }}><T w="s" numberOfLines={1}>{branch?.name || "—"}</T><T size={13} color={C.mut} numberOfLines={1}>{device?.name || "—"}</T></View>
+          <Pill text={online ? "Online" : "Offline"} tone={online ? "brand" : "warn"} />
+          {cashier ? <Pill text={cashier.name} /> : null}
+        </View>
+        {types.length > 1 && (
+          <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
+            {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => switchType(k)} />)}
+          </View>)}
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
+          {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
+            : cart.map((l, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line2 }}>
+                <View style={{ flex: 1, minWidth: 0 }}><T w="m" numberOfLines={2}>{l.name}</T>{l.mods ? <T size={13} color={C.mut}>{l.mods}</T> : null}</View>
+                <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
+                  <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty <= 1 ? "trash" : "minus"} size={18} color={l.qty <= 1 ? C.bad : C.ink2} /></Pressable>
+                  <T w="s" style={{ minWidth: 28, textAlign: "center" }}>{l.qty}</T>
+                  <Pressable accessibilityRole="button" accessibilityLabel={"More " + l.name} onPress={() => qty(i, 1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={18} color={C.ink2} /></Pressable>
+                </View>
+                <T w="m" style={{ width: 84, textAlign: "right" }}>{money(S, lineNet(l))}</T>
+              </View>))}
+        </ScrollView>
+        <View style={{ paddingHorizontal: 18, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line, gap: 6 }}>
+          <Row l="Subtotal" r={money(S, t.net)} />
+          <Row l="Tax" r={money(S, t.tax)} muted />
+          {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
+          <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="b" size={18}>Total</T><T w="b" size={18}>{money(S, t.total)}</T></View>
+          {money2(S, t.total) ? <Row l="" r={"≈ " + money2(S, t.total)} muted /> : null}
+        </View>
+        <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 18, paddingBottom: 18 }}>
+          <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length} onPress={() => say("Saving orders comes in the next step.")} />
+          <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={() => say("Payment comes in the next step.")} />
+        </View>
+      </Card>
+
+      {/* ---------- menu ---------- */}
+      <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
+        <View style={{ flexDirection: "row", gap: 10, height: 76 }}>
+          {([["table", "Table"], ["user", "Customer"], ["tag", "Discount"], ["note", "Notes"], ["void", "Void"], ["print", "Print"]] as const).map(([ic, l]) => (
+            <Pressable key={l} accessibilityRole="button" onPress={() => say(l + " comes in the next step.")}
+              style={({ pressed }) => [{ width: 76, height: 76, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 }]}>
+              <Icon name={ic} color={C.brand} /><T w="m" size={12} color={C.ink2}>{l}</T>
+            </Pressable>))}
+        </View>
+        <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff" }, shadowXs]}>
+          <Icon name="search" size={20} color={C.mut} />
+          <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
+          {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: 40 }} contentContainerStyle={{ gap: 8 }}>
+          {m.tops.map(c => <Btn key={c.id} kind={c.id === curTop && !q ? "soft" : "outline"} height={40} label={c.name} style={c.id === curTop && !q ? { borderColor: C.brand } : undefined} onPress={() => { setQ(""); setCat(c.id); }} />)}
+        </ScrollView>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
+          {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
+          {back ? <Tile size={tile} onPress={() => setCat(m.parentOf(top))}><Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Tile> : null}
+          {items.map((it: any) => it.sub
+            ? <Tile key={it.sub.id} size={tile} onPress={() => setCat(it.sub.id)}><T w="m" size={14} numberOfLines={3}>{it.sub.name}</T><T size={12} color={C.mut}>{m.itemsOf(it.sub.id).length} items</T></Tile>
+            : <ItemTile key={it.id} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
+                n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
+          {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
+        </ScrollView>
+        <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
+          {([["grid", "New"], ["list", "Orders"], ["scooter", "Pickup & Delivery"], ["table", "Tables"], ["till", "Till"], ["clock", "Time Clock"], ["more", "More"]] as const).map(([ic, l], i) => (
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? (setCart([]), setQ("")) : l === "More" ? setMore(v => !v) : say(l + " comes in the next step."))}
+              style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: i === 0 ? C.brand50 : pressed ? C.line2 : "transparent" }]}>
+              <Icon name={ic} color={i === 0 ? C.brand : C.mut} /><T w={i === 0 ? "s" : "m"} size={11} color={i === 0 ? C.brand600 : C.mut} numberOfLines={1}>{l}</T>
+            </Pressable>))}
+        </View>
+      </View>
+
+      {more && (
+        <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
+          <Card style={{ position: "absolute", right: PADX, bottom: 100, width: 220, padding: 6 }}>
+            <Btn kind="ghost" label="Log out" style={{ justifyContent: "flex-start" }} onPress={() => { setMore(false); setCart([]); setCashier(null); }} />
+          </Card>
+        </Pressable>)}
+      {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
+    </View>
+  );
+}
+
+const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
+  <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{l}</T><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{r}</T></View>;
+
+const Tile = ({ size, onPress, children }: { size: number; onPress: () => void; children: React.ReactNode }) => (
+  <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", padding: 12, justifyContent: "space-between" }]}>{children}</Pressable>
+);
+function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
+      style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
+      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: size * 0.48 }} resizeMode="cover" /> : null}
+      <View style={{ flex: 1, padding: 10, justifyContent: "space-between" }}>
+        <T w="m" size={14} numberOfLines={img ? 2 : 3} style={n ? { paddingRight: 22 } : undefined}>{name}</T>
+        <T w="s" size={14} color={oos ? C.bad : C.brand}>{oos ? "Out of stock" : price}</T>
+      </View>
+      {n ? <View style={{ position: "absolute", top: 6, right: 6, minWidth: 24, height: 24, borderRadius: 12, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 6 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
+    </Pressable>
+  );
+}
