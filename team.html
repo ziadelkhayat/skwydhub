@@ -232,6 +232,7 @@ html body .btn,html body button.primary,html body .cats button,html body nav.tab
 <div class="toast" id="toast"></div>
 <script src="supabase.js"></script>
 <script>if(!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
+<script src="teamv3.js?v=1"></script>
 <script>
 (() => {
 const URL_ = "https://akrezmxgtorkuwxxctyk.supabase.co", KEY = "sb_publishable_tL62keD2HdovsMpI8XAkWg_TPdjaUVh";
@@ -343,7 +344,8 @@ function shell(){
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => go(b.dataset.tab));
 }
 function go(tab){ S.tab = tab; clearInterval(chatT); S.chat = null; document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab===tab)); window.scrollTo(0, 0);
-  ({ deliv:viewDeliv, clock:viewClock, sched:viewSched, chat:viewChats, reqs:viewReqs, hrs:viewHrs, kb:viewKb, tasks:viewTasks })[tab](); }
+  const V = window.TEAMV3 && !document.documentElement.hasAttribute("data-v3off") ? window.TEAMV3 : {};   // teamv3.js: the design-file screens
+  (V[tab] || ({ deliv:viewDeliv, clock:viewClock, sched:viewSched, chat:viewChats, reqs:viewReqs, hrs:viewHrs, kb:viewKb, tasks:viewTasks })[tab])(); }
 const main = () => $("#main");
 
 /* ---------- clock in / out (GPS at the branch) ---------- */
@@ -675,6 +677,8 @@ function closeSheet(){ $("#scrim")?.remove(); }
 document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); });
 document.addEventListener("visibilitychange", async () => { if(!document.hidden && S.me && S.tab==="clock"){ try{ S.me = await rpc("skwyd_team_me"); viewClock(); }catch(_){} } });
 sb.auth.onAuthStateChange((ev) => { if(ev==="SIGNED_OUT" && S.me){ S.me = null; loginView(); } });
+// for teamv3.js (the design-file screens): the app's own state and functions, nothing new
+window.TEAMAPI = { get S(){ return S; }, $, main, openNow, ymd, addD, dmy, hm, t5, mon, rpc, clockPress, paintQ, viewHrs, swapSheet, newReq, newChat, openChat, chatDot, unread, chT, avc, inits, kbLoad, LEAVE, ST, go, clearClk: () => clearInterval(clk) };
 boot();
 })();
 </script>
