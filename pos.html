@@ -3048,8 +3048,8 @@ function openIncoming(){
     <span class="lc lc2"><b style="text-transform:none">${esc(chn(o))}</b></span>
     <span class="lc lc2"><b style="text-transform:none">${esc(typLbl(o.type))}</b>${o.type==="dinein" && o.table ? `<span>${esc(tblLbl(o.table))}</span>` : ""}</span>
     <span class="lc lc2"><b style="text-transform:none">${o.source && o.source.toLowerCase()!==chn(o).toLowerCase() ? esc(o.source) : "—"}</b></span>
-    <span class="lc lc2">${o.createdAt ? (d => `<b style="text-transform:none;white-space:nowrap">${d[2]}-${d[1]}-${String(d[0]).slice(2)}</b>`)(bizDate(o.createdAt).split("-")) : "<b>—</b>"}</span>
-    <span class="lc lc2">${o.createdAt ? (t => `<b style="text-transform:none;white-space:nowrap">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getFullYear()).slice(2)}</b><span style="text-transform:none;white-space:nowrap">${t.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" }).toLowerCase()}</span>`)(new Date(o.createdAt)) : "<b>—</b>"}</span>
+    <span class="lc lc2">${o.createdAt ? (d => `<b style="text-transform:none;white-space:nowrap">${d[2]}-${d[1]}-${d[0]}</b>`)(bizDate(o.createdAt).split("-")) : "<b>—</b>"}</span>
+    <span class="lc lc2">${o.createdAt ? (t => `<b style="text-transform:none;white-space:nowrap">${String(t.getDate()).padStart(2,"0")}-${String(t.getMonth()+1).padStart(2,"0")}-${t.getFullYear()}</b><span style="text-transform:none;white-space:nowrap">${t.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" }).toLowerCase()}</span>`)(new Date(o.createdAt)) : "<b>—</b>"}</span>
     <span class="lc lc2"><b style="text-transform:none">${esc(o.payment?.method || "—")}</b></span>
     <span class="lr"><b style="text-transform:none">${usd(o.total)}</b></span></button>`;
   const TABS = [["all","All"],["active","Active"],["closed","Done"],["void","Voids"],["returns","Returns"],["declined","Declined"]];
