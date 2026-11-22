@@ -8,6 +8,7 @@ import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTy
 import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
+import { EndDayDialog, endDayBlock } from "./EndDay";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
 import { kitchenText, printJob, printerHas, receiptText } from "../lib/print";
@@ -258,6 +259,7 @@ export function Register() {
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
           <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 100, width: 240, padding: 6 }}>
             <Btn kind="ghost" label={openShift(x) ? "Close Till" : "Open Till"} style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
+            <Btn kind="ghost" label="End of day" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
             <Btn kind="ghost" label="Sync data" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
             <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
