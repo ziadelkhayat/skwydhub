@@ -5,6 +5,7 @@ import type { Row } from "@/lib/db";
 import { Link } from "react-router";
 import { live, type CrudCfg, type S } from "./CrudPage";
 import { PERMS } from "./perms";
+import { sb } from "@/lib/supabase";
 
 const del = (r: Row) => !!r.deleted;
 const allDel: CrudCfg["tabs"] = [["all", "All", live], ["deleted", "Deleted", del]];
@@ -20,6 +21,8 @@ const bySort = (a: Row, b: Row) => (a.sort ?? 999) - (b.sort ?? 999) || String(a
 const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", fast: "Dine-in", pickup: "Pickup", delivery: "Delivery" };
 const PM_TYPES: [string, string][] = [["cash", "Cash"], ["card", "Card"], ["other", "Other"]];
 const SYS_SRC = (n: string) => /^(web|api)$/i.test(String(n || "").trim());
+const isAdminRow = (r: Row) => !!r && (r.role === "owner" || r.role === "admin");
+async function pinHash(id: string, pin: string) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("slick:" + id + ":" + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 const OnOff = ({ on }: { on: boolean }) => <Badge variant="light" color={on ? "success" : "gray"}>{on ? "Active" : "Inactive"}</Badge>;
 
 export const CRUD: Record<string, CrudCfg> = {
@@ -174,6 +177,45 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true }, { k: "code", l: "Code", auto: s => "SUP-" + String(s.suppliers.length + 1).padStart(3, "0") }, { k: "contactName", l: "Contact Name" }, { k: "phone", l: "Phone" }, { k: "email", l: "Email" },
       { k: "address", l: "Address", full: true }, { k: "notes", l: "Notes", t: "textarea" }],
     unique: "name",
+  },
+  users: {
+    col: "users", title: "Employees", one: "Employee", needs: ["roles", "branches"],
+    tabs: [["all", "All", r => live(r) && !isAdminRow(r)], ["deleted", "Deleted", r => del(r) && !isAdminRow(r)]],
+    search: r => r.name + " " + (r.email || "") + " " + (r.phone || "") + " " + (r.employeeNo || "") + " " + (r.jobTitle || ""),
+    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-theme-xs text-gray-500">{r.employeeNo}</span> : null}</> },
+      { h: "Job Title", cell: r => r.jobTitle || "—" },
+      { h: "Console Access", cell: r => r.email ? <Badge variant="light" color={r.userId ? "success" : "gray"}>{r.userId ? "Active" : "Invited"}</Badge> : <Badge variant="light" color="gray">Inactive</Badge> },
+      { h: "App Access", cell: r => <Badge variant="light" color={r.pinHash ? "success" : "gray"}>{r.pinHash ? "Active" : "Inactive"}</Badge> },
+      { h: "Roles", cell: (r, s) => (r.roleIds?.length ? r.roleIds : r.roleId ? [r.roleId] : []).map((id: string) => s.roles.find(x => x.id === id)?.name || "—").join(", ") || "—" }],
+    fields: [{ k: "@a", l: "Account", t: "head" }, { k: "name", l: "Name", req: true, ph: "The employee's full name." },
+      { k: "language", l: "Language", t: "select", opts: () => [["en", "English"], ["ar", "Arabic"]], def: "en" },
+      { k: "phone", l: "Phone Number", t: "phone", req: true, note: "Employees sign in to the SKWYD apps with this number." },
+      { k: "email", l: "Email", ph: "Needed only to log in to the back office" },
+      { k: "pin", l: "Login PIN", t: "pin", note: "A unique 5-digit PIN the user types to sign in on the cashier app." },
+      { k: "displayLocalized", l: "Display localized names", t: "chk", def: false },
+      { k: "@e", l: "Employment", t: "head" }, { k: "employeeNo", l: "Employee Number", ph: "e.g. 1024" }, { k: "jobTitle", l: "Job Title", ph: "e.g. Cashier" },
+      { k: "hireDate", l: "Hire Date", t: "date" }, { k: "birthDate", l: "Date Of Birth", t: "date" },
+      { k: "employmentType", l: "Employment Type", t: "select", req: true, opts: () => [["full", "Full Time"], ["part", "Part Time"], ["temp", "Temporary"], ["intern", "Intern"]] },
+      { k: "payType", l: "Pay Type", t: "select", req: true, opts: () => [["monthly", "Monthly Salary"], ["hourly", "Hourly Rate"], ["daily", "Daily Rate"]] },
+      { k: "payRate", l: "Pay Rate (USD)", t: "number", ph: "Per month, hour or day" }, { k: "leaveDays", l: "Annual Leave Days", t: "number", ph: "e.g. 15 a year" },
+      { k: "socialSecurity", l: "Registered for social security (payroll deducts it)", t: "chk", def: false },
+      { k: "@c", l: "Emergency Contact", t: "head" }, { k: "emergencyName", l: "Contact Name" }, { k: "emergencyPhone", l: "Contact Phone", t: "phone" },
+      { k: "notes", l: "Notes", t: "textarea" }],
+    note: "POS users sign in on the tablet with their PIN. Back-office passwords are set in the current portal for now.",
+    prep: async (data, id, s) => {
+      const pin = data.pin; delete data.pin;
+      const pn = (v: any) => String(v || "").replace(/\D/g, "");
+      if (data.phone && s.users.some(x => live(x) && x.id !== id && pn(x.phone) === pn(data.phone))) return "Another employee has this phone number. Each employee signs in with their own number.";
+      if (id) delete data.roleIds; else { data.roleIds = []; data.roleId = null; data.active = true; data.branchIds = ["-"]; data.id = "usr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+      if (data.email) data.email = String(data.email).toLowerCase();
+      if (data.email && s.users.some(u => u.id !== id && live(u) && String(u.email || "").toLowerCase() === data.email)) return "Another user already has this email.";
+      if (pin) { if (!/^\d{5}$/.test(pin)) return "The Login PIN must be exactly 5 digits.";
+        const myId = id || data.id;
+        for (const u of s.users.filter(u => live(u) && u.id !== myId && u.pinHash)) if (await pinHash(u.id, pin) === u.pinHash || await pinHash(u.id, pin.slice(0, 4)) === u.pinHash) return "This PIN clashes with another user's PIN. Pick a different one (Generate).";
+        data.pinHash = await pinHash(myId, pin); }
+    },
+    saved: async (old, data) => { const call = async (body: any) => { const { data: d, error } = await sb.functions.invoke("team-account", { body }); if (error || d?.error) throw new Error(d?.error || "Couldn't save the login."); };
+      if (!old) await call({ employeeId: "", all: true }); else if (old.phone !== data.phone) await call({ employeeId: old.id }); },
   },
   roles: {
     col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]],

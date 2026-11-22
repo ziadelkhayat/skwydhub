@@ -15,6 +15,7 @@ import { put, softDelete, newId, useCol, type Row } from "@/lib/db";
 import { cn } from "@/utils";
 import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
@@ -23,7 +24,7 @@ import { toast } from "../ui/toast";
 export type Opt = [string, string];
 export type S = Record<string, Row[]>;
 export type CField = {
-  k: string; l: string; t?: "text" | "number" | "select" | "textarea" | "chk" | "multi" | "items" | "image" | "head";
+  k: string; l: string; t?: "text" | "number" | "select" | "textarea" | "chk" | "multi" | "items" | "image" | "head" | "date" | "phone" | "pin";
   req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any;
   opts?: (s: S) => Opt[]; auto?: (s: S) => any; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
 };
@@ -36,7 +37,8 @@ export type CrudCfg = {
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
   detail?: string;   // open rows on their own page (path?id=)
-  urlFilter?: [string, string];   // e.g. ["cat", "categoryId"]: /products?cat=… shows one category
+  urlFilter?: [string, string];
+  saved?: (old: Row | null, data: Record<string, any>) => Promise<void> | void;   // after saving (e.g. update the employee app login)   // e.g. ["cat", "categoryId"]: /products?cat=… shows one category
 };
 
 export const live = (r: Row) => !r.deleted;
@@ -120,12 +122,13 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
     for (const f of cfg.fields) if (f.req && vis(f) && f.t !== "head" && (d[f.k] === "" || d[f.k] == null || (Array.isArray(d[f.k]) && !d[f.k].length))) return setErr(`${f.l} is required.`);
     if (cfg.unique && s[cfg.col].some(r => live(r) && r.id !== row?.id && String(r[cfg.unique!] || "").trim().toLowerCase() === String(d[cfg.unique!] || "").trim().toLowerCase())) return setErr(`Another ${cfg.one.toLowerCase()} has this name.`);
     const data: Record<string, any> = {};
-    for (const f of cfg.fields) if (f.t !== "head" && (vis(f) || !row)) data[f.k] = f.t === "number" ? (d[f.k] === "" ? null : +d[f.k]) : typeof d[f.k] === "string" ? d[f.k].trim() : d[f.k];
+    for (const f of cfg.fields) if (f.t !== "head" && (vis(f) || !row)) data[f.k] = f.t === "number" ? (d[f.k] === "" || d[f.k] == null ? null : +d[f.k]) : f.t === "date" ? (d[f.k] || null) : typeof d[f.k] === "string" ? d[f.k].trim() : d[f.k];
     setBusy(true);
     try {
       const msg = cfg.prep ? await cfg.prep(data, row?.id || null, s) : ""; if (msg) return setErr(msg);
       const id = row?.id || data.id || newId(cfg.col.slice(0, 3)); delete data.id;
       await put(cfg.col, id, row ? data : { ...data, deleted: false });
+      try { await cfg.saved?.(row, { ...data, id }); } catch (e: any) { toast(e?.message || "Saved, but the login couldn't be updated.", "error"); }
       toast(row ? `${cfg.one} saved` : `${cfg.one} added`); onClose();
     } catch (e: any) { setErr(e?.message || "Couldn't save."); } finally { setBusy(false); }
   }
@@ -187,6 +190,15 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
     return (<Field className="col-span-full">{label}
       <div className="flex flex-col gap-2">{[...cur, ""].map((x, i) => (
         <Input key={i} className="h-11" value={x} placeholder={i === cur.length ? "Add an option" : ""} onChange={e => { const n = [...cur]; if (i === cur.length) n.push(e.target.value); else n[i] = e.target.value; set(n.filter((y, j) => y !== "" || j < n.length - 1)); }} />))}</div>{note}</Field>); }
+  if (f.t === "phone") { const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"]; const str = String(v || ""); const cc = CCS.find(x => str.startsWith(x)) || "+961"; const num = str.startsWith(cc) ? str.slice(cc.length) : str;
+    const mk = (c: string, n: string) => { const d = n.replace(/\D/g, "").replace(/^0+/, ""); return d ? c + d : ""; };
+    return (<Field className={cn(full && "col-span-full")}>{label}
+      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-11 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+        <Input className="h-11 flex-1" type="tel" inputMode="tel" placeholder={f.ph || "70 123 456"} value={num} onChange={e => set(mk(cc, e.target.value))} /></div>{note}</Field>); }
+  if (f.t === "pin") return (<Field className={cn(full && "col-span-full")}>{label}
+    <div className="flex gap-3"><Input className="h-11 flex-1 tracking-widest" inputMode="numeric" maxLength={5} placeholder={f.ph || "5 digits"} value={v || ""} onChange={e => set(e.target.value.replace(/\D/g, "").slice(0, 5))} />
+      <Button type="button" variant="outline" className="h-11" onClick={() => set(String(Math.floor(10000 + Math.random() * 90000)))}>Generate</Button></div>{note}</Field>);
+  if (f.t === "date") return (<Field className={cn(full && "col-span-full")}>{label}<DateInput value={v || ""} onChange={set} />{note}</Field>);
   if (f.t === "textarea") return (<Field className="col-span-full">{label}<Textarea rows={4} value={v || ""} placeholder={f.ph} onChange={e => set(e.target.value)} />{note}</Field>);
   if (f.t === "image") return (<Field className="col-span-full">{label}
     <div className="flex items-center gap-4">

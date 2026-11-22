@@ -12,6 +12,7 @@ import { PlusIcon, SearchIcon } from "@/icons";
 import { sb } from "@/lib/supabase";
 import { fmtDate } from "@/lib/util";
 import { useEffect, useState } from "react";
+import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
@@ -99,7 +100,7 @@ function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () => void; 
             <div className="flex gap-3"><select aria-label="Country code" className={sel.replace("w-full", "w-28 shrink-0")} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
               <Input className="h-11 flex-1" type="tel" inputMode="tel" value={num} onChange={e => setNum(e.target.value)} /></div></Field>
           <Field><FieldLabel className="mb-1.5 block">Email</FieldLabel><Input className="h-11" type="email" value={email} onChange={e => setEmail(e.target.value)} /></Field>
-          <Field><FieldLabel className="mb-1.5 block">Birth Date</FieldLabel><Input className="h-11" type="date" value={bday || ""} onChange={e => setBday(e.target.value)} /></Field>
+          <Field><FieldLabel className="mb-1.5 block">Birth Date</FieldLabel><DateInput value={bday || ""} onChange={setBday} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Gender</FieldLabel><select className={sel} value={gender} onChange={e => setGender(e.target.value)}><option value="">—</option><option value="male">Male</option><option value="female">Female</option></select></Field>
           <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Customer Notes</FieldLabel><Textarea rows={3} placeholder="Allergies, preferences, gate code…" value={notes} onChange={e => setNotes(e.target.value)} />
             <p className="mt-1.5 text-xs text-gray-500">Shown to the cashier and call center when this customer orders.</p></Field>

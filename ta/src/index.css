@@ -880,3 +880,7 @@ pre[class*="language-"].line-numbers {
     min-width: 580px;
   }
 }
+
+/* Skwyd: date pickers inside dialogs sit inside the field (static) and above everything */
+.flatpickr-wrapper { display: block; width: 100%; }
+.flatpickr-calendar.static { z-index: 1000000 !important; }
