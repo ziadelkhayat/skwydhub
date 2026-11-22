@@ -5,6 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/utils";
 import React from "react";
 import { Outlet, useLocation } from "react-router";
+import { Blocked, SubBar, useAccess } from "@/lib/access";
 
 export default function AppLayout({
   children,
@@ -12,6 +13,7 @@ export default function AppLayout({
   children?: React.ReactNode;
 }) {
   const { pathname } = useLocation();
+  const acc = useAccess();
 
   const isAiRoute =
     pathname.startsWith("/ai-chat") || pathname.startsWith("/ai-settings");
@@ -31,7 +33,7 @@ export default function AppLayout({
       <SidebarInset className={cn("min-w-0", isAiRoute && "h-svh overflow-hidden")}>
         <AppHeader />
 
-        <div className={getRouteSpecificStyles()}>{children ?? <Outlet />}</div>
+        <div className={getRouteSpecificStyles()}><SubBar />{!acc.ready ? null : acc.canOpen(pathname) ? (children ?? <Outlet />) : <Blocked path={pathname} />}</div>
       </SidebarInset>
       <ScrollToTop />
     </SidebarProvider>

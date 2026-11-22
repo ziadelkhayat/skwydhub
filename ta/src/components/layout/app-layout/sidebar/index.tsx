@@ -2,6 +2,7 @@ import { Sidebar, SidebarContent, useSidebar } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { useLocation } from "react-router";
 import { businessItems, mainItems, salesItems, stockItems } from "./data";
+import { useAccess } from "@/lib/access";
 import AppSidebarHeader from "./sidebar-header";
 import SidebarNavGroup from "./sidebar-nav-group";
 import type { MenuType, NavItem } from "./types";
@@ -13,8 +14,8 @@ const menuSections: { type: MenuType; labelKey: string; items: NavItem[] }[] = [
   { type: "business", labelKey: "groups.skBusiness", items: businessItems },
 ];
 
-const findMatchingSubmenu = (path: string) => {
-  for (const section of menuSections) {
+const findMatchingSubmenu = (path: string, sections = menuSections) => {
+  for (const section of sections) {
     for (let index = 0; index < section.items.length; index++) {
       const nav = section.items[index];
       if (
@@ -35,18 +36,22 @@ const findMatchingSubmenu = (path: string) => {
 export default function AppSidebar() {
   const { open, isMobile, isHovered } = useSidebar();
   const { pathname } = useLocation();
+  const { canOpen } = useAccess();
+  // only the sections this user may open (their roles) and the plan includes
+  const sections = menuSections.map(sec => ({ ...sec, items: sec.items.map(it => it.subItems ? { ...it, subItems: it.subItems.filter(x => canOpen(x.path)) } : it)
+    .filter(it => it.subItems ? it.subItems.length > 0 : canOpen(it.path || "/")) }));
 
   const showContent = open || isHovered || isMobile;
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: MenuType;
     index: number;
-  } | null>(() => findMatchingSubmenu(pathname));
+  } | null>(() => findMatchingSubmenu(pathname, sections));
 
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
-    setOpenSubmenu(findMatchingSubmenu(pathname));
+    setOpenSubmenu(findMatchingSubmenu(pathname, sections));
   }
 
   const handleSubmenuToggle = (index: number, menuType: MenuType) => {
@@ -62,7 +67,7 @@ export default function AppSidebar() {
     });
   };
 
-  const activeSections = menuSections.filter(
+  const activeSections = sections.filter(
     (section) => section.items.length > 0,
   );
 

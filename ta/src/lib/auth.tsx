@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { sb } from "./supabase";
 
-export type Staff = { userId: string; name: string; email?: string; phone?: string; role: string | null; roleId?: string | null; companyId?: string | null; viewAs?: any };
+export type Staff = { userId: string; name: string; email?: string; phone?: string; role: string | null; roleId?: string | null; companyId?: string | null; viewAs?: any; locked?: boolean };
 type Auth = { staff: Staff | null; loading: boolean; message: string; signOut: () => Promise<void>; reload: () => Promise<void> };
 const Ctx = createContext<Auth>({ staff: null, loading: true, message: "", signOut: async () => {}, reload: async () => {} });
 export const useAuth = () => useContext(Ctx);
@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!data) {
       const v = await sb.rpc("slick_my_view");
       if ((v.data as any)?.companyId) { setStaff({ userId: user.id, name: user.user_metadata?.name || user.email || "Admin", email: user.email, role: "owner", viewAs: v.data }); setLoading(false); return; }
+      // a business whose subscription ended: the lock screen explains (nothing else opens)
+      const st = await sb.rpc("slick_my_subscription"); if ((st.data as any)?.state === "locked") { setStaff({ userId: user.id, name: user.user_metadata?.name || user.email || "", email: user.email, role: "owner", locked: true }); setLoading(false); return; }
       await sb.auth.signOut(); setMessage("This login doesn't have portal access. Ask the owner to give you access."); setStaff(null); setLoading(false); return;
     }
     const su = await sb.from("staff_users").select("deleted,name").eq("user_id", user.id).maybeSingle();
