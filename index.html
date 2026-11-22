@@ -9889,7 +9889,7 @@ function viewCustomers(){
       ? `<th colspan="5" class="bkbar"><b>${CUS.sel.size} Selected</b><span class="ddwrap"><button type="button" class="btn sm" id="cusBk">Actions ▾</button><span class="ddmenu" id="cusBkM" hidden>${(CUS.filter==="deleted" ? [["restore","Restore"]] : CUS_BULK).map(([k,t]) => `<button type="button" data-cusbk="${k}">${t}</button>`).join("")}</span></span></th>`
       : `<th>Name</th><th>Phone</th><th>Email</th><th class="num">Total Orders</th><th>Last Order</th>`}</tr></thead><tbody>${
     rows.length ? rows.map(c => `<tr class="clk" data-cid="${esc(c.id)}"><td class="bkc"><input type="checkbox" data-cusel="${esc(c.id)}" ${CUS.sel.has(c.id)?"checked":""} aria-label="Select ${esc(c.name||c.phone||"")}"></td><td><b>${esc(c.name || "Unnamed")}</b>${c.blacklisted?' <span class="spill s-declined">Blacklisted</span>':""}${(c.tags||[]).length?`<div>${c.tags.map(t=>`<span class="tag cc">${esc(t)}</span>`).join(" ")}</div>`:""}</td><td>${esc(telFmt(c.phone))}</td><td>${esc(c.email || "—")}</td>
-      <td class="num">${c.n}</td><td>${ago2(c.last_at)}</td></tr>`).join("")
+      <td class="num">${c.n ?? 0}</td><td>${ago2(c.last_at)}</td></tr>`).join("")
     : `<tr><td colspan="6" class="note" style="padding:24px;text-align:center">${CUS.loading ? "Loading customers…" : CUS.q || CUS.filter!=="all" || adv ? "No customers match." : "No customers yet"}</td></tr>`
   }</tbody></table>`}
   <div class="pager"><span class="note">${a}–${b} of ${CUS.count.toLocaleString()}</span><span class="sp"></span><button class="btn" id="cusPrev" ${CUS.page<=1?"disabled":""}>Previous</button><span class="note">Page ${CUS.page} of ${pages}</span><button class="btn" id="cusNext" ${CUS.page>=pages?"disabled":""}>Next</button></div></div>`;
@@ -13602,6 +13602,7 @@ window.addEventListener("click", e => { const b = e.target.closest && e.target.c
   const l = i.parentElement.querySelector(":scope > label"); i.placeholder = l && /\*/.test(l.textContent) ? "Required" : "Optional"; });
   let t = 0; new MutationObserver(() => { if(t) return; t = setTimeout(() => { t = 0; fill(document); }, 30); }).observe(document.body, { childList:true, subtree:true }); })();
 </script>
+<script src="ioskit-touch.js?v=1"></script>
 <script src="ioskit.js?v=5" data-app="portal"></script>
 <script src="v3.js?v=1"></script>
 <script src="v2.js?v=1"></script>

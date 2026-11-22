@@ -62,6 +62,7 @@ html body h1.v3t{font-size:34px!important;line-height:41px!important;font-weight
 .v3g:has(.v3ck) .v3r + .v3r::before{left:52px}
 .v3segs{overflow-x:auto;scrollbar-width:none}.v3segs button{flex:none;padding:0 14px;white-space:nowrap}
 .v3back{display:inline-flex;align-items:center;gap:2px;border:0;background:none;color:#0066D6;font:inherit;font-size:17px;padding:0;cursor:pointer;min-height:44px}
+@keyframes v3sp{to{transform:rotate(360deg)}}.v3spin{display:inline-block;width:22px;height:22px;border-radius:50%;border:2.5px solid rgba(60,60,67,.18);border-top-color:#6C6C70;animation:v3sp .8s linear infinite}
 .v3empty{padding:24px 16px;text-align:center;color:${L2};font-size:15px}
 html[data-theme=dark] .v3g,html[data-theme=dark] .v3r,html[data-theme=dark] .v3card,html[data-theme=dark] .v3bal > div,html[data-theme=dark] .v3chl{background:#1C1C1E}
 html[data-theme=dark] .v3r,html[data-theme=dark] h1.v3t,html[data-theme=dark] .v3seg button{color:#fff}
@@ -114,7 +115,7 @@ ${grp("Next Shift", rows)}${fy.length ? grp("For You", fy) : ""}`;
     const paint = () => { const l = S.tasks || [], open = l.filter(t => t.status !== "done"), done = l.filter(t => t.status === "done"), today = ymd(new Date());
       const r = t => { const d = t.status === "done", late = !d && t.dueDay && String(t.dueDay).slice(0, 10) < today;
         return `<button type="button" class="v3r v3tk" data-tk="${e(t.id)}" aria-label="${d ? "Mark not done" : "Mark done"}: ${e(t.title)}">${chk(d)}<span class="v3rt"><b style="${d ? "text-decoration:line-through;color:" + L2 : ""}">${e(t.title)}</b>${t.notes ? `<small>${e(t.notes)}</small>` : ""}<small style="${late ? "color:#D70015;font-weight:600" : ""}">${d ? "Done " + dmy(t.doneAt) : t.dueDay ? (late ? "Late · due " : "Due ") + dmy(t.dueDay) : ""}</small></span></button>`; };
-      main().innerHTML = `${head("Tasks", S.tasks ? (open.length ? open.length + " open" : "All done") : "")}${S.tasks == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` : open.length ? grp("", open.map(r)) : `<div class="v3g"><div class="v3empty">No open tasks. Nice work!</div></div>`}${done.length ? grp("Done this week", done.map(r)) : ""}`;
+      main().innerHTML = `${head("Tasks", S.tasks ? (open.length ? open.length + " open" : "All done") : "")}${S.tasks == null ? `<div class="v3g"><div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div></div>` : open.length ? grp("", open.map(r)) : `<div class="v3g"><div class="v3empty">No open tasks. Nice work!</div></div>`}${done.length ? grp("Done this week", done.map(r)) : ""}`;
       document.querySelectorAll("[data-tk]").forEach(b => b.onclick = async () => { const t = S.tasks.find(x => x.id === b.dataset.tk); if (!t) return; if (!navigator.onLine) return toast("No internet connection.", "bad");
         const d = t.status !== "done"; b.disabled = true; try { const r = await rpc("skwyd_team_task_done", { p_task: t.id, p_done: d }); if (r?.error) { toast(r.error, "bad"); b.disabled = false; return; }
           S.tasks = await rpc("skwyd_team_tasks"); if (d) toast("Task done", "ok"); if (S.tab === "tasks") paint(); } catch (_) { toast("Couldn't save. Try again.", "bad"); b.disabled = false; } }); };
@@ -128,7 +129,7 @@ ${grp("Next Shift", rows)}${fy.length ? grp("For You", fy) : ""}`;
       const rows = f.map(a => row({ icon: tile("kb", a.ack && !a.readAt ? "#C93400" : "#0071A4"), t: a.title, sub: (a.category || "") + (a.pinned ? " · Pinned" : ""), at: `data-kb="${e(a.id)}"`, pill: a.ack && !a.readAt ? `<span class="v3pill" style="background:rgba(201,52,0,.12);color:#C93400">To read</span>` : "" }));
       main().innerHTML = `${head("Guides", todo.length ? todo.length + " to read" : "")}<label class="v3srch">${svg(I.search, 17, L2)}<input id="kbq" type="search" placeholder="Search" value="${e(KBQ.q)}"></label>
 ${cats.length > 1 ? `<div class="v3seg v3segs">${[["", "All"], ...cats.map(c => [c, c])].map(([k, t]) => `<button type="button" data-kbc="${e(k)}" class="${KBQ.cat === k ? "on" : ""}">${e(t)}</button>`).join("")}</div>` : ""}
-${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` : rows.length ? grp("", rows) : `<div class="v3g"><div class="v3empty">${l.length ? "Nothing matches." : "No guides yet."}</div></div>`}`;
+${S.kb == null ? `<div class="v3g"><div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div></div>` : rows.length ? grp("", rows) : `<div class="v3g"><div class="v3empty">${l.length ? "Nothing matches." : "No guides yet."}</div></div>`}`;
       $("#kbq").oninput = ev => { KBQ.q = ev.target.value; const p = ev.target.selectionStart; paint(); const i = $("#kbq"); i.focus(); i.setSelectionRange(p, p); };
       document.querySelectorAll("[data-kbc]").forEach(b => b.onclick = () => { KBQ.cat = b.dataset.kbc; paint(); });
       document.querySelectorAll("[data-kb]").forEach(b => b.onclick = () => openKb(S.kb.find(a => a.id === b.dataset.kb))); };
@@ -140,7 +141,7 @@ ${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` 
     const a = S.hwk, z = addD(a, 6);
     const draw = (tiles, body) => { main().innerHTML = `<div class="v3h" style="justify-content:space-between"><button type="button" class="v3back" id="v3hb">${svg(I.l, 22, T, 2.4)}Today</button><span style="display:flex;gap:8px">${rb("l", "Previous week", "hp")}${rb("r", "Next week", "hn")}</span></div><h1 class="v3t">My Hours</h1><p class="v3s">${dmy(a)} – ${dmy(z)}</p>${tiles}<div class="v3g">${body}</div>`;
       $("#hp").onclick = () => { S.hwk = addD(S.hwk, -7); V.hrs(); }; $("#hn").onclick = () => { S.hwk = addD(S.hwk, 7); V.hrs(); }; $("#v3hb").onclick = () => go("clock"); };
-    draw("", `<div class="v3empty">Loading…</div>`);
+    draw("", `<div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div>`);
     let l = []; try { l = await rpc("skwyd_team_timesheet", { p_from: ymd(a), p_to: ymd(z) }); } catch (_) { draw("", `<div class="v3empty">Couldn't load your hours.</div>`); return; }
     const on = openNow(), o = on && new Date(on.at) >= a && new Date(on.at) <= addD(z, 1) ? { in: on.at, out: null, branch: S.me.branches.find(b => b.id === on.branchId)?.name, late: on.late } : null;
     const all = [...(o ? [o] : []), ...l], hrs = x => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000), tot = all.reduce((s, x) => s + hrs(x), 0);
@@ -156,7 +157,7 @@ ${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` 
     const draw = (body) => { main().innerHTML = `${head("Schedule", dmy(a) + " – " + dmy(z), rb("l", "Previous week", "wp") + rb("r", "Next week", "wn"))}<div class="v3g" id="sc">${body}</div>`;
       $("#wp").onclick = () => { S.week = addD(S.week, -7); V.sched(); }; $("#wn").onclick = () => { S.week = addD(S.week, 7); V.sched(); };
       document.querySelectorAll("[data-v3sv]").forEach(b => b.onclick = () => { S.v3team = b.dataset.v3sv === "team"; V.sched(); }); };
-    draw(`<div class="v3empty">Loading…</div>`);
+    draw(`<div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div>`);
     try { S.shifts = await rpc("skwyd_team_shifts", { p_from: ymd(a), p_to: ymd(z), ...(mine ? {} : { p_team: true }) }); } catch (err) { if (!mine) { S.v3team = false; draw(`<div class="v3empty">Your store's full schedule isn't available here yet.</div>`); return; } draw(`<div class="v3empty">Couldn't load your schedule.</div>`); return; }
     try { if (!S.reqs.length) S.reqs = await rpc("skwyd_team_requests"); } catch (_) {}
     const pend = new Set(S.reqs.filter(r => r.kind === "swap" && r.status === "pending").map(r => r.shiftId));
@@ -173,7 +174,7 @@ ${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` 
     const left = S.me.leaveDays != null ? Math.max(0, +S.me.leaveDays - +S.me.leaveUsed) : null, f2 = v => v == null ? "—" : (+v).toFixed(2);
     const draw = (body) => { main().innerHTML = `${head("Requests", "", rb("plus", "New request", "nr", true))}<div class="v3bal"><div><b>${f2(left)}</b><small>Days left</small></div><div><b>${f2(+S.me.leaveUsed || 0)}</b><small>Used</small></div><div><b>${f2(S.me.leaveDays)}</b><small>Per year</small></div></div>${seg([["all", "All"], ["pending", "Pending"], ["done", "Answered"]], S.rqTab, "data-rt")}<div class="v3g" id="rl">${body}</div>`;
       $("#nr").onclick = newReq; document.querySelectorAll("[data-rt]").forEach(b => b.onclick = () => { S.rqTab = b.dataset.rt; V.reqs(); }); };
-    draw(`<div class="v3empty">Loading…</div>`);
+    draw(`<div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div>`);
     try { S.reqs = await rpc("skwyd_team_requests"); } catch (err) { draw(`<div class="v3empty">Couldn't load your requests.</div>`); return; }
     const PC = { pending: ["#C93400", "rgba(201,52,0,.12)"], approved: ["#248A3D", "rgba(36,138,61,.12)"], declined: ["#D70015", "rgba(215,0,21,.1)"] };
     const l = S.reqs.filter(r => S.rqTab === "all" || (S.rqTab === "pending" ? r.status === "pending" : r.status !== "pending"));
@@ -189,7 +190,7 @@ ${S.kb == null ? `<div class="v3g"><div class="v3empty">Loading…</div></div>` 
     const can = S.me.canChat || S.me.canGroup || S.me.canChannel;
     const draw = (l) => { const q = (S.v3cq || "").toLowerCase(), f = (l || []).filter(g => !q || String(g.name).toLowerCase().includes(q));
       main().innerHTML = `${head("Chat", "", can ? rb("plus", "New chat", "chn", true) : "")}<label class="v3srch">${svg(I.search, 17, L2)}<input id="v3cq" type="search" placeholder="Search" value="${e(S.v3cq || "")}"></label>
-<div class="v3chl">${l == null ? `<div class="v3empty">Loading…</div>` : f.length ? f.map(g => { const u = unread(g);
+<div class="v3chl">${l == null ? `<div class="v3empty"><span class="v3spin" role="progressbar" aria-label="Loading"></span></div>` : f.length ? f.map(g => { const u = unread(g);
         return `<button type="button" class="v3r" data-chat="${e(g.id)}"><span class="v3chav" style="background:${avc(g.name)}">${e(inits(g.name))}</span><span class="v3rt"><b>${e(g.name)}</b><small>${e(g.last ? (g.last.mine ? "You: " : (g.last.by ? g.last.by.split(" ")[0] + ": " : "")) + g.last.body : g.direct ? "Private chat" : (g.channel ? "Channel · " : "") + g.members + " members")}</small></span><span class="v3cht">${g.last ? e(chT(g.last.at)) : ""}${u ? `<span class="v3ub">●</span>` : ""}</span></button>`; }).join("") : `<div class="v3empty">${l.length ? "Nothing matches." : "No chats yet. Your manager adds you to group chats."}</div>`}</div>`;
       const nb = $("#chn"); if (nb) nb.onclick = newChat;
       const qi = $("#v3cq"); qi.oninput = () => { S.v3cq = qi.value; const p = qi.selectionStart; draw(l); const n = $("#v3cq"); n.focus(); n.setSelectionRange(p, p); };

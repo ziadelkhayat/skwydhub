@@ -484,3 +484,25 @@ html body:is(.v2,.v2p) #view .rkpis .kmini .kd{display:block;margin-top:4px;font
 html body:is(.v2,.v2p) #view .rkpis .kmini .kd.up{color:#248A3D}
 html body:is(.v2,.v2p) #view .rkpis .kmini .kd.dn{color:#D70015}
 html body:is(.v2,.v2p) #view .rkpis .kmini .kd span{font-weight:400;color:#6C6C70}
+/* ===== iPhone: more iOS ===== */
+/* Call Center: each column is a full-width page you swipe between (like iOS paging), column title stays on top */
+html body.v2p #view .board{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory;gap:12px!important;margin:0 -16px!important;padding:0 16px 120px!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html body.v2p #view .board::-webkit-scrollbar{display:none}
+html body.v2p #view .board > .bcol{flex:0 0 calc(100% - 8px)!important;width:auto!important;max-width:none!important;scroll-snap-align:center;scroll-snap-stop:always}
+html body.v2p #view .board .ocard{width:100%!important}
+/* checkboxes only appear when you're selecting (long-press a row), like Edit mode on iOS */
+html body.v2p:not(.v3sel) #view#view table.ios-ltable > tbody > tr > td.bkc,html body.v2p:not(.v3sel) #view#view table.ios-ltable > thead th.bkc{display:none!important}
+html body.v2p #view tr[data-cid] td{text-align:left!important}
+html body.v2p #view tr[data-cid] td b{text-align:left!important}
+/* search and segmented control sit on the grey page, not in a white box */
+html body.v2p #view#view .card:has(> .ttop),html body.v2p #view#view .card:has(> .crsrch){background:transparent!important;box-shadow:none!important;border:0!important}
+html body.v2p #view#view .card > .ttop{background:transparent!important;padding:0 0 10px!important}
+/* the Reports start page on iPhone: a grouped list instead of tiles */
+html body.v2p #view .rhub{display:flex!important;flex-direction:column!important;gap:0!important;background:#fff;border-radius:12px;overflow:hidden}
+html body.v2p #view .rhub > .rcard{display:flex!important;align-items:center;min-height:44px!important;padding:0 16px!important;margin:0!important;border-radius:0!important;box-shadow:none!important;border:0!important;position:relative;background:#fff!important}
+html body.v2p #view .rhub > .rcard + .rcard::before{content:"";position:absolute;left:16px;right:0;top:0;height:1px;background:#E3E3E8}
+html body.v2p #view .rhub > .rcard b{font-size:17px!important;font-weight:400!important;flex:1}
+html body.v2p #view .rhub > .rcard::after{content:"";width:8px;height:8px;border-right:2px solid #C4C4C7;border-top:2px solid #C4C4C7;transform:rotate(45deg);margin-left:8px}
+html body.v2p #view .rhub > .rcard svg{display:none!important}
+html[data-theme=dark] body.v2p #view .rhub,html[data-theme=dark] body.v2p #view .rhub > .rcard{background:#1C1C1E!important}
+html body.v2p #view .board > .bcol > .bempty{width:auto!important;max-width:none!important}
