@@ -24,7 +24,20 @@ ${P}#grid > :is(.prod,.ctile,.csub){border-radius:16px!important;border:0!import
 ${P}#grid > .cbtile{border-radius:16px!important;border:0!important;background:rgba(118,118,128,.12)!important;color:${T}!important;box-shadow:none!important}
 ${P}#grid > .cbtile svg{stroke:${T}!important}
 ${P}#grid > button:active{background-color:#E5E5EA!important}
-${P}aside.cart{background:#fff!important;box-shadow:none!important;border-left:1px solid ${SEP}!important}
+${P}aside.cart{background:#fff!important;box-shadow:none!important}
+${P}.main.main.main,${P}.main.main.main.sqfit{grid-template-columns:calc(100% - var(--rw, 66%)) var(--rw, 66%)!important}
+@media (max-width:1180px){ ${P}.main.main.main,${P}.main.main.main.sqfit{grid-template-columns:340px minmax(0,1fr)!important} }
+${P}.main > aside.cart{order:0!important;grid-column:1!important;grid-row:1!important;border-left:0!important;border-right:1px solid ${SEP}!important}
+${P}.main > .rside{order:1!important;grid-column:2!important;grid-row:1!important;padding-right:12px!important;padding-left:12px!important;box-sizing:border-box!important}
+${P}#extra .ctx{margin:10px 12px!important;padding:12px 14px!important}
+${P}#extra .ctx .ci{background:rgba(10,102,216,.12)!important;color:${T}!important;border-radius:10px!important;box-shadow:none!important}
+${P}#extra .ctx .ci svg{stroke:${T}!important}
+${P}#extra .netst{border-radius:999px!important;background:rgba(52,199,89,.15)!important;color:#248A3D!important;border:0!important;font-weight:600!important}
+${P}#extra .netst.off{background:rgba(255,149,0,.15)!important;color:#C93400!important}
+${P}#lines .line{padding-left:16px!important;padding-right:16px!important}
+${P}#lines .line .each{color:${L2}!important}
+${P}#acts{padding:12px 16px 16px!important;background:#fff!important;border-top:0!important}
+
 ${P}.chead{background:rgba(249,249,249,.94)!important;border-bottom:1px solid ${SEP}!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
 ${P}.chead .pill,${P}.chead .sync,${P}.chead .lockb{height:26px!important;border-radius:999px!important;border:0!important;box-shadow:none!important;font-size:12px!important;font-weight:600!important;padding:0 10px!important;display:inline-flex!important;align-items:center!important;gap:4px!important}
 ${P}.chead .pill{background:rgba(52,199,89,.15)!important;color:#248A3D!important}
