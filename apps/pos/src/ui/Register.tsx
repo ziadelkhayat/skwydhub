@@ -2,7 +2,7 @@
 // search above the menu, square action buttons, bottom navigation with names) in the TailAdmin look.
 // The action buttons and the bottom bar are the current POS's: Print, Kitchen, Void, Hold, Retrieve, Discount, Charges, Tags, Notes;
 // Functions, Orders, Tables, Pickup & Delivery, New.
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
 import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
 import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
@@ -15,7 +15,8 @@ import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
 import { OrdersDialog, ordRef } from "./Orders";
 import { CustomerDialog } from "./Customer";
-import { kitchenText, printJob, printerHas, receiptText } from "../lib/print";
+import { appSet, kitchenText, printJob, printerHas, receiptText } from "../lib/print";
+import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
 import { ChargesDialog, DiscountDialog, NotesDialog, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
@@ -119,6 +120,7 @@ export function Register() {
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} second={CUR2(S) ? CUR2(S)!.code + " " + num2(chg2(S, p.change), CUR2(S)!.dec) : ""} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
+    if (device!.settings?.lockAfterSale && usePins(S)) setTimeout(() => setCashier(null), p.type === "cash" ? 0 : 1500);   // Device settings: log out after each sale
   };
   const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
 
@@ -166,6 +168,25 @@ export function Register() {
   const pdBoard = () => setDlg(<OrdersDialog x={x} pd onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
   const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
+  // new web and call center orders: a banner to open them (pos.html incoming); the master register can accept web orders by itself (Device settings: Auto accept)
+  const seen = useRef<Set<string> | null>(null), auto = useRef(new Set<string>()), [incoming, setIncoming] = useState<Row | null>(null);
+  useEffect(() => {
+    const pend = S.orders.filter(o => o.branchId === device!.branchId && o.channel !== "pos" && o.status === "pending");
+    if (!seen.current) { seen.current = new Set(pend.map(o => o.id)); return; }
+    const fresh = pend.filter(o => !seen.current!.has(o.id)); fresh.forEach(o => seen.current!.add(o.id));
+    const master = (() => { const m = S.devices.filter(d => !d.deleted && d.branchId === device!.branchId && d.settings?.master); return !m.length || m.some(d => d.id === device!.id); })();
+    if (device!.settings?.autoAccept && master) {
+      pend.filter(o => o.channel !== "callcenter" && !auto.current.has(o.id) && !(o.scheduledAt && +new Date(o.scheduledAt) - Date.now() > 3600000)).forEach(async o => {   // a scheduled order waits until an hour before its time
+        auto.current.add(o.id); const now = new Date().toISOString();
+        write("orders", o.id, { status: "active", updatedAt: now, ...(o.acceptedAt ? {} : { acceptedAt: now }), handledBy: who() + " (auto)", ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) });
+        say("New web order accepted automatically"); });
+    } else if (fresh.length) setIncoming(fresh[fresh.length - 1]);
+  }, [S.orders]);
+  // logged out after a few idle minutes (Device settings: lock minutes, else the brand's logout minutes)
+  const lastTouch = useRef(Date.now());
+  useEffect(() => { const mins = +(device!.settings?.lockMinutes ?? appSetOf().logoutMinutes ?? 10); if (!(mins > 0) || !usePins(S)) return;
+    const t = setInterval(() => { if (Date.now() - lastTouch.current > mins * 60000 && !cart.length) setCashier(null); }, 15000); return () => clearInterval(t); }, [cart.length, S.users]);
+  const appSetOf = () => appSet(S, branch?.brandId);
   const tillDlg = () => setDlg(<TillDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />);
 
   const qty = (i: number, d: number) => { const l = cart[i];
@@ -179,7 +200,7 @@ export function Register() {
   const back = !q.trim() && m.parentOf(top);
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }}>
+    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={() => { lastTouch.current = Date.now(); }} onPointerDown={() => { lastTouch.current = Date.now(); }}>
       {/* ---------- cart ---------- */}
       <Card style={{ flex: 1, margin: 12, marginRight: 0, overflow: "hidden" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
@@ -284,6 +305,12 @@ export function Register() {
             <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
+      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 2, borderColor: C.brand, padding: 14, gap: 8 }}>
+        <T w="s" size={16}>New {incoming.channel === "callcenter" ? "call center" : "API"} order · {incoming.ref || incoming.no || ""}</T>
+        <T size={13} color={C.mut}>{[incoming.customerName, incoming.type === "delivery" ? "Delivery" : "Pickup", money(S, incoming.total)].filter(Boolean).join(" · ")}</T>
+        <View style={{ flexDirection: "row", gap: 8 }}><Btn height={40} style={{ flex: 1 }} label="Later" onPress={() => setIncoming(null)} />
+          <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); openOrder(o); }} /></View>
+      </View> : null}
       {dlg}
       {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
     </View>
