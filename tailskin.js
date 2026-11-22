@@ -132,5 +132,19 @@
     new MutationObserver(run).observe($("#nav"), { subtree: true, attributes: true, attributeFilter: ["class"] });
     addEventListener("hashchange", run); run();
   }
+
+  /* iPhone turned sideways: keep everything clear of the Dynamic Island / notch, also when Safari's page zoom is changed (env() alone comes up short then) */
+  (function () {
+    if (!/iPhone/.test(navigator.userAgent)) return;
+    const root = document.documentElement;
+    const set = () => {
+      const land = innerWidth > innerHeight, a = (screen.orientation && screen.orientation.angle) ?? window.orientation ?? 0;
+      const zoom = (window.devicePixelRatio || 3) / 3, px = Math.round(60 / zoom);   // the island ends about 50pt from the edge; 60pt keeps a small gap
+      root.style.setProperty("--ta-sl", land && (a === 90) ? px + "px" : "0px");
+      root.style.setProperty("--ta-sr", land && (a === 270 || a === -90) ? px + "px" : "0px");
+    };
+    set(); addEventListener("resize", set); addEventListener("orientationchange", () => setTimeout(set, 200));
+    screen.orientation?.addEventListener?.("change", set);
+  })();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
