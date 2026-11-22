@@ -172,6 +172,7 @@
       "skQtyAdj": "Quantity Adjustment",
       "skCostAdj": "Cost Adjustment",
       "skSpotCheck": "Inventory Spot Check",
+      "skOrderTx": "Order Transactions",
       "skCountSheets": "Count Sheet",
       "skInventoryCount": "Inventory Count",
       "skWebOrdering": "Web Ordering",
