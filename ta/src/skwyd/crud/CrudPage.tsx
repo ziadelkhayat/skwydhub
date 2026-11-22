@@ -86,7 +86,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />{cfg.addLbl || "Add " + cfg.one}</Button>
           </div>
         </div>
-        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-white/5 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "cat" ? "category" : "modifier"}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
+        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-white/5 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
         {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-white/5 dark:text-gray-400">{cfg.note}</p>}
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
           {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div>

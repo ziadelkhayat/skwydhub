@@ -159,7 +159,7 @@ export const CRUD: Record<string, CrudCfg> = {
   "inv-categories": {
     col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel,
     search: r => r.name + " " + (r.reference || ""),
-    cols: [{ h: "Name", cell: nameCell }, ref, { h: "Items", cell: (r, s) => `Items (${s.inv_items.filter(i => live(i) && i.category === r.name).length})` }, created],
+    cols: [{ h: "Name", cell: nameCell }, ref, { h: "Products", cell: (r, s) => <Link className="text-brand-500 hover:underline" to={"/inv-items?icat=" + encodeURIComponent(r.name)} onClick={e => e.stopPropagation()}>Products ({s.inv_items.filter(i => live(i) && i.category === r.name).length})</Link> }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
   },
@@ -232,7 +232,7 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.users.filter(u => !u.deleted && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length; return n ? `This role is used by ${n} employee${n === 1 ? "" : "s"}. Remove it from ${n === 1 ? "that employee" : "those employees"} first.` : ""; },
   },
   "inv-items": {
-    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item",
+    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item", urlFilter: ["icat", "category"],
     tabs: [["all", "All", live], ["items", "Products", r => live(r) && !(r.ingredients || []).length && !r.menuItem], ["produced", "Production Products", r => live(r) && (r.ingredients || []).length > 0], ["menu", "Product Items", r => live(r) && !!r.menuItem], ["deleted", "Deleted", del]],
     sort: (a, b) => String(b.sku || "").localeCompare(String(a.sku || ""), undefined, { numeric: true }),
     search: r => r.name + " " + (r.sku || "") + " " + (r.category || ""),
