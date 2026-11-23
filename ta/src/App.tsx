@@ -5,7 +5,7 @@ import SignInPage from "@/skwyd/pages/SignIn";
 import { Toaster } from "@/skwyd/ui/toast";
 import NotMoved from "@/skwyd/pages/NotMoved";
 import { CRUD } from "@/skwyd/crud/configs";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 
 // every page loads only when it is opened (smaller first download, faster on phones)
 const CrudPage = lazy(() => import("@/skwyd/crud/CrudPage"));
@@ -61,8 +61,8 @@ const CombosPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default
 const DOC_ROUTES = ["quantity-adjustments", "cost-adjustments", "inventory-count", "spot-check", "po", "purchase-orders", "transfer-orders", "transfers", "production", "count-sheets"];
 const RPT_ROUTES = ["sales-reports", "inventory-reports", "business-reports", "employee-reports", "analysis-reports"];
 import "flatpickr/dist/flatpickr.css";
-import { Route, Routes } from "react-router";
-import { Locked, useSub } from "@/lib/access";
+import { Outlet, Route, Routes, useLocation } from "react-router";
+import { Blocked, Locked, useAccess, useSub } from "@/lib/access";
 
 // Skwyd Hub back office on the TailAdmin template. Addresses with no page show NotMoved (Kitchen Flows: Coming next, as in the portal).
 export default function App() {
@@ -104,7 +104,6 @@ function Gate() {
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/knowledge" element={<KnowledgePage />} />
           <Route path="/call-center" element={<CallCenterPage />} />
-          <Route path="/call-center-order" element={<CallCenterOrderPage />} />
           <Route path="/inv-levels" element={<InvLevelsPage />} />
           <Route path="/inv-history" element={<InvHistoryPage />} />
           <Route path="/order-transactions" element={<OrderTxPage />} />
@@ -129,9 +128,19 @@ function Gate() {
           {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
+        {/* full-screen pages: no sidebar or header, the same permissions */}
+        <Route element={<FullScreen />}>
+          <Route path="/call-center-order" element={<CallCenterOrderPage />} />
+        </Route>
       </Routes>
       <Toaster />
       <ConfirmHost />
     </>
   );
+}
+
+function FullScreen() {
+  const { pathname } = useLocation(), acc = useAccess();
+  return <div className="min-h-dvh bg-gray-50 p-3 md:p-4 dark:bg-gray-900">{!acc.ready ? null : acc.canOpen(pathname)
+    ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-500" /></div>}><Outlet /></Suspense> : <Blocked path={pathname} />}</div>;
 }
