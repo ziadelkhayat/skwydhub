@@ -417,7 +417,7 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
 
 // category and item tiles: the call center's look (white card, coloured strip on top, name, then the count or the price)
 // menu tiles: whole rows fill the menu, and the column count is the one where the square photo best fills the tile's width
-export const CAP = 46;   // the caption under the photo: the name on 2 lines, then the price or count
+export const CAP = 60;   // the caption under the photo: the name on 2 lines, then the price or count
 export function fitTiles(W: number, H: number, gap = TG) {
   let best = { cols: 6, rows: 3, w: 100, h: 146, miss: 1e9 };
   for (let cols = 5; cols <= 6; cols++) {
@@ -434,8 +434,8 @@ function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w
     <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: "#F2F4F7" }}>
       {img ? <Image source={{ uri: img }} style={{ width: w - 2, height: size - CAP - 2 }} resizeMode="cover" /> : <Icon name="bowl" size={30} color="#98A2B3" />}</View>
     <View style={{ height: CAP, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 7, borderTopWidth: 1, borderColor: C.line2 }}>
-      <T w={bold ? "s" : "m"} size={12} numberOfLines={3} style={{ flex: 1, lineHeight: 13 }}>{name}</T>
-      {sub ? <T w="s" size={12} numberOfLines={1} color={subColor || C.brand}>{sub}</T> : null}</View>
+      <T w={bold ? "s" : "m"} size={14} numberOfLines={3} style={{ flex: 1, lineHeight: 17 }}>{name}</T>
+      {sub ? <T w="s" size={14} numberOfLines={1} color={subColor || C.brand} style={{ flexShrink: 0 }}>{sub}</T> : null}</View>
   </>;
 }
 function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
