@@ -35,7 +35,7 @@ import { Icon } from "./Icon";
 import { Btn, Card, Pill, T } from "./kit";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "Dine-in", takeaway: "Pickup", delivery: "Delivery" };
-const GAP = 12, PADX = 16, TG = 8;   // TG: the gap between menu tiles (5 across, 4 down)
+const GAP = 12, PADX = 16, TG = 8, CART_W = 372;   // CART_W: the cart card is 360 wide, like the call center's   // TG: the gap between menu tiles (5 across, 4 down)
 
 export function Register() {
   const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
@@ -53,7 +53,7 @@ export function Register() {
 
   // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
-  const menuW = Math.round(W * 0.68), tileW = Math.floor((menuW - PADX * 2 - TG * 4) / 5) - 1, tile = gridH ? Math.max(90, Math.floor((gridH - TG * 3) / 4)) : 120, ab = Math.floor((menuW - PADX * 2 - 8 * 8) / 9);   // seven square buttons fill the row; more scroll
+  const menuW = W - CART_W, tileW = Math.floor((menuW - PADX * 2 - TG * 4) / 5) - 1, tile = gridH ? Math.max(90, Math.floor((gridH - TG * 3) / 4)) : 120, ab = Math.floor((menuW - PADX * 2 - 8 * 8) / 9);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   const say = (s: string) => notify(s);

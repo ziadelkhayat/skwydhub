@@ -199,7 +199,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
   return (
     <>
       {/* cart on the left, the menu in the middle, the customer on the right */}
-      <div className="grid grid-cols-1 gap-3 lg:h-[calc(100dvh-2rem)] lg:min-h-[560px] lg:grid-cols-[340px_1fr_320px]">
+      <div className="grid grid-cols-1 gap-3 lg:h-[calc(100dvh-2rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_320px]">
             {/* customer and order details */}
             <section className="custom-scrollbar space-y-3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-4 lg:order-3 lg:overflow-y-auto">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
