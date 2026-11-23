@@ -19,6 +19,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { live, useS } from "../crud/CrudPage";
 import { F, SEL } from "../ui/kit";
 import { toast } from "../ui/toast";
+import { pickMods, pickVariant } from "../ui/ModPick";
 import { who } from "./em";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
@@ -115,7 +116,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
 
   async function addProduct(p: Row) {
     try {
-      const M = await loadMods(); const kids = (p.variants || []).map((v: any) => ({ name: v.name, p: D.prods.find(x => x.id === v.productId) })).filter((x: any) => x.p);
+      const M0 = await loadMods(), M = { ...M0, pick: pickMods, variant: pickVariant }; const kids = (p.variants || []).map((v: any) => ({ name: v.name, p: D.prods.find(x => x.id === v.productId) })).filter((x: any) => x.p);
       if (kids.length && M.variant) { const vs = s!.variant_sets.find(x => x.id === p.variantSetId && live(x)); const v = await M.variant({ name: p.name, setName: vs?.name || (p.variants || []).find((x: any) => x.group)?.group || "Variant", variants: kids.map((k: any) => ({ name: k.name, price: D.price(k.p), id: k.p.id })), money }); if (!v) return; return addProduct(kids.find((k: any) => k.p.id === v.id).p); }
       let price = D.price(p), options: any[] = [], mods = "", note = "";
       if ((p.modifiers || []).length) {

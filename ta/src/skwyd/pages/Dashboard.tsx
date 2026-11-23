@@ -12,7 +12,7 @@ import type { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { SegTabs } from "../ui/SegTabs";
-import { DateInput } from "../ui/DateInput";
+import { DateInput, RangeInput } from "../ui/DateInput";
 import { Switch } from "@/components/ui/switch";
 import { SEL } from "../ui/kit";
 
@@ -21,7 +21,7 @@ const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).t
 export default function Dashboard() {
   const { theme } = useTheme(); useCol("settings");
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
-  const [days, setDays] = useState("1"), [rng] = useState<[string, string]>(["", ""]), [at, setAt] = useState(iso(new Date())), [cmpAt, setCmpAt] = useState("");
+  const [days, setDays] = useState("1"), [rng, setRng] = useState<[string, string]>(["", ""]), [at, setAt] = useState(iso(new Date())), [cmpAt, setCmpAt] = useState("");
   const [brand, setBrand] = useState(""), [store, setStore] = useState(""), [cmp, setCmp] = useState(false);
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
   const myStores = stores.filter((x: Row) => !brand || x.brandId === brand);
@@ -76,8 +76,9 @@ export default function Dashboard() {
         {<div className="w-full sm:w-52"><select aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>}
         <div className="w-full sm:w-52"><select aria-label="Store" className={SEL} value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
         {/* as in Foodics: the period kind, one date (the day, or any day in the week or month), and Compare */}
-        <SegTabs value={days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
-        <div className="w-44" title={days === "1" ? "Business day" : days === "7" ? "Any day in the week" : "Any day in the month"}><DateInput value={at} onChange={v => setAt(v || iso(new Date()))} /></div>
+        <SegTabs value={days === "c" ? "" : days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
+        {/* the same business-date box as Orders: it shows the period; picking dates sets that period (Day / Week / Month pick it again from the first date) */}
+        <div className="w-64"><RangeInput key={iso(per.start) + per.n} from={iso(per.start)} to={per.n > 1 ? iso(new Date(+per.start + (per.n - 1) * 86400000)) : ""} onChange={(a, b) => { if (!a) { setDays("1"); setAt(iso(new Date())); return; } if (a === b && days !== "c") { setAt(a); return; } setRng([a, b]); setDays("c"); setAt(a); }} /></div>
         <label className="flex h-11 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</label>
         {cmp && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">with</span><div className="w-44" title={days === "1" ? "Compare with this day" : days === "7" ? "Compare with the week of" : "Compare with the month of"}>
           <DateInput value={cmpAt || iso(cmpPer.start)} onChange={v => setCmpAt(v)} /></div></div>}
