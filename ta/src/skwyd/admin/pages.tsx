@@ -1,6 +1,7 @@
 // The admin's pages (same rules and RPCs as hub.html): Dashboard, Companies, a company's page (business, owner, plan, invoices),
 // Invoices of every business, Price List and Settings.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
+import { openWin } from "@/lib/util";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -27,14 +28,14 @@ const mrrOf = (cs: any[]) => cs.filter(c => !c.sub?.complimentary && c.sub?.stat
 
 /* ---------- dashboard: the business at a glance ---------- */
 export function AdminDashboard() {
-  const { data } = useAdmin(), cs = data.companies || [], cur = data.settings?.currency || "USD", nav = useNavigate(), now = new Date(), hr = now.getHours();
+  const { data } = useAdmin(), cs = data.companies || [], cur = data.settings?.currency || "USD", now = new Date(), hr = now.getHours();
   const count = (st: string) => cs.filter(c => !c.sub?.complimentary && c.sub?.state === st).length;
   const ending = cs.filter(c => !c.sub?.complimentary && ["trial", "grace"].includes(c.sub?.state) && c.sub?.daysLeft != null).sort((a, b) => a.sub.daysLeft - b.sub.daysLeft).slice(0, 6);
   const newest = cs.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 6);
   const busy = cs.filter(c => c.orders30).sort((a, b) => (b.orders30 || 0) - (a.orders30 || 0)).slice(0, 6);
   const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className={BOX}>
     <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-white/90">{title}</h3>
-    {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => nav("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
+    {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-500 dark:bg-brand-500/15">{initials(c.name)}</span>
       <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-800 dark:text-white/90">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
   return <>
@@ -52,7 +53,7 @@ export function AdminDashboard() {
 
 /* ---------- companies ---------- */
 export function Companies() {
-  const { data } = useAdmin(), cs = data.companies || [], nav = useNavigate(), [q, setQ] = useState(""), [tab, setTab] = useState("all"), [nw, setNw] = useState(false);
+  const { data } = useAdmin(), cs = data.companies || [], [q, setQ] = useState(""), [tab, setTab] = useState("all"), [nw, setNw] = useState(false);
   const s = q.trim().toLowerCase();
   const rows = cs.filter(c => (tab === "all" || (tab === "free" ? c.sub?.complimentary : !c.sub?.complimentary && c.sub?.state === tab)) && (!s || [c.name, c.account_no, c.email, c.phone, c.contact_name].some(v => String(v || "").toLowerCase().includes(s))));
   return <>
@@ -65,7 +66,7 @@ export function Companies() {
           <span className="text-sm text-gray-500">{rows.length} of {cs.length}</span></div>
       </div>
       <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">{rows.length ? <table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(c => { const x = c.sub || {}; return <tr key={c.id} className={TR} onClick={() => nav("/company?id=" + c.id)}>
+        <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(c => { const x = c.sub || {}; return <tr key={c.id} className={TR} onClick={() => openWin("/company?id=" + c.id)}>
           <td className={TD}><b className="block font-medium text-gray-800 dark:text-white/90">{c.name}</b><span className="text-xs text-gray-500">{c.subcategory || c.category || ""}</span></td><td className={TD}>{c.account_no || "—"}</td>
           <td className={TD}>{c.contact_name || "—"}<span className="block text-xs text-gray-500">{[c.email, c.phone].filter(Boolean).join(" · ")}</span></td><td className={TD}><State c={c} /></td>
           <td className={TD}>{x.complimentary ? "—" : x.daysLeft != null ? x.daysLeft + (x.daysLeft === 1 ? " Day" : " Days") : "—"}</td><td className={TD}>{x.posUsed ?? 0} / {x.complimentary ? "∞" : x.posDevices ?? 0}</td>

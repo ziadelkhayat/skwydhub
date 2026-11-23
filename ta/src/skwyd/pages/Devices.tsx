@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeftIcon, CopyIcon, GearIcon, PencilIcon, PlusIcon, RegenerateIcon } from "@/icons";
 import { newId, put, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { fmtDateTime } from "@/lib/util";
+import { fmtDateTime, openWin } from "@/lib/util";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
@@ -66,7 +66,7 @@ export default function DevicesPage() {
             : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
               <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Type</th><th className={TH}>Status</th><th className={TH}>Store</th></tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">{list.map(d => (
-                <tr key={d.id} className={TR} onClick={() => nav("/devices?id=" + d.id)}>
+                <tr key={d.id} className={TR} onClick={() => openWin("/devices?id=" + d.id)}>
                   <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-800 dark:text-white/90"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></td>
                   <td className={TD}>{d.reference || "—"}</td><td className={TD}>{devType(d.type)}</td>
                   <td className={TD}>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</td>

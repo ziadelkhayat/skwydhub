@@ -83,7 +83,7 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
           {!so ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 6 }}><T w="s">Hold a table to see it here</T><T size={13} color={C.mut} style={{ textAlign: "center" }}>Tap a free table to start a dine-in order, or an occupied one to open its order.</T></View> : <>
             <View style={{ padding: 16, borderBottomWidth: 1, borderColor: C.line, gap: 4 }}>
               <T w="s" size={19}>{tblLbl(so.table)}</T>
-              <T size={13} color={C.mut}>Order #{so.no || so.ref || "—"} · opened {new Date(so.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · {dur(mins(so.createdAt))}</T>
+              <T size={13} color={C.mut}>Order #{so.no || so.ref || "—"} · opened {new Date(so.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {dur(mins(so.createdAt))}</T>
               <T size={13} color={C.mut}>{[+so.guests ? so.guests + " guests" : "", so.cashier || so.agent || ""].filter(Boolean).join(" · ")}</T></View>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 8 }} showsVerticalScrollIndicator={false}>
               {(so.items || []).filter((i: any) => !i.voided).map((i: any, k: number) => <View key={k} style={{ flexDirection: "row", gap: 8 }}><T w="s" style={{ width: 30 }}>{+i.qty}×</T>

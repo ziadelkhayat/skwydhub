@@ -10,9 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusIcon, SearchIcon } from "@/icons";
 import { sb } from "@/lib/supabase";
-import { fmtDate } from "@/lib/util";
+import { fmtDate, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
@@ -28,7 +27,7 @@ const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+2
 export default function CustomersPage() {
   const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState(""), [tick, setTick] = useState(0);
-  const [edit, setEdit] = useState<any>(undefined); const nav = useNavigate();
+  const [edit, setEdit] = useState<any>(undefined);
   useEffect(() => { let off = false; setLoading(true);
     const t = setTimeout(async () => {
       const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER });
@@ -57,7 +56,7 @@ export default function CustomersPage() {
             : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
                 <th className={th}>Name</th><th className={th}>Phone</th><th className={th}>Email</th><th className={th + " text-end"}>Total Orders</th><th className={th}>Last Order</th></tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(c => (
-                <tr key={c.id} onClick={() => nav("/customer?id=" + c.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                <tr key={c.id} onClick={() => openWin("/customer?id=" + c.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
                   <td className={td}><span className="font-medium text-gray-800 dark:text-white/90">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
                     {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</td>
                   <td className={td}>{tel(c.phone)}</td><td className={td}>{c.email || "—"}</td><td className={td + " text-end"}>{c.n ?? 0}</td><td className={td}>{ago(c.last_at)}</td></tr>))}</tbody></table>}

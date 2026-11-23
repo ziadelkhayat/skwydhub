@@ -376,8 +376,8 @@ export function Register() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 8 }}>
           {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
-              style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 2, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? "#1D2939" : C.brand, backgroundColor: pressed ? C.brand600 : C.brand, alignItems: "center", justifyContent: "center", gap: 6 }]}>
-              <Icon name={ic} size={24} color="#fff" /><T w="m" size={13} color="#fff">{l}</T>
+              style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 2, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? C.brand : C.brand50, backgroundColor: pressed ? "#DDE9FF" : C.brand50, alignItems: "center", justifyContent: "center", gap: 6 }]}>
+              <Icon name={ic} size={24} color={C.brand600} /><T w="m" size={13} color={C.brand600}>{l}</T>
             </Pressable>))}
         </ScrollView>
         <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff" }, shadowXs]}>

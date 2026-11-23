@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from "@/lib/auth";
 import { newId, put, refresh, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { fmtDateTime, money, sym } from "@/lib/util";
+import { fmtDateTime, money, sym, openWin } from "@/lib/util";
 import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
@@ -191,7 +191,7 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
           {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
             : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{head.map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => nav(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
+              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
                 {r.cells.map((c, j) => <td key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</td>)}</tr>)}</tbody></table>}
         </div>
       </div>
@@ -385,7 +385,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     : K.kind === "torder" ? <><Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button><Button disabled={B} onClick={() => flow("fulfil")}>Accept</Button></>
     : <>{K.kind === "purchase" && <Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button>}<Button disabled={B} onClick={() => flow("receive")}>{B ? "Working…" : "Receive Items"}</Button></>;
   // the document's summary
-  const lnk = (r: string, lid: string) => <button type="button" className="text-brand-500 hover:underline" onClick={() => nav(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</button>;
+  const lnk = (r: string, lid: string) => <button type="button" className="text-brand-500 hover:underline" onClick={() => openWin(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</button>;
   const info: [string, React.ReactNode][] = K.flow ? [
     ...(K.kind === "purchase" ? [["Supplier", supName(d.supplierId)]] as any : []),
     ...(K.kind === "torder" ? [["Source", locName(d.destId)], ["Destination", locName(d.locationId)]] : [[K.kind === "purchase" ? "Destination" : "Source", locName(d.locationId)], ...(K.kind !== "purchase" ? [["Destination", locName(d.destId)]] : [])]),

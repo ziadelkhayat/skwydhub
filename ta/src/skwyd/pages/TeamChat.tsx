@@ -20,7 +20,7 @@ import { who } from "./em";
 const isAdminRow = (r: Row) => r.role === "owner" || r.role === "admin";
 const roleIds = (u: Row): string[] => u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : [];
 const nid = (p: string) => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const tm = (t: string) => { const d = new Date(t), today = new Date().toDateString() === d.toDateString(), hm = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const tm = (t: string) => { const d = new Date(t), today = new Date().toDateString() === d.toDateString(), hm = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   return today ? hm : `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()} ${hm}`; };
 const Av = ({ n }: { n: string }) => <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">{String(n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase()}</span>;
 

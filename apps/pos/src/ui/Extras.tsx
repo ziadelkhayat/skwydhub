@@ -88,7 +88,7 @@ export function RetrieveDialog({ held, cur, onDone }: { held: Held[]; cur: (n: n
       {!held.length ? <T color={C.mut}>No held orders on this register.</T> :
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>{held.map(h => (
           <Pressable key={h.id} accessibilityRole="button" onPress={() => onDone(h)} style={({ pressed }) => ({ width: 170, height: 96, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", padding: 12, justifyContent: "space-between" })}>
-            <T w="s" size={16}>H{h.n}</T><T size={13} color={C.mut}>{new Date(h.at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()}</T><T w="s" color={C.brand}>{cur(h.total)}</T>
+            <T w="s" size={16}>H{h.n}</T><T size={13} color={C.mut}>{new Date(h.at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</T><T w="s" color={C.brand}>{cur(h.total)}</T>
           </Pressable>))}</View>}
     </Sheet>
   );

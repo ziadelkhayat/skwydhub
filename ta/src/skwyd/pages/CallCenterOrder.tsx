@@ -266,7 +266,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
             <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-3 lg:order-2 lg:overflow-hidden">
               {/* the order's tools, as square tiles (like the POS) */}
               {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", DollarIcon], ["chg", "Charges", PlusIcon], ["tags", "Tags", TagIcon], ["notes", "Notes", PencilIcon]] as const).map(([k, t, I]) =>
-                <button key={k} type="button" onClick={() => setDlg(k)} className="flex size-20 flex-col items-center justify-center gap-1.5 rounded-xl bg-brand-500 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600">
+                <button key={k} type="button" onClick={() => setDlg(k)} className="flex size-20 flex-col items-center justify-center gap-1.5 rounded-xl bg-brand-50 text-sm font-medium text-brand-600 transition hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400">
                   <I className="size-6" /><span>{t}{k === "tags" && tags?.length ? ` (${tags.length})` : ""}</span></button>)}</div>}
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
@@ -355,5 +355,5 @@ export function CallCenterOrderPage() {
     sb.from("orders").select("*").eq("id", id).single().then(({ data }) => { if (!off) setO(data ? camel(data) : null); }); return () => { off = true; }; }, [id]);
   const k = sp.toString(), init = useMemo(() => { if (!sp.get("held")) return null; try { const v = JSON.parse(sessionStorage.getItem("skwydCcInit") || "null"); sessionStorage.removeItem("skwydCcInit"); return v; } catch { return null; } }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
   if (o === undefined) return null;
-  return <CallCenterOrder key={k || "new"} order={o} init={init} onNav={to => nav(to)} onClose={() => nav("/call-center")} />;
+  return <CallCenterOrder key={k || "new"} order={o} init={init} onNav={to => nav(to)} onClose={() => { if (window.history.length <= 1) window.close(); else nav("/call-center"); }} />;
 }

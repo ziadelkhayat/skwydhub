@@ -10,9 +10,8 @@ import { Input } from "@/components/ui/input";
 import { RangeInput } from "../ui/DateInput";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { fmtDate, money } from "@/lib/util";
+import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { EmptyState } from "../ui/EmptyState";
 import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
@@ -63,7 +62,7 @@ export default function OrdersPage() {
   const branches = useCol("branches") || [], brands = useCol("brands") || [];
   const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState("");
-  const nav = useNavigate();
+ 
   const [tick, setTick] = useState(0);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
   const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
@@ -123,7 +122,7 @@ export default function OrdersPage() {
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                 {rows.map(o => { const t = new Date(o.createdAt);
                   return (
-                    <tr key={o.id} onClick={() => nav("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                    <tr key={o.id} onClick={() => openWin("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
                       <td className={td}><span className="font-medium text-gray-800 dark:text-white/90">{ordRef(o)}</span></td>
                       <td className={td}>{chkNo(o)}</td>
                       <td className={td}>{o.no || "—"}</td>
@@ -133,7 +132,7 @@ export default function OrdersPage() {
                       <td className={td}>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</td>
                       <td className={td}>{srcOf(o) || "—"}</td>
                       <td className={td}>{fmtDate(o.createdAt)}</td>
-                      <td className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()}</span></td>
+                      <td className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></td>
                       <td className={td}>{o.payment?.method || "—"}</td>
                       <td className={td + " text-end font-medium text-gray-800 dark:text-white/90"}>{money(o.total)}</td>
                     </tr>); })}
