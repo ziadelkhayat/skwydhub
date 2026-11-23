@@ -60,6 +60,7 @@ export function Register() {
 
   // a window over the sale (variant, modifiers, open price) that answers once
   const [dlg, setDlg] = useState<ReactNode>(null);
+  const [nav, setNav] = useState<string | null>(null); // the bottom-bar screen that is open, shown in light blue
   const ask = <V,>(make: (done: (v: V) => void) => ReactNode) => new Promise<V>(res => setDlg(make(v => { setDlg(null); res(v); })));
   const cur = (n: number) => money(S, n);
 
@@ -404,14 +405,14 @@ export function Register() {
                 n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
           {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
         </ScrollView>
-        <View style={{ flexDirection: "row", height: 64, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 4, gap: 4 }}>
-          {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+        <View style={{ flexDirection: "row", height: 64, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 6 }}>
+          {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => { const on = (l === "Functions" && more) || (l !== "Functions" && l !== "New" && nav === l && !!dlg); return (
+            <Pressable key={l} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
-              style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
-              <Icon name={ic} size={24} color={C.ink2} /><T w="m" size={13} color={C.ink2} numberOfLines={1}>{l}</T>
-            </Pressable>))}
+              style={({ pressed }) => [{ flex: 1, flexDirection: "row", borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: on ? C.brand50 : pressed ? C.line2 : "transparent" }]}>
+              <Icon name={ic} size={22} color={on ? C.brand600 : C.ink2} /><T w="m" size={15} color={on ? C.brand600 : C.ink2} numberOfLines={1}>{l}</T>
+            </Pressable>); })}
         </View>
       </View>
 
