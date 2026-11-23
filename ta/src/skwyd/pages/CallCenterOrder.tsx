@@ -227,9 +227,11 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
                   <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => editLine(ix)} className="block w-full text-start">
                     <span className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{i.name}</b><span className="text-sm text-gray-800 dark:text-white/90">{+i.disc > 0 && <s className="me-1.5 text-xs text-gray-400">{money((+i.price || 0) * (+i.qty || 1))}</s>}{money(lineNet(i))}</span></span>
-                    {i.mods && <span className="mt-0.5 block text-xs text-gray-500">{i.mods}</span>}
+                    {(i.options || []).length ? <span className="mt-1 block space-y-0.5">{(i.options as any[]).reduce((r: any[], o: any) => { const x = r.find(y => y.name === o.name); if (x) { x.n++; x.price += +o.price || 0; } else r.push({ name: o.name, n: 1, price: +o.price || 0 }); return r; }, []).map((o: any, k: number) =>
+                      <span key={k} className="flex justify-between gap-2 text-xs text-gray-500"><span>• {o.n > 1 ? o.n + "× " : ""}{o.name}</span>{o.price ? <span>+{money(o.price)}</span> : null}</span>)}</span>
+                      : i.mods && !i.note && <span className="mt-0.5 block text-xs text-gray-500">{i.mods}</span>}
                     {+i.disc > 0 && <span className="mt-0.5 block text-xs text-green-600 dark:text-green-400">Discount {i.discPct ? `${+i.discPct}%` : ""} −{money(+i.disc)}</span>}
-                    {i.note && !i.mods && <span className="mt-0.5 block text-xs text-gray-500 italic">Note: {i.note}</span>}
+                    {i.note && <span className="mt-0.5 block text-xs text-gray-500 italic">Note: {i.note}</span>}
                   </button>
                   {!ro && <div className="mt-2 flex items-center gap-2"><Button size="icon-xs" variant="outline" aria-label="Less" onClick={() => setCart(c => +i.qty <= 1 ? c.filter((_, j) => j !== ix) : c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty - 1 }) : x))}><MinusIcon className="size-3.5" /></Button>
                     <span className="w-6 text-center text-sm">{i.qty}</span><Button size="icon-xs" variant="outline" aria-label="More" onClick={() => setCart(c => c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty + 1 }) : x))}><PlusIcon className="size-3.5" /></Button>
