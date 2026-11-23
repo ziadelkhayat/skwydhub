@@ -45,7 +45,7 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
   const l = mine;
   const COLS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
     ["active", "Active", o => o.status === "active" && o.editRequest?.status !== "pending"],   // preparing or dispatched: the card says which
-    ["closed", "Done", o => o.status === "closed"], ["declined", "Declined", o => o.status === "declined"]];
+    ["declined", "Declined", o => o.status === "declined"], ["closed", "Done", o => o.status === "closed"]];
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
     <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>

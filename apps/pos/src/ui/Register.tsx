@@ -189,7 +189,7 @@ export function Register() {
   const [heldN, setHeldN] = useState(0);
   useEffect(() => { heldList().then(l => setHeldN(l.length)); }, [cart.length, dlg]); // eslint-disable-line react-hooks/exhaustive-deps
   const usable = (a: string) => {
-    const unsent = cart.some(l => l.qty > (l.saved || 0)), edit = !ro && cart.length > 0;
+    const unsent = cart.some(l => l.qty > (l.saved || 0)), edit = !ro;   // discount, charges, notes and tags can be set before the first item
     switch (a) {
       case "Print": return (cart.length > 0 || !!live_eo) && can(S, cashier, live_eo?.status === "closed" ? "pos_reprint" : "pos_print_check");
       case "Kitchen": return !ro && unsent;
@@ -198,7 +198,7 @@ export function Register() {
       case "Retrieve": return !cart.length && heldN > 0;
       case "Discount": return edit && (can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount"));
       case "Charges": return edit && can(S, cashier, "pos_charges");
-      case "Tags": return (cart.length > 0 || !!live_eo) && (tagDoc(S).list || []).some((z: any) => z.type === "order" && !z.deleted);
+      case "Tags": return (tagDoc(S).list || []).some((z: any) => z.type === "order" && !z.deleted);
       case "Notes": return edit;
     } return true; };
   const action = async (a: string) => {
