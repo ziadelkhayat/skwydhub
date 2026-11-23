@@ -429,11 +429,20 @@ export function Register() {
             <FnItem icon="logout" label="Log out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
-      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 2, borderColor: C.brand, padding: 14, gap: 8 }}>
-        <T w="s" size={16}>{incoming.__edit ? "Order Edit" : "New " + (incoming.channel === "callcenter" ? "call center" : "API") + " order"} · {incoming.ref || incoming.no || ""}</T>
-        <T size={13} color={C.mut}>{[incoming.customerName, incoming.type === "delivery" ? "Delivery" : "Pickup", money(S, incoming.total)].filter(Boolean).join(" · ")}</T>
-        <View style={{ flexDirection: "row", gap: 8 }}><Btn height={40} style={{ flex: 1 }} label="Later" onPress={() => setIncoming(null)} />
-          <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View>
+      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 400, backgroundColor: "#fff", borderRadius: 14, borderWidth: 1, borderColor: C.line, padding: 16, flexDirection: "row", gap: 14,
+          shadowColor: "#101828", shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 }}>
+        <View style={{ width: 44, height: 44, borderRadius: R.lg, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}>
+          <Icon name={incoming.__edit ? "note" : incoming.type === "delivery" ? "scooter" : "bag"} size={22} color={C.brand600} /></View>
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <T w="s" size={16}>{incoming.__edit ? "Order edit" : "New " + (incoming.channel === "callcenter" ? "call center" : "API") + " order"}</T>
+            <Pressable accessibilityLabel="Later" hitSlop={10} onPress={() => setIncoming(null)}><Icon name="x" size={18} color={C.mut} /></Pressable></View>
+          <T size={13} color={C.mut} style={{ marginTop: 3 }}>{[incoming.ref || incoming.no, incoming.customerName, incoming.type === "delivery" ? "Delivery" : "Pickup"].filter(Boolean).join(" · ")}</T>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
+            <T w="s" size={18}>{money(S, incoming.total)}</T>
+            <View style={{ flexDirection: "row", gap: 8 }}><Btn height={40} label="Later" onPress={() => setIncoming(null)} />
+              <Btn kind="primary" height={40} label="Open order" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View></View>
+        </View>
       </View> : null}
       {dlg}
       <Bubble />

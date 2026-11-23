@@ -30,6 +30,7 @@ const P: Record<string, (c: string) => React.ReactNode> = {
   logout: () => <Path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11" />,
   phone: () => <Path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />,
   store: () => <><Path d="M3 9l1.5-5h15L21 9M4 9v11h16V9" /><Path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6" /></>,
+  bag: () => <Path d="M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0" />,
   bowl: () => <><Path d="M3 11h18a9 9 0 0 1-18 0Z" /><Path d="M12 4v4M9 6l1 2M15 6l-1 2" /></>,
 };
 export function Icon({ name, size = 22, color = "#667085", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {
