@@ -19,7 +19,7 @@ import { SegTabs } from "../ui/SegTabs";
 const ORD_TABS: [string, string][] = [["all", "All"], ["today", "Today"], ["draft", "Draft"], ["pending", "Pending"], ["active", "Active"], ["dispatched", "Dispatched"], ["ahead", "Ahead"], ["online", "API"]];
 export const ORD_ST: Record<string, string> = { review: "Call Center Review", draft: "Draft", pending: "Pending", active: "Active", closed: "Done", declined: "Declined", void: "Void", returned: "Returned", refund: "Refund" };
 export const ST_COLOR: Record<string, any> = { closed: "success", active: "primary", pending: "warning", review: "warning", draft: "gray", declined: "error", void: "error", returned: "error", refund: "error" };
-export const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in", other: "Other" };
+export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
 const SEL = "h-11 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
@@ -162,7 +162,7 @@ function FilterDialog({ F, onApply, onClose, brands, devices, sources, pays }: {
           {txt("ref", "Reference")}{txt("num", "Number")}
           {brands.length > 1 && sel("brand", "Brand", brands.map(b => [b.id, b.name]))}
           {sel("status", "Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]])}
-          {sel("type", "Type", [["dinein", "Dine-in"], ["pickup", "Pick Up"], ["delivery", "Delivery"]])}
+          {sel("type", "Type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]])}
           {sel("source", "Source", sources.map(x => [x, x]))}{sel("channel", "Sales Channel", Object.entries(CHL))}
           {sel("ahead", "Ahead", [["yes", "Yes"], ["no", "No"]])}{sel("pay", "Payment Type", pays.map(x => [x, x]))}
           {txt("rnotes", "Receipt Notes")}{txt("knotes", "Kitchen Notes")}{txt("cust", "Customer", "Name or phone")}

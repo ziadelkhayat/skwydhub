@@ -8,7 +8,7 @@ import { C, R } from "../lib/theme";
 import { Btn, Pill, T } from "./kit";
 import { Sheet } from "./Pickers";
 
-const TYPE: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
+const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "API", web: "API", marketplace: "API" };
 export const ordRef = (o: Row) => (o.no ? "#" + o.no : o.ref || "—").replace(/^#/, "");
 const COLS: [string, string, (o: Row) => boolean][] = [

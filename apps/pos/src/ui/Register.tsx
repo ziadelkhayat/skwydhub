@@ -34,7 +34,7 @@ import { C, F, R, shadowXs } from "../lib/theme";
 import { Icon } from "./Icon";
 import { Btn, Card, Pill, T } from "./kit";
 
-const TYPE_LBL: Record<OType, string> = { dinein: "Dine-in", takeaway: "Pickup", delivery: "Delivery" };
+const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
 const GAP = 12, PADX = 16, TG = 8, CART_W = 372;   // CART_W: the cart card is 360 wide, like the call center's   // TG: the gap between menu tiles (5 across, 4 down)
 
 export function Register() {
@@ -297,6 +297,8 @@ export function Register() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
           <View style={{ width: 40, height: 40, borderRadius: R.md, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={18} color="#fff">S</T></View>
           <View style={{ flex: 1, minWidth: 0 }}><T w="s" numberOfLines={1}>{branch?.name || "—"}</T><T size={13} color={C.mut} numberOfLines={1}>{device?.name || "—"}</T></View>
+          {/* what kind of order this is: In Store, Pickup or Delivery */}
+          <Pill text={TYPE_LBL[otype] || otype} tone="brand" />
           {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
           <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : pending ? `Syncing ${pending}…` : "Online"} tone={online && !pending ? "brand" : "warn"} />
           {cashier ? <Pill text={cashier.name} /> : null}

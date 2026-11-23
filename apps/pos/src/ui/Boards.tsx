@@ -11,7 +11,7 @@ import { Icon } from "./Icon";
 import { Btn, Pill, T } from "./kit";
 import { ordRef } from "./Orders";
 
-const TYPE: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
+const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "API", web: "API", marketplace: "API" };
 const tm = (t: any) => t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
 type St = { label: string; tone: "gray" | "ok" | "brand" | "warn" | "bad" };

@@ -22,7 +22,7 @@ import { toast } from "../ui/toast";
 
 const TYPES: [string, string, React.ReactNode][] = [["freedel", "Free Delivery", <TruckDeliveryIcon className="size-6" />], ["disc", "Discount", <DollarIcon className="size-6" />], ["bxgy", "Buy X Get Y", <StarIcon className="size-6" />],
   ["freeitem", "Free Item", <StarIcon className="size-6" />], ["itemdisc", "Items Discount", <TagIcon className="size-6" />], ["bundle", "Meal Bundle", <BoxIcon className="size-6" />]];
-const OT: [string, string][] = [["dinein", "Dine-in"], ["pickup", "Pick Up"], ["delivery", "Delivery"]];
+const OT: [string, string][] = [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]];
 const DAYS: [string, string][] = [["1", "Mon"], ["2", "Tue"], ["3", "Wed"], ["4", "Thu"], ["5", "Fri"], ["6", "Sat"], ["0", "Sun"]];
 const typeLbl = (k: string) => (TYPES.find(x => x[0] === k) || TYPES[1])[1];
 const join = (a: string[], n = 3) => a.length > n ? a.slice(0, n).join(", ") + " +" + (a.length - n) : a.join(", ");

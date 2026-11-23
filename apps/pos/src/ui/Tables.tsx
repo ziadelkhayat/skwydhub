@@ -1,6 +1,6 @@
 // Tables (pos.html openTables): the store's tables by section (Manage → Store → Sections & Tables), free or occupied
 // with the open order's amount and time. A free table starts a dine-in order on it; an occupied one opens its order.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { useStore } from "../lib/store";
 import { orderFields, totals } from "../lib/pos";
@@ -15,6 +15,9 @@ import { Icon } from "./Icon";
 export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()).filter(Boolean);   // merged tables are saved as "3+4"
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
 
+// a table's colour shows how long it has been open
+const AGE = [{ l: "Free", bg: "#fff", bd: "#E4E7EC", tx: "#344054" }, { l: "Under 15 min", bg: "#ECFDF3", bd: "#32D583", tx: "#027A48" }, { l: "15 – 30 min", bg: "#FFFAEB", bd: "#FDB022", tx: "#B54708" },
+  { l: "30 min – 1 hour", bg: "#FFF6ED", bd: "#FB6514", tx: "#C4320A" }, { l: "Over 1 hour", bg: "#FEF3F2", bd: "#F04438", tx: "#B42318" }], MERGED = { l: "Merged", bg: "#F4F3FF", bd: "#7A5AF8", tx: "#5925DC" };
 export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void }) {
   const { write } = useStore(), [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);
   const cfg = ((x.S.settings.find(s => s.id === "tables") || {}) as any)[x.device.branchId] || [];
@@ -45,9 +48,10 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
   const mins = (t: string) => Math.max(0, Math.round((Date.now() - +new Date(t)) / 60000)), dur = (m: number) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
   const [sel, setSel] = useState(""), [sec, setSec] = useState(""), selOs = sel ? orders(sel) : [], selOwn = selOs.filter(o => tblParts(o.table)[0] === sel), so = selOwn[0] || selOs[0];
   const busyN = all.filter(t => orders(t.name).length).length;
-  // as before: a free table starts an order on it, an occupied one opens its order; holding a table shows its details on the right
+  const [, tick] = useState(0); useEffect(() => { const h = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(h); }, []);   // colours follow the clock
+  // a free table starts an order on it, an occupied one opens its order in the cart
   const tap = (k: string) => { if (tm) return pick(k); const os = orders(k), own = os.filter(o => tblParts(o.table)[0] === k); if (!os.length) return onFree(k); onOpen(own[0] || os[0]); };
-  const hold = (k: string) => { if (tm) return; if (orders(k).length) setSel(k); };
+  const hold = (k: string) => { if (tm) return; if (orders(k).length) { setMsg(""); setTm({ mode: "move", from: k }); } };   // holding an occupied table starts moving it
   const shown = all.filter(t => !sec || (t.section || "") === sec);
   return (
     <Full><Head title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} onClose={onClose}>
@@ -65,37 +69,19 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
           {!all.length ? <T color={C.mut}>No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</T> :
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: 12, paddingBottom: 10 }}>{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
             const busy = os.length > 0, merged = busy && !own.length, long = busy && m >= 60, on = sel === t.name || tm?.from === t.name;
-            const bg = !busy ? "#fff" : long ? C.badBg : merged ? "#F4F3FF" : C.warnBg, bd = on ? C.brand : !busy ? C.line : long ? C.bad : merged ? "#7A5AF8" : C.warn;
+            const age = !busy ? AGE[0] : merged ? MERGED : AGE[m < 15 ? 1 : m < 30 ? 2 : m < 60 ? 3 : 4], bg = age.bg, bd = on ? C.brand : age.bd;
             return (
               <Pressable key={t.name} accessibilityRole="button" accessibilityLabel={tblLbl(t.name) + (busy ? ", occupied" : ", free")} onPress={() => tap(t.name)} onLongPress={() => hold(t.name)} delayLongPress={400}
                 style={{ width: 150, height: 118, borderRadius: R.lg, borderWidth: on ? 3 : 1.5, borderColor: bd, backgroundColor: bg, padding: 12, justifyContent: "space-between" }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><T w="s" size={17}>{tblLbl(t.name)}</T>{busy && +(own[0] || os[0]).guests ? <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}><Icon name="user" size={14} color={C.ink2} /><T size={12} color={C.ink2}>{+(own[0] || os[0]).guests}</T></View> : null}</View>
                 {!busy ? <T size={13} color={C.ok}>Free</T> : merged ? <T size={12} color="#5925DC">Merged with {tblLbl(tblParts(os[0].table)[0])}</T> : <>
                   <T w="s">{money(x.S, own.reduce((a, o) => a + (+o.total || 0), 0))}</T>
-                  <T size={12} color={long ? C.bad : C.ink2}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</T>
+                  <T size={12} color={long ? C.bad : age.tx}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</T>
                   {tblParts(own[0].table).length > 1 ? <T size={11} color="#5925DC">With {tblParts(own[0].table).filter(y => y !== t.name).map(y => tblLbl(y)).join(", ")}</T> : null}</>}
               </Pressable>); })}</ScrollView>}
-          <View style={{ flexDirection: "row", gap: 16, paddingTop: 8 }}>{([["#fff", C.line, "Free"], [C.warnBg, C.warn, "Occupied"], ["#F4F3FF", "#7A5AF8", "Merged"], [C.badBg, C.bad, "Over 1 hour"]] as const).map(([b, c, l]) =>
-            <View key={l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}><View style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: b, borderWidth: 1.5, borderColor: c }} /><T size={12} color={C.ink2}>{l}</T></View>)}</View>
-        </View>
-        {/* the chosen table */}
-        <View style={{ width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
-          {!so ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 6 }}><T w="s">Hold a table to see it here</T><T size={13} color={C.mut} style={{ textAlign: "center" }}>Tap a free table to start a dine-in order, or an occupied one to open its order.</T></View> : <>
-            <View style={{ padding: 16, borderBottomWidth: 1, borderColor: C.line, gap: 4 }}>
-              <T w="s" size={19}>{tblLbl(so.table)}</T>
-              <T size={13} color={C.mut}>Order #{so.no || so.ref || "—"} · opened {new Date(so.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {dur(mins(so.createdAt))}</T>
-              <T size={13} color={C.mut}>{[+so.guests ? so.guests + " guests" : "", so.cashier || so.agent || ""].filter(Boolean).join(" · ")}</T></View>
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 8 }} showsVerticalScrollIndicator={false}>
-              {(so.items || []).filter((i: any) => !i.voided).map((i: any, k: number) => <View key={k} style={{ flexDirection: "row", gap: 8 }}><T w="s" style={{ width: 30 }}>{+i.qty}×</T>
-                <View style={{ flex: 1 }}><T>{i.name}</T>{(i.options || []).map((o: any, j: number) => <T key={j} size={12} color={C.mut}>• {o.name}</T>)}</View><T w="m">{money(x.S, (+i.price || 0) * (+i.qty || 1) - (+i.disc || 0))}</T></View>)}
-              {selOwn.length > 1 ? <T size={12} color={C.mut}>+ {selOwn.length - 1} more order{selOwn.length > 2 ? "s" : ""} on this table</T> : null}
-            </ScrollView>
-            <View style={{ padding: 16, borderTopWidth: 1, borderColor: C.line, gap: 10 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="s" size={17}>Total</T><T w="b" size={17}>{money(x.S, selOwn.reduce((a, o) => a + (+o.total || 0), 0) || +so.total || 0)}</T></View>
-              <Btn kind="primary" height={48} label="Open In Register" onPress={() => onOpen(so)} />
-              <View style={{ flexDirection: "row", gap: 8 }}><Btn height={44} style={{ flex: 1 }} label="Change Table" onPress={() => { setMsg(""); setTm({ mode: "move", from: tblParts(so.table)[0] }); }} />
-                <Btn height={44} style={{ flex: 1 }} label="Merge" onPress={() => { setMsg(""); setTm({ mode: "merge", from: tblParts(so.table)[0] }); }} /></View>
-            </View></>}
+          <View style={{ flexDirection: "row", gap: 16, paddingTop: 8, flexWrap: "wrap" }}>{[...AGE, MERGED].map(a =>
+            <View key={a.l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}><View style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: a.bg, borderWidth: 1.5, borderColor: a.bd }} /><T size={12} color={C.ink2}>{a.l}</T></View>)}
+            <T size={12} color={C.mut}>Hold an occupied table to move it.</T></View>
         </View>
       </View>
     </Full>

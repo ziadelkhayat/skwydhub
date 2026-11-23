@@ -22,7 +22,7 @@ import { PickDialog } from "../ui/PickDialog";
 import { toast } from "../ui/toast";
 
 const DAYS: [string, string][] = [["mon", "Monday"], ["tue", "Tuesday"], ["wed", "Wednesday"], ["thu", "Thursday"], ["fri", "Friday"], ["sat", "Saturday"], ["sun", "Sunday"]];
-const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", fast: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
+const TYPE_LBL: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 const times = (maxH = 24) => { const l: string[] = []; for (let q = 0; q < maxH * 4; q++) l.push(`${String(q / 4 | 0).padStart(2, "0")}:${String(q % 4 * 15).padStart(2, "0")}`); return l; };
 const t12 = (v?: string) => { if (!v) return "—"; const [h, m] = v.split(":").map(Number); return `${(h % 12) || 12}:${String(m || 0).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
 const isAdminRow = (r: Row) => r.role === "owner" || r.role === "admin";

@@ -176,7 +176,7 @@ export default function WebOrderingPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">{b.open || b.close ? t12(b.open) + " – " + t12(b.close) : "Hours in Manage → Stores"} · {z} delivery zone{z === 1 ? "" : "s"}</p></div>
                   <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">{x.paused ? "Paused" : "Taking orders"}<Switch checked={!x.paused} onCheckedChange={v => bset(b.id, "paused", !v)} /></label>
                 </div>
-                <div className="mb-5 flex flex-wrap gap-2">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "Dine-in"]].map(([k, t]) => { const on = x[k] !== false; return (
+                <div className="mb-5 flex flex-wrap gap-2">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "In Store"]].map(([k, t]) => { const on = x[k] !== false; return (
                   <button key={k} type="button" aria-pressed={on} onClick={() => bset(b.id, k, !on)} className={cn("h-9 rounded-lg border px-3.5 text-sm font-medium", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-300 text-gray-500 dark:border-gray-700")}>{t}</button>); })}</div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
                   {bv("prep", "Pickup ready in (min)", "20", "number")}{bv("minPickup", `Pickup minimum (${sym()})`, "0", "number")}{bv("phone", "Store phone", "+961 …", "tel")}

@@ -21,7 +21,7 @@ const sku = (col: string, pre: string) => (s: S) => { let n = 0; const re = new 
 const taxGroupOpts = (s: S) => s.tax_groups.filter(live).map(g => [g.id, g.name] as [string, string]);
 const tgName = (s: S, id: string) => s.tax_groups.find(g => g.id === id)?.name || "—";
 const bySort = (a: Row, b: Row) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(String(b.name));
-const TYPE_LBL: Record<string, string> = { dinein: "Dine-in", fast: "Dine-in", pickup: "Pickup", delivery: "Delivery" };
+const TYPE_LBL: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", delivery: "Delivery" };
 const PM_TYPES: [string, string][] = [["cash", "Cash"], ["card", "Card"], ["other", "Other"]];
 const SYS_SRC = (n: string) => /^(web|api)$/i.test(String(n || "").trim());
 const isAdminRow = (r: Row) => !!r && (r.role === "owner" || r.role === "admin");
@@ -123,7 +123,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { h: "Order Types", cell: r => { const l = r.orderTypes || []; return l.length ? [...new Set(l.map((t: string) => t === "fast" ? "dinein" : t))].map((t: any) => TYPE_LBL[t] || t).join(", ") : "All"; } },
       { h: "Used In Groups", cell: (r, s) => s.tax_groups.filter(g => live(g) && (g.taxIds || []).includes(r.id)).map(g => g.name).join(", ") || "—" }, created],
     fields: [{ k: "name", l: "Name", req: true, ph: "e.g. VAT" }, { k: "nameAr", l: "Name Localized" }, { k: "rate", l: "Rate (%)", t: "number", req: true },
-      { k: "orderTypes", l: "Applies On", t: "multi", opts: () => [["dinein", "Dine-in"], ["pickup", "Pickup"], ["delivery", "Delivery"]], def: ["dinein", "pickup", "delivery"] },
+      { k: "orderTypes", l: "Applies On", t: "multi", opts: () => [["dinein", "In Store"], ["pickup", "Pickup"], ["delivery", "Delivery"]], def: ["dinein", "pickup", "delivery"] },
       { k: "inclusive", l: "Tax inclusive", t: "chk", def: true }],
     unique: "name",
   },
@@ -255,7 +255,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "type", l: "Type", t: "select", req: true, opts: () => [["fixed", "Amount"], ["percent", "Percentage"], ["open", "Open amount"]], def: "fixed" },
       { k: "value", l: "Value", t: "number", ph: "e.g. 2 or 10 (empty for open amount)" },
       { k: "taxGroup", l: "Tax Group", t: "select", opts: taxGroupOpts },
-      { k: "orderTypes", l: "Order types it applies to", t: "multi", opts: () => [["dinein", "Dine-in"], ["pickup", "Pickup"], ["delivery", "Delivery"]], def: ["delivery"] },
+      { k: "orderTypes", l: "Order types it applies to", t: "multi", opts: () => [["dinein", "In Store"], ["pickup", "Pickup"], ["delivery", "Delivery"]], def: ["delivery"] },
       { k: "brandIds", l: "Brands", t: "multi", req: true, opts: s => s.brands.filter(live).map(b => [b.id, b.name]), auto: s => s.brands.filter(live).map(b => b.id) as any },
       { k: "branchIds", l: "Stores", t: "multi", req: true, opts: s => s.branches.filter(b => b.active !== false).map(b => [b.id, b.name]), auto: s => s.branches.filter(b => b.active !== false).map(b => b.id) as any }],
     unique: "name",
