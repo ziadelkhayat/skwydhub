@@ -12,8 +12,8 @@ import type { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { SegTabs } from "../ui/SegTabs";
-import { DateInput, RangeInput } from "../ui/DateInput";
-import { Button } from "@/components/ui/button";
+import { DateInput } from "../ui/DateInput";
+import { Switch } from "@/components/ui/switch";
 import { SEL } from "../ui/kit";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -21,7 +21,7 @@ const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).t
 export default function Dashboard() {
   const { theme } = useTheme(); useCol("settings");
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
-  const [days, setDays] = useState("1"), [rng, setRng] = useState<[string, string]>(["", ""]), [at, setAt] = useState(iso(new Date())), [cmpAt, setCmpAt] = useState("");
+  const [days, setDays] = useState("1"), [rng] = useState<[string, string]>(["", ""]), [at, setAt] = useState(iso(new Date())), [cmpAt, setCmpAt] = useState("");
   const [brand, setBrand] = useState(""), [store, setStore] = useState(""), [cmp, setCmp] = useState(false);
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
   const myStores = stores.filter((x: Row) => !brand || x.brandId === brand);
@@ -35,8 +35,6 @@ export default function Dashboard() {
   // compared with: the period of the same kind containing the date picked, or (no date picked) the one just before
   const cmpPer = (() => { if (cmpAt) return days === "c" ? { start: new Date(cmpAt + "T12:00:00"), n: per.n } : span(days, cmpAt);
     const b = new Date(per.start); b.setDate(b.getDate() - 1); return days === "c" ? { start: new Date(+per.start - per.n * 86400000), n: per.n } : span(days, iso(b)); })();
-  const step = (dir: number) => { const d = new Date(at + "T12:00:00"); if (days === "30") d.setMonth(d.getMonth() + dir, 1); else d.setDate(d.getDate() + dir * (days === "7" ? 7 : 1)); setAt(iso(d)); };
-  const thisOne = (k: string) => iso(span(k, iso(new Date())).start) === iso(span(k, at).start);
   const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
@@ -77,18 +75,11 @@ export default function Dashboard() {
       <div className="mb-6 flex flex-wrap items-center gap-3">
         {<div className="w-full sm:w-52"><select aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>}
         <div className="w-full sm:w-52"><select aria-label="Store" className={SEL} value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
-        <SegTabs value={days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"], ["c", "Dates"]]} />
-        {days === "c" ? <div className="w-64"><RangeInput from={rng[0]} to={rng[1]} onChange={(a, b) => setRng([a, b])} /></div>
-          : <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" aria-label={"Previous " + ({ "1": "day", "7": "week", "30": "month" } as any)[days]} onClick={() => step(-1)}>‹</Button>
-            {days === "1" ? <div className="w-44" title="Business day"><DateInput value={at} onChange={v => setAt(v || iso(new Date()))} /></div>
-              : <span className="flex h-11 min-w-44 items-center justify-center rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                {days === "30" ? per.start.toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : fmtD(per.start) + " – " + fmtD(new Date(+per.start + 6 * 86400000))}</span>}
-            <Button variant="outline" size="icon" aria-label={"Next " + ({ "1": "day", "7": "week", "30": "month" } as any)[days]} onClick={() => step(1)}>›</Button>
-            {!thisOne(days) && <Button variant="outline" onClick={() => setAt(iso(new Date()))}>{({ "1": "Today", "7": "This Week", "30": "This Month" } as any)[days]}</Button>}
-          </div>}
-        <label className="flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={cmp} onChange={e => setCmp(e.target.checked)} />Compare</label>
-        {cmp && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">to</span><div className="w-44" title={days === "1" ? "Compare to this day" : days === "7" ? "Compare to the week of" : days === "30" ? "Compare to the month of" : "Compare from"}>
+        {/* as in Foodics: the period kind, one date (the day, or any day in the week or month), and Compare */}
+        <SegTabs value={days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
+        <div className="w-44" title={days === "1" ? "Business day" : days === "7" ? "Any day in the week" : "Any day in the month"}><DateInput value={at} onChange={v => setAt(v || iso(new Date()))} /></div>
+        <label className="flex h-11 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</label>
+        {cmp && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">with</span><div className="w-44" title={days === "1" ? "Compare with this day" : days === "7" ? "Compare with the week of" : "Compare with the month of"}>
           <DateInput value={cmpAt || iso(cmpPer.start)} onChange={v => setCmpAt(v)} /></div></div>}
       </div>
       <p className="-mt-3 mb-5 text-sm text-gray-500 dark:text-gray-400">{per.n === 1 ? fmtD(per.start) : fmtD(per.start) + " → " + fmtD(new Date(+per.start + (per.n - 1) * 86400000))}{cmp ? ` · compared with ${per.n === 1 ? fmtD(prevStart) : fmtD(prevStart) + " → " + fmtD(prevEnd)}` : ""}</p>
