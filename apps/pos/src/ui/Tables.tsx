@@ -9,7 +9,8 @@ import { money, type Ctx } from "../lib/pos";
 import type { Row } from "../lib/db";
 import { C, R } from "../lib/theme";
 import { T } from "./kit";
-import { Sheet } from "./Pickers";
+import { Full, Head } from "./Boards";
+import { Icon } from "./Icon";
 
 export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()).filter(Boolean);   // merged tables are saved as "3+4"
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
@@ -41,29 +42,60 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
       write("orders", dst.id, { ...f, updatedAt: now });
       srcs.forEach(o => write("orders", o.id, { status: "declined", voidReason: "Merged into " + (dst.no || dst.ref), doneAt: now, updatedAt: now })); }
     setMsg(tm!.mode === "move" ? `${tblLbl(from)} moved to ${tblLbl(k)}` : `${tblLbl(from)} merged into ${tblLbl(k)}`); setTm(null); setConfirm(null); };
-  const mins = (t: string) => Math.max(0, Math.round((Date.now() - +new Date(t)) / 60000));
+  const mins = (t: string) => Math.max(0, Math.round((Date.now() - +new Date(t)) / 60000)), dur = (m: number) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
+  const [sel, setSel] = useState(""), [sec, setSec] = useState(""), selOs = sel ? orders(sel) : [], selOwn = selOs.filter(o => tblParts(o.table)[0] === sel), so = selOwn[0] || selOs[0];
+  const busyN = all.filter(t => orders(t.name).length).length;
+  const tap = (k: string) => { if (tm) return pick(k); const os = orders(k); if (!os.length) return onFree(k); setSel(k); };
+  const shown = all.filter(t => !sec || (t.section || "") === sec);
   return (
-    <Sheet title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} width={980} onClose={onClose}
-      footer={confirm ? <><T w="m" style={{ flex: 1 }}>{tm!.mode === "move" ? `Move ${tblLbl(tm!.from)} to ${tblLbl(confirm)}?` : `Merge ${tblLbl(tm!.from)} into ${tblLbl(confirm)}? Its items move to ${tblLbl(confirm)} and ${tblLbl(tm!.from)} becomes free.`}</T>
-          <Btn label="Cancel" height={44} onPress={() => setConfirm(null)} /><Btn kind="primary" height={44} label={tm!.mode === "move" ? "Move" : "Merge"} onPress={() => run(confirm)} /></>
-        : <><T size={13} color={msg ? C.ink : C.mut} style={{ flex: 1 }}>{msg}</T>
-          <Btn kind={tm?.mode === "move" ? "primary" : "outline"} height={44} label={tm?.mode === "move" ? "Cancel" : "Change Table"} onPress={() => { setMsg(""); setTm(tm?.mode === "move" ? null : { mode: "move" }); }} />
-          <Btn kind={tm?.mode === "merge" ? "primary" : "outline"} height={44} label={tm?.mode === "merge" ? "Cancel" : "Merge Tables"} onPress={() => { setMsg(""); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }} /></>}>
-      {!all.length ? <T color={C.mut}>No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</T> :
-        <ScrollView style={{ maxHeight: 560 }}>{secs.map(sc => { const l = all.filter(t => (t.section || "") === sc); return (
-          <View key={sc} style={{ marginBottom: 16 }}>
-            {secs.length > 1 || sc ? <T w="s" style={{ marginBottom: 8 }}>{sc || "Tables"} <T size={13} color={C.mut}>· {l.filter(t => orders(t.name).length).length}/{l.length} occupied</T></T> : null}
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>{l.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = own[0] ? mins(own[0].createdAt) : 0;
-              const busy = os.length > 0, bg = !busy ? "#fff" : m >= 60 ? C.badBg : C.warnBg, bd = !busy ? C.line : m >= 60 ? C.bad : C.warn;
-              return (
-                <Pressable key={t.name} accessibilityRole="button" accessibilityLabel={tblLbl(t.name) + (busy ? ", occupied" : ", free")} onPress={() => (tm ? pick(t.name) : own[0] ? onOpen(own[0]) : os[0] ? onOpen(os[0]) : onFree(t.name))}
-                  style={{ width: 130, height: 104, borderRadius: R.md, borderWidth: tm?.from === t.name ? 3 : 1, borderColor: tm?.from === t.name ? C.brand : bd, backgroundColor: bg, padding: 10, justifyContent: "space-between" }}>
-                  <T w="s" size={16}>{tblLbl(t.name)}</T>
-                  {!busy ? <T size={13} color={C.mut}>Free</T> : !own.length ? <T size={12} color={C.mut}>Merged with {tblLbl(tblParts(os[0].table)[0])}</T> : <>
-                    <T w="s" color={C.ink}>{money(x.S, own.reduce((s, o) => s + (+o.total || 0), 0))}</T>
-                    <T size={12} color={C.mut}>{+own[0].guests ? own[0].guests + " guests · " : ""}#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min"}</T></>}
-                </Pressable>); })}</View>
-          </View>); })}</ScrollView>}
-    </Sheet>
+    <Full><Head title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} onClose={onClose}>
+      <T size={13} color={C.mut}>{busyN} of {all.length} occupied</T>
+      <Btn kind={tm?.mode === "move" ? "primary" : "outline"} height={44} label={tm?.mode === "move" ? "Cancel Move" : "Change Table"} onPress={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "move" ? null : { mode: "move" }); }} />
+      <Btn kind={tm?.mode === "merge" ? "primary" : "outline"} height={44} label={tm?.mode === "merge" ? "Cancel Merge" : "Merge Tables"} onPress={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }} /></Head>
+      {msg || confirm ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginHorizontal: 14, marginTop: 12, padding: 12, borderRadius: R.md, backgroundColor: confirm ? C.brand50 : "#fff", borderWidth: 1, borderColor: confirm ? C.brand : C.line }}>
+        <T w="m" style={{ flex: 1 }}>{confirm ? (tm!.mode === "move" ? `Move ${tblLbl(tm!.from)} to ${tblLbl(confirm)}?` : `Merge ${tblLbl(tm!.from)} into ${tblLbl(confirm)}? Its items move to ${tblLbl(confirm)} and ${tblLbl(tm!.from)} becomes free.`) : msg}</T>
+        {confirm ? <><Btn label="Cancel" height={42} onPress={() => setConfirm(null)} /><Btn kind="primary" height={42} label={tm!.mode === "move" ? "Move" : "Merge"} onPress={() => run(confirm)} /></> : null}</View> : null}
+      <View style={{ flex: 1, flexDirection: "row", padding: 14, gap: 14 }}>
+        {/* the floor */}
+        <View style={{ flex: 1 }}>
+          {secs.length > 1 ? <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginBottom: 12 }} contentContainerStyle={{ gap: 8 }}>
+            {["", ...secs].map(k => { const l = all.filter(t => !k || (t.section || "") === k); return <Btn key={k || "all"} kind={sec === k ? "primary" : "outline"} height={40} label={`${k || "All"} (${l.filter(t => orders(t.name).length).length}/${l.length})`} onPress={() => setSec(k)} />; })}</ScrollView> : null}
+          {!all.length ? <T color={C.mut}>No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</T> :
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: 12, paddingBottom: 10 }}>{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
+            const busy = os.length > 0, merged = busy && !own.length, long = busy && m >= 60, on = sel === t.name || tm?.from === t.name;
+            const bg = !busy ? "#fff" : long ? C.badBg : merged ? "#F4F3FF" : C.warnBg, bd = on ? C.brand : !busy ? C.line : long ? C.bad : merged ? "#7A5AF8" : C.warn;
+            return (
+              <Pressable key={t.name} accessibilityRole="button" accessibilityLabel={tblLbl(t.name) + (busy ? ", occupied" : ", free")} onPress={() => tap(t.name)}
+                style={{ width: 150, height: 118, borderRadius: R.lg, borderWidth: on ? 3 : 1.5, borderColor: bd, backgroundColor: bg, padding: 12, justifyContent: "space-between" }}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><T w="s" size={17}>{tblLbl(t.name)}</T>{busy && +(own[0] || os[0]).guests ? <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}><Icon name="user" size={14} color={C.ink2} /><T size={12} color={C.ink2}>{+(own[0] || os[0]).guests}</T></View> : null}</View>
+                {!busy ? <T size={13} color={C.ok}>Free</T> : merged ? <T size={12} color="#5925DC">Merged with {tblLbl(tblParts(os[0].table)[0])}</T> : <>
+                  <T w="s">{money(x.S, own.reduce((a, o) => a + (+o.total || 0), 0))}</T>
+                  <T size={12} color={long ? C.bad : C.ink2}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</T>
+                  {tblParts(own[0].table).length > 1 ? <T size={11} color="#5925DC">With {tblParts(own[0].table).filter(y => y !== t.name).map(y => tblLbl(y)).join(", ")}</T> : null}</>}
+              </Pressable>); })}</ScrollView>}
+          <View style={{ flexDirection: "row", gap: 16, paddingTop: 8 }}>{([["#fff", C.line, "Free"], [C.warnBg, C.warn, "Occupied"], ["#F4F3FF", "#7A5AF8", "Merged"], [C.badBg, C.bad, "Over 1 hour"]] as const).map(([b, c, l]) =>
+            <View key={l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}><View style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: b, borderWidth: 1.5, borderColor: c }} /><T size={12} color={C.ink2}>{l}</T></View>)}</View>
+        </View>
+        {/* the chosen table */}
+        <View style={{ width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
+          {!so ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 6 }}><T w="s">Tap a table</T><T size={13} color={C.mut} style={{ textAlign: "center" }}>A free table starts a new dine-in order. An occupied one shows its order here.</T></View> : <>
+            <View style={{ padding: 16, borderBottomWidth: 1, borderColor: C.line, gap: 4 }}>
+              <T w="s" size={19}>{tblLbl(so.table)}</T>
+              <T size={13} color={C.mut}>Order #{so.no || so.ref || "—"} · opened {new Date(so.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · {dur(mins(so.createdAt))}</T>
+              <T size={13} color={C.mut}>{[+so.guests ? so.guests + " guests" : "", so.cashier || so.agent || ""].filter(Boolean).join(" · ")}</T></View>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 8 }} showsVerticalScrollIndicator={false}>
+              {(so.items || []).filter((i: any) => !i.voided).map((i: any, k: number) => <View key={k} style={{ flexDirection: "row", gap: 8 }}><T w="s" style={{ width: 30 }}>{+i.qty}×</T>
+                <View style={{ flex: 1 }}><T>{i.name}</T>{(i.options || []).map((o: any, j: number) => <T key={j} size={12} color={C.mut}>• {o.name}</T>)}</View><T w="m">{money(x.S, (+i.price || 0) * (+i.qty || 1) - (+i.disc || 0))}</T></View>)}
+              {selOwn.length > 1 ? <T size={12} color={C.mut}>+ {selOwn.length - 1} more order{selOwn.length > 2 ? "s" : ""} on this table</T> : null}
+            </ScrollView>
+            <View style={{ padding: 16, borderTopWidth: 1, borderColor: C.line, gap: 10 }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="s" size={17}>Total</T><T w="b" size={17}>{money(x.S, selOwn.reduce((a, o) => a + (+o.total || 0), 0) || +so.total || 0)}</T></View>
+              <Btn kind="primary" height={48} label="Open In Register" onPress={() => onOpen(so)} />
+              <View style={{ flexDirection: "row", gap: 8 }}><Btn height={44} style={{ flex: 1 }} label="Change Table" onPress={() => { setMsg(""); setTm({ mode: "move", from: tblParts(so.table)[0] }); }} />
+                <Btn height={44} style={{ flex: 1 }} label="Merge" onPress={() => { setMsg(""); setTm({ mode: "merge", from: tblParts(so.table)[0] }); }} /></View>
+            </View></>}
+        </View>
+      </View>
+    </Full>
   );
 }
