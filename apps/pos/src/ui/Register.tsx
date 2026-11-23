@@ -276,6 +276,9 @@ export function Register() {
           <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
             {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => (k === "dinein" ? switchType(k) : askCust(k))} />)}
           </View>)}
+        {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
+          <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
+          <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} /></View> : null}
         {otype !== "dinein" && cust.name && !live_eo ? <Pressable onPress={() => askCust(otype)} style={{ marginHorizontal: 18, marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{cust.name} · {cust.phone}{cust.source ? " · " + cust.source : ""}</T>{otype === "delivery" ? <T size={13} color={C.mut} numberOfLines={2}>{addrJoin(cust.addr)}</T> : null}</Pressable> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>

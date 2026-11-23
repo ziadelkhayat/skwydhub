@@ -16,7 +16,7 @@ const Field = ({ label, value, onChange, kb, half }: { label: string; value: str
 
 export function CustomerDialog({ type, types, init, onDone }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void }) {
   const { S, sb } = useStore();
-  const [t, setT] = useState<OType>(type === "dinein" ? (types.find(k => k !== "dinein") || "takeaway") : type);
+  const [t, setT] = useState<OType>(type);   // dine-in: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [hint, setHint] = useState(""), [err, setErr] = useState("");
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
@@ -28,7 +28,7 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
       setHint((d.blacklisted ? "⚠ Blacklisted customer. " : "Returning customer. ") + (d.notes || "")); setSaved((d.addresses || []).map((a: any) => a.address).filter(Boolean));
       setC(o => (o.name.trim() ? o : { ...o, name: d.name || "" }));
     }, 400); return () => { off = true; clearTimeout(tm); }; }, [c.phone, sb]);
-  const go = () => { const m = custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
+  const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
   const src = posSources(S);
   return (
     <Sheet title="Customer Details" width={760} onClose={() => onDone(null)} footer={<>
@@ -36,10 +36,10 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
       <Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label="Continue" onPress={go} />
     </>}>
       <View style={{ gap: 14 }}>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+        {t !== "dinein" && <View style={{ flexDirection: "row", gap: 8 }}>
           {types.filter(k => k !== "dinein").map(k => <Btn key={k} kind={t === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={k === "delivery" ? "Delivery" : "Pickup"} onPress={() => setT(k)} />)}
-        </View>
-        {src.length > 0 && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
+        </View>}
+        {src.length > 0 && t !== "dinein" && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{src.map(s => <Btn key={s} kind={c.source === s ? "soft" : "outline"} height={40} label={s} style={c.source === s ? { borderColor: C.brand } : undefined} onPress={() => set("source", s)} />)}</View></View>}
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 12 }}>
           <Field half label="Phone number *" kb="phone-pad" value={c.phone} onChange={v => set("phone", v)} />
