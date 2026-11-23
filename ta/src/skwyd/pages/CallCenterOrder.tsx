@@ -2,19 +2,21 @@
 // with its prices, modifiers (the shared modifier picker modpick.js, same as the portal and POS), cart, discount, charges, notes and totals
 // (taxes, charges and rounding as in the portal). Send / Save Draft / Accept / Decline / Cancel order behave as in the current portal.
 // Orders the store already accepted are changed through the current portal (the store approves every change there).
+import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Textarea } from "@/components/ui/textarea";
-import { MinusIcon, PlusIcon, SearchIcon, TrashBinIcon } from "@/icons";
+import { ArrowLeftIcon, MinusIcon, PlusIcon, SearchIcon, TrashBinIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { newId, put, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { coSet, money } from "@/lib/util";
 import { cn } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { live, useS } from "../crud/CrudPage";
 import { F, SEL } from "../ui/kit";
 import { toast } from "../ui/toast";
@@ -167,16 +169,18 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
   const ok = past.filter(x => ["pending", "active", "closed"].includes(x.status)), spent = ok.reduce((a, x) => a + (+x.total || 0), 0);
   const reasons = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.cancelReasons == null ? ["Customer cancelled", "Duplicate order", "Wrong order details"] : String(a.cancelReasons).split("\n").map((x: string) => x.trim()).filter(Boolean); })();
   return (
-    <Dialog open onOpenChange={v => !v && onClose()}>
-      <DialogContent fullScreen className="overflow-hidden p-0 sm:p-0">
-        <div className="flex h-full min-h-0 w-full flex-col">
-          <DialogHeader className="flex-row items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-            <DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{o ? `Order ${ccLabel(o)}` : "New Call Center Order"}</DialogTitle>
-            {o && <Badge variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
-          </DialogHeader>
-          <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[320px_380px_1fr] lg:overflow-hidden">
+    <>
+      <PageBreadcrumb pageTitle="Call Center" current={o ? `Order ${ccLabel(o)}` : "New Order"} />
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Button variant="outline" onClick={onClose}><ArrowLeftIcon className="size-5" />Call Center</Button>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{o ? `Order ${ccLabel(o)}` : "New Call Center Order"}</h2>
+        {o && <Badge variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
+      </div>
+      {/* cart on the left, the menu in the middle, the customer on the right */}
+      <div className="grid grid-cols-1 gap-5 lg:h-[calc(100dvh-15rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_340px]">
             {/* customer and order details */}
-            <section className="space-y-4 border-gray-200 p-5 lg:overflow-y-auto lg:border-e dark:border-gray-800">
+            <section className="custom-scrollbar space-y-4 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-5 lg:order-3 lg:overflow-y-auto">
+              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
                 className={cn("h-11 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
               <F l="Order Source" req><select className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</select></F>
@@ -186,7 +190,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 <Input className="h-11 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
               {cust && <div className="space-y-1 text-xs">{cust.blacklisted && <p className="font-semibold text-red-500">⚠ Blacklisted customer.</p>}{(cust.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{cust.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</div>}{cust.notes && <p className="text-gray-500 italic">{cust.notes}</p>}</div>}
               <F l="Customer Name" req><Input className="h-11" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
-              {cust && <div className="grid grid-cols-2 gap-2 rounded-xl bg-gray-50 p-3 text-xs dark:bg-white/3">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB") : "—"]].map(([l, v]) =>
+              {cust && <div className="grid grid-cols-2 gap-2 rounded-xl bg-gray-50 p-3 text-xs dark:bg-white/3">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB").replace(/\//g, "-") : "—"]].map(([l, v]) =>
                 <div key={l}><span className="block text-gray-500">{l}</span><b className="text-gray-800 dark:text-white/90">{v}</b></div>)}</div>}
               {type === "delivery" && <div className="space-y-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
                 <b className="block text-sm font-medium text-gray-800 dark:text-white/90">Delivery Address</b>
@@ -197,9 +201,9 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 {D.zc && <p className="text-xs text-gray-500">Delivery charge: {D.zc.name} ({money(+D.zc.value || 0)})</p>}
               </div>}
             </section>
-            {/* the call center menu */}
             {/* the cart */}
-            <section className="flex min-h-0 flex-col border-gray-200 lg:border-e dark:border-gray-800">
+            <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 lg:order-1">
+              <h3 className="border-b border-gray-200 px-5 pt-4 pb-3 text-base font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">Cart{cart.length ? ` (${cart.reduce((a, i) => a + (+i.qty || 0), 0)})` : ""}</h3>
               {!ro && <div className="flex gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button></div>}
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
@@ -219,15 +223,14 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 {(notes || rnotes) && <p className="pt-1 text-xs text-gray-500">{notes && <>Kitchen: {notes}<br /></>}{rnotes && <>Receipt: {rnotes}</>}</p>}
                 {err && <p className="pt-1 text-sm text-red-500">{err}</p>}
                 <div className="flex flex-wrap gap-2 pt-2">
-                  <Button variant="outline" onClick={onClose}>Close</Button>
-                  {(!o || o.status === "draft") && <><Button variant="outline" disabled={busy} onClick={() => save("draft")}>Save Draft</Button><Button className="flex-1" disabled={busy} onClick={() => save("pending")}>{busy ? "Sending…" : "Send"}</Button></>}
-                  {o?.status === "draft" && <Button variant="destructive" disabled={busy} onClick={async () => { try { await put("orders", o.id, { deleted: true }); toast("Draft cancelled"); onClose(); } catch { toast("Couldn't cancel the draft.", "error"); } }}>Cancel Draft</Button>}
+                                    {(!o || o.status === "draft") && <><Button variant="outline" disabled={busy} onClick={() => save("draft")}>Save Draft</Button><Button className="flex-1" disabled={busy} onClick={() => save("pending")}>{busy ? "Sending…" : "Send"}</Button></>}
+                  {o?.status === "draft" && <Button variant="destructive" disabled={busy} onClick={async () => { try { const { error } = await sb.from("orders").delete().eq("id", o.id).eq("status", "draft"); if (error) throw error; toast("Draft cancelled"); onClose(); } catch { toast("Couldn't cancel the draft.", "error"); } }}>Cancel Draft</Button>}
                   {o?.status === "review" && <><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Decline</Button><Button className="flex-1" disabled={busy} onClick={() => setStatus("pending")}>Accept</Button></>}
                   {o?.status === "pending" && <><Button variant="outline" disabled={busy} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel Order</Button></>}
                 </div>
               </div>
             </section>
-            <section className="flex min-h-0 flex-col p-5 lg:overflow-hidden">
+            <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-5 lg:order-2 lg:overflow-hidden">
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <InputGroup className="mb-3 h-11"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
@@ -244,8 +247,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</div></>}
               </>}
             </section>
-          </div>
-        </div>
+      </div>
         {dlg === "disc" && <Small title="Discount" onClose={() => setDlg("")}>
           <div className="flex gap-2">{[["pct", "Percentage"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setDiscType(k)} className={cn("h-10 flex-1 rounded-lg border text-sm", discType === k ? "border-brand-500 bg-brand-50 text-brand-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{t}</button>)}</div>
           <F l={discType === "pct" ? "Discount (%)" : "Discount Amount"}><Input className="h-11" type="number" min="0" max={discType === "pct" ? 100 : undefined} step="any" value={disc || ""} onChange={e => setDisc(Math.max(0, Math.min(discType === "pct" ? 100 : 1e9, +e.target.value || 0)))} /></F></Small>}
@@ -254,8 +256,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
             {c.type === "open" ? <Input className="h-9 w-28" type="number" min="0" step="any" value={open[c.id] ?? c.value ?? ""} onChange={e => setOpen({ ...open, [c.id]: +e.target.value || 0 })} /> : <span className="text-sm text-gray-500">{c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0)}</span>}</div>); })}</Small>}
         {dlg === "notes" && <Small title="Notes" onClose={() => setDlg("")}><F l="Kitchen Notes"><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} /></F><F l="Receipt Notes"><Textarea rows={3} value={rnotes} onChange={e => setRNotes(e.target.value)} /></F></Small>}
         {dlg === "reason" && <ReasonDlg title={o?.status === "review" ? "Decline order: reason" : "Cancel order: reason"} reasons={reasons} onClose={() => setDlg("")} onGo={why => { setDlg(""); setStatus("declined", why); }} />}
-      </DialogContent>
-    </Dialog>);
+    </>);
 }
 const Small = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
   <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</DialogTitle></DialogHeader>
@@ -268,4 +269,14 @@ function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: 
     {err && <p className="text-sm text-red-500">{err}</p>}
     <Button variant="destructive" onClick={() => { const v = pick === "_other" ? txt.trim() : pick; if (!v) return setErr("Choose a reason."); onGo(v); }}>{title.startsWith("Decline") ? "Decline Order" : "Cancel Order"}</Button>
   </Small>;
+}
+
+// the page (route /call-center-order, ?id= an existing order): new, draft, waiting and pending call center orders
+const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };
+export function CallCenterOrderPage() {
+  const [sp] = useSearchParams(), id = sp.get("id") || "", nav = useNavigate(), [o, setO] = useState<any>(id ? undefined : null);
+  useEffect(() => { if (!id) { setO(null); return; } let off = false;
+    sb.from("orders").select("*").eq("id", id).single().then(({ data }) => { if (!off) setO(data ? camel(data) : null); }); return () => { off = true; }; }, [id]);
+  if (o === undefined) return null;
+  return <CallCenterOrder key={id || "new"} order={o} onClose={() => nav("/call-center")} />;
 }
