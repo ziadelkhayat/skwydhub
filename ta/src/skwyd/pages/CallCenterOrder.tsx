@@ -23,11 +23,11 @@ import { who } from "./em";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
 const SOURCES_DEF = ["Phone", "Toters", "NokNok", "Talabat", "WhatsApp", "Walk-in"];
-const ADDR_K = ["label", "street", "building", "floor", "door", "extra"] as const;
-type Addr = Record<(typeof ADDR_K)[number], string>;
-const addrJoin = (a: Addr) => { const c = (v: string) => String(v || "").replace(/\s*·\s*/g, ", ").trim();
+export const ADDR_K = ["label", "street", "building", "floor", "door", "extra"] as const;
+export type Addr = Record<(typeof ADDR_K)[number], string>;
+export const addrJoin = (a: Addr) => { const c = (v: string) => String(v || "").replace(/\s*·\s*/g, ", ").trim();
   return [c(a.label) ? "[" + c(a.label).replace(/[[\]]/g, "") + "]" : "", [c(a.street), c(a.building) && "Bldg: " + c(a.building), c(a.floor) && "Floor: " + c(a.floor), c(a.door) && "Door: " + c(a.door), c(a.extra) && "Info: " + c(a.extra)].filter(Boolean).join(" · ")].filter(Boolean).join(" "); };
-const addrSplit = (v?: string): Addr => { const a: Addr = { label: "", street: "", building: "", floor: "", door: "", extra: "" }; let s = String(v || "").trim(); const m = /^\[(.*?)\]\s*/.exec(s); if (m) { a.label = m[1]; s = s.slice(m[0].length); }
+export const addrSplit = (v?: string): Addr => { const a: Addr = { label: "", street: "", building: "", floor: "", door: "", extra: "" }; let s = String(v || "").trim(); const m = /^\[(.*?)\]\s*/.exec(s); if (m) { a.label = m[1]; s = s.slice(m[0].length); }
   s.split(" · ").filter(Boolean).forEach(p => { const k = /^(Bldg|Floor|Door|Info):\s*(.*)$/.exec(p); if (k) (a as any)[({ Bldg: "building", Floor: "floor", Door: "door", Info: "extra" } as any)[k[1]]] = k[2]; else a.street = a.street ? a.street + ", " + p : p; }); return a; };
 // a line discount in % follows the quantity; an amount stays as entered (never more than the line)
 const reDisc = (x: any) => x.discPct ? { ...x, disc: +((+x.price || 0) * (+x.qty || 1) * Math.min(100, +x.discPct) / 100).toFixed(2) } : x;
