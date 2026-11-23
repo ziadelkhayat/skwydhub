@@ -442,7 +442,7 @@ function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
-      <TileBody size={size} w={w} img={img} name={name} bold sub={String(n)} subColor={C.mut} />
+      <TileBody size={size} w={w} img={img} name={name} bold />
     </Pressable>
   );
 }
