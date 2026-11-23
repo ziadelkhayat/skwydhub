@@ -63,56 +63,23 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const TABS: [string, string, (o: Row) => boolean][] = [["open", "Open", o => ["pending", "active"].includes(o.status)], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
   const [tab, setTab] = useState("open"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
   const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
-  const [sel, setSel] = useState<string>(list[0]?.id || ""), o = all.find(y => y.id === sel) || list[0];
+  // the whole screen is the list; tapping an order opens it in the cart
+  const COLS: [string, number, "left" | "right"][] = [["Order", 1.1, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
   return <Full><Head title="Orders" onClose={onClose}>{TABS.map(([k, t, f]) => <Btn key={k} kind={tab === k ? "primary" : "outline"} height={44} label={`${t} (${all.filter(f).length})`} onPress={() => setTab(k)} />)}</Head>
-    <View style={{ flex: 1, flexDirection: "row", padding: 14, gap: 14 }}>
-      {/* the list */}
-      <View style={{ width: "44%", backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, margin: 10, height: 44, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field }}>
-          <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search number, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} /></View>
-        <View style={{ flexDirection: "row", paddingHorizontal: 14, paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
-          {["Order", "Type", "Time", "Status", "Total"].map((h, k) => <T key={h} size={12} w="m" color={C.mut} style={{ flex: k === 0 ? 1.3 : 1, textAlign: k === 4 ? "right" : "left" }}>{h}</T>)}</View>
-        <ScrollView showsVerticalScrollIndicator={false}>{list.length ? list.map(y => { const st = stOf(y), on = y.id === o?.id;
-          return <Pressable key={y.id} accessibilityRole="button" onPress={() => setSel(y.id)} style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: on ? C.brand50 : "#fff" }}>
-            <View style={{ flex: 1.3 }}><T w="s">{ordRef(y)}</T><T size={12} color={C.mut} numberOfLines={1}>{y.customerName || (y.table ? "Table " + y.table : "Walk-in")}</T></View>
-            <T size={13} style={{ flex: 1 }}>{TYPE[y.type] || y.type}</T><T size={13} style={{ flex: 1 }}>{tm(y.createdAt)}</T>
-            <View style={{ flex: 1, alignItems: "flex-start" }}><Pill text={st.label} tone={st.tone} /></View><T w="s" size={14} style={{ flex: 1, textAlign: "right" }}>{money(x.S, y.total)}</T></Pressable>; })
-          : <T color={C.mut} style={{ textAlign: "center", padding: 30 }}>No orders here.</T>}</ScrollView>
-      </View>
-      {/* the chosen order */}
-      <View style={{ flex: 1, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
-        {!o ? <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>Pick an order to see it.</T> : <Detail o={o} x={x} onOpen={() => onOpen(o)} />}
-      </View>
+    <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, margin: 12, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, maxWidth: 420 }}>
+        <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
+      <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
+        {COLS.map(([h, f, al]) => <T key={h} size={12} w="m" color={C.mut} style={{ flex: f, textAlign: al }}>{h}</T>)}</View>
+      <ScrollView showsVerticalScrollIndicator={false}>{list.length ? list.map(y => { const st = stOf(y);
+        return <Pressable key={y.id} accessibilityRole="button" accessibilityLabel={"Open order " + ordRef(y)} onPress={() => onOpen(y)}
+          style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: pressed ? C.brand50 : "#fff" })}>
+          <T w="s" style={{ flex: 1.1 }}>{ordRef(y)}</T><T size={14} color={C.ink2} style={{ flex: 1 }}>{y.invoiceNo || "—"}</T>
+          <View style={{ flex: 1.2 }}><T size={14}>{TYPE[y.type] || y.type}</T><T size={12} color={C.mut}>{CH[y.channel] || "POS"}</T></View>
+          <View style={{ flex: 2 }}><T size={14} numberOfLines={1}>{y.customerName || (y.table ? "Table " + y.table : "Walk-in")}</T>{y.phone || (y.type === "delivery" && y.driverName) ? <T size={12} color={C.mut} numberOfLines={1}>{[y.phone, y.type === "delivery" && y.driverName ? "Driver: " + y.driverName : ""].filter(Boolean).join(" · ")}</T> : null}</View>
+          <T size={14} style={{ flex: 0.8 }}>{(y.items || []).filter((i: any) => !i.voided).reduce((a: number, i: any) => a + (+i.qty || 0), 0)}</T>
+          <T size={14} style={{ flex: 0.9 }}>{tm(y.createdAt)}</T><View style={{ flex: 1.2, alignItems: "flex-start" }}><Pill text={st.label} tone={st.tone} /></View>
+          <T w="s" style={{ flex: 1, textAlign: "right" }}>{money(x.S, y.total)}</T></Pressable>; })
+        : <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>No orders here.</T>}</ScrollView>
     </View></Full>;
-}
-
-function Detail({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
-  const st = stOf(o), m = (n: any) => money(x.S, +n || 0), pay = o.payment || null;
-  const KV = ({ l, v }: { l: string; v: string }) => <View style={{ width: "50%", paddingVertical: 6 }}><T size={12} color={C.mut}>{l}</T><T w="m" size={14} numberOfLines={2}>{v}</T></View>;
-  const Sum = ({ l, v, b }: { l: string; v: string; b?: boolean }) => <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3 }}><T w={b ? "s" : "r"} size={b ? 17 : 14} color={b ? C.ink : C.ink2}>{l}</T><T w={b ? "b" : "m"} size={b ? 17 : 14}>{v}</T></View>;
-  return <>
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 16, borderBottomWidth: 1, borderColor: C.line }}>
-      <T w="s" size={20}>Order {ordRef(o)}</T><Pill text={st.label} tone={st.tone} /><View style={{ flex: 1 }} />
-      <Btn kind="primary" height={44} label={["pending", "active"].includes(o.status) ? "Open In Register" : "Open"} onPress={onOpen} /></View>
-    <ScrollView contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 10 }}>
-        <KV l="Type" v={(TYPE[o.type] || o.type) + (o.type === "dinein" && o.table ? " · Table " + o.table : "")} /><KV l="Channel" v={CH[o.channel] || "POS"} />
-        <KV l="Customer" v={[o.customerName, o.phone].filter(Boolean).join(" · ") || "—"} /><KV l="Opened" v={tm(o.createdAt) + (o.cashier ? " · " + o.cashier : "")} />
-        {o.type === "delivery" ? <><KV l="Address" v={String(o.address || "—").replace(/^\[[^\]]*\]\s*/, "")} /><KV l="Driver" v={o.driverName || "—"} /></> : null}
-        {o.invoiceNo ? <KV l="Check Number" v={String(o.invoiceNo)} /> : null}{o.closedAt ? <KV l="Closed" v={tm(o.closedAt)} /> : null}
-      </View>
-      <T w="s" size={15} style={{ marginBottom: 6 }}>Items</T>
-      <View style={{ borderWidth: 1, borderColor: C.line, borderRadius: R.md, marginBottom: 14 }}>{(o.items || []).map((i: any, k: number) =>
-        <View key={k} style={{ flexDirection: "row", gap: 10, padding: 10, borderBottomWidth: k < o.items.length - 1 ? 1 : 0, borderColor: C.line2, opacity: i.voided ? 0.5 : 1 }}>
-          <T w="s" style={{ width: 34 }}>{+i.qty}×</T>
-          <View style={{ flex: 1 }}><T w="m" style={i.voided ? { textDecorationLine: "line-through" } : undefined}>{i.name}</T>
-            {(i.options || []).map((op: any, j: number) => <T key={j} size={12} color={C.mut}>• {op.name}{+op.price ? " +" + m(op.price) : ""}</T>)}
-            {i.note ? <T size={12} color={C.mut} style={{ fontStyle: "italic" }}>Note: {i.note}</T> : null}{+i.disc ? <T size={12} color={C.ok}>Discount −{m(i.disc)}</T> : null}</View>
-          <T w="m">{m((+i.price || 0) * (+i.qty || 1) - (+i.disc || 0))}</T></View>)}</View>
-      <View style={{ borderTopWidth: 1, borderColor: C.line, paddingTop: 8 }}>
-        <Sum l="Subtotal" v={m(o.subtotal)} />{+o.discount ? <Sum l="Discount" v={"−" + m(o.discount)} /> : null}
-        {(o.charges || []).map((c: any) => <Sum key={c.id || c.name} l={c.name} v={m(c.amount)} />)}<Sum l="Tax" v={m(o.tax)} /><Sum l="Total" v={m(o.total)} b /></View>
-      {pay ? <View style={{ marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}><T size={13} color={C.ink2}>Paid by {pay.method || pay.name || "—"}{pay.received ? " · received " + m(pay.received) : ""}{pay.change ? " · change " + m(pay.change) : ""}</T></View> : null}
-      {o.notes ? <T size={13} color={C.mut} style={{ marginTop: 10 }}>Kitchen: {o.notes}</T> : null}{o.voidReason ? <T size={13} color={C.bad} style={{ marginTop: 6 }}>Reason: {o.voidReason}</T> : null}
-    </ScrollView></>;
 }
