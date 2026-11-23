@@ -68,7 +68,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
     const t = setTimeout(async () => { const m = CCS.slice().sort((a, b) => b.length - a.length).find(c => phone.startsWith(c)), n = m ? phone.slice(m.length) : "", vars = [...new Set([phone, ...(m ? [n, "0" + n, m + " " + n] : [])])];
       const { data } = await sb.from("customers").select("id,name,phone,addresses,blacklisted,notes,tags,created_at").in("phone", vars).limit(1); if (off) return; const c = data?.[0] || null; setCust(c);
       if (!c) { setPast([]); return; } if (!locked && !name.trim() && c.name) setName(c.name);
-      const { data: p } = await sb.from("orders").select("id,status,total,items,type,created_at").eq("customer_id", c.id).order("created_at", { ascending: false }).limit(100); if (!off) setPast(p || []); }, 300);
+      const { data: p } = await sb.from("orders").select("id,ref,no,status,total,items,type,source,brand_id,branch_id,address,notes,receipt_notes,created_at").eq("customer_id", c.id).order("created_at", { ascending: false }).limit(100); if (!off) setPast(p || []); }, 300);
     return () => { off = true; clearTimeout(t); }; }, [phone]); // eslint-disable-line react-hooks/exhaustive-deps
   const S0 = s;
   const derived = useMemo(() => { if (!S0) return null; const s = S0;
@@ -184,8 +184,16 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const sig = JSON.stringify([type, source, cart, discType, disc, chg ? [...chg].sort() : null, open, notes, rnotes, tags, addrJoin(addr)]);
   if (sig0r.current == null) sig0r.current = sig; const changed = sig !== sig0r.current;
-  const reorder = () => { const x = { phone: o.phone, customerName: o.customerName, type: o.type, source: o.source, brandId: o.brandId, branchId: o.branchId, address: o.address, items: (o.items || []).map(({ saved, ...i }: any) => i), notes: o.notes, receiptNotes: o.receiptNotes };
+  const reorderOf = (r: any) => { const x = { phone: r.phone ?? phone, customerName: r.customerName ?? r.customer_name ?? name, type: r.type, source: r.source, brandId: r.brandId ?? r.brand_id, branchId: r.branchId ?? r.branch_id, address: r.address,
+      items: (r.items || []).map(({ saved, ...i }: any) => i), notes: r.notes, receiptNotes: r.receiptNotes ?? r.receipt_notes };
     try { sessionStorage.setItem("skwydCcInit", JSON.stringify(x)); } catch { /* */ } onNav("/call-center-order?held=re&t=" + Date.now()); };
+  const reorder = () => reorderOf(o);
+  // a past order of this customer, put into a new order (the current cart is replaced, so ask first when it has items)
+  const reorderPast = (r: any) => { if (cart.length && !window.confirm("Replace the items in this order with order " + (r.ref || r.no || "") + "?")) return; reorderOf({ ...r, phone, customerName: name.trim() || cust?.name }); };
+  // a saved address taken off the customer
+  const delAddr = async (i: number) => { const a = cust.addresses[i], x = addrSplit(a.address); if (!window.confirm("Delete the saved address " + (x.label || x.street || "Address " + (i + 1)) + "?")) return;
+    const list = cust.addresses.filter((_: any, k: number) => k !== i), { error } = await sb.from("customers").update({ addresses: list }).eq("id", cust.id);
+    if (error) return setErr("Couldn't delete the address."); setCust({ ...cust, addresses: list }); setAddrIx(null); setAddr(addrSplit("")); toast("Address deleted"); };
   async function setStatus(st: string, why?: string) {
     setBusy(true);
     try { if (st === "pending") await save("keep" as any, { status: "pending", agent: by });
@@ -201,27 +209,43 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
       {/* cart on the left, the menu in the middle, the customer on the right */}
       <div className="grid grid-cols-1 gap-3 lg:h-[calc(100dvh-2rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_320px]">
             {/* customer and order details */}
-            <section className="custom-scrollbar space-y-3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-4 lg:order-3 lg:overflow-y-auto">
-              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
+            <section className="custom-scrollbar space-y-3 lg:order-3 lg:overflow-y-auto">
+              {/* the order: type, source, brand and store */}
+              <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
+              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Order</h3>
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
                 className={cn("h-11 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
               <F l="Order Source" req><select className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</select></F>
               {D.brands.length > 0 && <F l="Brand" req><select className={SEL} disabled={locked} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); setCat(""); }}><option value="">Choose…</option>{D.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>}
               <F l="Store" req><select className={SEL} disabled={locked} value={branch} onChange={e => { setBranch(e.target.value); setCat(""); }}><option value="">Choose…</option>{D.branches.map(b => <option key={b.id} value={b.id}>{b.name}{brOpenNow(b) ? "" : " · closed now"}</option>)}</select></F>
+              </div>
+              {/* the customer: phone, name, their history, the delivery address */}
+              <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
+              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
               <F l="Customer Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-24 shrink-0")} disabled={locked} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
                 <Input className="h-11 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
               {cust && <div className="space-y-1 text-xs">{cust.blacklisted && <p className="font-semibold text-red-500">⚠ Blacklisted customer.</p>}{(cust.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{cust.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</div>}{cust.notes && <p className="text-gray-500 italic">{cust.notes}</p>}</div>}
               <F l="Customer Name" req><Input className="h-11" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
               {cust && <div className="grid grid-cols-2 gap-2 rounded-xl bg-gray-50 p-3 text-xs dark:bg-white/3">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB").replace(/\//g, "-") : "—"]].map(([l, v]) =>
                 <div key={l}><span className="block text-gray-500">{l}</span><b className="text-gray-800 dark:text-white/90">{v}</b></div>)}</div>}
+              {cust && ok.length > 0 && <div>
+                <b className="mb-1.5 block text-sm font-medium text-gray-800 dark:text-white/90">Past orders</b>
+                <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 dark:divide-white/5 dark:border-gray-800">{ok.slice(0, 5).map(r => <div key={r.id} className="flex items-center gap-2 px-3 py-2 text-xs">
+                  <div className="min-w-0 flex-1"><div className="flex justify-between gap-2"><b className="text-gray-800 dark:text-white/90">{r.ref || r.no || "—"}</b><b className="text-gray-800 dark:text-white/90">{money(+r.total || 0)}</b></div>
+                    <span className="block text-gray-500">{new Date(r.created_at).toLocaleDateString("en-GB").replace(/\//g, "-")} · {r.type === "delivery" ? "Delivery" : r.type === "dinein" ? "In Store" : "Pickup"}</span>
+                    <span className="block truncate text-gray-400">{(r.items || []).map((i: any) => (i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ")}</span></div>
+                  {!o && <button type="button" onClick={() => reorderPast(r)} className="shrink-0 rounded-lg border border-brand-300 px-2.5 py-1.5 font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-500/40 dark:hover:bg-brand-500/10">Reorder</button>}
+                </div>)}</div></div>}
               {type === "delivery" && <div className="space-y-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
                 <b className="block text-sm font-medium text-gray-800 dark:text-white/90">Delivery Address</b>
                 {!!(cust?.addresses || []).length && !(locked && o?.address) && <F l="Saved addresses"><select className={SEL} value={addrIx ?? ""} onChange={e => { const i = e.target.value === "" ? null : +e.target.value; setAddrIx(i); setAddr(i == null ? addrSplit("") : addrSplit(cust.addresses[i].address)); }}>
-                  <option value="">New address…</option>{cust.addresses.map((a: any, i: number) => { const x = addrSplit(a.address); return <option key={i} value={i}>{(x.label || "Address " + (i + 1)) + (x.street ? " · " + x.street : "")}</option>; })}</select></F>}
+                  <option value="">New address…</option>{cust.addresses.map((a: any, i: number) => { const x = addrSplit(a.address); return <option key={i} value={i}>{(x.label || "Address " + (i + 1)) + (x.street ? " · " + x.street : "")}</option>; })}</select>
+                  {addrIx != null && !ro && <button type="button" onClick={() => delAddr(addrIx)} className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600"><TrashBinIcon className="size-3.5" />Delete this saved address</button>}</F>}
                 {([["label", "Address type (Home, Work…)"], ["street", "Area / street *"], ["building", "Building name / no. *"], ["floor", "Floor / Apartment no. *"], ["door", "Door details / Name on intercom"], ["extra", "Instructions"]] as const).map(([k, ph]) =>
                   <Input key={k} className="h-10" disabled={ro || (locked && !!o?.address)} placeholder={ph} value={addr[k]} onChange={e => { setAddr({ ...addr, [k]: e.target.value }); setAddrIx(null); }} />)}
                 {D.zc && <p className="text-xs text-gray-500">Delivery charge: {D.zc.name} ({money(+D.zc.value || 0)})</p>}
               </div>}
+              </div>
             </section>
             {/* the cart */}
             <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 lg:order-1">
