@@ -369,7 +369,7 @@ export function Register() {
                     {/* inside a category the first tile goes back (it names the category it leaves) */}
           {top && !q.trim() ? <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
             style={({ pressed }) => ({ width: tileW, height: tile, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4, padding: 6 })}>
-            <Icon name="back" size={26} color={C.brand} /><T w="s" size={15}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center" }}>{m.cats.find(c => c.id === top)?.name || ""}</T></Pressable> : null}
+            <Icon name="back" size={24} color={C.brand} /><T w="s" size={15}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center" }}>{m.cats.find(c => c.id === top)?.name || ""}</T></Pressable> : null}
           {items.map((it: any) => it.sub
             ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
             : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
