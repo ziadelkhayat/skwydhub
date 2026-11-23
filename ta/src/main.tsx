@@ -7,6 +7,10 @@ import { HelmetProvider } from "react-helmet-async";
 import { HashRouter } from "react-router";
 import { AuthProvider } from "@/lib/auth";
 import App from "./App.tsx";
+import { lazy, Suspense } from "react";
+// admin.skwydhub.com (and dev.admin) opens the Skwyd Hub admin instead of a business's back office
+const ADMIN = /^(dev\.)?admin\./.test(location.hostname) || localStorage.getItem("skwydAdmin") === "1";
+const AdminApp = lazy(() => import("./skwyd/admin/AdminApp"));
 import "./index.css";
 
 // addresses from the previous portal keep working: /orders, /items/prd_x, #orders… open the same page here (#/orders, #/item?id=prd_x)
@@ -32,9 +36,9 @@ createRoot(document.getElementById("root")!).render(
         <HelmetProvider>
           <I18nProvider>
             <TooltipProvider>
-              <AuthProvider>
+              {ADMIN ? <Suspense fallback={null}><AdminApp /></Suspense> : <AuthProvider>
                 <App />
-              </AuthProvider>
+              </AuthProvider>}
             </TooltipProvider>
           </I18nProvider>
         </HelmetProvider>
