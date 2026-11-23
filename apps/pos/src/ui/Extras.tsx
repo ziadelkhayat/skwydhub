@@ -11,11 +11,11 @@ export function DiscountDialog({ x, cart, cur, sym, allowPct, allowAmt, init, on
   const [type, setType] = useState<"pct" | "amt">(init?.type || (allowPct ? "pct" : "amt")), [v, setV] = useState(init ? String(init.value) : "");
   const key = (k: string) => setV(s => k === "c" ? "" : k === "b" ? s.slice(0, -1) : s.length > 8 ? s : s === "0" ? k : s + k);
   return (
-    <Sheet title="Discount" width={400} onClose={() => onDone(undefined)} footer={<>
+    <Sheet title="Discount" width={460} onClose={() => onDone(undefined)} footer={<>
       {init ? <Btn kind="danger" height={48} label="Remove" onPress={() => onDone(null)} /> : null}
       <View style={{ flex: 1 }} />
       <Btn label="Cancel" height={48} onPress={() => onDone(undefined)} />
-      <Btn kind="primary" height={48} label="Apply" disabled={!(+v > 0) || (!openSet && type === "pct" && +v > 100)} onPress={() => onDone(openSet ? { type: "amt", value: 0, name: openSet.name, setId: openSet.id, setVal: +v } : { type, value: +v })} />
+      <Btn kind="primary" height={48} label="Done" disabled={!(+v > 0) || (!openSet && type === "pct" && +v > 100)} onPress={() => onDone(openSet ? { type: "amt", value: 0, name: openSet.name, setId: openSet.id, setVal: +v } : { type, value: +v })} />
     </>}>
       <View style={{ alignItems: "center", gap: 12 }}>
         {sets.length > 0 && <View style={{ alignSelf: "stretch", gap: 6 }}><T size={13} color={C.ink2}>Discounts</T>
@@ -25,13 +25,16 @@ export function DiscountDialog({ x, cart, cur, sym, allowPct, allowAmt, init, on
               <T w="m" size={14}>{d.name}</T><T size={12} color={C.mut}>{d.open ? (d.type === "fixed" ? "Open amount" : "Open %") : c.why || "−" + cur(c.amt)}</T></Pressable>; })}</View></View>}
         {openSet ? <T w="s">{openSet.name} · {openSet.type === "fixed" ? "amount" : "%"}</T> : null}
         {!openSet && <View style={{ flexDirection: "row", gap: 8, alignSelf: "stretch" }}>
-          {allowPct && <Btn kind={type === "pct" ? "primary" : "outline"} height={44} style={{ flex: 1 }} label="%" onPress={() => setType("pct")} />}
-          {allowAmt && <Btn kind={type === "amt" ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={sym} onPress={() => setType("amt")} />}
+          {/* as in the call center: Percentage or Amount, then the value (typed on the pad) */}
+          {([["pct", "Percentage", allowPct], ["amt", "Amount", allowAmt]] as const).filter(z => z[2]).map(([k, l]) =>
+            <Pressable key={k} accessibilityRole="button" onPress={() => setType(k)} style={{ flex: 1, height: 48, borderRadius: R.md, borderWidth: 1, borderColor: type === k ? C.brand : C.line, backgroundColor: type === k ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" }}>
+              <T w="m" size={16} color={type === k ? C.brand : C.ink2}>{l}</T></Pressable>)}
         </View>}
-        <View style={{ alignSelf: "stretch", height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}>
-          <T w="s" size={26}>{v === "" ? " " : (openSet ? openSet.type !== "fixed" : type === "pct") ? v + " %" : cur(+v)}</T></View>
-        <Pad onKey={key} size={72} />
-        <Btn kind="ghost" label="." height={36} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
+        <T w="m" size={14} color={C.ink2} style={{ alignSelf: "flex-start" }}>{(openSet ? openSet.type !== "fixed" : type === "pct") ? "Discount (%)" : "Discount (" + sym + ")"}</T>
+        <View style={{ alignSelf: "stretch", height: 52, borderRadius: R.md, borderWidth: 1, borderColor: C.field, paddingHorizontal: 14, justifyContent: "center", marginTop: -4 }}>
+          <T size={20}>{v === "" ? " " : v}</T></View>
+        <Pad onKey={key} size={58} />
+        <Btn kind="ghost" label="." height={32} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
       </View>
     </Sheet>
   );
