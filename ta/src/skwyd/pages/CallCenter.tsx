@@ -62,7 +62,7 @@ export default function CallCenterPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Call Center Order</Button></div>
+          <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
       </div>
       <div className="custom-scrollbar flex gap-4 overflow-x-auto pb-4">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
