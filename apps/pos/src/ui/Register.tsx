@@ -304,8 +304,8 @@ export function Register() {
           {cashier ? <Pill text={cashier.name} /> : null}
         </View>
         {live_eo ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingTop: 12 }}>
-          <T w="s">Order {ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
-          <View style={{ flex: 1 }} /><Btn kind="ghost" height={36} label="Close" onPress={reset} /></View> : null}
+          <T w="s">Order {live_eo.ref || ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
+</View> : null}
         {erPending(live_eo) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
           <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
@@ -339,11 +339,11 @@ export function Register() {
                     : l.mods && !l.note ? <T size={13} color={C.mut}>{l.mods}</T> : null}
                   {l.note ? <T size={13} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
                   {l.disc ? <T size={13} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
-                <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
+                {ro ? <T w="s" style={{ minWidth: 40, textAlign: "center" }}>{l.qty}×</T> : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
                   <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty <= 1 ? "trash" : "minus"} size={18} color={l.qty <= 1 ? C.bad : C.ink2} /></Pressable>
                   <T w="s" style={{ minWidth: 28, textAlign: "center" }}>{l.qty}</T>
                   <Pressable accessibilityRole="button" accessibilityLabel={"More " + l.name} onPress={() => qty(i, 1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={18} color={C.ink2} /></Pressable>
-                </View>
+                </View>}
                 <T w="m" style={{ width: 84, textAlign: "right" }}>{money(S, lineNet(l))}</T>
               </View>))}
         </ScrollView>
