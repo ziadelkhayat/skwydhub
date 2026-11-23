@@ -80,7 +80,7 @@ export async function readCache(): Promise<Partial<Data>> {
 export async function fetchAll(sb: SupabaseClient, col: Col): Promise<Row[]> {
   const t = tableOf(col);
   let q: any = sb.from(t).select(DEVCOLS[t] || "*");
-  if (t === "orders") q = q.gte("created_at", new Date(Date.now() - 3 * 86400000).toISOString()).order("created_at", { ascending: false }).limit(1000);
+  if (t === "orders") q = q.gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString()).order("created_at", { ascending: false }).limit(1500);
   else if (t === "shifts") q = q.gte("opened_at", new Date(Date.now() - 7 * 86400000).toISOString()).limit(1000);
   else q = q.limit(5000);
   const { data, error } = await q;
