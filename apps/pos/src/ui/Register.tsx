@@ -313,6 +313,9 @@ export function Register() {
         {/* the order type: a new order is dine-in; Pickup & Delivery → New Order starts a pickup or delivery */}
         {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
           <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
+          {/* × takes the table off this order (only before it is saved to the table) */}
+          {table && !live_eo ? <Pressable accessibilityRole="button" accessibilityLabel="Remove table" onPress={() => { setTable(""); setGuests(0); }}
+            style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}
           <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} />
           {/* × takes the customer off this dine-in order */}
           {cust.name ? <Pressable accessibilityRole="button" accessibilityLabel="Remove customer" onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}
