@@ -5,7 +5,7 @@ import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CallIcon, FilterIcon } from "@/icons";
+import { BoxIcon, CallIcon, FilterIcon, GlobeIcon, TimeIcon, TruckDeliveryIcon, UserIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -80,7 +80,7 @@ export default function CallCenterPage() {
 function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => string; bName: (id: string) => string | undefined; brName: (id: string) => string | undefined; onOpen: () => void }) {
   const disp = o.status === "active" && o.dispatchedAt, src = o.channel && !["pos", "callcenter"].includes(o.channel) && (!o.source || o.source === "Website") ? "Web" : String(o.source || "").trim(), chl = CHL[o.channel] || o.channel || "";
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
-  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => <div className="flex gap-2 text-xs"><span className="w-14 shrink-0 text-gray-400">{k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>;
+  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const I = ({ Customer: UserIcon, Type: TruckDeliveryIcon, Channel: GlobeIcon, User: CallIcon, Created: TimeIcon, Store: BoxIcon } as any)[k]; return <div className="flex gap-2 text-xs"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{I ? <I className="size-4" /> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>; };
   return (
     <button type="button" onClick={onOpen} className="block w-full rounded-xl border border-gray-200 bg-white p-3 text-start shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
       <div className="mb-2 flex items-center justify-between gap-2"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" : SUB[o.status] || o.status}</Badge></div>

@@ -420,7 +420,7 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
 export const CAP = 46;   // the caption under the photo: the name on 2 lines, then the price or count
 export function fitTiles(W: number, H: number, gap = TG) {
   let best = { cols: 6, rows: 3, w: 100, h: 146, miss: 1e9 };
-  for (let cols = 5; cols <= 8; cols++) {
+  for (let cols = 5; cols <= 6; cols++) {
     const w = Math.floor((W - gap * (cols - 1)) / cols);
     for (const rows of [Math.floor((H + gap) / (w + CAP + gap)), Math.ceil((H + gap) / (w + CAP + gap))]) { if (rows < 3) continue;
       const h = Math.floor((H - gap * (rows - 1)) / rows), ph = h - CAP, miss = Math.abs(w - ph) + (ph > w ? 0.5 * (ph - w) : 0);
@@ -428,21 +428,21 @@ export function fitTiles(W: number, H: number, gap = TG) {
   }
   return best;
 }
+// F: the photo fills the top edge to edge; one caption line under it: the name on the left (2 lines at most), the price on the right in blue
 function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w: number; img?: string; name: string; sub?: string; subColor?: string; bold?: boolean }) {
-  const ph = Math.min(w - 2, size - CAP - 2);
   return <>
-    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: img ? "#fff" : "#F2F4F7" }}>
-      {img ? <Image source={{ uri: img }} style={{ width: ph, height: ph }} resizeMode="contain" /> : <Icon name="bowl" size={30} color="#98A2B3" />}</View>
-    <View style={{ height: CAP, paddingHorizontal: 5, paddingVertical: 3, alignItems: "center", borderTopWidth: 1, borderColor: C.line2 }}>
-      <View style={{ height: 28, justifyContent: "center" }}><T w={bold ? "s" : "m"} size={12} numberOfLines={2} style={{ textAlign: "center", lineHeight: 14 }}>{name}</T></View>
-      {sub ? <T size={12} numberOfLines={1} color={subColor || C.mut} style={{ lineHeight: 13 }}>{sub}</T> : null}</View>
+    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: "#F2F4F7" }}>
+      {img ? <Image source={{ uri: img }} style={{ width: w - 2, height: size - CAP - 2 }} resizeMode="cover" /> : <Icon name="bowl" size={30} color="#98A2B3" />}</View>
+    <View style={{ height: CAP, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 7, borderTopWidth: 1, borderColor: C.line2 }}>
+      <T w={bold ? "s" : "m"} size={12} numberOfLines={3} style={{ flex: 1, lineHeight: 13 }}>{name}</T>
+      {sub ? <T w="s" size={12} numberOfLines={1} color={subColor || C.brand}>{sub}</T> : null}</View>
   </>;
 }
 function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
-      <TileBody size={size} w={w} img={img} name={name} bold sub={n + " " + (n === 1 ? "item" : "items")} />
+      <TileBody size={size} w={w} img={img} name={name} bold sub={String(n)} subColor={C.mut} />
     </Pressable>
   );
 }
@@ -450,7 +450,7 @@ function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; s
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
-      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out of stock" : price} subColor={oos ? C.bad : C.mut} />
+      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out" : price} subColor={oos ? C.bad : C.brand} />
       {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>
   );

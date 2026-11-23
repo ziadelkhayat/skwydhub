@@ -272,12 +272,12 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                 <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
                 {!q.trim() && !cat ? <TileGrid>{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
-                  <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub={n + " " + (n === 1 ? "item" : "items")} bold onClick={() => setCat(c.id)} />); })}
+                  <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub={String(n)} muted bold onClick={() => setCat(c.id)} />); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</TileGrid> :
                 <TileGrid>{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 border border-gray-200 bg-white p-1.5 text-center transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
                     <ChevronLeftIcon className="size-6 text-brand-500" /><b className="text-[15px] font-semibold text-gray-800 dark:text-white/90">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
                   {shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch), inCart = cart.filter(i => i.productId === p.id || i.id === p.id).reduce((t, i) => t + (+i.qty || 0), 0);
-                    return <MenuTile key={p.id} img={p.imageUrl} name={p.name} n={inCart} disabled={oos} sub={oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))} onClick={() => addProduct(p)} />; })}
+                    return <MenuTile key={p.id} img={p.imageUrl} name={p.name} n={inCart} disabled={oos} sub={oos ? "Out" : (p.variants || []).length ? "Choose" : money(D.price(p))} onClick={() => addProduct(p)} />; })}
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</TileGrid>}
               </>}
             </section>
@@ -330,7 +330,7 @@ const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entri
 const CAP = 46, TG = 8;
 function fitTiles(W: number, H: number) {
   let best = { cols: 5, rows: 4, h: 150, miss: 1e9 };
-  for (let cols = 5; cols <= 8; cols++) { const w = Math.floor((W - TG * (cols - 1)) / cols);
+  for (let cols = 4; cols <= 5; cols++) { const w = Math.floor((W - TG * (cols - 1)) / cols);
     for (const rows of [Math.floor((H + TG) / (w + CAP + TG)), Math.ceil((H + TG) / (w + CAP + TG))]) { if (rows < 3) continue;
       const h = Math.floor((H - TG * (rows - 1)) / rows), ph = h - CAP, miss = Math.abs(w - ph) + (ph > w ? 0.5 * (ph - w) : 0);
       if (miss < best.miss) best = { cols, rows, h, miss }; } }
@@ -341,10 +341,11 @@ function TileGrid({ children }: { children: React.ReactNode }) {
   useEffect(() => { const el = ref.current; if (!el) return; const ro = new ResizeObserver(() => { const r = fitTiles(el.clientWidth - 6, el.clientHeight); setF(o => o.cols === r.cols && o.h === r.h ? o : r); }); ro.observe(el); return () => ro.disconnect(); }, []);
   return <div ref={ref} className="custom-scrollbar grid min-h-0 flex-1 snap-y snap-mandatory content-start gap-2 overflow-y-auto" style={{ gridTemplateColumns: `repeat(${f.cols}, minmax(0, 1fr))`, gridAutoRows: f.h + "px", ["--capfs" as any]: f.cols >= 7 ? "11px" : "12px", ["--caplh" as any]: f.cols >= 7 ? "13px" : "14px" }}>{children}</div>;
 }
-function MenuTile({ img, name, sub, n, bold, disabled, onClick }: { img?: string; name: string; sub: string; n?: number; bold?: boolean; disabled?: boolean; onClick: () => void }) {
-  return <button type="button" disabled={disabled} onClick={onClick} className={cn("relative flex h-full min-h-0 snap-start flex-col overflow-hidden border bg-white text-center transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50 dark:bg-gray-900", n ? "border-brand-500" : "border-gray-200 dark:border-gray-800")}>
-    <span className={cn("flex min-h-0 w-full flex-1 items-center justify-center", !img && "bg-gray-100 dark:bg-white/5")}>{img ? <img src={img} alt="" className="aspect-square h-full max-w-full object-contain" /> : <svg viewBox="0 0 24 24" className="size-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z" /><path d="M12 4v4M9 6l1 2M15 6l-1 2" /></svg>}</span>
-    <span className="flex h-[46px] w-full shrink-0 flex-col items-center border-t border-gray-100 px-1 py-[3px] dark:border-gray-800"><span className="flex h-7 items-center"><b className={cn("line-clamp-2 text-[length:var(--capfs)] leading-[var(--caplh)] text-gray-800 dark:text-white/90", bold ? "font-semibold" : "font-medium")}>{name}</b></span><span className="text-xs leading-[13px] text-gray-500">{sub}</span></span>
+// F: the photo fills the top edge to edge; one caption line under it: the name on the left (2 lines at most), the price on the right in blue
+function MenuTile({ img, name, sub, n, bold, disabled, onClick, muted }: { img?: string; name: string; sub: string; n?: number; bold?: boolean; disabled?: boolean; onClick: () => void; muted?: boolean }) {
+  return <button type="button" disabled={disabled} onClick={onClick} className={cn("relative flex h-full min-h-0 snap-start flex-col overflow-hidden border bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:bg-gray-900", n ? "border-brand-500" : "border-gray-200 dark:border-gray-800")}>
+    <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-gray-100 dark:bg-white/5">{img ? <img src={img} alt="" className="h-full w-full object-cover" /> : <svg viewBox="0 0 24 24" className="size-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z" /><path d="M12 4v4M9 6l1 2M15 6l-1 2" /></svg>}</span>
+    <span className="flex h-[46px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 flex-1 text-xs leading-[13px] text-gray-800 dark:text-white/90", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-xs font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-brand-500")}>{sub}</span></span>
     {n ? <span className="absolute top-1 right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-brand-500 px-1 text-xs font-semibold text-white">{n}</span> : null}
   </button>;
 }

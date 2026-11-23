@@ -28,7 +28,7 @@ export const Full = ({ children }: { children: React.ReactNode }) => <View style
 
 // a tile as on the call center board
 function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
-  const st = stOf(o), Row2 = ({ l, v, sub }: { l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 8 }}><T size={12} color={C.mut} style={{ width: 66 }}>{l}</T><View style={{ flex: 1 }}><T size={13} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut} numberOfLines={1}>{sub}</T> : null}</View></View>;
+  const st = stOf(o), Row2 = ({ l, v, sub }: { l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 8 }} accessibilityLabel={l}><View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={({ Customer: "user", Type: "scooter", Channel: "device", Created: "clock" } as Record<string, string>)[l] || "note"} size={16} color={C.mut} /></View><View style={{ flex: 1 }}><T size={13} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut} numberOfLines={1}>{sub}</T> : null}</View></View>;
   return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + ordRef(o)} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 12, gap: 6 })}>
     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><T w="s" size={16}>{ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
     <Row2 l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
