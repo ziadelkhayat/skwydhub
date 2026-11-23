@@ -7,7 +7,7 @@ export const isoOf = (d: Date) => new Date(+d - d.getTimezoneOffset() * 60000).t
 export const today = () => isoOf(new Date());
 export const addDays = (iso: string, n: number) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return isoOf(d); };
 export const monOf = (iso: string) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return isoOf(d); };
-export const hm = (t?: string) => t ? new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "—";
+export const hm = (t?: string) => t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
 export const dayOf = (t: string) => isoOf(new Date(t));
 // time clock
 export const tcHrs = (x: any) => Math.max(0, ((x.out ? +new Date(x.out) : Date.now()) - +new Date(x.in)) / 3600000);

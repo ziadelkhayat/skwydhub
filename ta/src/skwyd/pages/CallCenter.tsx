@@ -5,13 +5,12 @@ import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BoxIcon, CallIcon, FilterIcon, GlobeIcon, TimeIcon, TruckDeliveryIcon, UserIcon } from "@/icons";
+import { CallIcon, FilterIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { coSet, money } from "@/lib/util";
+import { coSet, money, openWin } from "@/lib/util";
 import { cn } from "@/utils";
-import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
@@ -29,7 +28,7 @@ const isoDay = (d: Date) => new Date(+d - d.getTimezoneOffset() * 60000).toISOSt
 
 export default function CallCenterPage() {
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], users = useCol("users") || [], roles = useCol("roles") || [], closes = useCol("day_closes") || [];
-  const { staff } = useAuth(); const nav = useNavigate();
+  const { staff } = useAuth();
   const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" }), [fOpen, setFOpen] = useState(false);
   const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0);
   // the business day: a store's day starts at its day start (or the company's day end); a store that ended its day early starts the next one then
@@ -54,21 +53,21 @@ export default function CallCenterPage() {
   const agents = [...new Set([...users.filter(u => live(u) && u.active !== false && u.role !== "owner" && u.role !== "admin" && roles.filter(r => ((u.roleIds || []).length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id) && live(r)).flatMap(r => r.permissions || []).some((p: string) => p === "bo_callcenter" || p === "bo_manage")).map(u => u.name), ...(staff?.name ? [staff.name] : [])])].sort((a, b) => a.localeCompare(b));
   const nF = [F0.brand, F0.branch, F0.date && F0.date !== bizDate(new Date()) ? F0.date : "", F0.user].filter(Boolean).length;
   const bName = (id: string) => branches.find(b => b.id === id)?.name, brName = (id: string) => brands.find(b => b.id === id)?.name;
-  const tm = (t: string) => { if (!t) return "—"; const d = new Date(t); return d.toLocaleString("en-GB", bizDate(d) === bizDate(new Date()) ? { hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); };
+  const tm = (t: string) => { if (!t) return "—"; const d = new Date(t); const h = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); return bizDate(d) === bizDate(new Date()) ? h : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", " + h; };
   return (
     <>
       <PageBreadcrumb pageTitle="Call Center" />
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
+          <Button onClick={() => openWin("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
       </div>
       <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-5">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
           <div key={k} className="min-w-0 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
             <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
-            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => nav((["draft", "review", "pending"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
+            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
           </div>); })}
       </div>
       {fOpen && <FilterDlg F0={F0} today={bizDate(new Date())} brands={brands.filter(live)} branches={branches.filter(b => live(b) && (!F0.brand || b.brandId === F0.brand))} agents={agents} onClose={() => setFOpen(false)} onApply={f => { setF(f); setFOpen(false); }} />}
@@ -76,10 +75,19 @@ export default function CallCenterPage() {
   );
 }
 
+// the same icon drawings as the POS cards (apps/pos/src/ui/Icon.tsx)
+const CARD_ICON: Record<string, React.ReactNode> = {
+  Customer: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
+  Type: <><circle cx="6" cy="17" r="3" /><circle cx="18" cy="17" r="3" /><path d="M9 17h6l2-7h3M14 6h3l1 4M4 13h6l2 4" /></>,
+  Channel: <><rect x="4" y="3" width="16" height="12" rx="2" /><path d="M9 21h6M12 15v6" /></>,
+  User: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />,
+  Created: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  Store: <><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9" /><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6" /></>,
+};
 function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => string; bName: (id: string) => string | undefined; brName: (id: string) => string | undefined; onOpen: () => void }) {
   const disp = o.status === "active" && o.dispatchedAt, src = o.channel && !["pos", "callcenter"].includes(o.channel) && (!o.source || o.source === "Website") ? "Web" : String(o.source || "").trim(), chl = CHL[o.channel] || o.channel || "";
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
-  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const I = ({ Customer: UserIcon, Type: TruckDeliveryIcon, Channel: GlobeIcon, User: CallIcon, Created: TimeIcon, Store: BoxIcon } as any)[k]; return <div className="flex gap-2 text-xs"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{I ? <I className="size-4" /> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>; };
+  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2 text-xs"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>; };
   return (
     <button type="button" onClick={onOpen} className="block w-full rounded-xl border border-gray-200 bg-white p-3 text-start shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
       <div className="mb-2 flex items-center justify-between gap-2"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>

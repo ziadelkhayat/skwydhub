@@ -36,7 +36,7 @@ export function OrdersDialog({ x, onOpen, onClose, pd, onNew, onDrivers }: { x: 
               style={({ pressed }) => ({ width: 200, minHeight: 116, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", padding: 12, gap: 6 })}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><T w="s" size={16}>{ordRef(o)}</T><Pill text={CH[o.channel] || "POS"} tone={o.channel === "pos" ? "gray" : "brand"} /></View>
               <T size={13} color={C.mut}>{TYPE[o.type] || o.type}{o.type === "delivery" && o.driverName ? " · " + o.driverName : ""}{o.dispatchedAt && o.status === "active" ? " · Dispatched" : ""}{o.type === "dinein" && o.table ? " · Table " + o.table : ""}{o.customerName ? " · " + o.customerName : ""}</T>
-              <T size={13} color={C.mut}>{new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()} · {(o.items || []).length} items</T>
+              <T size={13} color={C.mut}>{new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {(o.items || []).length} items</T>
               <T w="s" color={C.brand}>{money(x.S, o.total)}</T>
             </Pressable>))}
         </ScrollView>}

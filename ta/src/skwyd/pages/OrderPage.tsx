@@ -4,18 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { fmtDate, money } from "@/lib/util";
+import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { TD, TH, TR } from "../ui/kit";
 import { Head, Info, None, Sec } from "./Details";
 import { CHL, chkNo, ORD_ST, ordRef, srcOf, ST_COLOR, tel, TYPE_LBL, camel } from "./Orders";
 
-const tm = (t?: string) => t ? fmtDate(t) + " " + new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase() : "—";
+const tm = (t?: string) => t ? fmtDate(t) + " " + new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
 const q2 = (n: any) => (+n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function OrderPage() {
-  const id = useSearchParams()[0].get("id") || "", nav = useNavigate();
+  const id = useSearchParams()[0].get("id") || "";
   const branches = useCol("branches") || [], brands = useCol("brands") || [], users = useCol("users") || [];
   const [o, setO] = useState<any>(undefined), [rel, setRel] = useState<any[]>([]);
   useEffect(() => { let off = false; setO(undefined); setRel([]);
@@ -43,7 +43,7 @@ export default function OrderPage() {
       ["Payment Type", pay.method || "—"], ["Created By", who(o.agent)], ...(o.handledBy ? [["Handled By", who(o.handledBy)] as [string, string]] : []),
       ...(ret && o.returnReason ? [["Return Reason", o.returnReason] as [string, string]] : []), ...(o.voidReason ? [["Void Reason", o.voidReason] as [string, string]] : [])]} />
 
-    {(o.customerName || o.phone || o.address) && <Sec title="Customer" act={o.customerId ? <Button size="sm" variant="outline" onClick={() => nav("/customer?id=" + o.customerId)}>Open Customer</Button> : undefined}>
+    {(o.customerName || o.phone || o.address) && <Sec title="Customer" act={o.customerId ? <Button size="sm" variant="outline" onClick={() => openWin("/customer?id=" + o.customerId)}>Open Customer</Button> : undefined}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div><span className="block text-sm text-gray-500">Name</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{o.customerName || "—"}</b></div>
         <div><span className="block text-sm text-gray-500">Phone</span>{o.phone ? <a className="text-sm font-medium text-brand-500" href={"tel:" + o.phone}>{tel(o.phone)}</a> : "—"}</div>

@@ -29,7 +29,7 @@ export function TillDialog({ x, onDone }: { x: Ctx; onDone: (msg?: string) => vo
       <View style={{ flexDirection: "row", gap: 24 }}>
         <View style={{ flex: 1, gap: 12 }}>
           {sh ? <>
-            <T color={C.mut} size={14}>Opened by {sh.cashier || "—"} at {new Date(sh.openedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</T>
+            <T color={C.mut} size={14}>Opened by {sh.cashier || "—"} at {new Date(sh.openedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</T>
             {[["Orders", String(sales.filter(o => o.status === "closed").length)], ["Net sales", cur(sales.reduce((a, o) => a + (+o.total || 0) - (+o.tax || 0), 0))], ["Opening cash", cur(+sh.openingCash || 0)], ["Expected cash in drawer", cur(expectedCash(x, sh))]].map(([l, r]) =>
               <View key={l} style={{ flexDirection: "row", justifyContent: "space-between" }}><T color={C.mut}>{l}</T><T w="s">{r}</T></View>)}
             <T color={C.mut} size={14} style={{ marginTop: 8 }}>Count the cash in the drawer</T>

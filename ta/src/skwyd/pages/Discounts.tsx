@@ -9,7 +9,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeftIcon, PencilIcon, PlusIcon, SearchIcon } from "@/icons";
 import { newId, put } from "@/lib/db";
-import { money, sym } from "@/lib/util";
+import { money, sym, openWin } from "@/lib/util";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
@@ -64,7 +64,7 @@ export default function DiscountsPage() {
             : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
               <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Qualification</th><th className={TH + " text-end"}>Discount</th>{del && <th className={TH} />}</tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(d => (
-                <tr key={d.id} className={del ? "" : TR} onClick={() => !del && nav("/discounts?id=" + d.id)}>
+                <tr key={d.id} className={del ? "" : TR} onClick={() => !del && openWin("/discounts?id=" + d.id)}>
                   <td className={TD}><span className="font-medium text-gray-800 dark:text-white/90">{d.name}</span>{d.nameAr && <span className="ms-2 text-gray-500" dir="auto">{d.nameAr}</span>}</td>
                   <td className={TD}>{d.reference || "—"}</td><td className={TD}>{(QUAL.find(x => x[0] === d.qualification) || QUAL[0])[1]}</td><td className={TD + " text-end"}>{amtLbl(d)}</td>
                   {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await patch(d.id, { deleted: false })) toast("Discount restored"); }}>Restore</Button></td>}</tr>))}</tbody></table>}

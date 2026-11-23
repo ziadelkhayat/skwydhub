@@ -16,7 +16,7 @@ export const LS = {
 export const p2 = (n: number) => String(n).padStart(2, "0");
 export const ymd = (d: Date) => d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate());
 export const dmy = (v: any) => { if (!v) return "—"; const d = typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? new Date(v + "T12:00:00") : new Date(v); return p2(d.getDate()) + "-" + p2(d.getMonth() + 1) + "-" + d.getFullYear(); };
-export const hm = (v: any) => { const d = new Date(v); return p2(d.getHours()) + ":" + p2(d.getMinutes()); };
+export const hm = (v: any) => { const d = new Date(v), h = d.getHours(); return ((h % 12) || 12) + ":" + p2(d.getMinutes()) + (h < 12 ? " AM" : " PM"); };   // 12-hour, AM / PM
 export const t5 = (s: any) => String(s || "").slice(0, 5);
 export const mon = (d: Date) => { const x = new Date(d); x.setHours(12, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
 export const addD = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };

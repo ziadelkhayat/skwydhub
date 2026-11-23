@@ -1,6 +1,7 @@
 // A Skwyd list page in TailAdmin style: title + breadcrumb, one card (tabs · search · add button), table, pages, and a dialog to add or edit.
 // Driven by the same kind of config as the current portal (CRUD in index.html): tabs, columns, fields, unique name, prep.
 import { Suspense } from "react";
+import { openWin } from "@/lib/util";
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,7 +15,7 @@ import { PlusIcon, SearchIcon } from "@/icons";
 import { put, softDelete, newId, useCol, type Row } from "@/lib/db";
 import { cn } from "@/utils";
 import { useMemo, useState, type ReactNode } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { ImageField } from "../ui/ImageField";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
@@ -59,7 +60,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
-  const nav = useNavigate(); const [sp, setSp] = useSearchParams();
+  const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
   const list = useMemo(() => {
@@ -97,7 +98,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
               </tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                 {shown.map(r => (
-                  <tr key={r.id} onClick={() => cfg.detail ? nav(cfg.detail + "?id=" + r.id) : setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                  <tr key={r.id} onClick={() => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
                     {cfg.cols.map(c => <td key={c.h} className={cn("px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400", c.num && "text-end")}>{c.cell(r, s)}</td>)}
                   </tr>))}
               </tbody>

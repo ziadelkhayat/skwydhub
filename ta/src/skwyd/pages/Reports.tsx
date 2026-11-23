@@ -44,7 +44,7 @@ const srcOf = (o: any) => ["online", "web", "marketplace", "api"].includes(o.cha
 const cutOf = (v?: string) => { const m = /^(\d{1,2}):(\d{2})/.exec(v || ""); return m ? Math.min(719, (+m[1]) * 60 + (+m[2])) : 0; };
 const fmt = (v: any, t: string) => t === "m" ? money(v) : t === "p" ? (+v || 0).toFixed(2) + " %" : (+v || 0).toLocaleString("en-US", { maximumFractionDigits: 3 });
 const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
-const dtm = (d?: string) => d ? dmy(isoOf(new Date(d))) + " " + new Date(d).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "—";
+const dtm = (d?: string) => d ? dmy(isoOf(new Date(d))) + " " + new Date(d).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
 
 type Built = { title: string; head: [string, string?, number?][]; rows: (string | number)[][]; foot?: (string | number)[]; kpis?: [string, string][]; T?: any; series?: { labels: string[]; values: number[] } };
 

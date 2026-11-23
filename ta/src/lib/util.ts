@@ -12,5 +12,8 @@ export const coSet = (): any => peek("settings").find(r => r.id === "company") |
 export const money = (n: any) => { const c = coSet(); const dec = c.priceDecimals === 0 || c.priceDecimals === "0" ? 0 : +c.priceDecimals || 2;
   const sym = String(c.currencySymbol || "").trim() || c.currency || "USD"; const v = (+n || 0).toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
   return /[\p{L}.]$/u.test(sym) ? sym + " " + v : sym + v; };
-export const fmtDateTime = (v?: string | null) => { if (!v) return "—"; const d = new Date(v); return isNaN(+d) ? "—" : fmtDate(v) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase(); };
+export const fmtDateTime = (v?: string | null) => { if (!v) return "—"; const d = new Date(v); return isNaN(+d) ? "—" : fmtDate(v) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
 export const sym = () => { const c = coSet(); return String(c.currencySymbol || "").trim() || c.currency || "USD"; };
+
+// open a page of the portal in its own browser tab / window (detail pages: orders, customers, items…)
+export const openWin = (path: string) => { const w = window.open(location.origin + location.pathname + "#" + (path.startsWith("/") ? path : "/" + path), "_blank"); if (w) w.opener = null; };

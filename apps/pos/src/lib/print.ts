@@ -17,7 +17,7 @@ const modLines = (i: any, hideFree?: boolean): string[] => {
   return String(i.mods || "").split(" · ").flatMap(p => (p.startsWith("Note: ") ? [p] : p.split(", "))).map(x => x.trim()).filter(Boolean);
 };
 const W = 32, ctr = (t: string) => t.slice(0, W).padStart((W + Math.min(W, t.length)) / 2), row = (a: string, b: string) => a.slice(0, W - b.length - 1).padEnd(W - b.length) + b;
-const when = (t: string) => { const d = new Date(t), z = (n: number) => String(n).padStart(2, "0"); return `${z(d.getDate())}-${z(d.getMonth() + 1)}-${d.getFullYear()} ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()}`; };
+const when = (t: string) => { const d = new Date(t), z = (n: number) => String(n).padStart(2, "0"); return `${z(d.getDate())}-${z(d.getMonth() + 1)}-${d.getFullYear()} ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`; };
 const inv = (n: any) => (n ? String(n).padStart(6, "0") : "");
 
 export function receiptText(S: Data, branch: Row | null, o: Row) {

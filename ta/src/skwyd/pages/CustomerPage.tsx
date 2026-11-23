@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { PencilIcon, PlusIcon, TrashBinIcon } from "@/icons";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { fmtDate, money } from "@/lib/util";
+import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
 import { askYes } from "../ui/confirm";
 import { PickMany } from "../ui/PickMany";
@@ -24,7 +24,7 @@ const top = (m: Record<string, number>) => { let best = "", n = 0; for (const [k
 const num = (v: any) => v && typeof v === "object" ? +(v.amount ?? v.value ?? 0) || 0 : +v || 0;
 
 export default function CustomerPage() {
-  const id = useSearchParams()[0].get("id") || "", nav = useNavigate();
+  const id = useSearchParams()[0].get("id") || "";
   const branches = useCol("branches") || [], zones = useCol("zones") || [], sets = useCol("settings") || [];
   const [aed, setAed] = useState<{ ix: number | null; v: string; zoneId?: string } | null>(null);
   const [c, setC] = useState<any>(undefined), [orders, setOrders] = useState<any[]>([]), [ha, setHa] = useState<any[]>([]), [edit, setEdit] = useState(false), [tick, setTick] = useState(0);
@@ -98,7 +98,7 @@ export default function CustomerPage() {
 
     <Sec title={`Orders (${orders.length})`}>
       {!orders.length ? <None t="No orders yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Reference", "Check Number", "Order", "Business Date", "Store", "Order Type", "Order Source", "Payment Type", "Status", "Total"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {orders.map(o => <tr key={o.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/2"} onClick={() => nav("/order?id=" + o.id)}>
+        {orders.map(o => <tr key={o.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/2"} onClick={() => openWin("/order?id=" + o.id)}>
           <td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{ordRef(o)}</td><td className={TD}>{chkNo(o)}</td><td className={TD}>{o.no || "—"}</td><td className={TD}>{fmtDate(o.createdAt)}</td>
           <td className={TD}>{bName(o.branchId)}</td><td className={TD}>{TYPE_LBL[o.type] || o.type || "—"}</td><td className={TD}>{srcOf(o) || "—"}</td><td className={TD}>{o.payment?.method || "—"}</td>
           <td className={TD}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td><td className={TD}>{money(o.total)}</td></tr>)}
