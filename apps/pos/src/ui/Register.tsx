@@ -389,13 +389,14 @@ export function Register() {
 
       {more && (
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
-          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 100, width: 240, padding: 6 }}>
+          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 94, width: 250, padding: 6, borderRadius: R.lg, shadowColor: "#101828", shadowOpacity: 0.14, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 }}>
             <FnItem icon="till" label={openShift(x) ? "Close Till" : "Open Till"} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
             <FnItem icon="dayend" label="End of day" onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
             <FnItem icon="chart" label="Reports" onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
             <FnItem icon="device" label="Devices" onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
             <FnItem icon={sound ? "sound" : "mute"} label={sound ? "Sound On" : "Sound Off"} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); if (v) { try { whistle.seekTo(0); whistle.play(); } catch {} } }} />
             <FnItem icon="sync" label="Sync data" onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
+            <View style={{ height: 1, backgroundColor: C.line, marginVertical: 4, marginHorizontal: 8 }} />
             <FnItem icon="logout" label="Log out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
