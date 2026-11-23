@@ -45,9 +45,9 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
     <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
     <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
     <Ln ic="device" l="Sales channel" v={ch} sub={src && src.toLowerCase() !== ch.toLowerCase() ? src : undefined} />
+    {who ? <Ln ic="headset" l="Created by" v={who} /> : null}
     <Ln ic="clock" l="Created" v={tm(o.createdAt)} sub={mod} />
     {brand || br ? <Ln ic="store" l="Brand" v={brand || br?.name || ""} sub={brand && br ? br.name : undefined} /> : null}
-    {who ? <Ln ic="headset" l="Created by" v={who} /> : null}
   </Pressable>;
 }
 
