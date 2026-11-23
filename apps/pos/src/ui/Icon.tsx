@@ -33,6 +33,7 @@ const P: Record<string, (c: string) => React.ReactNode> = {
   bag: () => <Path d="M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0" />,
   headset: () => <><Path d="M4 14v-2a8 8 0 0 1 16 0v2" /><Rect x={3} y={14} width={4} height={6} rx={1.5} /><Rect x={17} y={14} width={4} height={6} rx={1.5} /><Path d="M19 20a3 3 0 0 1-3 2h-3" /></>,
   ret: () => <Path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" />,
+  cal: () => <><Rect x={3} y={5} width={18} height={16} rx={2} /><Path d="M3 10h18M8 3v4M16 3v4" /></>,
   bowl: () => <><Path d="M3 11h18a9 9 0 0 1-18 0Z" /><Path d="M12 4v4M9 6l1 2M15 6l-1 2" /></>,
 };
 export function Icon({ name, size = 22, color = "#667085", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {

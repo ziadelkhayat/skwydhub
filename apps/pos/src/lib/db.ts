@@ -90,6 +90,16 @@ export async function fetchAll(sb: SupabaseClient, col: Col): Promise<Row[]> {
   return rows;
 }
 
+/** orders of a store from the server, newest first, for business days older than the tablet keeps (or all of them) */
+export async function fetchOrders(sb: SupabaseClient, branchId: string, from: string | null, to: string | null, offset = 0, n = 200): Promise<Row[]> {
+  let q: any = sb.from("orders").select(DEVCOLS.orders || "*").eq("branch_id", branchId);
+  if (from) q = q.gte("created_at", new Date(+new Date(from + "T00:00:00") - 86400000).toISOString());
+  if (to) q = q.lt("created_at", new Date(+new Date(to + "T00:00:00") + 2 * 86400000).toISOString());
+  const { data, error } = await q.order("created_at", { ascending: false }).range(offset, offset + n - 1);
+  if (error) throw error;
+  return (data as any[]).map(r => fromRow("orders", r));
+}
+
 export async function deviceOk(sb: SupabaseClient): Promise<boolean | null> {
   try { const r = await sb.rpc("skwyd_device_ok"); return r.error ? null : !!r.data; } catch { return null; }
 }
