@@ -99,9 +99,9 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
         {o.type && <R k={o.type === "delivery" ? "Type" : o.type === "dinein" ? "In Store" : "Pickup"}>{TYPE[o.type] || o.type}</R>}
         <R k="Customer" sub={o.phone ? tel(o.phone) : undefined}>{o.customerName || "Guest"}</R>
         {(chl || src) && <R k="Channel" sub={chl && src && src.toLowerCase() !== chl.toLowerCase() ? src : undefined}>{chl || src}</R>}
+        {o.agent && ["pos", "callcenter"].includes(o.channel) && <R k="Created by">{String(o.agent).replace(/\s*\(auto\)\s*$/i, "")}</R>}
         <R k="Created" sub={o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined}>{tm(o.createdAt)}</R>
         {(brName(o.brandId) || bName(o.branchId)) && <R k="Store" sub={brName(o.brandId) && bName(o.branchId) ? bName(o.branchId) : undefined}>{brName(o.brandId) || bName(o.branchId)}</R>}
-        {o.agent && ["pos", "callcenter"].includes(o.channel) && <R k="Created by">{String(o.agent).replace(/\s*\(auto\)\s*$/i, "")}</R>}
       </div>
       {o.editRequest && o.status === "active" && <p className="mt-1 text-xs text-gray-500">{o.editRequest.status === "pending" ? "Order edit: waiting for the store" : o.editRequest.status === "approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + o.editRequest.reason : "")}</p>}
     </button>);
