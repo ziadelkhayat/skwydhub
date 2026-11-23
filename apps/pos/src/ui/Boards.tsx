@@ -31,10 +31,10 @@ export const Full = ({ children }: { children: React.ReactNode }) => <View style
 
 // a tile as on the call center board
 // an order card: reference and status, then one icon per line — type; customer over the phone; channel over the source;
-// created over modified; brand over store; and who took it (POS and call center orders only)
+// who took it (POS and call center orders only); created over modified
 const TYPE_IC: Record<string, string> = { dinein: "table", pickup: "bag", takeaway: "bag", delivery: "scooter" };
 function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
-  const st = stOf(o), br = x.S.branches.find(b => b.id === o.branchId), brand = x.S.brands.find(b => b.id === (o.brandId || br?.brandId))?.name;
+  const st = stOf(o);   // no brand or store on the POS: the tablet is one store
   const src = String(o.source || "").trim(), ch = CH[o.channel] || "POS", mod = o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined;
   const who = ["pos", "callcenter"].includes(o.channel || "pos") && o.agent ? String(o.agent).replace(/\s*\(auto\)\s*$/i, "") : "";
   const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
@@ -47,7 +47,6 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
     <Ln ic="device" l="Sales channel" v={ch} sub={src && src.toLowerCase() !== ch.toLowerCase() ? src : undefined} />
     {who ? <Ln ic="headset" l="Created by" v={who} /> : null}
     <Ln ic="clock" l="Created" v={tm(o.createdAt)} sub={mod} />
-    {brand || br ? <Ln ic="store" l="Brand" v={brand || br?.name || ""} sub={brand && br ? br.name : undefined} /> : null}
   </Pressable>;
 }
 
