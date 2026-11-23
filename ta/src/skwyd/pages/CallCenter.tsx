@@ -13,6 +13,7 @@ import { coSet, openWin } from "@/lib/util";
 import { cn } from "@/utils";
 import { toast } from "../ui/toast";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
 import { F, SEL } from "../ui/kit";
@@ -28,6 +29,7 @@ const cutOf = (v?: string) => { const m = /^(\d{1,2}):(\d{2})/.exec(v || ""); re
 const isoDay = (d: Date) => new Date(+d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
 export default function CallCenterPage() {
+  const nav = useNavigate();   // New Order opens in this window
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], users = useCol("users") || [], roles = useCol("roles") || [], closes = useCol("day_closes") || [];
   const { staff } = useAuth();
   const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" }), [fOpen, setFOpen] = useState(false);
@@ -73,7 +75,7 @@ export default function CallCenterPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          <Button onClick={() => openWin("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
+          <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
       </div>
       <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-5">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
