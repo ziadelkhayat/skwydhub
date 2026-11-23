@@ -327,7 +327,7 @@ function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: 
 // the page (route /call-center-order, ?id= an existing order): new, draft, waiting and pending call center orders
 const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };
 // menu tiles, laid out like the POS: whole rows fill the menu, and the column count is the one where the square photo best fills each tile
-const CAP = 46, TG = 8;
+const CAP = 60, TG = 8;
 function fitTiles(W: number, H: number) {
   let best = { cols: 5, rows: 4, h: 150, miss: 1e9 };
   for (let cols = 4; cols <= 5; cols++) { const w = Math.floor((W - TG * (cols - 1)) / cols);
@@ -345,7 +345,7 @@ function TileGrid({ children }: { children: React.ReactNode }) {
 function MenuTile({ img, name, sub, n, bold, disabled, onClick, muted }: { img?: string; name: string; sub: string; n?: number; bold?: boolean; disabled?: boolean; onClick: () => void; muted?: boolean }) {
   return <button type="button" disabled={disabled} onClick={onClick} className={cn("relative flex h-full min-h-0 snap-start flex-col overflow-hidden border bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:bg-gray-900", n ? "border-brand-500" : "border-gray-200 dark:border-gray-800")}>
     <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-gray-100 dark:bg-white/5">{img ? <img src={img} alt="" className="h-full w-full object-cover" /> : <svg viewBox="0 0 24 24" className="size-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z" /><path d="M12 4v4M9 6l1 2M15 6l-1 2" /></svg>}</span>
-    <span className="flex h-[46px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 flex-1 text-xs leading-[13px] text-gray-800 dark:text-white/90", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-xs font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-brand-500")}>{sub}</span></span>
+    <span className="flex h-[60px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 min-w-0 flex-1 text-sm leading-[17px] break-words text-gray-800 dark:text-white/90", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-sm font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-brand-500")}>{sub}</span></span>
     {n ? <span className="absolute top-1 right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-brand-500 px-1 text-xs font-semibold text-white">{n}</span> : null}
   </button>;
 }
