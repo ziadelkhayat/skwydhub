@@ -45,7 +45,9 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
   const mins = (t: string) => Math.max(0, Math.round((Date.now() - +new Date(t)) / 60000)), dur = (m: number) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
   const [sel, setSel] = useState(""), [sec, setSec] = useState(""), selOs = sel ? orders(sel) : [], selOwn = selOs.filter(o => tblParts(o.table)[0] === sel), so = selOwn[0] || selOs[0];
   const busyN = all.filter(t => orders(t.name).length).length;
-  const tap = (k: string) => { if (tm) return pick(k); const os = orders(k); if (!os.length) return onFree(k); setSel(k); };
+  // as before: a free table starts an order on it, an occupied one opens its order; holding a table shows its details on the right
+  const tap = (k: string) => { if (tm) return pick(k); const os = orders(k), own = os.filter(o => tblParts(o.table)[0] === k); if (!os.length) return onFree(k); onOpen(own[0] || os[0]); };
+  const hold = (k: string) => { if (tm) return; if (orders(k).length) setSel(k); };
   const shown = all.filter(t => !sec || (t.section || "") === sec);
   return (
     <Full><Head title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} onClose={onClose}>
@@ -65,7 +67,7 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
             const busy = os.length > 0, merged = busy && !own.length, long = busy && m >= 60, on = sel === t.name || tm?.from === t.name;
             const bg = !busy ? "#fff" : long ? C.badBg : merged ? "#F4F3FF" : C.warnBg, bd = on ? C.brand : !busy ? C.line : long ? C.bad : merged ? "#7A5AF8" : C.warn;
             return (
-              <Pressable key={t.name} accessibilityRole="button" accessibilityLabel={tblLbl(t.name) + (busy ? ", occupied" : ", free")} onPress={() => tap(t.name)}
+              <Pressable key={t.name} accessibilityRole="button" accessibilityLabel={tblLbl(t.name) + (busy ? ", occupied" : ", free")} onPress={() => tap(t.name)} onLongPress={() => hold(t.name)} delayLongPress={400}
                 style={{ width: 150, height: 118, borderRadius: R.lg, borderWidth: on ? 3 : 1.5, borderColor: bd, backgroundColor: bg, padding: 12, justifyContent: "space-between" }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><T w="s" size={17}>{tblLbl(t.name)}</T>{busy && +(own[0] || os[0]).guests ? <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}><Icon name="user" size={14} color={C.ink2} /><T size={12} color={C.ink2}>{+(own[0] || os[0]).guests}</T></View> : null}</View>
                 {!busy ? <T size={13} color={C.ok}>Free</T> : merged ? <T size={12} color="#5925DC">Merged with {tblLbl(tblParts(os[0].table)[0])}</T> : <>
@@ -78,7 +80,7 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
         </View>
         {/* the chosen table */}
         <View style={{ width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
-          {!so ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 6 }}><T w="s">Tap a table</T><T size={13} color={C.mut} style={{ textAlign: "center" }}>A free table starts a new dine-in order. An occupied one shows its order here.</T></View> : <>
+          {!so ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 6 }}><T w="s">Hold a table to see it here</T><T size={13} color={C.mut} style={{ textAlign: "center" }}>Tap a free table to start a dine-in order, or an occupied one to open its order.</T></View> : <>
             <View style={{ padding: 16, borderBottomWidth: 1, borderColor: C.line, gap: 4 }}>
               <T w="s" size={19}>{tblLbl(so.table)}</T>
               <T size={13} color={C.mut}>Order #{so.no || so.ref || "—"} · opened {new Date(so.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · {dur(mins(so.createdAt))}</T>

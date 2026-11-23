@@ -274,7 +274,7 @@ export function Register() {
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
-  const curName = m.cats.find(c => c.id === top)?.name || "";
+  const topOf = (id: string): string => { let c = id; for (let k = 0; k < 9 && m.parentOf(c); k++) c = m.parentOf(c); return c; };
 
   return (
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
@@ -369,7 +369,11 @@ export function Register() {
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
         {top && !q.trim() ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 40 }}>
-          <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} /><T w="s" size={17} numberOfLines={1} style={{ flex: 1 }}>{curName}</T></View> : null}
+          <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} />
+          {/* as before: the top categories in a row, to jump straight to another one */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, height: 40 }} contentContainerStyle={{ gap: 8 }}>
+            {m.tops.map(c => { const on = c.id === (m.parentOf(top) ? topOf(top) : top); return <Btn key={c.id} kind={on ? "soft" : "outline"} height={40} label={c.name} style={on ? { borderColor: C.brand } : undefined} onPress={() => setCat(c.id)} />; })}
+          </ScrollView></View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
           {items.map((it: any) => it.sub
