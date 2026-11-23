@@ -53,7 +53,7 @@ export function Register() {
 
   // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
-  const menuW = Math.round(W * 0.66), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, tile = Math.max(110, Math.min(190, Math.round(tileW * 0.82))), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
+  const menuW = Math.round(W * 0.66), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, tile = Math.max(150, Math.min(250, Math.round(tileW * 1.12))), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   const say = (s: string) => notify(s);
@@ -418,7 +418,7 @@ function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={n < 0 ? "Back" : name + ", " + n + " items"} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
-      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
+      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.58), backgroundColor: "#F9FAFB" }} resizeMode="contain" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 0 }}><T w="s" size={img ? 14 : 15} numberOfLines={img ? 2 : 3} style={{ flexShrink: 1, lineHeight: img ? 18 : 20 }}>{name}</T>
         <View style={{ flex: 1, minHeight: 4 }} />{n >= 0 ? <T size={13} numberOfLines={1} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T> : null}</View>
     </Pressable>
@@ -435,7 +435,7 @@ function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; s
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
-      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
+      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.58), backgroundColor: "#F9FAFB" }} resizeMode="contain" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
       {/* the name takes what room is left; the price always shows on the last line */}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, minHeight: 0 }}>
         <T w="m" size={img ? 13 : 14} numberOfLines={img ? 2 : 3} style={[{ flexShrink: 1, lineHeight: img ? 17 : 19 }, n ? { paddingRight: 22 } : null]}>{name}</T>
