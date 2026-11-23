@@ -1,7 +1,9 @@
 // Full screens on the register (inside the 16:10 frame on the web):
 // - Pickup & Delivery: columns of order tiles as on the call center board (Pending, Preparing, Dispatched, Done)
 // - Orders: every order of the business day as a list, with the chosen order's details beside it
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchOrders } from "../lib/db";
+import { useStore } from "../lib/store";
 import { Sheet } from "./Pickers";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import type { Row } from "../lib/db";
@@ -70,12 +72,22 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
 export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void }) {
   // the business days the tablet has orders for (the last 3 days are kept on it), newest first; open orders show whatever their day
   const mineAll = x.S.orders.filter(o => o.branchId === x.device.branchId && !o.deleted), todayD = bizDate(x);
-  // the business day shown: today by default; ‹ › step a day, the date opens the days that have orders
-  const [day, setDay] = useState(todayD), [pick, setPick] = useState(false);
-  const days = [...new Set([todayD, ...mineAll.map(o => bizDate(x, o.createdAt))])].sort().reverse();
-  const shift = (n: number) => { const d = new Date(day + "T12:00:00"); d.setDate(d.getDate() + n); const v = d.toISOString().slice(0, 10); if (v <= todayD) setDay(v); };
-  const dmy = (d: string) => d === todayD ? "Today" : d.split("-").reverse().join("-");
-  const all = mineAll.filter(o => ["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === day).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  // every order since the first one by default; the date filter picks one business day or a from–to range.
+  // the tablet keeps the last week, older orders are read from the server 200 at a time
+  const { sb } = useStore();
+  const [rng, setRng] = useState<{ from: string; to: string } | null>(null), [pick, setPick] = useState(false);
+  const [far, setFar] = useState<Row[]>([]), [more, setMore] = useState(false), [loading, setLoading] = useState(false);
+  const keep = (() => { const d = new Date(todayD + "T12:00:00"); d.setDate(d.getDate() - 6); return d.toISOString().slice(0, 10); })();
+  const needFar = !rng || rng.from < keep;
+  const load = async (off: number) => { if (!sb || !needFar) return; setLoading(true);
+    try { const r = await fetchOrders(sb, x.device.branchId, rng?.from || null, rng?.to || null, off); setFar(p => off ? [...p, ...r] : r); setMore(r.length === 200); } catch { setMore(false); } finally { setLoading(false); } };
+  useEffect(() => { setFar([]); setMore(false); load(0); }, [rng?.from, rng?.to, !!sb]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shift = (n: number) => { if (!rng || rng.from !== rng.to) return; const d = new Date(rng.from + "T12:00:00"); d.setDate(d.getDate() + n); const v = d.toISOString().slice(0, 10); if (v <= todayD) setRng({ from: v, to: v }); };
+  const dmy = (d: string) => d.split("-").reverse().join("-");
+  const dayLbl = !rng ? "All dates" : rng.from === rng.to ? (rng.from === todayD ? "Today · " : "") + dmy(rng.from) : dmy(rng.from) + " → " + dmy(rng.to);
+  const ids = new Set(mineAll.map(o => o.id)), pool = [...mineAll, ...far.filter(o => o.branchId === x.device.branchId && !o.deleted && !ids.has(o.id))];
+  const inRng = (o: Row) => { if (!rng) return true; const d = bizDate(x, o.createdAt); return (d >= rng.from && d <= rng.to) || (rng.to >= todayD && ["pending", "active"].includes(o.status)); };
+  const all = pool.filter(inRng).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   // the same tabs as the back office Orders page
   const API = ["online", "web", "marketplace", "api"], sched = (o: any) => !!o.scheduledAt && ["draft", "pending", "active"].includes(o.status);
   const TABS: [string, string, (o: Row) => boolean][] = [["all", "All", () => true], ["today", "Today", o => bizDate(x, o.createdAt) === todayD], ["draft", "Draft", o => o.status === "draft"], ["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
@@ -85,21 +97,27 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.ref, o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
-  return <Full><Head title="Orders" onClose={onClose}>
-      {/* segmented tabs, as on the back office Orders page */}
-      <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2 }}>{TABS.map(([k, t]) =>
-        <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)} style={{ height: 40, paddingHorizontal: 14, borderRadius: R.sm, justifyContent: "center", backgroundColor: tab === k ? "#fff" : "transparent", borderWidth: tab === k ? 1 : 0, borderColor: C.line }}>
-          <T w="m" size={15} color={tab === k ? C.ink : C.mut}>{t}</T></Pressable>)}</View></Head>
-    {pick ? <Calendar day={day} today={todayD} count={d => mineAll.filter(o => bizDate(x, o.createdAt) === d).length} onPick={d => { setDay(d); setPick(false); }} onClose={() => setPick(false)} /> : null}
+  const one = !!rng && rng.from === rng.to;
+  const navBtn = (lbl: string, n: number, off: boolean) => <Pressable accessibilityRole="button" accessibilityLabel={n < 0 ? "Day before" : "Day after"} disabled={off} onPress={() => shift(n)}
+    style={({ pressed }) => ({ width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? C.bg : "#fff" })}><T w="s" size={20} color={off ? C.mut2 : C.ink2}>{lbl}</T></Pressable>;
+  return <Full><Head title="Orders" onClose={onClose} />
+    {pick ? <DateFilter rng={rng} today={todayD} count={d => mineAll.filter(o => bizDate(x, o.createdAt) === d).length} onPick={r => { setRng(r); setPick(false); }} onClose={() => setPick(false)} /> : null}
     <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, margin: 12, flexWrap: "wrap" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, width: 380 }}>
-        <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search reference, number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-          <Btn height={44} label="‹" style={{ width: 44 }} onPress={() => shift(-1)} />
-          <Btn kind="outline" height={44} label={dmy(day)} style={{ minWidth: 130 }} onPress={() => setPick(true)} />
-          <Btn height={44} label="›" style={{ width: 44 }} disabled={day >= todayD} onPress={() => shift(1)} /></View>
-</View>
+      {/* the search with the date beside it */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingTop: 14 }}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field }}>
+          <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search reference, number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
+        {/* the date: ‹ the day › in one box; the day opens the calendar */}
+        <View style={{ flexDirection: "row", alignItems: "center", height: 46, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, overflow: "hidden" }}>
+          {one ? navBtn("‹", -1, false) : null}
+          <Pressable accessibilityRole="button" accessibilityLabel="Date filter" onPress={() => setPick(true)} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderLeftWidth: one ? 1 : 0, borderRightWidth: one ? 1 : 0, borderColor: C.line, backgroundColor: pressed ? C.bg : "#fff" })}>
+            <Icon name="cal" size={18} color={C.brand600} /><T w="m" size={15}>{dayLbl}</T></Pressable>
+          {one ? navBtn("›", 1, rng!.to >= todayD) : null}</View>
+      </View>
+      {/* the tabs, as on the back office Orders page, right above the orders */}
+      <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2, margin: 14 }}>{TABS.map(([k, t]) => { const n = all.filter(TABS.find(z => z[0] === k)![2]).length;
+        return <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)} style={{ flex: 1, height: 40, flexDirection: "row", gap: 6, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: tab === k ? "#fff" : "transparent", borderWidth: tab === k ? 1 : 0, borderColor: C.line }}>
+          <T w="m" size={15} color={tab === k ? C.ink : C.mut}>{t}</T>{n ? <T size={12} color={tab === k ? C.brand600 : C.mut2}>{n}</T> : null}</Pressable>; })}</View>
       <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
         {COLS.map(([h, f, al]) => <T key={h} size={12} w="m" color={C.mut} style={{ flex: f, textAlign: al }}>{h}</T>)}</View>
       <ScrollView showsVerticalScrollIndicator={false}>{list.length ? list.map(y => { const st = stOf(y);
@@ -111,27 +129,35 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
           <T size={14} style={{ flex: 0.8 }}>{(y.items || []).filter((i: any) => !i.voided).reduce((a: number, i: any) => a + (+i.qty || 0), 0)}</T>
           <T size={14} style={{ flex: 0.9 }}>{tm(y.createdAt)}</T><View style={{ flex: 1.2, alignItems: "flex-start" }}><Pill text={st.label} tone={st.tone} /></View>
           <T w="s" style={{ flex: 1, textAlign: "right" }}>{money(x.S, y.total)}</T></Pressable>; })
-        : <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>{!all.length ? "No orders today yet." : "No orders here."}</T>}</ScrollView>
+        : <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>{loading ? "Loading orders…" : !all.length ? "No orders for these dates." : "No orders here."}</T>}
+        {more ? <View style={{ alignItems: "center", padding: 16 }}><Btn height={44} label={loading ? "Loading…" : "Load older orders"} disabled={loading} onPress={() => load(far.length)} /></View> : null}</ScrollView>
     </View></Full>;
 }
 
-// the business date as a month calendar: days with orders show their count; days after today can't be picked
-function Calendar({ day, today, count, onPick, onClose }: { day: string; today: string; count: (d: string) => number; onPick: (d: string) => void; onClose: () => void }) {
-  const [m, setM] = useState(day.slice(0, 7));   // "yyyy-mm"
+// the date filter: all dates, one business day, or a from–to range on a month calendar; days with orders on the tablet show their count
+function DateFilter({ rng, today, count, onPick, onClose }: { rng: { from: string; to: string } | null; today: string; count: (d: string) => number; onPick: (r: { from: string; to: string } | null) => void; onClose: () => void }) {
+  const [mode, setMode] = useState<"day" | "range">(rng && rng.from !== rng.to ? "range" : "day"), [a, setA] = useState<string | null>(rng?.from || null), [b, setB] = useState<string | null>(rng && rng.from !== rng.to ? rng.to : null);
+  const [m, setM] = useState((rng?.from || today).slice(0, 7));   // "yyyy-mm"
   const [y, mo] = m.split("-").map(Number), first = new Date(y, mo - 1, 1), n = new Date(y, mo, 0).getDate(), lead = (first.getDay() + 6) % 7;   // weeks start on Monday
   const iso = (d: number) => `${m}-${String(d).padStart(2, "0")}`, step = (k: number) => { const t = new Date(y, mo - 1 + k, 1); setM(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}`); };
   const cells: (number | null)[] = [...Array(lead).fill(null), ...Array.from({ length: n }, (_, i) => i + 1)]; while (cells.length % 7) cells.push(null);
-  const W = 50;
-  return <Sheet title="Business date" width={7 * W + 40} onClose={onClose} footer={<><Btn height={44} label="Today" onPress={() => onPick(today)} /><View style={{ flex: 1 }} /><Btn height={44} label="Close" onPress={onClose} /></>}>
+  const tap = (v: string) => { if (mode === "day") return onPick({ from: v, to: v }); if (!a || b) { setA(v); setB(null); } else if (v < a) { setB(a); setA(v); } else setB(v); };
+  const dmy = (d: string) => d.split("-").reverse().join("-"), W = 50;
+  return <Sheet title="Date filter" width={7 * W + 40} onClose={onClose} footer={<><Btn height={44} label="All dates" onPress={() => onPick(null)} /><Btn height={44} label="Today" onPress={() => onPick({ from: today, to: today })} /><View style={{ flex: 1 }} />
+      {mode === "range" ? <Btn kind="primary" height={44} label="Apply" disabled={!a} onPress={() => onPick({ from: a!, to: b || a! })} /> : <Btn height={44} label="Close" onPress={onClose} />}</>}>
+    <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2, marginBottom: 10 }}>{([["day", "Business date"], ["range", "From – To"]] as const).map(([k, t]) =>
+      <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: mode === k }} onPress={() => setMode(k)} style={{ flex: 1, height: 38, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: mode === k ? "#fff" : "transparent", borderWidth: mode === k ? 1 : 0, borderColor: C.line }}>
+        <T w="m" size={14} color={mode === k ? C.ink : C.mut}>{t}</T></Pressable>)}</View>
+    {mode === "range" ? <T size={13} color={C.mut} style={{ marginBottom: 8, textAlign: "center" }}>{!a ? "Tap the first day" : !b ? "From " + dmy(a) + " · tap the last day" : dmy(a) + " → " + dmy(b)}</T> : null}
     <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
       <Btn height={40} label="‹" style={{ width: 44 }} onPress={() => step(-1)} />
       <T w="s" size={16} style={{ flex: 1, textAlign: "center" }}>{first.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</T>
       <Btn height={40} label="›" style={{ width: 44 }} disabled={m >= today.slice(0, 7)} onPress={() => step(1)} /></View>
     <View style={{ flexDirection: "row" }}>{["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map(d => <T key={d} size={12} w="m" color={C.mut} style={{ width: W, textAlign: "center", marginBottom: 6 }}>{d}</T>)}</View>
     <View style={{ flexDirection: "row", flexWrap: "wrap" }}>{cells.map((d, i) => { if (!d) return <View key={i} style={{ width: W, height: W }} />;
-      const v = iso(d), on = v === day, fut = v > today, c = fut ? 0 : count(v);
-      return <Pressable key={i} disabled={fut} accessibilityRole="button" accessibilityLabel={v} onPress={() => onPick(v)} style={({ pressed }) => ({ width: W, height: W, alignItems: "center", justifyContent: "center", borderRadius: R.md, backgroundColor: on ? C.brand : pressed ? C.brand50 : "transparent", borderWidth: v === today && !on ? 1 : 0, borderColor: C.brand, opacity: fut ? 0.35 : 1 })}>
-        <T w={on || c ? "s" : "r"} size={15} color={on ? "#fff" : C.ink}>{d}</T>
-        {c ? <T size={10} color={on ? "#fff" : C.brand}>{c}</T> : null}</Pressable>; })}</View>
+      const v = iso(d), end = mode === "day" ? !!rng && rng.from === rng.to && v === rng.from : v === a || v === b, mid = mode === "range" && !!a && !!b && v > a && v < b, fut = v > today, c = fut ? 0 : count(v);
+      return <Pressable key={i} disabled={fut} accessibilityRole="button" accessibilityLabel={v} onPress={() => tap(v)} style={({ pressed }) => ({ width: W, height: W, alignItems: "center", justifyContent: "center", borderRadius: mid ? 0 : R.md, backgroundColor: end ? C.brand : mid ? C.brand50 : pressed ? C.brand50 : "transparent", borderWidth: v === today && !end ? 1 : 0, borderColor: C.brand, opacity: fut ? 0.35 : 1 })}>
+        <T w={end || c ? "s" : "r"} size={15} color={end ? "#fff" : C.ink}>{d}</T>
+        {c ? <T size={10} color={end ? "#fff" : C.brand}>{c}</T> : null}</Pressable>; })}</View>
   </Sheet>;
 }
