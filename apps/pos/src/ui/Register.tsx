@@ -364,11 +364,13 @@ export function Register() {
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
-        {top && !q.trim() ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 40 }}>
-          <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} /><T w="s" size={17} numberOfLines={1} style={{ flex: 1 }}>{m.cats.find(c => c.id === top)?.name || ""}</T></View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
-                    {items.map((it: any) => it.sub
+                    {/* inside a category the first tile goes back (it names the category it leaves) */}
+          {top && !q.trim() ? <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
+            style={({ pressed }) => ({ width: tileW, height: tile, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 8, padding: 10 })}>
+            <Icon name="back" size={30} color={C.brand} /><T w="s" size={16}>Back</T><T size={13} color={C.mut} numberOfLines={2} style={{ textAlign: "center" }}>{m.cats.find(c => c.id === top)?.name || ""}</T></Pressable> : null}
+          {items.map((it: any) => it.sub
             ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
             : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                 n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
