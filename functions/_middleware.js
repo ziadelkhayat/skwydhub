@@ -1,4 +1,4 @@
-// order.skwydhub.com opens online ordering, dev.pos.skwydhub.com a test copy of the POS (pos.html), admin.skwydhub.com the Skwyd Hub admin (hub.html); portal.skwydhub.com the back office (index.html).
+// order.skwydhub.com opens online ordering, dev.pos.skwydhub.com the new POS web app (/pos-app/), admin.skwydhub.com the Skwyd Hub admin (hub.html); portal.skwydhub.com the back office (index.html).
 // Each business's ordering page has its own address: order.skwydhub.com/<brand address> (set in Web Ordering).
 export async function onRequest(ctx) {
   const url = new URL(ctx.request.url), host = url.hostname.replace(/^dev\./, "");   // dev.order / dev.admin / dev.portal work like the plain names
@@ -8,7 +8,7 @@ export async function onRequest(ctx) {
   let page = null;
   if (host.startsWith("order.") && !isFile) page = url.pathname.startsWith("/track/") ? "/track" : "/order";   // /track/<private link>: delivery tracking & rating                // "/" and "/thewok" both open order.html, which reads the address
   else if (host.startsWith("admin.") && url.pathname === "/") page = "/hub";
-  else if (isDevPos && url.pathname === "/") page = "/pos";
+  else if (isDevPos && url.pathname === "/") return Response.redirect(url.origin + "/pos-app/", 302);   // the new POS (React Native web)
   if (page && url.pathname !== page) {   // Cloudflare serves order.html at /order and hub.html at /hub; the address bar keeps the original path
     url.pathname = page;
     return ctx.env.ASSETS.fetch(new Request(url.toString(), ctx.request));

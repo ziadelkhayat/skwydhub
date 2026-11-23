@@ -9,3 +9,6 @@
 /v2    /  301
 /v2/   /  301
 /v2/*  /  301
+# the new POS web app: every address under /pos-app/ opens the app
+/pos-app   /pos-app/  301
+/pos-app/*  /pos-app/index.html  200

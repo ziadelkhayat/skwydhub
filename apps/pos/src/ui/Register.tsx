@@ -290,7 +290,11 @@ export function Register() {
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
             : cart.map((l, i) => (
               <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line2 }}>
-                <View style={{ flex: 1, minWidth: 0 }}><T w="m" numberOfLines={2}>{l.name}</T>{l.mods ? <T size={13} color={C.mut}>{l.mods}</T> : null}</View>
+                <View style={{ flex: 1, minWidth: 0 }}><T w="m" numberOfLines={2}>{l.name}</T>
+                  {/* the modifiers one under the other (2× when picked twice, with their price), then the note */}
+                  {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 6 }}><T size={13} color={C.mut} style={{ flex: 1 }}>• {o.n > 1 ? o.n + "× " : ""}{o.name}</T>{o.price ? <T size={13} color={C.mut}>+{money(S, o.price)}</T> : null}</View>)
+                    : l.mods && !l.note ? <T size={13} color={C.mut}>{l.mods}</T> : null}
+                  {l.note ? <T size={13} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}</View>
                 <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
                   <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty <= 1 ? "trash" : "minus"} size={18} color={l.qty <= 1 ? C.bad : C.ink2} /></Pressable>
                   <T w="s" style={{ minWidth: 28, textAlign: "center" }}>{l.qty}</T>
@@ -401,6 +405,9 @@ function CatTile({ size, name, img, n, onPress }: { size: number; name: string; 
     </Pressable>
   );
 }
+// a line's options, the same ones counted together: [{ name, n, price }]
+const optRows = (opts: { name: string; price?: number }[]) => { const r: { name: string; n: number; price: number }[] = [];
+  opts.forEach(o => { const x = r.find(y => y.name === o.name); if (x) { x.n++; x.price += +(o.price || 0); } else r.push({ name: o.name, n: 1, price: +(o.price || 0) }); }); return r; };
 function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
