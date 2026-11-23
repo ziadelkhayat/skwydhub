@@ -298,40 +298,39 @@ export function Register() {
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
       {/* ---------- cart ---------- */}
       <Card style={{ flex: 1, margin: 12, marginRight: 0, overflow: "hidden" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
-          <View style={{ width: 40, height: 40, borderRadius: R.md, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={18} color="#fff">S</T></View>
-          <View style={{ flex: 1, minWidth: 0 }}><T w="s" numberOfLines={1}>{branch?.name || "—"}</T><T size={13} color={C.mut} numberOfLines={1}>{device?.name || "—"}</T></View>
-          {/* what kind of order this is: In Store, Pickup or Delivery */}
-          {live_eo ? <Pill text={TYPE_LBL[otype] || otype} tone="brand" /> : null}
-          {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
-          <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : pending ? `Syncing ${pending}…` : "Online"} tone={online && !pending ? "brand" : "warn"} />
-          {cashier ? <Pill text={cashier.name} /> : null}
-        </View>
-        {live_eo ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingTop: 12 }}>
-          <T w="s">Order {live_eo.ref || ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
-</View> : null}
+        {/* order details: what this order is (In Store, Pickup or Delivery), the customer under it, and for an opened order its reference and status */}
+        {(() => { const c = live_eo ? { name: live_eo.customerName, phone: live_eo.phone, source: live_eo.source, addr: live_eo.address } : { name: cust.name, phone: cust.phone, source: cust.source, addr: otype === "delivery" ? addrJoin(cust.addr) : "" };
+          const tap = !live_eo && otype !== "dinein" ? () => askCust(otype) : undefined;
+          return <Pressable disabled={!tap} onPress={tap} style={{ flexDirection: "row", gap: 12, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 12 }}>
+            <View style={{ width: 44, height: 44, borderRadius: R.md, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}>
+              <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "table" : "bag"} size={22} color={C.brand600} /></View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <T w="s" size={17}>{TYPE_LBL[otype] || otype}</T>
+                {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
+                <View style={{ flex: 1 }} />
+                {!online || pending ? <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : `Syncing ${pending}…`} tone="warn" /> : null}
+                {live_eo ? <Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} /> : null}
+              </View>
+              {c.name || c.phone ? <T size={14} numberOfLines={1} style={{ marginTop: 2 }}>{[c.name, c.phone].filter(Boolean).join(" · ")}{c.source ? <T size={13} color={C.mut}>{" · " + c.source}</T> : null}</T>
+                : <T size={13} color={C.mut} style={{ marginTop: 2 }}>{live_eo ? "Order " + (live_eo.ref || ordRef(live_eo)) : otype === "dinein" ? "No customer" : "Tap to add the customer"}</T>}
+              {c.addr ? <T size={13} color={C.mut} numberOfLines={2}>{c.addr}</T> : null}
+              {live_eo && (c.name || c.phone) ? <T size={13} color={C.mut}>Order {live_eo.ref || ordRef(live_eo)}</T> : null}
+            </View>
+          </Pressable>; })()}
         {erPending(live_eo) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
           <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
         </View> : null}
-        {live_eo && (live_eo.customerName || live_eo.phone) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
-          <T w="m" size={14}>{[live_eo.customerName, live_eo.phone, live_eo.source].filter(Boolean).join(" · ")}</T>{live_eo.address ? <T size={13} color={C.mut} numberOfLines={2}>{live_eo.address}</T> : null}</View> : null}
-        {/* the order type (option A): In Store / Pickup / Delivery at the top of the cart; Pickup and Delivery ask for the customer first */}
-        {!live_eo && types.length > 1 ? <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 4, marginHorizontal: 18, marginTop: 12 }}>
-          {types.map(k => <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: otype === k }} onPress={() => { if (k === otype) return; if (k === "dinein") switchType(k); else askCust(k); }}
-            style={{ flex: 1, height: 40, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: otype === k ? "#fff" : "transparent", borderWidth: otype === k ? 1 : 0, borderColor: C.line }}>
-            <T w="m" size={15} color={otype === k ? C.ink : C.mut}>{TYPE_LBL[k]}</T></Pressable>)}</View> : null}
-        {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
+        {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 0 }}>
           <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
           {/* × takes the table off this order (only before it is saved to the table) */}
           {table && !live_eo ? <Pressable accessibilityRole="button" accessibilityLabel="Remove table" onPress={() => { setTable(""); setGuests(0); }}
             style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}
-          <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} />
+          <Btn height={38} style={{ flex: 1 }} label={cust.name ? "Change Customer" : "Add Customer"} onPress={() => askCust("dinein")} />
           {/* × takes the customer off this dine-in order */}
           {cust.name ? <Pressable accessibilityRole="button" accessibilityLabel="Remove customer" onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}
             style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}</View> : null}
-        {otype !== "dinein" && cust.name && !live_eo ? <Pressable onPress={() => askCust(otype)} style={{ marginHorizontal: 18, marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
-          <T w="m" size={14}>{cust.name} · {cust.phone}{cust.source ? " · " + cust.source : ""}</T>{otype === "delivery" ? <T size={13} color={C.mut} numberOfLines={2}>{addrJoin(cust.addr)}</T> : null}</Pressable> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
             : cart.map((l, i) => (
