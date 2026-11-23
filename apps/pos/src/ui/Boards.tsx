@@ -66,14 +66,14 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const TABS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"], ["open", "Preparing", o => o.status === "active" && o.editRequest?.status !== "pending"], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
   // as before: orders waiting to be accepted come first
   const [tab, setTab] = useState(() => mineAll.some(o => o.status === "pending" || o.editRequest?.status === "pending") ? "pending" : "all"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
-  const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
+  const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.ref, o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
   // the whole screen is the list; tapping an order opens it in the cart
-  const COLS: [string, number, "left" | "right"][] = [["Order", 1.1, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
+  const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
   return <Full><Head title="Orders" onClose={onClose}>{TABS.map(([k, t, f]) => <Btn key={k} kind={tab === k ? "primary" : "outline"} height={44} label={`${t} (${all.filter(f).length})`} onPress={() => setTab(k)} />)}</Head>
     <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, margin: 12, flexWrap: "wrap" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, width: 380 }}>
-        <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
+        <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search reference, number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>{days.map((d, i) => { const n = mineAll.filter(o => bizDate(x, o.createdAt) === d).length;
           return <Btn key={d} kind={day === d ? "primary" : "outline"} height={44} label={(d === todayD ? "Today" : i === 1 && days[0] === todayD && +new Date(todayD) - +new Date(d) === 86400000 ? "Yesterday" : d.split("-").reverse().join("-")) + ` (${n})`} onPress={() => setDay(d)} />; })}</ScrollView></View>
       <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
@@ -81,7 +81,7 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
       <ScrollView showsVerticalScrollIndicator={false}>{list.length ? list.map(y => { const st = stOf(y);
         return <Pressable key={y.id} accessibilityRole="button" accessibilityLabel={"Open order " + ordRef(y)} onPress={() => onOpen(y)}
           style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: pressed ? C.brand50 : "#fff" })}>
-          <T w="s" style={{ flex: 1.1 }}>{ordRef(y)}</T><T size={14} color={C.ink2} style={{ flex: 1 }}>{y.invoiceNo || "—"}</T>
+          <T size={14} color={C.ink2} style={{ flex: 1.1 }}>{y.ref || "—"}</T><T w="s" style={{ flex: 0.8 }}>{ordRef(y)}</T><T size={14} color={C.ink2} style={{ flex: 1 }}>{y.invoiceNo || "—"}</T>
           <View style={{ flex: 1.2 }}><T size={14}>{TYPE[y.type] || y.type}</T><T size={12} color={C.mut}>{CH[y.channel] || "POS"}</T></View>
           <View style={{ flex: 2 }}><T size={14} numberOfLines={1}>{y.customerName || (y.table ? "Table " + y.table : "Walk-in")}</T>{y.phone || (y.type === "delivery" && y.driverName) ? <T size={12} color={C.mut} numberOfLines={1}>{[y.phone, y.type === "delivery" && y.driverName ? "Driver: " + y.driverName : ""].filter(Boolean).join(" · ")}</T> : null}</View>
           <T size={14} style={{ flex: 0.8 }}>{(y.items || []).filter((i: any) => !i.voided).reduce((a: number, i: any) => a + (+i.qty || 0), 0)}</T>
