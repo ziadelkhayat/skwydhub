@@ -1,6 +1,6 @@
 // Detail pages the lists open, as in the current portal: Modifier Option (ingredients, allergens), Supplier (tags, linked inventory products),
 // Inventory Product (units, cost, tags, ingredients, suppliers, levels per location, stock), Warehouse (details, delete its inventory, delete it).
-import { cn } from "@/utils";
+import { PickMany } from "../ui/PickMany";
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,12 +48,11 @@ export function Tags({ s, type, id }: { s: S; type: string; id: string }) {
 }
 /* the recipe of a modifier option or a produced inventory product: inventory products in their ingredient unit */
 export function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
-  const ings: any[] = rec.ingredients || [], [add, setAdd] = useState(""), item = (id: string) => s.inv_items.find(x => x.id === id);
+  const ings: any[] = rec.ingredients || [], item = (id: string) => s.inv_items.find(x => x.id === id);
   const save = async (l: any[], msg = "Ingredients saved") => { try { await put(col, rec.id, { ingredients: l }); toast(msg); } catch { toast("Couldn't save.", "error"); } };
   const lineCost = (g: any) => { const it = item(g.itemId); return it ? (+g.qty || 0) / (+it.factor || 1) * (+it.cost || 0) : 0; };
   const opts = s.inv_items.filter(x => live(x) && x.id !== rec.id && !ings.some(g => g.itemId === x.id)).sort((a, b) => a.name.localeCompare(b.name));
-  return <Sec title="Ingredients" act={<div className="flex gap-2"><select aria-label="Add ingredient" className={cn(SEL, "h-10 w-48 sm:w-56")} value={add} onChange={e => { const v = e.target.value; setAdd(""); if (v) save([...ings, { itemId: v, qty: 1, net: 1, yield: 100 }], "Ingredient added"); }}>
-    <option value="">Add ingredient…</option>{opts.map(x => <option key={x.id} value={x.id}>{x.name}{x.ingredientUnit ? ` (${x.ingredientUnit})` : ""}</option>)}</select></div>}>
+  return <Sec title="Ingredients" act={<div className="flex gap-2"><PickMany label="Add ingredient" opts={opts.map(x => ({ id: x.id, name: x.name, sub: x.ingredientUnit || "" }))} onAdd={ids => save([...ings, ...ids.map(v => ({ itemId: v, qty: 1, net: 1, yield: 100 }))], ids.length > 1 ? `${ids.length} ingredients added` : "Ingredient added")} /></div>}>
     {!ings.length ? <None t="No ingredients yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Product", "Quantity", "Unit", "Cost", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {ings.map((g, i) => { const it = item(g.itemId); return <tr key={g.itemId} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it?.name || "(deleted item)"}</td>
         <td className={TD}><Input className="h-9 w-28" type="number" step="any" defaultValue={g.qty} onBlur={e => +e.target.value !== +g.qty && save(ings.map((x, j) => j === i ? { ...x, qty: +e.target.value || 0, net: +e.target.value || 0 } : x))} /></td>
@@ -103,18 +102,15 @@ export function OptionPage() {
 
 /* supplier ⇄ inventory product links, kept in settings "supplier_items" */
 function SupLinks({ s, side, id }: { s: S; side: "item" | "sup"; id: string }) {
-  const doc: any = s.settings.find(x => x.id === "supplier_items") || {}, links: any[] = (doc.links || []).filter((l: any) => side === "item" ? l.itemId === id : l.supplierId === id), [open, setOpen] = useState(false), [pick, setPick] = useState("");
+  const doc: any = s.settings.find(x => x.id === "supplier_items") || {}, links: any[] = (doc.links || []).filter((l: any) => side === "item" ? l.itemId === id : l.supplierId === id); 
   const opts: [string, string][] = side === "item" ? s.suppliers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(x => [x.id, x.name]) : s.inv_items.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(x => [x.id, x.name + (x.sku ? " · " + x.sku : "")]);
   const all = doc.links || [];
-  return <Sec title={side === "item" ? "Suppliers" : "Inventory Products"} act={<Button size="sm" variant="outline" onClick={() => setOpen(true)}><PlusIcon className="size-4" />Add</Button>}>
+  return <Sec title={side === "item" ? "Suppliers" : "Inventory Products"} act={<PickMany label={side === "item" ? "Add supplier" : "Add product"} opts={opts.filter(([v]) => !links.some(l => (side === "item" ? l.supplierId : l.itemId) === v)).map(([v, t]) => ({ id: v, name: t }))}
+    onAdd={ids => { const add = ids.map(v => side === "item" ? { supplierId: v, itemId: id } : { supplierId: id, itemId: v }); setDoc("supplier_items", { links: [...all.filter((x: any) => !add.some(a => a.supplierId === x.supplierId && a.itemId === x.itemId)), ...add] }, ids.length > 1 ? `${ids.length} linked` : "Linked"); }} />}>
     {!links.length ? <None t={side === "item" ? "Link this product to the suppliers you purchase from." : "Link this supplier to the inventory products you purchase from them."} /> :
       <table className="w-full"><tbody>{links.map(l => { const it = s.inv_items.find(x => x.id === l.itemId), sp = s.suppliers.find(x => x.id === l.supplierId); return <tr key={l.supplierId + l.itemId} className={TR}>
         <td className={TD}>{side === "item" ? <Link className="text-brand-500 hover:underline" to={"/supplier?id=" + l.supplierId}>{sp?.name || "—"}</Link> : <><Link className="text-brand-500 hover:underline" to={"/inv-item?id=" + l.itemId}>{it?.name || "—"}</Link> <span className="text-xs text-gray-500">{it?.sku || ""}</span></>}</td>
         <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={() => setDoc("supplier_items", { links: all.filter((x: any) => !(x.supplierId === l.supplierId && x.itemId === l.itemId)) }, "Link removed")}><TrashBinIcon className="size-5 text-red-500" /></Button></td></tr>; })}</tbody></table>}
-    {open && <Dialog open onOpenChange={v => !v && setOpen(false)}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{side === "item" ? "Link Supplier" : "Link Product"}</DialogTitle></DialogHeader>
-      <div className="mt-4"><F l={side === "item" ? "Supplier" : "Product"} req><select className={SEL} value={pick} onChange={e => setPick(e.target.value)}><option value="">Choose…</option>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></F></div>
-      <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button disabled={!pick} onClick={async () => { const supplierId = side === "item" ? pick : id, itemId = side === "item" ? id : pick;
-        await setDoc("supplier_items", { links: [...all.filter((x: any) => !(x.supplierId === supplierId && x.itemId === itemId)), { supplierId, itemId }] }, "Linked"); setOpen(false); setPick(""); }}>Save</Button></div></DialogContent></Dialog>}
   </Sec>;
 }
 

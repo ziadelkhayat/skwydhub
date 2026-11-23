@@ -1,6 +1,6 @@
 // An item's page (Catalog → Items → an item), laid out and behaving like an inventory product's page:
 // back button, details tiles, then Tags, Variants, Modifiers, Ingredients, Nutritional Values and Allergens (as in the current portal). Store prices, active and out of stock are set in Sales Channels.
-import { cn } from "@/utils";
+import { PickMany } from "../ui/PickMany";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { EditDialog, live, useS } from "../crud/CrudPage";
 import { CRUD } from "../crud/configs";
-import { SEL, TD, TH, TR } from "../ui/kit";
+import { TD, TH, TR } from "../ui/kit";
 import { toast } from "../ui/toast";
 import { Allergens, Head, Info, Ingredients, Missing, None, Nutrition, Sec, Tags } from "./Details";
 
@@ -43,9 +43,7 @@ export default function ItemPage() {
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Name", "Item", "SKU", "Price"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {kids.map(({ v, k }: any) => <tr key={k.id} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{v.name}</td><td className={TD}><Link className="text-brand-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</Link></td><td className={TD}>{k.sku || "—"}</td><td className={TD}>{money(k.price)}</td></tr>)}</tbody></table></div></Sec>}
     {!kids.length && <>
-    <Sec title="Modifiers" act={<div className="flex gap-2"><select aria-label="Add modifier" className={cn(SEL, "h-10 w-48 sm:w-56")} value=""
-        onChange={e => { const v = e.target.value; if (v) save({ modifiers: [...links, { modifierId: v, min: 1, max: 1, free: 0 }] }, "Modifier added"); }}>
-        <option value="">Add modifier…</option>{mods.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>}>
+    <Sec title="Modifiers" act={<div className="flex gap-2"><PickMany label="Add modifier" opts={mods.map(m => ({ id: m.id, name: m.name }))} onAdd={ids => save({ modifiers: [...links, ...ids.map(v => ({ modifierId: v, min: 1, max: 1, free: 0 }))] }, ids.length > 1 ? `${ids.length} modifiers added` : "Modifier added")} /></div>}>
       {!links.length ? <None t="No modifiers on this item." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Modifier", "Options", "Minimum", "Maximum", "Free", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
         {links.map((l, i) => { const upd = (k: string, v: any) => save({ modifiers: links.map((x, j) => j === i ? { ...x, [k]: Math.max(0, parseInt(v) || 0) } : x) });
           return <tr key={l.modifierId} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{s.modifiers.find(m => m.id === l.modifierId)?.name || "(deleted modifier)"}</td>

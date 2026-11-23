@@ -230,6 +230,22 @@ layer(base);
   @apply bg-gray-700;
 }
 
+
+/* Every scrollbar in the portal: thin, rounded, no arrow buttons, and kept off the rounded corners of windows and boxes */
+@layer base {
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+  *::-webkit-scrollbar-track { background: transparent; margin-block: 14px; margin-inline: 14px; }
+  *::-webkit-scrollbar-thumb { border-radius: 9999px; background: var(--color-gray-300); }
+  *::-webkit-scrollbar-thumb:hover { background: var(--color-gray-400); }
+  *::-webkit-scrollbar-corner { background: transparent; }
+  .dark *::-webkit-scrollbar-thumb { background: var(--color-gray-700); }
+  html::-webkit-scrollbar-track, body::-webkit-scrollbar-track { margin: 0; }
+  @supports not selector(::-webkit-scrollbar) {
+    * { scrollbar-width: thin; scrollbar-color: var(--color-gray-300) transparent; }
+  }
+}
+
 @layer utilities {
   /* For Remove Date Icon */
   input[type="date"]::-webkit-inner-spin-button,

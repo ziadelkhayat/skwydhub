@@ -1,4 +1,4 @@
-// Customers: the same tabs, sort, columns and add/edit form as the current portal (rpc skwyd_customers), in TailAdmin layout.
+// Customers: the same tabs, columns and add/edit form as the current portal (rpc skwyd_customers), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,22 +20,21 @@ import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
 const TABS: [string, string][] = [["all", "All"], ["orders", "Has Orders"], ["negative", "Has Negative Balance"], ["blacklisted", "Blacklisted"], ["deleted", "Deleted"]];
-const SORTS: [string, string][] = [["last", "Last order"], ["spent", "Total spent"], ["orders", "Most orders"], ["new", "Newest"], ["name", "Name A–Z"]];
 const PER = 50;
 const ago = (t?: string) => { if (!t) return "—"; const d = Math.floor((Date.now() - +new Date(t)) / 86400000); return d <= 0 ? "Today" : d === 1 ? "Yesterday" : d < 31 ? d + " days ago" : fmtDate(t); };
 const tel = (p: string) => String(p || "").replace(/^\+961(\d{1,2})(\d{3})(\d{3})$/, "+961 $1 $2 $3");
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
 
 export default function CustomersPage() {
-  const [tab, setTab] = useState("all"), [sort, setSort] = useState("last"), [q, setQ] = useState(""), [page, setPage] = useState(1);
+  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState(""), [tick, setTick] = useState(0);
   const [edit, setEdit] = useState<any>(undefined); const nav = useNavigate();
   useEffect(() => { let off = false; setLoading(true);
     const t = setTimeout(async () => {
-      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: sort, p_limit: PER, p_offset: (page - 1) * PER });
+      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER });
       if (off) return; setLoading(false);
       if (error) setErr(error.message); else { setErr(""); setRows((data as any)?.rows || []); setCount((data as any)?.count || 0); } }, q ? 250 : 0);
-    return () => { off = true; clearTimeout(t); }; }, [tab, sort, q, page, tick]);
+    return () => { off = true; clearTimeout(t); }; }, [tab, q, page, tick]);
   const pages = Math.max(1, Math.ceil(count / PER));
   const th = "px-5 py-3 text-start text-xs font-medium whitespace-nowrap text-gray-500 sm:px-6 dark:text-gray-400", td = "px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400";
   return (
@@ -49,8 +48,6 @@ export default function CustomersPage() {
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             </InputGroup>
-            <select aria-label="Sort" value={sort} onChange={e => { setSort(e.target.value); setPage(1); }} className="h-11 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-              {SORTS.map(([v, t]) => <option key={v} value={v}>Sort: {t}</option>)}</select>
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Customer</Button>
           </div>
         </div>
