@@ -40,8 +40,8 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
   const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
     <View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={ic as any} size={16} color={C.mut} /></View>
     <View style={{ flex: 1 }}><T size={14} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut} numberOfLines={1}>{sub}</T> : null}</View></View>;
-  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + ordRef(o)} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 14, gap: 8 })}>
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
+  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 14, gap: 8 })}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{o.ref || ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
     <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
     <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
     <Ln ic="device" l="Sales channel" v={ch} sub={src && src.toLowerCase() !== ch.toLowerCase() ? src : undefined} />
