@@ -271,8 +271,8 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
-                {!q.trim() && !cat ? <TileGrid>{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
-                  <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub={String(n)} muted bold onClick={() => setCat(c.id)} />); })}
+                {!q.trim() && !cat ? <TileGrid>{cats.map(c => { return (
+                  <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub="" muted bold onClick={() => setCat(c.id)} />); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</TileGrid> :
                 <TileGrid>{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 border border-gray-200 bg-white p-1.5 text-center transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
                     <ChevronLeftIcon className="size-6 text-brand-500" /><b className="text-[15px] font-semibold text-gray-800 dark:text-white/90">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
