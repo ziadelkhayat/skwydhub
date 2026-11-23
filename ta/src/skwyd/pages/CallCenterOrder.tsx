@@ -2,7 +2,6 @@
 // with its prices, modifiers (the shared modifier picker modpick.js, same as the portal and POS), cart, discount, charges, notes and totals
 // (taxes, charges and rounding as in the portal). Send / Save Draft / Accept / Decline / Cancel order behave as in the current portal.
 // Orders the store already accepted are changed through the current portal (the store approves every change there).
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -170,14 +169,13 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
   const reasons = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.cancelReasons == null ? ["Customer cancelled", "Duplicate order", "Wrong order details"] : String(a.cancelReasons).split("\n").map((x: string) => x.trim()).filter(Boolean); })();
   return (
     <>
-      <PageBreadcrumb pageTitle="Call Center" current={o ? `Order ${ccLabel(o)}` : "New Order"} />
-      <div className="mb-5 flex flex-wrap items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <Button variant="outline" onClick={onClose}><ArrowLeftIcon className="size-5" />Call Center</Button>
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{o ? `Order ${ccLabel(o)}` : "New Call Center Order"}</h2>
         {o && <Badge variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
       </div>
       {/* cart on the left, the menu in the middle, the customer on the right */}
-      <div className="grid grid-cols-1 gap-5 lg:h-[calc(100dvh-15rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_340px]">
+      <div className="grid grid-cols-1 gap-4 lg:h-[calc(100dvh-5.5rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_340px]">
             {/* customer and order details */}
             <section className="custom-scrollbar space-y-4 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-5 lg:order-3 lg:overflow-y-auto">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
