@@ -351,7 +351,8 @@ export function Register() {
           <Row l="Subtotal" r={money(S, t.net)} />
           <Row l="Tax" r={money(S, t.tax)} muted />
           {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="b" size={18}>Total</T><T w="b" size={18}>{money(S, t.total)}</T></View>
+          {/* the Pay button carries the total; the line shows only when there is no Pay button */}
+          {ro || erPending(live_eo) ? <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="b" size={18}>Total</T><T w="b" size={18}>{money(S, t.total)}</T></View> : null}
           {money2(S, t.total) ? <Row l="" r={"≈ " + money2(S, t.total)} muted /> : null}
         </View>
         <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 18, paddingBottom: 18 }}>
