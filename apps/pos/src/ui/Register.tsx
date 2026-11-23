@@ -22,7 +22,7 @@ import { CustomerDialog } from "./Customer";
 import { appSet, kitchenText, printJob, printerHas, receiptText } from "../lib/print";
 import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
-import { ChargesDialog, DiscountDialog, NotesDialog, RetrieveDialog, type Held } from "./Extras";
+import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from "../lib/store";
@@ -97,7 +97,21 @@ export function Register() {
   const who = () => cashier?.name || device!.name;
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
     write("orders", o.id, { status: "active", updatedAt: now, acceptedAt: o.acceptedAt || now, handledBy: who(), ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) }); say("Order accepted"); reset(); };
-  const decline = () => { write("orders", live_eo!.id, { status: "declined", updatedAt: new Date().toISOString(), handledBy: who() }); say("Order declined"); reset(); };
+  const lines = (v: any, def: string) => String(v ?? def).split("\n").map(r => r.trim()).filter(Boolean);
+  const decline = async () => { const reason = await ask<string | null>(done => <ReasonAsk title="Decline order: reason" ok="Decline" reasons={lines(appSetOf().rejectReasons, "Item not available\nStore too busy\nOrder already prepared")} onDone={done} />); if (!reason) return;
+    const now = new Date().toISOString(); write("orders", live_eo!.id, { status: "declined", updatedAt: now, doneAt: now, voidReason: reason, handledBy: who() }); say("Order declined"); reset(); };
+  // the call center asked to change an open order: approve (the change goes to the kitchen) or reject with a reason
+  const erPending = (o: Row | null) => !!(o && o.editRequest && o.editRequest.status === "pending");
+  const erDecide = async (yes: boolean) => { const o = live_eo!, er = o.editRequest, now = new Date().toISOString(), by = who();
+    if (yes && o.status !== "active") { write("orders", o.id, { editRequest: { ...er, status: "rejected", reason: "Order already closed", decidedAt: now, decidedBy: by } }); say("This order is not editable"); return reset(); }
+    if (!yes) { const reason = await ask<string | null>(done => <ReasonAsk title="Reject order edit: reason" reasons={lines(appSetOf().editRejectReasons, "Order already prepared\nItem not available\nAlready out for delivery")} onDone={done} />); if (!reason) return;
+      write("orders", o.id, { editRequest: { ...er, status: "rejected", reason, decidedAt: now, decidedBy: by } }); say("Order edit rejected"); return reset(); }
+    const d = er.data || {}, sm = er.summary || {};
+    write("orders", o.id, { ...d, ...(sm.voidAll ? { approvedBy: by } : {}), updatedAt: now, editRequest: { ...er, status: "approved", decidedAt: now, decidedBy: by } });
+    const kitchen = (its: any[]) => printJob(S, device!, "kitchen", pr => { const l = its.filter(i => printerHas(S, pr, i)); return l.length ? kitchenText({ ...o, ...d, items: l }) : null; });
+    if (sm.voidAll) kitchen((o.items || []).map((i: any) => ({ ...i, name: "VOID " + i.name })));
+    else { if ((sm.added || []).length) await kitchen(sm.added); if ((sm.voided || []).length) kitchen(sm.voided.map((i: any) => ({ ...i, name: "VOID " + i.name }))); }
+    say(sm.voidAll ? "Order voided" : "Order edit approved"); reset(); };
   // the checks before an order is saved or paid (pos.html saleBlock, openShift, orderInfoOk)
   const ready = (paying: boolean) => {
     const blk = saleBlock(x); if (blk) { say(blk); return false; }
@@ -206,8 +220,11 @@ export function Register() {
   const seen = useRef<Set<string> | null>(null), auto = useRef(new Set<string>()), [incoming, setIncoming] = useState<Row | null>(null);
   useEffect(() => {
     const pend = S.orders.filter(o => o.branchId === device!.branchId && o.channel !== "pos" && o.status === "pending");
-    if (!seen.current) { seen.current = new Set(pend.map(o => o.id)); return; }
+    const edits = S.orders.filter(o => o.branchId === device!.branchId && o.editRequest?.status === "pending"), ek = (o: Row) => "er:" + (o.editRequest.id || o.id + o.editRequest.at);
+    if (!seen.current) { seen.current = new Set([...pend.map(o => o.id), ...edits.map(ek)]); return; }
     const fresh = pend.filter(o => !seen.current!.has(o.id)); fresh.forEach(o => seen.current!.add(o.id));
+    const freshE = edits.filter(o => !seen.current!.has(ek(o))); freshE.forEach(o => seen.current!.add(ek(o)));
+    if (freshE.length) setIncoming({ ...freshE[freshE.length - 1], __edit: true });
     const master = (() => { const m = S.devices.filter(d => !d.deleted && d.branchId === device!.branchId && d.settings?.master); return !m.length || m.some(d => d.id === device!.id); })();
     if (device!.settings?.autoAccept && master) {
       pend.filter(o => o.channel !== "callcenter" && !auto.current.has(o.id) && !(o.scheduledAt && +new Date(o.scheduledAt) - Date.now() > 3600000)).forEach(async o => {   // a scheduled order waits until an hour before its time
@@ -249,12 +266,19 @@ export function Register() {
         {live_eo ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingTop: 12 }}>
           <T w="s">Order {ordRef(live_eo)}</T><Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} />
           <View style={{ flex: 1 }} /><Btn kind="ghost" height={36} label="Close" onPress={reset} /></View> : null}
+        {erPending(live_eo) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
+          <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
+          {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
+        </View> : null}
         {live_eo && (live_eo.customerName || live_eo.phone) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{[live_eo.customerName, live_eo.phone, live_eo.source].filter(Boolean).join(" · ")}</T>{live_eo.address ? <T size={13} color={C.mut} numberOfLines={2}>{live_eo.address}</T> : null}</View> : null}
         {types.length > 1 && !live_eo && (
           <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
             {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => (k === "dinein" ? switchType(k) : askCust(k))} />)}
           </View>)}
+        {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
+          <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
+          <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} /></View> : null}
         {otype !== "dinein" && cust.name && !live_eo ? <Pressable onPress={() => askCust(otype)} style={{ marginHorizontal: 18, marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{cust.name} · {cust.phone}{cust.source ? " · " + cust.source : ""}</T>{otype === "delivery" ? <T size={13} color={C.mut} numberOfLines={2}>{addrJoin(cust.addr)}</T> : null}</Pressable> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
@@ -282,7 +306,10 @@ export function Register() {
           {money2(S, t.total) ? <Row l="" r={"≈ " + money2(S, t.total)} muted /> : null}
         </View>
         <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 18, paddingBottom: 18 }}>
-          {live_eo?.status === "pending" ? <>
+          {erPending(live_eo) ? <>
+            <Btn kind="danger" height={56} style={{ flex: 1 }} label="Reject" onPress={() => erDecide(false)} />
+            <Btn kind="primary" height={56} style={{ flex: 2 }} label="Approve" onPress={() => erDecide(true)} />
+          </> : live_eo?.status === "pending" ? <>
             <Btn kind="danger" height={56} style={{ flex: 1 }} label="Decline" onPress={decline} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label="Accept" onPress={accept} />
           </> : live_eo?.status === "active" && live_eo.type === "delivery" && !live_eo.dispatchedAt ? <>
@@ -346,10 +373,10 @@ export function Register() {
           </Card>
         </Pressable>)}
       {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 2, borderColor: C.brand, padding: 14, gap: 8 }}>
-        <T w="s" size={16}>New {incoming.channel === "callcenter" ? "call center" : "API"} order · {incoming.ref || incoming.no || ""}</T>
+        <T w="s" size={16}>{incoming.__edit ? "Order Edit" : "New " + (incoming.channel === "callcenter" ? "call center" : "API") + " order"} · {incoming.ref || incoming.no || ""}</T>
         <T size={13} color={C.mut}>{[incoming.customerName, incoming.type === "delivery" ? "Delivery" : "Pickup", money(S, incoming.total)].filter(Boolean).join(" · ")}</T>
         <View style={{ flexDirection: "row", gap: 8 }}><Btn height={40} style={{ flex: 1 }} label="Later" onPress={() => setIncoming(null)} />
-          <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); openOrder(o); }} /></View>
+          <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View>
       </View> : null}
       {dlg}
       {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
