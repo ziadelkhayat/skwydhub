@@ -7,6 +7,7 @@ import { useStore } from "../lib/store";
 import { C, R } from "../lib/theme";
 import { Btn, Pill, T } from "./kit";
 import { Sheet } from "./Pickers";
+import { Full, Head } from "./Boards";
 
 export const DRV_ST: Record<string, string> = { assigned: "waiting for the driver", accepted: "accepted", declined: "declined", picked: "on the way", delivered: "delivered" };
 // drivers: this store's employees whose role has "Use Driver App" (or the job title Driver); if none, everyone working here
@@ -45,14 +46,15 @@ export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row)
       <Pill text={o.status === "closed" ? (o.driverSettledAt ? "Cash received" : "Delivered") : DRV_ST[o.driverStatus] || (o.dispatchedAt ? "Dispatched" : "Preparing")} tone={o.status === "closed" ? "ok" : "brand"} />
       <T w="m" style={{ width: 90, textAlign: "right" }}>{money(x.S, o.total)}</T></Pressable>);
   return (
-    <Sheet title="Drivers · Today" width={820} onClose={onClose}>
-      <View style={{ flexDirection: "row", gap: 10, marginBottom: 14 }}>
-        {[["Delivery orders", String(mine.length)], ["Total", money(x.S, tot(mine))], ["Without a driver", String(none.length)]].map(([l, v]) => <View key={l} style={{ flex: 1, padding: 12, borderRadius: R.md, backgroundColor: C.bg }}><T size={13} color={C.mut}>{l}</T><T w="s" size={18}>{v}</T></View>)}
+    // full screen, like Orders and Pickup & Delivery: the day's numbers, then a card per driver
+    <Full><Head title="Drivers · Today" back="Pickup & Delivery" onClose={onClose} />
+      <View style={{ flexDirection: "row", gap: 12, paddingHorizontal: 18, paddingTop: 14 }}>
+        {[["Delivery orders", String(mine.length)], ["Total", money(x.S, tot(mine))], ["Without a driver", String(none.length)], ["Drivers", String(Object.keys(by).length)]].map(([l, v]) => <View key={l} style={{ flex: 1, padding: 14, borderRadius: R.md, backgroundColor: "#fff", borderWidth: 1, borderColor: C.line }}><T size={13} color={C.mut}>{l}</T><T w="s" size={20}>{v}</T></View>)}
       </View>
-      <ScrollView style={{ maxHeight: 460 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 18, flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
         {Object.entries(by).sort((a, b) => b[1].l.length - a[1].l.length || String(a[1].name).localeCompare(b[1].name)).map(([id, d]) => { const owe = d.l.filter(owes), amt = tot(owe);
           return (
-            <View key={id} style={{ borderWidth: 1, borderColor: C.line, borderRadius: R.md, padding: 12, marginBottom: 10 }}>
+            <View key={id} style={{ width: "49%", backgroundColor: "#fff", borderWidth: 1, borderColor: C.line, borderRadius: R.md, padding: 14 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                 <T w="s" style={{ flex: 1 }}>{d.name} <T size={13} color={C.mut}>· {d.l.length} order{d.l.length === 1 ? "" : "s"} · {money(x.S, tot(d.l))}</T></T>
                 {owe.length ? (ask === id ? <><T size={13}>Receive {money(x.S, amt)}?</T><Btn height={36} label="No" onPress={() => setAsk(null)} /><Btn kind="primary" height={36} label="Receive" onPress={() => receive(id)} /></>
@@ -60,8 +62,8 @@ export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row)
               </View>
               {d.l.map(line)}
             </View>); })}
-        {none.length ? <View style={{ borderWidth: 1, borderColor: C.line, borderRadius: R.md, padding: 12 }}><T w="s">Waiting for a driver</T>{none.map(line)}</View> : null}
+        {none.length ? <View style={{ width: "49%", backgroundColor: "#fff", borderWidth: 1, borderColor: C.warn || C.line, borderRadius: R.md, padding: 14 }}><T w="s">Waiting for a driver</T>{none.map(line)}</View> : null}
       </ScrollView>
-    </Sheet>
+    </Full>
   );
 }
