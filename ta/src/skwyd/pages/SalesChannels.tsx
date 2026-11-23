@@ -27,7 +27,7 @@ import { toast } from "../ui/toast";
 type Ch = { id: string; kind: string; code?: string; name: string; branchId?: string; brandId?: string; types?: string[]; deleted?: boolean; virtual?: boolean; [k: string]: any };
 const SC_KINDS: [string, string, string[]][] = [["pos", "POS", ["dinein", "pickup", "delivery"]], ["callcenter", "Call Center", ["pickup", "delivery"]], ["online", "Web Ordering", ["dinein", "pickup", "delivery"]], ["integration", "Marketplace", ["pickup", "delivery"]]];
 const SC_ALLOWED: Record<string, string[]> = { pos: ["dinein", "pickup", "delivery"], callcenter: ["pickup", "delivery"], online: ["dinein", "pickup", "delivery"], integration: ["pickup", "delivery", "dinein"] };
-const OTYPES: [string, string][] = [["dinein", "Dine-in"], ["pickup", "Pickup"], ["delivery", "Delivery"]];
+const OTYPES: [string, string][] = [["dinein", "In Store"], ["pickup", "Pickup"], ["delivery", "Delivery"]];
 const bySort = (a: Row, b: Row) => (a.sort ?? 9999) - (b.sort ?? 9999) || String(a.name || "").localeCompare(String(b.name || ""));
 const scCode = (c: Ch) => c.code || c.kind;
 const catPar = (c?: Row) => { const r = String(c?.reference || ""); return r.startsWith("sub:") ? r.slice(4) : ""; };

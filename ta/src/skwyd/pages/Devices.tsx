@@ -27,7 +27,7 @@ const devType = (t?: string) => (DEV_TYPES.find(x => x[0] === t) || [, t === "wa
 const devRef = (devs: Row[]) => { const used = new Set(devs.filter(d => !d.deleted).map(d => String(d.reference || "").toUpperCase())); for (let n = 1; ; n++) { const r = "POS" + String(n).padStart(2, "0"); if (!used.has(r)) return r; } };
 const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
 const online = (d: Row) => !!d.lastSeen && Date.now() - +new Date(d.lastSeen) < 6 * 60000;
-const OT3: [string, string][] = [["dinein", "Dine-in"], ["takeaway", "Pickup"], ["delivery", "Delivery"]];
+const OT3: [string, string][] = [["dinein", "In Store"], ["takeaway", "Pickup"], ["delivery", "Delivery"]];
 
 /** a device that is deactivated or deleted leaves no till open (same as the portal's closeDeviceTill) */
 async function closeDeviceTill(deviceId: string) {

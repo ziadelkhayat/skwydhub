@@ -21,7 +21,7 @@ import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
 const QUAL: [string, string][] = [["order", "Order"], ["product", "Product"], ["both", "Order & Product"]];
-const OT: [string, string][] = [["dinein", "Dine-in"], ["pickup", "Pick Up"], ["delivery", "Delivery"]];
+const OT: [string, string][] = [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]];
 const amtLbl = (d: any) => d.open ? (d.type === "fixed" ? "Open amount" : "Open %") : d.type === "fixed" ? money(+d.amount || 0) : (+d.amount || 0) + "%";
 const tagsOf = (s: S, type: string): PickOpt[] => ((s.settings.find(x => x.id === "tags") as any)?.list || []).filter((t: any) => t.type === type && !t.deleted).map((t: any) => [t.id, t.name]);
 
@@ -77,7 +77,7 @@ export default function DiscountsPage() {
 
 function DiscountPage({ d, s, back, edit, patch }: { d: any; s: S; back: () => void; edit: () => void; patch: (p: any) => Promise<boolean> }) {
   const [pick, setPick] = useState<Sec | null>(null);
-  const otl: Record<string, string> = { dinein: "Dine-in", pickup: "Pick Up", delivery: "Delivery", fast: "Dine-in" };
+  const otl: Record<string, string> = { dinein: "In Store", pickup: "Pick Up", delivery: "Delivery", fast: "In Store" };
   return (
     <>
       <PageBreadcrumb pageTitle={d.name} />

@@ -12,7 +12,7 @@ import { Sheet } from "./Pickers";
 
 type RP = "shift" | "device" | "branch";
 const RP_L: Record<RP, string> = { shift: "This shift", device: "Today · this register", branch: "Today · whole store" };
-const TYP: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
+const TYP: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 
 function reportText(x: Ctx, rp: RP, branchName: string) {
   const S = x.S, today = bizDate(x), dev = x.device, sh = openShift(x) || [...S.shifts].filter(s => s.deviceId === dev.id).sort((a, b) => String(b.openedAt).localeCompare(String(a.openedAt)))[0];

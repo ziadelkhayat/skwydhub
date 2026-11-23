@@ -34,7 +34,7 @@ const COLS: [string, string, string, string][] = [
   ["qty", "Net Quantity", "Sold quantities - returned quantities", "n"], ["ret", "Return Amount", "Returned items + charges + taxes", "m"], ["retQty", "Return Quantity", "Quantities of returned items", "n"],
   ["void", "Void Amount", "Prices of voided items", "m"], ["voidQty", "Void Quantity", "Quantities of voided items", "n"], ["charges", "Charges", "Charges on orders in the period", "m"]];
 const DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const TYPE: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in", other: "Other" };
+const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering" };
 const cap = (s: string) => s ? s[0].toUpperCase() + s.slice(1) : "";
 const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };

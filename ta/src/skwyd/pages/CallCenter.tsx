@@ -19,7 +19,7 @@ import { F, SEL } from "../ui/kit";
 const COLS: [string, string, string][] = [["draft", "Drafts", "Orders saved as a draft and not sent to the store yet"], ["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Active", "Orders the store accepted: being prepared, or on the way with a driver"],
   ["closed", "Done", "Orders that are completed"], ["declined", "Declined", "Orders that have been declined from the store or the call center"]];
 const SUB: Record<string, string> = { review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing", declined: "Declined", closed: "Done", void: "Void", returned: "Returned", refund: "Refund" };
-const TYPE: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in" };
+const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store" };
 const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering" };
 const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };
 const tel = (p: string) => String(p || "").replace(/^\+961(\d{1,2})(\d{3})(\d{3})$/, "+961 $1 $2 $3");
