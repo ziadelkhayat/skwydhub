@@ -108,7 +108,7 @@ export function Register() {
       write("orders", o.id, { editRequest: { ...er, status: "rejected", reason, decidedAt: now, decidedBy: by } }); say("Order edit rejected"); return reset(); }
     const d = er.data || {}, sm = er.summary || {};
     write("orders", o.id, { ...d, ...(sm.voidAll ? { approvedBy: by } : {}), updatedAt: now, editRequest: { ...er, status: "approved", decidedAt: now, decidedBy: by } });
-    const kitchen = (its: any[]) => printJob(S, device!, "kitchen", pr => { const l = its.filter(i => printerHas(S, pr, i)); return l.length ? kitchenText({ ...o, ...d, items: l }) : null; });
+    const kitchen = (its: any[]) => printJob(S, device!, "kitchen", pr => { const l = its.filter(i => printerHas(S, pr, i)); return l.length ? kitchenText({ ...o, ...d, items: l }, S, branch?.brandId) : null; });
     if (sm.voidAll) kitchen((o.items || []).map((i: any) => ({ ...i, name: "VOID " + i.name })));
     else { if ((sm.added || []).length) await kitchen(sm.added); if ((sm.voided || []).length) kitchen(sm.voided.map((i: any) => ({ ...i, name: "VOID " + i.name }))); }
     say(sm.voidAll ? "Order voided" : "Order edit approved"); reset(); };
@@ -190,7 +190,7 @@ export function Register() {
     if (ro && a !== "Print") return say("This order is done");
     if (a === "Discount") { const p = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), am = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
       if (!p && !am) return say("Your role doesn't allow discounts.");
-      const d = await ask<Disc | undefined>(done => <DiscountDialog cur={cur} sym={String(S.settings.find(z => z.id === "company")?.currencySymbol || "$")} allowPct={p} allowAmt={am} init={disc} onDone={done} />); if (d !== undefined) setDisc(d); return; }
+      const d = await ask<Disc | undefined>(done => <DiscountDialog x={x} cart={cart} cur={cur} sym={String(S.settings.find(z => z.id === "company")?.currencySymbol || "$")} allowPct={p} allowAmt={am} init={disc} onDone={done} />); if (d !== undefined) setDisc(d); return; }
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges.");
       const r = await ask<{ picked: string[]; open: Record<string, number> } | null>(done => <ChargesDialog x={x} cur={cur} picked={picked} open={openCh} onDone={done} />); if (r) { setPicked(r.picked); setOpenCh(r.open); } return; }
     if (a === "Notes") { const r = await ask<{ receipt: string; kitchen: string } | null>(done => <NotesDialog init={notes} onDone={done} />); if (r) setNotes(r); return; }
@@ -207,7 +207,7 @@ export function Register() {
     if (kind === "receipt" && !can(S, cashier, live_eo?.status === "closed" ? "pos_reprint" : "pos_print_check") ) return say("Your role doesn't allow printing this.");
     const now = new Date().toISOString(), o: any = live_eo && ro ? live_eo : { ...(live_eo || { no: "", createdAt: now }), ...fields(), ...(live_eo ? { customerName: live_eo.customerName, phone: live_eo.phone } : {}), items: cart.map(({ saved, ...i }) => i) };
     const items = kind === "kitchen" && live_eo && !ro ? cart.filter(l => l.qty > (l.saved || 0)).map(({ saved, ...l }) => ({ ...l, qty: +(l.qty - (saved || 0)).toFixed(3) })) : o.items;
-    const r = await printJob(S, device!, kind, pr => { if (kind === "receipt") return receiptText(S, branch, o); const its = items.filter((i: any) => printerHas(S, pr, i)); return its.length ? kitchenText({ ...o, items: its }) : null; });
+    const r = await printJob(S, device!, kind, pr => { if (kind === "receipt") return receiptText(S, branch, o); const its = items.filter((i: any) => printerHas(S, pr, i)); return its.length ? kitchenText({ ...o, items: its }, S, branch?.brandId) : null; });
     if (r.preview != null) return setDlg(<Sheet title={kind === "receipt" ? "Receipt (preview)" : "Kitchen ticket (preview)"} width={420} onClose={() => setDlg(null)}><T style={{ fontFamily: "monospace", fontSize: 13 }}>{r.preview}</T></Sheet>);
     if (r.bad.length) return setDlg(<Sheet title="Printing failed" width={460} onClose={() => setDlg(null)}><T color={C.bad} style={{ lineHeight: 22 }}>{r.bad.join("\n")}</T></Sheet>);
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
@@ -295,7 +295,7 @@ export function Register() {
               </View>))}
         </ScrollView>
         <View style={{ paddingHorizontal: 18, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line, gap: 6 }}>
-          {t.disc ? <Row l={disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
+          {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
           {t.charges.map(c => <Row key={c.id} l={c.name} r={money(S, c.amount)} />)}
           {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={13} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(t => t.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
           {notes.kitchen || notes.receipt ? <T size={13} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
