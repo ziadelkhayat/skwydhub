@@ -35,9 +35,11 @@ export function receiptText(S: Data, branch: Row | null, o: Row) {
   if (a.rcptSource && o.source) L.push("Source: " + o.source); if (o.type === "dinein" && +o.guests) L.push("Guests: " + o.guests);
   if (a.rcptCustomer && (o.customerName || o.phone)) L.push([o.customerName, o.type === "pickup" && a.phoneOnPickup === false ? "" : o.phone].filter(Boolean).join(" · "));
   L.push(when(o.createdAt), "-".repeat(W));
-  (o.items || []).forEach((i: any) => { if (i.voided) return; L.push(row(i.qty + " x " + i.name, lineNet(i).toFixed(dec))); modLines(i, a.hideFreeMods).forEach(m => L.push(("   - " + m).slice(0, W))); if (+i.disc) L.push("  discount -" + (+i.disc).toFixed(dec)); });
+  // item names in the receipt's print language (Brands → Settings → Receipt): main, localized, or both
+  const names = (i: any) => { const ar = S.products.find(p => p.id === i.productId)?.nameAr; return a.printLang === "localized" ? [ar || i.name] : a.printLang === "both" && ar && ar !== i.name ? [i.name, ar] : [i.name]; };
+  (o.items || []).forEach((i: any) => { if (i.voided) return; names(i).forEach((nm, k) => L.push(k ? ("     " + nm).slice(0, W) : row(i.qty + " x " + nm, lineNet(i).toFixed(dec)))); modLines(i, a.hideFreeMods).forEach(m => L.push(("   - " + m).slice(0, W))); if (+i.disc) L.push("  discount -" + (+i.disc).toFixed(dec)); });
   L.push("-".repeat(W));
-  if (+o.discount) L.push(row(o.discountType === "amt" ? "Discount" : "Discount " + o.discountPct + "%", "-" + (+o.discount).toFixed(dec)));
+  if (+o.discount) L.push(row(o.promo?.name ? String(o.promo.name).slice(0, 22) : o.discountType === "amt" ? "Discount" : "Discount " + o.discountPct + "%", "-" + (+o.discount).toFixed(dec)));
   (o.charges || []).filter((c: any) => +c.amount).forEach((c: any) => L.push(row(c.name, (+c.amount).toFixed(dec))));
   if (a.showSubtotal !== false) L.push(row("Subtotal", net.toFixed(dec)));
   if (a.rcptTax) L.push(row("Tax", (+o.tax || 0).toFixed(dec)));
@@ -49,10 +51,12 @@ export function receiptText(S: Data, branch: Row | null, o: Row) {
   return L.join("\n");
 }
 // kitchen ticket: big order number, type, time, then each item with its modifiers (no prices)
-export function kitchenText(o: Row) {
+export function kitchenText(o: Row, S?: Data, brandId?: string) {
   const typ = o.type === "dinein" ? "IN-STORE" + (o.table ? " T" + o.table : "") : o.type === "pickup" || o.type === "takeaway" ? "PICKUP" : "DELIVERY";
   const L = [ctr("KITCHEN"), ctr("ORDER #" + (o.no || "—")), ctr(typ), ...(o.ref ? [ctr(o.ref)] : []), ...(o.source && o.channel !== "pos" ? [ctr(o.source)] : []), when(o.createdAt), "=".repeat(W)];
-  (o.items || []).forEach((i: any) => { L.push((i.qty + " x " + i.name).slice(0, W)); modLines(i).forEach(m => L.push(("   - " + m).slice(0, W))); });
+  const rank = (i: any) => { const c = S?.categories.find(c => c.id === S.products.find(p => p.id === i.productId)?.categoryId); return c?.sort ?? 999; };
+  const its = S && appSet(S, brandId).kitchenSort === "category" ? [...(o.items || [])].sort((a: any, b: any) => rank(a) - rank(b)) : (o.items || []);   // Brands → Settings: kitchen ticket by category
+  its.forEach((i: any) => { L.push((i.qty + " x " + i.name).slice(0, W)); modLines(i).forEach(m => L.push(("   - " + m).slice(0, W))); });
   L.push("=".repeat(W)); if (o.notes) L.push("NOTE: " + o.notes);
   return L.join("\n");
 }

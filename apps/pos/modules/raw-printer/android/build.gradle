@@ -6,10 +6,6 @@ plugins {
 group = 'expo.modules.rawprinter'
 version = '0.1.0'
 
-expoModule {
-  v2 true
-}
-
 android {
   namespace "expo.modules.rawprinter"
   defaultConfig {

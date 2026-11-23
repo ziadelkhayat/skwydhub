@@ -91,16 +91,56 @@ export type Charge = { id: string; name: string; type: string; value: number; am
 // charges of this order type, brand and store (Manage → Charges); the cashier adds them
 export const chargeList = (x: Ctx) => x.S.charges.filter(c => !c.deleted && c.active !== false && (!(c.orderTypes || []).length || c.orderTypes.includes(typeKey(x.otype)))
   && (!(c.brandIds || []).length || c.brandIds.includes(x.branch?.brandId)) && (!(c.branchIds || []).length || c.branchIds.includes(x.device.branchId))).sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(b.name));
-export type Disc = { type: "pct" | "amt"; value: number; name?: string } | null;
-export type Totals = { sub: number; disc: number; charges: Charge[]; chT: number; tax: number; total: number; rnd: number; net: number };
+/* ---------- promotions (Marketing → Promotions): the best one that fits the cart applies by itself; a discount the cashier picked takes its place ---------- */
+const promoList = (S: Data) => (((S.settings.find(x => x.id === "promotions") || {}) as any).list || []).filter((p: any) => !p.deleted && p.active !== false);
+function promoOn(x: Ctx, p: any) { const n = new Date(), z = (v: number) => String(v).padStart(2, "0"), d = n.getFullYear() + "-" + z(n.getMonth() + 1) + "-" + z(n.getDate()), hm = z(n.getHours()) + ":" + z(n.getMinutes()), ot = typeKey(x.otype);
+  if (p.start && d < p.start) return false; if (p.end && d > p.end) return false;
+  if ((p.days || []).length && !p.days.includes(String(n.getDay()))) return false;
+  if (p.from || p.to) { const f = p.from || "00:00", t = p.to || "23:59"; if (f <= t ? (hm < f || hm > t) : (hm < f && hm > t)) return false; }
+  if (!(p.orderTypes || []).includes(ot)) return false;
+  return !(p.branchIds || []).length || p.branchIds.includes(x.device.branchId); }
+const units = (cart: Line[], ids: string[]) => cart.filter(i => (ids || []).includes(i.productId)).flatMap(i => { const q = Math.max(1, Math.round(+i.qty || 1)); return Array(q).fill(lineNet(i) / q) as number[]; }).sort((a, b) => a - b);
+function promoAmt(x: Ctx, cart: Line[], p: any, sub: number) {
+  if (+p.minOrder && sub < +p.minOrder) return 0;
+  const sum = (a: number[]) => a.reduce((s, v) => s + v, 0), off = (base: number) => p.valueType === "fixed" ? Math.min(+p.value || 0, base) : Math.min(base * (+p.value || 0) / 100, +p.maxDiscount > 0 ? +p.maxDiscount : Infinity);
+  if (p.type === "disc") return off(sub);
+  if (p.type === "itemdisc") { const base = sum(cart.filter(i => (p.itemIds || []).includes(i.productId) || (p.categoryIds || []).includes(x.S.products.find(y => y.id === i.productId)?.categoryId)).map(lineNet)); return base ? (p.valueType === "fixed" ? Math.min(+p.value || 0, base) : base * (+p.value || 0) / 100) : 0; }
+  if (p.type === "bxgy") { const bq = Math.max(1, +p.buyQty || 1), gq = Math.max(1, +p.getQty || 1), pct = (p.getPct == null ? 100 : +p.getPct) / 100, buy = p.buyIds || [], get = p.getIds || [], buyOnly = buy.filter((id: string) => !get.includes(id));
+    if (!buyOnly.length) { const u = units(cart, [...new Set([...buy, ...get])] as string[]), sets = Math.floor(u.length / (bq + gq)); return sum(u.slice(0, sets * gq)) * pct; }
+    const sets = Math.floor(units(cart, buyOnly).length / bq); return sum(units(cart, get).slice(0, sets * gq)) * pct; }
+  if (p.type === "freeitem") return sum(units(cart, p.freeIds).slice(0, Math.max(1, +p.freeQty || 1)));
+  if (p.type === "bundle") { const ids = p.bundleIds || []; if (ids.length < 2) return 0; const per = ids.map((id: string) => units(cart, [id])); if (per.some((u: number[]) => !u.length)) return 0;
+    const sets = Math.min(...per.map((u: number[]) => u.length)); return Math.max(0, sum(per.map((u: number[]) => sum(u.slice(0, sets)))) - sets * (+p.bundlePrice || 0)); }
+  return 0; }
+export function promoBest(x: Ctx, cart: Line[], sub: number) { let best: { id: string; name: string; amount: number } | null = null; if (!cart.length) return null;
+  for (const p of promoList(x.S)) { if (!promoOn(x, p)) continue; const a = +Math.min(promoAmt(x, cart, p, sub), sub).toFixed(2); if (a > 0 && (!best || a > best.amount)) best = { id: p.id, name: p.name, amount: a }; }
+  return best; }
+/* set discounts (Marketing → Discounts): store, order type, minimum order, items / categories / tags they're limited to */
+export const dsAll = (S: Data) => ((((S.settings.find(x => x.id === "discounts") || {}) as any).list || []) as any[]).filter(d => !d.deleted);
+export const dsHere = (x: Ctx) => dsAll(x.S).filter(d => (!(d.branchIds || []).length || d.branchIds.includes(x.device.branchId)) && (!(d.orderTypes || []).length || d.orderTypes.includes(typeKey(x.otype))));
+export function dsCalc(x: Ctx, cart: Line[], d: any, val?: number) {
+  const sub = cart.reduce((a, i) => a + lineNet(i), 0); if (d.minOrder != null && sub < +d.minOrder) return { amt: 0, why: "Minimum order " + money(x.S, +d.minOrder) };
+  const tg = ((x.S.settings.find(y => y.id === "tags") || {}) as any).on?.product || {}, lim = (d.productIds || []).length || (d.categoryIds || []).length || (d.productTags || []).length;
+  const ok = (i: Line) => { if (d.minProduct != null && (+i.price || 0) < +d.minProduct) return false; if (!lim) return true; const p = x.S.products.find(y => y.id === i.productId);
+    return (d.productIds || []).includes(i.productId) || (p && (d.categoryIds || []).includes(p.categoryId)) || (tg[i.productId] || []).some((t: string) => (d.productTags || []).includes(t)); };
+  const base = cart.filter(ok).reduce((a, i) => a + lineNet(i), 0); if (!(base > 0)) return { amt: 0, why: lim ? "No matching items" : "Nothing to discount" };
+  const v = d.open ? +(val || 0) : +d.amount || 0; if (d.open && !(v > 0)) return { amt: 0, why: "" };
+  let amt = d.type === "fixed" ? Math.min(v, base) : base * v / 100; if (d.type !== "fixed" && d.maxDiscount != null) amt = Math.min(amt, +d.maxDiscount);
+  return { amt: +Math.min(amt, sub).toFixed(2), why: "" };
+}
+export type Disc = { type: "pct" | "amt"; value: number; name?: string; setId?: string; setVal?: number } | null;
+export type Totals = { sub: number; disc: number; promo: { id: string; name: string; amount: number } | null; charges: Charge[]; chT: number; tax: number; total: number; rnd: number; net: number };
 export function totals(x: Ctx, cart: Line[], d: Disc = null, picked: string[] = [], open: Record<string, number> = {}, fee = 0): Totals {
-  const sub = cart.reduce((a, i) => a + lineNet(i), 0), disc = !d ? 0 : +(d.type === "amt" ? Math.min(d.value, sub) : sub * Math.min(d.value, 100) / 100).toFixed(2);
+  const sub = cart.reduce((a, i) => a + lineNet(i), 0);
+  // a set discount follows the cart; a manual one is a % or an amount; with neither, the best promotion applies by itself
+  const ds = d?.setId ? dsAll(x.S).find(y => y.id === d.setId) : null, manual = !d ? 0 : ds ? dsCalc(x, cart, ds, d.setVal).amt : +(d.type === "amt" ? Math.min(d.value, sub) : sub * Math.min(d.value, 100) / 100).toFixed(2);
+  const promo = d ? null : promoBest(x, cart, sub), disc = promo ? promo.amount : manual;
   const charges: Charge[] = chargeList(x).filter(c => picked.includes(c.id)).map(c => { const amount = +(c.type === "percent" ? (coS(x.S).chargesBeforeDisc !== false ? sub : sub - disc) * (+c.value || 0) / 100 : c.type === "open" ? +(open[c.id] || 0) : +c.value || 0).toFixed(2);
     return { id: c.id, name: c.name, type: c.type, value: c.type === "open" ? amount : +c.value || 0, amount, ...(c.taxGroup ? { taxGroup: c.taxGroup } : {}) }; });
   const chT = +charges.reduce((a, c) => a + c.amount, 0).toFixed(2), tp = taxParts(x, cart, disc);
   charges.forEach(c => { const r = rates(x, c.taxGroup), base = c.amount / (1 + r.inc); tp.tax = +(tp.tax + (c.amount - base) + base * r.exc).toFixed(2); tp.added = +(tp.added + base * r.exc).toFixed(2); });
   const raw = +(sub - disc + chT + fee + tp.added).toFixed(2), total = +rrApply(raw, DEC(x.S), coS(x.S).roundRules1).toFixed(2);
-  return { sub, disc, charges, chT, tax: tp.tax, total, rnd: +(total - raw).toFixed(2), net: +(raw - tp.tax).toFixed(2) };
+  return { sub, disc, promo, charges, chT, tax: tp.tax, total, rnd: +(total - raw).toFixed(2), net: +(raw - tp.tax).toFixed(2) };
 }
 
 /* ---------- cashiers ---------- */
@@ -175,7 +215,7 @@ export const newId = (p: string) => p + "_" + Date.now().toString(36) + Math.ran
 // what goes into the order: the type, the lines (without screen-only fields) and the totals
 export function orderFields(x: Ctx, cart: Line[], t: Totals, extra: { table?: string; customerName?: string; phone?: string; guests?: number; disc?: Disc; receiptNotes?: string; notes?: string } = {}) {
   return { type: x.otype === "takeaway" ? "pickup" : x.otype, table: x.otype === "dinein" ? extra.table || "" : "", customerName: (extra.customerName || "").trim(), phone: (extra.phone || "").trim(), address: "",
-    items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: t.charges, chargesTotal: t.chT, discountPct: extra.disc?.type === "pct" ? extra.disc.value : t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: extra.disc?.type || "pct", discount: t.disc, promo: null,
+    items: cart.map(({ saved, ...i }) => i), subtotal: +t.sub.toFixed(2), charges: t.charges, chargesTotal: t.chT, discountPct: extra.disc?.type === "pct" ? extra.disc.value : t.sub ? +(t.disc / t.sub * 100).toFixed(2) : 0, discountType: extra.disc?.type || "pct", discount: t.disc, promo: t.promo || null,
     total: t.total, tax: t.tax, receiptNotes: (extra.receiptNotes || "").trim(), notes: (extra.notes || "").trim(), ...(x.otype === "dinein" && extra.guests ? { guests: extra.guests } : {}) };
 }
 

@@ -1,12 +1,13 @@
 // The register's action windows: Discount, Notes, Charges, Hold / Retrieve.
 import { useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
-import { chargeList, type Ctx, type Disc } from "../lib/pos";
+import { chargeList, dsCalc, dsHere, type Ctx, type Disc, type Line } from "../lib/pos";
 import { C, F, R } from "../lib/theme";
 import { Btn, Pad, T } from "./kit";
 import { Sheet } from "./Pickers";
 
-export function DiscountDialog({ cur, sym, allowPct, allowAmt, init, onDone }: { cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; onDone: (d: Disc | undefined) => void }) {
+export function DiscountDialog({ x, cart, cur, sym, allowPct, allowAmt, init, onDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; onDone: (d: Disc | undefined) => void }) {
+  const sets = dsHere(x), [openSet, setOpenSet] = useState<any>(null);
   const [type, setType] = useState<"pct" | "amt">(init?.type || (allowPct ? "pct" : "amt")), [v, setV] = useState(init ? String(init.value) : "");
   const key = (k: string) => setV(s => k === "c" ? "" : k === "b" ? s.slice(0, -1) : s.length > 8 ? s : s === "0" ? k : s + k);
   return (
@@ -14,15 +15,21 @@ export function DiscountDialog({ cur, sym, allowPct, allowAmt, init, onDone }: {
       {init ? <Btn kind="danger" height={48} label="Remove" onPress={() => onDone(null)} /> : null}
       <View style={{ flex: 1 }} />
       <Btn label="Cancel" height={48} onPress={() => onDone(undefined)} />
-      <Btn kind="primary" height={48} label="Apply" disabled={!(+v > 0) || (type === "pct" && +v > 100)} onPress={() => onDone({ type, value: +v })} />
+      <Btn kind="primary" height={48} label="Apply" disabled={!(+v > 0) || (!openSet && type === "pct" && +v > 100)} onPress={() => onDone(openSet ? { type: "amt", value: 0, name: openSet.name, setId: openSet.id, setVal: +v } : { type, value: +v })} />
     </>}>
       <View style={{ alignItems: "center", gap: 12 }}>
-        <View style={{ flexDirection: "row", gap: 8, alignSelf: "stretch" }}>
+        {sets.length > 0 && <View style={{ alignSelf: "stretch", gap: 6 }}><T size={13} color={C.ink2}>Discounts</T>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{sets.map(d => { const c = dsCalc(x, cart, d, 0), on = openSet?.id === d.id || init?.setId === d.id;
+            return <Pressable key={d.id} onPress={() => { if (d.open) { setOpenSet(d); setV(""); } else if (c.amt > 0) onDone({ type: "amt", value: 0, name: d.name, setId: d.id }); }}
+              style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: R.sm, borderWidth: on ? 2 : 1, borderColor: on ? C.brand : C.line, backgroundColor: on ? C.brand50 : "#fff", opacity: !d.open && !(c.amt > 0) ? 0.5 : 1 }}>
+              <T w="m" size={14}>{d.name}</T><T size={12} color={C.mut}>{d.open ? (d.type === "fixed" ? "Open amount" : "Open %") : c.why || "−" + cur(c.amt)}</T></Pressable>; })}</View></View>}
+        {openSet ? <T w="s">{openSet.name} · {openSet.type === "fixed" ? "amount" : "%"}</T> : null}
+        {!openSet && <View style={{ flexDirection: "row", gap: 8, alignSelf: "stretch" }}>
           {allowPct && <Btn kind={type === "pct" ? "primary" : "outline"} height={44} style={{ flex: 1 }} label="%" onPress={() => setType("pct")} />}
           {allowAmt && <Btn kind={type === "amt" ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={sym} onPress={() => setType("amt")} />}
-        </View>
+        </View>}
         <View style={{ alignSelf: "stretch", height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}>
-          <T w="s" size={26}>{v === "" ? " " : type === "pct" ? v + " %" : cur(+v)}</T></View>
+          <T w="s" size={26}>{v === "" ? " " : (openSet ? openSet.type !== "fixed" : type === "pct") ? v + " %" : cur(+v)}</T></View>
         <Pad onKey={key} size={72} />
         <Btn kind="ghost" label="." height={36} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
       </View>
