@@ -67,13 +67,20 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const shift = (n: number) => { const d = new Date(day + "T12:00:00"); d.setDate(d.getDate() + n); const v = d.toISOString().slice(0, 10); if (v <= todayD) setDay(v); };
   const dmy = (d: string) => d === todayD ? "Today" : d.split("-").reverse().join("-");
   const all = mineAll.filter(o => ["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === day).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const TABS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"], ["open", "Preparing", o => o.status === "active" && o.editRequest?.status !== "pending"], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
+  // the same tabs as the back office Orders page
+  const API = ["online", "web", "marketplace", "api"], sched = (o: any) => !!o.scheduledAt && ["draft", "pending", "active"].includes(o.status);
+  const TABS: [string, string, (o: Row) => boolean][] = [["all", "All", () => true], ["today", "Today", o => bizDate(x, o.createdAt) === todayD], ["draft", "Draft", o => o.status === "draft"], ["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
+    ["active", "Active", o => o.status === "active"], ["dispatched", "Dispatched", o => o.status === "active" && !!(o as any).dispatchedAt], ["ahead", "Ahead", sched], ["api", "API", o => API.includes(o.channel)]];
   // as before: orders waiting to be accepted come first
   const [tab, setTab] = useState(() => mineAll.some(o => o.status === "pending" || o.editRequest?.status === "pending") ? "pending" : "all"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
   const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.ref, o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
-  return <Full><Head title="Orders" onClose={onClose}>{TABS.map(([k, t, f]) => <Btn key={k} kind={tab === k ? "primary" : "outline"} height={44} label={`${t} (${all.filter(f).length})`} onPress={() => setTab(k)} />)}</Head>
+  return <Full><Head title="Orders" onClose={onClose}>
+      {/* segmented tabs, as on the back office Orders page */}
+      <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2 }}>{TABS.map(([k, t]) =>
+        <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)} style={{ height: 40, paddingHorizontal: 14, borderRadius: R.sm, justifyContent: "center", backgroundColor: tab === k ? "#fff" : "transparent", borderWidth: tab === k ? 1 : 0, borderColor: C.line }}>
+          <T w="m" size={15} color={tab === k ? C.ink : C.mut}>{t}</T></Pressable>)}</View></Head>
     {pick ? <Calendar day={day} today={todayD} count={d => mineAll.filter(o => bizDate(x, o.createdAt) === d).length} onPick={d => { setDay(d); setPick(false); }} onClose={() => setPick(false)} /> : null}
     <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, margin: 12, flexWrap: "wrap" }}>
