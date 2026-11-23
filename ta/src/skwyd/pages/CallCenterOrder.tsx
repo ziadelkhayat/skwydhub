@@ -198,15 +198,10 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
   const reasons = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.cancelReasons == null ? ["Customer cancelled", "Duplicate order", "Wrong order details"] : String(a.cancelReasons).split("\n").map((x: string) => x.trim()).filter(Boolean); })();
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <Button variant="outline" onClick={onClose}><ArrowLeftIcon className="size-5" />Call Center</Button>
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{o ? `Order ${ccLabel(o)}` : "New Call Center Order"}</h2>
-        {o && <Badge variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
-      </div>
       {/* cart on the left, the menu in the middle, the customer on the right */}
-      <div className="grid grid-cols-1 gap-4 lg:h-[calc(100dvh-5.5rem)] lg:min-h-[560px] lg:grid-cols-[360px_1fr_340px]">
+      <div className="grid grid-cols-1 gap-3 lg:h-[calc(100dvh-2rem)] lg:min-h-[560px] lg:grid-cols-[340px_1fr_320px]">
             {/* customer and order details */}
-            <section className="custom-scrollbar space-y-4 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-5 lg:order-3 lg:overflow-y-auto">
+            <section className="custom-scrollbar space-y-3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-4 lg:order-3 lg:overflow-y-auto">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
                 className={cn("h-11 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
@@ -230,7 +225,11 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
             </section>
             {/* the cart */}
             <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 lg:order-1">
-              <h3 className="border-b border-gray-200 px-5 pt-4 pb-3 text-base font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">Cart{cart.length ? ` (${cart.reduce((a, i) => a + (+i.qty || 0), 0)})` : ""}</h3>
+              <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-2.5 dark:border-gray-800">
+                <Button size="sm" variant="outline" onClick={onClose}><ArrowLeftIcon className="size-4" />Call Center</Button>
+                {o && <b className="truncate text-sm font-semibold text-gray-800 dark:text-white/90">{ccLabel(o)}</b>}
+                {o && <Badge size="sm" variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
+                {cart.length ? <span className="ml-auto text-sm text-gray-500">{cart.reduce((a, i) => a + (+i.qty || 0), 0)} items</span> : null}</div>
               
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
@@ -264,25 +263,25 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                 </div>
               </div>
             </section>
-            <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-5 lg:order-2 lg:overflow-hidden">
+            <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-3 lg:order-2 lg:overflow-hidden">
               {/* the order's tools, as square tiles (like the POS) */}
-              {!ro && <div className="mb-4 flex flex-wrap gap-3">{([["disc", "Discount", DollarIcon], ["chg", "Charges", PlusIcon], ["tags", "Tags", TagIcon], ["notes", "Notes", PencilIcon]] as const).map(([k, t, I]) =>
-                <button key={k} type="button" onClick={() => setDlg(k)} className="flex size-28 flex-col items-center justify-center gap-2.5 rounded-xl bg-brand-500 text-base font-medium text-white shadow-theme-xs transition hover:bg-brand-600">
-                  <I className="size-8" /><span>{t}{k === "tags" && tags?.length ? ` (${tags.length})` : ""}</span></button>)}</div>}
+              {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", DollarIcon], ["chg", "Charges", PlusIcon], ["tags", "Tags", TagIcon], ["notes", "Notes", PencilIcon]] as const).map(([k, t, I]) =>
+                <button key={k} type="button" onClick={() => setDlg(k)} className="flex size-20 flex-col items-center justify-center gap-1.5 rounded-xl bg-brand-500 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600">
+                  <I className="size-6" /><span>{t}{k === "tags" && tags?.length ? ` (${tags.length})` : ""}</span></button>)}</div>}
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
-                <InputGroup className="mb-3 h-11"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+                <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
-                {!q.trim() && !cat ? <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 xl:grid-cols-5">{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
-                  <button key={c.id} type="button" onClick={() => setCat(c.id)} className="flex h-[200px] flex-col overflow-hidden rounded-none border border-gray-200 bg-white text-start transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
-                    {c.imageUrl ? <img src={c.imageUrl} alt="" className="h-[112px] w-full shrink-0 bg-gray-50 object-contain dark:bg-white/5" /> : <span className="h-1.5 shrink-0 bg-brand-500" />}
-                    <span className="flex min-h-0 flex-1 flex-col p-2.5"><b className="line-clamp-2 text-sm leading-[18px] font-semibold text-gray-800 dark:text-white/90">{c.name}</b><span className="mt-auto pt-1 text-[13px] text-gray-500">{n} {n === 1 ? "item" : "items"}</span></span></button>); })}
+                {!q.trim() && !cat ? <div className="custom-scrollbar grid min-h-0 flex-1 snap-y snap-mandatory grid-cols-5 gap-2 overflow-y-auto [grid-auto-rows:150px] lg:[grid-auto-rows:calc((100%-1.5rem)/4)]">{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
+                  <button key={c.id} type="button" onClick={() => setCat(c.id)} className="flex h-full min-h-0 snap-start flex-col items-center overflow-hidden border bg-white text-center transition hover:border-brand-300 hover:bg-brand-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+                    {c.imageUrl ? <span className="flex min-h-0 w-full flex-1 justify-center pt-1.5"><img src={c.imageUrl} alt="" className="aspect-square h-full bg-gray-50 object-contain dark:bg-white/5" /></span> : <span className="h-1.5 w-full shrink-0 bg-brand-500" />}
+                    <span className={cn("flex shrink-0 flex-col items-center px-1.5 py-1", !c.imageUrl && "my-auto")}><b className="text-xs leading-[14px] font-semibold text-gray-800 dark:text-white/90">{c.name}</b><span className="text-xs text-gray-500">{n} {n === 1 ? "item" : "items"}</span></span></button>); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</div> : <>
-                <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 xl:grid-cols-5">{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-[200px] flex-col items-center justify-center gap-2 border border-gray-200 bg-white p-2.5 text-center transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
-                    <ArrowLeftIcon className="size-7 text-brand-500" /><b className="text-base font-semibold text-gray-800 dark:text-white/90">Back</b><span className="line-clamp-2 text-[13px] text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
+                <div className="custom-scrollbar grid min-h-0 flex-1 snap-y snap-mandatory grid-cols-5 gap-2 overflow-y-auto [grid-auto-rows:150px] lg:[grid-auto-rows:calc((100%-1.5rem)/4)]">{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 border border-gray-200 bg-white p-1.5 text-center transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
+                    <ArrowLeftIcon className="size-6 text-brand-500" /><b className="text-sm font-semibold text-gray-800 dark:text-white/90">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
                   {shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch), inCart = cart.filter(i => i.productId === p.id || i.id === p.id).reduce((t, i) => t + (+i.qty || 0), 0); return (
-                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className={cn("relative flex h-[200px] flex-col overflow-hidden rounded-none border bg-white text-start transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50", inCart ? "border-brand-500" : "border-gray-200")} >
-                    {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-[112px] w-full shrink-0 bg-gray-50 object-contain dark:bg-white/5" /> : <span className="h-1.5 shrink-0 bg-brand-50 dark:bg-brand-500/10" />}
-                    {inCart ? <span className="absolute top-1.5 right-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-semibold text-white">{inCart}</span> : null}<span className="flex min-h-0 flex-1 flex-col p-2.5"><b className="line-clamp-2 text-sm leading-[18px] font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="mt-auto pt-1 text-[13px] text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
+                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className={cn("relative disabled:opacity-50 flex h-full min-h-0 snap-start flex-col items-center overflow-hidden border bg-white text-center transition hover:border-brand-300 hover:bg-brand-50 dark:bg-gray-900", inCart ? "border-brand-500" : "border-gray-200 dark:border-gray-800")}>
+                    {p.imageUrl ? <span className="flex min-h-0 w-full flex-1 justify-center pt-1.5"><img src={p.imageUrl} alt="" className="aspect-square h-full bg-gray-50 object-contain dark:bg-white/5" /></span> : <span className="h-1.5 w-full shrink-0 bg-brand-50 dark:bg-brand-500/10" />}
+                    {inCart ? <span className="absolute top-1.5 right-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-semibold text-white">{inCart}</span> : null}<span className={cn("flex shrink-0 flex-col items-center px-1.5 py-1", !p.imageUrl && "my-auto")}><b className="text-xs leading-[14px] font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="text-xs text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</div></>}
               </>}
             </section>
