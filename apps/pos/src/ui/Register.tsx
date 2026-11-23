@@ -24,6 +24,7 @@ import { appSet, kitchenText, printJob, printerHas, receiptText } from "../lib/p
 import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
 import { Bubble, notify, touched } from "./Bubble";
+import { OrdersList, PDBoard } from "./Boards";
 import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -47,16 +48,15 @@ export function Register() {
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]);
-  const top = (cat && m.cats.some(c => c.id === cat) ? cat : "") || m.tops[0]?.id || "", curTop = m.parentOf(top) || top;   // as before: the first top category is open
+  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles; a tile opens its items, Back goes up
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
 
   // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
-  const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
-  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
+  const menuW = Math.round(W * 0.66), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, tile = Math.max(110, Math.min(190, Math.round(tileW * 0.82))), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
-  const [note, setNote] = useState("");
-  const say = (s: string) => { setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), 2500); };
+  // messages: a bubble pointing at the button just pressed (Bubble.tsx)
+  const say = (s: string) => notify(s);
 
   // a window over the sale (variant, modifiers, open price) that answers once
   const [dlg, setDlg] = useState<ReactNode>(null);
@@ -218,7 +218,7 @@ export function Register() {
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
-  const pdBoard = () => setDlg(<OrdersDialog pd x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
+  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
   const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
   // new web and call center orders: a banner to open them (pos.html incoming); the master register can accept web orders by itself (Device settings: Auto accept)
@@ -273,8 +273,7 @@ export function Register() {
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return z; })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
-  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : [];
-  const back = !q.trim() && m.parentOf(top);
+  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
 
   return (
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
@@ -368,13 +367,11 @@ export function Register() {
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: 40 }} contentContainerStyle={{ gap: 8 }}>
-          {m.tops.map(c => <Btn key={c.id} kind={c.id === curTop && !q ? "soft" : "outline"} height={40} label={c.name} style={c.id === curTop && !q ? { borderColor: C.brand } : undefined} onPress={() => { setQ(""); setCat(c.id); }} />)}
-        </ScrollView>
+        {top && !q.trim() ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 40 }}>
+          <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} /><T w="s" size={17} numberOfLines={1} style={{ flex: 1 }}>{m.cats.find(c => c.id === top)?.name || ""}</T></View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
-          {back ? <CatTile w={tileW} size={tile} name="‹ Back" n={-1} onPress={() => setCat(m.parentOf(top))} /> : null}
-          {items.map((it: any) => it.sub
+                    {items.map((it: any) => it.sub
             ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
             : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                 n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
@@ -382,7 +379,7 @@ export function Register() {
         </ScrollView>
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
@@ -411,7 +408,7 @@ export function Register() {
           <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View>
       </View> : null}
       {dlg}
-      {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
+      <Bubble />
     </View>
   );
 }
