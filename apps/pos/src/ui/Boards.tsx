@@ -74,9 +74,7 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
   return <Full><Head title="Orders" onClose={onClose}>{TABS.map(([k, t, f]) => <Btn key={k} kind={tab === k ? "primary" : "outline"} height={44} label={`${t} (${all.filter(f).length})`} onPress={() => setTab(k)} />)}</Head>
-    {pick ? <Sheet title="Business date" width={380} onClose={() => setPick(false)}>
-      <View style={{ gap: 8 }}>{days.map(d => { const n = mineAll.filter(o => bizDate(x, o.createdAt) === d).length;
-        return <Btn key={d} kind={d === day ? "primary" : "outline"} height={46} label={dmy(d) + "  ·  " + n + (n === 1 ? " order" : " orders")} onPress={() => { setDay(d); setPick(false); }} />; })}</View></Sheet> : null}
+    {pick ? <Calendar day={day} today={todayD} count={d => mineAll.filter(o => bizDate(x, o.createdAt) === d).length} onPick={d => { setDay(d); setPick(false); }} onClose={() => setPick(false)} /> : null}
     <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, margin: 12, flexWrap: "wrap" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, width: 380 }}>
@@ -99,4 +97,25 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
           <T w="s" style={{ flex: 1, textAlign: "right" }}>{money(x.S, y.total)}</T></Pressable>; })
         : <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>{!all.length ? "No orders today yet." : "No orders here."}</T>}</ScrollView>
     </View></Full>;
+}
+
+// the business date as a month calendar: days with orders show their count; days after today can't be picked
+function Calendar({ day, today, count, onPick, onClose }: { day: string; today: string; count: (d: string) => number; onPick: (d: string) => void; onClose: () => void }) {
+  const [m, setM] = useState(day.slice(0, 7));   // "yyyy-mm"
+  const [y, mo] = m.split("-").map(Number), first = new Date(y, mo - 1, 1), n = new Date(y, mo, 0).getDate(), lead = (first.getDay() + 6) % 7;   // weeks start on Monday
+  const iso = (d: number) => `${m}-${String(d).padStart(2, "0")}`, step = (k: number) => { const t = new Date(y, mo - 1 + k, 1); setM(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}`); };
+  const cells: (number | null)[] = [...Array(lead).fill(null), ...Array.from({ length: n }, (_, i) => i + 1)]; while (cells.length % 7) cells.push(null);
+  const W = 50;
+  return <Sheet title="Business date" width={7 * W + 40} onClose={onClose} footer={<><Btn height={44} label="Today" onPress={() => onPick(today)} /><View style={{ flex: 1 }} /><Btn height={44} label="Close" onPress={onClose} /></>}>
+    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+      <Btn height={40} label="‹" style={{ width: 44 }} onPress={() => step(-1)} />
+      <T w="s" size={16} style={{ flex: 1, textAlign: "center" }}>{first.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</T>
+      <Btn height={40} label="›" style={{ width: 44 }} disabled={m >= today.slice(0, 7)} onPress={() => step(1)} /></View>
+    <View style={{ flexDirection: "row" }}>{["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map(d => <T key={d} size={12} w="m" color={C.mut} style={{ width: W, textAlign: "center", marginBottom: 6 }}>{d}</T>)}</View>
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>{cells.map((d, i) => { if (!d) return <View key={i} style={{ width: W, height: W }} />;
+      const v = iso(d), on = v === day, fut = v > today, c = fut ? 0 : count(v);
+      return <Pressable key={i} disabled={fut} accessibilityRole="button" accessibilityLabel={v} onPress={() => onPick(v)} style={({ pressed }) => ({ width: W, height: W, alignItems: "center", justifyContent: "center", borderRadius: R.md, backgroundColor: on ? C.brand : pressed ? C.brand50 : "transparent", borderWidth: v === today && !on ? 1 : 0, borderColor: C.brand, opacity: fut ? 0.35 : 1 })}>
+        <T w={on || c ? "s" : "r"} size={15} color={on ? "#fff" : C.ink}>{d}</T>
+        {c ? <T size={10} color={on ? "#fff" : C.brand}>{c}</T> : null}</Pressable>; })}</View>
+  </Sheet>;
 }
