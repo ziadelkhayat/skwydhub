@@ -7,8 +7,10 @@ import { sb } from "@/lib/supabase";
 import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { TD, TH, TR } from "../ui/kit";
+import { TD, TR } from "../ui/kit";
 import { Head, Info, None, Sec } from "./Details";
+// the item list is kept compact: short rows, small type
+const ITH = "px-3 py-2 text-start text-xs font-medium whitespace-nowrap text-gray-500 dark:text-gray-400", ITD = "px-3 py-1.5 text-sm text-gray-700 dark:text-gray-400", ITR = "border-t border-gray-100 dark:border-white/5";
 import { CHL, chkNo, ORD_ST, ordRef, srcOf, ST_COLOR, tel, TYPE_LBL, camel } from "./Orders";
 
 const tm = (t?: string) => t ? fmtDate(t) + " " + new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
@@ -51,14 +53,14 @@ export default function OrderPage() {
       </div></Sec>}
 
     <Sec title="Items">
-      {!items.length ? <None t="No items." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Item</th><th className={TH + " text-end"}>Quantity</th><th className={TH + " text-end"}>Price</th><th className={TH + " text-end"}>Total</th></tr></thead><tbody>
-        {items.map((it, i) => <tr key={i} className={TR + (it.voided ? " opacity-60" : "")}>
-          <td className={TD}><span className={"font-medium text-gray-800 dark:text-white/90" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
+      {!items.length ? <None t="No items." /> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className={ITH}>Item</th><th className={ITH + " text-end"}>Quantity</th><th className={ITH + " text-end"}>Price</th><th className={ITH + " text-end"}>Total</th></tr></thead><tbody>
+        {items.map((it, i) => <tr key={i} className={ITR + (it.voided ? " opacity-60" : "")}>
+          <td className={ITD}><span className={"font-medium text-gray-800 dark:text-white/90" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
             {it.mods && <span className="block text-xs text-gray-500">{String(it.mods)}</span>}{it.note && <span className="block text-xs text-gray-500">Note: {it.note}</span>}</td>
-          <td className={TD + " text-end"}>{q2(it.qty)}</td><td className={TD + " text-end"}>{money(it.price)}</td><td className={TD + " text-end"}>{money((+it.price || 0) * (+it.qty || 0) - (+it.disc || 0))}</td></tr>)}
+          <td className={ITD + " text-end"}>{q2(it.qty)}</td><td className={ITD + " text-end"}>{money(it.price)}</td><td className={ITD + " text-end"}>{money((+it.price || 0) * (+it.qty || 0) - (+it.disc || 0))}</td></tr>)}
         {([["Subtotal", o.subtotal], ["Discount", -(+o.discount || 0)], ...charges.map(c => [c.name, c.amount]), ["Delivery Fee", o.deliveryFee], ["Tax", o.tax]] as [string, any][])
-          .filter(([, v]) => v != null && +v !== 0).map(([l, v]) => <tr key={l}><td colSpan={3} className={TD + " text-end text-gray-500"}>{l}</td><td className={TD + " text-end"}>{money(v)}</td></tr>)}
-        <tr><td colSpan={3} className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>Total</td><td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(o.total)}</td></tr>
+          .filter(([, v]) => v != null && +v !== 0).map(([l, v]) => <tr key={l}><td colSpan={3} className={ITD + " text-end text-gray-500"}>{l}</td><td className={ITD + " text-end"}>{money(v)}</td></tr>)}
+        <tr><td colSpan={3} className={ITD + " text-end font-semibold text-gray-800 dark:text-white/90"}>Total</td><td className={ITD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(o.total)}</td></tr>
       </tbody></table></div>}
     </Sec>
 

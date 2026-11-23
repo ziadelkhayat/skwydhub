@@ -61,7 +61,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
   const [discType, setDiscType] = useState(o1?.discountType === "amt" ? "amt" : "pct"), [disc, setDisc] = useState<number>(o1 ? (o1.discountType === "amt" ? +o1.discount || 0 : +o1.discountPct || 0) : 0);
   const [chg, setChg] = useState<Set<string> | null>(o1 ? new Set((o1.charges || []).map((c: any) => c.id)) : null), [open, setOpen] = useState<Record<string, number>>(() => Object.fromEntries((o1?.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount || 0])));
   const [notes, setNotes] = useState(o?.notes || h0?.notes || ""), [rnotes, setRNotes] = useState(o?.receiptNotes || h0?.receiptNotes || ""), [cust, setCust] = useState<any>(null), [past, setPast] = useState<any[]>([]), [addrIx, setAddrIx] = useState<number | null>(null);
-  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason" | "tags">(""), [tags, setTags] = useState<string[] | null>(h0?.tags || null), sig0r = useRef<string | null>(null), [line, setLine] = useState<number | null>(null);
+  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason" | "tags" | "void">(""), [tags, setTags] = useState<string[] | null>(h0?.tags || null), sig0r = useRef<string | null>(null), [line, setLine] = useState<number | null>(null);
   const phone = num.trim() ? (num.trim().startsWith("+") ? num.replace(/[^0-9+]/g, "") : cc + num.replace(/\D/g, "").replace(/^0+/, "")) : "";
   // the customer: looked up by phone (the same number written with or without the country code or a leading 0)
   useEffect(() => { if (phone.length < 6) { setCust(null); setPast([]); return; } let off = false;
@@ -298,7 +298,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                   {o?.status === "draft" && <Button variant="destructive" disabled={busy} onClick={async () => { try { const { error } = await sb.from("orders").delete().eq("id", o.id).eq("status", "draft"); if (error) throw error; toast("Draft cancelled"); onClose(); } catch { toast("Couldn't cancel the draft.", "error"); } }}>Cancel Draft</Button>}
                   {o?.status === "review" && <><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Decline</Button><Button className="flex-1" disabled={busy} onClick={() => setStatus("pending")}>Accept</Button></>}
                   {o?.status === "active" && (erWait ? <p className="w-full text-sm text-amber-600">The last change is waiting for the store to approve it.</p>
-                    : <Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>{busy ? "Sending…" : "Send changes for approval"}</Button>)}
+                    : <><Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>{busy ? "Sending…" : "Send changes for approval"}</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("void")}>Void order</Button></>)}
                   {o?.status === "pending" && <><Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel order</Button></>}
                   {o && ["closed", "declined", "void", "returned", "refund"].includes(o.status) && <Button className="flex-1" onClick={reorder}>Reorder</Button>}
                 </div>
@@ -334,6 +334,10 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
         {dlg === "tags" && (() => { const td: any = s.settings.find(x => x.id === "tags") || {}, l = (td.list || []).filter((t: any) => t.type === "order" && !t.deleted), cur = tags ?? (o ? ((td.on || {}).order || {})[o.id] || [] : []);
           return <PickDialog title="Order Tags" opts={l.map((t: any) => [t.id, t.name])} value={cur} onClose={() => setDlg("")} onSave={ids => { setTags(ids); setDlg(""); return true; }} />; })()}
         {dlg === "notes" && <Small title="Notes" onClose={() => setDlg("")}><F l="Kitchen Notes"><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} /></F><F l="Receipt Notes"><Textarea rows={3} value={rnotes} onChange={e => setRNotes(e.target.value)} /></F></Small>}
+        {/* voiding an accepted order: sent to the store, which approves it on the POS (the order stays as it is until then) */}
+        {dlg === "void" && <ReasonDlg title="Void order: reason" reasons={reasons} onClose={() => setDlg("")} onGo={async why => { setDlg(""); setBusy(true); const now = new Date().toISOString(), sa = (s.settings.find(x => x.id === "app") as any)?.stockAction;
+          try { await put("orders", o.id, { editRequest: { id: newId("er"), status: "pending", at: now, by, data: { status: "void", voidReason: why, voidedAt: now, voidedBy: by, ...(sa ? { stockAction: sa } : {}) }, summary: { voidAll: true, reason: why } } });
+            toast(`Void sent to ${s.branches.find(b => b.id === o.branchId)?.name || "the store"} for approval`); onClose(); } catch { setErr("Couldn't send the void."); } finally { setBusy(false); } }} />}
         {dlg === "reason" && <ReasonDlg title={o?.status === "review" ? "Decline order: reason" : "Cancel order: reason"} reasons={reasons} onClose={() => setDlg("")} onGo={why => { setDlg(""); setStatus("declined", why); }} />}
     </>);
 }

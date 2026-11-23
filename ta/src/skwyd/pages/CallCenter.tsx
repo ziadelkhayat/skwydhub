@@ -11,7 +11,8 @@ import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { coSet, openWin } from "@/lib/util";
 import { cn } from "@/utils";
-import { useEffect, useState } from "react";
+import { toast } from "../ui/toast";
+import { useEffect, useRef, useState } from "react";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
 import { F, SEL } from "../ui/kit";
@@ -49,6 +50,14 @@ export default function CallCenterPage() {
   const byUser = (o: any, n: string) => o.agent === n || o.agent === String(n).split(/\s+/)[0];
   const list = rows.filter(o => ccWeb(o) && (!F0.brand || o.brandId === F0.brand) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || o.branchId === F0.branch) && (!F0.user || byUser(o, F0.user)));
   const colOf = (k: string) => list.filter(o => k === "void" ? ["void", "returned", "refund"].includes(o.status) : k === "active" ? o.status === "active" : k === "pending" ? ["pending", "review"].includes(o.status) : o.status === k);
+  // the store answered a change sent from the call center (edit or void of an accepted order): a message here until it is closed;
+  // nothing changes on the order when the store rejects it
+  const [seen, setSeen] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("skwyd_er_seen") || "[]"); } catch { return []; } });
+  const answers = rows.filter(o => { const er = o.editRequest; return er && ["approved", "rejected"].includes(er.status) && !seen.includes(er.id) && (!er.decidedAt || Date.now() - +new Date(er.decidedAt) < 12 * 3600000); });
+  const dismiss = (id: string) => { const v = [...seen, id].slice(-300); setSeen(v); try { localStorage.setItem("skwyd_er_seen", JSON.stringify(v)); } catch { /* */ } };
+  const toasted = useRef<Set<string>>(new Set());
+  useEffect(() => { answers.forEach(o => { const er = o.editRequest; if (toasted.current.has(er.id)) return; toasted.current.add(er.id);
+    toast(er.status === "approved" ? `${bName(o.branchId) || "The store"} approved the change to order ${o.ref || o.no}` : `${bName(o.branchId) || "The store"} rejected the change to order ${o.ref || o.no}${er.reason ? ": " + er.reason : ""}`, er.status === "approved" ? "success" : "error"); }); }, [answers.map(o => o.editRequest.id).join()]); // eslint-disable-line react-hooks/exhaustive-deps
   // users who can use the call center (their role allows it, or they manage everything); the person signed in too
   const agents = [...new Set([...users.filter(u => live(u) && u.active !== false && u.role !== "owner" && u.role !== "admin" && roles.filter(r => ((u.roleIds || []).length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id) && live(r)).flatMap(r => r.permissions || []).some((p: string) => p === "bo_callcenter" || p === "bo_manage")).map(u => u.name), ...(staff?.name ? [staff.name] : [])])].sort((a, b) => a.localeCompare(b));
   const nF = [F0.brand, F0.branch, F0.date && F0.date !== bizDate(new Date()) ? F0.date : "", F0.user].filter(Boolean).length;
@@ -57,6 +66,10 @@ export default function CallCenterPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Call Center" />
+      {answers.length > 0 && <div className="mb-4 space-y-2">{answers.map(o => { const er = o.editRequest, no = er.status === "rejected", what = er.summary?.voidAll ? "void" : "change";
+        return <div key={er.id} className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-sm", no ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" : "border-green-200 bg-green-50 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400")}>
+          <div className="flex-1"><b className="font-semibold">Order {o.ref || o.no}: {what} {no ? "rejected" : "approved"}</b> by {bName(o.branchId) || "the store"}{er.decidedBy ? " (" + er.decidedBy + ")" : ""}{no && er.reason ? <span className="block">Reason: {er.reason}</span> : null}{no ? <span className="block text-xs opacity-80">Nothing was changed on the order.</span> : null}</div>
+          <button type="button" aria-label="Close" onClick={() => dismiss(er.id)} className="text-lg leading-none opacity-70 hover:opacity-100">×</button></div>; })}</div>}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
@@ -67,7 +80,7 @@ export default function CallCenterPage() {
           <div key={k} className="min-w-0 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
             <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
-            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
+            <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending", "active"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
           </div>); })}
       </div>
       {fOpen && <FilterDlg F0={F0} today={bizDate(new Date())} brands={brands.filter(live)} branches={branches.filter(b => live(b) && (!F0.brand || b.brandId === F0.brand))} agents={agents} onClose={() => setFOpen(false)} onApply={f => { setF(f); setFOpen(false); }} />}
