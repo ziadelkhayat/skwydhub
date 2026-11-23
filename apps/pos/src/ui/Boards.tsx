@@ -16,7 +16,7 @@ const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", onli
 const tm = (t: any) => t ? new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "—";
 type St = { label: string; tone: "gray" | "ok" | "brand" | "warn" | "bad" };
 export const stOf = (o: Row): St => o.editRequest?.status === "pending" ? { label: "Edit request", tone: "warn" } : o.status === "pending" ? { label: "Pending", tone: "warn" }
-  : o.status === "active" ? (o.dispatchedAt ? { label: "Dispatched", tone: "brand" } : { label: "Preparing", tone: "brand" }) : o.status === "closed" ? { label: "Done", tone: "ok" }
+  : o.status === "active" ? (o.dispatchedAt ? { label: "Dispatched" + (o.driverName ? " · " + o.driverName : ""), tone: "brand" } : { label: "Preparing", tone: "brand" }) : o.status === "closed" ? { label: "Done", tone: "ok" }
   : o.status === "void" ? { label: "Void", tone: "bad" } : o.status === "returned" || o.status === "refund" ? { label: "Returned", tone: "bad" } : o.status === "declined" ? { label: "Declined", tone: "bad" } : { label: o.status, tone: "gray" };
 const today = (x: Ctx) => { const d = bizDate(x); return x.S.orders.filter(o => o.branchId === x.device.branchId && !o.deleted && (["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === d)); };
 
@@ -44,8 +44,8 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
   const mine = today(x).filter(o => ["pickup", "takeaway", "delivery"].includes(o.type)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const l = mine;
   const COLS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
-    ["active", "Preparing", o => o.status === "active" && !o.dispatchedAt && o.editRequest?.status !== "pending"], ["dispatched", "Dispatched", o => o.status === "active" && !!o.dispatchedAt],
-    ["closed", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund"].includes(o.status)], ["declined", "Declined", o => o.status === "declined"]];
+    ["active", "Active", o => o.status === "active" && o.editRequest?.status !== "pending"],   // preparing or dispatched: the card says which
+    ["closed", "Done", o => o.status === "closed"], ["declined", "Declined", o => o.status === "declined"]];
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
     <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>
