@@ -41,6 +41,7 @@ const StorePage = lazy(() => import("@/skwyd/pages/Store"));
 const ApplicationsPage = lazy(() => import("@/skwyd/pages/TeamChat").then(m => ({ default: m.ApplicationsPage })));
 const TeamChatPage = lazy(() => import("@/skwyd/pages/TeamChat").then(m => ({ default: m.TeamChatPage })));
 const InvItemPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.InvItemPage })));
+const ModifierPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.ModifierPage })));
 const OptionPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.OptionPage })));
 const SupplierPage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.SupplierPage })));
 const WarehousePage = lazy(() => import("@/skwyd/pages/Details").then(m => ({ default: m.WarehousePage })));
@@ -118,6 +119,7 @@ function Gate() {
           <Route path="/store" element={<StorePage />} />
           <Route path="/team-chat" element={<TeamChatPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
+          <Route path="/modifier" element={<ModifierPage />} />
           <Route path="/option" element={<OptionPage />} />
           <Route path="/supplier" element={<SupplierPage />} />
           <Route path="/inv-item" element={<InvItemPage />} />

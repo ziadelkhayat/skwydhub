@@ -24,7 +24,7 @@ const G: [string, string | null, string[]][] = [
   ["bo_reports", null, ["sales-reports", "business-reports", "analysis-reports", "employee-reports"]],
   ["bo_reports", "inventory", ["inventory-reports", "inv-levels", "inv-history", "purchasing"]],
   ["bo_marketing", "marketing", ["discounts", "loyalty", "gift-cards", "promotions", "coupons"]],
-  ["bo_menu", null, ["products", "categories", "modifiers", "modifier-options", "variants", "combos", "allergens", "branch-menu", "item", "option"]],
+  ["bo_menu", null, ["products", "categories", "modifiers", "modifier-options", "variants", "combos", "allergens", "branch-menu", "item", "modifier", "option"]],
   ["bo_inventory", "inventory", ["inv-items", "inv-categories", "warehouses", "suppliers", "po", "purchase-orders", "transfer-orders", "transfers", "production", "inventory-count", "quantity-adjustments", "cost-adjustments", "spot-check", "count-sheets", "order-transactions", "inv-item", "supplier", "warehouse"]],
   ["bo_manage", "online_ordering", ["online-ordering", "delivery-zones", "delivery-charges"]],
   ["bo_staff", null, ["users", "roles", "schedule", "time-clock", "requests", "payroll", "documents", "team-chat", "tasks", "knowledge", "employee"]],

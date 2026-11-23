@@ -188,3 +188,36 @@ export function WarehousePage() {
     {edit && <EditDialog cfg={CRUD.warehouses} s={s} row={w} onClose={() => setEdit(false)} />}
   </>;
 }
+
+/* a modifier (Sauce, Add Toppings…): its options and the items it is linked to */
+export function ModifierPage() {
+  const s = useS(["modifiers", "modifier_options", "products", "tax_groups"]), id = useId(), [edit, setEdit] = useState(false), [newOpt, setNewOpt] = useState(false);
+  if (!s) return null; const m = s.modifiers.find(x => x.id === id); if (!m) return <Missing back="Modifiers" to="/modifiers" />;
+  const opts = s.modifier_options.filter(o => live(o) && o.modifierId === m.id).sort((a, b) => (+a.sort || 0) - (+b.sort || 0) || a.name.localeCompare(b.name));
+  const items = s.products.filter(p => live(p) && (p.modifiers || []).some((l: any) => l.modifierId === m.id)).sort((a, b) => a.name.localeCompare(b.name));
+  const link = (p: Row) => (p.modifiers || []).find((l: any) => l.modifierId === m.id) || {};
+  const setLink = async (p: Row, d: Record<string, any>, msg = "Saved") => { try { await put("products", p.id, { modifiers: (p.modifiers || []).map((l: any) => l.modifierId === m.id ? { ...l, ...d } : l) }); toast(msg); } catch { toast("Couldn't save.", "error"); } };
+  const rule = (l: any) => { const mn = +l.min || 0, mx = +l.max || 0; return mn && mx && mn === mx ? `Choose ${mn}` : mn && mx ? `Choose ${mn} to ${mx}` : mn ? `At least ${mn}` : mx ? `Up to ${mx}` : "Optional"; };
+  const optCfg = { ...CRUD["modifier-options"], fields: CRUD["modifier-options"].fields.map(f => f.k === "modifierId" ? { ...f, def: m.id } : f) };
+  const Num = ({ p, k }: { p: Row; k: string }) => <Input key={p.id + k + (link(p)[k] ?? "")} className="h-9 w-20" type="number" min="0" defaultValue={link(p)[k] ?? 0} aria-label={k}
+    onBlur={e => { const v = Math.max(0, +e.target.value || 0); if (v !== +(link(p)[k] || 0)) setLink(p, { [k]: v }); }} />;
+  return <>
+    <Head back="Modifiers" backTo="/modifiers" title={m.name}><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Modifier</Button></Head>
+    <Info rows={[["Name", <>{m.name}{m.deleted && <Badge className="ms-2" variant="light" color="error">Deleted</Badge>}</>], ["Name Localized", m.nameAr || "—"], ["Reference", m.reference || "—"],
+      ["Options", String(opts.length)], ["Linked Items", String(items.length)], ["Free Options", opts.filter(o => !+o.price).length + " of " + opts.length]]} />
+    <Sec title="Options" act={<Button size="sm" onClick={() => setNewOpt(true)}><PlusIcon className="size-4" />Add Option</Button>}>
+      {!opts.length ? <None t="No options yet. Add the choices of this modifier, like Spicy or Extra Cheese." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Name", "SKU", "Price", "Tax Group"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
+        {opts.map(o => <tr key={o.id} className={TR}><td className={TD}><Link className="font-medium text-brand-500 hover:underline" to={"/option?id=" + o.id}>{o.name}</Link></td><td className={TD}>{o.sku || "—"}</td>
+          <td className={TD}>{+o.price ? money(o.price) : "Free"}</td><td className={TD}>{s.tax_groups.find(g => g.id === o.taxGroup)?.name || "—"}</td></tr>)}</tbody></table></div>}
+    </Sec>
+    <Sec title="Linked Items" act={<PickMany label="Add item" opts={s.products.filter(p => live(p) && !items.some(x => x.id === p.id)).sort((a, b) => a.name.localeCompare(b.name)).map(p => ({ id: p.id, name: p.name, sub: p.sku || "" }))}
+      onAdd={async ids => { try { for (const pid of ids) { const p = s.products.find(x => x.id === pid)!; await put("products", pid, { modifiers: [...(p.modifiers || []), { modifierId: m.id, min: 1, max: 1, free: 0 }] }); } toast(ids.length > 1 ? `Linked to ${ids.length} items` : "Linked"); } catch { toast("Couldn't save.", "error"); } }} />}>
+      {!items.length ? <None t="Not linked to any item yet. Add the items that ask for this modifier." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Item", "Rule", "Minimum", "Maximum", "Free", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
+        {items.map(p => <tr key={p.id} className={TR}><td className={TD}><Link className="font-medium text-brand-500 hover:underline" to={"/item?id=" + p.id}>{p.name}</Link></td><td className={TD}>{rule(link(p))}</td>
+          <td className={TD}><Num p={p} k="min" /></td><td className={TD}><Num p={p} k="max" /></td><td className={TD}><Num p={p} k="free" /></td>
+          <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label={"Unlink " + p.name} onClick={async () => { if (await askYes(`Remove ${m.name} from ${p.name}?`, "Remove", true)) { try { await put("products", p.id, { modifiers: (p.modifiers || []).filter((l: any) => l.modifierId !== m.id) }); toast("Removed"); } catch { toast("Couldn't save.", "error"); } } }}><TrashBinIcon className="size-4 text-error-500" /></Button></td></tr>)}</tbody></table></div>}
+    </Sec>
+    {edit && <EditDialog cfg={CRUD.modifiers} s={s} row={m} onClose={() => setEdit(false)} />}
+    {newOpt && <EditDialog cfg={optCfg} s={s} row={null} onClose={() => setNewOpt(false)} />}
+  </>;
+}

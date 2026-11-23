@@ -61,7 +61,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "description", l: "Description", t: "textarea" }, { k: "descriptionAr", l: "Description Localized", t: "textarea" }],
   },
   modifiers: {
-    col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel,
+    col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier",
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref,
       { h: "Options", cell: (r, s) => <Link className="text-brand-500 hover:underline" to={"/modifier-options?mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</Link> },

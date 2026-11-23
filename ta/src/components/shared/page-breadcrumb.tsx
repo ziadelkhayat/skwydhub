@@ -17,7 +17,7 @@ interface BreadcrumbProps {
 }
 
 // a record's own page and the list it belongs to
-const PARENT: Record<string, string> = { "/call-center-order": "/call-center", "/item": "/products", "/order": "/orders", "/customer": "/customers", "/employee": "/users", "/store": "/branches", "/brand": "/brands", "/option": "/modifier-options", "/supplier": "/suppliers", "/inv-item": "/inv-items", "/warehouse": "/warehouses",
+const PARENT: Record<string, string> = { "/call-center-order": "/call-center", "/item": "/products", "/order": "/orders", "/customer": "/customers", "/employee": "/users", "/store": "/branches", "/brand": "/brands", "/modifier": "/modifiers", "/option": "/modifier-options", "/supplier": "/suppliers", "/inv-item": "/inv-items", "/warehouse": "/warehouses",
   "/inv-levels": "/inventory-reports", "/inv-history": "/inventory-reports", "/purchasing": "/inventory-reports" };
 // query parameters that open one record or view inside a list page (?id= a document, ?r= a report, ?ch= a sales channel…)
 const VIEW = /[?&](id|r|ch|settings|view)=/;
