@@ -13,5 +13,8 @@ cp cloudflare/_redirects cloudflare/_headers web/
 echo "Built web/: $(ls web | tr '\n' ' ')"
 # the back office (React, TailAdmin template) is the site's home page: its index.html replaces the previous portal's; the old /v2/ address redirects here
 (cd ta && npm ci --no-audit --no-fund && SKWYD_BASE=/ npx vite build) && cp -r ta/dist/. web/ && echo "Built the back office (React) at /"
-# the new POS (React Native, apps/pos) as a web app at /pos-app/ (dev.pos.skwydhub.com opens it); if it can't build, the rest of the site still publishes
-(cd apps/pos && npm ci --no-audit --no-fund && EXPO_NO_TELEMETRY=1 SKWYD_WEB_BASE=/pos-app npx expo export -p web --output-dir ../../web/pos-app && echo "Built the POS web app at /pos-app/") || echo "The POS web app didn't build; skipped"
+# the new POS (React Native, apps/pos) as a web app at /pos-app/ (dev.pos.skwydhub.com opens it); if it can't build, the rest of the site still publishes.
+# Cloudflare Pages doesn't publish folders named node_modules, so the fonts Expo puts in assets/node_modules move to assets/nm.
+(cd apps/pos && npm ci --no-audit --no-fund && EXPO_NO_TELEMETRY=1 SKWYD_WEB_BASE=/pos-app npx expo export -p web --output-dir ../../web/pos-app \
+  && mv ../../web/pos-app/assets/node_modules ../../web/pos-app/assets/nm && grep -rl "assets/node_modules/" ../../web/pos-app | xargs -r sed -i "s#assets/node_modules/#assets/nm/#g" \
+  && echo "Built the POS web app at /pos-app/") || echo "The POS web app didn't build; skipped"
