@@ -380,7 +380,7 @@ export function Register() {
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
-              <Icon name={ic} color={C.mut} /><T w="m" size={11} color={C.mut} numberOfLines={1}>{l}</T>
+              <Icon name={ic} size={26} color={C.ink2} /><T w="m" size={14} color={C.ink2} numberOfLines={1}>{l}</T>
             </Pressable>))}
         </View>
       </View>
