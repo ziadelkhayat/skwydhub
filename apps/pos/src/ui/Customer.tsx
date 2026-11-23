@@ -31,7 +31,7 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
   const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
   const src = posSources(S);
   return (
-    <Sheet title="Customer Details" width={760} onClose={() => onDone(null)} footer={<>
+    <Sheet title="Customer Details" width={t === "delivery" ? 700 : 460} onClose={() => onDone(null)} footer={<>
       <T size={13} color={C.bad} style={{ flex: 1 }}>{err}</T>
       <Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label="Continue" onPress={go} />
     </>}>

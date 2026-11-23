@@ -186,6 +186,21 @@ export function Register() {
     if (cart.length) return say("Finish or hold the current order first");
     const d = h.data; setCart(d.cart); setOtype(d.otype); setTable(d.table); setCust(d.cust); setDisc(d.disc); setPicked(d.picked); setOpenCh(d.openCh); setNotes(d.notes);
     await AsyncStorage.setItem(HK, JSON.stringify(l.filter(y => y.id !== h.id))); };
+  const [heldN, setHeldN] = useState(0);
+  useEffect(() => { heldList().then(l => setHeldN(l.length)); }, [cart.length, dlg]); // eslint-disable-line react-hooks/exhaustive-deps
+  const usable = (a: string) => {
+    const unsent = cart.some(l => l.qty > (l.saved || 0)), edit = !ro && cart.length > 0;
+    switch (a) {
+      case "Print": return (cart.length > 0 || !!live_eo) && can(S, cashier, live_eo?.status === "closed" ? "pos_reprint" : "pos_print_check");
+      case "Kitchen": return !ro && unsent;
+      case "Void": return !!live_eo && ["active", "pending", "closed"].includes(live_eo.status) && !(live_eo.status === "closed" && fullyBack(live_eo));
+      case "Hold": return cart.length > 0 && !live_eo;
+      case "Retrieve": return !cart.length && heldN > 0;
+      case "Discount": return edit && (can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount"));
+      case "Charges": return edit && can(S, cashier, "pos_charges");
+      case "Tags": return (cart.length > 0 || !!live_eo) && (tagDoc(S).list || []).some((z: any) => z.type === "order" && !z.deleted);
+      case "Notes": return edit;
+    } return true; };
   const action = async (a: string) => {
     if (a === "Void") { // an open order is voided, a done one returned
       if (!live_eo) return say("Open an order from Orders to void or return it");
@@ -353,7 +368,7 @@ export function Register() {
       {/* ---------- menu ---------- */}
       <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 8 }}>
-          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).map(([ic, l]) => (
+          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
               style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 2, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? "#1D2939" : C.brand, backgroundColor: pressed ? C.brand600 : C.brand, alignItems: "center", justifyContent: "center", gap: 6 }]}>
               <Icon name={ic} size={24} color="#fff" /><T w="m" size={13} color="#fff">{l}</T>
