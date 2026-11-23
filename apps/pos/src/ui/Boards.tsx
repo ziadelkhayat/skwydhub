@@ -28,15 +28,24 @@ export function Head({ title, onClose, children, back = "Register" }: { title: s
 export const Full = ({ children }: { children: React.ReactNode }) => <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg, zIndex: 20 }}>{children}</View>;
 
 // a tile as on the call center board
+// an order card: reference and status, then one icon per line — type; customer over the phone; channel over the source;
+// created over modified; brand over store; and who took it (POS and call center orders only)
+const TYPE_IC: Record<string, string> = { dinein: "table", pickup: "bag", takeaway: "bag", delivery: "scooter" };
 function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
-  const st = stOf(o), Row2 = ({ l, v, sub }: { l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 8 }} accessibilityLabel={l}><View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={({ Customer: "user", Type: "scooter", Channel: "device", Created: "clock" } as Record<string, string>)[l] || "note"} size={16} color={C.mut} /></View><View style={{ flex: 1 }}><T size={13} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut} numberOfLines={1}>{sub}</T> : null}</View></View>;
-  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + ordRef(o)} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 12, gap: 6 })}>
-    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><T w="s" size={16}>{ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
-    <Row2 l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
-    <Row2 l="Type" v={TYPE[o.type] || o.type} sub={o.type === "delivery" ? (o.driverName ? "Driver: " + o.driverName : "No driver yet") : undefined} />
-    <Row2 l="Channel" v={CH[o.channel] || "POS"} />
-    <Row2 l="Created" v={tm(o.createdAt)} />
-    <View style={{ borderTopWidth: 1, borderColor: C.line2, paddingTop: 6, alignItems: "flex-end" }}><T w="s">{money(x.S, o.total)}</T></View>
+  const st = stOf(o), br = x.S.branches.find(b => b.id === o.branchId), brand = x.S.brands.find(b => b.id === (o.brandId || br?.brandId))?.name;
+  const src = String(o.source || "").trim(), ch = CH[o.channel] || "POS", mod = o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined;
+  const who = ["pos", "callcenter"].includes(o.channel || "pos") && o.agent ? String(o.agent).replace(/\s*\(auto\)\s*$/i, "") : "";
+  const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
+    <View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={ic as any} size={16} color={C.mut} /></View>
+    <View style={{ flex: 1 }}><T size={14} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut} numberOfLines={1}>{sub}</T> : null}</View></View>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + ordRef(o)} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 14, gap: 8 })}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
+    <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
+    <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
+    <Ln ic="device" l="Sales channel" v={ch} sub={src && src.toLowerCase() !== ch.toLowerCase() ? src : undefined} />
+    <Ln ic="clock" l="Created" v={tm(o.createdAt)} sub={mod} />
+    {brand || br ? <Ln ic="store" l="Brand" v={brand || br?.name || ""} sub={brand && br ? br.name : undefined} /> : null}
+    {who ? <Ln ic="headset" l="Created by" v={who} /> : null}
   </Pressable>;
 }
 

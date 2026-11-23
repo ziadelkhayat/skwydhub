@@ -194,7 +194,8 @@ export function Register() {
     switch (a) {
       case "Print": return (cart.length > 0 || !!live_eo) && can(S, cashier, live_eo?.status === "closed" ? "pos_reprint" : "pos_print_check");
       case "Kitchen": return !ro && unsent;
-      case "Void": return !!live_eo && ["active", "pending", "closed"].includes(live_eo.status) && !(live_eo.status === "closed" && fullyBack(live_eo));
+      case "Void": return !!live_eo && ["active", "pending"].includes(live_eo.status);   // void is for saved orders that aren't done yet
+      case "Return": return !!live_eo && live_eo.status === "closed" && !fullyBack(live_eo);   // a done order is returned, never voided
       case "Hold": return cart.length > 0 && !live_eo;
       case "Retrieve": return !cart.length && heldN > 0;
       case "Discount": return edit && (can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount"));
@@ -203,8 +204,10 @@ export function Register() {
       case "Notes": return edit;
     } return true; };
   const action = async (a: string) => {
-    if (a === "Void") { // an open order is voided, a done one returned
-      if (!live_eo) return say("Open an order from Orders to void or return it");
+    if (a === "Void" || a === "Return") { // a saved open order is voided, a done one returned
+      if (!live_eo) return say("Open an order from Orders to " + a.toLowerCase() + " it");
+      if (a === "Void" && live_eo.status === "closed") return say("This order is done. Use Return.");
+      if (a === "Return" && live_eo.status !== "closed") return say("Only done orders can be returned");
       if (live_eo.status === "closed" && fullyBack(live_eo)) return say("Nothing left to return on this order");
       if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
       return setDlg(<VoidReturnDialog x={x} o={live_eo} onDone={m => { setDlg(null); if (m) { say(m); reset(); } }} />); }
@@ -382,7 +385,7 @@ export function Register() {
       {/* ---------- menu ---------- */}
       <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 8 }}>
-          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
+          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["ret", "Return"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
               style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 2, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? C.brand : C.brand50, backgroundColor: pressed ? "#DDE9FF" : C.brand50, alignItems: "center", justifyContent: "center", gap: 6 }]}>
               <Icon name={ic} size={24} color={C.brand600} /><T w="m" size={13} color={C.brand600}>{l}</T>

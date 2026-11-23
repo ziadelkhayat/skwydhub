@@ -9,7 +9,7 @@ import { CallIcon, FilterIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { coSet, money, openWin } from "@/lib/util";
+import { coSet, openWin } from "@/lib/util";
 import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 import { live } from "../crud/CrudPage";
@@ -83,24 +83,26 @@ const CARD_ICON: Record<string, React.ReactNode> = {
   User: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />,
   Created: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   Store: <><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9" /><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6" /></>,
+  Pickup: <path d="M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0" />,
+  "In Store": <><rect x="3" y="7" width="18" height="5" rx="1" /><path d="M6 12v8M18 12v8" /></>,
+  "Created by": <><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /><path d="M19 20a3 3 0 0 1-3 2h-3" /></>,
 };
 function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => string; bName: (id: string) => string | undefined; brName: (id: string) => string | undefined; onOpen: () => void }) {
   const disp = o.status === "active" && o.dispatchedAt, src = o.channel && !["pos", "callcenter"].includes(o.channel) && (!o.source || o.source === "Website") ? "Web" : String(o.source || "").trim(), chl = CHL[o.channel] || o.channel || "";
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
-  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2 text-xs"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>; };
+  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
   return (
     <button type="button" onClick={onOpen} className="block w-full rounded-xl border border-gray-200 bg-white p-3 text-start shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mb-2 flex items-center justify-between gap-2"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
+      <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
       {o.status === "declined" && o.voidReason && <p className="mb-2 text-xs text-red-500">Reason: {o.voidReason}</p>}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
+        {o.type && <R k={o.type === "delivery" ? "Type" : o.type === "dinein" ? "In Store" : "Pickup"}>{TYPE[o.type] || o.type}</R>}
         <R k="Customer" sub={o.phone ? tel(o.phone) : undefined}>{o.customerName || "Guest"}</R>
-        {o.type && <R k="Type" sub={o.type === "delivery" && o.driverName ? "Driver: " + o.driverName : undefined}>{TYPE[o.type] || o.type}</R>}
-        {(chl || src) && <R k="Channel">{chl || src}{chl && src && src.toLowerCase() !== chl.toLowerCase() ? " · " + src : ""}</R>}
-        {o.agent && <R k="User">{["pos", "callcenter"].includes(o.channel) ? String(o.agent).replace(/\s*\(auto\)\s*$/i, "") : /\(auto\)/i.test(o.agent) ? "Accepted automatically" : "Accepted by " + o.agent}</R>}
-        <R k="Created" sub={o.updatedAt && o.updatedAt !== o.createdAt ? "Modified " + tm(o.updatedAt) : undefined}>{tm(o.createdAt)}</R>
+        {(chl || src) && <R k="Channel" sub={chl && src && src.toLowerCase() !== chl.toLowerCase() ? src : undefined}>{chl || src}</R>}
+        <R k="Created" sub={o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined}>{tm(o.createdAt)}</R>
         {(brName(o.brandId) || bName(o.branchId)) && <R k="Store" sub={brName(o.brandId) && bName(o.branchId) ? bName(o.branchId) : undefined}>{brName(o.brandId) || bName(o.branchId)}</R>}
+        {o.agent && ["pos", "callcenter"].includes(o.channel) && <R k="Created by">{String(o.agent).replace(/\s*\(auto\)\s*$/i, "")}</R>}
       </div>
-      <div className="mt-2 border-t border-gray-100 pt-2 text-end text-sm font-semibold text-gray-800 dark:border-white/5 dark:text-white/90">{money(o.total)}</div>
       {o.editRequest && o.status === "active" && <p className="mt-1 text-xs text-gray-500">{o.editRequest.status === "pending" ? "Order edit: waiting for the store" : o.editRequest.status === "approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + o.editRequest.reason : "")}</p>}
     </button>);
 }
