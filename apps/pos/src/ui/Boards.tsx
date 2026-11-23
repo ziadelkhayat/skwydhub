@@ -2,6 +2,7 @@
 // - Pickup & Delivery: columns of order tiles as on the call center board (Pending, Preparing, Dispatched, Done)
 // - Orders: every order of the business day as a list, with the chosen order's details beside it
 import { useState } from "react";
+import { Sheet } from "./Pickers";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import type { Row } from "../lib/db";
 import { bizDate, money, type Ctx } from "../lib/pos";
@@ -60,7 +61,11 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
 export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void }) {
   // the business days the tablet has orders for (the last 3 days are kept on it), newest first; open orders show whatever their day
   const mineAll = x.S.orders.filter(o => o.branchId === x.device.branchId && !o.deleted), todayD = bizDate(x);
-  const day = todayD;   // this business day (open orders show whatever their day)
+  // the business day shown: today by default; ‹ › step a day, the date opens the days that have orders
+  const [day, setDay] = useState(todayD), [pick, setPick] = useState(false);
+  const days = [...new Set([todayD, ...mineAll.map(o => bizDate(x, o.createdAt))])].sort().reverse();
+  const shift = (n: number) => { const d = new Date(day + "T12:00:00"); d.setDate(d.getDate() + n); const v = d.toISOString().slice(0, 10); if (v <= todayD) setDay(v); };
+  const dmy = (d: string) => d === todayD ? "Today" : d.split("-").reverse().join("-");
   const all = mineAll.filter(o => ["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === day).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const TABS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"], ["open", "Preparing", o => o.status === "active" && o.editRequest?.status !== "pending"], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
   // as before: orders waiting to be accepted come first
@@ -69,10 +74,17 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
   return <Full><Head title="Orders" onClose={onClose}>{TABS.map(([k, t, f]) => <Btn key={k} kind={tab === k ? "primary" : "outline"} height={44} label={`${t} (${all.filter(f).length})`} onPress={() => setTab(k)} />)}</Head>
+    {pick ? <Sheet title="Business date" width={380} onClose={() => setPick(false)}>
+      <View style={{ gap: 8 }}>{days.map(d => { const n = mineAll.filter(o => bizDate(x, o.createdAt) === d).length;
+        return <Btn key={d} kind={d === day ? "primary" : "outline"} height={46} label={dmy(d) + "  ·  " + n + (n === 1 ? " order" : " orders")} onPress={() => { setDay(d); setPick(false); }} />; })}</View></Sheet> : null}
     <View style={{ flex: 1, margin: 14, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, overflow: "hidden" }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, margin: 12, flexWrap: "wrap" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, width: 380 }}>
         <Icon name="search" size={18} color={C.mut} /><TextInput value={q} onChangeText={setQ} placeholder="Search reference, number, check, customer, table" placeholderTextColor={C.mut2} accessibilityLabel="Search orders" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 44 }} /></View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Btn height={44} label="‹" style={{ width: 44 }} onPress={() => shift(-1)} />
+          <Btn kind="outline" height={44} label={dmy(day)} style={{ minWidth: 130 }} onPress={() => setPick(true)} />
+          <Btn height={44} label="›" style={{ width: 44 }} disabled={day >= todayD} onPress={() => shift(1)} /></View>
 </View>
       <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
         {COLS.map(([h, f, al]) => <T key={h} size={12} w="m" color={C.mut} style={{ flex: f, textAlign: al }}>{h}</T>)}</View>
