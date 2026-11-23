@@ -99,9 +99,10 @@ export default function OrdersPage() {
     <>
       <PageBreadcrumb pageTitle="Orders" />
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
-          <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center 2xl:w-auto">
+        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
+          {/* every tab shown (they wrap on small screens), the filters on the line under them */}
+          <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial">
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
