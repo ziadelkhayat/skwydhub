@@ -3,7 +3,8 @@
 // The action buttons and the bottom bar are the current POS's: Print, Kitchen, Void, Hold, Retrieve, Discount, Charges, Tags, Notes;
 // Functions, Orders, Tables, Pickup & Delivery, New.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
+import { Image, Pressable, ScrollView, TextInput, View } from "react-native";
+import { useScreen } from "../lib/screen";
 import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
 import { LineExtras, ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
@@ -22,6 +23,7 @@ import { CustomerDialog } from "./Customer";
 import { appSet, kitchenText, printJob, printerHas, receiptText } from "../lib/print";
 import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
+import { OrdersList, PDBoard } from "./Boards";
 import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,7 +38,7 @@ const GAP = 12, PADX = 16;
 
 export function Register() {
   const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useScreen();
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
   const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
@@ -214,7 +216,7 @@ export function Register() {
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
-  const pdBoard = () => setDlg(<OrdersDialog x={x} pd onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
+  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
   const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
   // new web and call center orders: a banner to open them (pos.html incoming); the master register can accept web orders by itself (Device settings: Auto accept)
@@ -376,7 +378,7 @@ export function Register() {
         </ScrollView>
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
@@ -388,13 +390,13 @@ export function Register() {
       {more && (
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
           <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 100, width: 240, padding: 6 }}>
-            <Btn kind="ghost" label={openShift(x) ? "Close Till" : "Open Till"} style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
-            <Btn kind="ghost" label="End of day" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
-            <Btn kind="ghost" label="Reports" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
-            <Btn kind="ghost" label="Devices" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
-            <Btn kind="ghost" label={sound ? "Sound On" : "Sound Off"} style={{ alignItems: "flex-start" }} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); if (v) { try { whistle.seekTo(0); whistle.play(); } catch {} } }} />
-            <Btn kind="ghost" label="Sync data" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
-            <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
+            <FnItem icon="till" label={openShift(x) ? "Close Till" : "Open Till"} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
+            <FnItem icon="dayend" label="End of day" onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
+            <FnItem icon="chart" label="Reports" onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
+            <FnItem icon="device" label="Devices" onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
+            <FnItem icon={sound ? "sound" : "mute"} label={sound ? "Sound On" : "Sound Off"} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); if (v) { try { whistle.seekTo(0); whistle.play(); } catch {} } }} />
+            <FnItem icon="sync" label="Sync data" onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
+            <FnItem icon="logout" label="Log out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
       {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 340, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 2, borderColor: C.brand, padding: 14, gap: 8 }}>
@@ -426,6 +428,10 @@ function CatTile({ size, name, img, n, onPress }: { size: number; name: string; 
 // a line's options, the same ones counted together: [{ name, n, price }]
 const optRows = (opts: { name: string; price?: number }[]) => { const r: { name: string; n: number; price: number }[] = [];
   opts.forEach(o => { const x = r.find(y => y.name === o.name); if (x) { x.n++; x.price += +(o.price || 0); } else r.push({ name: o.name, n: 1, price: +(o.price || 0) }); }); return r; };
+// a line of the Functions menu: its icon, then its name
+const FnItem = ({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) => (
+  <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, height: 46, paddingHorizontal: 12, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
+    <Icon name={icon} size={20} color={icon === "logout" ? C.bad : C.brand} /><T w="m" size={15} color={icon === "logout" ? C.bad : C.ink}>{label}</T></Pressable>);
 function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}

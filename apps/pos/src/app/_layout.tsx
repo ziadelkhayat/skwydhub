@@ -2,6 +2,7 @@ import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
+import { Screen } from "../lib/screen";
 import { StoreProvider } from "../lib/store";
 import { C } from "../lib/theme";
 
@@ -11,7 +12,7 @@ export default function Layout() {
   return (
     <StoreProvider>
       <StatusBar hidden />
-      <Stack screenOptions={{ headerShown: false, animation: "none", contentStyle: { backgroundColor: C.bg } }} />
+      <Screen><Stack screenOptions={{ headerShown: false, animation: "none", contentStyle: { backgroundColor: C.bg } }} /></Screen>
     </StoreProvider>
   );
 }
