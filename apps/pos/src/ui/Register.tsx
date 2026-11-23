@@ -51,10 +51,10 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles (as in the call center)
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
 
-  // tile size: 4 rows fit the height, 5 across; the cart takes the rest of the width
+  // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
   const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
-  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
+  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   const say = (s: string) => notify(s);
 
@@ -274,7 +274,6 @@ export function Register() {
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
-  const topOf = (id: string): string => { let c = id; for (let k = 0; k < 9 && m.parentOf(c); k++) c = m.parentOf(c); return c; };
 
   return (
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
@@ -370,15 +369,12 @@ export function Register() {
         </View>
         {top && !q.trim() ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 40 }}>
           <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} />
-          {/* as before: the top categories in a row, to jump straight to another one */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1, height: 40 }} contentContainerStyle={{ gap: 8 }}>
-            {m.tops.map(c => { const on = c.id === (m.parentOf(top) ? topOf(top) : top); return <Btn key={c.id} kind={on ? "soft" : "outline"} height={40} label={c.name} style={on ? { borderColor: C.brand } : undefined} onPress={() => setCat(c.id)} />; })}
-          </ScrollView></View> : null}
+          <T w="s" size={17} numberOfLines={1} style={{ flex: 1 }}>{m.cats.find(c => c.id === top)?.name || ""}</T></View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
           {items.map((it: any) => it.sub
-            ? <CatTile key={it.sub.id} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
-            : <ItemTile key={it.id} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
+            ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
+            : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                 n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
           {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
         </ScrollView>
@@ -422,10 +418,10 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
   <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{l}</T><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{r}</T></View>;
 
 // category and item tiles: the call center's look (white card, coloured strip on top, name, then the count or the price)
-function CatTile({ size, name, img, n, onPress }: { size: number; name: string; img?: string; n: number; onPress: () => void }) {
+function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
-      style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
       {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 0 }}><T w="s" size={img ? 14 : 15} numberOfLines={img ? 2 : 3} style={{ flexShrink: 1, lineHeight: img ? 18 : 20 }}>{name}</T>
         <View style={{ flex: 1, minHeight: 4 }} /><T size={13} numberOfLines={1} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T></View>
@@ -439,10 +435,10 @@ const optRows = (opts: { name: string; price?: number }[]) => { const r: { name:
 const FnItem = ({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) => (
   <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, height: 46, paddingHorizontal: 12, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
     <Icon name={icon} size={20} color={icon === "logout" ? C.bad : C.brand} /><T w="m" size={15} color={icon === "logout" ? C.bad : C.ink}>{label}</T></Pressable>);
-function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
+function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
-      style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
       {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
       {/* the name takes what room is left; the price always shows on the last line */}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, minHeight: 0 }}>
