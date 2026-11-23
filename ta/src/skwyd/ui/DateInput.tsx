@@ -5,15 +5,17 @@ import flatpickr from "flatpickr";
 import { useEffect, useRef } from "react";
 
 export function DateInput({ value, onChange, placeholder = "dd-mm-yyyy" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  // one box: flatpickr writes dd-mm-yyyy into it; the value given back is yyyy-mm-dd (no second "alt" box, which React could leave showing)
   const ref = useRef<HTMLInputElement>(null), fp = useRef<flatpickr.Instance | null>(null), cb = useRef(onChange);
   cb.current = onChange;
+  const toDate = (v: string) => v ? new Date(v + "T12:00:00") : undefined, iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   useEffect(() => {
     if (!ref.current) return;
-    fp.current = flatpickr(ref.current, { mode: "single", static: true, dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y", altInputClass: ref.current.className, allowInput: true, defaultDate: value || undefined,
-      onChange: (_d, str) => cb.current(str || "") }) as flatpickr.Instance;
+    fp.current = flatpickr(ref.current, { mode: "single", dateFormat: "d-m-Y", allowInput: true, defaultDate: toDate(value),
+      onChange: (d) => cb.current(d[0] ? iso(d[0]) : "") }) as flatpickr.Instance;
     return () => { fp.current?.destroy(); fp.current = null; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (fp.current && (fp.current.input.value || "") !== (value || "")) fp.current.setDate(value || "", false); }, [value]);
+  useEffect(() => { const f = fp.current; if (!f) return; const cur = f.selectedDates[0] ? iso(f.selectedDates[0]) : ""; if (cur !== (value || "")) { if (value) f.setDate(toDate(value)!, false); else f.clear(false); } }, [value]);
   return (
     <div className="relative">
       <Input ref={ref} type="text" placeholder={placeholder} className="h-11 pe-10" />
