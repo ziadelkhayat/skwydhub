@@ -174,7 +174,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
             <DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{o ? `Order ${ccLabel(o)}` : "New Call Center Order"}</DialogTitle>
             {o && <Badge variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
           </DialogHeader>
-          <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[320px_1fr_380px] lg:overflow-hidden">
+          <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[320px_380px_1fr] lg:overflow-hidden">
             {/* customer and order details */}
             <section className="space-y-4 border-gray-200 p-5 lg:overflow-y-auto lg:border-e dark:border-gray-800">
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
@@ -198,20 +198,8 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
               </div>}
             </section>
             {/* the call center menu */}
-            <section className="flex min-h-0 flex-col p-5 lg:overflow-hidden">
-              {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
-                <InputGroup className="mb-3 h-11"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
-                <div className="custom-scrollbar mb-3 flex gap-2 overflow-x-auto pb-1">{[{ id: "", name: "All" } as any, ...cats].map(c => <button key={c.id} type="button" onClick={() => { setCat(c.id); setQ(""); }}
-                  className={cn("h-9 shrink-0 rounded-lg border px-3 text-sm font-medium", cat === c.id && !q ? "border-brand-500 bg-brand-500 text-white" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400")}>{c.name}</button>)}</div>
-                <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">{shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch); return (
-                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900">
-                    {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-24 w-full object-cover" /> : <span className="h-2 bg-brand-50 dark:bg-brand-500/10" />}
-                    <span className="flex flex-1 flex-col p-3"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
-                  {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</div>
-              </>}
-            </section>
             {/* the cart */}
-            <section className="flex min-h-0 flex-col border-gray-200 lg:border-s dark:border-gray-800">
+            <section className="flex min-h-0 flex-col border-gray-200 lg:border-e dark:border-gray-800">
               {!ro && <div className="flex gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button></div>}
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
@@ -238,6 +226,23 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                   {o?.status === "pending" && <><Button variant="outline" disabled={busy} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel Order</Button></>}
                 </div>
               </div>
+            </section>
+            <section className="flex min-h-0 flex-col p-5 lg:overflow-hidden">
+              {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
+                <InputGroup className="mb-3 h-11"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+                {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
+                {!q.trim() && cat && <div className="mb-3 flex items-center gap-3"><Button size="sm" variant="outline" onClick={() => setCat("")}>‹ Back</Button><b className="text-base font-semibold text-gray-800 dark:text-white/90">{cats.find(c => c.id === cat)?.name}</b></div>}
+                {!q.trim() && !cat ? <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
+                  <button key={c.id} type="button" onClick={() => setCat(c.id)} className="flex min-h-24 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
+                    {c.imageUrl ? <img src={c.imageUrl} alt="" className="h-24 w-full object-cover" /> : <span className="h-2 bg-brand-500" />}
+                    <span className="flex flex-1 flex-col p-3"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{c.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{n} {n === 1 ? "item" : "items"}</span></span></button>); })}
+                  {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</div> : <>
+                <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">{shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch); return (
+                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900">
+                    {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-24 w-full object-cover" /> : <span className="h-2 bg-brand-50 dark:bg-brand-500/10" />}
+                    <span className="flex flex-1 flex-col p-3"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
+                  {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</div></>}
+              </>}
             </section>
           </div>
         </div>
