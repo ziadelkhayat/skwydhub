@@ -9,6 +9,4 @@
 /v2    /  301
 /v2/   /  301
 /v2/*  /  301
-# the new POS web app: every address under /pos-app/ opens the app
-/pos-app   /pos-app/  301
-/pos-app/*  /pos-app/index.html  200
+# the new POS web app is at /pos-app/ (Cloudflare serves its index.html; no rewrite rule here: one under /pos-app/* would also catch the app's own scripts)
