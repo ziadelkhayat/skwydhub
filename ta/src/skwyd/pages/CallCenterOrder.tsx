@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, ChevronLeftIcon, DollarIcon, MinusIcon, PencilIcon, PlusIcon, SearchIcon, TagIcon, TrashBinIcon } from "@/icons";
+import { ArrowLeftIcon, ChevronLeftIcon, MinusIcon, PlusIcon, SearchIcon, TrashBinIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { newId, put, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -264,10 +264,11 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               </div>
             </section>
             <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-3 lg:order-2 lg:overflow-hidden">
-              {/* the order's tools, as square tiles (like the POS) */}
-              {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", DollarIcon], ["chg", "Charges", PlusIcon], ["tags", "Tags", TagIcon], ["notes", "Notes", PencilIcon]] as const).map(([k, t, I]) =>
-                <button key={k} type="button" onClick={() => setDlg(k)} className="flex size-20 flex-col items-center justify-center gap-1.5 rounded-xl bg-brand-50 text-sm font-medium text-brand-600 transition hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400">
-                  <I className="size-6" /><span>{t}{k === "tags" && tags?.length ? ` (${tags.length})` : ""}</span></button>)}</div>}
+              {/* the order's tools: the same soft blue squares and icons as the POS top buttons (apps/pos/src/ui/Icon.tsx) */}
+              {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, disc > 0], ["chg", "Charges", <path d="M12 5v14M5 12h14" />, !!chg?.size],
+                ["tags", "Tags", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, !!tags?.length], ["notes", "Notes", <><path d="M6 3h9l4 4v14H6z" /><path d="M9 11h7M9 15h7" /></>, !!(notes || rnotes)]] as const).map(([k, t, d, on]) =>
+                <button key={k} type="button" onClick={() => setDlg(k)} className={cn("flex size-[84px] flex-col items-center justify-center gap-1.5 rounded-2xl border-2 bg-brand-50 text-[13px] font-medium text-brand-600 transition hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400", on ? "border-brand-500" : "border-brand-50 dark:border-transparent")}>
+                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>{t}</button>)}</div>}
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}

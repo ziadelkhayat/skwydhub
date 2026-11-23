@@ -298,7 +298,7 @@ export function Register() {
           <View style={{ width: 40, height: 40, borderRadius: R.md, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={18} color="#fff">S</T></View>
           <View style={{ flex: 1, minWidth: 0 }}><T w="s" numberOfLines={1}>{branch?.name || "—"}</T><T size={13} color={C.mut} numberOfLines={1}>{device?.name || "—"}</T></View>
           {/* what kind of order this is: In Store, Pickup or Delivery */}
-          <Pill text={TYPE_LBL[otype] || otype} tone="brand" />
+          {live_eo ? <Pill text={TYPE_LBL[otype] || otype} tone="brand" /> : null}
           {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
           <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : pending ? `Syncing ${pending}…` : "Online"} tone={online && !pending ? "brand" : "warn"} />
           {cashier ? <Pill text={cashier.name} /> : null}
@@ -312,7 +312,11 @@ export function Register() {
         </View> : null}
         {live_eo && (live_eo.customerName || live_eo.phone) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{[live_eo.customerName, live_eo.phone, live_eo.source].filter(Boolean).join(" · ")}</T>{live_eo.address ? <T size={13} color={C.mut} numberOfLines={2}>{live_eo.address}</T> : null}</View> : null}
-        {/* the order type: a new order is dine-in; Pickup & Delivery → New Order starts a pickup or delivery */}
+        {/* the order type (option A): In Store / Pickup / Delivery at the top of the cart; Pickup and Delivery ask for the customer first */}
+        {!live_eo && types.length > 1 ? <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 4, marginHorizontal: 18, marginTop: 12 }}>
+          {types.map(k => <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: otype === k }} onPress={() => { if (k === otype) return; if (k === "dinein") switchType(k); else askCust(k); }}
+            style={{ flex: 1, height: 40, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: otype === k ? "#fff" : "transparent", borderWidth: otype === k ? 1 : 0, borderColor: C.line }}>
+            <T w="m" size={15} color={otype === k ? C.ink : C.mut}>{TYPE_LBL[k]}</T></Pressable>)}</View> : null}
         {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
           <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
           {/* × takes the table off this order (only before it is saved to the table) */}
@@ -367,7 +371,7 @@ export function Register() {
             <Btn height={56} style={{ flex: 1 }} label={live_eo.driverId && live_eo.driverName ? live_eo.driverName : "Add Driver"} sub={live_eo.driverId ? DRV_ST[live_eo.driverStatus] : undefined}
               onPress={() => setDlg(<DriverPick x={x} o={live_eo} onDone={m => { setDlg(null); if (m) say(m); }} />)} />
             <Btn kind="primary" height={56} style={{ flex: 1 }} label="Dispatch" disabled={cart.some(l => l.qty > (l.saved || 0))} onPress={dispatch} />
-          </> : ro ? <Btn height={56} style={{ flex: 1 }} label={"Done · " + ordRef(live_eo!) + " · New Order"} onPress={reset} /> : <>
+          </> : ro ? null : <>
             <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length || (!!live_eo && !cart.some(l => l.qty > (l.saved || 0)))} onPress={saveOrder} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={pay} />
           </>}
