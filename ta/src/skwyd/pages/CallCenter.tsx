@@ -1,4 +1,4 @@
-// Call Center board: the business day's call center and web orders in columns (Pending, Preparing, Dispatched, Done, Void & Returned,
+// Call Center board: the business day's call center and web orders in columns (Drafts, Pending, Active, Done,
 // Declined), live, with the same filter (brand, store, business date, user) and order tiles as the current portal. Pressing a tile opens the order.
 // New, draft, waiting and pending orders open in the order screen (CallCenterOrder); the rest open in the order panel.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -17,9 +17,8 @@ import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
 import { F, SEL } from "../ui/kit";
 
-const COLS: [string, string, string][] = [["draft", "Drafts", "Orders saved as a draft and not sent to the store yet"], ["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Preparing", "Orders that are currently being prepared in the store"],
-  ["dispatched", "Dispatched", "Delivery orders a driver has picked up and is taking to the customer"], ["closed", "Done", "Orders that are completed"],
-  ["void", "Void & Returned", "Orders that have been voided, returned or refunded"], ["declined", "Declined", "Orders that have been declined from the store or the call center"]];
+const COLS: [string, string, string][] = [["draft", "Drafts", "Orders saved as a draft and not sent to the store yet"], ["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Active", "Orders the store accepted: being prepared, or on the way with a driver"],
+  ["closed", "Done", "Orders that are completed"], ["declined", "Declined", "Orders that have been declined from the store or the call center"]];
 const SUB: Record<string, string> = { review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing", declined: "Declined", closed: "Done", void: "Void", returned: "Returned", refund: "Refund" };
 const TYPE: Record<string, string> = { dinein: "Dine-in", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "Dine-in" };
 const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering" };
@@ -50,7 +49,7 @@ export default function CallCenterPage() {
   const ccWeb = (o: any) => o.channel === "callcenter" || o.status === "review" || route(o.brandId) === "callcenter";
   const byUser = (o: any, n: string) => o.agent === n || o.agent === String(n).split(/\s+/)[0];
   const list = rows.filter(o => ccWeb(o) && (!F0.brand || o.brandId === F0.brand) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || o.branchId === F0.branch) && (!F0.user || byUser(o, F0.user)));
-  const colOf = (k: string) => list.filter(o => k === "void" ? ["void", "returned", "refund"].includes(o.status) : k === "dispatched" ? o.status === "active" && !!o.dispatchedAt : k === "active" ? o.status === "active" && !o.dispatchedAt : k === "pending" ? ["pending", "review"].includes(o.status) : o.status === k);
+  const colOf = (k: string) => list.filter(o => k === "void" ? ["void", "returned", "refund"].includes(o.status) : k === "active" ? o.status === "active" : k === "pending" ? ["pending", "review"].includes(o.status) : o.status === k);
   // users who can use the call center (their role allows it, or they manage everything); the person signed in too
   const agents = [...new Set([...users.filter(u => live(u) && u.active !== false && u.role !== "owner" && u.role !== "admin" && roles.filter(r => ((u.roleIds || []).length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id) && live(r)).flatMap(r => r.permissions || []).some((p: string) => p === "bo_callcenter" || p === "bo_manage")).map(u => u.name), ...(staff?.name ? [staff.name] : [])])].sort((a, b) => a.localeCompare(b));
   const nF = [F0.brand, F0.branch, F0.date && F0.date !== bizDate(new Date()) ? F0.date : "", F0.user].filter(Boolean).length;
@@ -83,7 +82,7 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
   const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const I = ({ Customer: UserIcon, Type: TruckDeliveryIcon, Channel: GlobeIcon, User: CallIcon, Created: TimeIcon, Store: BoxIcon } as any)[k]; return <div className="flex gap-2 text-xs"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{I ? <I className="size-4" /> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-gray-400">{sub}</span>}</span></div>; };
   return (
     <button type="button" onClick={onOpen} className="block w-full rounded-xl border border-gray-200 bg-white p-3 text-start shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mb-2 flex items-center justify-between gap-2"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" : SUB[o.status] || o.status}</Badge></div>
+      <div className="mb-2 flex items-center justify-between gap-2"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
       {o.status === "declined" && o.voidReason && <p className="mb-2 text-xs text-red-500">Reason: {o.voidReason}</p>}
       <div className="space-y-1.5">
         <R k="Customer" sub={o.phone ? tel(o.phone) : undefined}>{o.customerName || "Guest"}</R>
