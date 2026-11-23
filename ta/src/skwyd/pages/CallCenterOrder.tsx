@@ -52,7 +52,7 @@ const loadMods = () => (window as any).SkwydMods ? Promise.resolve((window as an
 export default function CallCenterOrder({ order, onClose, init, onNav }: { order: any | null; onClose: () => void; init?: any; onNav: (to: string) => void }) {
   const s = useS(["products", "categories", "modifiers", "modifier_options", "branches", "brands", "taxes", "tax_groups", "charges", "settings", "order_sources", "zones", "variant_sets"]);
   const { staff } = useAuth(), by = who(staff);
-  const o = order, h0 = !order && init ? init : null, locked = !!o && o.status !== "draft", ro = !!o && !["draft", "review", "pending"].includes(o.status);
+  const o = order, h0 = !order && init ? init : null, locked = !!o && o.status !== "draft", erWait = !!o && o.status === "active" && o.editRequest?.status === "pending", ro = !!o && (!["draft", "review", "pending", "active"].includes(o.status) || erWait);   // an accepted (active) order can be changed: the store approves the change
   const sp = (() => { const p = String(o?.phone || h0?.phone || ""), cc = CCS.find(x => p.startsWith(x)) || "+961"; return { cc, num: p.startsWith(cc) ? p.slice(cc.length) : p }; })();
   const [cc, setCc] = useState(sp.cc), [num, setNum] = useState(sp.num), [name, setName] = useState(o?.customerName || h0?.customerName || ""), [type, setType] = useState((o || h0)?.type === "delivery" ? "delivery" : "pickup");
   const [source, setSource] = useState(o?.source || h0?.source || ""), [brand, setBrand] = useState(o?.brandId || h0?.brandId || ""), [branch, setBranch] = useState(o?.branchId || h0?.branchId || ""), [addr, setAddr] = useState<Addr>(addrSplit((o || h0)?.address));
@@ -173,6 +173,21 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
       : { brandId: brand, phone, customerName: name.trim(), source, type, address: type === "delivery" ? addrJoin(addr) : "", branchId: branch, notes: notes.trim(), receiptNotes: rnotes.trim(), items: cart, ...dq, subtotal: calc.gross, charges: calc.charges, chargesTotal: calc.chargesTotal, total: calc.total, status };
     if (!o) { data.agent = by; data.channel = "callcenter"; }
     if (extra) Object.assign(data, extra);
+    // an order the store already accepted: the change waits at the store to be approved; the order stays as it is until then
+    if (o && o.status === "active") {
+      const key = (i: any) => (i.productId || i.name) + "|" + JSON.stringify(i.options || i.mods || "") + "|" + (i.note || ""), now = new Date().toISOString();
+      const orig = (o.items || []).filter((i: any) => !i.voided), pool = orig.map((i: any) => ({ k: key(i), q: +i.qty || 0 })), added: any[] = [], voided: any[] = [];
+      cart.forEach((i: any) => { let need = +i.qty || 0; pool.forEach((x: any) => { if (x.k === key(i) && x.q > 0 && need > 0) { const t = Math.min(x.q, need); x.q -= t; need -= t; } }); if (need > 0) { const { saved, ...rest } = i; added.push({ ...rest, qty: need }); } });
+      const left = cart.map((i: any) => ({ k: key(i), q: +i.qty || 0 }));
+      orig.forEach((i: any) => { const m = left.find(x => x.k === key(i) && x.q > 0), keep = m ? Math.min(m.q, +i.qty || 0) : 0; if (m) m.q -= keep; if (keep < (+i.qty || 0)) { const { saved, ...rest } = i; voided.push({ ...rest, qty: (+i.qty || 0) - keep, voidedAt: now, voidedBy: by }); } });
+      if (!cart.length) return setErr("To remove every item, cancel the order instead.");
+      const ed = { ...data, items: cart.map(({ saved, ...i }: any) => i), ...(voided.length ? { voidedItems: [...(o.voidedItems || []), ...voided] } : {}) };
+      const er = { id: newId("er"), status: "pending", at: now, by, data: ed, summary: { added, voided: voided.map(v => ({ name: v.name, qty: v.qty, productId: v.productId, ...(v.options ? { options: v.options } : {}), ...(v.mods ? { mods: v.mods } : {}) })) } };
+      setBusy(true);
+      try { await put("orders", o.id, { editRequest: er }); toast(`Changes sent to ${s!.branches.find(b => b.id === o.branchId)?.name || "the store"} for approval`); onClose(); }
+      catch { setErr("Couldn't send the changes."); } finally { setBusy(false); }
+      return;
+    }
     setBusy(true);
     const oid = o?.id || newId("ord");
     try { await put("orders", oid, data);
@@ -282,6 +297,8 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                   {(!o || o.status === "draft") && <><Button className="flex-1" disabled={busy || !cart.length} onClick={() => save("pending")}>{busy ? "Sending…" : "Send"}</Button><Button variant="outline" disabled={busy} onClick={() => save("draft")}>Save Draft</Button></>}
                   {o?.status === "draft" && <Button variant="destructive" disabled={busy} onClick={async () => { try { const { error } = await sb.from("orders").delete().eq("id", o.id).eq("status", "draft"); if (error) throw error; toast("Draft cancelled"); onClose(); } catch { toast("Couldn't cancel the draft.", "error"); } }}>Cancel Draft</Button>}
                   {o?.status === "review" && <><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Decline</Button><Button className="flex-1" disabled={busy} onClick={() => setStatus("pending")}>Accept</Button></>}
+                  {o?.status === "active" && (erWait ? <p className="w-full text-sm text-amber-600">The last change is waiting for the store to approve it.</p>
+                    : <Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>{busy ? "Sending…" : "Send changes for approval"}</Button>)}
                   {o?.status === "pending" && <><Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel order</Button></>}
                   {o && ["closed", "declined", "void", "returned", "refund"].includes(o.status) && <Button className="flex-1" onClick={reorder}>Reorder</Button>}
                 </div>
