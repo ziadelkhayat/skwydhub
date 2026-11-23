@@ -31,6 +31,7 @@ const TasksPage = lazy(() => import("@/skwyd/pages/Tasks"));
 const KnowledgePage = lazy(() => import("@/skwyd/pages/Knowledge"));
 const InvDocsPage = lazy(() => import("@/skwyd/pages/InvDocs"));
 const CallCenterPage = lazy(() => import("@/skwyd/pages/CallCenter"));
+const CallCenterOrderPage = lazy(() => import("@/skwyd/pages/CallCenterOrder").then(m => ({ default: m.CallCenterOrderPage })));
 const ReportsPage = lazy(() => import("@/skwyd/pages/Reports"));
 const OrderTxPage = lazy(() => import("@/skwyd/pages/OrderTx"));
 const EmployeePage = lazy(() => import("@/skwyd/pages/Employee"));
@@ -103,6 +104,7 @@ function Gate() {
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/knowledge" element={<KnowledgePage />} />
           <Route path="/call-center" element={<CallCenterPage />} />
+          <Route path="/call-center-order" element={<CallCenterOrderPage />} />
           <Route path="/inv-levels" element={<InvLevelsPage />} />
           <Route path="/inv-history" element={<InvHistoryPage />} />
           <Route path="/order-transactions" element={<OrderTxPage />} />

@@ -173,7 +173,7 @@ function ScDialog({ s, M, b, code, onClose, onSaved, onDeleted }: { s: S; M: M; 
 function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch; back: () => void; go: (b: string, c: string) => void }) {
   const code = scCode(ch), br = s.branches.find(x => x.id === b), types = OTYPES.filter(([t]) => M.chTypes(b, code).includes(t));
   const [cat0, setCat] = useState(""), [cq, setCq] = useState(""), [q, setQ] = useState(""), [cex, setCex] = useState<Set<string>>(new Set()), [csel, setCsel] = useState<Set<string>>(new Set()), [isel, setIsel] = useState<Set<string>>(new Set());
-  const [sel, setSel] = useState(""), [item, setItem] = useState(""), [edit, setEdit] = useState<false | null | Row>(false), [adding, setAdding] = useState(false), [scEdit, setScEdit] = useState(false), [busy, setBusy] = useState(""), [ask, setAsk] = useState<null | ((v: Record<string, string[]> | null) => void)>(null);
+  const [item, setItem] = useState(""), [edit, setEdit] = useState<false | null | Row>(false), [adding, setAdding] = useState(false), [scEdit, setScEdit] = useState(false), [busy, setBusy] = useState(""), [ask, setAsk] = useState<null | ((v: Record<string, string[]> | null) => void)>(null);
   const [drag, setDrag] = useState<{ k: string; cat?: string } | null>(null);
   const cats = M.chCats(code, b), top = (c: Row) => !catPar(c) || !cats.some(x => x.id === catPar(c));
   const rowsOf = (cq0: string) => { const out: { c: Row; sub: boolean }[] = [], m = (c: Row) => !cq0 || c.name.toLowerCase().includes(cq0);
@@ -249,7 +249,6 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
   }
 
   const others = M.scFor(b).filter(c => scCode(c) !== code);
-  const flat = rows.flatMap(r => [r, ...M.varKids(r)]), spd = flat.find(p => p.id === sel) || flat.find(p => !M.varKids(p).length) || null;
   const nCatTop = rowsOf("").filter(x => !x.sub).map(x => x.c), nCatOn = nCatTop.filter(catOn).length;
   const vis = rowsOf(cq.trim().toLowerCase()).filter(({ c, sub }) => !sub || cq || cex.has(catPar(c)));
   const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <input type="checkbox" aria-label={label} className="size-4 shrink-0 accent-brand-500" checked={on} onChange={e => set(e.target.checked)} onClick={e => e.stopPropagation()} />;
@@ -270,7 +269,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
           <DropdownMenuContent align="end" className="w-52 p-2">{others.map(c => <DropdownMenuItem key={c.id} onClick={() => copyFrom(scCode(c))}>{c.name}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>}
         <Button variant="outline" onClick={() => setScEdit(true)}>Settings</Button></div>
     </div>
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)] 2xl:grid-cols-[360px_minmax(0,1fr)_280px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       {/* categories */}
       <aside className={BOX + " flex min-h-0 flex-col self-start overflow-hidden"}>
         <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3 dark:border-gray-800"><b className="font-medium whitespace-nowrap text-gray-800 dark:text-white/90">Categories</b><span className="text-xs whitespace-nowrap text-gray-500">{nCatOn} of {nCatTop.length}</span>
@@ -311,26 +310,21 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
             <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm"><thead><tr className="border-b border-gray-100 text-xs text-gray-500 dark:border-white/5"><th className="w-24" /><th className="px-3 py-2.5 text-start font-medium">Product</th>{types.map(([t, tl]) => <th key={t} className="px-3 py-2.5 text-start font-medium">{tl}</th>)}<th /></tr></thead>
               <tbody>{!rows.length ? <tr><td colSpan={types.length + 3} className="px-4 py-8 text-center text-gray-500">No products match.</td></tr> : rows.flatMap(r => [r, ...M.varKids(r).map(k => Object.assign(Object.create(null), k, { __par: r }))]).map((r: any) => {
                 const par = r.__par as Row | undefined, x = st(r), vk = par ? [] : M.varKids(r), nm = par ? ((par.variants || []).find((v: any) => v.productId === r.id)?.name || r.name) : r.name, base = x.price !== "" ? +x.price : x.fallback;
-                return <tr key={r.id} {...(par ? {} : dnd("p:" + r.id, cur.id))} onClick={() => setSel(r.id)} className={cn("cursor-pointer border-b border-gray-100 dark:border-white/5", spd?.id === r.id ? "bg-brand-25 dark:bg-brand-500/5" : "hover:bg-gray-50 dark:hover:bg-white/2", !x.on && "opacity-60")}>
+                return <tr key={r.id} {...(par ? {} : dnd("p:" + r.id, cur.id))} className={cn("border-b border-gray-100 hover:bg-gray-50 dark:border-white/5 dark:hover:bg-white/2", !x.on && "opacity-60")}>
                   <td className="px-3 py-2.5"><div className="flex items-center gap-2">{par ? <span className="ps-10" /> : <><CB label={"Select " + nm} on={isel.has(r.id)} set={v => setIsel(o => { const n = new Set(o); if (v) n.add(r.id); else n.delete(r.id); return n; })} />{!qq && <span className="cursor-grab text-gray-400 select-none" aria-hidden>⋮⋮</span>}</>}
                     <span onClick={e => e.stopPropagation()}><Switch size="sm" checked={x.on} aria-label={nm + " on the " + ch.name + " menu"} onCheckedChange={v => setTypesOf([r.id], v)} /></span></div></td>
                   <td className="min-w-48 px-3 py-2.5"><div className="flex items-center gap-3">{par ? <span className="text-gray-400">↳</span> : <span className="size-9 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">{r.imageUrl && <img src={r.imageUrl} alt="" className="size-full object-cover" />}</span>}
-                    <span><b className="block font-medium text-gray-800 dark:text-white/90">{nm}</b><span className="text-xs text-gray-500">{vk.length ? `${vk.length} variants below` : money(base) + " · " + (Object.values(x.tprices).some(Boolean) ? "order type prices" : types.every(([t]) => x.types[t]) ? "all types" : types.filter(([t]) => x.types[t]).map(([, tl]) => tl).join(", ") || "off")}</span></span></div></td>
+                    <span><b className="block font-medium text-gray-800 dark:text-white/90">{nm}{!x.stock && <Badge variant="light" color="error" size="sm" className="ms-2">Sold out</Badge>}</b><span className="text-xs text-gray-500">{vk.length ? `${vk.length} variants below` : money(base) + " · " + (Object.values(x.tprices).some(Boolean) ? "order type prices" : types.every(([t]) => x.types[t]) ? "all types" : types.filter(([t]) => x.types[t]).map(([, tl]) => tl).join(", ") || "off")}</span></span></div></td>
                   {types.map(([t, tl]) => <td key={t} className="px-3 py-2.5" onClick={e => e.stopPropagation()}>{!vk.length && <div className="flex items-center gap-2"><Switch size="sm" checked={x.types[t]} aria-label={`${nm} as ${tl}`} onCheckedChange={v => change({ [r.id]: { ["t_" + t]: v } })} />
                     <PriceIn v={x.tprices[t]} ph={base} dis={!x.types[t]} label={`${nm} ${tl} price`} onSet={v => change({ [r.id]: { ["tp_" + t]: v } })} /></div>}</td>)}
-                  <td className="px-3 py-2.5 text-end" onClick={e => e.stopPropagation()}>{!par && <DropdownMenu><DropdownMenuTrigger className="rounded px-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5" aria-label="Product actions">⋯</DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36 p-2"><DropdownMenuItem className="text-error-500" onClick={async () => { if (!(await askYes(`Remove the item "${r.name}" from the category "${cur.name}" in the ${ch.name} menu?`, "Remove", true))) return;
-                      try { await put("categories", cur.id, { productIds: (cur.productIds || []).filter((x2: string) => M.root(x2) !== r.id) }); toast("Removed from " + cur.name); } catch { toast("Couldn't save.", "error"); } }}>Remove</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}</td></tr>; })}</tbody></table></div></>}</>}
+                  <td className="px-3 py-2.5 text-end" onClick={e => e.stopPropagation()}><DropdownMenu><DropdownMenuTrigger className="rounded px-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5" aria-label="Product actions">⋯</DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 p-2">
+                      <DropdownMenuItem onClick={() => change({ [r.id]: { stock: !x.stock } })}>{x.stock ? `Sold out at ${br?.name || "this store"}` : "Back in stock"}</DropdownMenuItem>
+                      {Object.values(x.tprices).some(Boolean) && <DropdownMenuItem onClick={() => change({ [r.id]: Object.fromEntries(types.map(([t]) => ["tp_" + t, ""])) })}>Same price for all</DropdownMenuItem>}
+                      {!par && M.links(r).length > 0 && <DropdownMenuItem onClick={() => setItem(r.id)}>Modifiers</DropdownMenuItem>}
+                      {!par && <DropdownMenuItem className="text-error-500" onClick={async () => { if (!(await askYes(`Remove the item "${r.name}" from the category "${cur.name}" in the ${ch.name} menu?`, "Remove", true))) return;
+                      try { await put("categories", cur.id, { productIds: (cur.productIds || []).filter((x2: string) => M.root(x2) !== r.id) }); toast("Removed from " + cur.name); } catch { toast("Couldn't save.", "error"); } }}>Remove</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu></td></tr>; })}</tbody></table></div></>}</>}
       </section>
-      {/* the selected item: price and availability per order type */}
-      <aside className={BOX + " self-start p-5 lg:col-span-2 2xl:col-span-1"}>{!spd ? <p className="text-sm text-gray-500">Pick an item to set its prices.</p> : (() => { const x = st(spd), base = x.price !== "" ? +x.price : x.fallback, par = flat.find(p => M.varKids(p).some(k => k.id === spd.id));
-        const nm = par ? par.name + " › " + ((par.variants || []).find((v: any) => v.productId === spd.id)?.name || spd.name) : spd.name;
-        return <><b className="block font-medium text-gray-800 dark:text-white/90">{nm}</b><span className="text-xs text-gray-500">Prices and availability at {br?.name}</span>
-          <div className="mt-4 space-y-3">{types.map(([t, tl]) => <div key={t} className="flex items-center gap-3"><Switch size="sm" checked={x.types[t]} aria-label={`${nm} as ${tl}`} onCheckedChange={v => change({ [spd.id]: { ["t_" + t]: v } })} /><b className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{tl}</b>
-            <PriceIn v={x.tprices[t]} ph={base} dis={!x.types[t]} label={`${nm} ${tl} price`} onSet={v => change({ [spd.id]: { ["tp_" + t]: v } })} /></div>)}</div>
-          <label className="mt-4 flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><Switch size="sm" checked={x.stock} aria-label="In stock" onCheckedChange={v => change({ [spd.id]: { stock: v } })} />{x.stock ? "In stock" : "Sold out"} <span className="text-xs text-gray-500">(all channels at {br?.name})</span></label>
-          <div className="mt-4 flex flex-wrap gap-2">{Object.values(x.tprices).some(Boolean) && <Button size="sm" variant="outline" onClick={() => change({ [spd.id]: Object.fromEntries(types.map(([t]) => ["tp_" + t, ""])) })}>Same price for all</Button>}
-            {M.links(spd).length > 0 && <Button size="sm" variant="outline" onClick={() => setItem(spd.id)}>Modifiers</Button>}</div></>; })()}</aside>
     </div>
 
     {item && (() => { const r = s.products.find(x => x.id === item && live(x)); if (!r) return null; const ls = M.links(r);

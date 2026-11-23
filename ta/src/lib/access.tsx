@@ -20,7 +20,7 @@ const days = (n: number) => `${n} day${n === 1 ? "" : "s"}`;
 
 /* ---------- which permission and which paid module each address belongs to ---------- */
 const G: [string, string | null, string[]][] = [
-  ["bo_dashboard", null, [""]], ["bo_orders", null, ["orders", "order"]], ["bo_callcenter", "call_center", ["call-center"]], ["bo_customers", null, ["customers", "customer"]],
+  ["bo_dashboard", null, [""]], ["bo_orders", null, ["orders", "order"]], ["bo_callcenter", "call_center", ["call-center", "call-center-order"]], ["bo_customers", null, ["customers", "customer"]],
   ["bo_reports", null, ["sales-reports", "business-reports", "analysis-reports", "employee-reports"]],
   ["bo_reports", "inventory", ["inventory-reports", "inv-levels", "inv-history", "purchasing"]],
   ["bo_marketing", "marketing", ["discounts", "loyalty", "gift-cards", "promotions", "coupons"]],
