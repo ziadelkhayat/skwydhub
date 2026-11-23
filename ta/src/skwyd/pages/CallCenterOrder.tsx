@@ -29,6 +29,8 @@ const addrJoin = (a: Addr) => { const c = (v: string) => String(v || "").replace
   return [c(a.label) ? "[" + c(a.label).replace(/[[\]]/g, "") + "]" : "", [c(a.street), c(a.building) && "Bldg: " + c(a.building), c(a.floor) && "Floor: " + c(a.floor), c(a.door) && "Door: " + c(a.door), c(a.extra) && "Info: " + c(a.extra)].filter(Boolean).join(" · ")].filter(Boolean).join(" "); };
 const addrSplit = (v?: string): Addr => { const a: Addr = { label: "", street: "", building: "", floor: "", door: "", extra: "" }; let s = String(v || "").trim(); const m = /^\[(.*?)\]\s*/.exec(s); if (m) { a.label = m[1]; s = s.slice(m[0].length); }
   s.split(" · ").filter(Boolean).forEach(p => { const k = /^(Bldg|Floor|Door|Info):\s*(.*)$/.exec(p); if (k) (a as any)[({ Bldg: "building", Floor: "floor", Door: "door", Info: "extra" } as any)[k[1]]] = k[2]; else a.street = a.street ? a.street + ", " + p : p; }); return a; };
+// a line discount in % follows the quantity; an amount stays as entered (never more than the line)
+const reDisc = (x: any) => x.discPct ? { ...x, disc: +((+x.price || 0) * (+x.qty || 1) * Math.min(100, +x.discPct) / 100).toFixed(2) } : x;
 const lineNet = (i: any) => Math.max(0, (+i.price || 0) * (+i.qty || 1) - (+i.disc || 0));
 const rrApply = (v: number, dec: number, rules: any[]) => { if (!rules || !rules.length) return v; const f = Math.pow(10, dec), x = Math.round(Math.abs(+v || 0) * f), dg = x % 10, r = rules.find(r => dg >= +r.from && dg <= +r.to); if (!r || !dg) return v; return Math.sign(v) * (r.up ? x - dg + 10 : x - dg) / f; };
 const offAt = (arr: any[], b: string, ch: string) => !!b && ((arr || []).includes(b) || (arr || []).includes(b + ":" + ch));
@@ -56,7 +58,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
   const [discType, setDiscType] = useState(o?.discountType === "amt" ? "amt" : "pct"), [disc, setDisc] = useState<number>(o ? (o.discountType === "amt" ? +o.discount || 0 : +o.discountPct || 0) : 0);
   const [chg, setChg] = useState<Set<string> | null>(o ? new Set((o.charges || []).map((c: any) => c.id)) : null), [open, setOpen] = useState<Record<string, number>>(() => Object.fromEntries((o?.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount || 0])));
   const [notes, setNotes] = useState(o?.notes || ""), [rnotes, setRNotes] = useState(o?.receiptNotes || ""), [cust, setCust] = useState<any>(null), [past, setPast] = useState<any[]>([]), [addrIx, setAddrIx] = useState<number | null>(null);
-  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason">("");
+  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason">(""), [line, setLine] = useState<number | null>(null);
   const phone = num.trim() ? (num.trim().startsWith("+") ? num.replace(/[^0-9+]/g, "") : cc + num.replace(/\D/g, "").replace(/^0+/, "")) : "";
   // the customer: looked up by phone (the same number written with or without the country code or a leading 0)
   useEffect(() => { if (phone.length < 6) { setCust(null); setPast([]); return; } let off = false;
@@ -129,7 +131,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
         const r = await M.pick({ name: p.name, basePrice: price, links, groups, options: opts, money, askNote: true }); if (!r) return;
         options = r.options; mods = r.mods; price = r.unitPrice; note = r.note || "";
       }
-      setCart(c => { const k = M.key(p.id, options), ex = !note && c.find(i => !i.note && M.key(i.productId, i.options) === k);
+      setCart(c => { const k = M.key(p.id, options), ex = !note && c.find(i => !i.note && !(+i.disc > 0) && M.key(i.productId, i.options) === k);
         if (ex) return c.map(i => i === ex ? { ...i, qty: +i.qty + 1 } : i);
         return [...c, { productId: p.id, name: p.name, price, qty: 1, ...(options.length ? { options } : {}), ...(note ? { note } : {}), ...(options.length || note ? { mods: M.label(mods, note) } : {}) }]; });
     } catch (e: any) { toast(e.message || "Couldn't add the item.", "error"); }
@@ -205,10 +207,14 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
               {!ro && <div className="flex gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button></div>}
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
-                  <div className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{i.name}</b><span className="text-sm text-gray-800 dark:text-white/90">{money(lineNet(i))}</span></div>
-                  {i.mods && <p className="mt-0.5 text-xs text-gray-500">{i.mods}</p>}
-                  {!ro && <div className="mt-2 flex items-center gap-2"><Button size="icon-xs" variant="outline" aria-label="Less" onClick={() => setCart(c => +i.qty <= 1 ? c.filter((_, j) => j !== ix) : c.map((x, j) => j === ix ? { ...x, qty: +x.qty - 1 } : x))}><MinusIcon className="size-3.5" /></Button>
-                    <span className="w-6 text-center text-sm">{i.qty}</span><Button size="icon-xs" variant="outline" aria-label="More" onClick={() => setCart(c => c.map((x, j) => j === ix ? { ...x, qty: +x.qty + 1 } : x))}><PlusIcon className="size-3.5" /></Button>
+                  <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => setLine(ix)} className="block w-full text-start">
+                    <span className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{i.name}</b><span className="text-sm text-gray-800 dark:text-white/90">{+i.disc > 0 && <s className="me-1.5 text-xs text-gray-400">{money((+i.price || 0) * (+i.qty || 1))}</s>}{money(lineNet(i))}</span></span>
+                    {i.mods && <span className="mt-0.5 block text-xs text-gray-500">{i.mods}</span>}
+                    {+i.disc > 0 && <span className="mt-0.5 block text-xs text-green-600 dark:text-green-400">Discount {i.discPct ? `${+i.discPct}%` : ""} −{money(+i.disc)}</span>}
+                    {i.note && <span className="mt-0.5 block text-xs text-gray-500 italic">Note: {i.note}</span>}
+                  </button>
+                  {!ro && <div className="mt-2 flex items-center gap-2"><Button size="icon-xs" variant="outline" aria-label="Less" onClick={() => setCart(c => +i.qty <= 1 ? c.filter((_, j) => j !== ix) : c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty - 1 }) : x))}><MinusIcon className="size-3.5" /></Button>
+                    <span className="w-6 text-center text-sm">{i.qty}</span><Button size="icon-xs" variant="outline" aria-label="More" onClick={() => setCart(c => c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty + 1 }) : x))}><PlusIcon className="size-3.5" /></Button>
                     <button type="button" aria-label="Remove" className="ms-auto text-gray-400 hover:text-red-500" onClick={() => setCart(c => c.filter((_, j) => j !== ix))}><TrashBinIcon className="size-4" /></button></div>}
                 </div>))}</div>
               <div className="space-y-1.5 border-t border-gray-200 p-4 text-sm dark:border-gray-800">
@@ -246,6 +252,7 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
               </>}
             </section>
       </div>
+        {line != null && cart[line] && <LineDlg it={cart[line]} onClose={() => setLine(null)} onSave={x => { setCart(c => c.map((y, j) => j === line ? reDisc(x) : y)); setLine(null); }} />}
         {dlg === "disc" && <Small title="Discount" onClose={() => setDlg("")}>
           <div className="flex gap-2">{[["pct", "Percentage"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setDiscType(k)} className={cn("h-10 flex-1 rounded-lg border text-sm", discType === k ? "border-brand-500 bg-brand-50 text-brand-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{t}</button>)}</div>
           <F l={discType === "pct" ? "Discount (%)" : "Discount Amount"}><Input className="h-11" type="number" min="0" max={discType === "pct" ? 100 : undefined} step="any" value={disc || ""} onChange={e => setDisc(Math.max(0, Math.min(discType === "pct" ? 100 : 1e9, +e.target.value || 0)))} /></F></Small>}
@@ -255,6 +262,22 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
         {dlg === "notes" && <Small title="Notes" onClose={() => setDlg("")}><F l="Kitchen Notes"><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} /></F><F l="Receipt Notes"><Textarea rows={3} value={rnotes} onChange={e => setRNotes(e.target.value)} /></F></Small>}
         {dlg === "reason" && <ReasonDlg title={o?.status === "review" ? "Decline order: reason" : "Cancel order: reason"} reasons={reasons} onClose={() => setDlg("")} onGo={why => { setDlg(""); setStatus("declined", why); }} />}
     </>);
+}
+// one cart line: its note (printed on the kitchen ticket) and its discount
+function LineDlg({ it, onClose, onSave }: { it: any; onClose: () => void; onSave: (x: any) => void }) {
+  const full = (+it.price || 0) * (+it.qty || 1), [note, setNote] = useState(it.note || ""), [kind, setKind] = useState(it.discPct ? "pct" : "amt"), [v, setV] = useState<string>(it.discPct ? String(+it.discPct) : +it.disc ? String(+it.disc) : "");
+  const n = Math.max(0, +v || 0), d = kind === "pct" ? full * Math.min(100, n) / 100 : Math.min(n, full);
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{it.qty} × {it.name}</DialogTitle></DialogHeader>
+    <div className="mt-4 space-y-4">
+      <F l="Item Note"><Textarea rows={2} value={note} placeholder="e.g. no onions" onChange={e => setNote(e.target.value)} /></F>
+      <div><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Item Discount</span>
+        <div className="flex gap-2"><div className="flex shrink-0 rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">{[["pct", "%"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setKind(k)} className={cn("h-9 rounded-md px-3 text-sm", kind === k ? "bg-brand-500 text-white" : "text-gray-600 dark:text-gray-400")}>{t}</button>)}</div>
+          <Input className="h-10 flex-1" type="number" min="0" step="any" max={kind === "pct" ? 100 : full} value={v} placeholder="0" onChange={e => setV(e.target.value)} /></div>
+        <p className="mt-1.5 text-xs text-gray-500">{d > 0 ? `−${money(d)} · line total ${money(full - d)}` : `Line total ${money(full)}`}</p></div>
+    </div>
+    <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button>
+      <Button onClick={() => { const x: any = { ...it, note: note.trim() }; if (!x.note) delete x.note; if (kind === "pct" && n > 0) { x.discPct = Math.min(100, n); } else { delete x.discPct; x.disc = +d.toFixed(2); } if (!(d > 0)) { delete x.disc; delete x.discPct; } onSave(x); }}>Save</Button></div>
+  </DialogContent></Dialog>;
 }
 const Small = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
   <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</DialogTitle></DialogHeader>
