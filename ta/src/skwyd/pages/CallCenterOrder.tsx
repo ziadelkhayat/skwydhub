@@ -114,12 +114,9 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
     return { gross: +gross.toFixed(2), disc: d, charges: ch, chargesTotal: +chT.toFixed(2), tax: +tax.toFixed(2), total, rounding: +(total - raw).toFixed(2) }; })();
   const delMiss = type === "delivery" ? ([["street", "area / street"], ["building", "building"], ["floor", "floor"]] as const).filter(([k]) => !addr[k]) : [];
 
-  async function addProduct(p: Row) {
-    try {
-      const M0 = await loadMods(), M = { ...M0, pick: pickMods, variant: pickVariant }; const kids = (p.variants || []).map((v: any) => ({ name: v.name, p: D.prods.find(x => x.id === v.productId) })).filter((x: any) => x.p);
-      if (kids.length && M.variant) { const vs = s!.variant_sets.find(x => x.id === p.variantSetId && live(x)); const v = await M.variant({ name: p.name, setName: vs?.name || (p.variants || []).find((x: any) => x.group)?.group || "Variant", variants: kids.map((k: any) => ({ name: k.name, price: D.price(k.p), id: k.p.id })), money }); if (!v) return; return addProduct(kids.find((k: any) => k.p.id === v.id).p); }
-      let price = D.price(p), options: any[] = [], mods = "", note = "";
-      if ((p.modifiers || []).length) {
+  // the modifiers this item asks for at this store and order type (as the portal: options on, priced per store / channel / type)
+  function modSetup(p: Row) {
+    if (!(p.modifiers || []).length) return null;
         const groups: any = {}; s!.modifiers.filter(live).forEach(m => groups[m.id] = { name: m.name, sort: m.sort });
         const ids = new Set((p.modifiers || []).map((l: any) => l.modifierId)), linkOpt = (op: Row) => (((p.modifiers || []).find((l: any) => l.modifierId === op.modifierId)?.opts) || {})[op.id] || {};
         const k = branch + ":callcenter", kt = k + ":" + type;
@@ -129,6 +126,26 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
           .map(op => { const st = linkOpt(op), pt = (st.price || {})[kt], spp = pt != null && pt !== "" ? pt : (st.price || {})[k], c = spp != null && spp !== "" ? spp : ((op.customPrices || {})[k] ?? (op.customPrices || {})[branch]);
             return { id: op.id, modifierId: op.modifierId, name: op.name, price: c != null && c !== "" ? +c : +op.price || 0, oos: (op.outOfStockBranchIds || []).includes(branch) || (st.oos || []).includes(branch) }; });
         const links = (p.modifiers || []).filter((l: any) => groups[l.modifierId] && opts.some(x => x.modifierId === l.modifierId));   // a modifier with no active options is hidden
+    return links.length ? { links, groups, opts } : null;
+  }
+  // tapping a cart line: an item with modifiers opens its window again (modifiers, note, discount); any other line just the note and discount
+  async function editLine(ix: number) {
+    const it = cart[ix], p = s!.products.find(x => x.id === it.productId), ms = p && modSetup(p); if (!p || !ms) return setLine(ix);
+    const M = await loadMods(), r = await pickMods({ name: it.name, basePrice: D.price(p), links: ms.links, groups: ms.groups, options: ms.opts, money, edit: { initial: it.options || [], note: it.note || "", qty: +it.qty || 1, disc: it.discPct ? { kind: "pct", v: String(+it.discPct) } : +it.disc ? { kind: "amt", v: String(+it.disc) } : undefined } });
+    if (!r) return;
+    setCart(c => c.map((x, j) => { if (j !== ix) return x; const y: any = { ...x, price: r.unitPrice, options: r.options, mods: M.label(r.mods, r.note || ""), note: r.note || "" };
+      if (!y.options.length) delete y.options; if (!y.note) delete y.note; if (!y.mods) delete y.mods; delete y.disc; delete y.discPct;
+      const d = r.disc!; if (d.v > 0) { if (d.kind === "pct") y.discPct = Math.min(100, d.v); else y.disc = +Math.min(d.v, y.price * (+y.qty || 1)).toFixed(2); }
+      return reDisc(y); }));
+  }
+  async function addProduct(p: Row) {
+    try {
+      const M0 = await loadMods(), M = { ...M0, pick: pickMods, variant: pickVariant }; const kids = (p.variants || []).map((v: any) => ({ name: v.name, p: D.prods.find(x => x.id === v.productId) })).filter((x: any) => x.p);
+      if (kids.length && M.variant) { const vs = s!.variant_sets.find(x => x.id === p.variantSetId && live(x)); const v = await M.variant({ name: p.name, setName: vs?.name || (p.variants || []).find((x: any) => x.group)?.group || "Variant", variants: kids.map((k: any) => ({ name: k.name, price: D.price(k.p), id: k.p.id })), money }); if (!v) return; return addProduct(kids.find((k: any) => k.p.id === v.id).p); }
+      let price = D.price(p), options: any[] = [], mods = "", note = "";
+      const ms = modSetup(p);
+      if (ms) {
+        const { links, groups, opts } = ms;
         const r = await M.pick({ name: p.name, basePrice: price, links, groups, options: opts, money, askNote: true }); if (!r) return;
         options = r.options; mods = r.mods; price = r.unitPrice; note = r.note || "";
       }
@@ -208,11 +225,11 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
               {!ro && <div className="flex gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button></div>}
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
-                  <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => setLine(ix)} className="block w-full text-start">
+                  <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => editLine(ix)} className="block w-full text-start">
                     <span className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{i.name}</b><span className="text-sm text-gray-800 dark:text-white/90">{+i.disc > 0 && <s className="me-1.5 text-xs text-gray-400">{money((+i.price || 0) * (+i.qty || 1))}</s>}{money(lineNet(i))}</span></span>
                     {i.mods && <span className="mt-0.5 block text-xs text-gray-500">{i.mods}</span>}
                     {+i.disc > 0 && <span className="mt-0.5 block text-xs text-green-600 dark:text-green-400">Discount {i.discPct ? `${+i.discPct}%` : ""} −{money(+i.disc)}</span>}
-                    {i.note && <span className="mt-0.5 block text-xs text-gray-500 italic">Note: {i.note}</span>}
+                    {i.note && !i.mods && <span className="mt-0.5 block text-xs text-gray-500 italic">Note: {i.note}</span>}
                   </button>
                   {!ro && <div className="mt-2 flex items-center gap-2"><Button size="icon-xs" variant="outline" aria-label="Less" onClick={() => setCart(c => +i.qty <= 1 ? c.filter((_, j) => j !== ix) : c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty - 1 }) : x))}><MinusIcon className="size-3.5" /></Button>
                     <span className="w-6 text-center text-sm">{i.qty}</span><Button size="icon-xs" variant="outline" aria-label="More" onClick={() => setCart(c => c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty + 1 }) : x))}><PlusIcon className="size-3.5" /></Button>

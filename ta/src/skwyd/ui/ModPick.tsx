@@ -11,8 +11,10 @@ import { createRoot } from "react-dom/client";
 
 type Opt = { id: string; modifierId: string; name: string; price: number; oos?: boolean };
 type Link = { modifierId: string; min?: number; max?: number; free?: number; multi?: boolean; defaults?: string[] };
-export type PickIn = { name: string; basePrice: number; links: Link[]; groups: Record<string, { name: string }>; options: Opt[]; money: (n: number) => string; askNote?: boolean };
-export type PickOut = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note?: string };
+export type PickIn = { name: string; basePrice: number; links: Link[]; groups: Record<string, { name: string }>; options: Opt[]; money: (n: number) => string; askNote?: boolean;
+  // editing a cart line: what was picked, its note, its discount and quantity (the discount is then asked too)
+  edit?: { initial: { id: string; modifierId?: string }[]; note?: string; qty: number; disc?: { kind: "pct" | "amt"; v: string } } };
+export type PickOut = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note?: string; disc?: { kind: "pct" | "amt"; v: number } };
 
 // open a window outside the page's tree and wait for its answer
 function host<T>(render: (done: (v: T | null) => void) => React.ReactNode) {
@@ -23,13 +25,15 @@ const rule = (l: Link) => { const mn = +(l.min || 0), mx = +(l.max || 0); return
 
 export function pickMods(o: PickIn): Promise<PickOut | null> {
   const links = (o.links || []).map(l => ({ ...l, opts: (o.options || []).filter(x => x.modifierId === l.modifierId) })).filter(l => l.opts.length);
-  if (!links.length && !o.askNote) return Promise.resolve({ options: [], unitPrice: +o.basePrice || 0, mods: "" });
+  if (!links.length && !o.askNote && !o.edit) return Promise.resolve({ options: [], unitPrice: +o.basePrice || 0, mods: "" });
   return host<PickOut>(done => <ModWin o={o} links={links} done={done} />);
 }
 function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })[]; done: (v: PickOut | null) => void }) {
   const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {}; let n = 0;
+    if (o.edit) { o.edit.initial.forEach(x => { if (l.opts.some(y => y.id === x.id) && (!x.modifierId || x.modifierId === l.modifierId)) m[x.id] = (m[x.id] || 0) + 1; }); return m; }
     (l.defaults || []).forEach(id => { if (l.opts.some(y => y.id === id) && !(+(l.max || 0) > 0 && n >= +l.max!)) { m[id] = 1; n++; } }); return m; }));
-  const [note, setNote] = useState(""), [err, setErr] = useState(""), [open, setOpen] = useState(true);
+  const [note, setNote] = useState(o.edit?.note || ""), [err, setErr] = useState(""), [open, setOpen] = useState(true);
+  const [dk, setDk] = useState<"pct" | "amt">(o.edit?.disc?.kind || "pct"), [dv, setDv] = useState(o.edit?.disc?.v || "");
   const cnt = (gi: number) => Object.values(sel[gi]).reduce((a, n) => a + n, 0);
   const units = (gi: number) => links[gi].opts.flatMap(x => Array(sel[gi][x.id] || 0).fill(x) as Opt[]);
   const price = () => { let t = +o.basePrice || 0; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(x => { if (free > 0) free--; else t += +x.price || 0; }); }); return t; };
@@ -43,7 +47,7 @@ function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })
     const bad = links.findIndex((l, gi) => cnt(gi) < +(l.min || 0)); if (bad >= 0) return setErr(`${o.groups?.[links[bad].modifierId]?.name || "Options"}: ${rule(links[bad]).toLowerCase()}`);
     const chosen: PickOut["options"] = []; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(x => { const charge = free > 0 ? 0 : +x.price || 0; if (free > 0) free--; chosen.push({ id: x.id, modifierId: l.modifierId, name: x.name, price: charge }); }); });
     const tally: { name: string; n: number }[] = []; chosen.forEach(x => { const t = tally.find(y => y.name === x.name); if (t) t.n++; else tally.push({ name: x.name, n: 1 }); });
-    close({ options: chosen, unitPrice: +price().toFixed(2), mods: tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), ...(o.askNote ? { note: note.trim() } : {}) });
+    close({ options: chosen, unitPrice: +price().toFixed(2), mods: tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), ...(o.askNote || o.edit ? { note: note.trim() } : {}), ...(o.edit ? { disc: { kind: dk, v: Math.max(0, +dv || 0) } } : {}) });
   };
   return <Dialog open={open} onOpenChange={v => !v && close(null)}>
     <DialogContent className="flex max-h-[90dvh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
@@ -68,11 +72,16 @@ function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })
                   <Button size="icon-xs" variant="outline" aria-label={"More " + x.name} disabled={full || x.oos} onClick={() => set(gi, x.id, n + 1)}><PlusIcon className="size-3.5" /></Button></span>}
               </div>; })}</div>
           </section>; })}
-        {o.askNote && <section><h4 className="mb-2 text-base font-semibold text-gray-800 dark:text-white/90">Item Note</h4><Textarea rows={2} placeholder="e.g. no onions" value={note} onChange={e => setNote(e.target.value)} /></section>}
+        {(o.askNote || o.edit) && <section><h4 className="mb-2 text-base font-semibold text-gray-800 dark:text-white/90">Item Note</h4><Textarea rows={2} placeholder="e.g. no onions" value={note} onChange={e => setNote(e.target.value)} /></section>}
+        {o.edit && (() => { const line = price() * o.edit.qty, n = Math.max(0, +dv || 0), d = dk === "pct" ? line * Math.min(100, n) / 100 : Math.min(n, line);
+          return <section><h4 className="mb-2 text-base font-semibold text-gray-800 dark:text-white/90">Item Discount</h4>
+            <div className="flex gap-2"><div className="flex shrink-0 rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">{([["pct", "%"], ["amt", "Amount"]] as const).map(([k, t]) => <button key={k} type="button" onClick={() => setDk(k)} className={cn("h-9 rounded-md px-3 text-sm", dk === k ? "bg-brand-500 text-white" : "text-gray-600 dark:text-gray-400")}>{t}</button>)}</div>
+              <input type="number" min="0" step="any" value={dv} placeholder="0" aria-label="Item discount" onChange={e => setDv(e.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-none dark:border-gray-700 dark:text-white/90" /></div>
+            <p className="mt-1.5 text-xs text-gray-500">{o.edit.qty} × {o.money(price())}{d > 0 ? ` − ${o.money(d)} = ${o.money(line - d)}` : ` = ${o.money(line)}`}</p></section>; })()}
       </div>
       <div className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
         <span className="flex-1 text-sm text-red-500">{err}</span>
-        <Button variant="outline" onClick={() => close(null)}>Cancel</Button><Button onClick={ok}>Add · {o.money(price())}</Button>
+        <Button variant="outline" onClick={() => close(null)}>Cancel</Button><Button onClick={ok}>{o.edit ? "Save" : `Add · ${o.money(price())}`}</Button>
       </div>
     </DialogContent></Dialog>;
 }
