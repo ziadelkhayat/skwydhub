@@ -25,6 +25,7 @@ import { Sheet } from "./Pickers";
 import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAudioPlayer } from "expo-audio";
 import { useStore } from "../lib/store";
 import { C, F, R, shadowXs } from "../lib/theme";
 import { Icon } from "./Icon";
@@ -217,6 +218,10 @@ export function Register() {
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
   const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
   // new web and call center orders: a banner to open them (pos.html incoming); the master register can accept web orders by itself (Device settings: Auto accept)
+  // the "wheet-whee-oo" of the current POS for new orders and order edits; Functions → Sound On / Off (kept on the tablet)
+  const whistle = useAudioPlayer(require("../../assets/new-order.wav")), [sound, setSound] = useState(true);
+  useEffect(() => { AsyncStorage.getItem("skwyd_sound").then(v => setSound(v !== "off")); }, []);
+  const ring = () => { if (!sound) return; try { whistle.seekTo(0); whistle.play(); } catch {} };
   const seen = useRef<Set<string> | null>(null), auto = useRef(new Set<string>()), [incoming, setIncoming] = useState<Row | null>(null);
   useEffect(() => {
     const pend = S.orders.filter(o => o.branchId === device!.branchId && o.channel !== "pos" && o.status === "pending");
@@ -224,14 +229,14 @@ export function Register() {
     if (!seen.current) { seen.current = new Set([...pend.map(o => o.id), ...edits.map(ek)]); return; }
     const fresh = pend.filter(o => !seen.current!.has(o.id)); fresh.forEach(o => seen.current!.add(o.id));
     const freshE = edits.filter(o => !seen.current!.has(ek(o))); freshE.forEach(o => seen.current!.add(ek(o)));
-    if (freshE.length) setIncoming({ ...freshE[freshE.length - 1], __edit: true });
+    if (freshE.length) { setIncoming({ ...freshE[freshE.length - 1], __edit: true }); ring(); }
     const master = (() => { const m = S.devices.filter(d => !d.deleted && d.branchId === device!.branchId && d.settings?.master); return !m.length || m.some(d => d.id === device!.id); })();
     if (device!.settings?.autoAccept && master) {
       pend.filter(o => o.channel !== "callcenter" && !auto.current.has(o.id) && !(o.scheduledAt && +new Date(o.scheduledAt) - Date.now() > 3600000)).forEach(async o => {   // a scheduled order waits until an hour before its time
         auto.current.add(o.id); const now = new Date().toISOString();
         write("orders", o.id, { status: "active", updatedAt: now, ...(o.acceptedAt ? {} : { acceptedAt: now }), handledBy: who() + " (auto)", ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) });
         say("New web order accepted automatically"); });
-    } else if (fresh.length) setIncoming(fresh[fresh.length - 1]);
+    } else if (fresh.length) { setIncoming(fresh[fresh.length - 1]); ring(); }
   }, [S.orders]);
   // logged out after a few idle minutes (Device settings: lock minutes, else the brand's logout minutes)
   const lastTouch = useRef(Date.now());
@@ -368,6 +373,7 @@ export function Register() {
             <Btn kind="ghost" label="End of day" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
             <Btn kind="ghost" label="Reports" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
             <Btn kind="ghost" label="Devices" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
+            <Btn kind="ghost" label={sound ? "Sound On" : "Sound Off"} style={{ alignItems: "flex-start" }} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); if (v) { try { whistle.seekTo(0); whistle.play(); } catch {} } }} />
             <Btn kind="ghost" label="Sync data" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
             <Btn kind="ghost" label="Log out" style={{ alignItems: "flex-start" }} onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
