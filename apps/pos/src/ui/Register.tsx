@@ -53,7 +53,7 @@ export function Register() {
 
   // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
-  const menuW = W - CART_W, tileW = Math.floor((menuW - PADX * 2 - TG * 4) / 5) - 1, tile = gridH ? Math.max(90, Math.floor((gridH - TG * 3) / 4)) : 120, ab = Math.floor((menuW - PADX * 2 - 8 * 8) / 9);   // seven square buttons fill the row; more scroll
+  const menuW = W - CART_W, { cols, rows, w: tileW, h: tile } = fitTiles(menuW - PADX * 2, gridH || 520), ab = Math.floor((menuW - PADX * 2 - 8 * 8) / 9);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   const say = (s: string) => notify(s);
@@ -364,7 +364,7 @@ export function Register() {
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
-        <ScrollView style={{ flex: 1 }} snapToInterval={gridH ? (tile + TG) * 4 : undefined} decelerationRate="fast" onLayout={e => setGridH(Math.round(e.nativeEvent.layout.height))} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: TG }}>
+        <ScrollView style={{ flex: 1 }} snapToInterval={gridH ? (tile + TG) * rows : undefined} decelerationRate="fast" onLayout={e => setGridH(Math.round(e.nativeEvent.layout.height))} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: TG }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
                     {/* inside a category the first tile goes back (it names the category it leaves) */}
           {top && !q.trim() ? <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
@@ -416,21 +416,33 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
   <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{l}</T><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{r}</T></View>;
 
 // category and item tiles: the call center's look (white card, coloured strip on top, name, then the count or the price)
-// menu tiles: 5 across and 4 down fill the menu; the whole photo (square, in the middle), then the full name and the price or count
-function TileBody({ size, img, name, sub, subColor, bold, strip }: { size: number; img?: string; name: string; sub?: string; subColor?: string; bold?: boolean; strip: string }) {
-  const ph = Math.max(0, size - 62);
+// menu tiles: whole rows fill the menu, and the column count is the one where the square photo best fills the tile's width
+export const CAP = 46;   // the caption under the photo: the name on 2 lines, then the price or count
+export function fitTiles(W: number, H: number, gap = TG) {
+  let best = { cols: 6, rows: 3, w: 100, h: 146, miss: 1e9 };
+  for (let cols = 5; cols <= 8; cols++) {
+    const w = Math.floor((W - gap * (cols - 1)) / cols);
+    for (const rows of [Math.floor((H + gap) / (w + CAP + gap)), Math.ceil((H + gap) / (w + CAP + gap))]) { if (rows < 3) continue;
+      const h = Math.floor((H - gap * (rows - 1)) / rows), ph = h - CAP, miss = Math.abs(w - ph) + (ph > w ? 0.5 * (ph - w) : 0);
+      if (miss < best.miss) best = { cols, rows, w, h, miss }; }
+  }
+  return best;
+}
+function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w: number; img?: string; name: string; sub?: string; subColor?: string; bold?: boolean }) {
+  const ph = Math.min(w - 2, size - CAP - 2);
   return <>
-    {img ? <View style={{ height: ph + 6, paddingTop: 6, alignItems: "center" }}><Image source={{ uri: img }} style={{ width: ph, height: ph, backgroundColor: "#F9FAFB" }} resizeMode="contain" /></View> : <View style={{ height: 6, backgroundColor: strip }} />}
-    <View style={{ flex: 1, paddingHorizontal: 6, paddingVertical: 4, alignItems: "center", justifyContent: img ? "flex-start" : "center", minHeight: 0 }}>
-      <T w={bold ? "s" : "m"} size={img ? 12 : 14} numberOfLines={img ? 2 : 3} adjustsFontSizeToFit minimumFontScale={0.8} style={{ textAlign: "center", lineHeight: img ? 14 : 18 }}>{name}</T>
-      {sub ? <T size={12} numberOfLines={1} color={subColor || C.mut} style={{ marginTop: 1 }}>{sub}</T> : null}</View>
+    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: img ? "#fff" : "#F2F4F7" }}>
+      {img ? <Image source={{ uri: img }} style={{ width: ph, height: ph }} resizeMode="contain" /> : <Icon name="bowl" size={30} color="#98A2B3" />}</View>
+    <View style={{ height: CAP, paddingHorizontal: 5, paddingVertical: 3, alignItems: "center", borderTopWidth: 1, borderColor: C.line2 }}>
+      <View style={{ height: 28, justifyContent: "center" }}><T w={bold ? "s" : "m"} size={12} numberOfLines={2} style={{ textAlign: "center", lineHeight: 14 }}>{name}</T></View>
+      {sub ? <T size={12} numberOfLines={1} color={subColor || C.mut} style={{ lineHeight: 13 }}>{sub}</T> : null}</View>
   </>;
 }
 function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
-      <TileBody size={size} img={img} name={name} bold sub={n + " " + (n === 1 ? "item" : "items")} strip={C.brand} />
+      <TileBody size={size} w={w} img={img} name={name} bold sub={n + " " + (n === 1 ? "item" : "items")} />
     </Pressable>
   );
 }
@@ -438,7 +450,7 @@ function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; s
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
       style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
-      <TileBody size={size} img={img} name={name} sub={oos ? "Out of stock" : price} subColor={oos ? C.bad : C.mut} strip={C.brand50} />
+      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out of stock" : price} subColor={oos ? C.bad : C.mut} />
       {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>
   );
