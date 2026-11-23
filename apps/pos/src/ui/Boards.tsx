@@ -20,9 +20,9 @@ export const stOf = (o: Row): St => o.editRequest?.status === "pending" ? { labe
 const today = (x: Ctx) => { const d = bizDate(x); return x.S.orders.filter(o => o.branchId === x.device.branchId && !o.deleted && (["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === d)); };
 
 // the header of a full screen: back, title, and the screen's own buttons
-export function Head({ title, onClose, children }: { title: string; onClose: () => void; children?: React.ReactNode }) {
+export function Head({ title, onClose, children, back = "Register" }: { title: string; onClose: () => void; children?: React.ReactNode; back?: string }) {
   return <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, height: 68, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: C.line }}>
-    <Btn height={44} label="‹ Register" onPress={onClose} /><T w="s" size={19} style={{ flex: 1 }}>{title}</T>{children}</View>;
+    <Btn height={44} label={"‹ " + back} onPress={onClose} /><T w="s" size={19} style={{ flex: 1 }}>{title}</T>{children}</View>;
 }
 export const Full = ({ children }: { children: React.ReactNode }) => <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg, zIndex: 20 }}>{children}</View>;
 
