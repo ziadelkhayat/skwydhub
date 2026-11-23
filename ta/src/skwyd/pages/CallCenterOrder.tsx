@@ -14,12 +14,14 @@ import { newId, put, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { coSet, money } from "@/lib/util";
 import { cn } from "@/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { live, useS } from "../crud/CrudPage";
 import { F, SEL } from "../ui/kit";
 import { toast } from "../ui/toast";
 import { pickMods, pickVariant } from "../ui/ModPick";
+import { askYes } from "../ui/confirm";
+import { PickDialog } from "../ui/PickDialog";
 import { who } from "./em";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
@@ -48,18 +50,19 @@ const ccLabel = (o: any) => o.ref || (o.no ? String(o.no) : o.invoiceNo ? String
 let modsP: Promise<any> | null = null;
 const loadMods = () => (window as any).SkwydMods ? Promise.resolve((window as any).SkwydMods) : modsP ||= new Promise((res, rej) => { const s = document.createElement("script"); s.src = new URL("../modpick.js", location.href.split("#")[0]).href; s.onload = () => res((window as any).SkwydMods); s.onerror = () => { modsP = null; rej(new Error("The modifier picker couldn't load.")); }; document.head.appendChild(s); });
 
-export default function CallCenterOrder({ order, onClose }: { order: any | null; onClose: () => void }) {
+export default function CallCenterOrder({ order, onClose, init, onNav }: { order: any | null; onClose: () => void; init?: any; onNav: (to: string) => void }) {
   const s = useS(["products", "categories", "modifiers", "modifier_options", "branches", "brands", "taxes", "tax_groups", "charges", "settings", "order_sources", "zones", "variant_sets"]);
   const { staff } = useAuth(), by = who(staff);
-  const o = order, locked = !!o && o.status !== "draft", ro = !!o && !["draft", "review", "pending"].includes(o.status);
-  const sp = (() => { const p = String(o?.phone || ""), cc = CCS.find(x => p.startsWith(x)) || "+961"; return { cc, num: p.startsWith(cc) ? p.slice(cc.length) : p }; })();
-  const [cc, setCc] = useState(sp.cc), [num, setNum] = useState(sp.num), [name, setName] = useState(o?.customerName || ""), [type, setType] = useState(o?.type === "delivery" ? "delivery" : "pickup");
-  const [source, setSource] = useState(o?.source || ""), [brand, setBrand] = useState(o?.brandId || ""), [branch, setBranch] = useState(o?.branchId || ""), [addr, setAddr] = useState<Addr>(addrSplit(o?.address));
-  const [cart, setCart] = useState<any[]>(o ? (o.items || []).map((i: any) => ({ ...i })) : []), [cat, setCat] = useState(""), [q, setQ] = useState("");
-  const [discType, setDiscType] = useState(o?.discountType === "amt" ? "amt" : "pct"), [disc, setDisc] = useState<number>(o ? (o.discountType === "amt" ? +o.discount || 0 : +o.discountPct || 0) : 0);
-  const [chg, setChg] = useState<Set<string> | null>(o ? new Set((o.charges || []).map((c: any) => c.id)) : null), [open, setOpen] = useState<Record<string, number>>(() => Object.fromEntries((o?.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount || 0])));
-  const [notes, setNotes] = useState(o?.notes || ""), [rnotes, setRNotes] = useState(o?.receiptNotes || ""), [cust, setCust] = useState<any>(null), [past, setPast] = useState<any[]>([]), [addrIx, setAddrIx] = useState<number | null>(null);
-  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason">(""), [line, setLine] = useState<number | null>(null);
+  const o = order, h0 = !order && init ? init : null, locked = !!o && o.status !== "draft", ro = !!o && !["draft", "review", "pending"].includes(o.status);
+  const sp = (() => { const p = String(o?.phone || h0?.phone || ""), cc = CCS.find(x => p.startsWith(x)) || "+961"; return { cc, num: p.startsWith(cc) ? p.slice(cc.length) : p }; })();
+  const [cc, setCc] = useState(sp.cc), [num, setNum] = useState(sp.num), [name, setName] = useState(o?.customerName || h0?.customerName || ""), [type, setType] = useState((o || h0)?.type === "delivery" ? "delivery" : "pickup");
+  const [source, setSource] = useState(o?.source || h0?.source || ""), [brand, setBrand] = useState(o?.brandId || h0?.brandId || ""), [branch, setBranch] = useState(o?.branchId || h0?.branchId || ""), [addr, setAddr] = useState<Addr>(addrSplit((o || h0)?.address));
+  const [cart, setCart] = useState<any[]>((o || h0) ? ((o || h0).items || []).map((i: any) => ({ ...i })) : []), [cat, setCat] = useState(""), [q, setQ] = useState("");
+  const o1 = o || h0;
+  const [discType, setDiscType] = useState(o1?.discountType === "amt" ? "amt" : "pct"), [disc, setDisc] = useState<number>(o1 ? (o1.discountType === "amt" ? +o1.discount || 0 : +o1.discountPct || 0) : 0);
+  const [chg, setChg] = useState<Set<string> | null>(o1 ? new Set((o1.charges || []).map((c: any) => c.id)) : null), [open, setOpen] = useState<Record<string, number>>(() => Object.fromEntries((o1?.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount || 0])));
+  const [notes, setNotes] = useState(o?.notes || h0?.notes || ""), [rnotes, setRNotes] = useState(o?.receiptNotes || h0?.receiptNotes || ""), [cust, setCust] = useState<any>(null), [past, setPast] = useState<any[]>([]), [addrIx, setAddrIx] = useState<number | null>(null);
+  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [dlg, setDlg] = useState<"" | "disc" | "chg" | "notes" | "reason" | "tags" | "retr">(""), [tags, setTags] = useState<string[] | null>(h0?.tags || null), sig0r = useRef<string | null>(null), [line, setLine] = useState<number | null>(null);
   const phone = num.trim() ? (num.trim().startsWith("+") ? num.replace(/[^0-9+]/g, "") : cc + num.replace(/\D/g, "").replace(/^0+/, "")) : "";
   // the customer: looked up by phone (the same number written with or without the country code or a leading 0)
   useEffect(() => { if (phone.length < 6) { setCust(null); setPast([]); return; } let off = false;
@@ -172,11 +175,28 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
     if (!o) { data.agent = by; data.channel = "callcenter"; }
     if (extra) Object.assign(data, extra);
     setBusy(true);
-    try { await put("orders", o?.id || newId("ord"), data);
+    const oid = o?.id || newId("ord");
+    try { await put("orders", oid, data);
+      if (tags) { const td: any = s!.settings.find(x => x.id === "tags") || {}, on = JSON.parse(JSON.stringify(td.on || {})); if (tags.length) (on.order ||= {})[oid] = tags; else if (on.order) delete on.order[oid]; await put("settings", "tags", { on }); }
       const bn = s!.branches.find(b => b.id === (o?.branchId || branch))?.name || "the store";
       toast(o && o.status !== "draft" ? `Order ${ccLabel(o)} updated · ${bn} sees the changes` : status === "pending" ? `Order sent to ${bn}` : "Draft saved"); onClose(); }
     catch { setErr("Couldn't save the order."); } finally { setBusy(false); }
   }
+  const snap = () => ({ phone, customerName: name.trim(), type, source, brandId: brand, branchId: branch, address: type === "delivery" ? addrJoin(addr) : "", items: cart, discountType: discType, discount: discType === "amt" ? +disc || 0 : 0, discountPct: discType === "pct" ? +disc || 0 : 0,
+    charges: calc.charges, notes, receiptNotes: rnotes, tags });
+  const sig = JSON.stringify([type, source, cart, discType, disc, chg ? [...chg].sort() : null, open, notes, rnotes, tags, addrJoin(addr)]);
+  if (sig0r.current == null) sig0r.current = sig; const changed = sig !== sig0r.current;
+  const hold = () => { if (!cart.length) return toast("Add items first", "error");
+    const l = heldList(by), n = l.reduce((m, x) => Math.max(m, +x.n || 0), 0) + 1;
+    heldSave(by, [...l, { ...snap(), id: "h" + Date.now().toString(36), n, at: new Date().toISOString(), by, total: calc.total }]);
+    toast(`Order held as H${n} · tap Retrieve to pick it up`); onNav("/call-center-order?new=" + Date.now()); };
+  const retrieve = async (x: any) => { setDlg("");
+    if (!o && cart.length) { if (!(await askYes("Hold the current order and retrieve this one?", "Hold & retrieve"))) return;
+      const l = heldList(by), n = l.reduce((m, y) => Math.max(m, +y.n || 0), 0) + 1; heldSave(by, [...l, { ...snap(), id: "h" + Date.now().toString(36), n, at: new Date().toISOString(), by, total: calc.total }]); }
+    if (x.status === "draft") return onNav("/call-center-order?id=" + x.id);
+    heldSave(by, heldList(by).filter(y => y.id !== x.id)); try { sessionStorage.setItem("skwydCcInit", JSON.stringify(x)); } catch { /* */ } onNav("/call-center-order?held=" + x.id + "&t=" + Date.now()); toast(`Order H${x.n} retrieved`); };
+  const reorder = () => { const x = { phone: o.phone, customerName: o.customerName, type: o.type, source: o.source, brandId: o.brandId, branchId: o.branchId, address: o.address, items: (o.items || []).map(({ saved, ...i }: any) => i), notes: o.notes, receiptNotes: o.receiptNotes };
+    try { sessionStorage.setItem("skwydCcInit", JSON.stringify(x)); } catch { /* */ } onNav("/call-center-order?held=re&t=" + Date.now()); };
   async function setStatus(st: string, why?: string) {
     setBusy(true);
     try { if (st === "pending") await save("keep" as any, { status: "pending", agent: by });
@@ -222,7 +242,8 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
             {/* the cart */}
             <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 lg:order-1">
               <h3 className="border-b border-gray-200 px-5 pt-4 pb-3 text-base font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">Cart{cart.length ? ` (${cart.reduce((a, i) => a + (+i.qty || 0), 0)})` : ""}</h3>
-              {!ro && <div className="flex gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button></div>}
+              {!ro && <div className="flex flex-wrap gap-2 border-b border-gray-200 p-3 dark:border-gray-800"><Button size="sm" variant="outline" onClick={() => setDlg("disc")}>Discount</Button><Button size="sm" variant="outline" onClick={() => setDlg("chg")}>Charges</Button><Button size="sm" variant="outline" onClick={() => setDlg("tags")}>Tags{tags?.length ? ` (${tags.length})` : ""}</Button><Button size="sm" variant="outline" onClick={() => setDlg("notes")}>Notes</Button>
+                {!o && <><Button size="sm" variant="outline" onClick={hold}>Hold</Button><Button size="sm" variant="outline" onClick={() => setDlg("retr")}>Retrieve{heldList(by).length ? ` (${heldList(by).length})` : ""}</Button></>}</div>}
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
                 <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
                   <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => editLine(ix)} className="block w-full text-start">
@@ -247,10 +268,11 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 {(notes || rnotes) && <p className="pt-1 text-xs text-gray-500">{notes && <>Kitchen: {notes}<br /></>}{rnotes && <>Receipt: {rnotes}</>}</p>}
                 {err && <p className="pt-1 text-sm text-red-500">{err}</p>}
                 <div className="flex flex-wrap gap-2 pt-2">
-                                    {(!o || o.status === "draft") && <><Button variant="outline" disabled={busy} onClick={() => save("draft")}>Save Draft</Button><Button className="flex-1" disabled={busy} onClick={() => save("pending")}>{busy ? "Sending…" : "Send"}</Button></>}
+                  {(!o || o.status === "draft") && <><Button className="flex-1" disabled={busy || !cart.length} onClick={() => save("pending")}>{busy ? "Sending…" : "Send"}</Button><Button variant="outline" disabled={busy} onClick={() => save("draft")}>Save Draft</Button></>}
                   {o?.status === "draft" && <Button variant="destructive" disabled={busy} onClick={async () => { try { const { error } = await sb.from("orders").delete().eq("id", o.id).eq("status", "draft"); if (error) throw error; toast("Draft cancelled"); onClose(); } catch { toast("Couldn't cancel the draft.", "error"); } }}>Cancel Draft</Button>}
                   {o?.status === "review" && <><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Decline</Button><Button className="flex-1" disabled={busy} onClick={() => setStatus("pending")}>Accept</Button></>}
-                  {o?.status === "pending" && <><Button variant="outline" disabled={busy} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel Order</Button></>}
+                  {o?.status === "pending" && <><Button className="flex-1" disabled={busy || !changed} onClick={() => save("keep" as any)}>Edit & Send</Button><Button variant="destructive" disabled={busy} onClick={() => setDlg("reason")}>Cancel order</Button></>}
+                  {o && ["closed", "declined", "void", "returned", "refund"].includes(o.status) && <Button className="flex-1" onClick={reorder}>Reorder</Button>}
                 </div>
               </div>
             </section>
@@ -260,14 +282,14 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
                 {!q.trim() && cat && <div className="mb-3 flex items-center gap-3"><Button size="sm" variant="outline" onClick={() => setCat("")}>‹ Back</Button><b className="text-base font-semibold text-gray-800 dark:text-white/90">{cats.find(c => c.id === cat)?.name}</b></div>}
                 {!q.trim() && !cat ? <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">{cats.map(c => { const n = D.prods.filter(p => !D.isKid(p) && D.inCat(c, p)).length; return (
-                  <button key={c.id} type="button" onClick={() => setCat(c.id)} className="flex min-h-24 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
-                    {c.imageUrl ? <img src={c.imageUrl} alt="" className="h-24 w-full object-cover" /> : <span className="h-2 bg-brand-500" />}
-                    <span className="flex flex-1 flex-col p-3"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{c.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{n} {n === 1 ? "item" : "items"}</span></span></button>); })}
+                  <button key={c.id} type="button" onClick={() => setCat(c.id)} className="flex h-36 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
+                    {c.imageUrl ? <img src={c.imageUrl} alt="" className="h-14 w-full shrink-0 object-cover" /> : <span className="h-2 shrink-0 bg-brand-500" />}
+                    <span className="flex min-h-0 flex-1 flex-col p-3"><b className="line-clamp-2 text-sm font-semibold text-gray-800 dark:text-white/90">{c.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{n} {n === 1 ? "item" : "items"}</span></span></button>); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</div> : <>
                 <div className="custom-scrollbar grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">{shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch); return (
-                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900">
-                    {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-24 w-full object-cover" /> : <span className="h-2 bg-brand-50 dark:bg-brand-500/10" />}
-                    <span className="flex flex-1 flex-col p-3"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
+                  <button key={p.id} type="button" disabled={oos} onClick={() => addProduct(p)} className="flex h-36 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900">
+                    {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-14 w-full shrink-0 object-cover" /> : <span className="h-2 shrink-0 bg-brand-50 dark:bg-brand-500/10" />}
+                    <span className="flex min-h-0 flex-1 flex-col p-3"><b className="line-clamp-2 text-sm font-medium text-gray-800 dark:text-white/90">{p.name}</b><span className="mt-auto pt-1 text-sm text-gray-500">{oos ? "Out of stock" : (p.variants || []).length ? "Choose…" : money(D.price(p))}</span></span></button>); })}
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</div></>}
               </>}
             </section>
@@ -279,6 +301,9 @@ export default function CallCenterOrder({ order, onClose }: { order: any | null;
         {dlg === "chg" && <Small title="Charges" onClose={() => setDlg("")}>{!D.chList.length ? <p className="text-sm text-gray-500">No charges apply to this order type and store.</p> : D.chList.map(c => { const on = picked.some(x => x.id === c.id); return (
           <div key={c.id} className="flex items-center gap-3"><label className="flex flex-1 cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={on} onChange={e => { const n = new Set(picked.map(x => x.id)); if (e.target.checked) n.add(c.id); else n.delete(c.id); setChg(n); }} />{c.name}</label>
             {c.type === "open" ? <Input className="h-9 w-28" type="number" min="0" step="any" value={open[c.id] ?? c.value ?? ""} onChange={e => setOpen({ ...open, [c.id]: +e.target.value || 0 })} /> : <span className="text-sm text-gray-500">{c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0)}</span>}</div>); })}</Small>}
+        {dlg === "tags" && (() => { const td: any = s.settings.find(x => x.id === "tags") || {}, l = (td.list || []).filter((t: any) => t.type === "order" && !t.deleted), cur = tags ?? (o ? ((td.on || {}).order || {})[o.id] || [] : []);
+          return <PickDialog title="Order Tags" opts={l.map((t: any) => [t.id, t.name])} value={cur} onClose={() => setDlg("")} onSave={ids => { setTags(ids); setDlg(""); return true; }} />; })()}
+        {dlg === "retr" && <Retrieve by={by} onPick={retrieve} onClose={() => setDlg("")} />}
         {dlg === "notes" && <Small title="Notes" onClose={() => setDlg("")}><F l="Kitchen Notes"><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} /></F><F l="Receipt Notes"><Textarea rows={3} value={rnotes} onChange={e => setRNotes(e.target.value)} /></F></Small>}
         {dlg === "reason" && <ReasonDlg title={o?.status === "review" ? "Decline order: reason" : "Cancel order: reason"} reasons={reasons} onClose={() => setDlg("")} onGo={why => { setDlg(""); setStatus("declined", why); }} />}
     </>);
@@ -313,11 +338,28 @@ function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: 
 }
 
 // the page (route /call-center-order, ?id= an existing order): new, draft, waiting and pending call center orders
+// Hold: an unsent order parked on this browser (per user), picked up again with Retrieve, as in the old portal
+const heldKey = (u: string) => "skwydCcHeld:" + u;
+export const heldList = (u: string): any[] => { try { return JSON.parse(localStorage.getItem(heldKey(u)) || "[]"); } catch { return []; } };
+const heldSave = (u: string, l: any[]) => { try { if (l.length) localStorage.setItem(heldKey(u), JSON.stringify(l)); else localStorage.removeItem(heldKey(u)); } catch { /* full */ } };
 const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; return o; };
+// Retrieve: the orders held on this browser and the call center drafts
+function Retrieve({ by, onPick, onClose }: { by: string; onPick: (x: any) => void; onClose: () => void }) {
+  const [dr, setDr] = useState<any[]>([]), l = heldList(by), t = (v: string) => new Date(v).toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" }), its = (c: any[]) => (c || []).reduce((a, i) => a + (+i.qty || 0), 0);
+  useEffect(() => { sb.from("orders").select("id,customer_name,phone,items,total,created_at,agent,status").eq("status", "draft").eq("channel", "callcenter").order("created_at", { ascending: false }).limit(50).then(({ data }) => setDr(data || [])); }, []);
+  const Row1 = ({ tag, who, at, n, total, onClick }: any) => <button type="button" onClick={onClick} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 p-3 text-start hover:border-brand-300 dark:border-gray-800">
+    <b className="w-12 text-sm text-brand-500">{tag}</b><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-gray-800 dark:text-white/90">{who || "—"}</span><span className="text-xs text-gray-500">{at}</span></span><span className="text-sm text-gray-500">{n} items · {money(total)}</span></button>;
+  return <Dialog open onOpenChange={v => { if (!v) onClose(); }}><DialogContent className="max-w-xl"><DialogHeader><DialogTitle>Held orders</DialogTitle></DialogHeader>
+    <div className="custom-scrollbar max-h-[60vh] space-y-2 overflow-y-auto">{!l.length && !dr.length ? <p className="py-6 text-center text-sm text-gray-500">No held orders. Add items, then tap Hold to park the order and take the next call.</p> : <>
+      {l.map(h => <Row1 key={h.id} tag={"H" + h.n} who={[h.customerName, h.phone].filter(Boolean).join(" · ") || (h.items || []).slice(0, 3).map((i: any) => i.name).join(", ")} at={t(h.at) + (h.by ? " · " + h.by : "")} n={its(h.items)} total={h.total} onClick={() => onPick(h)} />)}
+      {dr.map(d => <Row1 key={d.id} tag="Draft" who={[d.customer_name, d.phone].filter(Boolean).join(" · ")} at={t(d.created_at) + (d.agent ? " · " + d.agent : "")} n={its(d.items)} total={+d.total || 0} onClick={() => onPick({ ...d, status: "draft" })} />)}</>}</div>
+    <div className="flex justify-end"><Button variant="outline" onClick={onClose}>Close</Button></div></DialogContent></Dialog>;
+}
 export function CallCenterOrderPage() {
   const [sp] = useSearchParams(), id = sp.get("id") || "", nav = useNavigate(), [o, setO] = useState<any>(id ? undefined : null);
   useEffect(() => { if (!id) { setO(null); return; } let off = false;
     sb.from("orders").select("*").eq("id", id).single().then(({ data }) => { if (!off) setO(data ? camel(data) : null); }); return () => { off = true; }; }, [id]);
+  const k = sp.toString(), init = useMemo(() => { if (!sp.get("held")) return null; try { const v = JSON.parse(sessionStorage.getItem("skwydCcInit") || "null"); sessionStorage.removeItem("skwydCcInit"); return v; } catch { return null; } }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
   if (o === undefined) return null;
-  return <CallCenterOrder key={id || "new"} order={o} onClose={() => nav("/call-center")} />;
+  return <CallCenterOrder key={k || "new"} order={o} init={init} onNav={to => nav(to)} onClose={() => nav("/call-center")} />;
 }

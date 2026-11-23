@@ -30,7 +30,8 @@ export function DiscountDialog({ x, cart, cur, sym, allowPct, allowAmt, init, on
         </View>}
         <View style={{ alignSelf: "stretch", height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}>
           <T w="s" size={26}>{v === "" ? " " : (openSet ? openSet.type !== "fixed" : type === "pct") ? v + " %" : cur(+v)}</T></View>
-        <Pad onKey={key} size={64} onDot={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
+        <Pad onKey={key} size={72} />
+        <Btn kind="ghost" label="." height={36} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
       </View>
     </Sheet>
   );

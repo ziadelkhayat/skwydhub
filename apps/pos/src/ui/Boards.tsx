@@ -64,8 +64,9 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const days = [...new Set([todayD, ...mineAll.map(o => bizDate(x, o.createdAt))])].sort().reverse();
   const [day, setDay] = useState(todayD);
   const all = mineAll.filter(o => ["pending", "active"].includes(o.status) || bizDate(x, o.createdAt) === day).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const TABS: [string, string, (o: Row) => boolean][] = [["open", "Open", o => ["pending", "active"].includes(o.status)], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
-  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
+  const TABS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"], ["open", "Preparing", o => o.status === "active" && o.editRequest?.status !== "pending"], ["done", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund", "declined"].includes(o.status)], ["all", "All", () => true]];
+  // as before: orders waiting to be accepted come first
+  const [tab, setTab] = useState(() => mineAll.some(o => o.status === "pending" || o.editRequest?.status === "pending") ? "pending" : "all"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
   const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Order", 1.1, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];

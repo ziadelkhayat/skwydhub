@@ -23,7 +23,6 @@ import { CustomerDialog } from "./Customer";
 import { appSet, kitchenText, printJob, printerHas, receiptText } from "../lib/print";
 import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
-import { OrdersList, PDBoard } from "./Boards";
 import { Bubble, notify, touched } from "./Bubble";
 import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
 import type { Row } from "../lib/db";
@@ -48,15 +47,16 @@ export function Register() {
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]);
-  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles (as in the call center)
+  const top = (cat && m.cats.some(c => c.id === cat) ? cat : "") || m.tops[0]?.id || "", curTop = m.parentOf(top) || top;   // as before: the first top category is open
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
 
-  // tile size: 4 rows fit the height, 5 across; the cart takes the rest of the width
+  // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
   const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
-  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
+  const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), tileW = Math.floor((menuW - PADX * 2 - GAP * 3) / 4) - 1, ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
-  const say = (s: string) => notify(s);
+  const [note, setNote] = useState("");
+  const say = (s: string) => { setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), 2500); };
 
   // a window over the sale (variant, modifiers, open price) that answers once
   const [dlg, setDlg] = useState<ReactNode>(null);
@@ -218,7 +218,7 @@ export function Register() {
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
-  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
+  const pdBoard = () => setDlg(<OrdersDialog pd x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />);
   const dispatch = () => { const now = new Date().toISOString(); write("orders", live_eo!.id, { dispatchedAt: now, dispatchedBy: who(), updatedAt: now }); say("Order " + ordRef(live_eo!) + " dispatched" + (live_eo!.driverName ? " with " + live_eo!.driverName : "")); reset(); };
   // new web and call center orders: a banner to open them (pos.html incoming); the master register can accept web orders by itself (Device settings: Auto accept)
@@ -273,8 +273,8 @@ export function Register() {
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return z; })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
-  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
-  const curName = m.cats.find(c => c.id === top)?.name || "";
+  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : [];
+  const back = !q.trim() && m.parentOf(top);
 
   return (
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
@@ -368,19 +368,21 @@ export function Register() {
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
-        {top && !q.trim() ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 40 }}>
-          <Btn kind="outline" height={40} label="‹ Back" onPress={() => setCat(m.parentOf(top))} /><T w="s" size={17} numberOfLines={1} style={{ flex: 1 }}>{curName}</T></View> : null}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: 40 }} contentContainerStyle={{ gap: 8 }}>
+          {m.tops.map(c => <Btn key={c.id} kind={c.id === curTop && !q ? "soft" : "outline"} height={40} label={c.name} style={c.id === curTop && !q ? { borderColor: C.brand } : undefined} onPress={() => { setQ(""); setCat(c.id); }} />)}
+        </ScrollView>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: GAP }}>
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
+          {back ? <CatTile w={tileW} size={tile} name="‹ Back" n={-1} onPress={() => setCat(m.parentOf(top))} /> : null}
           {items.map((it: any) => it.sub
-            ? <CatTile key={it.sub.id} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
-            : <ItemTile key={it.id} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
+            ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
+            : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                 n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
           {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
         </ScrollView>
         <View style={{ flexDirection: "row", height: 76, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 4 }}>
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+            <Pressable key={l} accessibilityRole="button" onPress={() => (l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersDialog x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => [{ flex: 1, borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: pressed ? C.line2 : "transparent" }]}>
@@ -409,7 +411,7 @@ export function Register() {
           <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View>
       </View> : null}
       {dlg}
-      <Bubble />
+      {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
     </View>
   );
 }
@@ -418,13 +420,13 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
   <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{l}</T><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{r}</T></View>;
 
 // category and item tiles: the call center's look (white card, coloured strip on top, name, then the count or the price)
-function CatTile({ size, name, img, n, onPress }: { size: number; name: string; img?: string; n: number; onPress: () => void }) {
+function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
-      style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={n < 0 ? "Back" : name + ", " + n + " items"} onPress={onPress}
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
       {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 0 }}><T w="s" size={img ? 14 : 15} numberOfLines={img ? 2 : 3} style={{ flexShrink: 1, lineHeight: img ? 18 : 20 }}>{name}</T>
-        <View style={{ flex: 1, minHeight: 4 }} /><T size={13} numberOfLines={1} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T></View>
+        <View style={{ flex: 1, minHeight: 4 }} />{n >= 0 ? <T size={13} numberOfLines={1} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T> : null}</View>
     </Pressable>
   );
 }
@@ -435,10 +437,10 @@ const optRows = (opts: { name: string; price?: number }[]) => { const r: { name:
 const FnItem = ({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) => (
   <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, height: 46, paddingHorizontal: 12, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
     <Icon name={icon} size={20} color={icon === "logout" ? C.bad : C.brand} /><T w="m" size={15} color={icon === "logout" ? C.bad : C.ink}>{label}</T></Pressable>);
-function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
+function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
-      style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
       {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
       {/* the name takes what room is left; the price always shows on the last line */}
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, minHeight: 0 }}>

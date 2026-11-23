@@ -38,14 +38,12 @@ export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?:
   <View {...p} style={[{ backgroundColor: C.card, borderRadius: R.lg, borderWidth: 1, borderColor: C.line }, style]} />;
 
 // the 0–9 pad used for the activation code and PINs
-// the number pad; with onDot (prices and amounts) the bottom-left key is "." and holding ⌫ clears
-export function Pad({ onKey, size = 72, onDot }: { onKey: (k: string) => void; size?: number; onDot?: () => void }) {
-  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", onDot ? "." : "c", "0", "b"];
+export function Pad({ onKey, size = 72 }: { onKey: (k: string) => void; size?: number }) {
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "c", "0", "b"];
   return (
     <View style={{ width: size * 3 + 24, flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
       {keys.map(k => (
-        <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === "c" ? "Clear" : k === "b" ? (onDot ? "Delete (hold to clear)" : "Delete") : k === "." ? "Decimal point" : k}
-          onPress={() => (k === "." ? onDot!() : onKey(k))} onLongPress={k === "b" ? () => onKey("c") : undefined}
+        <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === "c" ? "Clear" : k === "b" ? "Delete" : k} onPress={() => onKey(k)}
           style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" }, shadowXs]}>
           <T w="m" size={k === "c" || k === "b" ? 16 : 26} color={k === "c" || k === "b" ? C.mut : C.ink}>{k === "c" ? "Clear" : k === "b" ? "⌫" : k}</T>
         </Pressable>

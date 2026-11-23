@@ -111,7 +111,8 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
     </>}>
       <View style={{ alignItems: "center", gap: 14 }}>
         <View style={{ alignSelf: "stretch", height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={26}>{v === "" ? " " : money && !v.endsWith(".") ? money(+v) : v}</T></View>
-        <Pad onKey={key} size={76} onDot={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
+        <Pad onKey={key} size={76} />
+        <Btn kind="ghost" label="." height={40} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
       </View>
     </Sheet>
   );

@@ -36,7 +36,7 @@ export function TillDialog({ x, onDone }: { x: Ctx; onDone: (msg?: string) => vo
           </> : <T color={C.mut} size={14}>Enter Till Amount</T>}
           <View style={{ height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={26}>{v === "" ? (sh ? cur(expectedCash(x, sh)) : cur(0)) : cur(+v)}</T></View>
         </View>
-        <View style={{ alignItems: "center", gap: 8 }}><Pad onKey={key} size={68} onDot={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} /></View>
+        <View style={{ alignItems: "center", gap: 8 }}><Pad onKey={key} size={68} /><Btn kind="ghost" label="." height={36} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} /></View>
       </View>
     </Sheet>
   );
