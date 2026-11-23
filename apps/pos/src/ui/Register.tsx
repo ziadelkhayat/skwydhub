@@ -38,7 +38,7 @@ const GAP = 12, PADX = 16;
 
 export function Register() {
   const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
-  const { width: W, height: H } = useScreen();
+  const { width: W, height: H, ox, oy } = useScreen(), tp = useRef({ x: 0, y: 0, at: 0 });   // where the last tap was (the message bubble points at it)
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
   const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
@@ -54,7 +54,10 @@ export function Register() {
   const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
   const tile = Math.max(88, Math.min(150, Math.floor((H - fixedH - GAP * 3) / 4)));
   const menuW = Math.min(W * 0.62, tile * 5 + GAP * 4 + PADX * 2), ab = Math.floor((menuW - PADX * 2 - 6 * 10) / 7);   // seven square buttons fill the row; more scroll
-  const say = (s: string) => { setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), 2500); };
+  // messages: a bubble pointing at the button just pressed (Settings choice E), gone after about 2 seconds (longer for long ones)
+  const [bub, setBub] = useState<{ x: number; y: number; tap: boolean } | null>(null);
+  const say = (s: string) => { const t = tp.current, tap = Date.now() - t.at < 1500; setBub(tap ? { x: t.x, y: t.y, tap } : { x: W / 2, y: 20, tap });
+    setNote(s); setTimeout(() => setNote(n => (n === s ? "" : n)), Math.min(4500, 1800 + s.length * 25)); };
 
   // a window over the sale (variant, modifiers, open price) that answers once
   const [dlg, setDlg] = useState<ReactNode>(null);
@@ -275,7 +278,8 @@ export function Register() {
   const curName = m.cats.find(c => c.id === top)?.name || "";
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={() => { lastTouch.current = Date.now(); }} onPointerDown={() => { lastTouch.current = Date.now(); }}>
+    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); setNote(""); tp.current = { x: e.nativeEvent.pageX - ox, y: e.nativeEvent.pageY - oy, at: Date.now() }; }}
+      onPointerDown={(e: any) => { lastTouch.current = Date.now(); setNote(""); tp.current = { x: e.nativeEvent.pageX - ox, y: e.nativeEvent.pageY - oy, at: Date.now() }; }}>
       {/* ---------- cart ---------- */}
       <Card style={{ flex: 1, margin: 12, marginRight: 0, overflow: "hidden" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, borderBottomWidth: 1, borderColor: C.line }}>
@@ -407,7 +411,12 @@ export function Register() {
           <Btn kind="primary" height={40} style={{ flex: 1 }} label="Open" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View>
       </View> : null}
       {dlg}
-      {note ? <View pointerEvents="none" style={{ position: "absolute", top: 20, alignSelf: "center", backgroundColor: C.ink, borderRadius: R.sm, paddingHorizontal: 16, paddingVertical: 10 }}><T color="#fff" size={14}>{note}</T></View> : null}
+      {note ? (() => { const b = bub || { x: W / 2, y: 20, tap: false }, bw = Math.min(320, W - 24), left = Math.max(12, Math.min(W - bw - 12, b.x - bw / 2)), below = !b.tap || b.y < H * 0.55, ax = Math.max(left + 14, Math.min(left + bw - 26, b.x - 6));
+        return <View pointerEvents="none" style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0 }}>
+          {b.tap ? <View style={{ position: "absolute", left: ax, ...(below ? { top: b.y + 14 } : { top: b.y - 26 }), width: 12, height: 12, backgroundColor: C.ink, transform: [{ rotate: "45deg" }] }} /> : null}
+          <View style={{ position: "absolute", left, width: bw, ...(below ? { top: b.tap ? b.y + 19 : 16 } : { bottom: H - b.y + 19 }), alignItems: "center" }}>
+            <View style={{ backgroundColor: C.ink, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, maxWidth: bw }}><T color="#fff" size={14} style={{ textAlign: "center" }}>{note}</T></View></View>
+        </View>; })() : null}
     </View>
   );
 }

@@ -3,8 +3,9 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { Platform, useWindowDimensions, View } from "react-native";
 
-const Ctx = createContext<{ width: number; height: number } | null>(null);
-export const useScreen = () => { const w = useWindowDimensions(), f = useContext(Ctx); return f || { width: w.width, height: w.height }; };
+// ox, oy: where the frame starts in the window (to turn a touch's page position into a position in the frame)
+const Ctx = createContext<{ width: number; height: number; ox: number; oy: number } | null>(null);
+export const useScreen = () => { const w = useWindowDimensions(), f = useContext(Ctx); return f || { width: w.width, height: w.height, ox: 0, oy: 0 }; };
 
 export function Screen({ children }: { children: ReactNode }) {
   const { width: W, height: H } = useWindowDimensions();
@@ -14,7 +15,7 @@ export function Screen({ children }: { children: ReactNode }) {
   return (
     <View style={{ flex: 1, backgroundColor: "#1D2939", alignItems: "center", justifyContent: "center" }}>
       <View style={{ width: w, height: h, overflow: "hidden", borderRadius: w < W || h < H ? 14 : 0 }}>
-        <Ctx.Provider value={{ width: w, height: h }}>{children}</Ctx.Provider>
+        <Ctx.Provider value={{ width: w, height: h, ox: Math.round((W - w) / 2), oy: Math.round((H - h) / 2) }}>{children}</Ctx.Provider>
       </View>
     </View>
   );
