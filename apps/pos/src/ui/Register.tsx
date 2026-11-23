@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Image, Pressable, ScrollView, TextInput, useWindowDimensions, View } from "react-native";
 import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
-import { ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
+import { LineExtras, ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
@@ -251,7 +251,22 @@ export function Register() {
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (d < 0 && l?.saved && l.qty - 1 < l.saved) return action("Void");   // an item already sent is voided, with a manager's approval
     setQty(i, d); };
-  const setQty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [{ ...l, qty: +(l.qty + d).toFixed(3) }])));
+  const setQty = (i: number, d: number) => setCart(c => c.flatMap((l, j) => (j !== i ? [l] : l.qty + d <= 0 ? [] : [reDisc({ ...l, qty: +(l.qty + d).toFixed(3) })])));
+  const reDisc = (l: Line): Line => l.discPct ? { ...l, disc: +(l.price * l.qty * Math.min(100, l.discPct) / 100).toFixed(2) } : l.disc ? { ...l, disc: Math.min(l.disc, +(l.price * l.qty).toFixed(2)) } : l;
+  // a tap on a cart line: an item with modifiers opens its window again to change them
+  const editLine = async (i: number) => { const l = cart[i], p = S.products.find(z => z.id === l.productId); if (!p) return;
+    if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
+    if (l.saved) return say("This item was sent to the kitchen. Void it to change it.");
+    const md = modData(x, p); if (!md.links.length) return;
+    const base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
+    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} edit={{ options: l.options || [], note: l.note }} onDone={done} />); if (!r) return;
+    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, mods: modLabel(r.mods, r.note) }; if (r.options.length) z.options = r.options; else delete z.options; if (r.note) z.note = r.note; else delete z.note; if (!z.mods) delete z.mods; return reDisc(z); })); };
+  // a long press: the line's note and discount
+  const lineExtras = async (i: number) => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
+    const canPct = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), canAmt = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
+    const r = await ask<{ note: string; disc?: number; discPct?: number } | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={canPct} canAmt={canAmt} onDone={done} />); if (!r) return;
+    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct;
+      if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return z; })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
@@ -290,11 +305,13 @@ export function Register() {
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
             : cart.map((l, i) => (
               <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line2 }}>
-                <View style={{ flex: 1, minWidth: 0 }}><T w="m" numberOfLines={2}>{l.name}</T>
+                <Pressable accessibilityRole="button" accessibilityLabel={l.name + ": tap to change the options, hold for a note or discount"} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450}
+                  style={({ pressed }) => ({ flex: 1, minWidth: 0, borderRadius: R.sm, backgroundColor: pressed ? C.bg : "transparent" })}><T w="m" numberOfLines={2}>{l.name}</T>
                   {/* the modifiers one under the other (2× when picked twice, with their price), then the note */}
                   {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 6 }}><T size={13} color={C.mut} style={{ flex: 1 }}>• {o.n > 1 ? o.n + "× " : ""}{o.name}</T>{o.price ? <T size={13} color={C.mut}>+{money(S, o.price)}</T> : null}</View>)
                     : l.mods && !l.note ? <T size={13} color={C.mut}>{l.mods}</T> : null}
-                  {l.note ? <T size={13} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}</View>
+                  {l.note ? <T size={13} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
+                  {l.disc ? <T size={13} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
                 <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
                   <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty <= 1 ? "trash" : "minus"} size={18} color={l.qty <= 1 ? C.bad : C.ink2} /></Pressable>
                   <T w="s" style={{ minWidth: 28, textAlign: "center" }}>{l.qty}</T>
@@ -400,8 +417,9 @@ function CatTile({ size, name, img, n, onPress }: { size: number; name: string; 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
       style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
-      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: size * 0.48 }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
-      <View style={{ flex: 1, padding: 12, justifyContent: "space-between" }}><T w="s" size={15} numberOfLines={img ? 2 : 3}>{name}</T><T size={13} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T></View>
+      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand }} />}
+      <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 0 }}><T w="s" size={img ? 14 : 15} numberOfLines={img ? 2 : 3} style={{ flexShrink: 1, lineHeight: img ? 18 : 20 }}>{name}</T>
+        <View style={{ flex: 1, minHeight: 4 }} /><T size={13} numberOfLines={1} color={C.mut}>{n} {n === 1 ? "item" : "items"}</T></View>
     </Pressable>
   );
 }
@@ -412,10 +430,12 @@ function ItemTile({ size, name, price, img, oos, n, onPress }: { size: number; n
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
       style={({ pressed }) => [{ width: size, height: size, borderRadius: R.lg, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
-      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: size * 0.48 }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
-      <View style={{ flex: 1, padding: 12, justifyContent: "space-between" }}>
-        <T w="m" size={14} numberOfLines={img ? 2 : 3} style={n ? { paddingRight: 22 } : undefined}>{name}</T>
-        <T size={13} color={oos ? C.bad : C.mut}>{oos ? "Out of stock" : price}</T>
+      {img ? <Image source={{ uri: img }} style={{ width: "100%", height: Math.round(size * 0.4) }} resizeMode="cover" /> : <View style={{ height: 6, backgroundColor: C.brand50 }} />}
+      {/* the name takes what room is left; the price always shows on the last line */}
+      <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, minHeight: 0 }}>
+        <T w="m" size={img ? 13 : 14} numberOfLines={img ? 2 : 3} style={[{ flexShrink: 1, lineHeight: img ? 17 : 19 }, n ? { paddingRight: 22 } : null]}>{name}</T>
+        <View style={{ flex: 1, minHeight: 4 }} />
+        <T size={13} numberOfLines={1} color={oos ? C.bad : C.mut}>{oos ? "Out of stock" : price}</T>
       </View>
       {n ? <View style={{ position: "absolute", top: 6, right: 6, minWidth: 24, height: 24, borderRadius: 12, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 6 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>

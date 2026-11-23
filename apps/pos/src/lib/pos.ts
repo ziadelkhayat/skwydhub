@@ -4,7 +4,7 @@ import * as Crypto from "expo-crypto";
 import type { Data, Row } from "./db";
 
 export type OType = "dinein" | "takeaway" | "delivery";
-export type Line = { productId: string; name: string; price: number; qty: number; disc?: number; options?: any[]; mods?: string; note?: string; saved?: number };
+export type Line = { productId: string; name: string; price: number; qty: number; disc?: number; discPct?: number; options?: any[]; mods?: string; note?: string; saved?: number };
 export type Ctx = { S: Data; device: Row; branch: Row | null; otype: OType };
 
 export const live = (r: Row) => !r.deleted;

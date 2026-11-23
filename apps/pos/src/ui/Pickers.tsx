@@ -16,7 +16,7 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
             <T w="s" size={18} style={{ flex: 1 }} numberOfLines={1}>{title}</T>
             <Pressable accessibilityLabel="Close" onPress={onClose} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name="x" size={20} /></Pressable>
           </View>
-          <ScrollView style={{ flexGrow: 0 }} contentContainerStyle={{ padding: 20 }}>{children}</ScrollView>
+          <ScrollView style={{ flexGrow: 0 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>{children}</ScrollView>
           {footer ? <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderColor: C.line }}>{footer}</View> : null}
         </Pressable>
       </Pressable>
@@ -25,10 +25,13 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
 }
 
 export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string };
-export function ModPicker({ name, basePrice, data, money, onDone }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void }) {
+// edit: a cart line being changed (its options start picked, its note is filled in, and the button says Save)
+export function ModPicker({ name, basePrice, data, money, onDone, edit }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; edit?: { options: { id: string; modifierId?: string }[]; note?: string } }) {
   const links = data.links.map(l => ({ ...l, opts: data.options.filter(o => o.modifierId === l.modifierId) }));
-  const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {}; (l.defaults || []).forEach(id => { if (l.opts.some(o => o.id === id)) m[id] = 1; }); return m; }));
-  const [note, setNote] = useState(""), [err, setErr] = useState("");
+  const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {};
+    if (edit) { edit.options.forEach(o => { if (l.opts.some(y => y.id === o.id) && (!o.modifierId || o.modifierId === l.modifierId)) m[o.id] = (m[o.id] || 0) + 1; }); return m; }
+    (l.defaults || []).forEach(id => { if (l.opts.some(o => o.id === id)) m[id] = 1; }); return m; }));
+  const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState("");
   const cnt = (gi: number) => Object.values(sel[gi]).reduce((a, n) => a + n, 0);
   const units = (gi: number) => links[gi].opts.flatMap(o => Array(sel[gi][o.id] || 0).fill(o) as ModOpt[]);
   const price = () => { let t = basePrice; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(o => { if (free > 0) free--; else t += o.price; }); }); return t; };
@@ -54,7 +57,7 @@ export function ModPicker({ name, basePrice, data, money, onDone }: { name: stri
     <Sheet title={name} onClose={() => onDone(null)} footer={<>
       <T size={13} color={C.bad} style={{ flex: 1 }}>{err}</T>
       <Btn label="Cancel" height={48} onPress={() => onDone(null)} />
-      <Btn kind="primary" height={48} label={"Add · " + money(price())} onPress={ok} />
+      <Btn kind="primary" height={48} label={edit ? "Save · " + money(price()) : "Add · " + money(price())} onPress={ok} />
     </>}>
       {links.map((l, gi) => (
         <View key={l.modifierId} style={{ marginBottom: 18 }}>
@@ -106,9 +109,31 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
     </>}>
       <View style={{ alignItems: "center", gap: 14 }}>
         <View style={{ alignSelf: "stretch", height: 56, borderRadius: R.sm, borderWidth: 1, borderColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="s" size={26}>{v === "" ? " " : money && !v.endsWith(".") ? money(+v) : v}</T></View>
-        <Pad onKey={key} size={76} />
-        <Btn kind="ghost" label="." height={40} onPress={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
+        <Pad onKey={key} size={76} onDot={() => setV(s => (s.includes(".") ? s : (s || "0") + "."))} />
       </View>
+    </Sheet>
+  );
+}
+
+// long press on a cart line: its note (printed on the kitchen ticket) and its discount, as a % (follows the quantity) or an amount
+export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
+  onDone: (r: { note: string; disc?: number; discPct?: number } | null) => void }) {
+  const [n, setN] = useState(note || ""), [kind, setKind] = useState<"pct" | "amt">(disc && !discPct && canAmt ? "amt" : canPct ? "pct" : "amt"), [v, setV] = useState(discPct ? String(discPct) : disc ? String(disc) : "");
+  const full = unit * qty, x = Math.max(0, +v.replace(",", ".") || 0), d = kind === "pct" ? full * Math.min(100, x) / 100 : Math.min(x, full), allowed = kind === "pct" ? canPct : canAmt;
+  const save = () => { if (x > 0 && !allowed) return; onDone(x > 0 ? (kind === "pct" ? { note: n.trim(), discPct: Math.min(100, x), disc: +d.toFixed(2) } : { note: n.trim(), disc: +d.toFixed(2) }) : { note: n.trim() }); };
+  return (
+    <Sheet title={qty + " × " + name} onClose={() => onDone(null)} footer={<><View style={{ flex: 1 }} /><Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label="Save" onPress={save} /></>}>
+      <T w="s" size={15} style={{ marginBottom: 8 }}>Item note</T>
+      <TextInput value={n} onChangeText={setN} multiline placeholder="No onions, extra spicy…" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
+        style={{ minHeight: 64, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, padding: 10, fontFamily: F.r, fontSize: 15, color: C.ink, textAlignVertical: "top", marginBottom: 18 }} />
+      <T w="s" size={15} style={{ marginBottom: 8 }}>Item discount</T>
+      {!canPct && !canAmt ? <T color={C.mut}>Your role doesn't allow discounts.</T> : <>
+        <View style={{ flexDirection: "row", gap: 8, marginBottom: 10 }}>
+          {canPct ? <Btn kind={kind === "pct" ? "primary" : "outline"} height={44} style={{ width: 90 }} label="%" onPress={() => setKind("pct")} /> : null}
+          {canAmt ? <Btn kind={kind === "amt" ? "primary" : "outline"} height={44} style={{ width: 110 }} label="Amount" onPress={() => setKind("amt")} /> : null}
+          <TextInput value={v} onChangeText={setV} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={C.mut2} accessibilityLabel="Item discount"
+            style={{ flex: 1, height: 44, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 12, fontFamily: F.r, fontSize: 16, color: C.ink }} /></View>
+        <T size={13} color={C.mut}>{d > 0 ? `${money(full)} − ${money(d)} = ${money(full - d)}` : `Line total ${money(full)}`}</T></>}
     </Sheet>
   );
 }
