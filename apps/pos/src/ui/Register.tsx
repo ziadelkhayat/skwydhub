@@ -313,7 +313,10 @@ export function Register() {
         {/* the order type: a new order is dine-in; Pickup & Delivery → New Order starts a pickup or delivery */}
         {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
           <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
-          <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} /></View> : null}
+          <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} />
+          {/* × takes the customer off this dine-in order */}
+          {cust.name ? <Pressable accessibilityRole="button" accessibilityLabel="Remove customer" onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}
+            style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}</View> : null}
         {otype !== "dinein" && cust.name && !live_eo ? <Pressable onPress={() => askCust(otype)} style={{ marginHorizontal: 18, marginTop: 10, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{cust.name} · {cust.phone}{cust.source ? " · " + cust.source : ""}</T>{otype === "delivery" ? <T size={13} color={C.mut} numberOfLines={2}>{addrJoin(cust.addr)}</T> : null}</Pressable> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
