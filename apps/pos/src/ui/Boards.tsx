@@ -40,7 +40,7 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
   const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
     <View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={ic as any} size={16} color={C.mut2} /></View>
     <View style={{ flex: 1 }}><T size={14} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut2} numberOfLines={1}>{sub}</T> : null}</View></View>;
-  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: pressed ? C.brand50 : "#fff", borderRadius: R.md, borderWidth: 1, borderColor: C.line, padding: 14, gap: 8 })}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: "#fff", borderRadius: 12, borderWidth: 1, borderColor: pressed ? "#9CB9FF" : C.line, padding: 12, gap: 8, shadowColor: "#101828", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } })}>
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{o.ref || ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
     <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
     <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
@@ -59,11 +59,12 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
     <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>
-      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F2F4F7", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 10 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 10 }}><T w="s">{t}</T>
-          <View style={{ minWidth: 26, height: 22, borderRadius: 11, backgroundColor: col.length ? C.brand : C.line, alignItems: "center", justifyContent: "center", paddingHorizontal: 7 }}><T w="s" size={12} color={col.length ? "#fff" : C.ink2}>{col.length}</T></View></View>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 6 }} showsVerticalScrollIndicator={false}>
-          {col.length ? col.map(o => <Tile key={o.id} o={o} x={x} onOpen={() => onOpen(o)} />) : <T size={13} color={C.mut} style={{ textAlign: "center", paddingVertical: 20 }}>No {t.toLowerCase()} orders</T>}
+      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F9FAFB", borderRadius: 16, borderWidth: 1, borderColor: C.line, padding: 12 }}>
+        {/* as on the call center board: the column name, its count (blue only for Active), "You don't have … orders" when empty */}
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 12 }}><T w="s" size={14}>{t}</T>
+          <View style={{ minWidth: 24, height: 22, borderRadius: 11, backgroundColor: col.length && k === "active" ? C.brand : "#EAECF0", alignItems: "center", justifyContent: "center", paddingHorizontal: 8 }}><T w="m" size={12} color={col.length && k === "active" ? "#fff" : "#475467"}>{col.length}</T></View></View>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 12, paddingBottom: 6 }} showsVerticalScrollIndicator={false}>
+          {col.length ? col.map(o => <Tile key={o.id} o={o} x={x} onOpen={() => onOpen(o)} />) : <T size={12} color={C.mut2} style={{ textAlign: "center", paddingVertical: 24 }}>You don't have {t.toLowerCase()} orders</T>}
         </ScrollView></View>; })}
     </ScrollView></Full>;
 }
