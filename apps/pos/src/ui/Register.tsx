@@ -90,7 +90,7 @@ export function Register() {
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
   const takeNo = async () => { const k = "skwydNo_" + device!.branchId; let last = null; try { last = JSON.parse((await AsyncStorage.getItem(k)) || "null"); } catch {}
     const r = nextOrderNo(x, last); AsyncStorage.setItem(k, JSON.stringify({ since: r.since, n: r.n })).catch(() => {}); return r.no; };
-  const reset = () => { setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); setDisc(null); setPicked([]); setOpenCh({}); setNotes({ receipt: "", kitchen: "" }); setTags(null); setGuests(0); };
+  const reset = () => { setOtype(types[0] || "dinein"); setCart([]); setTable(""); setQ(""); setEo(null); setCust({ name: "", phone: "", source: "", addr: {} }); setDisc(null); setPicked([]); setOpenCh({}); setNotes({ receipt: "", kitchen: "" }); setTags(null); setGuests(0); };
   // an order from Orders: its lines (already sent ones marked), type and table
   const openOrder = (o: Row) => { setDlg(null); setEo(o); setNotes({ receipt: o.receiptNotes || "", kitchen: o.notes || "" }); setPicked((o.charges || []).map((c: any) => c.id)); setOpenCh(Object.fromEntries((o.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount])));
     setGuests(+o.guests || 0); setDisc(+o.discount ? (o.discountType === "amt" ? { type: "amt", value: +o.discount } : { type: "pct", value: +o.discountPct || 0 }) : null); setCart((o.items || []).map((i: any) => ({ ...i, saved: +i.qty || 1 }))); setTable(String(o.table || "")); setOtype(o.type === "pickup" ? "takeaway" : o.type === "delivery" ? "delivery" : "dinein"); };
@@ -295,10 +295,7 @@ export function Register() {
         </View> : null}
         {live_eo && (live_eo.customerName || live_eo.phone) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.bg }}>
           <T w="m" size={14}>{[live_eo.customerName, live_eo.phone, live_eo.source].filter(Boolean).join(" · ")}</T>{live_eo.address ? <T size={13} color={C.mut} numberOfLines={2}>{live_eo.address}</T> : null}</View> : null}
-        {types.length > 1 && !live_eo && (
-          <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 18, paddingTop: 12 }}>
-            {types.map(k => <Btn key={k} kind={otype === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={TYPE_LBL[k]} onPress={() => (k === "dinein" ? switchType(k) : askCust(k))} />)}
-          </View>)}
+        {/* the order type: a new order is dine-in; Pickup & Delivery → New Order starts a pickup or delivery */}
         {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 10 }}>
           <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
           <Btn height={38} style={{ flex: 1 }} label={cust.name ? cust.name + (cust.phone ? " · " + cust.phone : "") : "Add Customer"} onPress={() => askCust("dinein")} /></View> : null}
