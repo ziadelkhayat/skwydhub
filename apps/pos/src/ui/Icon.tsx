@@ -21,6 +21,13 @@ const P: Record<string, (c: string) => React.ReactNode> = {
   plus: () => <Path d="M12 5v14M5 12h14" />,
   trash: () => <Path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
   del: () => <><Path d="M21 5H8l-6 7 6 7h13z" /><Path d="m11 9 6 6M17 9l-6 6" /></>,
+  dayend: () => <><Circle cx={12} cy={12} r={4} /><Path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
+  chart: () => <Path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
+  device: () => <><Rect x={4} y={3} width={16} height={12} rx={2} /><Path d="M9 21h6M12 15v6" /></>,
+  sound: () => <><Path d="M4 9v6h4l5 4V5L8 9z" /><Path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11" /></>,
+  mute: () => <><Path d="M4 9v6h4l5 4V5L8 9z" /><Path d="m17 9 5 6M22 9l-5 6" /></>,
+  sync: () => <Path d="M20 11a8 8 0 0 0-14.3-4.3L4 9M4 4v5h5M4 13a8 8 0 0 0 14.3 4.3L20 15M20 20v-5h-5" />,
+  logout: () => <Path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11" />,
   bowl: () => <><Path d="M3 11h18a9 9 0 0 1-18 0Z" /><Path d="M12 4v4M9 6l1 2M15 6l-1 2" /></>,
 };
 export function Icon({ name, size = 22, color = "#667085", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {
