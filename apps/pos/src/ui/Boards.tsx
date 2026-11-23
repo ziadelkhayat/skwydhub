@@ -41,15 +41,14 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
 
 export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void; onNew?: () => void; onDrivers?: () => void }) {
   const mine = today(x).filter(o => ["pickup", "takeaway", "delivery"].includes(o.type)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const [kind, setKind] = useState<"all" | "pickup" | "delivery">("all"), l = mine.filter(o => kind === "all" || (kind === "pickup" ? o.type !== "delivery" : o.type === "delivery"));
+  const l = mine;
   const COLS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
     ["active", "Preparing", o => o.status === "active" && !o.dispatchedAt && o.editRequest?.status !== "pending"], ["dispatched", "Dispatched", o => o.status === "active" && !!o.dispatchedAt],
-    ["closed", "Done", o => ["closed", "void", "returned", "refund", "declined"].includes(o.status)]];
+    ["closed", "Done", o => o.status === "closed"], ["void", "Void & Returned", o => ["void", "returned", "refund"].includes(o.status)], ["declined", "Declined", o => o.status === "declined"]];
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
-    {(["all", "pickup", "delivery"] as const).map(k => <Btn key={k} kind={kind === k ? "primary" : "outline"} height={44} label={k === "all" ? "All" : k === "pickup" ? "Pickup" : "Delivery"} onPress={() => setKind(k)} />)}
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
-    <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ padding: 14, gap: 12 }}>
-      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ width: 268, backgroundColor: "#F2F4F7", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 10 }}>
+    <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>
+      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F2F4F7", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 10 }}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 10 }}><T w="s">{t}</T>
           <View style={{ minWidth: 26, height: 22, borderRadius: 11, backgroundColor: col.length ? C.brand : C.line, alignItems: "center", justifyContent: "center", paddingHorizontal: 7 }}><T w="s" size={12} color={col.length ? "#fff" : C.ink2}>{col.length}</T></View></View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 6 }} showsVerticalScrollIndicator={false}>
