@@ -42,8 +42,8 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
         {src.length > 0 && t !== "dinein" && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{src.map(s => <Btn key={s} kind={c.source === s ? "soft" : "outline"} height={40} label={s} style={c.source === s ? { borderColor: C.brand } : undefined} onPress={() => set("source", s)} />)}</View></View>}
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 12 }}>
-          <Field half label="Phone number *" kb="phone-pad" value={c.phone} onChange={v => set("phone", v)} />
-          <Field half label="Customer name *" value={c.name} onChange={v => set("name", v)} />
+          <Field label="Phone number *" kb="phone-pad" value={c.phone} onChange={v => set("phone", v)} />
+          <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
         </View>
         {hint ? <T size={13} color={hint.startsWith("⚠") ? C.bad : C.mut}>{hint}</T> : null}
         {t === "delivery" && <>
