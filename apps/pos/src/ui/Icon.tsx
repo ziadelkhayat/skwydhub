@@ -34,6 +34,12 @@ const P: Record<string, (c: string) => React.ReactNode> = {
   headset: () => <><Path d="M4 14v-2a8 8 0 0 1 16 0v2" /><Rect x={3} y={14} width={4} height={6} rx={1.5} /><Rect x={17} y={14} width={4} height={6} rx={1.5} /><Path d="M19 20a3 3 0 0 1-3 2h-3" /></>,
   ret: () => <Path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" />,
   cal: () => <><Rect x={3} y={5} width={18} height={16} rx={2} /><Path d="M3 10h18M8 3v4M16 3v4" /></>,
+  check: () => <Path d="M5 12l5 5L20 7" />,
+  bell: () => <><Path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z" /><Path d="M10 20a2 2 0 0 0 4 0" /></>,
+  chef: () => <Path d="M6 14a4 4 0 1 1 2-7.5A4 4 0 0 1 16 6.5 4 4 0 1 1 18 14v6H6zM6 17h12" />,
+  pause: () => <Path d="M9 5v14M15 5v14" />,
+  pct: () => <><Path d="M19 5 5 19" /><Circle cx={7} cy={7} r={2.5} /><Circle cx={17} cy={17} r={2.5} /></>,
+  dollar: () => <Path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H7" />,
   bowl: () => <><Path d="M3 11h18a9 9 0 0 1-18 0Z" /><Path d="M12 4v4M9 6l1 2M15 6l-1 2" /></>,
 };
 export function Icon({ name, size = 22, color = "#6B7280", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {

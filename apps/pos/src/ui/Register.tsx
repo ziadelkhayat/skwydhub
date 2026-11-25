@@ -32,10 +32,13 @@ import { useAudioPlayer } from "expo-audio";
 import { useStore } from "../lib/store";
 import { C, F, R, shadowXs } from "../lib/theme";
 import { Icon } from "./Icon";
+import { ChargesPop, DiscountPop, NotesPop, Popover } from "./Pops";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { onAlertOpen, pendingCount } from "./Alert";
 import { Btn, Card, Pill, T } from "./kit";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
-const GAP = 12, PADX = 16, TG = 8, CART_W = 372;   // CART_W: the cart card is 360 wide, like the call center's   // TG: the gap between menu tiles (5 across, 4 down)
+const GAP = 12, PADX = 16, TG = 10, AG = 8;   // CART_W: the cart card is 360 wide, like the call center's   // TG: the gap between menu tiles (5 across, 4 down)
 
 export function Register() {
   const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
@@ -43,7 +46,7 @@ export function Register() {
   const types = allowedTypes(S, device!.branchId);
   const [otype, setOtype] = useState<OType>(types[0] || "dinein");
   const [cart, setCart] = useState<Line[]>([]), [table, setTable] = useState(""), [eo, setEo] = useState<Row | null>(null), [cust, setCust] = useState<Cust>({ name: "", phone: "", source: "", addr: {} });   // eo: the order opened from Orders
-  const [gridH, setGridH] = useState(0), [cat, setCat] = useState(""), [q, setQ] = useState(""), [more, setMore] = useState(false);
+  const [cat, setCat] = useState(""), [q, setQ] = useState(""), [more, setMore] = useState(false);
   const [disc, setDisc] = useState<Disc>(null), [picked, setPicked] = useState<string[]>([]), [openCh, setOpenCh] = useState<Record<string, number>>({}), [notes, setNotes] = useState({ receipt: "", kitchen: "" }), [tags, setTags] = useState<string[] | null>(null), [guests, setGuests] = useState(0);
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
@@ -51,9 +54,10 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles; a tile opens its items, Back goes up
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
 
-  // tiles as in the call center: 4 across, all the same size with or without a photo (4 rows fit the height); the cart takes the rest of the width
-  const fixedH = 72 + 44 + 40 + 76 + GAP * 4 + 24;
-  const menuW = W - CART_W, { cols, rows, w: tileW, h: tile } = fitTiles(menuW - PADX * 2, gridH || 520), ab = Math.floor((menuW - PADX * 2 - 8 * 8) / 9);   // seven square buttons fill the row; more scroll
+  // the cart takes a third of the screen; the menu the rest. The 8 top buttons are squares filling the menu's width
+  const insTop = useSafeAreaInsets().top, CART_W = Math.round(W * 0.33), menuW = W - CART_W, ab = Math.floor((menuW - PADX * 2 - AG * 7) / 8);
+  const [grid, setGrid] = useState({ w: 0, h: 0 }), fit = fitTiles(grid.w, grid.h);
+  const [pop, setPop] = useState<null | { k: string; ax: number }>(null), [page, setPage] = useState(0);
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
   const say = (s: string) => notify(s);
@@ -203,7 +207,7 @@ export function Register() {
       case "Tags": return (tagDoc(S).list || []).some((z: any) => z.type === "order" && !z.deleted);
       case "Notes": return edit;
     } return true; };
-  const action = async (a: string) => {
+  const action = async (a: string, ax = 0) => {
     if (a === "Void" || a === "Return") { // a saved open order is voided, a done one returned
       if (!live_eo) return say("Open an order from Orders to " + a.toLowerCase() + " it");
       if (a === "Void" && live_eo.status === "closed") return say("This order is done. Use Return.");
@@ -213,16 +217,16 @@ export function Register() {
       return setDlg(<VoidReturnDialog x={x} o={live_eo} onDone={m => { setDlg(null); if (m) { say(m); reset(); } }} />); }
     if (ro && a !== "Print") return say("This order is done");
     if (a === "Discount") { const p = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), am = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
-      if (!p && !am) return say("Your role doesn't allow discounts.");
-      const d = await ask<Disc | undefined>(done => <DiscountDialog x={x} cart={cart} cur={cur} sym={String(S.settings.find(z => z.id === "company")?.currencySymbol || "$")} allowPct={p} allowAmt={am} init={disc} onDone={done} />); if (d !== undefined) setDisc(d); return; }
-    if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges.");
-      const r = await ask<{ picked: string[]; open: Record<string, number> } | null>(done => <ChargesDialog x={x} cur={cur} picked={picked} open={openCh} onDone={done} />); if (r) { setPicked(r.picked); setOpenCh(r.open); } return; }
-    if (a === "Notes") { const r = await ask<{ receipt: string; kitchen: string } | null>(done => <NotesDialog init={notes} onDone={done} />); if (r) setNotes(r); return; }
-    if (a === "Print" || a === "Kitchen") return doPrint(a === "Print" ? "receipt" : "kitchen");
+      if (!p && !am) return say("Your role doesn't allow discounts."); return setPop({ k: a, ax }); }
+    if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges."); return setPop({ k: a, ax }); }
+    if (a === "Notes") return setPop({ k: a, ax });
+    if (a === "Print") return doPrint("receipt");
+    // Kitchen sends what wasn't sent yet and saves the order at the same time
+    if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(); }
     if (a === "Tags") { const cur0 = tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : []); const r = await ask<string[] | null>(done => <TagsDialog S={S} init={cur0} onDone={done} />);
       if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } return; }
     if (a === "Hold") return hold();
-    if (a === "Retrieve") return retrieve();
+    if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); return retrieve(); }
     say(a + " comes in the next step.");
   };
   // Print: the bill of this order (or its receipt when done); Kitchen: the ticket of what wasn't sent yet (all of it on a new order)
@@ -244,7 +248,7 @@ export function Register() {
   // the "wheet-whee-oo" of the current POS for new orders and order edits; Functions → Sound On / Off (kept on the tablet)
   const whistle = useAudioPlayer(require("../../assets/new-order.wav")), [sound, setSound] = useState(true);
   useEffect(() => { AsyncStorage.getItem("skwyd_sound").then(v => setSound(v !== "off")); }, []);
-  const ring = () => { if (!sound) return; try { whistle.seekTo(0); whistle.play(); } catch {} };
+  useEffect(() => onAlertOpen(o => { if (cart.length && !live_eo) return say("Finish or hold the current order first"); openOrder(o); }), [cart.length, live_eo?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const seen = useRef<Set<string> | null>(null), auto = useRef(new Set<string>()), [incoming, setIncoming] = useState<Row | null>(null);
   useEffect(() => {
     const pend = S.orders.filter(o => o.branchId === device!.branchId && o.channel !== "pos" && o.status === "pending");
@@ -252,14 +256,14 @@ export function Register() {
     if (!seen.current) { seen.current = new Set([...pend.map(o => o.id), ...edits.map(ek)]); return; }
     const fresh = pend.filter(o => !seen.current!.has(o.id)); fresh.forEach(o => seen.current!.add(o.id));
     const freshE = edits.filter(o => !seen.current!.has(ek(o))); freshE.forEach(o => seen.current!.add(ek(o)));
-    if (freshE.length) { setIncoming({ ...freshE[freshE.length - 1], __edit: true }); ring(); }
+    void freshE;
     const master = (() => { const m = S.devices.filter(d => !d.deleted && d.branchId === device!.branchId && d.settings?.master); return !m.length || m.some(d => d.id === device!.id); })();
     if (device!.settings?.autoAccept && master) {
       pend.filter(o => o.channel !== "callcenter" && !auto.current.has(o.id) && !(o.scheduledAt && +new Date(o.scheduledAt) - Date.now() > 3600000)).forEach(async o => {   // a scheduled order waits until an hour before its time
         auto.current.add(o.id); const now = new Date().toISOString();
         write("orders", o.id, { status: "active", updatedAt: now, ...(o.acceptedAt ? {} : { acceptedAt: now }), handledBy: who() + " (auto)", ...(o.no ? {} : { no: await takeNo(), deviceId: device!.id }) });
         say("New web order accepted automatically"); });
-    } else if (fresh.length) { setIncoming(fresh[fresh.length - 1]); ring(); }
+    }
   }, [S.orders]);
   // logged out after a few idle minutes (Device settings: lock minutes, else the brand's logout minutes)
   const lastTouch = useRef(Date.now());
@@ -293,161 +297,162 @@ export function Register() {
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
+  const tiles: any[] = [...(top && !q.trim() ? [{ back: true }] : []), ...items], per = fit.cols * fit.rows, pages = Math.max(1, Math.ceil(tiles.length / Math.max(1, per)));
+  useEffect(() => setPage(0), [top, q]);
+
+  // the top buttons follow the order: new, saved (open), done, or returned / voided
+  const st = live_eo?.status, unsent = cart.some(l => l.qty > (l.saved || 0)), noTable = otype === "dinein" && !table.trim();
+  const BTN: Record<string, string> = { Print: "print", Kitchen: "chef", Hold: "pause", Retrieve: "ret", Discount: "pct", Charges: "dollar", Notes: "note", Tags: "tag", Void: "void", Return: "ret" };
+  const acts: string[] = !live_eo ? (!cart.length ? [...(heldN ? ["Retrieve"] : []), "Discount", "Charges", "Notes", "Tags"]
+      : [...(noTable ? [] : ["Print", "Kitchen"]), "Hold", ...(heldN ? ["Retrieve"] : []), "Discount", "Charges", "Notes", "Tags"])
+    : ["active", "pending"].includes(st) ? ["Print", ...(unsent ? ["Kitchen"] : []), "Void", "Discount", "Charges", "Notes", "Tags"]
+    : st === "closed" ? ["Print", ...(fullyBack(live_eo) ? [] : ["Return"]), "Tags"] : ["Print", "Tags"];
+  const pdN = pendingCount(S, device!.branchId);
+  const sym = String(S.settings.find(z => z.id === "company")?.currencySymbol || "$");
+  const allowPct = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), allowAmt = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
+  const c = live_eo ? { name: live_eo.customerName, phone: live_eo.phone, addr: live_eo.address } : { name: cust.name, phone: cust.phone, addr: otype === "delivery" ? addrJoin(cust.addr) : "" };
+  const STL: Record<string, [string, "ok" | "bad" | "warn" | "brand"]> = { closed: ["Done", "ok"], void: ["Void", "bad"], returned: ["Returned", "bad"], refund: ["Returned", "bad"], declined: ["Declined", "bad"], pending: ["Waiting for you", "warn"] };
+  const box = { flex: 1, flexDirection: "row" as const, alignItems: "center" as const, gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.line, backgroundColor: "#fff" };
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
-      {/* ---------- cart ---------- */}
-      <Card style={{ flex: 1, margin: 12, marginRight: 0, overflow: "hidden" }}>
-        {/* order details: what this order is (In Store, Pickup or Delivery), the customer under it, and for an opened order its reference and status */}
-        {(() => { const c = live_eo ? { name: live_eo.customerName, phone: live_eo.phone, source: live_eo.source, addr: live_eo.address } : { name: cust.name, phone: cust.phone, source: cust.source, addr: otype === "delivery" ? addrJoin(cust.addr) : "" };
-          const tap = !live_eo && otype !== "dinein" ? () => askCust(otype) : undefined;
-          return <Pressable disabled={!tap} onPress={tap} style={{ flexDirection: "row", gap: 12, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 12 }}>
-            <View style={{ width: 44, height: 44, borderRadius: R.md, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}>
-              <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "table" : "bag"} size={22} color={C.brand600} /></View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <T w="s" size={17}>{TYPE_LBL[otype] || otype}</T>
-                {table ? <Pill text={tblLbl(table) + (guests ? " · " + guests + " guests" : "")} /> : null}
-                <View style={{ flex: 1 }} />
-                {!online || pending ? <Pill text={!online ? (pending ? `Offline · ${pending} to sync` : "Offline") : `Syncing ${pending}…`} tone="warn" /> : null}
-                {live_eo ? <Pill text={{ pending: "Waiting for you", active: "Preparing", closed: "Done", declined: "Declined", void: "Void" }[live_eo.status as string] || live_eo.status} tone={live_eo.status === "pending" ? "warn" : live_eo.status === "closed" ? "ok" : "brand"} /> : null}
-              </View>
-              {c.name || c.phone ? <T size={14} numberOfLines={1} style={{ marginTop: 2 }}>{[c.name, c.phone].filter(Boolean).join(" · ")}{c.source ? <T size={13} color={C.mut}>{" · " + c.source}</T> : null}</T>
-                : <T size={13} color={C.mut} style={{ marginTop: 2 }}>{live_eo ? "Order " + (live_eo.ref || ordRef(live_eo)) : otype === "dinein" ? "No customer" : "Tap to add the customer"}</T>}
-              {c.addr ? <T size={13} color={C.mut} numberOfLines={2}>{c.addr}</T> : null}
-              {live_eo && (c.name || c.phone) ? <T size={13} color={C.mut}>Order {live_eo.ref || ordRef(live_eo)}</T> : null}
-            </View>
-          </Pressable>; })()}
-        {erPending(live_eo) ? <View style={{ marginHorizontal: 18, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
+    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg2, paddingTop: insTop }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
+      {/* ---------- cart: the full height on the left ---------- */}
+      <View style={{ width: CART_W, backgroundColor: "#fff", borderRightWidth: 1, borderColor: C.line }}>
+        <View style={{ flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 16, paddingTop: 12, gap: 8 }}>
+          {live_eo && STL[st] ? <Pill text={STL[st][0]} tone={STL[st][1]} /> : null}
+          <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} size={20} color={C.brand600} />
+          <T w="s" size={16} style={{ flex: 1 }}>{TYPE_LBL[otype] || otype}</T>
+          {!online || pending ? <Pill text={!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`} tone="warn" /> : null}
+          <View style={{ alignItems: "flex-end" }}><T size={11} color={C.mut}>Order</T><T w="s" size={15}>{live_eo?.no || "New"}</T></View>
+          {live_eo?.ref ? <View style={{ alignItems: "flex-end", marginLeft: 8 }}><T size={11} color={C.mut}>Reference</T><T w="s" size={15}>{live_eo.ref}</T></View> : null}
+        </View>
+        <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 10, borderBottomWidth: 1, borderColor: C.line }}>
+          {otype === "dinein" ? <Pressable accessibilityRole="button" disabled={!!live_eo} onPress={askTable} style={box}>
+            <Icon name="table" size={18} color={C.ink2} /><T size={14} style={{ flex: 1 }} numberOfLines={1}>{table ? tblLbl(table) + (guests ? " · " + guests + " guests" : "") : "Add table"}</T>
+            {table && !live_eo ? <Pressable accessibilityLabel="Remove table" hitSlop={8} onPress={() => { setTable(""); setGuests(0); }}><Icon name="x" size={16} color={C.bad} /></Pressable> : null}</Pressable> : null}
+          <Pressable accessibilityRole="button" disabled={!!live_eo} onPress={() => askCust(otype)} style={box}>
+            <Icon name="user" size={18} color={C.ink2} />
+            <View style={{ flex: 1, minWidth: 0 }}>{c.name || c.phone ? <><T w="s" size={14} numberOfLines={1}>{c.name || c.phone}</T>{c.name && c.phone ? <T size={11.5} color={C.mut} numberOfLines={1}>{c.phone}</T> : null}</> : <T size={14} color={C.mut}>Add customer</T>}</View>
+            {cust.name && !live_eo && otype === "dinein" ? <Pressable accessibilityLabel="Remove customer" hitSlop={8} onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}><Icon name="x" size={16} color={C.bad} /></Pressable> : null}</Pressable>
+        </View>
+        {c.addr ? <T size={12.5} color={C.mut} numberOfLines={2} style={{ paddingHorizontal: 16, paddingTop: 8 }}>{c.addr}</T> : null}
+        {erPending(live_eo) ? <View style={{ marginHorizontal: 16, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
           <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
         </View> : null}
-        {otype === "dinein" && !live_eo ? <View style={{ flexDirection: "row", gap: 8, marginHorizontal: 18, marginTop: 0 }}>
-          <Btn height={38} label={table ? tblLbl(table) : "Table"} onPress={askTable} />
-          {/* × takes the table off this order (only before it is saved to the table) */}
-          {table && !live_eo ? <Pressable accessibilityRole="button" accessibilityLabel="Remove table" onPress={() => { setTable(""); setGuests(0); }}
-            style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}
-          <Btn height={38} style={{ flex: 1 }} label={cust.name ? "Change Customer" : "Add Customer"} onPress={() => askCust("dinein")} />
-          {/* × takes the customer off this dine-in order */}
-          {cust.name ? <Pressable accessibilityRole="button" accessibilityLabel="Remove customer" onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}
-            style={({ pressed }) => ({ width: 38, height: 38, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? "#FEF3F2" : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={18} color={C.bad} /></Pressable> : null}</View> : null}
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 18, paddingVertical: 8, flexGrow: 1 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
-            : cart.map((l, i) => (
-              <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line2 }}>
-                <Pressable accessibilityRole="button" accessibilityLabel={l.name + ": tap to change the options, hold for a note or discount"} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450}
-                  style={({ pressed }) => ({ flex: 1, minWidth: 0, borderRadius: R.sm, backgroundColor: pressed ? C.bg : "transparent" })}><T w="m" numberOfLines={2}>{l.name}</T>
-                  {/* the modifiers one under the other (2× when picked twice, with their price), then the note */}
-                  {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 6 }}><T size={13} color={C.mut} style={{ flex: 1 }}>• {o.n > 1 ? o.n + "× " : ""}{o.name}</T>{o.price ? <T size={13} color={C.mut}>+{money(S, o.price)}</T> : null}</View>)
-                    : l.mods && !l.note ? <T size={13} color={C.mut}>{l.mods}</T> : null}
-                  {l.note ? <T size={13} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
-                  {l.disc ? <T size={13} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
-                {ro ? <T w="s" style={{ minWidth: 40, textAlign: "center" }}>{l.qty}×</T> : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
-                  <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty <= 1 ? "trash" : "minus"} size={18} color={l.qty <= 1 ? C.bad : C.ink2} /></Pressable>
-                  <T w="s" style={{ minWidth: 28, textAlign: "center" }}>{l.qty}</T>
-                  <Pressable accessibilityRole="button" accessibilityLabel={"More " + l.name} onPress={() => qty(i, 1)} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={18} color={C.ink2} /></Pressable>
-                </View>}
-                <T w="m" style={{ width: 84, textAlign: "right" }}>{money(S, lineNet(l))}</T>
-              </View>))}
+            : cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", C.bad] : st === "returned" || st === "refund" ? ["Returned", C.bad] : sent && ["active", "pending"].includes(st) ? ["Sent", C.ok] : !l.saved ? ["New", C.brand600] : null) : null;
+              return <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
+                {ro || sent ? <T size={14} color={C.mut} style={{ minWidth: 26 }}>{l.qty}×</T> : null}
+                <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
+                  <T w="m" size={14.5} numberOfLines={2}>{l.name}{tag ? <T w="s" size={11} color={tag[1] as string}>{"  " + tag[0]}</T> : null}</T>
+                  {(l.options || []).length ? <T size={12.5} color={C.mut} numberOfLines={2}>{optRows(l.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(" · ")}</T> : l.mods && !l.note ? <T size={12.5} color={C.mut}>{l.mods}</T> : null}
+                  {l.note ? <T size={12.5} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
+                  {l.disc ? <T size={12.5} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
+                {ro || sent ? null : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
+                  <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty - (l.saved || 0) <= 1 ? "trash" : "minus"} size={17} color={l.qty - (l.saved || 0) <= 1 ? C.bad : C.ink2} /></Pressable>
+                  <T w="s" style={{ minWidth: 24, textAlign: "center" }}>{l.qty - (l.saved || 0)}</T>
+                  <Pressable accessibilityRole="button" accessibilityLabel={"More " + l.name} onPress={() => qty(i, 1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={17} color={C.ink2} /></Pressable></View>}
+                <T w="m" size={14.5} style={{ width: 72, textAlign: "right" }}>{money(S, lineNet(l))}</T>
+              </View>; })}
         </ScrollView>
-        <View style={{ paddingHorizontal: 18, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line, gap: 6 }}>
-          {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
-          {t.charges.map(c => <Row key={c.id} l={c.name} r={money(S, c.amount)} />)}
-          {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={13} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(t => t.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
-          {notes.kitchen || notes.receipt ? <T size={13} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
-          <Row l="Subtotal" r={money(S, t.net)} />
+        <View style={{ paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: C.line, gap: 4 }}>
+          {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} muted /> : null}
+          {t.charges.map(ch => <Row key={ch.id} l={ch.name} r={money(S, ch.amount)} muted />)}
+          {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={12.5} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
+          {notes.kitchen || notes.receipt ? <T size={12.5} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
+          <Row l="Subtotal" r={money(S, t.net)} muted />
           <Row l="Tax" r={money(S, t.tax)} muted />
           {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
-          {/* the Pay button carries the total; the line shows only when there is no Pay button */}
-          {ro || erPending(live_eo) ? <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T w="b" size={18}>Total</T><T w="b" size={18}>{money(S, t.total)}</T></View> : null}
           {money2(S, t.total) ? <Row l="" r={"≈ " + money2(S, t.total)} muted /> : null}
         </View>
-        <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 18, paddingBottom: 18 }}>
+        <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: 16, paddingBottom: 16, paddingTop: 2 }}>
           {erPending(live_eo) ? <>
             <Btn kind="danger" height={56} style={{ flex: 1 }} label="Reject" onPress={() => erDecide(false)} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label="Approve" onPress={() => erDecide(true)} />
-          </> : live_eo?.status === "pending" ? <>
+          </> : st === "pending" ? <>
             <Btn kind="danger" height={56} style={{ flex: 1 }} label="Decline" onPress={decline} />
             <Btn kind="primary" height={56} style={{ flex: 2 }} label="Accept" onPress={accept} />
-          </> : live_eo?.status === "active" && live_eo.type === "delivery" && !live_eo.dispatchedAt ? <>
-            <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.some(l => l.qty > (l.saved || 0))} onPress={saveOrder} />
-            <Btn height={56} style={{ flex: 1 }} label={live_eo.driverId && live_eo.driverName ? live_eo.driverName : "Add Driver"} sub={live_eo.driverId ? DRV_ST[live_eo.driverStatus] : undefined}
-              onPress={() => setDlg(<DriverPick x={x} o={live_eo} onDone={m => { setDlg(null); if (m) say(m); }} />)} />
-            <Btn kind="primary" height={56} style={{ flex: 1 }} label="Dispatch" disabled={cart.some(l => l.qty > (l.saved || 0))} onPress={dispatch} />
-          </> : ro ? null : <>
-            <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length || (!!live_eo && !cart.some(l => l.qty > (l.saved || 0)))} onPress={saveOrder} />
-            <Btn kind="primary" height={56} style={{ flex: 2 }} label={"Pay " + money(S, t.total)} textStyle={{ fontSize: 16 }} disabled={!cart.length} onPress={pay} />
+          </> : ro ? <View style={{ flex: 1, height: 56, borderRadius: R.sm, borderWidth: 1, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+              borderColor: st === "closed" ? "#A7F3D0" : st === "void" ? C.line : "#FECACA", backgroundColor: st === "closed" ? C.okBg : st === "void" ? "#F3F4F6" : C.badBg }}>
+            <T w="m" size={14} numberOfLines={1} style={{ flex: 1 }} color={st === "closed" ? C.ok : st === "void" ? C.ink2 : C.bad800}>
+              {st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</T>
+            <T w="s" size={17} color={st === "closed" ? C.ok : st === "void" ? C.ink2 : C.bad800} style={st === "void" ? { textDecorationLine: "line-through" } : undefined}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</T></View>
+          : <>
+            {/* Save only on a new order that can be kept open: an In-Store order needs a table; a saved order is saved by Kitchen */}
+            {!live_eo && !noTable ? <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length} onPress={saveOrder} /> : null}
+            <Pressable accessibilityRole="button" disabled={!cart.length} onPress={pay}
+              style={({ pressed }) => ({ flex: 2, height: 56, borderRadius: R.sm, backgroundColor: pressed ? C.brand500 : C.brand600, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, opacity: cart.length ? 1 : 0.45 })}>
+              <T w="s" size={17} color="#fff">TOTAL</T><T w="s" size={17} color="#fff">{money(S, t.total)}</T></Pressable>
           </>}
         </View>
-      </Card>
+      </View>
 
       {/* ---------- menu ---------- */}
-      <View style={{ width: menuW, paddingHorizontal: PADX, paddingVertical: 12, gap: GAP }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 8 }}>
-          {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["ret", "Return"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
-            <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
-              style={({ pressed }) => { const on = (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt));
-                // Tremor secondary button; when the action is in use, Tremor RadioCard's checked look (blue border, blue-50)
-                return [{ width: ab, height: ab, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.brand500 : C.field, backgroundColor: on ? C.brand50 : pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 6 }, shadowXs]; }}>
-              <Icon name={ic} size={22} color={C.ink2} /><T w="m" size={13} color={C.ink}>{l}</T>
+      <View style={{ width: menuW, paddingHorizontal: PADX, paddingTop: 12, gap: GAP }}>
+        <View style={{ flexDirection: "row", gap: AG }}>
+          {acts.map((a, i) => (
+            <Pressable key={a} accessibilityRole="button" onPress={() => action(a, CART_W + PADX + i * (ab + AG) + ab / 2)}
+              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: R.lg, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
+                borderWidth: pop?.k === a ? 3 : 0, borderColor: "#93C5FD" })}>
+              <Icon name={BTN[a]} size={24} color="#fff" /><T w="m" size={13} color="#fff">{a}</T>
+              {a === "Retrieve" && heldN ? <View style={{ position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: C.bg2, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{heldN}</T></View> : null}
             </Pressable>))}
-        </ScrollView>
-        <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff" }, shadowXs]}>
+        </View>
+        <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.line, backgroundColor: "#fff" }, shadowXs]}>
           <Icon name="search" size={20} color={C.mut} />
           <TextInput value={q} onChangeText={setQ} placeholder="Search items" placeholderTextColor={C.mut2} accessibilityLabel="Search items" style={{ flex: 1, fontFamily: F.r, fontSize: 15, color: C.ink, height: 42 }} />
           {q ? <Pressable accessibilityLabel="Clear search" onPress={() => setQ("")}><Icon name="x" size={18} /></Pressable> : null}
         </View>
-        <ScrollView style={{ flex: 1 }} snapToInterval={gridH ? (tile + TG) * rows : undefined} decelerationRate="fast" onLayout={e => setGridH(Math.round(e.nativeEvent.layout.height))} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", gap: TG }}>
-          {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
-                    {/* inside a category the first tile goes back (it names the category it leaves) */}
-          {top && !q.trim() ? <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
-            style={({ pressed }) => ({ width: tileW, height: tile, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4, padding: 6 })}>
-            <Icon name="back" size={24} color={C.brand} /><T w="s" size={15}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center" }}>{m.cats.find(c => c.id === top)?.name || ""}</T></Pressable> : null}
-          {items.map((it: any) => it.sub
-            ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
-            : <ItemTile key={it.id} w={tileW} size={tile} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} price={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
-                n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
+        <View style={{ flex: 1 }} onLayout={e => setGrid({ w: Math.floor(e.nativeEvent.layout.width), h: Math.floor(e.nativeEvent.layout.height) })}>
+          {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this store.</T> : null}
           {q.trim() && !items.length ? <T color={C.mut} style={{ padding: 20 }}>No items match.</T> : null}
-        </ScrollView>
-        <View style={{ flexDirection: "row", height: 64, backgroundColor: "#fff", borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 6, gap: 6 }}>
-          {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => { const on = (l === "Functions" && more) || (l !== "Functions" && l !== "New" && nav === l && !!dlg); return (
-            <Pressable key={l} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
+          {grid.w ? <ScrollView pagingEnabled={false} snapToInterval={fit.h * fit.rows + TG * fit.rows} decelerationRate="fast" showsVerticalScrollIndicator={false}
+            onMomentumScrollEnd={e => setPage(Math.round(e.nativeEvent.contentOffset.y / (fit.h * fit.rows + TG * fit.rows)))}
+            contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", columnGap: TG, rowGap: TG }}>
+            {tiles.map((it: any, k: number) => it.back
+              ? <Pressable key="back" accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
+                  style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: R.lg, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
+                  <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center", paddingHorizontal: 6 }}>{m.parentOf(top) ? m.cats.find(z => z.id === m.parentOf(top))?.name : "All categories"}</T></Pressable>
+              : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
+              : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
+                  n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
+          </ScrollView> : null}
+        </View>
+        {pages > 1 ? <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: -6 }}>{Array.from({ length: pages }, (_, i) => <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: i === page ? C.brand600 : C.line }} />)}</View> : null}
+        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, backgroundColor: "#fff", borderRadius: R.sm, borderWidth: 1, borderColor: C.line, justifyContent: "space-evenly", alignItems: "center" }}>
+          {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
+            <Pressable key={l} accessibilityRole="button" onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
-              style={({ pressed }) => [{ flex: 1, flexDirection: "row", borderRadius: R.md, alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: on ? C.brand50 : pressed ? C.line2 : "transparent" }]}>
-              <Icon name={ic} size={22} color={on ? C.brand600 : C.ink2} /><T w="m" size={15} color={on ? C.brand600 : C.ink2} numberOfLines={1}>{l}</T>
-            </Pressable>); })}
+              style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 10, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
+              <Icon name={ic} size={20} color={C.brand600} /><T w="m" size={14.5} color={C.brand600} numberOfLines={1}>{l}</T>
+              {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -2, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
+            </Pressable>))}
         </View>
       </View>
 
+      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : 370} maxX={W} onClose={() => setPop(null)}>
+        {pop.k === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
+          : pop.k === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
+          : <NotesPop init={notes} onDone={r => { setPop(null); if (r) setNotes(r); }} />}
+      </Popover> : null}
+
       {more && (
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
-          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 94, width: 250, padding: 6, borderRadius: R.lg, shadowColor: "#000000", shadowOpacity: 0.14, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 }}>
+          <Card style={{ position: "absolute", left: CART_W + PADX, bottom: 80, width: 280, padding: 6, borderRadius: R.lg, shadowColor: "#000000", shadowOpacity: 0.14, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 }}>
+            <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line2, marginBottom: 4 }}><T w="s" size={15}>{cashier?.name || device!.name}</T><T size={12.5} color={C.mut}>{[branch?.name, device!.name].filter(Boolean).join(" · ")}</T></View>
             <FnItem icon="till" label={openShift(x) ? "Close Till" : "Open Till"} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
-            <FnItem icon="dayend" label="End of day" onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
+            <FnItem icon="dayend" label="End of Day" onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
             <FnItem icon="chart" label="Reports" onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
-            <FnItem icon="device" label="Devices" onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
-            <FnItem icon={sound ? "sound" : "mute"} label={sound ? "Sound On" : "Sound Off"} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); if (v) { try { whistle.seekTo(0); whistle.play(); } catch {} } }} />
-            <FnItem icon="sync" label="Sync data" onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
+            <FnItem icon="device" label="Printers & Devices" onPress={() => { setMore(false); if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
+            <FnItem icon={sound ? "sound" : "mute"} label={sound ? "Sound On" : "Sound Off"} onPress={() => { const v = !sound; setSound(v); AsyncStorage.setItem("skwyd_sound", v ? "on" : "off"); }} />
+            <FnItem icon="sync" label="Sync Now" onPress={() => { setMore(false); reload(); say(online ? "Syncing…" : "No connection"); }} />
             <View style={{ height: 1, backgroundColor: C.line, marginVertical: 4, marginHorizontal: 8 }} />
-            <FnItem icon="logout" label="Log out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
+            <FnItem icon="logout" label="Sign Out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
-      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 400, backgroundColor: "#fff", borderRadius: 8, borderWidth: 1, borderColor: C.line, padding: 16, flexDirection: "row", gap: 14,
-          shadowColor: "#000000", shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 }}>
-        <View style={{ width: 44, height: 44, borderRadius: R.lg, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}>
-          <Icon name={incoming.__edit ? "note" : incoming.type === "delivery" ? "scooter" : "bag"} size={22} color={C.brand600} /></View>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <T w="s" size={16}>{incoming.__edit ? "Order edit" : "New " + (incoming.channel === "callcenter" ? "call center" : "API") + " order"}</T>
-            <Pressable accessibilityLabel="Later" hitSlop={10} onPress={() => setIncoming(null)}><Icon name="x" size={18} color={C.mut} /></Pressable></View>
-          <T size={13} color={C.mut} style={{ marginTop: 3 }}>{[incoming.ref || incoming.no, incoming.customerName, incoming.type === "delivery" ? "Delivery" : "Pickup"].filter(Boolean).join(" · ")}</T>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
-            <T w="s" size={18}>{money(S, incoming.total)}</T>
-            <View style={{ flexDirection: "row", gap: 8 }}><Btn height={40} label="Later" onPress={() => setIncoming(null)} />
-              <Btn kind="primary" height={40} label="Open order" onPress={() => { const o = incoming; setIncoming(null); if (cart.length && !live_eo) return say("Finish or hold the current order first"); const { __edit, ...oo } = o as any; openOrder(oo); }} /></View></View>
-        </View>
-      </View> : null}
       {dlg}
       <Bubble />
     </View>
@@ -457,43 +462,31 @@ export function Register() {
 const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
   <View style={{ flexDirection: "row", justifyContent: "space-between" }}><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{l}</T><T size={muted ? 13 : 15} color={muted ? C.mut : C.ink}>{r}</T></View>;
 
-// category and item tiles: the call center's look (white card, coloured strip on top, name, then the count or the price)
-// menu tiles: whole rows fill the menu, and the column count is the one where the square photo best fills the tile's width
-export const CAP = 60;   // the caption under the photo: the name on 2 lines, then the price or count
+// menu tiles (style D): tall tiles, a framed square photo on top, the name (2 lines) and price centred under it.
+// The grid fills the menu exactly with the same gap across and down: the column / row count is the one where the label under the photo comes closest to 48 px.
 export function fitTiles(W: number, H: number, gap = TG) {
-  let best = { cols: 6, rows: 3, w: 100, h: 146, miss: 1e9 };
-  for (let cols = 5; cols <= 6; cols++) {
-    const w = Math.floor((W - gap * (cols - 1)) / cols);
-    for (const rows of [Math.floor((H + gap) / (w + CAP + gap)), Math.ceil((H + gap) / (w + CAP + gap))]) { if (rows < 3) continue;
-      const h = Math.floor((H - gap * (rows - 1)) / rows), ph = h - CAP, miss = Math.abs(w - ph) + (ph > w ? 0.5 * (ph - w) : 0);
-      if (miss < best.miss) best = { cols, rows, w, h, miss }; }
+  let best = { cols: 6, rows: 3, w: 100, h: 150, sc: 1e9 };
+  if (!W || !H) return best;
+  for (let cols = 4; cols <= 8; cols++) for (let rows = 2; rows <= 5; rows++) {
+    const w = (W - gap * (cols - 1)) / cols, h = (H - gap * (rows - 1)) / rows, L = h - w;
+    if (L < 36 || L > 70) continue;
+    const sc = Math.abs(L - 48) + Math.abs(cols - 6) * 4;
+    if (sc < best.sc) best = { cols, rows, w, h, sc };
   }
+  if (best.sc === 1e9) { const cols = 6, w = (W - gap * 5) / 6, rows = Math.max(1, Math.round((H + gap) / (w + 48 + gap))); best = { cols, rows, w, h: (H - gap * (rows - 1)) / rows, sc: 0 }; }
   return best;
 }
-// F: the photo fills the top edge to edge; one caption line under it: the name on the left (2 lines at most), the price on the right in blue
-function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w: number; img?: string; name: string; sub?: string; subColor?: string; bold?: boolean }) {
-  return <>
-    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: "#F3F4F6" }}>
-      {img ? <Image source={{ uri: img }} style={{ width: w - 2, height: size - CAP - 2 }} resizeMode="cover" /> : <Icon name="bowl" size={30} color="#9CA3AF" />}</View>
-    <View style={{ height: CAP, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 7, borderTopWidth: 1, borderColor: C.line2 }}>
-      <T w={bold ? "s" : "m"} size={14} numberOfLines={3} style={{ flex: 1, lineHeight: 17 }}>{name}</T>
-      {sub ? <T w="s" size={14} numberOfLines={1} color={subColor || C.brand} style={{ flexShrink: 0 }}>{sub}</T> : null}</View>
-  </>;
-}
-function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
+function Tile({ w, h, name, img, sub, oos, n, onPress }: { w: number; h: number; name: string; img?: string; sub?: string; oos?: boolean; n?: number; onPress: () => void }) {
+  const ph = Math.max(10, Math.min(w - 12, h - 50));
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
-      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", overflow: "hidden" }, shadowXs]}>
-      <TileBody size={size} w={w} img={img} name={name} bold />
-    </Pressable>
-  );
-}
-function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
-      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.md, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: pressed ? C.bg2 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }, shadowXs]}>
-      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out" : price} subColor={oos ? C.bad : C.ink} />
-      {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
+    <Pressable accessibilityRole="button" accessibilityLabel={name + (sub ? ", " + sub : "")} disabled={oos} onPress={onPress}
+      style={({ pressed }) => [{ width: w, height: h, borderRadius: R.lg, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: pressed ? C.bg2 : "#fff", padding: 6, alignItems: "center", opacity: oos ? 0.5 : 1 }, shadowXs]}>
+      <View style={{ width: ph, height: ph, borderRadius: 6, overflow: "hidden", backgroundColor: "#FBF6EE", alignItems: "center", justifyContent: "center" }}>
+        {img ? <Image source={{ uri: img }} style={{ width: ph, height: ph }} resizeMode="cover" /> : <Icon name="bowl" size={28} color="#9CA3AF" />}</View>
+      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center", paddingTop: 3 }}>
+        <T w="m" size={12.5} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8} style={{ textAlign: "center", lineHeight: 15 }}>{name}</T>
+        {sub ? <T size={12} color={oos ? C.bad : C.mut} numberOfLines={1}>{oos ? "Out of stock" : sub}</T> : null}</View>
+      {n ? <View style={{ position: "absolute", top: 2, right: 2, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>
   );
 }

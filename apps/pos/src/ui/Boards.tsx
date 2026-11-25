@@ -12,6 +12,8 @@ import { C, F, R } from "../lib/theme";
 import { Icon } from "./Icon";
 import { Btn, Pill, T } from "./kit";
 import { ordRef } from "./Orders";
+import { DriverPick } from "./Drivers";
+import { notify } from "./Bubble";
 
 const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "API", web: "API", marketplace: "API" };
@@ -33,7 +35,7 @@ export const Full = ({ children }: { children: React.ReactNode }) => <View style
 // an order card: reference and status, then one icon per line — type; customer over the phone; channel over the source;
 // who took it (POS and call center orders only); created over modified
 const TYPE_IC: Record<string, string> = { dinein: "table", pickup: "bag", takeaway: "bag", delivery: "scooter" };
-function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
+function Tile({ o, x, onOpen, onDriver, onDispatch }: { o: Row; x: Ctx; onOpen: () => void; onDriver?: () => void; onDispatch?: () => void }) {
   const st = stOf(o);   // no brand or store on the POS: the tablet is one store
   const src = String(o.source || "").trim(), ch = CH[o.channel] || "POS", mod = o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined;
   const who = ["pos", "callcenter"].includes(o.channel || "pos") && o.agent ? String(o.agent).replace(/\s*\(auto\)\s*$/i, "") : "";
@@ -47,10 +49,16 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
     <Ln ic="device" l="Sales channel" v={ch} sub={src && src.toLowerCase() !== ch.toLowerCase() ? src : undefined} />
     {who ? <Ln ic="headset" l="Created by" v={who} /> : null}
     <Ln ic="clock" l="Created" v={tm(o.createdAt)} sub={mod} />
+    {/* a delivery being prepared: pick its driver, then dispatch it (the sale screen has no driver button) */}
+    {onDriver ? <View style={{ flexDirection: "row", gap: 8, paddingTop: 4 }}>
+      <Btn height={38} style={{ flex: 1 }} label={o.driverName || "Assign Driver"} onPress={onDriver} />
+      <Btn kind="primary" height={38} style={{ flex: 1 }} label="Dispatch" disabled={!o.driverId} onPress={onDispatch} /></View> : null}
   </Pressable>;
 }
 
 export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void; onNew?: () => void; onDrivers?: () => void }) {
+  const { write } = useStore(), [pick, setPick] = useState<Row | null>(null);
+  const dispatch = (o: Row) => { const now = new Date().toISOString(); write("orders", o.id, { dispatchedAt: now, updatedAt: now }); notify("Order " + ordRef(o) + " dispatched" + (o.driverName ? " with " + o.driverName : "")); };
   const mine = today(x).filter(o => ["pickup", "takeaway", "delivery"].includes(o.type)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const l = mine;
   const COLS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
@@ -64,9 +72,10 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 12 }}><T w="s" size={14}>{t}</T>
           <View style={{ minWidth: 24, height: 22, borderRadius: 11, backgroundColor: col.length && k === "active" ? C.brand : "#E5E7EB", alignItems: "center", justifyContent: "center", paddingHorizontal: 8 }}><T w="m" size={12} color={col.length && k === "active" ? "#fff" : "#475467"}>{col.length}</T></View></View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 12, paddingBottom: 6 }} showsVerticalScrollIndicator={false}>
-          {col.length ? col.map(o => <Tile key={o.id} o={o} x={x} onOpen={() => onOpen(o)} />) : <T size={12} color={C.mut2} style={{ textAlign: "center", paddingVertical: 24 }}>You don't have {t.toLowerCase()} orders</T>}
+          {col.length ? col.map(o => { const d = o.type === "delivery" && o.status === "active" && !o.dispatchedAt;
+            return <Tile key={o.id} o={o} x={x} onOpen={() => onOpen(o)} onDriver={d ? () => setPick(o) : undefined} onDispatch={d ? () => dispatch(o) : undefined} />; }) : <T size={12} color={C.mut2} style={{ textAlign: "center", paddingVertical: 24 }}>You don't have {t.toLowerCase()} orders</T>}
         </ScrollView></View>; })}
-    </ScrollView></Full>;
+    </ScrollView>{pick ? <DriverPick x={x} o={x.S.orders.find(z => z.id === pick.id) || pick} onDone={m => { setPick(null); if (m) notify(m); }} /> : null}</Full>;
 }
 
 export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void }) {
