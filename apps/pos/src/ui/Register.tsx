@@ -57,6 +57,7 @@ export function Register() {
 
   // the cart takes a third of the screen; the menu the rest. The 8 top buttons are squares filling the menu's width
   const insTop = useSafeAreaInsets().top, CART_W = Math.round(W * 0.33), menuW = W - CART_W, ab = Math.floor((menuW - PADX * 2 - AG * 7) / 8);
+  const modArea = { left: CART_W, top: insTop, width: menuW, cover: CART_W };   // the modifier options open in the menu's place (option W)
   const [grid, setGrid] = useState({ w: 0, h: 0 }), fit = fitTiles(grid.w, grid.h);
   const [pop, setPop] = useState<null | { k: string; ax: number }>(null), [page, setPage] = useState(0);
   // messages: a bubble pointing at the button just pressed (Bubble.tsx)
@@ -85,12 +86,12 @@ export function Register() {
     if (p.pricingMethod === "open") { const v = await ask<number | null>(done => <NumberAsk title={"Price for " + p.name} money={cur} onDone={done} />); if (v == null) return; price = v; }
     let r: Picked | null = { options: [], unitPrice: price, mods: "", note: "" };
     const md = modData(x, p);
-    if (md.links.length) { r = await ask<Picked | null>(done => <ModPicker name={p.name} basePrice={price} data={md} money={cur} onDone={done} />); if (!r) return; }
+    if (md.links.length) { r = await ask<Picked | null>(done => <ModPicker name={p.name} basePrice={price} data={md} money={cur} area={modArea} onDone={done} />); if (!r) return; }
     const pk = r;
     setCart(c => {
       const k = lineKey(p.id, pk.options), i = pk.note ? -1 : c.findIndex(l => !l.note && !l.saved && lineKey(l.productId, l.options) === k && l.price === pk.unitPrice);
-      if (i >= 0) return c.map((l, j) => (j === i ? { ...l, qty: l.qty + 1 } : l));
-      return [...c, { productId: p.id, name: p.name, price: pk.unitPrice, qty: 1, ...(pk.options.length ? { options: pk.options } : {}), ...(pk.note ? { note: pk.note } : {}), ...(pk.options.length || pk.note ? { mods: modLabel(pk.mods, pk.note) } : {}) }];
+      if (i >= 0) return c.map((l, j) => (j === i ? { ...l, qty: l.qty + (pk.qty || 1) } : l));
+      return [...c, { productId: p.id, name: p.name, price: pk.unitPrice, qty: pk.qty || 1, ...(pk.options.length ? { options: pk.options } : {}), ...(pk.note ? { note: pk.note } : {}), ...(pk.options.length || pk.note ? { mods: modLabel(pk.mods, pk.note) } : {}) }];
     });
   };
   // the store's next call number; the last one is kept on the tablet so the sequence carries on offline
@@ -290,7 +291,7 @@ export function Register() {
     if (l.saved) return say("This item was sent to the kitchen. Void it to change it.");
     const md = modData(x, p); if (!md.links.length) return;
     const base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
-    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} edit={{ options: l.options || [], note: l.note }} onDone={done} />); if (!r) return;
+    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={modArea} edit={{ options: l.options || [], note: l.note }} onDone={done} />); if (!r) return;
     setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, mods: modLabel(r.mods, r.note) }; if (r.options.length) z.options = r.options; else delete z.options; if (r.note) z.note = r.note; else delete z.note; if (!z.mods) delete z.mods; return reDisc(z); })); };
   // a long press: the line's note and discount
   const lineExtras = async (i: number) => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
