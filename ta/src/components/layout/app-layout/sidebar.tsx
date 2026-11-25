@@ -35,7 +35,6 @@ function NavList({ onGo }: { onGo?: () => void }) {
     <nav aria-label="Main" className="flex flex-1 flex-col gap-y-6">
       {sections.map(sec => (
         <div key={sec.label}>
-          <span className="block px-2 text-xs font-medium leading-6 text-gray-500">{sec.label}</span>
           <ul role="list" className="space-y-0.5">
             {sec.items.map(it => {
               const Icon = it.icon;
