@@ -428,7 +428,7 @@ export function Register() {
               ? <Pressable key="back" accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
                   style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: 6, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
                   <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Pressable>
-              : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
+              : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} onPress={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                   onPress={() => add(it)} />)}
           </ScrollView> : null}
