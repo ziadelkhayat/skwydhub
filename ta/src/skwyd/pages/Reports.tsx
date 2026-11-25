@@ -77,6 +77,10 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
     const c: Record<number, number> = {}; branches.filter(b => live(b) && b.active !== false).forEach(b => { const x = cut(b.id); c[x] = (c[x] || 0) + 1; }); const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? +top[0] : cutOf((sets.find(x => x.id === "company") as any)?.dayEnd); };
   const bizDate = (t: any, bid?: string) => { const ms = +new Date(t); let d = isoOf(new Date(ms - cut(bid) * 60000));
     for (let i = 0; i < 3 && bid; i++) { const c = closes.find(x => x.branchId === bid && String(x.businessDate).slice(0, 10) === d); if (c && +new Date(c.closedAt) <= ms) { const x = new Date(d + "T12:00:00"); x.setDate(x.getDate() + 1); d = isoOf(x); } else break; } return d; };
+  // a sale counts on the business day it was closed, so an order still open when the day was ended goes into the next day
+  const saleAt = (o: any) => o.status === "closed" ? (o.closedAt || o.createdAt) : o.createdAt;
+  const inDays = (l: any[], a: string, b: string) => l.filter(o => { const x = bizDate(saleAt(o), o.branchId); return x >= a && x <= b; });
+  const daysBack = (a: string, n: number) => { const x = new Date(a + "T12:00:00"); x.setDate(x.getDate() - n); return isoOf(x); };
   const ready = branches.length > 0 || brands.length > 0;
   async function fetchAll(table: string, sel: string, col: string, f: string, t: string) {
     const c = cut(branch && !branch.includes(",") ? branch : undefined), t0 = new Date(f + "T00:00:00"), t1 = new Date(t + "T00:00:00"); t1.setDate(t1.getDate() + 1); t0.setMinutes(c); t1.setMinutes(c);
@@ -88,13 +92,13 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
   }
   useEffect(() => { if (!ready) return; let off = false; setLoading(true); setErr(""); setRows(null);
     (async () => { try {
-      const OSEL = "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of,driver_id,driver_name,driver_status,driver_assigned_at,picked_at,delivered_at,rating_driver,rating_order";
+      const OSEL = "id,no,invoice_no,return_no,status,type,source,channel,branch_id,customer_name,phone,items,discount,tax,total,charges_total,payment,agent,handled_by,guests,voided_items,returned_items,refund_total,void_reason,voided_by,return_reason,returned_by,created_at,accepted_at,done_at,refund_of,driver_id,driver_name,driver_status,driver_assigned_at,picked_at,delivered_at,rating_driver,rating_order,closed_at";
       let r: any[] = [], p: any[] | null = null;
       if (["sales", "payments", "taxes", "voids", "menu", "trend", "speed", "employees", "drivers"].includes(rk)) {
-        r = await fetchAll("orders", OSEL, "created_at", from, to);
+        r = inDays(await fetchAll("orders", OSEL, "created_at", daysBack(from, 3), to), from, to);
         // the same length of time just before, so the totals can say how they compare
         if (rk === "sales") { try { const len = Math.round((+new Date(to + "T12:00:00") - +new Date(from + "T12:00:00")) / 864e5) + 1, d = (a: string, n: number) => { const x = new Date(a + "T12:00:00"); x.setDate(x.getDate() + n); return isoOf(x); };
-          p = await fetchAll("orders", OSEL, "created_at", d(from, -len), d(from, -1)); } catch { p = null; } } }
+          p = inDays(await fetchAll("orders", OSEL, "created_at", daysBack(d(from, -len), 3), d(from, -1)), d(from, -len), d(from, -1)); } catch { p = null; } } }
       else if (rk === "days") r = await fetchAll("day_closes", "*", "closed_at", from, to);
       else if (rk === "shifts") r = await fetchAll("shifts", "*", "opened_at", from, to);
       if (!off) { setRows(r); setPrev(p); }
@@ -102,14 +106,14 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
     return () => { off = true; }; }, [rk, from, to, branch, brand, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const build = (R: any[]): Built => {
-    const day = (o: any) => bizDate(o.createdAt, o.branchId);
+    const day = (o: any) => bizDate(saleAt(o), o.branchId);
     const catOf = (i: any) => { const p = products.find(x => x.id === i.productId); return (p && cats.find(c => c.id === p.categoryId)?.name) || "Uncategorized"; };
     const cashierOf = (o: any) => o.handledBy || o.agent || "—", payOf = (o: any) => o.payment?.method || "—";
     const key = (o: any, k: string, line: any) => { const d = day(o);
       switch (k) { case "branch": return bName(o.branchId); case "type": return TYPE[o.type] || cap(o.type || "—"); case "source": return srcOf(o) || "—"; case "channel": return o.channel ? chName(o.channel) : "—";
         case "cashier": return cashierOf(o); case "payment": return payOf(o); case "customer": return o.customerName || o.phone || "Walk-in"; case "product": return line ? line.name || "—" : "—"; case "category": return line ? catOf(line) : "—";
         case "day": return d; case "week": { const x = new Date(d + "T12:00:00"); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return "Week of " + isoOf(x); } case "month": return d.slice(0, 7);
-        case "hour": return String(new Date(o.createdAt).getHours()).padStart(2, "0") + ":00"; case "dow": return DOW[new Date(d + "T12:00:00").getDay()]; default: return ""; } };
+        case "hour": return String(new Date(saleAt(o)).getHours()).padStart(2, "0") + ":00"; case "dow": return DOW[new Date(d + "T12:00:00").getDay()]; default: return ""; } };
     // one order → one or more slices (one per item line for item / category reports)
     const slices = (o: any, byLine: boolean) => {
       const items = Array.isArray(o.items) ? o.items : [], refund = o.status === "refund", tot = +o.total || 0, tax = +o.tax || 0, chg = refund ? 0 : +o.chargesTotal || 0;
