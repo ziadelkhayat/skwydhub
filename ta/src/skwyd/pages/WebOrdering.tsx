@@ -151,7 +151,7 @@ export default function WebOrderingPage() {
           </>}
           {tab === "checkout" && <>
             <Card title="Order types" note="For the whole page. Each store can turn them off under Stores.">
-              <div className="divide-y divide-gray-100 dark:divide-white/5">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "Dine-in (table QR)"]].map(([k, t]) => <Tg key={k} on={md[k] !== false} set={v => up("modes." + k, v)} l={t} />)}</div></Card>
+              <div className="divide-y divide-gray-100 dark:divide-white/5">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "In Store (table QR)"]].map(([k, t]) => <Tg key={k} on={md[k] !== false} set={v => up("modes." + k, v)} l={t} />)}</div></Card>
             <Card title="Scheduling">
               <Tg on={!!co.schedule} set={v => up("checkout.schedule", v)} l="Let customers order ahead" note="They can pick a later time, even while the store is closed." />
               <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2">

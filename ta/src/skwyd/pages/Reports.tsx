@@ -129,7 +129,10 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
       const list = [...map.values()].filter(x => x.gross || x.orders || x.ret || x.void || x.qty), G = list.reduce((a, x) => a + x.gross, 0), N = list.reduce((a, x) => a + (x.total - x.tax), 0);
       list.forEach(x => { x.net = x.total - x.tax; x.netTax = x.total; x.grossNoTax = x.gross - x.tax; x.avg = x.orders ? x.net / x.orders : 0; x.avgGuest = x.guests ? x.net / x.guests : 0; x.grossPct = G ? x.gross / G * 100 : 0; x.netPct = N ? x.net / N * 100 : 0; });
       const ord = ["day", "week", "month", "hour"].includes(dm) ? (x: any, y: any) => x.a.localeCompare(y.a) || x.b.localeCompare(y.b) : dm === "dow" ? (x: any, y: any) => DOW.indexOf(x.a) - DOW.indexOf(y.a) : (x: any, y: any) => y.net - x.net || x.b.localeCompare(y.b);
-      return list.sort(ord); };
+      list.sort(ord);
+      const h12 = (v: string) => /^\d\d:00$/.test(v) ? ((+v.slice(0, 2) % 12) || 12) + " " + (+v.slice(0, 2) < 12 ? "AM" : "PM") : v;
+      if (dm === "hour" || gr === "hour") list.forEach(x => { if (dm === "hour") x.a = h12(x.a); if (gr === "hour") x.b = h12(x.b); });
+      return list; };
     const sum = (l: any[], f: (x: any) => number) => l.reduce((a, x) => a + f(x), 0);
     if (rk === "sales") {
       const dl = ({ branch: "Store", product: "Item", category: "Category", type: "Order Type", source: "Order Source", channel: "Sales Channel", cashier: "Cashier", payment: "Payment Type", customer: "Customer" } as any)[dim], gl = GROUPS.find(g => g[0] === group)?.[1], list = agg(dim, group);
