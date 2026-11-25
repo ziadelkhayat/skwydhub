@@ -947,7 +947,7 @@ const RangeDatePicker = ({
                 onSelect={onRangeChange}
                 month={month}
                 onMonthChange={setMonth}
-                numberOfMonths={2}
+                numberOfMonths={1}
                 disabled={disabledDays}
                 disableNavigation={disableNavigation}
                 enableYearNavigation={enableYearNavigation}
@@ -988,14 +988,14 @@ const RangeDatePicker = ({
                   </div>
                 </div>
               )}
-              <div className="border-t border-gray-200 p-3 dark:border-gray-800 sm:flex sm:items-center sm:justify-between">
-                <p className="tabular-nums text-gray-900 dark:text-gray-50">
+              <div className="space-y-2 border-t border-gray-200 p-3 dark:border-gray-800">
+                <p className="text-sm tabular-nums text-gray-900 dark:text-gray-50">
                   <span className="text-gray-700 dark:text-gray-300">
                     {translations?.range ?? 'Range'}:
                   </span>{' '}
                   <span className="font-medium">{displayRange}</span>
                 </p>
-                <div className="mt-2 flex items-center gap-x-2 sm:mt-0">
+                <div className="flex items-center justify-end gap-x-2">
                   <Button
                     variant="secondary"
                     className="h-8 w-full sm:w-fit"
