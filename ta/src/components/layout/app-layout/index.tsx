@@ -3,6 +3,7 @@ import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { cn } from "@/utils";
 import React, { Suspense } from "react";
 import { Outlet, useLocation } from "react-router";
+import { GroupTabs } from "./group-tabs";
 import { Blocked, SubBar, useAccess } from "@/lib/access";
 
 export default function AppLayout({
@@ -30,7 +31,7 @@ export default function AppLayout({
 
       <main className={cn("min-w-0 lg:pl-72", isAiRoute && "h-svh overflow-hidden")}>
 
-        <div className={getRouteSpecificStyles()}><SubBar />{!acc.ready ? null : acc.canOpen(pathname) ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" /></div>}>{children ?? <Outlet />}</Suspense> : <Blocked path={pathname} />}</div>
+        <div className={getRouteSpecificStyles()}><SubBar /><GroupTabs />{!acc.ready ? null : acc.canOpen(pathname) ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" /></div>}>{children ?? <Outlet />}</Suspense> : <Blocked path={pathname} />}</div>
       </main>
       <ScrollToTop />
     </div>

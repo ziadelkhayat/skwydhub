@@ -1,7 +1,7 @@
 // Tremor dashboard template navigation: fixed sidebar on large screens, a top bar with a drawer on phones and tablets.
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
-import { RiArrowDownSLine, RiCloseLine, RiMenuLine } from "@remixicon/react";
+import { RiCloseLine, RiMenuLine } from "@remixicon/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cx, focusRing } from "@/components/tremor/utils";
 import { useAccess } from "@/lib/access";
@@ -28,9 +28,6 @@ const itemCls = (on: boolean) => cx(
 function NavList({ onGo }: { onGo?: () => void }) {
   const { pathname } = useLocation();
   const sections = useSections();
-  const [open, setOpen] = useState<string | null>(() => SECTIONS.flatMap(s => s.items).find(it => groupOn(pathname, it))?.key ?? null);
-  const [seen, setSeen] = useState(pathname);
-  if (seen !== pathname) { setSeen(pathname); const g = SECTIONS.flatMap(s => s.items).find(it => groupOn(pathname, it)); if (g) setOpen(g.key); }
   return (
     <nav aria-label="Main" className="flex flex-1 flex-col gap-y-6">
       {sections.map(sec => (
@@ -39,32 +36,9 @@ function NavList({ onGo }: { onGo?: () => void }) {
           <ul role="list" className="space-y-0.5">
             {sec.items.map(it => {
               const Icon = it.icon;
-              if (!it.subItems) return (
-                <li key={it.key}><Link to={it.path!} onClick={onGo} className={itemCls(isOn(pathname, it.path))}><Icon className="size-4 shrink-0" aria-hidden="true" />{LABELS[it.key]}</Link></li>
-              );
-              const expanded = open === it.key, active = groupOn(pathname, it);
-              return (
-                <li key={it.key}>
-                  <button type="button" aria-expanded={expanded} onClick={() => setOpen(expanded ? null : it.key)} className={itemCls(active && !expanded)}>
-                    <Icon className="size-4 shrink-0" aria-hidden="true" />
-                    <span className="flex-1 truncate text-left">{LABELS[it.key]}</span>
-                    <RiArrowDownSLine className={cx("size-4 shrink-0 text-gray-400 transition-transform", expanded && "rotate-180")} aria-hidden="true" />
-                  </button>
-                  {expanded && (
-                    <ul role="list" className="relative mt-0.5 ml-4 space-y-0.5 border-l border-gray-200 pl-2.5 dark:border-gray-800">
-                      {it.subItems.map(s => {
-                        const on = isOn(pathname, s.path);
-                        return (
-                          <li key={s.key} className="relative">
-                            {on && <span className="absolute -left-[11px] top-1.5 h-5 w-px bg-blue-600 dark:bg-blue-500" aria-hidden="true" />}
-                            <Link to={s.path} onClick={onGo} className={cx(on ? "text-blue-600 dark:text-blue-500" : "text-gray-600 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50", "flex rounded-md px-2 py-1.5 text-sm transition hover:bg-gray-100 hover:dark:bg-gray-900", focusRing)}>{LABELS[s.key]}</Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </li>
-              );
+              // a group is one link (to its first page); its pages show as tabs on top of the page
+              const to = it.subItems ? it.subItems[0].path : it.path!, on = it.subItems ? groupOn(pathname, it) : isOn(pathname, it.path);
+              return <li key={it.key}><Link to={to} onClick={onGo} className={itemCls(on)}><Icon className="size-4 shrink-0" aria-hidden="true" />{LABELS[it.key]}</Link></li>;
             })}
           </ul>
         </div>

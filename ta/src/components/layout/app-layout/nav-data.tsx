@@ -1,4 +1,4 @@
-import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiUserSettingsLine } from "@remixicon/react";
+import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiStore2Line, RiUserSettingsLine } from "@remixicon/react";
 import type { ComponentType } from "react";
 
 export type SubItem = { key: string; path: string };
@@ -18,7 +18,8 @@ export const salesItems: NavItem[] = [
   { icon: RiPriceTag3Line, key: "skMarketing", subItems: [s("skDiscounts", "/discounts"), s("skLoyalty", "/loyalty"), s("skGiftCards", "/gift-cards"), s("skPromotions", "/promotions"), s("skCoupons", "/coupons")] },
 ];
 export const stockItems: NavItem[] = [
-  { icon: RiBookOpenLine, key: "skCatalog", subItems: [s("skItems", "/products"), s("skCategories", "/categories"), s("skModifiers", "/modifiers"), s("skModifierOptions", "/modifier-options"), s("skVariants", "/variants"), s("skCombos", "/combos"), s("skAllergens", "/allergens"), s("skSalesChannels", "/branch-menu")] },
+  { icon: RiBookOpenLine, key: "skCatalog", subItems: [s("skItems", "/products"), s("skCategories", "/categories"), s("skModifiers", "/modifiers"), s("skModifierOptions", "/modifier-options"), s("skVariants", "/variants"), s("skCombos", "/combos"), s("skAllergens", "/allergens")] },
+  { icon: RiStore2Line, key: "skSalesChannels", path: "/branch-menu" },
   { icon: RiArchive2Line, key: "skInventory", subItems: [s("skInvItems", "/inv-items"), s("skInvCategories", "/inv-categories"), s("skWarehouses", "/warehouses"), s("skSuppliers", "/suppliers"), s("skPurchaseOrders", "/po"), s("skPurchasing", "/purchase-orders"), s("skTransferOrders", "/transfer-orders"), s("skTransfers", "/transfers"), s("skProduction", "/production"), s("skInventoryCount", "/inventory-count"), s("skQtyAdj", "/quantity-adjustments"), s("skCostAdj", "/cost-adjustments"), s("skSpotCheck", "/spot-check"), s("skOrderTx", "/order-transactions"), s("skCountSheets", "/count-sheets")] },
   { icon: RiGlobalLine, key: "skWebOrdering", subItems: [s("skWebSettings", "/online-ordering"), s("skDeliveryZones", "/delivery-zones"), s("skDeliveryCharges", "/delivery-charges")] },
 ];
@@ -53,3 +54,8 @@ export function pageOf(path: string): { title: string; section?: string } {
 export const SECTIONS: { label: string; items: NavItem[] }[] = [
   { label: "Menu", items: mainItems }, { label: "Sales", items: salesItems }, { label: "Menu & Stock", items: stockItems }, { label: "Business", items: businessItems },
 ];
+
+/** the menu group whose pages show as tabs on top of the page (a group is one sidebar link; its pages are the tabs) */
+export function groupOf(path: string): NavItem | undefined {
+  return ALL_ITEMS.find(n => n.subItems?.some(x => path === x.path || path.startsWith(x.path + "/")));
+}
