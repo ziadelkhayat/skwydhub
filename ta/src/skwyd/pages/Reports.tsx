@@ -67,7 +67,9 @@ export default function ReportsPage() {
 
 function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => void }) {
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], products = useCol("products") || [], cats = useCol("categories") || [], devices = useCol("devices") || [], closes = useCol("day_closes") || [];
-  const [from, setFrom] = useState(today().slice(0, 8) + "01"), [to, setTo] = useState(today()), [brand, setBrand] = useState(""), [branch, setBranch] = useState(""), [dim, setDim] = useState("branch"), [group, setGroup] = useState("");
+  const [sp] = useSearchParams();
+  // a link can open a report already filtered: ?r=…&from=&to=&brand=&store=&group=
+  const [from, setFrom] = useState(sp.get("from") || today().slice(0, 8) + "01"), [to, setTo] = useState(sp.get("to") || today()), [brand, setBrand] = useState(sp.get("brand") || ""), [branch, setBranch] = useState(sp.get("store") || ""), [dim, setDim] = useState(sp.get("dim") || "branch"), [group, setGroup] = useState(sp.get("group") || "");
   const [rows, setRows] = useState<any[] | null>(null), [prev, setPrev] = useState<any[] | null>(null), [err, setErr] = useState(""), [loading, setLoading] = useState(false);
   const bName = (id?: string) => branches.find(b => b.id === id)?.name || "—";
   const chName = (c: string) => CH[c] || ((sets.find(x => x.id === "sales_channels") as any)?.list || []).find((x: any) => (x.code || x.kind) === c)?.name || (String(c || "").startsWith("int_") ? "API" : cap(c || ""));

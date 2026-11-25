@@ -1,5 +1,5 @@
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
-import { CategoryBarCard, ChartCard, ProgressBarCard, CAT_COLORS, changeBadge } from "@/components/tremor/overview/OverviewCards";
+import { CategoryBarCard, ReportCard, ProgressBarCard, CAT_COLORS, changeBadge } from "@/components/tremor/overview/OverviewCards";
 import { BarList } from "@/components/tremor/BarList";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), laid out like the Tremor dashboard template Overview.
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
@@ -68,11 +68,16 @@ export default function Dashboard() {
     const day = (X: any) => { const m = new Map<string, any>(); (X?.days || []).forEach((d: any) => m.set(String(d.d).slice(0, 10), d)); return m; };
     const dm = day(D), pm = P ? day(P) : null;
     return Array.from({ length: per.n }, (_, i) => { const d = new Date(+per.start + i * 86400000), pd = new Date(+cmpPer.start + i * 86400000), x = dm.get(iso(d)), y = pm?.get(iso(pd));
-      const v = (r: any) => !r ? 0 : k === "avg" ? (+r.n ? +r.net / +r.n : 0) : +r[k === "pay" ? "net" : k] || 0;
+      const v = (r: any) => !r ? 0 : k === "avg" ? (+r.n ? +r.net / +r.n : 0) : +r[k] || 0;
       return { label: fmtD(d), value: v(x), previousValue: pm ? v(y) : null }; }); };
   const fmtN = (v: number) => Math.round(v).toLocaleString();
+  // the report cards; "View Report" opens the matching report, already filtered to this period, brand and store, in a new window
+  const rpt = (r: string) => { const q = new URLSearchParams({ r, from: iso(per.start), to: iso(new Date(+per.start + (per.n - 1) * 86400000)), group: per.n === 1 ? "hour" : "day" });
+    if (brand) q.set("brand", brand); if (store) q.set("store", store); return "/" + (r === "voids" ? "business-reports" : "sales-reports") + "?" + q; };
+  const cards = [{ t: "Orders", j: 0, k: "n", f: fmtN, r: "sales" }, { t: "Net Sales", j: 1, k: "net", f: money, r: "sales" }, { t: "Net Payments", j: 2, k: "pay", f: money, r: "payments" },
+    { t: "Return Amount", j: 8, k: "ret", f: money, r: "voids" }, { t: "Discount Amount", j: 6, k: "disc", f: money, r: "sales" }, { t: "Average Ticket", j: 3, k: "avg", f: money, r: "sales" }];
 
-  // Tremor dashboard template "Overview": sticky filter bar, summary cards (progress / category bars), then a chart card per number
+  // sticky filter bar, a report card per number (value + chart + View Report), then the breakdowns
   return (
     <>
       <PageBreadcrumb pageTitle="Summary" />
@@ -87,9 +92,12 @@ export default function Dashboard() {
       {err ? <p className="mt-8 text-sm text-red-600">Couldn't load the summary: {err}</p>
         : !D ? <p className="mt-8 text-sm text-gray-500">Loading live numbers…</p>
         : <>
-          <section aria-labelledby="period-summary">
-            <h2 id="period-summary" className="mt-8 scroll-mt-10 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50">This period</h2>
-            <div className="mt-4 grid grid-cols-1 gap-14 sm:mt-8 sm:grid-cols-2 lg:mt-10 xl:grid-cols-3">
+          <dl className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {cards.map(c => <ReportCard key={c.t} title={c.t} value={c.f(cur[c.j])} previous={old ? c.f(old[c.j]) : undefined} change={ch(c.j)} compare={!!P} formatter={c.f} data={series(c.k, c.k === "avg")} href={rpt(c.r)} />)}
+          </dl>
+          <section aria-labelledby="breakdown">
+            <h2 id="breakdown" className="mt-14 scroll-mt-10 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50">Breakdown</h2>
+            <div className="mt-6 grid grid-cols-1 gap-14 sm:grid-cols-2 xl:grid-cols-3">
               <ProgressBarCard title="Sales by store" change={ch(1)} value={money(cur[1])} valueDescription="net sales"
                 data={(D.branches || []).filter((b: any) => +b.net).sort((a: any, b: any) => +b.net - +a.net).slice(0, 4).map((b: any) => ({ title: stores.find((x: Row) => x.id === b.id)?.name || "Other", current: money(+b.net), percentage: tot(D.branches, "net") ? +b.net / tot(D.branches, "net") * 100 : 0 }))}
                 footer={<>{fmtN(cur[0])} orders · average ticket {money(cur[3])}</>} />
@@ -98,26 +106,16 @@ export default function Dashboard() {
                 footer={<>By channel: {cat(D.channels, "n", x => CH[x.k] || x.k, fmtN).map(x => `${x.title} ${x.value}`).join(" · ") || "—"}</>} />
               <CategoryBarCard title="Payments" change={ch(2)} value={money(cur[2])} valueDescription="collected" subtitle="By payment method"
                 data={cat(D.payMethods, "v", x => String(x.k).replace(/^./, c => c.toUpperCase()), money)}
-                footer={<>Tax {money(cur[7])} · discounts {money(cur[6])} · returns {money(cur[8])} · voids {money(cur[9])}</>} />
-            </div>
-          </section>
-          <section aria-labelledby="overview">
-            <h2 id="overview" className="mt-16 scroll-mt-8 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50">Overview</h2>
-            <dl className="mt-10 grid grid-cols-1 gap-14 md:grid-cols-2 xl:grid-cols-3">
-              <ChartCard title="Net sales" value={money(cur[1])} previous={old ? money(old[1]) : undefined} change={ch(1)} compare={!!P} formatter={v => money(v)} data={series("net")} />
-              <ChartCard title="Orders" value={fmtN(cur[0])} previous={old ? fmtN(old[0]) : undefined} change={ch(0)} compare={!!P} formatter={fmtN} data={series("n")} />
-              <ChartCard title="Average ticket" value={money(cur[3])} previous={old ? money(old[3]) : undefined} change={ch(3)} compare={!!P} formatter={v => money(v)} data={series("avg", true)} />
-              {bucket === "hour" && <ChartCard title="Net payments" value={money(cur[2])} previous={old ? money(old[2]) : undefined} change={ch(2)} compare={!!P} formatter={v => money(v)} data={series("pay")} />}
-              {bucket === "hour" && <ChartCard title="Discounts" value={money(cur[6])} previous={old ? money(old[6]) : undefined} change={ch(6)} compare={!!P} formatter={v => money(v)} data={series("disc")} />}
+                footer={<>Tax {money(cur[7])} · voids {money(cur[9])}</>} />
               <div>
                 <div className="flex items-center gap-x-2"><dt className="font-bold text-gray-900 sm:text-sm dark:text-gray-50">Top items</dt></div>
                 <dd className="mt-2 text-sm text-gray-500">By sales this period</dd>
                 {(D.products || []).length ? <BarList className="mt-4" data={(D.products || []).slice(0, 6).map((p: any) => ({ name: p.name, value: +p.v || 0 }))} valueFormatter={(v: number) => money(v)} />
                   : <p className="mt-4 text-sm text-gray-500">No items sold yet.</p>}
               </div>
-            </dl>
+            </div>
             <dl className="mt-14 grid grid-cols-2 gap-6 border-t border-gray-200 pt-8 sm:grid-cols-4 dark:border-gray-800">
-              {([["Active orders", fmtN(cur[4]), 4], ["Declined", fmtN(cur[5]), 5], ["Returns", money(cur[8]), 8], ["Voids", money(cur[9]), 9]] as [string, string, number][]).map(([t, v, j]) => (
+              {([["Active orders", fmtN(cur[4]), 4], ["Declined", fmtN(cur[5]), 5], ["Taxes", money(cur[7]), 7], ["Voids", money(cur[9]), 9]] as [string, string, number][]).map(([t, v, j]) => (
                 <div key={t}><dt className="flex items-center gap-2 text-sm text-gray-500">{t}{P && changeBadge(ch(j))}</dt><dd className="mt-1 text-xl text-gray-900 dark:text-gray-50">{v}</dd></div>))}
             </dl>
           </section>

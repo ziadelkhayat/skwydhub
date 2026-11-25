@@ -79,3 +79,24 @@ export function ChartCard({ title, value, previous, change, data, compare, forma
     </div>
   );
 }
+
+// Summary report card (like the Foodics summary): title, a "View Report" link that opens in a new window, the value and a line chart over the period.
+export function ReportCard({ title, value, change, previous, compare, href, data, formatter }: {
+  title: string; value: string; change?: number | null; previous?: string; compare: boolean; href: string;
+  data: { label: string; value: number | null; previousValue?: number | null }[]; formatter: (v: number) => string;
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-xs dark:border-gray-900 dark:bg-[#090E1A]">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">{title}</h3>{compare && changeBadge(change)}</div>
+        <a href={location.pathname + location.search + "#" + href} target="_blank" rel="noopener" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">View Report</a>
+      </div>
+      <div className="mt-2 flex items-baseline justify-between gap-2">
+        <p className="text-2xl font-medium text-gray-900 dark:text-gray-50">{value}</p>
+        {compare && previous != null && <p className="text-sm text-gray-500">from {previous}</p>}
+      </div>
+      <LineChart className="mt-4 h-44" data={data} index="label" colors={["blue", "gray"]} showGridLines={false} showYAxis={false} showLegend={false} tickGap={24}
+        categories={compare ? ["value", "previousValue"] : ["value"]} valueFormatter={v => formatter(v as number)} />
+    </div>
+  );
+}
