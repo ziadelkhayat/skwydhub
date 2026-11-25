@@ -1,4 +1,4 @@
-// Small building blocks in the TailAdmin look. No animations (POS rule): presses only change colour.
+// Small building blocks copying Tremor Raw (Button, Badge, Card) for React Native. No animations (POS rule): presses only change colour.
 import { Pressable, Text, View, type PressableProps, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from "react-native";
 import { C, F, R, shadowXs } from "../lib/theme";
 
@@ -6,13 +6,16 @@ export function T({ w = "r", size = 15, color = C.ink, style, ...p }: TextProps 
   return <Text {...p} style={[{ fontFamily: F[w], fontSize: size, color }, style]} />;
 }
 
-type BtnKind = "primary" | "outline" | "soft" | "danger" | "ghost";
+type BtnKind = "primary" | "outline" | "soft" | "danger" | "ghost" | "light";
+// Tremor Button variants: primary (blue-600, pressed blue-500), secondary (white, gray-300 border), light (gray-200),
+// ghost, destructive (red-600). "soft" is the selected look of Tremor's RadioCard (blue-50, blue border).
 const KIND: Record<BtnKind, { bg: string; bgOn: string; fg: string; border: string }> = {
-  primary: { bg: C.brand, bgOn: C.brand600, fg: "#fff", border: C.brand },
-  outline: { bg: "#fff", bgOn: C.line2, fg: C.ink2, border: C.field },
-  soft: { bg: C.brand50, bgOn: C.brand100, fg: C.brand600, border: C.brand50 },
-  danger: { bg: "#fff", bgOn: C.badBg, fg: C.bad, border: C.field },
-  ghost: { bg: "transparent", bgOn: C.line2, fg: C.ink2, border: "transparent" },
+  primary: { bg: C.brand, bgOn: C.brand500, fg: "#fff", border: C.brand },
+  outline: { bg: "#fff", bgOn: C.bg2, fg: C.ink, border: C.field },
+  light: { bg: "#E5E7EB", bgOn: "#D1D5DB", fg: C.ink, border: "#E5E7EB" },
+  soft: { bg: C.brand50, bgOn: C.brand100, fg: C.brand800, border: C.brand500 },
+  danger: { bg: C.bad, bgOn: "#EF4444", fg: "#fff", border: C.bad },
+  ghost: { bg: "transparent", bgOn: "#F3F4F6", fg: C.ink, border: "transparent" },
 };
 export function Btn({ kind = "outline", label, sub, style, textStyle, height = 48, children, disabled, ...p }:
   PressableProps & { kind?: BtnKind; label?: string; sub?: string; height?: number; style?: StyleProp<ViewStyle>; textStyle?: StyleProp<TextStyle> }) {
@@ -20,22 +23,23 @@ export function Btn({ kind = "outline", label, sub, style, textStyle, height = 4
   return (
     <Pressable accessibilityRole="button" disabled={disabled} {...p}
       style={({ pressed }) => [{ height, borderRadius: R.sm, borderWidth: 1, borderColor: k.border, backgroundColor: pressed ? k.bgOn : k.bg, alignItems: "center", justifyContent: "center", paddingHorizontal: 14, opacity: disabled ? 0.45 : 1 },
-        kind === "outline" && shadowXs, style]}>
+        (kind === "outline" || kind === "primary" || kind === "danger") && shadowXs, style]}>
       {children ?? <>
-        <T w="m" size={15} color={k.fg} style={textStyle} numberOfLines={1}>{label}</T>
+        <T w="m" size={14} color={k.fg} style={textStyle} numberOfLines={1}>{label}</T>
         {sub ? <T size={11} color={k.fg} style={{ opacity: 0.8 }} numberOfLines={1}>{sub}</T> : null}
       </>}
     </Pressable>
   );
 }
 
+// Tremor Badge: soft colour, 1px ring, 4px corners, semibold 12px
 export function Pill({ text, tone = "gray" }: { text: string; tone?: "gray" | "ok" | "brand" | "warn" | "bad" }) {
-  const t = { gray: [C.line2, C.ink2], ok: [C.okBg, C.ok], brand: [C.brand50, C.brand600], warn: [C.warnBg, C.warn], bad: [C.badBg, C.bad] }[tone];
-  return <View style={{ backgroundColor: t[0], borderRadius: 6, borderWidth: 1, borderColor: t[1] + "33", paddingHorizontal: 8, paddingVertical: 1 }}><T w="m" size={12} color={t[1]}>{text}</T></View>;
+  const t = { gray: ["#F9FAFB", "#374151", C.grayRing], ok: [C.okBg, C.ok, C.okRing], brand: [C.brand50, C.brand800, C.brandRing], warn: [C.warnBg, C.warn, C.warnRing], bad: [C.badBg, C.bad800, C.badRing] }[tone];
+  return <View style={{ backgroundColor: t[0], borderRadius: 4, borderWidth: 1, borderColor: t[2], paddingHorizontal: 6, paddingVertical: 2, alignSelf: "flex-start" }}><T w="s" size={12} color={t[1]}>{text}</T></View>;
 }
 
 export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?: React.ReactNode }) =>
-  <View {...p} style={[{ backgroundColor: C.card, borderRadius: R.lg, borderWidth: 1, borderColor: C.line }, style]} />;
+  <View {...p} style={[{ backgroundColor: C.card, borderRadius: R.lg, borderWidth: 1, borderColor: C.line }, shadowXs, style]} />;
 
 // the 0–9 pad used for the activation code and PINs
 export function Pad({ onKey, size = 72 }: { onKey: (k: string) => void; size?: number }) {

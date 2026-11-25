@@ -386,8 +386,10 @@ export function Register() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, height: ab }} contentContainerStyle={{ gap: 8 }}>
           {([["print", "Print"], ["till", "Kitchen"], ["void", "Void"], ["ret", "Return"], ["back", "Hold"], ["list", "Retrieve"], ["tag", "Discount"], ["plus", "Charges"], ["tag", "Tags"], ["note", "Notes"]] as const).filter(([, l]) => usable(l)).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => action(l)}
-              style={({ pressed }) => [{ width: ab, height: ab, borderRadius: R.lg, borderWidth: 2, borderColor: (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt)) ? C.brand : C.brand50, backgroundColor: pressed ? "#DDE9FF" : C.brand50, alignItems: "center", justifyContent: "center", gap: 6 }]}>
-              <Icon name={ic} size={24} color={C.brand600} /><T w="m" size={13} color={C.brand600}>{l}</T>
+              style={({ pressed }) => { const on = (l === "Discount" && disc) || (l === "Charges" && picked.length) || (l === "Notes" && (notes.kitchen || notes.receipt));
+                // Tremor secondary button; when the action is in use, Tremor RadioCard's checked look (blue border, blue-50)
+                return [{ width: ab, height: ab, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.brand500 : C.field, backgroundColor: on ? C.brand50 : pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 6 }, shadowXs]; }}>
+              <Icon name={ic} size={22} color={C.ink2} /><T w="m" size={13} color={C.ink}>{l}</T>
             </Pressable>))}
         </ScrollView>
         <View style={[{ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff" }, shadowXs]}>
@@ -399,7 +401,7 @@ export function Register() {
           {!m.tops.length ? <T color={C.mut} style={{ padding: 20 }}>No POS menu at this branch.</T> : null}
                     {/* inside a category the first tile goes back (it names the category it leaves) */}
           {top && !q.trim() ? <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
-            style={({ pressed }) => ({ width: tileW, height: tile, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center", gap: 4, padding: 6 })}>
+            style={({ pressed }) => ({ width: tileW, height: tile, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4, padding: 6 })}>
             <Icon name="back" size={24} color={C.brand} /><T w="s" size={15}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center" }}>{m.cats.find(c => c.id === top)?.name || ""}</T></Pressable> : null}
           {items.map((it: any) => it.sub
             ? <CatTile key={it.sub.id} w={tileW} size={tile} name={it.sub.name} img={it.sub.imageUrl} n={m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length} onPress={() => { setQ(""); setCat(it.sub.id); }} />
@@ -481,7 +483,7 @@ function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w
 function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; name: string; img?: string; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + n + " items"} onPress={onPress}
-      style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden" }]}>
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", overflow: "hidden" }, shadowXs]}>
       <TileBody size={size} w={w} img={img} name={name} bold />
     </Pressable>
   );
@@ -489,8 +491,8 @@ function CatTile({ w, size, name, img, n, onPress }: { w: number; size: number; 
 function ItemTile({ w, size, name, price, img, oos, n, onPress }: { w: number; size: number; name: string; price: string; img?: string; oos: boolean; n: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + ", " + price} disabled={oos} onPress={onPress}
-      style={({ pressed }) => [{ width: w, height: size, borderWidth: 1, borderColor: n ? C.brand : C.line, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }]}>
-      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out" : price} subColor={oos ? C.bad : C.brand} />
+      style={({ pressed }) => [{ width: w, height: size, borderRadius: R.md, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: pressed ? C.bg2 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 }, shadowXs]}>
+      <TileBody size={size} w={w} img={img} name={name} sub={oos ? "Out" : price} subColor={oos ? C.bad : C.ink} />
       {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>
   );
