@@ -1,6 +1,7 @@
-// The PIN sign-in: users of this branch (and owners/admins) sign in with their 4–5 digit PIN.
+// The PIN sign-in (option A): the skwyd logo, PIN dots and pad in the middle; the store and register in the corner.
+// Users of this branch (and owners/admins) sign in with their 4–5 digit PIN.
 import { useState } from "react";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { pinUser, posUsers } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { C } from "../lib/theme";
@@ -19,16 +20,18 @@ export function Lock() {
       if (u) { setPin(""); setCashier(u); } else if (next.length === 5) { setPin(""); setErr("Wrong PIN. Try again."); }
     }
   };
+  const devName = (device as any)?.name as string | undefined;
   return (
-    <View style={{ flex: 1, backgroundColor: C.bg, alignItems: "center", justifyContent: "center", gap: 18 }}>
-      <View style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="b" size={24} color="#fff">S</T></View>
-      <T w="s" size={20}>Enter Your Login PIN</T>
+    <View style={{ flex: 1, backgroundColor: C.bg, alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 16 }} />
+      <T w="s" size={21}>Enter Your PIN</T>
       <Dots n={pin.length} />
       <T size={14} color={C.bad} style={{ minHeight: 20 }}>{err}</T>
-      <Pad onKey={press} />
+      <Pad onKey={press} size={84} flatFn />
       <Btn kind="ghost" label={syncing ? "Syncing…" : "Sync Users"} onPress={() => { setSyncing(true); reload(); setTimeout(() => setSyncing(false), 1500); }} />
       <View style={{ position: "absolute", left: 24, bottom: 20 }}>
-        {[acct, brand?.name, branch?.name].filter(Boolean).map((l, i) => <T key={i} size={13} color={C.mut}>{String(l)}</T>)}
+        <T size={13} color={C.mut}>{[brand?.name, branch?.name].filter(Boolean).join(" · ")}</T>
+        <T size={13} color={C.mut}>{[devName, acct ? "Account " + acct : ""].filter(Boolean).join(" · ")}</T>
       </View>
     </View>
   );
