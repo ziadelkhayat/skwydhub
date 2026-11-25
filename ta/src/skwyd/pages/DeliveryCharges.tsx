@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { FilterSelect, inSel } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -12,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { newId, put, type Row } from "@/lib/db";
 import { money, sym } from "@/lib/util";
 import { useState } from "react";
-import { Link } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
@@ -61,7 +61,7 @@ export default function DeliveryChargesPage() {
           <Button size="sm" onClick={() => setForm(picked)}>Assign Charge</Button>
           <Button size="sm" variant="outline" onClick={async () => { if (await askYes(`Unassign the charge from ${picked.length} zone${picked.length > 1 ? "s" : ""}?`, "Unassign") && await assign(s, picked, "")) { setSel(new Set()); toast("Charge unassigned"); } }}>Unassign Charge</Button></div>}
         <div className="relative overflow-x-auto">
-          {!list.length ? <EmptyState text={all.length ? "Nothing matches." : "No delivery zones yet. Add delivery zones to the stores first."}>{!all.length && <Link to="/delivery-zones"><Button variant="outline">Delivery Zones</Button></Link>}</EmptyState>
+          {!list.length ? <EmptyState text={all.length ? "Nothing matches." : "No delivery zones yet. Add delivery zones to the stores first."}>{!all.length && <XLink to="/delivery-zones"><Button variant="outline">Delivery Zones</Button></XLink>}</EmptyState>
             : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">
               <TableHeaderCell className={TH + " w-12"}><Checkbox aria-label="Select all" checked={allOn} onCheckedChange={c => setSel(c ? new Set(list.map(z => z.id)) : new Set())} /></TableHeaderCell>
               <TableHeaderCell className={TH}>From (Store)</TableHeaderCell><TableHeaderCell className={TH}>To (Delivery Zone)</TableHeaderCell><TableHeaderCell className={TH}>Charge</TableHeaderCell></TableRow></TableHead>

@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { InfoList, PageHead } from "../ui/Record";
 import { Section } from "../ui/Section";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -111,7 +112,7 @@ function SupLinks({ s, side, id }: { s: S; side: "item" | "sup"; id: string }) {
     onAdd={ids => { const add = ids.map(v => side === "item" ? { supplierId: v, itemId: id } : { supplierId: id, itemId: v }); setDoc("supplier_items", { links: [...all.filter((x: any) => !add.some(a => a.supplierId === x.supplierId && a.itemId === x.itemId)), ...add] }, ids.length > 1 ? `${ids.length} linked` : "Linked"); }} />}>
     {!links.length ? <None t={side === "item" ? "Link this product to the suppliers you purchase from." : "Link this supplier to the inventory products you purchase from them."} /> :
       <Table className="w-full"><TableBody>{links.map(l => { const it = s.inv_items.find(x => x.id === l.itemId), sp = s.suppliers.find(x => x.id === l.supplierId); return <TableRow key={l.supplierId + l.itemId} className={TR}>
-        <TableCell className={TD}>{side === "item" ? <Link className="text-blue-500 hover:underline" to={"/supplier?id=" + l.supplierId}>{sp?.name || "—"}</Link> : <><Link className="text-blue-500 hover:underline" to={"/inv-item?id=" + l.itemId}>{it?.name || "—"}</Link> <span className="text-xs text-gray-500">{it?.sku || ""}</span></>}</TableCell>
+        <TableCell className={TD}>{side === "item" ? <XLink className="text-blue-500 hover:underline" to={"/supplier?id=" + l.supplierId}>{sp?.name || "—"}</XLink> : <><XLink className="text-blue-500 hover:underline" to={"/inv-item?id=" + l.itemId}>{it?.name || "—"}</XLink> <span className="text-xs text-gray-500">{it?.sku || ""}</span></>}</TableCell>
         <TableCell className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={() => setDoc("supplier_items", { links: all.filter((x: any) => !(x.supplierId === l.supplierId && x.itemId === l.itemId)) }, "Link removed")}><TrashBinIcon className="size-5 text-red-500" /></Button></TableCell></TableRow>; })}</TableBody></Table>}
   </Sec>;
 }
@@ -150,7 +151,7 @@ export function InvItemPage() {
           <TableCell className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={e => { e.stopPropagation(); const o = { ...mine }; delete o[b]; const next = { ...levels }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; void setDoc("inv_levels", { levels: next }, "Level removed"); }}><TrashBinIcon className="size-5 text-red-500" /></Button></TableCell></TableRow>)}</TableBody></Table></div>}</Sec>
     <Sec title="Stock">{stock === null ? <None t="Loading…" /> : !Object.keys(stock).length ? <None t="Not counted anywhere yet." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Store / Warehouse</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>
       {locs.filter(([k]) => stock[k] !== undefined).map(([k, n]) => <TableRow key={k} className={TR}><TableCell className={TD}>{n}</TableCell><TableCell className={TD + " text-end"}>{n2(stock[k])} {it.storageUnit || ""}</TableCell></TableRow>)}</TableBody></Table></div>}</Sec>
-    {usedIn.length > 0 && <Sec title="Used In Items"><div className="flex flex-wrap gap-2">{usedIn.map(p => <Link key={p.id} to={"/item?id=" + p.id}><Badge variant="light" color="primary">{p.name}</Badge></Link>)}</div></Sec>}
+    {usedIn.length > 0 && <Sec title="Used In Items"><div className="flex flex-wrap gap-2">{usedIn.map(p => <XLink key={p.id} to={"/item?id=" + p.id}><Badge variant="light" color="primary">{p.name}</Badge></XLink>)}</div></Sec>}
     {lv !== null && <LevelsDialog s={s} it={it} loc={lv} free={k => k === lv || !mine[k]} cur={mine} all={levels} onClose={() => setLv(null)} />}
     {edit && <EditDialog cfg={CRUD["inv-items"]} s={s} row={it} onClose={() => setEdit(false)} />}
   </>;
@@ -209,13 +210,13 @@ export function ModifierPage() {
       ["Options", String(opts.length)], ["Linked Items", String(items.length)], ["Free Options", opts.filter(o => !+o.price).length + " of " + opts.length]]} />
     <Sec title="Options" act={<Button size="sm" onClick={() => setNewOpt(true)}><PlusIcon className="size-4" />Add Option</Button>}>
       {!opts.length ? <None t="No options yet. Add the choices of this modifier, like Spicy or Extra Cheese." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Name", "SKU", "Price", "Tax Group"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
-        {opts.map(o => <TableRow key={o.id} className={TR}><TableCell className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/option?id=" + o.id}>{o.name}</Link></TableCell><TableCell className={TD}>{o.sku || "—"}</TableCell>
+        {opts.map(o => <TableRow key={o.id} className={TR}><TableCell className={TD}><XLink className="font-medium text-blue-500 hover:underline" to={"/option?id=" + o.id}>{o.name}</XLink></TableCell><TableCell className={TD}>{o.sku || "—"}</TableCell>
           <TableCell className={TD}>{+o.price ? money(o.price) : "Free"}</TableCell><TableCell className={TD}>{s.tax_groups.find(g => g.id === o.taxGroup)?.name || "—"}</TableCell></TableRow>)}</TableBody></Table></div>}
     </Sec>
     <Sec title="Linked Items" act={<PickMany label="Add item" opts={s.products.filter(p => live(p) && !items.some(x => x.id === p.id)).sort((a, b) => a.name.localeCompare(b.name)).map(p => ({ id: p.id, name: p.name, sub: p.sku || "" }))}
       onAdd={async ids => { try { for (const pid of ids) { const p = s.products.find(x => x.id === pid)!; await put("products", pid, { modifiers: [...(p.modifiers || []), { modifierId: m.id, min: 1, max: 1, free: 0 }] }); } toast(ids.length > 1 ? `Linked to ${ids.length} items` : "Linked"); } catch { toast("Couldn't save.", "error"); } }} />}>
       {!items.length ? <None t="Not linked to any item yet. Add the items that ask for this modifier." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Item", "Rule", "Minimum", "Maximum", "Free", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
-        {items.map(p => <TableRow key={p.id} className={TR}><TableCell className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/item?id=" + p.id}>{p.name}</Link></TableCell><TableCell className={TD}>{rule(link(p))}</TableCell>
+        {items.map(p => <TableRow key={p.id} className={TR}><TableCell className={TD}><XLink className="font-medium text-blue-500 hover:underline" to={"/item?id=" + p.id}>{p.name}</XLink></TableCell><TableCell className={TD}>{rule(link(p))}</TableCell>
           <TableCell className={TD}><Num p={p} k="min" /></TableCell><TableCell className={TD}><Num p={p} k="max" /></TableCell><TableCell className={TD}><Num p={p} k="free" /></TableCell>
           <TableCell className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label={"Unlink " + p.name} onClick={async () => { if (await askYes(`Remove ${m.name} from ${p.name}?`, "Remove", true)) { try { await put("products", p.id, { modifiers: (p.modifiers || []).filter((l: any) => l.modifierId !== m.id) }); toast("Removed"); } catch { toast("Couldn't save.", "error"); } } }}><TrashBinIcon className="size-4 text-error-500" /></Button></TableCell></TableRow>)}</TableBody></Table></div>}
     </Sec>
