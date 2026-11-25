@@ -15,7 +15,7 @@ import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
 import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { SplitDialog } from "./Split";
-import { TagsDialog, orderTags, tagDoc } from "./Tags";
+import { TagsPop, orderTags, tagDoc } from "./Tags";
 import { PrintersDialog } from "./Printers";
 import { ReportsDialog } from "./Reports";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
@@ -191,6 +191,8 @@ export function Register() {
     await AsyncStorage.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes } }]));
     reset(); say("Order held as H" + n); };
   const [held, setHeld] = useState<Held[]>([]);
+  const [tagInit, setTagInit] = useState<string[]>([]);
+  const tagsDone = (r: string[] | null) => { setPop(null); if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } };
   const heldLabel = (h: Held) => { const d = h.data || {}; return d.table ? tblLbl(d.table) : [TYPE_LBL[d.otype as OType] || d.otype, d.cust?.name].filter(Boolean).join(" · "); };
   const delHeld = async (h: Held) => { const l = (await heldList()).filter(y => y.id !== h.id); await AsyncStorage.setItem(HK, JSON.stringify(l)); setHeld(l); setHeldN(l.length); if (!l.length) setPop(null); };
   const retrieve = async (h: Held) => { setPop(null); const l = await heldList();
@@ -229,8 +231,7 @@ export function Register() {
     if (a === "Print") return doPrint("receipt");
     // Kitchen sends what wasn't sent yet and saves the order at the same time
     if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(); }
-    if (a === "Tags") { const cur0 = tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : []); const r = await ask<string[] | null>(done => <TagsDialog S={S} init={cur0} onDone={done} />);
-      if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } return; }
+    if (a === "Tags") { setTagInit(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : [])); return setPop({ k: a, ax }); }
     if (a === "Hold") return hold();
     if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop({ k: a, ax }); }
     say(a + " comes in the next step.");
@@ -442,8 +443,9 @@ export function Register() {
         </View>
       </View>
 
-      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : pop.k === "Retrieve" ? 580 : 370} maxX={W} onClose={() => setPop(null)}>
-        {pop.k === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} maxH={H - (insTop + 12 + ab + 8) - 80} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
+      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : pop.k === "Retrieve" ? 580 : pop.k === "Tags" ? 400 : 370} maxX={W} onClose={() => setPop(null)}>
+        {pop.k === "Tags" ? <TagsPop S={S} init={tagInit} maxH={H - (insTop + 12 + ab + 8) - 140} onDone={tagsDone} />
+          : pop.k === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} maxH={H - (insTop + 12 + ab + 8) - 80} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
           : pop.k === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
           : pop.k === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
           : <NotesPop init={notes} onDone={r => { setPop(null); if (r) setNotes(r); }} />}

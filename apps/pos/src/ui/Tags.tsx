@@ -1,10 +1,11 @@
 // Order tags (Manage → Tags, type Order): picked on the register, saved on the order (settings "tags" on.order[orderId]).
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { TextInput } from "./Keyboard";
 import type { Data } from "../lib/db";
 import { C, F, R } from "../lib/theme";
 import { Btn, T } from "./kit";
+import { Icon } from "./Icon";
 import { Sheet } from "./Pickers";
 
 export const tagDoc = (S: Data) => (S.settings.find(x => x.id === "tags") || {}) as any;
@@ -21,5 +22,28 @@ export function TagsDialog({ S, init, onDone }: { S: Data; init: string[]; onDon
             style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, height: 42, borderRadius: 0, borderWidth: 1, borderColor: on ? C.brand : C.field, backgroundColor: on ? C.brand50 : "#fff" }}>
             <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: dot }} /><T w="m" color={on ? C.brand600 : C.ink}>{t.name}{on ? "  ✓" : ""}</T></Pressable>); })}</View></View>}
     </Sheet>
+  );
+}
+
+// Tags (option A): a list under the Tags button, a colour dot and a tick on each row; Done keeps the ticks, a tap outside leaves the tags as they were
+export function TagsPop({ S, init, maxH, onDone }: { S: Data; init: string[]; maxH: number; onDone: (ids: string[] | null) => void }) {
+  const l = orderTags(S), [sel, setSel] = useState(init);
+  return (
+    <View>
+      <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 }}>
+        <T w="s" size={16} style={{ flex: 1 }}>Tags</T><T size={13} color={C.mut}>{sel.length ? sel.length + " on this order" : ""}</T>
+      </View>
+      {!l.length ? <T color={C.mut} style={{ padding: 12 }}>No order tags yet. Add them in the back office under Manage → Tags.</T> :
+      <ScrollView style={{ maxHeight: Math.max(170, maxH) }}>
+        {l.map((t, i) => { const on = sel.includes(t.id), dot = (t as any).color || DOT[i % DOT.length]; return (
+          <Pressable key={t.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }} onPress={() => setSel(v => (on ? v.filter(y => y !== t.id) : [...v, t.id]))}
+            style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, minHeight: 56, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: C.line2, backgroundColor: pressed ? C.bg2 : "#fff" })}>
+            <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: dot }} />
+            <T w="m" size={16} style={{ flex: 1 }} numberOfLines={1}>{t.name}</T>
+            <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: on ? 0 : 1.5, borderColor: C.field, backgroundColor: on ? C.brand600 : "#fff", alignItems: "center", justifyContent: "center" }}>{on ? <Icon name="check" size={15} color="#fff" /> : null}</View>
+          </Pressable>); })}
+      </ScrollView>}
+      <View style={{ padding: 8, paddingTop: 10 }}><Btn kind="primary" height={52} label="Done" onPress={() => onDone(sel)} /></View>
+    </View>
   );
 }
