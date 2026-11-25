@@ -4,7 +4,6 @@ import { BarList } from "@/components/tremor/BarList";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), laid out like the Tremor dashboard template Overview.
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
 // (the one before by default, or one picked by its date).
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
@@ -13,6 +12,9 @@ import { PeriodPicker } from "../ui/PeriodPicker";
 import { Label } from "@/components/tremor/Label";
 import { Switch } from "@/components/ui/switch";
 import { SegTabs } from "../ui/SegTabs";
+import { BrandsTab, CallCenterTab, InventoryTab, StoresTab, useStoreLive } from "./SummaryTabs";
+import { useSearchParams } from "react-router";
+import { cx, focusRing } from "@/components/tremor/utils";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
@@ -28,6 +30,13 @@ export default function Dashboard() {
   const [brand, setBrand] = useState(""), [store, setStore] = useState("");
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
   const myStores = stores.filter((x: Row) => inSel(brand, x.brandId));
+  // tabs: General, Brands, Stores, Inventory, Call Center (?tab= in the address)
+  const [sp, setSp] = useSearchParams(), tab = sp.get("tab") || "general";
+  const TABS: [string, string][] = [["general", "General"], ["brands", "Brands"], ["stores", "Stores"], ["inventory", "Inventory"], ["callcenter", "Call Center"]];
+  const brIds = store ? selList(store) : brand ? myStores.map((x: Row) => String(x.id)) : null;
+  const L = useStoreLive(brIds, brand, tab === "brands" || tab === "stores" || tab === "callcenter");
+  const whs = useCol("warehouses") || [];
+  const locIds = store ? selList(store) : brand ? [...myStores.map((x: Row) => String(x.id)), ...whs.filter((w: Row) => !w.brandId || inSel(brand, w.brandId)).map((w: Row) => String(w.id))] : null;
   const span = (k: string, d0: Date) => { const d = new Date(d0); d.setHours(12, 0, 0, 0);
     if (k === "7") { d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return { start: d, n: 7 }; }
     if (k === "30") { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12); return { start: a, n: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() }; }
@@ -38,7 +47,7 @@ export default function Dashboard() {
   const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
-    const br = store ? selList(store) : brand ? myStores.map((x: Row) => x.id) : null;
+    const br = brIds;
     const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz });
     Promise.all([call(per.start, per.n), cmp ? call(cmpPer.start, cmpPer.n) : Promise.resolve(null)]).then(([a, b]: any[]) => { if (off) return; const e = a.error || b?.error; if (e) setErr(e.message); else { setD(a.data || {}); setP(b ? b.data || {} : null); } });
     return () => { off = true; }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -80,17 +89,24 @@ export default function Dashboard() {
   // sticky filter bar, a report card per number (value + chart + View Report), then the breakdowns
   return (
     <>
-      <PageBreadcrumb pageTitle="Summary" />
+      <nav aria-label="Summary" className="no-scrollbar mb-4 flex items-center overflow-x-auto border-b border-gray-200 dark:border-gray-800">
+        {TABS.map(([k, l]) => <button key={k} type="button" onClick={() => setSp(k === "general" ? {} : { tab: k })} aria-current={tab === k ? "page" : undefined}
+          className={cx("-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 pb-3 pt-1 text-sm font-medium transition-all", focusRing, tab === k ? "border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-500 hover:dark:text-gray-400")}>{l}</button>)}
+      </nav>
       <div className="sticky top-16 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10 lg:pt-4 dark:border-gray-800 dark:bg-gray-950">
         {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setStore(st => selList(st).filter(id => inSel(v, stores.find((x: Row) => x.id === id)?.brandId)).join(",")); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
         <FilterSelect multiple title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
-        <SegTabs value={kind} onChange={v => { setKind(v as any); setCmpAt(null); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
+        {tab !== "stores" && <><SegTabs value={kind} onChange={v => { setKind(v as any); setCmpAt(null); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
         <PeriodPicker kind={kind} value={at} onChange={d => { setAt(d); setCmpAt(null); }} max={today()} />
-        <Label className="flex h-[30px] cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</Label>
-        {cmp && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}
+        {tab === "general" && <Label className="flex h-[30px] cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</Label>}
+        {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}</>}
       </div>
-      {err ? <p className="mt-8 text-sm text-red-600">Couldn't load the summary: {err}</p>
+      {tab === "stores" ? <div className="mt-8"><StoresTab L={L} stores={myStores.filter((x: Row) => !store || inSel(store, x.id))} /></div>
+        : tab === "inventory" ? <div className="mt-8"><InventoryTab locIds={locIds} from={iso(per.start)} to={iso(new Date(+per.start + (per.n - 1) * 86400000))} /></div>
+        : err ? <p className="mt-8 text-sm text-red-600">Couldn't load the summary: {err}</p>
         : !D ? <p className="mt-8 text-sm text-gray-500">Loading live numbers…</p>
+        : tab === "brands" ? <div className="mt-8"><BrandsTab D={D} L={L} stores={stores} brands={brands} brand={brand} /></div>
+        : tab === "callcenter" ? <div className="mt-8"><CallCenterTab D={D} L={L} stores={stores} /></div>
         : <>
           <dl className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {cards.map(c => <ReportCard key={c.t} title={c.t} value={c.f(cur[c.j])} previous={old ? c.f(old[c.j]) : undefined} change={ch(c.j)} compare={!!P} formatter={c.f} data={series(c.k, c.k === "avg")} href={rpt(c.r)} />)}

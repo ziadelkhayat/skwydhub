@@ -21,7 +21,7 @@ import { addDays, csv, today } from "./em";
 
 const n2 = (v: any) => (+v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 3 });
 const fx = (v: any) => (+v || 0).toLocaleString("en-US", { maximumFractionDigits: 5 });
-const unitCost = (items: Row[]) => { const of = (id: string) => items.find(i => i.id === id);
+export const unitCost = (items: Row[]) => { const of = (id: string) => items.find(i => i.id === id);
   const unit = (it: any, d = 0): number => !it ? 0 : (+it.cost || ((it.ingredients || []).length && d < 4 ? rec(it.ingredients, d + 1) : 0));
   const rec = (l: any[], d = 0): number => (l || []).reduce((s, x) => { const a = x?.action === "remove" ? "remove" : x?.action === "replace" ? "replace" : "add"; const it = of(a === "replace" ? x.withId : x.itemId); return s + (a === "remove" || !it ? 0 : (+x.qty || 0) / (+it.factor || 1) * unit(it, d)); }, 0);
   return unit; };
@@ -72,7 +72,7 @@ export function InvLevelsPage() {
 }
 
 // a movement's kind, read from its note and reference
-const moveType = (r: any) => { const n = (r.note || "") + " " + (r.batch || "");
+export const moveType = (r: any) => { const n = (r.note || "") + " " + (r.batch || "");
   if (/Consumption from order/i.test(n)) return "Sale"; if (/voided|Return/i.test(n)) return "Return"; if (/Waste/i.test(n)) return "Waste"; if (/Purchase/i.test(n)) return "Purchase"; if (/Transfer/i.test(n)) return "Transfer"; if (/production/i.test(n)) return "Production"; if (/adjust/i.test(n)) return "Adjustment"; return "Count"; };
 export function InvHistoryPage() {
   const s = useS(["inv_items", "branches", "warehouses", "brands"]), nav = useNavigate();
