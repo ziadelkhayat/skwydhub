@@ -1,7 +1,6 @@
 # The apps (React Native) are built by the GitHub workflows pos-rn and team-rn and published as GitHub releases,
 # until they move to the Play Store. These short links always give the latest build.
 /skwydhub-pos.apk      https://github.com/ziadelkhayat/skwydhub/releases/download/pos-rn/skwyd-pos-rn.apk  302
-/the-wok-pos.apk       https://github.com/ziadelkhayat/skwydhub/releases/download/pos-rn/skwyd-pos-rn.apk  302
 /skwyd-team.apk        https://github.com/ziadelkhayat/skwydhub/releases/download/team-rn/skwyd-team-rn.apk  302
 /skwyd-driver.apk      https://github.com/ziadelkhayat/skwydhub/releases/download/driver-rn/skwyd-driver-rn.apk  302
 /skwyd-insights.apk    https://github.com/ziadelkhayat/skwydhub/releases/download/insights-rn/skwyd-insights-rn.apk  302
