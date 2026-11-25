@@ -8,6 +8,7 @@ import { T } from "../ui/kit";
 import { Lock } from "../ui/Lock";
 import { Register } from "../ui/Register";
 import { AlertBanner } from "../ui/Alert";
+import { OnScreenKeyboard } from "../ui/Keyboard";
 
 export default function Home() {
   const { phase, S, device, cashier, restart } = useStore();
@@ -16,5 +17,5 @@ export default function Home() {
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: C.bg }}>
       <ActivityIndicator color={C.brand} /><T color={C.mut}>Loading the register…</T>
     </View>);
-  return <View style={{ flex: 1 }}>{usePins(S) && !cashier ? <Lock /> : <Register />}<AlertBanner /></View>;
+  return <View style={{ flex: 1 }}>{usePins(S) && !cashier ? <Lock /> : <Register />}<AlertBanner /><OnScreenKeyboard /></View>;
 }
