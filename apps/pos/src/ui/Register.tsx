@@ -427,7 +427,7 @@ export function Register() {
                   <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Pressable>
               : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
-                  n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
+                  onPress={() => add(it)} />)}
           </ScrollView> : null}
         </View>
         {pages > 1 ? <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: -6 }}>{Array.from({ length: pages }, (_, i) => <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: i === page ? C.brand600 : C.line }} />)}</View> : null}
