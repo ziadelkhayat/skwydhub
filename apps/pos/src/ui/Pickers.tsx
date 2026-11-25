@@ -77,7 +77,7 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
               <View key={l.modifierId} style={{ marginBottom: 14 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 }}>
                   <T w="s" size={18}>{data.groups[l.modifierId]?.name || "Options"}</T>
-                  <View style={{ borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: +(l.min || 0) ? C.badBg : C.line2 }}><T w="s" size={13} color={+(l.min || 0) ? C.bad800 : C.ink2}>{modRule(l)}</T></View>
+                  <View style={{ borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: +(l.min || 0) ? C.badBg : C.line2 }}><T w="s" size={13} color={+(l.min || 0) ? C.bad800 : C.ink2}>{modRule(l)}</T></View>
                   {+(l.free || 0) ? <T size={13} color={C.mut}>{l.free} free</T> : null}
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap }}>

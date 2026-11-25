@@ -436,8 +436,8 @@ export function Register() {
             <Pressable key={l} accessibilityRole="button" onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
-              style={({ pressed }) => ({ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 56, paddingHorizontal: 6, borderRadius: 6, backgroundColor: pressed ? C.brand500 : C.brand600 })}>
-              <Icon name={ic} size={20} color="#fff" /><T w="s" size={15} color="#fff" numberOfLines={1}>{l}</T>
+              style={({ pressed }) => ({ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 56, paddingHorizontal: 4, borderRadius: 6, backgroundColor: pressed ? C.brand500 : C.brand600 })}>
+              <Icon name={ic} size={19} color="#fff" /><T w="s" size={l.length > 12 ? 13.5 : 15} color="#fff" numberOfLines={2} style={{ flexShrink: 1, textAlign: "center", lineHeight: 16 }}>{l}</T>
               {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -8, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
             </Pressable>))}
         </View>

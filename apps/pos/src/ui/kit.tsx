@@ -35,7 +35,7 @@ export function Btn({ kind = "outline", label, sub, style, textStyle, height = 4
 // Tremor Badge: soft colour, 1px ring, 4px corners, semibold 12px
 export function Pill({ text, tone = "gray" }: { text: string; tone?: "gray" | "ok" | "brand" | "warn" | "bad" }) {
   const t = { gray: ["#F9FAFB", "#374151", C.grayRing], ok: [C.okBg, C.ok, C.okRing], brand: [C.brand50, C.brand800, C.brandRing], warn: [C.warnBg, C.warn, C.warnRing], bad: [C.badBg, C.bad800, C.badRing] }[tone];
-  return <View style={{ backgroundColor: t[0], borderRadius: 4, borderWidth: 1, borderColor: t[2], paddingHorizontal: 6, paddingVertical: 2, alignSelf: "flex-start" }}><T w="s" size={12} color={t[1]}>{text}</T></View>;
+  return <View style={{ backgroundColor: t[0], borderRadius: 6, borderWidth: 1, borderColor: t[2], paddingHorizontal: 6, paddingVertical: 2, alignSelf: "flex-start" }}><T w="s" size={12} color={t[1]}>{text}</T></View>;
 }
 
 export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?: React.ReactNode }) =>

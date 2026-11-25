@@ -43,7 +43,7 @@ export function ReportsDialog({ x, onClose, say }: { x: Ctx; onClose: () => void
   return (
     <Sheet title="Reports" width={620} onClose={onClose} footer={<><View style={{ flex: 1 }} /><Btn label="Close" height={48} onPress={onClose} /><Btn kind="primary" height={48} label="Print" onPress={print} /></>}>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 12 }}>{(Object.keys(RP_L) as RP[]).map(k => <Btn key={k} kind={rp === k ? "primary" : "outline"} height={40} style={{ flex: 1, paddingHorizontal: 6 }} textStyle={{ fontSize: 13 }} label={RP_L[k]} onPress={() => setRp(k)} />)}</View>
-      <ScrollView style={{ maxHeight: 480 }} contentContainerStyle={{ alignItems: "center", backgroundColor: C.bg, padding: 14, borderRadius: 12 }}>
+      <ScrollView style={{ maxHeight: 480 }} contentContainerStyle={{ alignItems: "center", backgroundColor: C.bg, padding: 14, borderRadius: 6 }}>
         <T style={{ fontFamily: "monospace", fontSize: 13, lineHeight: 18 }}>{text}</T>
       </ScrollView>
     </Sheet>
