@@ -40,6 +40,7 @@ import { Btn, Card, Pill, T } from "./kit";
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
 const GAP = 12, PADX = 16, TG = 10, AG = 8;   // CART_W: the cart card is 360 wide, like the call center's   // TG: the gap between menu tiles (5 across, 4 down)
 
+const MENU_BG = "#E5E7EB";   // the grey behind the menu, top buttons and bottom bar (Tailwind gray-200)
 export function Register() {
   const { S, device, branch, online, cashier, setCashier, write, pending, reload, sb } = useStore();
   const { width: W, height: H } = useScreen();
@@ -315,7 +316,7 @@ export function Register() {
   const box = { flex: 1, flexDirection: "row" as const, alignItems: "center" as const, gap: 8, height: 46, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: C.line, backgroundColor: "#fff" };
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", backgroundColor: C.bg2, paddingTop: insTop }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
+    <View style={{ flex: 1, flexDirection: "row", backgroundColor: MENU_BG, paddingTop: insTop }} onTouchStart={(e: any) => { lastTouch.current = Date.now(); touched(e); }} onPointerDown={(e: any) => { lastTouch.current = Date.now(); touched(e); }}>
       {/* ---------- cart: the full height on the left ---------- */}
       <View style={{ width: CART_W, backgroundColor: "#fff", borderRightWidth: 1, borderColor: C.line }}>
         <View style={{ flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 16, paddingTop: 12, gap: 8 }}>
@@ -417,7 +418,7 @@ export function Register() {
             {tiles.map((it: any, k: number) => it.back
               ? <Pressable key="back" accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
                   style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: R.lg, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
-                  <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T><T size={12} color={C.mut} numberOfLines={2} style={{ textAlign: "center", paddingHorizontal: 6 }}>{m.parentOf(top) ? m.cats.find(z => z.id === m.parentOf(top))?.name : "All categories"}</T></Pressable>
+                  <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Pressable>
               : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
                   n={cart.filter(l => l.productId === it.id).reduce((a, l) => a + l.qty, 0)} onPress={() => add(it)} />)}
