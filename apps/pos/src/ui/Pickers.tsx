@@ -1,7 +1,8 @@
 // The windows the register opens over the sale: modifiers, variants, a number (open price, discount).
 // Same rules as modpick.js: min/max per modifier, free options, repeatable options, a note on the item.
 import { useState } from "react";
-import { Modal, Pressable, ScrollView, TextInput, View } from "react-native";
+import { Modal, Pressable, ScrollView, View } from "react-native";
+import { OnScreenKeyboard, TextInput, useKbHeight } from "./Keyboard";
 import { modRule, type ModData, type ModOpt } from "../lib/pos";
 import { C, F, R } from "../lib/theme";
 import { Icon } from "./Icon";
@@ -9,9 +10,10 @@ import { Btn, Pad, T } from "./kit";
 import { Bubble, touched } from "./Bubble";
 
 export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: React.ReactNode; footer?: React.ReactNode }) {
+  const kbH = useKbHeight();
   return (
     <Modal transparent animationType="none" visible onRequestClose={onClose}>
-      <Pressable accessibilityLabel="Close" onPress={onClose} onTouchStart={touched} {...({ onPointerDown: touched } as any)} style={{ flex: 1, backgroundColor: "rgba(16,24,40,0.45)", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <Pressable accessibilityLabel="Close" onPress={onClose} onTouchStart={touched} {...({ onPointerDown: touched } as any)} style={{ flex: 1, backgroundColor: "rgba(16,24,40,0.45)", alignItems: "center", justifyContent: "center", padding: 24, paddingBottom: 24 + kbH }}>
         <Pressable onPress={() => {}} style={{ width: "100%", maxWidth: width, maxHeight: "92%", backgroundColor: "#fff", borderRadius: R.lg, overflow: "hidden" }}>
           <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderColor: C.line }}>
             <T w="s" size={18} style={{ flex: 1 }} numberOfLines={1}>{title}</T>
@@ -22,6 +24,7 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
         </Pressable>
       </Pressable>
       <Bubble win />
+      <OnScreenKeyboard />
     </Modal>
   );
 }
@@ -57,13 +60,14 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
     const tally: { name: string; n: number }[] = []; chosen.forEach(o => { const t = tally.find(y => y.name === o.name); if (t) t.n++; else tally.push({ name: o.name, n: 1 }); });
     onDone({ options: chosen, unitPrice: +price().toFixed(2), mods: tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), note: note.trim(), qty });
   };
+  const kbH = useKbHeight();
   if (area) {
     const cols = 4, gap = 10, tw = Math.floor((area.width - 36 - gap * (cols - 1)) / cols);
     return (
       <>
         {/* the cart stays in view but can't be changed while the options are open */}
         {area.cover ? <Pressable accessibilityLabel="Close options" onPress={() => onDone(null)} style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: area.cover, zIndex: 29 }} /> : null}
-        <View style={{ position: "absolute", left: area.left, top: area.top, right: 0, bottom: 0, backgroundColor: "#E5E7EB", zIndex: 30 }}>
+        <View style={{ position: "absolute", left: area.left, top: area.top, right: 0, bottom: kbH, backgroundColor: "#E5E7EB", zIndex: 30 }}>
           <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 12, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: C.line }}>
             <View style={{ flex: 1 }}><T w="s" size={21} numberOfLines={1}>{name}</T><T size={15} color={C.mut}>{money(basePrice)}</T></View>
             <Pressable accessibilityLabel="Close" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 10, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={22} /></Pressable>

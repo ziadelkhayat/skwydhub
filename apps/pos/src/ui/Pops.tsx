@@ -1,7 +1,8 @@
 // Dropdowns that open right under a top button on the register: Discount (saved discounts + a % / amount pad),
 // Charges (a tick per charge) and Notes (Kitchen Note or Receipt Note). A tap outside closes them.
 import { useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { chargeList, dsCalc, dsHere, type Ctx, type Disc, type Line } from "../lib/pos";
 import { C, F, R } from "../lib/theme";
 import type { Held } from "./Extras";
