@@ -53,7 +53,7 @@ function Tile({ o, x, onOpen, onDriver, onDispatch }: { o: Row; x: Ctx; onOpen: 
     {/* a delivery being prepared: pick its driver, then dispatch it (the sale screen has no driver button) */}
     {onDriver ? <View style={{ flexDirection: "row", gap: 8, paddingTop: 4 }}>
       <Btn height={38} style={{ flex: 1 }} label={o.driverName || "Assign Driver"} onPress={onDriver} />
-      <Btn kind="primary" height={38} style={{ flex: 1 }} label="Dispatch" disabled={!o.driverId} onPress={onDispatch} /></View> : null}
+      <Btn kind="primary" height={38} style={{ flex: 1 }} label="Dispatch" onPress={onDispatch} /></View> : null}
   </Pressable>;
 }
 
