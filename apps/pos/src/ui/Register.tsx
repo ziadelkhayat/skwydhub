@@ -360,8 +360,9 @@ export function Register() {
                   {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 8, paddingLeft: 12 }}>
                       <T size={12.5} color={C.mut} style={{ flex: 1 }} numberOfLines={1}>{(o.n > 1 ? o.n + "× " : "") + o.name}</T>{o.price ? <T size={12.5} color={C.mut}>+{money(S, o.price)}</T> : null}</View>)
                     : l.mods && !l.note ? <T size={12.5} color={C.mut} style={{ paddingLeft: 12 }}>{l.mods}</T> : null}
-                  {l.note ? <T size={12.5} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
-                  {l.disc ? <T size={12.5} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
+                  {l.disc ? <T size={12.5} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}
+                  {/* the item's note is the last line under the item */}
+                  {l.note ? <T size={12.5} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}</Pressable>
                 {ro || sent ? null : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
                   <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty - (l.saved || 0) <= 1 ? "trash" : "minus"} size={17} color={l.qty - (l.saved || 0) <= 1 ? C.bad : C.ink2} /></Pressable>
                   <T w="s" style={{ minWidth: 24, textAlign: "center" }}>{l.qty - (l.saved || 0)}</T>
