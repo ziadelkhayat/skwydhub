@@ -15,6 +15,29 @@ const Field = ({ label, value, onChange, kb, half }: { label: string; value: str
       style={{ height: 46, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 12, fontFamily: F.r, fontSize: 16, color: C.ink }} />
   </View>);
 
+// country codes for the phone (Lebanon first); the phone is saved with its code, e.g. +96171123456
+const CC: [string, string][] = [["+961", "Lebanon"], ["+971", "UAE"], ["+966", "Saudi Arabia"], ["+965", "Kuwait"], ["+974", "Qatar"], ["+973", "Bahrain"], ["+968", "Oman"], ["+962", "Jordan"], ["+20", "Egypt"], ["+963", "Syria"], ["+964", "Iraq"], ["+90", "Türkiye"], ["+33", "France"], ["+44", "UK"], ["+49", "Germany"], ["+1", "US / Canada"], ["+61", "Australia"]];
+const splitPhone = (p: string) => { const v = String(p || "").replace(/\s/g, ""); const k = CC.map(c => c[0]).sort((a, b) => b.length - a.length).find(c => v.startsWith(c)); return k ? { cc: k, n: v.slice(k.length) } : { cc: "+961", n: v.replace(/^\+/, "") }; };
+function PhoneField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [cc, setCc] = useState(splitPhone(value).cc), [open, setOpen] = useState(false), n = splitPhone(value).n;
+  const local = (v: string) => { const d = v.replace(/[^\d+]/g, ""); if (d.startsWith("+")) return onChange(d); onChange(d ? cc + d.replace(/^0+/, "") : ""); };
+  return (
+    <View style={{ width: "100%", gap: 4 }}>
+      <T size={13} color={C.ink2}>Phone number *</T>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={"Country code " + cc} onPress={() => setOpen(o => !o)}
+          style={({ pressed }) => ({ height: 46, minWidth: 92, paddingHorizontal: 12, borderRadius: R.sm, borderWidth: 1, borderColor: open ? C.brand : C.field, backgroundColor: pressed ? C.brand50 : "#fff", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6 })}>
+          <T w="m" size={16}>{cc}</T><T size={12} color={C.mut}>▼</T></Pressable>
+        <TextInput value={n} onChangeText={local} keyboardType="phone-pad" accessibilityLabel="Phone number" placeholder="71 123 456" placeholderTextColor={C.mut2}
+          style={{ flex: 1, height: 46, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 12, fontFamily: F.r, fontSize: 16, color: C.ink }} />
+      </View>
+      {open ? <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, paddingTop: 4 }}>{CC.map(([k, name]) => (
+        <Pressable key={k} accessibilityRole="button" onPress={() => { setCc(k); setOpen(false); if (n) onChange(k + n.replace(/^0+/, "")); }}
+          style={({ pressed }) => ({ height: 38, paddingHorizontal: 10, borderRadius: R.sm, borderWidth: k === cc ? 2 : 1, borderColor: k === cc ? C.brand : C.line, backgroundColor: pressed || k === cc ? C.brand50 : "#fff", flexDirection: "row", alignItems: "center", gap: 6 })}>
+          <T w="s" size={14}>{k}</T><T size={13} color={C.mut}>{name}</T></Pressable>))}</View> : null}
+    </View>);
+}
+
 export function CustomerDialog({ type, types, init, onDone }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // dine-in: just the customer's name and phone
@@ -43,7 +66,7 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
         {src.length > 0 && t !== "dinein" && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{src.map(s => <Btn key={s} kind={c.source === s ? "soft" : "outline"} height={40} label={s} style={c.source === s ? { borderColor: C.brand } : undefined} onPress={() => set("source", s)} />)}</View></View>}
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 12 }}>
-          <Field label="Phone number *" kb="phone-pad" value={c.phone} onChange={v => set("phone", v)} />
+          <PhoneField value={c.phone} onChange={v => set("phone", v)} />
           <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
         </View>
         {hint ? <T size={13} color={hint.startsWith("⚠") ? C.bad : C.mut}>{hint}</T> : null}
