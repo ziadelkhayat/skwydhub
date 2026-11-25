@@ -1,6 +1,8 @@
-# AGENTS.md — TailAdmin React
+# AGENTS.md — Skwyd Hub back office (Tremor)
 
-React 19 admin dashboard template: Vite 8 · TypeScript ~6 · Tailwind CSS v4 · React Router 8 · Base UI · react-i18next. Client-only SPA with no backend, auth, or global store.
+Skwyd Hub back office and admin: React 19 · Vite 8 · TypeScript ~6 · Tailwind CSS v4 · React Router 8 · **Tremor Raw** (Radix UI + tailwind-variants + Remix Icons) · Recharts 2 · TanStack Table 8. Data from Supabase.
+
+**UI rule: use Tremor.** Components live in `src/components/tremor/` (copied from Tremor Raw and the Tremor dashboard template). `src/components/ui/*` are thin wrappers over them that keep older prop names. Lists use `components/tremor/data-table/DataTable`, settings and record pages use `skwyd/ui/Section` (template settings layout), the Summary uses `components/tremor/overview`. Icons: `@remixicon/react` (re-exported under old names from `@/icons`).
 
 ## Commands
 
@@ -62,14 +64,14 @@ Path alias: `@/*` → `src/*`.
 
 - Files/folders lower-kebab-case; components PascalCase. Pages default-export; primitives/utilities named-export.
 - Import primitives directly: `import { Button } from "@/components/ui/button";`.
-- Extend primitives with Base UI composition, `cva` variants, `data-slot` attributes, and `cn()`. Don't introduce another component library pattern.
+- Build from Tremor Raw components (`src/components/tremor/`, `tailwind-variants`, `cx()`). Don't introduce another component library.
 - Dialogs: controlled `open`/`onOpenChange` with `@/components/ui/dialog`. There is no `Modal` or `useModal`.
 - Theme: `useTheme` from `@/contexts` (`light` | `dark` | `auto`). Sidebar: `useSidebar` from `@/components/ui/sidebar`.
 - Forms: React Hook Form + Zod resolver + colocated schema + `Field`/`FieldLabel`/`FieldError` from `@/components/ui/field`.
-- Tables: TanStack Table **v9**. Copy patterns from `pages/main/tables/{basic-tables,data-tables}`, not from older-version docs.
+- Tables: Tremor `DataTable` on TanStack Table **v8** (the version the Tremor template uses).
 - UI demo sections use `ComponentCard`.
 - Tasks: local React state + React DnD (`HTML5Backend`); shared task UI in `pages/main/task/`, list/kanban specifics in their subfolders.
-- ApexCharts/FullCalendar are used directly; no SSR guards or lazy wrappers.
+- Charts: Tremor charts (Recharts 2, react-is 19 override in package.json).
 
 ## i18n
 
@@ -88,15 +90,14 @@ Path alias: `@/*` → `src/*`.
 ## Styling
 
 - Tailwind v4 config lives only in `src/index.css`. Never add `tailwind.config.*`, CSS Modules, or CSS-in-JS.
-- Prefer `@theme` tokens (`brand-*`, `font-outfit`, `text-heading-*`, `text-title-*`, `shadow-theme-*`, custom breakpoints, z-index tokens) and existing `@utility` classes (`menu-item-*`, `menu-dropdown-*`, `nav-icon-item-*`, `custom-scrollbar`, `no-scrollbar`, …) before adding new ones. New utilities need matching groups in `src/utils/cn.ts`.
+- Tailwind's default theme with Inter (`--font-sans`) and Tremor's animations in `@theme`. Colours: Tailwind `blue-*` and `gray-*` as Tremor uses them.
 - Always add `dark:` styles for new surfaces, text, borders, and states.
 - RTL: use logical utilities (`ms/me`, `ps/pe`, `inset-s/e`, `border-s/e`, `text-start/end`, logical radius) and `rtl:` variants to flip directional icons/transforms.
 - Third-party CSS overrides go in the matching section of `index.css`.
 
 ## Icons and Assets
 
-- Shared icons: kebab-case `.tsx` component taking `IconProps`, exported from `src/icons/index.tsx`; import from `@/icons`. Feature-only icons may live in a colocated `icons.tsx`. Don't inline SVG markup in pages or primitives.
-- Flags are SVGR default imports: `import Flag from "./flag-x.svg?react"`.
+- Icons: Remix Icon (`@remixicon/react`), the set Tremor uses; `@/icons` re-exports the ones in use under their old names.
 - `public/` assets use root-relative URLs (`/images/...`).
 
 ## Boundaries
