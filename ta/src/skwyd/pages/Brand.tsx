@@ -1,3 +1,8 @@
+import { Label } from "@/components/tremor/Label";
+import { ChoiceButton } from "../ui/Choice";
+import { buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // A brand's page (Manage → Brands → a brand): its details and Edit Brand, and Settings with the portal's tabs (Receipt, Call Center,
 // Cashier App, Display App, Kitchen, Inventory Transactions) saved to settings "brand_<id>", with the same defaults and checks.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -64,20 +69,20 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
   }
   const field = (f: Fld) => {
     if (f.show && !f.show(v)) return null;
-    const lab = <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{curL(f.l)}{f.req ? <span className="text-error-500"> *</span> : null}</label>;
+    const lab = <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{curL(f.l)}{f.req ? <span className="text-error-500"> *</span> : null}</Label>;
     const help = f.n ? <p className="mb-2 text-xs text-gray-500 dark:text-gray-400" dangerouslySetInnerHTML={{ __html: f.n }} /> : null;
     if (f.t === "chk") return <div key={f.k} className="flex items-start gap-3 border-b border-gray-100 py-4 dark:border-gray-800"><Switch size="sm" className="mt-0.5" disabled={!admin} checked={!!v[f.k]} onCheckedChange={x => set(f.k, x)} aria-label={f.l} /><div><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{curL(f.l)}</b>{help}</div></div>;
     let ctl: React.ReactNode;
     if (f.t === "info") ctl = <p className="text-sm text-gray-900 dark:text-gray-50">{f.v!()}</p>;
-    else if (f.t === "radio") ctl = <div className="flex flex-wrap gap-2">{(f.o as [string, string][]).map(([k, t]) => <button key={k} type="button" disabled={!admin} onClick={() => set(f.k, k)}
-      className={cn("rounded-lg border px-3.5 py-2 text-sm", String(v[f.k]) === k ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>;
+    else if (f.t === "radio") ctl = <div className="flex flex-wrap gap-2">{(f.o as [string, string][]).map(([k, t]) => <ChoiceButton on={String(v[f.k]) === k} key={k} disabled={!admin} onClick={() => set(f.k, k)}
+      >{t}</ChoiceButton>)}</div>;
     else if (f.t === "multi") { const o: [string, string][] = f.o(b), cur: string[] = v[f.k] || [];
-      ctl = <>{o.length ? <div className="flex flex-wrap gap-x-5 gap-y-2">{o.map(([k, t]) => <label key={k} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" disabled={!admin} checked={cur.includes(k)} onChange={e => set(f.k, e.target.checked ? [...cur, k] : cur.filter(x => x !== k))} />{t}</label>)}</div> : <p className="text-sm text-gray-500">Nothing to pick yet.</p>}
+      ctl = <>{o.length ? <div className="flex flex-wrap gap-x-5 gap-y-2">{o.map(([k, t]) => <Label key={k} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox disabled={!admin} checked={cur.includes(k)} onCheckedChange={(chk: boolean) => set(f.k, chk ? [...cur, k] : cur.filter(x => x !== k))} />{t}</Label>)}</div> : <p className="text-sm text-gray-500">Nothing to pick yet.</p>}
         {f.none && <p className="mt-2 text-xs text-gray-500">Nothing ticked: {f.none}.</p>}</>; }
-    else if (f.t === "select") ctl = <select className={SEL} disabled={!admin} value={String(v[f.k] || "")} onChange={e => set(f.k, e.target.value)}>{(f.o(b) as [string, string][]).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select>;
+    else if (f.t === "select") ctl = <SelectNative className={SEL} disabled={!admin} value={String(v[f.k] || "")} onChange={e => set(f.k, e.target.value)}>{(f.o(b) as [string, string][]).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative>;
     else if (f.t === "area") ctl = <Textarea rows={3} disabled={!admin} value={v[f.k] || ""} onChange={e => set(f.k, e.target.value)} />;
     else if (f.t === "img") ctl = <div className="flex flex-wrap items-center gap-3">{v[f.k] ? <img src={v[f.k]} alt="" className="h-16 max-w-40 rounded-lg border border-gray-200 object-contain dark:border-gray-800" /> : <span className="text-sm text-gray-500">No image</span>}
-      {admin && <><label className="inline-flex h-9 cursor-pointer items-center rounded-lg border border-gray-300 px-3 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">Choose photo<input type="file" accept="image/*" hidden onChange={async e => { const fl = e.target.files?.[0]; if (fl) { try { set(f.k, await shrink(fl)); } catch { toast("Couldn't read the picture.", "error"); } } }} /></label>
+      {admin && <><Label className={buttonVariants({ variant: "outline", className: "cursor-pointer" })}>Choose photo<input type="file" accept="image/*" hidden onChange={async e => { const fl = e.target.files?.[0]; if (fl) { try { set(f.k, await shrink(fl)); } catch { toast("Couldn't read the picture.", "error"); } } }} /></Label>
         {v[f.k] && <Button size="sm" variant="outline" onClick={() => set(f.k, "")}>Remove</Button>}</>}</div>;
     else ctl = <Input className="h-9" type={f.t === "num" ? "number" : "text"} min={f.t === "num" ? 0 : undefined} disabled={!admin} placeholder={f.ph || ""} value={v[f.k] ?? ""} onChange={e => set(f.k, f.t === "num" ? (e.target.value === "" ? null : +e.target.value) : e.target.value)} />;
     return <div key={f.k} className="border-b border-gray-100 py-4 dark:border-gray-800">{lab}{help}{ctl}</div>;

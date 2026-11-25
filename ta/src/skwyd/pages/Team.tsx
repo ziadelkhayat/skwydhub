@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Time Clock and Requests: same data (settings "timeclock", table staff_requests), tabs, filters, rules and actions
 // as the current portal, in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -22,10 +25,10 @@ import { addDays, csv, d10s, dayOf, dmy, empStores, hm, inBrand, LEAVE_T, monOf,
 export function StoreFilter({ s, brand, setBrand, branch, setBranch }: { s: S; brand: string; setBrand: (v: string) => void; branch: string; setBranch: (v: string) => void }) {
   const bl = s.brands.filter(b => live(b) && b.active !== false);
   return <>
-    {<select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && !inBrand(s.branches, branch, e.target.value)) setBranch(""); }}>
-      <option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
-    <select aria-label="Store" className={SEL + " sm:w-44"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>
-      {s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+    {<SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && !inBrand(s.branches, branch, e.target.value)) setBranch(""); }}>
+      <option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
+    <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>
+      {s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
   </>;
 }
 const Flags = ({ x }: { x: any }) => <>{x.unscheduled && <Badge className="ms-1" variant="light" color="light">Unscheduled</Badge>}{x.late ? <Badge className="ms-1" variant="light" color="error">Late {+x.late}m</Badge> : null}{x.earlyOut ? <Badge className="ms-1" variant="light" color="warning">Left {+x.earlyOut}m early</Badge> : null}</>;
@@ -68,47 +71,47 @@ export function TimeClockPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Time Clock" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["now", `Clocked In Now (${open.length})`], ["sheet", "Timesheets"]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
             {tab === "sheet" && <>
-              <select aria-label="Employee" className={SEL + " sm:w-48"} value={emp} onChange={e => setEmp(e.target.value)}><option value="">All Employees</option>{emps.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select>
+              <SelectNative aria-label="Employee" className={SEL + " sm:w-48"} value={emp} onChange={e => setEmp(e.target.value)}><option value="">All Employees</option>{emps.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</SelectNative>
               <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { setFrom(a || monOf(today())); setTo(b || today()); }} /></div>
               <Button variant="outline" onClick={exportCsv}><DownloadIcon className="size-5" />Export CSV</Button></>}
           </div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {tab === "now" ? (!open.length ? <EmptyState text={`Nobody is clocked in${branch ? " at this store" : ""}. Employees clock in on the cashier app: they type their PIN, then Clock In.`} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Job Title", "Store", "Clocked In"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Hours So Far</th><th className={TH} /></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{open.map(o => { const u = byId[o.userId]; return (
-                <tr key={o.userId}><td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{u?.name || o.name || "—"}</span><Flags x={o} /></td><td className={TD}>{u?.jobTitle || "—"}</td><td className={TD}>{bName(o.branchId)}</td>
-                  <td className={TD}>{dmy(dayOf(o.at))} {hm(o.at)}</td><td className={TD + " text-end"}>{tcHrs({ in: o.at }).toFixed(2)}</td>
-                  <td className={TD + " text-end"}><Button size="sm" variant="outline" onClick={() => clockOut(o)}>Clock Out</Button></td></tr>); })}</tbody></table>)
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Job Title", "Store", "Clocked In"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Hours So Far</TableHeaderCell><TableHeaderCell className={TH} /></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{open.map(o => { const u = byId[o.userId]; return (
+                <TableRow key={o.userId}><TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{u?.name || o.name || "—"}</span><Flags x={o} /></TableCell><TableCell className={TD}>{u?.jobTitle || "—"}</TableCell><TableCell className={TD}>{bName(o.branchId)}</TableCell>
+                  <TableCell className={TD}>{dmy(dayOf(o.at))} {hm(o.at)}</TableCell><TableCell className={TD + " text-end"}>{tcHrs({ in: o.at }).toFixed(2)}</TableCell>
+                  <TableCell className={TD + " text-end"}><Button size="sm" variant="outline" onClick={() => clockOut(o)}>Clock Out</Button></TableCell></TableRow>); })}</TableBody></Table>)
           : !sum.length ? <EmptyState text="No clock-ins in this period." />
-          : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Employee</th><th className={TH}>Job Title</th>{["Days", "Hours", "Overtime", "Late", "Estimated Pay"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{sum.map(r => <tr key={r.name}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.name}</td><td className={TD}>{r.job}</td>
-              <td className={TD + " text-end"}>{r.days}</td><td className={TD + " text-end"}>{r.hrs.toFixed(2)}</td><td className={TD + " text-end"}>{r.ot ? r.ot.toFixed(2) : "—"}</td><td className={TD + " text-end"}>{r.late || "—"}</td><td className={TD + " text-end"}>{r.p != null ? money(r.p) : "—"}</td></tr>)}</tbody>
-            <tfoot className="border-t border-gray-200 dark:border-white/10"><tr className="font-semibold"><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"}>Total</td><td /><td /><td className={TD + " text-end"}>{sum.reduce((a, r) => a + r.hrs, 0).toFixed(2)}</td><td className={TD + " text-end"}>{sum.reduce((a, r) => a + r.ot, 0).toFixed(2)}</td>
-              <td className={TD + " text-end"}>{sum.reduce((a, r) => a + r.late, 0) || "—"}</td><td className={TD + " text-end"}>{sum.some(r => r.p) ? money(sum.reduce((a, r) => a + (r.p || 0), 0)) : "—"}</td></tr></tfoot></table>}
+          : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>{["Days", "Hours", "Overtime", "Late", "Estimated Pay"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{sum.map(r => <TableRow key={r.name}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.name}</TableCell><TableCell className={TD}>{r.job}</TableCell>
+              <TableCell className={TD + " text-end"}>{r.days}</TableCell><TableCell className={TD + " text-end"}>{r.hrs.toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{r.ot ? r.ot.toFixed(2) : "—"}</TableCell><TableCell className={TD + " text-end"}>{r.late || "—"}</TableCell><TableCell className={TD + " text-end"}>{r.p != null ? money(r.p) : "—"}</TableCell></TableRow>)}</TableBody>
+            <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow className="font-semibold"><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"}>Total</TableCell><TableCell /><TableCell /><TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.hrs, 0).toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.ot, 0).toFixed(2)}</TableCell>
+              <TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.late, 0) || "—"}</TableCell><TableCell className={TD + " text-end"}>{sum.some(r => r.p) ? money(sum.reduce((a, r) => a + (r.p || 0), 0)) : "—"}</TableCell></TableRow></TableFoot></Table>}
         </div>
         {tab === "sheet" && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Overtime counts hours over 8 in a day. Late means clocking in more than 5 minutes after the published shift starts; Unscheduled means no published shift. Estimated pay uses each employee's hourly or daily rate (Edit Employee → Pay).</p>}
-      </div>
+      </Card>
       {tab === "sheet" && <div className={BOX + " mt-6"}>
         <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Entries</h3>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!items.length ? <EmptyState text="No clock-ins in this period." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-            {["First Name", "Last Name", "Store", "Job", "Clock In", "Clock Out"].map(h => <th key={h} className={TH}>{h}</th>)}{["Total Hours", "Regular Hours", "Overtime", "Paid Leave"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}<th className={TH} /></tr></thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{items.map((it: any, k) => {
+          {!items.length ? <EmptyState text="No clock-ins in this period." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+            {["First Name", "Last Name", "Store", "Job", "Clock In", "Clock Out"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{["Total Hours", "Regular Hours", "Overtime", "Paid Leave"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{items.map((it: any, k) => {
               if (it.r) { const u = byId[it.r.employeeId], [f, l] = nm(u?.name);
-                return <tr key={"l" + k}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{f}</td><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{l}</td><td className={TD}>{(u?.branchIds || []).filter((b: string) => b && b !== "-").map(bName).join(", ") || "All Stores"}</td><td className={TD}>{u?.jobTitle || "—"}</td>
-                  <td className={TD} colSpan={2}><Badge variant="light" color="success">{LEAVE_T[it.r.leaveType]}</Badge> <span className="text-gray-500">{dmy(it.day)}</span></td><td className={TD + " text-end"}>—</td><td className={TD + " text-end"}>—</td><td className={TD + " text-end"}>—</td><td className={TD + " text-end"}>8.00</td><td /></tr>; }
+                return <TableRow key={"l" + k}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{f}</TableCell><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{l}</TableCell><TableCell className={TD}>{(u?.branchIds || []).filter((b: string) => b && b !== "-").map(bName).join(", ") || "All Stores"}</TableCell><TableCell className={TD}>{u?.jobTitle || "—"}</TableCell>
+                  <TableCell className={TD} colSpan={2}><Badge variant="light" color="success">{LEAVE_T[it.r.leaveType]}</Badge> <span className="text-gray-500">{dmy(it.day)}</span></TableCell><TableCell className={TD + " text-end"}>—</TableCell><TableCell className={TD + " text-end"}>—</TableCell><TableCell className={TD + " text-end"}>—</TableCell><TableCell className={TD + " text-end"}>8.00</TableCell><TableCell /></TableRow>; }
               const x = it.x, u = byId[x.userId], [f, l] = nm(u?.name || x.name), h = tcHrs(x), o = otOf.get(x) || 0;
-              return <tr key={x.i}><td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{f}</span><Flags x={x} />{x.editedBy && <span className="ms-1 text-xs text-gray-400" title={"Edited by " + x.editedBy}>edited</span>}</td><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{l}</td>
-                <td className={TD}>{bName(x.branchId)}</td><td className={TD}>{u?.jobTitle || "—"}</td><td className={TD}>{dmy(dayOf(x.in))} {hm(x.in)}</td><td className={TD}>{x.out ? dmy(dayOf(x.out)) + " " + hm(x.out) : "—"}</td>
-                <td className={TD + " text-end"}>{h.toFixed(2)}</td><td className={TD + " text-end"}>{(h - o).toFixed(2)}</td><td className={TD + " text-end"}>{o ? o.toFixed(2) : "—"}</td><td className={TD + " text-end"}>—</td>
-                <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => setEdit(x.i)}>Edit</Button></td></tr>; })}</tbody></table>}
+              return <TableRow key={x.i}><TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{f}</span><Flags x={x} />{x.editedBy && <span className="ms-1 text-xs text-gray-400" title={"Edited by " + x.editedBy}>edited</span>}</TableCell><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{l}</TableCell>
+                <TableCell className={TD}>{bName(x.branchId)}</TableCell><TableCell className={TD}>{u?.jobTitle || "—"}</TableCell><TableCell className={TD}>{dmy(dayOf(x.in))} {hm(x.in)}</TableCell><TableCell className={TD}>{x.out ? dmy(dayOf(x.out)) + " " + hm(x.out) : "—"}</TableCell>
+                <TableCell className={TD + " text-end"}>{h.toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{(h - o).toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{o ? o.toFixed(2) : "—"}</TableCell><TableCell className={TD + " text-end"}>—</TableCell>
+                <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => setEdit(x.i)}>Edit</Button></TableCell></TableRow>; })}</TableBody></Table>}
         </div></div>}
       {edit != null && log[edit] && <EditClock x={log[edit]} who={byId[log[edit].userId]?.name || log[edit].name} store={bName(log[edit].branchId)} onClose={() => setEdit(null)}
         onSave={async (a, b) => { const l = [...log]; l[edit] = { ...l[edit], in: a, out: b, editedBy: who(staff) }; await save({ log: l }); }}
@@ -168,31 +171,31 @@ export function RequestsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Requests" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All Requests"], ["pending", "Pending" + (n("pending") ? ` (${n("pending")})` : "")], ["declined", "Declined"], ["approved", "Approved"], ["balances", "Leave Balances"]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center"><StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
-            {tab === "balances" && <select aria-label="Year" className={SEL + " sm:w-28"} value={year} onChange={e => setYear(+e.target.value)}>{[0, 1, 2].map(i => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}</select>}</div>
+            {tab === "balances" && <SelectNative aria-label="Year" className={SEL + " sm:w-28"} value={year} onChange={e => setYear(+e.target.value)}>{[0, 1, 2].map(i => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}</SelectNative>}</div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {tab === "balances" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Employee</th><th className={TH}>Job Title</th>
-            {["Annual Leave Days", "Annual Used", "Annual Left", "Sick Days", "Unpaid Days"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const al = u.leaveDays == null || u.leaveDays === "" ? null : +u.leaveDays, used = rqUsed(reqs, u.id, "annual", year);
-              return <tr key={u.id}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{u.name}</td><td className={TD}>{u.jobTitle || "—"}</td><td className={TD + " text-end"}>{al ?? "—"}</td><td className={TD + " text-end"}>{used || "—"}</td>
-                <td className={TD + " text-end"}>{al == null ? "—" : <b className={al - used < 0 ? "text-red-500" : "text-gray-900 dark:text-gray-50"}>{al - used}</b>}</td><td className={TD + " text-end"}>{rqUsed(reqs, u.id, "sick", year) || "—"}</td><td className={TD + " text-end"}>{rqUsed(reqs, u.id, "unpaid", year) || "—"}</td></tr>; })}</tbody></table>)
+          {tab === "balances" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>
+            {["Annual Leave Days", "Annual Used", "Annual Left", "Sick Days", "Unpaid Days"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const al = u.leaveDays == null || u.leaveDays === "" ? null : +u.leaveDays, used = rqUsed(reqs, u.id, "annual", year);
+              return <TableRow key={u.id}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{u.name}</TableCell><TableCell className={TD}>{u.jobTitle || "—"}</TableCell><TableCell className={TD + " text-end"}>{al ?? "—"}</TableCell><TableCell className={TD + " text-end"}>{used || "—"}</TableCell>
+                <TableCell className={TD + " text-end"}>{al == null ? "—" : <b className={al - used < 0 ? "text-red-500" : "text-gray-900 dark:text-gray-50"}>{al - used}</b>}</TableCell><TableCell className={TD + " text-end"}>{rqUsed(reqs, u.id, "sick", year) || "—"}</TableCell><TableCell className={TD + " text-end"}>{rqUsed(reqs, u.id, "unpaid", year) || "—"}</TableCell></TableRow>; })}</TableBody></Table>)
           : !rows.length ? <EmptyState text={tab === "pending" || tab === "all" ? "No requests yet. Staff ask for time off or a shift swap through the app." : "Nothing here yet."} />
-          : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Request", "Note", "Asked", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const u = byId[r.employeeId], al = u && u.leaveDays != null && u.leaveDays !== "" ? +u.leaveDays : null;
-              return <tr key={r.id}><td className={TD}><span className="block font-medium text-gray-900 dark:text-gray-50">{u?.name || "—"}</span><span className="text-xs text-gray-500">{u?.jobTitle || ""}</span></td>
-                <td className={TD}>{what(r)}{r.kind === "time_off" && r.leaveType === "annual" && al != null && <span className="block text-xs text-gray-500">Annual left: {al - rqUsed(reqs, r.employeeId, "annual", d10s(r.fromDay).slice(0, 4))}</span>}</td>
-                <td className={TD + " whitespace-normal"}>{r.note || "—"}{r.decisionNote && <span className="block text-xs text-gray-500">Reply: {r.decisionNote}</span>}</td><td className={TD}>{dmy(r.createdAt)}</td>
-                <td className={TD}>{st(r)}{r.decidedBy && <span className="block text-xs text-gray-500">{r.decidedBy}</span>}</td>
-                <td className={TD + " text-end"}><div className="flex justify-end gap-2">{r.status === "pending" ? <><Button size="sm" onClick={() => approve(r)}>Approve</Button><Button size="sm" variant="outline" onClick={() => setDec(r)}>Decline</Button></>
+          : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Request", "Note", "Asked", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const u = byId[r.employeeId], al = u && u.leaveDays != null && u.leaveDays !== "" ? +u.leaveDays : null;
+              return <TableRow key={r.id}><TableCell className={TD}><span className="block font-medium text-gray-900 dark:text-gray-50">{u?.name || "—"}</span><span className="text-xs text-gray-500">{u?.jobTitle || ""}</span></TableCell>
+                <TableCell className={TD}>{what(r)}{r.kind === "time_off" && r.leaveType === "annual" && al != null && <span className="block text-xs text-gray-500">Annual left: {al - rqUsed(reqs, r.employeeId, "annual", d10s(r.fromDay).slice(0, 4))}</span>}</TableCell>
+                <TableCell className={TD + " whitespace-normal"}>{r.note || "—"}{r.decisionNote && <span className="block text-xs text-gray-500">Reply: {r.decisionNote}</span>}</TableCell><TableCell className={TD}>{dmy(r.createdAt)}</TableCell>
+                <TableCell className={TD}>{st(r)}{r.decidedBy && <span className="block text-xs text-gray-500">{r.decidedBy}</span>}</TableCell>
+                <TableCell className={TD + " text-end"}><div className="flex justify-end gap-2">{r.status === "pending" ? <><Button size="sm" onClick={() => approve(r)}>Approve</Button><Button size="sm" variant="outline" onClick={() => setDec(r)}>Decline</Button></>
                   : r.status === "approved" ? <Button size="sm" variant="outline" onClick={async () => { if (!(await askYes("Cancel this approved request? Shifts already changed stay as they are.", "Cancel Request", true))) return;
-                    try { await put("work_requests", r.id, { status: "cancelled", decidedBy: who(staff), decidedAt: new Date().toISOString() }); toast("Request cancelled"); } catch { toast("Couldn't save.", "error"); } }}>Cancel</Button> : null}</div></td></tr>; })}</tbody></table>}
+                    try { await put("work_requests", r.id, { status: "cancelled", decidedBy: who(staff), decidedAt: new Date().toISOString() }); toast("Request cancelled"); } catch { toast("Couldn't save.", "error"); } }}>Cancel</Button> : null}</div></TableCell></TableRow>; })}</TableBody></Table>}
         </div>
         {tab === "balances" && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Set each employee's Annual Leave Days on Edit Employee. Approved requests count on the year they start.</p>}
-      </div>
+      </Card>
       {dec && <DeclineDialog r={dec} name={byId[dec.employeeId]?.name || ""} onClose={() => setDec(null)} onGo={async why => { await put("work_requests", dec.id, { status: "declined", decidedBy: who(staff), decidedAt: new Date().toISOString(), decisionNote: why || null }); toast("Request declined"); }} />}
     </>
   );

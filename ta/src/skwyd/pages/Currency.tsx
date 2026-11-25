@@ -1,3 +1,5 @@
+import { Label } from "@/components/tremor/Label";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Manage → Currency: main currency (locked after setup), symbol, decimals; optional secondary currency with its rate; quick tender amounts and
 // rounding rules per currency. Same fields and rules as the current portal; everything is kept in the "company" settings document.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -75,9 +77,9 @@ export default function CurrencyPage() {
           <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-50">Main Currency</h3>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-3">
             <F l="Main currency" req help={locked ? "Set when the business was created. It can't be changed." : undefined}>
-              <select className={SEL} disabled={!admin || locked} value={d.currency} onChange={e => setD((o: any) => ({ ...o, currency: e.target.value, currencySymbol: "", currency2: o.currency2 === e.target.value ? "" : o.currency2 }))}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
-            <F l="Main currency symbol" req><select className={SEL} disabled={!admin} value={d.currencySymbol} onChange={e => set("currencySymbol", e.target.value)}><option value="">Choose…</option>{syms(d.currency, d.currencySymbol).map(s => <option key={s}>{s}</option>)}</select></F>
-            <F l="Main currency decimals" req><select className={SEL} disabled={!admin} value={d.priceDecimals} onChange={e => set("priceDecimals", +e.target.value)}>{[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}</select></F>
+              <SelectNative className={SEL} disabled={!admin || locked} value={d.currency} onChange={e => setD((o: any) => ({ ...o, currency: e.target.value, currencySymbol: "", currency2: o.currency2 === e.target.value ? "" : o.currency2 }))}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>
+            <F l="Main currency symbol" req><SelectNative className={SEL} disabled={!admin} value={d.currencySymbol} onChange={e => set("currencySymbol", e.target.value)}><option value="">Choose…</option>{syms(d.currency, d.currencySymbol).map(s => <option key={s}>{s}</option>)}</SelectNative></F>
+            <F l="Main currency decimals" req><SelectNative className={SEL} disabled={!admin} value={d.priceDecimals} onChange={e => set("priceDecimals", +e.target.value)}>{[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}</SelectNative></F>
           </div>
           <p className="mt-3 text-xs text-gray-500">Menu prices, totals and reports are in the main currency.</p>
           <div className="mt-6 grid grid-cols-1 items-start gap-4 xl:grid-cols-2"><QuickTender code={d.currency} list={qt[1]} set={l => setQt(q => ({ ...q, 1: l }))} admin={admin} />
@@ -88,10 +90,10 @@ export default function CurrencyPage() {
             {admin && (on2 ? <Button variant="outline" onClick={off2}>Deactivate</Button> : <Button onClick={() => setOn2(true)}>Activate</Button>)}</div>
           {!on2 ? <p className="text-sm text-gray-500 dark:text-gray-400">The secondary currency is off: the POS and web ordering show prices and totals in the main currency only. Activate it to add one.</p> : <>
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-4">
-              <F l="Secondary currency" req><select className={SEL} disabled={!admin} value={d.currency2} onChange={e => setD((o: any) => ({ ...o, currency2: e.target.value, currencySymbol2: "" }))}><option value="">Choose…</option>{CURRENCIES.filter(([k]) => k !== d.currency).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
-              <F l="Secondary currency symbol" req><select className={SEL} disabled={!admin || !d.currency2} value={d.currencySymbol2} onChange={e => set("currencySymbol2", e.target.value)}><option value="">Choose…</option>{d.currency2 && syms(d.currency2, d.currencySymbol2).map(s => <option key={s}>{s}</option>)}</select></F>
+              <F l="Secondary currency" req><SelectNative className={SEL} disabled={!admin} value={d.currency2} onChange={e => setD((o: any) => ({ ...o, currency2: e.target.value, currencySymbol2: "" }))}><option value="">Choose…</option>{CURRENCIES.filter(([k]) => k !== d.currency).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>
+              <F l="Secondary currency symbol" req><SelectNative className={SEL} disabled={!admin || !d.currency2} value={d.currencySymbol2} onChange={e => set("currencySymbol2", e.target.value)}><option value="">Choose…</option>{d.currency2 && syms(d.currency2, d.currencySymbol2).map(s => <option key={s}>{s}</option>)}</SelectNative></F>
               <F l={`Exchange rate (1 ${d.currency} =)`} req><Input className="h-9" type="number" min="0" step="any" disabled={!admin} placeholder="e.g. 89500" value={d.rate2} onChange={e => set("rate2", e.target.value)} /></F>
-              <F l="Secondary currency decimals" req><select className={SEL} disabled={!admin} value={d.decimals2} onChange={e => set("decimals2", +e.target.value)}>{[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}</select></F>
+              <F l="Secondary currency decimals" req><SelectNative className={SEL} disabled={!admin} value={d.decimals2} onChange={e => set("decimals2", +e.target.value)}>{[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}</SelectNative></F>
             </div>
             <p className="mt-3 text-xs text-gray-500">Shown next to totals in the POS, on receipts, in the call center and online. The cashier can take cash in either currency, or both, and the change is shown in both.</p>
             {d.currency2 && <div className="mt-6 grid grid-cols-1 items-start gap-4 xl:grid-cols-2"><QuickTender code={d.currency2} list={qt[2]} set={l => setQt(q => ({ ...q, 2: l }))} admin={admin} />
@@ -112,7 +114,7 @@ function QuickTender({ code, list, set, admin }: { code: string; list: string[];
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{list.map((v, i) => (
         <div key={i} className="flex items-center gap-1"><span className="w-4 text-xs text-gray-400">{i + 1}</span>
           <Input className="h-10 flex-1" inputMode="decimal" disabled={!admin} aria-label={"Amount " + (i + 1)} value={v} onChange={e => set(list.map((x, j) => j === i ? e.target.value : x))} />
-          {admin && <button type="button" aria-label="Remove amount" onClick={() => set(list.filter((_, j) => j !== i))} className="px-1 text-gray-400 hover:text-red-500">×</button>}</div>))}</div>
+          {admin && <Button type="button" aria-label="Remove amount" onClick={() => set(list.filter((_, j) => j !== i))} variant="ghost" size="icon-xs" className="text-gray-400 hover:text-red-600">×</Button>}</div>))}</div>
       {admin && <Button className="mt-3" size="sm" variant="outline" disabled={list.length >= 6} onClick={() => set([...list, ""])}><PlusIcon className="size-4" />Add Amount</Button>}
     </div>);
 }
@@ -136,8 +138,8 @@ function Rounding({ k, code, dec, saved, admin }: { k: number; code: string; dec
       <div className="space-y-2">{!l.length ? <p className="text-sm text-gray-500">No rules: totals are not rounded.</p> : l.map((r, i) => (
         <div key={i} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">From<Input className="h-9 w-16" type="number" min={0} max={9} disabled={!admin} value={r.from} onChange={e => setL(l.map((x, j) => j === i ? { ...x, from: e.target.value } : x))} />
           to<Input className="h-9 w-16" type="number" min={0} max={9} disabled={!admin} value={r.to} onChange={e => setL(l.map((x, j) => j === i ? { ...x, to: e.target.value } : x))} />
-          <label className="ms-2 flex items-center gap-2">Round up<Switch disabled={!admin} checked={!!r.up} onCheckedChange={v => setL(l.map((x, j) => j === i ? { ...x, up: !!v } : x))} /></label>
-          {admin && <button type="button" aria-label="Delete" onClick={() => setL(l.filter((_, j) => j !== i))} className="ms-auto text-gray-400 hover:text-red-500"><TrashBinIcon className="size-4.5" /></button>}</div>))}</div>
+          <Label className="ms-2 flex items-center gap-2">Round up<Switch disabled={!admin} checked={!!r.up} onCheckedChange={v => setL(l.map((x, j) => j === i ? { ...x, up: !!v } : x))} /></Label>
+          {admin && <Button type="button" aria-label="Delete" onClick={() => setL(l.filter((_, j) => j !== i))} variant="ghost" size="icon-xs" className="ms-auto text-gray-400 hover:text-red-600"><TrashBinIcon className="size-4.5" /></Button>}</div>))}</div>
       {err && <p className="mt-2 text-sm text-red-500">{err}</p>}
       {admin && <div className="mt-3 flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={() => { const last = l[l.length - 1]; setL([...l, { from: last ? Math.min(9, +last.to + 1) : 0, to: 9, up: !!last }]); }}><PlusIcon className="size-4" />Add Rule</Button>
         {l.length > 0 && <Button size="sm" variant="ghost" onClick={() => setL([])}>Clear All</Button>}<Button size="sm" className="ms-auto" onClick={save}>Save Rules</Button></div>}

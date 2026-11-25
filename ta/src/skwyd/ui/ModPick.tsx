@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { SegTabs } from "./SegTabs";
+import { Input as TInput } from "@/components/tremor/Input";
 // The item window of the call center in the TailAdmin look: variants (Size: Small / Large) and modifiers (Sauce: choose 1, Toppings: up to 6).
 // Same rules and answer as the shared modpick.js: min / max count every option picked, "free" options cost nothing, a repeatable option
 // takes − n +, default options start picked; Add gives { options, unitPrice, mods, note }.
@@ -75,8 +78,8 @@ function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })
         {(o.askNote || o.edit) && <section><h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-50">Item Note</h4><Textarea rows={2} placeholder="e.g. no onions" value={note} onChange={e => setNote(e.target.value)} /></section>}
         {o.edit && (() => { const line = price() * o.edit.qty, n = Math.max(0, +dv || 0), d = dk === "pct" ? line * Math.min(100, n) / 100 : Math.min(n, line);
           return <section><h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-50">Item Discount</h4>
-            <div className="flex gap-2"><div className="flex shrink-0 rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">{([["pct", "%"], ["amt", "Amount"]] as const).map(([k, t]) => <button key={k} type="button" onClick={() => setDk(k)} className={cn("h-9 rounded-md px-3 text-sm", dk === k ? "bg-blue-500 text-white" : "text-gray-600 dark:text-gray-400")}>{t}</button>)}</div>
-              <input type="number" min="0" step="any" value={dv} placeholder="0" aria-label="Item discount" onChange={e => setDv(e.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-none dark:border-gray-700 dark:text-gray-50" /></div>
+            <div className="flex gap-2"><SegTabs className="shrink-0" value={dk} onChange={v => setDk(v as any)} items={[["pct", "%"], ["amt", "Amount"]]} />
+              <TInput type="number" min="0" step="any" value={dv} placeholder="0" aria-label="Item discount" onChange={e => setDv(e.target.value)} inputClassName="h-9 py-1.5" /></div>
             <p className="mt-1.5 text-xs text-gray-500">{o.edit.qty} × {o.money(price())}{d > 0 ? ` − ${o.money(d)} = ${o.money(line - d)}` : ` = ${o.money(line)}`}</p></section>; })()}
       </div>
       <div className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
@@ -96,8 +99,8 @@ function VarWin<V extends { name: string; price: number }>({ o, list, done }: { 
   return <Dialog open={open} onOpenChange={v => !v && close(null)}><DialogContent className="w-full p-0 sm:max-w-xl">
     <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{o.name}</DialogTitle></DialogHeader>
     <div className="px-6 py-5"><h4 className="mb-3 text-base font-semibold text-gray-900 dark:text-gray-50">{o.setName}</h4>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{list.map((v, i) => <button key={i} type="button" onClick={() => close(v)} className="flex min-h-24 flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center transition hover:border-blue-500 hover:bg-blue-50/60 dark:border-gray-800 dark:bg-gray-900">
-        <b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v.name}</b><span className="mt-0.5 text-xs text-gray-500">{o.money(+v.price || 0)}</span></button>)}</div></div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{list.map((v, i) => <Card asChild className="flex min-h-24 flex-col items-center justify-center p-3 text-center transition hover:border-blue-500"><button key={i} type="button" onClick={() => close(v)} >
+        <b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v.name}</b><span className="mt-0.5 text-xs text-gray-500">{o.money(+v.price || 0)}</span></button></Card>)}</div></div>
     <div className="flex justify-end border-t border-gray-200 px-6 py-4 dark:border-gray-800"><Button variant="outline" onClick={() => close(null)}>Cancel</Button></div>
   </DialogContent></Dialog>;
 }

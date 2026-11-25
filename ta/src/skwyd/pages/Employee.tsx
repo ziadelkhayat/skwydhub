@@ -1,3 +1,6 @@
+import { Label } from "@/components/tremor/Label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // An employee's page (Employees → a row): details, employment, documents, onboarding checklist (ticks save the date), the last clock-ins,
 // roles and stores, with Edit Employee, Create / Change Password, Roles and Stores, the same as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -66,20 +69,20 @@ export default function EmployeePage() {
         {u.notes && <p className="mt-4 text-sm whitespace-pre-wrap text-gray-500 dark:text-gray-400">{u.notes}</p>}</Sec>
       <Sec title="Documents" act={<Button size="sm" variant="outline" onClick={() => setDoc(null)}>Add Document</Button>}>
         {miss.length > 0 && <p className="mb-3 text-sm text-red-500">Missing: {miss.join(", ")}</p>}
-        {!docs.length ? <None t="No documents yet" /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Document", "Number", "Status", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-          {docs.map(d => <tr key={d.id} className={TR}><td className={TD}>{d.docType}</td><td className={TD}>{d.number || "—"}</td><td className={TD}>{tag(d)}</td>
-            <td className={TD + " text-end whitespace-nowrap"}>{d.filePath && <Button size="xs" variant="outline" className="me-2" onClick={() => view(d)}>View</Button>}<Button size="xs" variant="outline" onClick={() => setDoc(d)}>Edit</Button></td></tr>)}</tbody></table></div>}</Sec>
+        {!docs.length ? <None t="No documents yet" /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Document", "Number", "Status", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+          {docs.map(d => <TableRow key={d.id} className={TR}><TableCell className={TD}>{d.docType}</TableCell><TableCell className={TD}>{d.number || "—"}</TableCell><TableCell className={TD}>{tag(d)}</TableCell>
+            <TableCell className={TD + " text-end whitespace-nowrap"}>{d.filePath && <Button size="xs" variant="outline" className="me-2" onClick={() => view(d)}>View</Button>}<Button size="xs" variant="outline" onClick={() => setDoc(d)}>Edit</Button></TableCell></TableRow>)}</TableBody></Table></div>}</Sec>
       <Sec title={<>Onboarding <span className="ms-1 text-sm font-normal text-gray-500">{obN}/{ck.length}</span></>}>
-        {!ck.length ? <None t="No checklist yet (Documents → Settings)" /> : <div className="grid gap-3">{ck.map(i => <label key={i} className="flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
-          <input type="checkbox" className="size-4 accent-blue-500" checked={!!ob[i]} onChange={e => tick(i, e.target.checked)} />{i}{ob[i] && <span className="text-xs text-gray-500">{dmy(isoLocal(ob[i]))}</span>}</label>)}</div>}</Sec>
+        {!ck.length ? <None t="No checklist yet (Documents → Settings)" /> : <div className="grid gap-3">{ck.map(i => <Label key={i} className="flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+          <Checkbox checked={!!ob[i]} onCheckedChange={(chk: boolean) => tick(i, chk)} />{i}{ob[i] && <span className="text-xs text-gray-500">{dmy(isoLocal(ob[i]))}</span>}</Label>)}</div>}</Sec>
       <Sec title="Attendance" act={<Button size="sm" variant="outline" render={<Link to="/time-clock" />}>Time Clock</Button>}>
-        {!clock.length ? <None t="No clock-ins yet. Employees clock in and out on the cashier app with their PIN." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Date", "Store", "Clock In", "Clock Out", "Hours"].map(h => <th key={h} className={TH + (h === "Hours" ? " text-end" : "")}>{h}</th>)}</tr></thead><tbody>
-          {clock.map((x: any, i: number) => <tr key={i} className={TR}><td className={TD}>{dmy(isoLocal(x.in))}</td><td className={TD}>{bName(x.branchId)}</td><td className={TD}>{hm(x.in)}</td><td className={TD}>{hm(x.out)}</td><td className={TD + " text-end"}>{tcHrs(x).toFixed(2)}</td></tr>)}</tbody></table></div>}</Sec>
+        {!clock.length ? <None t="No clock-ins yet. Employees clock in and out on the cashier app with their PIN." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Date", "Store", "Clock In", "Clock Out", "Hours"].map(h => <TableHeaderCell key={h} className={TH + (h === "Hours" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+          {clock.map((x: any, i: number) => <TableRow key={i} className={TR}><TableCell className={TD}>{dmy(isoLocal(x.in))}</TableCell><TableCell className={TD}>{bName(x.branchId)}</TableCell><TableCell className={TD}>{hm(x.in)}</TableCell><TableCell className={TD}>{hm(x.out)}</TableCell><TableCell className={TD + " text-end"}>{tcHrs(x).toFixed(2)}</TableCell></TableRow>)}</TableBody></Table></div>}</Sec>
       <Sec title="Roles" act={<Button size="sm" variant="outline" onClick={() => setDlg("roles")}>Roles</Button>}>
         {!rs.length ? <None t="No roles" /> : <div className="flex flex-wrap gap-2">{rs.map(r => <Badge key={r.id} variant="light" color="primary">{r.name}</Badge>)}</div>}</Sec>
       <Sec title="Stores" act={<Button size="sm" variant="outline" onClick={() => setDlg("stores")}>Stores</Button>}>
-        {!picked ? <None t="Applied on all existing and new stores" /> : !brs.length ? <None t="No stores yet" /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Reference</th></tr></thead><tbody>
-          {brs.map(b => <tr key={b.id} className={TR}><td className={TD}>{b.name}</td><td className={TD}>{b.code || "—"}</td></tr>)}</tbody></table></div>}</Sec>
+        {!picked ? <None t="Applied on all existing and new stores" /> : !brs.length ? <None t="No stores yet" /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Reference</TableHeaderCell></TableRow></TableHead><TableBody>
+          {brs.map(b => <TableRow key={b.id} className={TR}><TableCell className={TD}>{b.name}</TableCell><TableCell className={TD}>{b.code || "—"}</TableCell></TableRow>)}</TableBody></Table></div>}</Sec>
 
       {edit && <EditDialog cfg={CRUD.users} s={s} row={u} onClose={() => setEdit(false)} />}
       {doc !== undefined && <DocForm d={doc} s={s} emp={u.id} types={[...new Set([...st.required, ...DOC_TYPES])]} onClose={() => setDoc(undefined)} />}

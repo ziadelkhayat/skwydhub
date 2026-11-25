@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Web Ordering → Delivery Charges: which charge each store adds when it delivers to a zone (settings "dcharges": { map: { zoneId: chargeId } }).
 // Assigning also sets the zone's delivery fee to the charge, so web ordering and the POS show the same amount (same as the current portal).
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -13,7 +16,7 @@ import { Link } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -47,10 +50,10 @@ export default function DeliveryChargesPage() {
     <>
       <PageBreadcrumb pageTitle="Delivery Charges" />
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set the charge each store adds when it delivers to a delivery zone. Call center orders get it automatically when the customer's address is in the zone and the order is made by that store; web ordering uses it as the delivery fee.</p>
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row"><select aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
-          <select aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+          <div className="flex flex-col gap-3 sm:flex-row"><SelectNative aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+          <SelectNative aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></div>
           <TInput type="search" className="sm:w-64" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>
         {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-blue-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-blue-500/5">
@@ -59,16 +62,16 @@ export default function DeliveryChargesPage() {
           <Button size="sm" variant="outline" onClick={async () => { if (await askYes(`Unassign the charge from ${picked.length} zone${picked.length > 1 ? "s" : ""}?`, "Unassign") && await assign(s, picked, "")) { setSel(new Set()); toast("Charge unassigned"); } }}>Unassign Charge</Button></div>}
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!list.length ? <EmptyState text={all.length ? "Nothing matches." : "No delivery zones yet. Add delivery zones to the stores first."}>{!all.length && <Link to="/delivery-zones"><Button variant="outline">Delivery Zones</Button></Link>}</EmptyState>
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              <th className={TH + " w-12"}><Checkbox aria-label="Select all" checked={allOn} onCheckedChange={c => setSel(c ? new Set(list.map(z => z.id)) : new Set())} /></th>
-              <th className={TH}>From (Store)</th><th className={TH}>To (Delivery Zone)</th><th className={TH}>Charge</th></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(z => { const c = chargeOf(z); return (
-                <tr key={z.id} className={TR} onClick={() => setForm([z.id])}>
-                  <td className={TD} onClick={e => e.stopPropagation()}><Checkbox aria-label={"Select " + z.name} checked={sel.has(z.id)} onCheckedChange={v => { const n = new Set(sel); if (v) n.add(z.id); else n.delete(z.id); setSel(n); }} /></td>
-                  <td className={TD}>{bName(z.branchId)}</td><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{z.name}</td>
-                  <td className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</td></tr>); })}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              <TableHeaderCell className={TH + " w-12"}><Checkbox aria-label="Select all" checked={allOn} onCheckedChange={c => setSel(c ? new Set(list.map(z => z.id)) : new Set())} /></TableHeaderCell>
+              <TableHeaderCell className={TH}>From (Store)</TableHeaderCell><TableHeaderCell className={TH}>To (Delivery Zone)</TableHeaderCell><TableHeaderCell className={TH}>Charge</TableHeaderCell></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(z => { const c = chargeOf(z); return (
+                <TableRow key={z.id} className={TR} onClick={() => setForm([z.id])}>
+                  <TableCell className={TD} onClick={e => e.stopPropagation()}><Checkbox aria-label={"Select " + z.name} checked={sel.has(z.id)} onCheckedChange={v => { const n = new Set(sel); if (v) n.add(z.id); else n.delete(z.id); setSel(n); }} /></TableCell>
+                  <TableCell className={TD}>{bName(z.branchId)}</TableCell><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{z.name}</TableCell>
+                  <TableCell className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</TableCell></TableRow>); })}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {form && <AssignDialog s={s} ids={form} bName={bName} cur={form.length === 1 ? chargeOf(s.zones.find(z => z.id === form[0])!) : null} onClose={() => setForm(null)} onDone={() => setSel(new Set())} />}
     </>
   );
@@ -97,7 +100,7 @@ function AssignDialog({ s, ids, bName, cur, onClose, onDone }: { s: S; ids: stri
         <SegTabs className="mt-5" value={mode} onChange={setMode} items={[["pick", "Existing Charge"], ["new", "New Charge"]]} />
         <div className="mt-5 space-y-5">
           {mode === "pick" ? <F l="Charge" req help={chs.length ? undefined : "Only fixed charges for delivery orders can be delivery charges. Create one with New Charge."}>
-            <select className={SEL} value={ch} onChange={e => setCh(e.target.value)}><option value="">Choose a charge</option>{chs.map(c => <option key={c.id} value={c.id}>{c.name} · {money(+c.value || 0)}</option>)}</select></F>
+            <SelectNative className={SEL} value={ch} onChange={e => setCh(e.target.value)}><option value="">Choose a charge</option>{chs.map(c => <option key={c.id} value={c.id}>{c.name} · {money(+c.value || 0)}</option>)}</SelectNative></F>
             : <><F l="Name" req><Input className="h-9" autoFocus placeholder="e.g. Delivery Charge Zone 1" value={n} onChange={e => setN(e.target.value)} /></F>
               <F l="Name Localized"><Input className="h-9" dir="auto" value={ar} onChange={e => setAr(e.target.value)} /></F>
               <F l={`Value (${sym()})`} req><Input className="h-9" type="number" min="0" step="any" inputMode="decimal" value={val} onChange={e => setVal(e.target.value)} /></F></>}

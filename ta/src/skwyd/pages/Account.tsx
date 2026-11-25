@@ -1,3 +1,9 @@
+import { Label } from "@/components/tremor/Label";
+import { Card as TremorCard } from "@/components/tremor/Card";
+import { cx } from "@/components/tremor/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Account (My Profile and Business Details), Subscription and Marketplace: same fields, rules and data as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
@@ -23,9 +29,9 @@ const ls = { get: (k: string) => { try { return localStorage.getItem(k) || ""; }
 const dialSorted = DIALS.map(d => d[0]).filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => b.length - a.length);
 const ccSplit = (v: string, def = "+961") => { const t = String(v || "").trim(); if (t.startsWith("+")) { const d = t.replace(/[^\d+]/g, ""), m = dialSorted.find(c => d.startsWith(c)); if (m) return { cc: m, num: d.slice(m.length) }; } return { cc: def, num: t }; };
 const fullPhone = (v: string, cc: string) => { let d = String(v || "").replace(/[^\d+]/g, ""); if (!d) return ""; if (d.startsWith("00")) d = "+" + d.slice(2); if (d.startsWith("+")) return d.replace(/(?!^)\+/g, ""); const n = d.replace(/\+/g, "").replace(/^0+/, ""); return n.length < 6 ? "" : cc + n; };
-const Card = ({ title, children }: { title: string; children: React.ReactNode }) => <><h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3><div className={BOX + " mb-6 p-5 sm:p-6"}>{children}</div></>;
+const Card = ({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) => title == null ? <TremorCard className={className}>{children}</TremorCard> : <><h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3><TremorCard className={cx("mb-6", className)}>{children}</TremorCard></>;
 const PhoneIn = ({ cc, num, setCc, setNum, dis }: { cc: string; num: string; setCc: (v: string) => void; setNum: (v: string) => void; dis?: boolean }) => (
-  <div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-44 shrink-0")} disabled={dis} value={cc} onChange={e => setCc(e.target.value)}>{DIALS.map(([d, n]) => <option key={n} value={d}>{n} ({d})</option>)}</select>
+  <div className="flex gap-2"><SelectNative aria-label="Country code" className={cn(SEL, "w-44 shrink-0")} disabled={dis} value={cc} onChange={e => setCc(e.target.value)}>{DIALS.map(([d, n]) => <option key={n} value={d}>{n} ({d})</option>)}</SelectNative>
     <Input className="h-9 flex-1" type="tel" inputMode="tel" disabled={dis} value={num} onChange={e => setNum(e.target.value)} placeholder="71123456" /></div>);
 
 export function AccountPage() {
@@ -75,9 +81,9 @@ function Profile({ s, reload }: { s: Record<string, Row[]>; reload: () => Promis
       <F l="Email"><Input className="h-9" value={staff?.email || ""} disabled /></F>
       {adm ? <F l="Login Pin" req><div className="flex gap-2"><Input className="h-9 flex-1 tracking-[.2em]" inputMode="numeric" maxLength={5} autoComplete="off" placeholder="5 digits" value={pin} onFocus={() => pin === "•••••" && setPin("")} onChange={e => setPin(e.target.value.replace(/\D/g, ""))} />
         <Button variant="outline" className="h-9" onClick={() => setPin(String(Math.floor(10000 + Math.random() * 90000)))}>Generate</Button></div>{pinErr && <p className="mt-1.5 text-sm text-red-500">{pinErr}</p>}</F> : <span />}
-      <F l="Language" req><select className={SEL} value={lang} onChange={e => setLang(e.target.value)}><option value="en">English</option><option value="ar">Arabic</option></select></F>
+      <F l="Language" req><SelectNative className={SEL} value={lang} onChange={e => setLang(e.target.value)}><option value="en">English</option><option value="ar">Arabic</option></SelectNative></F>
     </div>
-    <label className="mt-5 flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={locN} onChange={e => setLocN(e.target.checked)} />Display Localized Names</label>
+    <Label className="mt-5 flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={locN} onCheckedChange={(chk: boolean) => setLocN(chk)} />Display Localized Names</Label>
     {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
     <div className="mt-6 flex justify-end"><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div>
   </Card>;
@@ -117,10 +123,10 @@ function Business({ s }: { s: Record<string, Row[]> }) {
     <Card title="General"><div className="grid grid-cols-1 gap-5 md:grid-cols-2">
       <F l="Business Name" req={!c.name} help="The legal or trading name of the business that owns every brand and store."><Input className="h-9" value={c.name || v.name} disabled={!!c.name || dis} onChange={e => set("name", e.target.value)} /></F>
       <F l="Account Number"><Input className="h-9" value={c.accountNo || "—"} disabled /></F>
-      <F l="Country"><select className={SEL} disabled={dis || lk} value={v.country} onChange={e => { set("country", e.target.value); if (!lk) set("currency", curOf(e.target.value)); }}>{countries.map(n => <option key={n}>{n}</option>)}</select></F>
-      <F l="Currency"><select className={SEL} disabled={dis || lk} value={v.currency} onChange={e => set("currency", e.target.value)}>{curs.map(k => <option key={k} value={k}>{curName(k)}</option>)}</select></F>
-      <F l="Business Category"><select className={SEL} disabled={!!c.name || dis} value={v.bizCategory} onChange={e => { set("bizCategory", e.target.value); set("bizSubcategory", ""); }}>{Object.keys(BIZ_CATS).map(k => <option key={k}>{k}</option>)}</select></F>
-      <F l="Business Subcategory"><select className={SEL} disabled={!!c.name || dis} value={v.bizSubcategory || subs[0]} onChange={e => set("bizSubcategory", e.target.value)}>{subs.map(k => <option key={k}>{k}</option>)}</select></F>
+      <F l="Country"><SelectNative className={SEL} disabled={dis || lk} value={v.country} onChange={e => { set("country", e.target.value); if (!lk) set("currency", curOf(e.target.value)); }}>{countries.map(n => <option key={n}>{n}</option>)}</SelectNative></F>
+      <F l="Currency"><SelectNative className={SEL} disabled={dis || lk} value={v.currency} onChange={e => set("currency", e.target.value)}>{curs.map(k => <option key={k} value={k}>{curName(k)}</option>)}</SelectNative></F>
+      <F l="Business Category"><SelectNative className={SEL} disabled={!!c.name || dis} value={v.bizCategory} onChange={e => { set("bizCategory", e.target.value); set("bizSubcategory", ""); }}>{Object.keys(BIZ_CATS).map(k => <option key={k}>{k}</option>)}</SelectNative></F>
+      <F l="Business Subcategory"><SelectNative className={SEL} disabled={!!c.name || dis} value={v.bizSubcategory || subs[0]} onChange={e => set("bizSubcategory", e.target.value)}>{subs.map(k => <option key={k}>{k}</option>)}</SelectNative></F>
       <F l="Tax Registration Name" help="The name registered with the tax authority, printed on invoices."><Input className="h-9" disabled={dis} value={v.taxName} onChange={e => set("taxName", e.target.value)} /></F>
       <F l="Tax Number" help="The VAT / tax registration number printed on invoices."><Input className="h-9" disabled={dis} value={v.taxNumber} onChange={e => set("taxNumber", e.target.value)} /></F>
     </div><p className="mt-4 text-xs text-gray-500 dark:text-gray-400">{lk ? "Business name, account number, category, country and currency are set by skwyd hub and can't be changed here." : "Pick the country and currency carefully: once you save, they can't be changed."}</p>{sv}</Card>
@@ -129,11 +135,11 @@ function Business({ s }: { s: Record<string, Row[]> }) {
       <F l="Email"><Input className="h-9" value={c.email || ""} disabled /></F><F l="Owner Phone Number"><PhoneIn cc={ph.cc} num={ph.num} setCc={() => {}} setNum={() => {}} dis /></F>
     </div></Card>
     <Card title="Settings"><div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-      <F l="Time Zone" help="Used for business days, reports and order times."><select className={SEL} disabled={dis} value={v.timeZone} onChange={e => set("timeZone", e.target.value)}>{tzList().map(([z, o]) => <option key={z} value={z}>(UTC{o}) {z.replace(/_/g, " ")}</option>)}</select></F>
+      <F l="Time Zone" help="Used for business days, reports and order times."><SelectNative className={SEL} disabled={dis} value={v.timeZone} onChange={e => set("timeZone", e.target.value)}>{tzList().map(([z, o]) => <option key={z} value={z}>(UTC{o}) {z.replace(/_/g, " ")}</option>)}</SelectNative></F>
       <F l="Google Maps API Key" help="Optional. With a key, location search uses Google Places; without one it uses OpenStreetMap. Restrict the key to your website in Google Cloud."><Input className="h-9" disabled={dis} autoComplete="off" spellCheck={false} placeholder="Optional · AIza…" value={v.gmapsKey} onChange={e => set("gmapsKey", e.target.value)} /></F>
     </div>
     <div className="mt-5 space-y-3">{([["chargesBeforeDisc", "Apply charges on the order's subtotal without tax exclusive discounts", "On: percentage charges are worked out on the order before any discount. Off: on the order after discounts."], ["localization", "Enable Localization", "Shows the Name Localized fields everywhere, so menus, receipts and apps can show a second language."]] as const).map(([k, l, n]) =>
-      <label key={k} className="flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="mt-0.5 size-4 accent-blue-500" disabled={dis} checked={!!v[k]} onChange={e => set(k, e.target.checked)} /><span>{l}<span className="block text-xs text-gray-500">{n}</span></span></label>)}</div>
+      <Label key={k} className="flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><Checkbox className="mt-0.5" disabled={dis} checked={!!v[k]} onCheckedChange={(chk: boolean) => set(k, chk)} /><span>{l}<span className="block text-xs text-gray-500">{n}</span></span></Label>)}</div>
     {err && <p className="mt-4 text-sm text-red-500">{err}</p>}{sv}</Card>
   </>;
 }
@@ -187,20 +193,20 @@ export function SubscriptionPage() {
       <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{x}</b></div>)}</div></Card>
     {mods.length > 0 && <Card title="Modules"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">{mods.map((p: any) => { const on = s.complimentary || (s.modules || []).includes(p.id);
       return <div key={p.id} className={cn("flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 text-sm dark:border-gray-800", !on && "opacity-60")}><span className="text-gray-900 dark:text-gray-50">{p.name}</span><Badge variant="light" color={on ? "success" : "light"}>{on ? "Included" : "Not Included"}</Badge></div>; })}</div></Card>}
-    {!s.complimentary && q && <Card title={`Your Plan · Billed ${q.cycle === "yearly" ? "Yearly" : "Monthly"}`}><div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Item</th><th className={TH + " text-end"}>Quantity</th><th className={TH + " text-end"}>Price</th><th className={TH + " text-end"}>Amount</th></tr></thead><tbody>
-      {(q.lines || []).map((l: any, i: number) => <tr key={i} className={TR}><td className={TD}>{l.name}</td><td className={TD + " text-end"}>{(+l.qty || 0).toLocaleString("en-US")}</td><td className={TD + " text-end"}>{m(l.price, q.currency)}<span className="text-xs text-gray-500">{unit(l)}</span></td><td className={TD + " text-end"}>{m(l.amount, q.currency)}</td></tr>)}
-      {+q.discount > 0 && <><tr><td colSpan={3} className={TD + " text-end"}>Subtotal</td><td className={TD + " text-end"}>{m(q.subtotal, q.currency)}</td></tr><tr><td colSpan={3} className={TD + " text-end"}>Discount</td><td className={TD + " text-end"}>−{m(q.discount, q.currency)}</td></tr></>}
-      <tr><td colSpan={3} className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total per {q.cycle === "yearly" ? "year" : "month"}</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{m(q.total, q.currency)}</td></tr></tbody></table></div></Card>}
+    {!s.complimentary && q && <Card title={`Your Plan · Billed ${q.cycle === "yearly" ? "Yearly" : "Monthly"}`}><div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Item</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Price</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Amount</TableHeaderCell></TableRow></TableHead><TableBody>
+      {(q.lines || []).map((l: any, i: number) => <TableRow key={i} className={TR}><TableCell className={TD}>{l.name}</TableCell><TableCell className={TD + " text-end"}>{(+l.qty || 0).toLocaleString("en-US")}</TableCell><TableCell className={TD + " text-end"}>{m(l.price, q.currency)}<span className="text-xs text-gray-500">{unit(l)}</span></TableCell><TableCell className={TD + " text-end"}>{m(l.amount, q.currency)}</TableCell></TableRow>)}
+      {+q.discount > 0 && <><TableRow><TableCell colSpan={3} className={TD + " text-end"}>Subtotal</TableCell><TableCell className={TD + " text-end"}>{m(q.subtotal, q.currency)}</TableCell></TableRow><TableRow><TableCell colSpan={3} className={TD + " text-end"}>Discount</TableCell><TableCell className={TD + " text-end"}>−{m(q.discount, q.currency)}</TableCell></TableRow></>}
+      <TableRow><TableCell colSpan={3} className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total per {q.cycle === "yearly" ? "year" : "month"}</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{m(q.total, q.currency)}</TableCell></TableRow></TableBody></Table></div></Card>}
     <h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-50">Invoices</h3>
-    <div className={BOX}>{!(s.invoices || []).length ? <EmptyState text="No invoices yet." /> : <div className="overflow-x-auto"><table className="w-full min-w-[760px]"><thead><tr>{["Invoice", "Period", "Due", "Total", "Status", "Paid", ""].map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead><tbody>
-      {s.invoices.map((i: any) => <tr key={i.id} className={TR}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{i.number}</td><td className={TD}>{sDate(i.periodStart)} – {sDate(i.periodEnd)}</td><td className={TD}>{sDate(i.dueAt)}</td><td className={TD + " text-end"}>{m(i.total, i.currency)}</td>
-        <td className={TD}>{i.status === "paid" ? <Badge variant="light" color="success">Paid</Badge> : new Date(i.dueAt) < new Date() ? <Badge variant="light" color="error">Overdue</Badge> : <Badge variant="light" color="warning">Open</Badge>}</td>
-        <td className={TD}>{i.paidAt ? sDate(i.paidAt) + (i.method ? " · " + i.method[0].toUpperCase() + i.method.slice(1) : "") : "—"}</td><td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => showInv(i)}>View</Button></td></tr>)}</tbody></table></div>}</div>
+    <Card className="overflow-hidden p-0">{!(s.invoices || []).length ? <EmptyState text="No invoices yet." /> : <div className="overflow-x-auto"><Table className="w-full min-w-[760px]"><TableHead><TableRow>{["Invoice", "Period", "Due", "Total", "Status", "Paid", ""].map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+      {s.invoices.map((i: any) => <TableRow key={i.id} className={TR}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{i.number}</TableCell><TableCell className={TD}>{sDate(i.periodStart)} – {sDate(i.periodEnd)}</TableCell><TableCell className={TD}>{sDate(i.dueAt)}</TableCell><TableCell className={TD + " text-end"}>{m(i.total, i.currency)}</TableCell>
+        <TableCell className={TD}>{i.status === "paid" ? <Badge variant="light" color="success">Paid</Badge> : new Date(i.dueAt) < new Date() ? <Badge variant="light" color="error">Overdue</Badge> : <Badge variant="light" color="warning">Open</Badge>}</TableCell>
+        <TableCell className={TD}>{i.paidAt ? sDate(i.paidAt) + (i.method ? " · " + i.method[0].toUpperCase() + i.method.slice(1) : "") : "—"}</TableCell><TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => showInv(i)}>View</Button></TableCell></TableRow>)}</TableBody></Table></div>}</Card>
     <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">To pay an invoice, add POS devices or modules, or change your billing, contact {contact.length ? contact.reduce((a: any[], x, i) => i ? [...a, " · ", x] : [x], []) : "Skwyd Hub support"}. Card payments here are coming soon.</p>
   </>;
 }
 
 /* ---------- Marketplace: integrations are listed here one by one as they become available (none yet, as in the portal) ---------- */
 export function MarketplacePage() {
-  return <><PageBreadcrumb pageTitle="Marketplace" /><div className={BOX}><EmptyState text="No integrations yet" /></div></>;
+  return <><PageBreadcrumb pageTitle="Marketplace" /><Card className="overflow-hidden p-0"><EmptyState text="No integrations yet" /></Card></>;
 }

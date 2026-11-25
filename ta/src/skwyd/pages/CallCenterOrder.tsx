@@ -1,3 +1,9 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { SegTabs } from "../ui/SegTabs";
+import { ChoiceButton } from "../ui/Choice";
+import { Checkbox } from "@/components/ui/checkbox";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Call Center order screen: customer (phone lookup, name, saved addresses), order type, source, brand and store, the call center menu
 // with its prices, modifiers (the shared modifier picker modpick.js, same as the portal and POS), cart, discount, charges, notes and totals
 // (taxes, charges and rounding as in the portal). Send / Save Draft / Accept / Decline / Cancel order behave as in the current portal.
@@ -226,18 +232,18 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
             {/* customer and order details */}
             <section className="custom-scrollbar space-y-3 lg:order-3 lg:overflow-y-auto">
               {/* the order: type, source, brand and store */}
-              <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">
+              <Card className="space-y-3 p-4">
               <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">Order</h3>
-              <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
-                className={cn("h-9 rounded-lg border text-sm font-medium", type === k ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
-              <F l="Order Source" req><select className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</select></F>
-              {D.brands.length > 0 && <F l="Brand" req><select className={SEL} disabled={locked} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); setCat(""); }}><option value="">Choose…</option>{D.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>}
-              <F l="Store" req><select className={SEL} disabled={locked} value={branch} onChange={e => { setBranch(e.target.value); setCat(""); }}><option value="">Choose…</option>{D.branches.map(b => <option key={b.id} value={b.id}>{b.name}{brOpenNow(b) ? "" : " · closed now"}</option>)}</select></F>
-              </div>
+              <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <ChoiceButton on={type === k} key={k} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
+                className="h-9">{t}</ChoiceButton>)}</div>
+              <F l="Order Source" req><SelectNative className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</SelectNative></F>
+              {D.brands.length > 0 && <F l="Brand" req><SelectNative className={SEL} disabled={locked} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); setCat(""); }}><option value="">Choose…</option>{D.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>}
+              <F l="Store" req><SelectNative className={SEL} disabled={locked} value={branch} onChange={e => { setBranch(e.target.value); setCat(""); }}><option value="">Choose…</option>{D.branches.map(b => <option key={b.id} value={b.id}>{b.name}{brOpenNow(b) ? "" : " · closed now"}</option>)}</SelectNative></F>
+              </Card>
               {/* the customer: phone, name, their history, the delivery address */}
-              <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">
+              <Card className="space-y-3 p-4">
               <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">Customer</h3>
-              <F l="Customer Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-24 shrink-0")} disabled={locked} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
+              <F l="Customer Phone" req><div className="flex gap-2"><SelectNative aria-label="Country code" className={cn(SEL, "w-24 shrink-0")} disabled={locked} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</SelectNative>
                 <Input className="h-9 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
               {cust && <div className="space-y-1 text-xs">{cust.blacklisted && <p className="font-semibold text-red-500">⚠ Blacklisted customer.</p>}{(cust.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{cust.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</div>}{cust.notes && <p className="text-gray-500 italic">{cust.notes}</p>}</div>}
               <F l="Customer Name" req><Input className="h-9" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
@@ -249,18 +255,18 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                   <div className="min-w-0 flex-1"><div className="flex justify-between gap-2"><b className="text-gray-900 dark:text-gray-50">{r.ref || r.no || "—"}</b><b className="text-gray-900 dark:text-gray-50">{money(+r.total || 0)}</b></div>
                     <span className="block text-gray-500">{new Date(r.created_at).toLocaleDateString("en-GB").replace(/\//g, "-")} · {r.type === "delivery" ? "Delivery" : r.type === "dinein" ? "In Store" : "Pickup"}</span>
                     <span className="block truncate text-gray-400">{(r.items || []).map((i: any) => (i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ")}</span></div>
-                  {!o && <button type="button" onClick={() => reorderPast(r)} className="shrink-0 rounded-lg border border-blue-300 px-2.5 py-1.5 font-medium text-blue-600 hover:bg-blue-50 dark:border-blue-500/40 dark:hover:bg-blue-500/10">Reorder</button>}
+                  {!o && <Button type="button" onClick={() => reorderPast(r)} variant="secondary" size="xs" className="shrink-0">Reorder</Button>}
                 </div>)}</div></div>}
               {type === "delivery" && <div className="space-y-3 rounded-md border border-gray-200 p-3 dark:border-gray-800">
                 <b className="block text-sm font-medium text-gray-900 dark:text-gray-50">Delivery Address</b>
-                {!!(cust?.addresses || []).length && !(locked && o?.address) && <F l="Saved addresses"><select className={SEL} value={addrIx ?? ""} onChange={e => { const i = e.target.value === "" ? null : +e.target.value; setAddrIx(i); setAddr(i == null ? addrSplit("") : addrSplit(cust.addresses[i].address)); }}>
-                  <option value="">New address…</option>{cust.addresses.map((a: any, i: number) => { const x = addrSplit(a.address); return <option key={i} value={i}>{(x.label || "Address " + (i + 1)) + (x.street ? " · " + x.street : "")}</option>; })}</select>
-                  {addrIx != null && !ro && <button type="button" onClick={() => delAddr(addrIx)} className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600"><TrashBinIcon className="size-3.5" />Delete this saved address</button>}</F>}
+                {!!(cust?.addresses || []).length && !(locked && o?.address) && <F l="Saved addresses"><SelectNative className={SEL} value={addrIx ?? ""} onChange={e => { const i = e.target.value === "" ? null : +e.target.value; setAddrIx(i); setAddr(i == null ? addrSplit("") : addrSplit(cust.addresses[i].address)); }}>
+                  <option value="">New address…</option>{cust.addresses.map((a: any, i: number) => { const x = addrSplit(a.address); return <option key={i} value={i}>{(x.label || "Address " + (i + 1)) + (x.street ? " · " + x.street : "")}</option>; })}</SelectNative>
+                  {addrIx != null && !ro && <Button type="button" onClick={() => delAddr(addrIx)} variant="link" className="mt-1.5 gap-1 text-xs font-medium text-red-600 dark:text-red-500"><TrashBinIcon className="size-3.5" />Delete this saved address</Button>}</F>}
                 {([["label", "Address type (Home, Work…)"], ["street", "Area / street *"], ["building", "Building name / no. *"], ["floor", "Floor / Apartment no. *"], ["door", "Door details / Name on intercom"], ["extra", "Instructions"]] as const).map(([k, ph]) =>
                   <Input key={k} className="h-10" disabled={ro || (locked && !!o?.address)} placeholder={ph} value={addr[k]} onChange={e => { setAddr({ ...addr, [k]: e.target.value }); setAddrIx(null); }} />)}
                 {D.zc && <p className="text-xs text-gray-500">Delivery charge: {D.zc.name} ({money(+D.zc.value || 0)})</p>}
               </div>}
-              </div>
+              </Card>
             </section>
             {/* the cart */}
             <section className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A] lg:order-1">
@@ -282,7 +288,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                   </button>
                   {!ro && <div className="mt-2 flex items-center gap-2"><Button size="icon-xs" variant="outline" aria-label="Less" onClick={() => setCart(c => +i.qty <= 1 ? c.filter((_, j) => j !== ix) : c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty - 1 }) : x))}><MinusIcon className="size-3.5" /></Button>
                     <span className="w-6 text-center text-sm">{i.qty}</span><Button size="icon-xs" variant="outline" aria-label="More" onClick={() => setCart(c => c.map((x, j) => j === ix ? reDisc({ ...x, qty: +x.qty + 1 }) : x))}><PlusIcon className="size-3.5" /></Button>
-                    <button type="button" aria-label="Remove" className="ms-auto text-gray-400 hover:text-red-500" onClick={() => setCart(c => c.filter((_, j) => j !== ix))}><TrashBinIcon className="size-4" /></button></div>}
+                    <Button type="button" aria-label="Remove" variant="ghost" size="icon-xs" className="ms-auto text-gray-400 hover:text-red-600" onClick={() => setCart(c => c.filter((_, j) => j !== ix))}><TrashBinIcon className="size-4" /></Button></div>}
                 </div>))}</div>
               <div className="space-y-1.5 border-t border-gray-200 p-4 text-sm dark:border-gray-800">
                 <div className="flex justify-between text-gray-500"><span>Subtotal</span><span>{money(calc.gross)}</span></div>
@@ -308,16 +314,16 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               {/* the order's tools: the same soft blue squares and icons as the POS top buttons (apps/pos/src/ui/Icon.tsx) */}
               {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, disc > 0], ["chg", "Charges", <path d="M12 5v14M5 12h14" />, !!chg?.size],
                 ["tags", "Tags", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, !!tags?.length], ["notes", "Notes", <><path d="M6 3h9l4 4v14H6z" /><path d="M9 11h7M9 15h7" /></>, !!(notes || rnotes)]] as const).map(([k, t, d, on]) =>
-                <button key={k} type="button" onClick={() => setDlg(k)} className={cn("flex size-[84px] flex-col items-center justify-center gap-1.5 rounded-lg border-2 bg-blue-50 text-[13px] font-medium text-blue-600 transition hover:bg-blue-100 dark:bg-blue-500/15 dark:text-blue-400", on ? "border-blue-500" : "border-blue-50 dark:border-transparent")}>
-                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>{t}</button>)}</div>}
+                <ChoiceButton on={on} key={k} onClick={() => setDlg(k)} className="flex size-[84px] flex-col items-center justify-center gap-1.5 whitespace-normal text-[13px]">
+                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>{t}</ChoiceButton>)}</div>}
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <TInput type="search" className="mb-2 h-10" inputClassName="h-9 py-1.5" placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} />
                 {/* categories as tiles; a category opens its items with Back (search shows matching items from every category) */}
                 {!q.trim() && !cat ? <TileGrid>{cats.map(c => { return (
                   <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub="" muted bold onClick={() => setCat(c.id)} />); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</TileGrid> :
-                <TileGrid>{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 border border-gray-200 bg-white p-1.5 text-center transition hover:border-blue-300 hover:bg-blue-50 dark:border-gray-800 dark:bg-gray-900">
-                    <ChevronLeftIcon className="size-6 text-blue-500" /><b className="text-[15px] font-semibold text-gray-900 dark:text-gray-50">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
+                <TileGrid>{!q.trim() && cat && <Card asChild className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 rounded-md p-1.5 text-center transition hover:border-blue-500"><button type="button" onClick={() => setCat("")} >
+                    <ChevronLeftIcon className="size-6 text-blue-500" /><b className="text-[15px] font-semibold text-gray-900 dark:text-gray-50">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button></Card>}
                   {shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch), inCart = cart.filter(i => i.productId === p.id || i.id === p.id).reduce((t, i) => t + (+i.qty || 0), 0);
                     return <MenuTile key={p.id} img={p.imageUrl} name={p.name} n={inCart} disabled={oos} sub={oos ? "Out" : (p.variants || []).length ? "Choose" : money(D.price(p))} onClick={() => addProduct(p)} />; })}
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</TileGrid>}
@@ -326,10 +332,10 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
       </div>
         {line != null && cart[line] && <LineDlg it={cart[line]} onClose={() => setLine(null)} onSave={x => { setCart(c => c.map((y, j) => j === line ? reDisc(x) : y)); setLine(null); }} />}
         {dlg === "disc" && <Small title="Discount" onClose={() => setDlg("")}>
-          <div className="flex gap-2">{[["pct", "Percentage"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setDiscType(k)} className={cn("h-10 flex-1 rounded-lg border text-sm", discType === k ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{t}</button>)}</div>
+          <div className="flex gap-2">{[["pct", "Percentage"], ["amt", "Amount"]].map(([k, t]) => <ChoiceButton on={discType === k} key={k} onClick={() => setDiscType(k)} className="h-10 flex-1">{t}</ChoiceButton>)}</div>
           <F l={discType === "pct" ? "Discount (%)" : "Discount Amount"}><Input className="h-9" type="number" min="0" max={discType === "pct" ? 100 : undefined} step="any" value={disc || ""} onChange={e => setDisc(Math.max(0, Math.min(discType === "pct" ? 100 : 1e9, +e.target.value || 0)))} /></F></Small>}
         {dlg === "chg" && <Small title="Charges" onClose={() => setDlg("")}>{!D.chList.length ? <p className="text-sm text-gray-500">No charges apply to this order type and store.</p> : D.chList.map(c => { const on = picked.some(x => x.id === c.id); return (
-          <div key={c.id} className="flex items-center gap-3"><label className="flex flex-1 cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={on} onChange={e => { const n = new Set(picked.map(x => x.id)); if (e.target.checked) n.add(c.id); else n.delete(c.id); setChg(n); }} />{c.name}</label>
+          <div key={c.id} className="flex items-center gap-3"><Label className="flex flex-1 cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={on} onCheckedChange={(chk: boolean) => { const n = new Set(picked.map(x => x.id)); if (chk) n.add(c.id); else n.delete(c.id); setChg(n); }} />{c.name}</Label>
             {c.type === "open" ? <Input className="h-9 w-28" type="number" min="0" step="any" value={open[c.id] ?? c.value ?? ""} onChange={e => setOpen({ ...open, [c.id]: +e.target.value || 0 })} /> : <span className="text-sm text-gray-500">{c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0)}</span>}</div>); })}</Small>}
         {dlg === "tags" && (() => { const td: any = s.settings.find(x => x.id === "tags") || {}, l = (td.list || []).filter((t: any) => t.type === "order" && !t.deleted), cur = tags ?? (o ? ((td.on || {}).order || {})[o.id] || [] : []);
           return <PickDialog title="Order Tags" opts={l.map((t: any) => [t.id, t.name])} value={cur} onClose={() => setDlg("")} onSave={ids => { setTags(ids); setDlg(""); return true; }} />; })()}
@@ -349,7 +355,7 @@ function LineDlg({ it, onClose, onSave }: { it: any; onClose: () => void; onSave
     <div className="mt-4 space-y-4">
       <F l="Item Note"><Textarea rows={2} value={note} placeholder="e.g. no onions" onChange={e => setNote(e.target.value)} /></F>
       <div><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Item Discount</span>
-        <div className="flex gap-2"><div className="flex shrink-0 rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">{[["pct", "%"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setKind(k)} className={cn("h-9 rounded-md px-3 text-sm", kind === k ? "bg-blue-500 text-white" : "text-gray-600 dark:text-gray-400")}>{t}</button>)}</div>
+        <div className="flex gap-2"><SegTabs className="shrink-0" value={kind} onChange={v => setKind(v as any)} items={[["pct", "%"], ["amt", "Amount"]]} />
           <Input className="h-10 flex-1" type="number" min="0" step="any" max={kind === "pct" ? 100 : full} value={v} placeholder="0" onChange={e => setV(e.target.value)} /></div>
         <p className="mt-1.5 text-xs text-gray-500">{d > 0 ? `−${money(d)} · line total ${money(full - d)}` : `Line total ${money(full)}`}</p></div>
     </div>
@@ -363,7 +369,7 @@ const Small = ({ title, onClose, children }: { title: string; onClose: () => voi
 function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: string[]; onClose: () => void; onGo: (why: string) => void }) {
   const [pick, setPick] = useState(reasons.length ? "" : "_other"), [txt, setTxt] = useState(""), [err, setErr] = useState("");
   return <Small title={title} onClose={onClose}>
-    <div className="flex flex-wrap gap-2">{[...reasons, "_other"].map(r => <button key={r} type="button" onClick={() => setPick(r)} className={cn("rounded-lg border px-3 py-2 text-sm", pick === r ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{r === "_other" ? "Other…" : r}</button>)}</div>
+    <div className="flex flex-wrap gap-2">{[...reasons, "_other"].map(r => <ChoiceButton on={pick === r} key={r} onClick={() => setPick(r)} >{r === "_other" ? "Other…" : r}</ChoiceButton>)}</div>
     {pick === "_other" && <Input className="h-9" autoFocus placeholder="Write the reason" value={txt} onChange={e => setTxt(e.target.value)} />}
     {err && <p className="text-sm text-red-500">{err}</p>}
     <Button variant="destructive" onClick={() => { const v = pick === "_other" ? txt.trim() : pick; if (!v) return setErr("Choose a reason."); onGo(v); }}>{title.startsWith("Decline") ? "Decline Order" : "Cancel Order"}</Button>
@@ -389,11 +395,11 @@ function TileGrid({ children }: { children: React.ReactNode }) {
 }
 // F: the photo fills the top edge to edge; one caption line under it: the name on the left (2 lines at most), the price on the right in blue
 function MenuTile({ img, name, sub, n, bold, disabled, onClick, muted }: { img?: string; name: string; sub: string; n?: number; bold?: boolean; disabled?: boolean; onClick: () => void; muted?: boolean }) {
-  return <button type="button" disabled={disabled} onClick={onClick} className={cn("relative flex h-full min-h-0 snap-start flex-col overflow-hidden border bg-white text-start transition hover:border-blue-300 disabled:opacity-50 dark:bg-gray-900", n ? "border-blue-500" : "border-gray-200 dark:border-gray-800")}>
+  return <ChoiceButton on={!!n} disabled={disabled} onClick={onClick} className="relative flex h-full min-h-0 snap-start flex-col items-stretch justify-start overflow-hidden p-0 text-start whitespace-normal disabled:opacity-50">
     <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-gray-100 dark:bg-white/5">{img ? <img src={img} alt="" className="h-full w-full object-cover" /> : <svg viewBox="0 0 24 24" className="size-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z" /><path d="M12 4v4M9 6l1 2M15 6l-1 2" /></svg>}</span>
     <span className="flex h-[60px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 min-w-0 flex-1 text-sm leading-[17px] break-words text-gray-900 dark:text-gray-50", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-sm font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-blue-500")}>{sub}</span></span>
     {n ? <span className="absolute top-1 right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-blue-500 px-1 text-xs font-semibold text-white">{n}</span> : null}
-  </button>;
+  </ChoiceButton>;
 }
 export function CallCenterOrderPage() {
   const [sp] = useSearchParams(), id = sp.get("id") || "", nav = useNavigate(), [o, setO] = useState<any>(id ? undefined : null);

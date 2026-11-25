@@ -1,3 +1,4 @@
+import { Card } from "@/components/tremor/Card";
 // Manage → Reasons and Manage → Tags: lists kept in settings documents ("app" and "tags"), same sections, rules and
 // General / Deleted tabs as the current portal. Rows can be dragged to change their order.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -24,7 +25,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
     const keys = items.map(i => i.key).filter(k => k !== drag); keys.splice(keys.indexOf(target) + (items.findIndex(i => i.key === drag) < items.findIndex(i => i.key === target) ? 1 : 0), 0, drag); onMove(keys);
   };
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+    <Card className="overflow-hidden p-0">
       <div className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3>
         {onNew && <Button size="sm" variant="outline" onClick={onNew}><PlusIcon className="size-4.5" />Create</Button>}
@@ -41,7 +42,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
             <span className="flex-1" />{action?.(it)}
           </li>))}
       </ul>
-    </div>);
+    </Card>);
 }
 
 function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, onRestore }: { title: string; name: string; nameAr?: string; onSave?: (n: string, ar: string) => Promise<string | null>; onDelete?: () => Promise<boolean>; onClose: () => void; readOnly?: boolean; onRestore?: () => void }) {
@@ -190,6 +191,6 @@ export function AllergensPage() {
 
 // Catalog → Combos: not built in the current portal either (it shows "Coming next"), so this page says the same
 export function CombosPage() {
-  return <><PageBreadcrumb pageTitle="Combos" /><div className="rounded-lg border border-gray-200 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-[#090E1A]">
-    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Coming next</h3><p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This screen is part of the plan and will be built in a later step.</p></div></>;
+  return <><PageBreadcrumb pageTitle="Combos" /><Card className="px-6 py-16 text-center">
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Coming next</h3><p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This screen is part of the plan and will be built in a later step.</p></Card></>;
 }

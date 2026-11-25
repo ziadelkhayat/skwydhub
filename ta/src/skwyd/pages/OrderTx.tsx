@@ -1,3 +1,5 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // Order Transactions: what each completed sale took out of stock (Consumption From Order) and what voided sales put back (Return From Order).
 // Read from the order_transactions table, 50 per page, newest first, for the chosen store; a transaction opens as its own page with its items.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -54,7 +56,7 @@ export default function OrderTxPage() {
       const e = (v: any) => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as any)[c]);
       w.document.write(`<title>${e(r.ref)}</title><style>body{font:14px system-ui;padding:24px;color:#111}h1{font-size:20px}table{width:100%;border-collapse:collapse;margin-top:16px}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}td:last-child,th:last-child{text-align:right}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.g span{display:block;color:#666;font-size:12px}</style>
         <h1>${ret ? "Return" : "Consumption"} from order (${e(r.ref)})</h1><div class="g">${[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no || "—"], ["Total Cost", money(r.total_cost)]].map(([l, v]) => `<div><span>${l}</span>${e(v)}</div>`).join("")}</div>
-        <table><thead><tr><th>Name</th><th>Quantity</th></tr></thead><tbody>${(r.items || []).map((x: any) => { const it = item(x.itemId); return `<tr><td>${e(it?.name || "(deleted item)")}</td><td>${n2(x.qty)} ${e(it?.storageUnit || "")}</td></tr>`; }).join("")}</tbody></table><script>window.onload=()=>window.print()<\/script>`); w.document.close(); };
+        <Table><TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>${(r.items || []).map((x: any) => { const it = item(x.itemId); return `<TableRow><TableCell>${e(it?.name || "(deleted item)")}</TableCell><TableCell>${n2(x.qty)} ${e(it?.storageUnit || "")}</TableCell></TableRow>`; }).join("")}</TableBody></Table><script>window.onload=()=>window.print()<\/script>`); w.document.close(); };
     return <>
       <PageBreadcrumb pageTitle="Order Transactions" current={r.ref} />
       <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={() => open(null)}><ArrowLeftIcon className="size-5" />Order Transactions</Button>
@@ -62,10 +64,10 @@ export default function OrderTxPage() {
         <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></div>
       <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3"}>{[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no ? String(r.order_no) : "—"], ["Type", kindName(r.kind)], ["Total Cost", money(r.total_cost)]].map(([l, v]) =>
         <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
-      <div className={BOX}><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
-        <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH + " text-end"}>Quantity</th></tr></thead><tbody>
-          {(r.items || []).map((x: any, i: number) => { const it = item(x.itemId); return <tr key={i} className={TR}><td className={TD}>{it?.name || "(deleted item)"}</td><td className={TD + " text-end"}>{n2(x.qty)} {it?.storageUnit || ""}</td></tr>; })}
-          {!(r.items || []).length && <tr><td colSpan={2} className={TD + " text-center text-gray-500"}>No items.</td></tr>}</tbody></table></div></div>
+      <Card className="overflow-hidden p-0"><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
+        <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>
+          {(r.items || []).map((x: any, i: number) => { const it = item(x.itemId); return <TableRow key={i} className={TR}><TableCell className={TD}>{it?.name || "(deleted item)"}</TableCell><TableCell className={TD + " text-end"}>{n2(x.qty)} {it?.storageUnit || ""}</TableCell></TableRow>; })}
+          {!(r.items || []).length && <TableRow><TableCell colSpan={2} className={TD + " text-center text-gray-500"}>No items.</TableCell></TableRow>}</TableBody></Table></div></Card>
     </>;
   }
 
@@ -73,18 +75,18 @@ export default function OrderTxPage() {
   return <>
     <PageBreadcrumb pageTitle="Order Transactions" />
     <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">Every completed sale takes its recipe ingredients (item and options, for its order type) out of the store's stock. Voided sales put them back.</p>
-    <div className={BOX}>
+    <Card className="overflow-hidden p-0">
       <div className="flex flex-col gap-3 border-b border-gray-200 p-4 sm:flex-row sm:items-center dark:border-gray-800">
         <StoreFilter s={s as any} brand={brand} setBrand={v => { setBrand(v); setPage(1); }} branch={branch} setBranch={v => { setBranch(v); setPage(1); }} />
         <Button variant="outline" className="sm:ms-auto" disabled={!rows?.length} onClick={() => csv("order-transactions.csv", [["Reference", "Store", "Order Reference", "Type", "Business Date", "Created"], ...(rows || []).map(r => [r.ref, bName(r.branch_id), r.order_no || "", kindName(r.kind), bd(r), fmtDateTime(r.created_at)])])}><DownloadIcon className="size-5" />Export</Button>
       </div>
       {err ? <EmptyState text={"Couldn't load the transactions: " + err} /> : rows === null ? <p className="p-10 text-center text-sm text-gray-500">Loading…</p> : !rows.length ? <EmptyState text="No transactions yet" /> :
-        <div className="overflow-x-auto"><table className="w-full min-w-[760px]"><thead><tr>{["Reference", "Store", "Order Reference", "Type", "Business Date", "Created"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-          {rows.map(r => <tr key={r.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => open(r.id)}>
-            <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.ref}</td><td className={TD}>{bName(r.branch_id)}</td><td className={TD}>{r.order_no || "—"}</td>
-            <td className={TD}><Badge variant="light" color={r.kind === "return" ? "warning" : "primary"}>{kindName(r.kind)}</Badge></td><td className={TD}>{bd(r)}</td><td className={TD}>{fmtDateTime(r.created_at)}</td></tr>)}</tbody></table></div>}
+        <div className="overflow-x-auto"><Table className="w-full min-w-[760px]"><TableHead><TableRow>{["Reference", "Store", "Order Reference", "Type", "Business Date", "Created"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+          {rows.map(r => <TableRow key={r.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => open(r.id)}>
+            <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.ref}</TableCell><TableCell className={TD}>{bName(r.branch_id)}</TableCell><TableCell className={TD}>{r.order_no || "—"}</TableCell>
+            <TableCell className={TD}><Badge variant="light" color={r.kind === "return" ? "warning" : "primary"}>{kindName(r.kind)}</Badge></TableCell><TableCell className={TD}>{bd(r)}</TableCell><TableCell className={TD}>{fmtDateTime(r.created_at)}</TableCell></TableRow>)}</TableBody></Table></div>}
       <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row dark:border-gray-800">
         <span className="text-sm text-gray-500">{count} transaction{count === 1 ? "" : "s"}</span>{pages > 1 && <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />}</div>
-    </div>
+    </Card>
   </>;
 }

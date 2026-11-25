@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +25,7 @@ export const ST_COLOR: Record<string, any> = { closed: "success", active: "prima
 export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
-const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-xs focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
+const SEL = "h-9 py-1.5";
 export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
 export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
 // every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
@@ -97,14 +100,14 @@ export default function OrdersPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Orders" />
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
           {/* every tab shown (they wrap on small screens), the filters on the line under them */}
           <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            {<select aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
-            <select aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+            {<SelectNative aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
+            <SelectNative aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
             <div className="sm:w-56"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
             <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           </div>
@@ -120,35 +123,35 @@ export default function OrdersPage() {
                   <span className="block text-xs text-gray-500">{[TYPE_LBL[o.type] || o.type, srcOf(o), o.customerName].filter(Boolean).join(" · ")}</span>
                   <span className="block text-xs text-gray-400">{[branches.find(b => b.id === o.branchId)?.name, fmtDate(o.createdAt) + " " + new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })].filter(Boolean).join(" · ")}</span></span>
                 <b className="shrink-0 font-medium text-gray-900 dark:text-gray-50">{money(o.total)}</b></button></li>))}</ul>
-            <table className="hidden min-w-full md:table">
-              <thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-                {["Reference", "Check Number", "Order", "Store", "Customer", "Status", "Order Type", "Order Source", "Business Date", "Opened At", "Payment Type"].map(h => <th key={h} className={th}>{h}</th>)}
-                <th className={th + " text-end"}>Total</th></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+            <Table className="hidden min-w-full md:table">
+              <TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+                {["Reference", "Check Number", "Order", "Store", "Customer", "Status", "Order Type", "Order Source", "Business Date", "Opened At", "Payment Type"].map(h => <TableHeaderCell key={h} className={th}>{h}</TableHeaderCell>)}
+                <TableHeaderCell className={th + " text-end"}>Total</TableHeaderCell></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {rows.map(o => { const t = new Date(o.createdAt);
                   return (
-                    <tr key={o.id} onClick={() => openWin("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                      <td className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{ordRef(o)}</span></td>
-                      <td className={td}>{chkNo(o)}</td>
-                      <td className={td}>{o.no || "—"}</td>
-                      <td className={td}>{branches.find(b => b.id === o.branchId)?.name || "—"}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</td>
-                      <td className={td}><span className="block font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</td>
-                      <td className={td}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td>
-                      <td className={td}>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</td>
-                      <td className={td}>{srcOf(o) || "—"}</td>
-                      <td className={td}>{fmtDate(o.createdAt)}</td>
-                      <td className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></td>
-                      <td className={td}>{o.payment?.method || "—"}</td>
-                      <td className={td + " text-end font-medium text-gray-900 dark:text-gray-50"}>{money(o.total)}</td>
-                    </tr>); })}
-              </tbody>
-            </table></>}
+                    <TableRow key={o.id} onClick={() => openWin("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                      <TableCell className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{ordRef(o)}</span></TableCell>
+                      <TableCell className={td}>{chkNo(o)}</TableCell>
+                      <TableCell className={td}>{o.no || "—"}</TableCell>
+                      <TableCell className={td}>{branches.find(b => b.id === o.branchId)?.name || "—"}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</TableCell>
+                      <TableCell className={td}><span className="block font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</TableCell>
+                      <TableCell className={td}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></TableCell>
+                      <TableCell className={td}>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</TableCell>
+                      <TableCell className={td}>{srcOf(o) || "—"}</TableCell>
+                      <TableCell className={td}>{fmtDate(o.createdAt)}</TableCell>
+                      <TableCell className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></TableCell>
+                      <TableCell className={td}>{o.payment?.method || "—"}</TableCell>
+                      <TableCell className={td + " text-end font-medium text-gray-900 dark:text-gray-50"}>{money(o.total)}</TableCell>
+                    </TableRow>); })}
+              </TableBody>
+            </Table></>}
         </div>
         {count > 0 && <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
           <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
           <span className="pe-6 text-sm text-gray-500 dark:text-gray-400">{(page - 1) * PER + 1}–{Math.min(count, page * PER)} of {count.toLocaleString()}</span>
         </div>}
-      </div>
+      </Card>
       {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)}
         brands={brands} devices={devices} sources={sources.filter(x => !x.deleted).map(x => x.name)} pays={[...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])]} />}
     </>
@@ -158,7 +161,7 @@ export default function OrdersPage() {
 function FilterDialog({ F, onApply, onClose, brands, devices, sources, pays }: { F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void; brands: any[]; devices: any[]; sources: string[]; pays: string[] }) {
   const [d, setD] = useState<Record<string, string>>({ ...F });
   const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><Input className="h-9" placeholder={ph || ""} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })} /></Field>;
-  const sel = (k: string, l: string, opts: [string, string][]) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><select className={SEL + " w-full"} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })}><option value="">Any</option>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></Field>;
+  const sel = (k: string, l: string, opts: [string, string][]) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><SelectNative className={SEL + " w-full"} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })}><option value="">Any</option>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</SelectNative></Field>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">

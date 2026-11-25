@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Customers: the same tabs, columns and add/edit form as the current portal (rpc skwyd_customers), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +42,7 @@ export default function CustomersPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Customers" />
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
@@ -50,18 +53,18 @@ export default function CustomersPage() {
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {err ? <p className="p-6 text-sm text-red-500">Couldn't load customers: {err}</p>
             : !rows.length ? <EmptyState text={loading ? "Loading customers…" : q || tab !== "all" ? "No customers match." : "No customers yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-                <th className={th}>Name</th><th className={th}>Phone</th><th className={th}>Email</th><th className={th + " text-end"}>Total Orders</th><th className={th}>Last Order</th></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => (
-                <tr key={c.id} onClick={() => openWin("/customer?id=" + c.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                  <td className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
-                    {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</td>
-                  <td className={td}>{tel(c.phone)}</td><td className={td}>{c.email || "—"}</td><td className={td + " text-end"}>{c.n ?? 0}</td><td className={td}>{ago(c.last_at)}</td></tr>))}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+                <TableHeaderCell className={th}>Name</TableHeaderCell><TableHeaderCell className={th}>Phone</TableHeaderCell><TableHeaderCell className={th}>Email</TableHeaderCell><TableHeaderCell className={th + " text-end"}>Total Orders</TableHeaderCell><TableHeaderCell className={th}>Last Order</TableHeaderCell></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => (
+                <TableRow key={c.id} onClick={() => openWin("/customer?id=" + c.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
+                  <TableCell className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
+                    {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</TableCell>
+                  <TableCell className={td}>{tel(c.phone)}</TableCell><TableCell className={td}>{c.email || "—"}</TableCell><TableCell className={td + " text-end"}>{c.n ?? 0}</TableCell><TableCell className={td}>{ago(c.last_at)}</TableCell></TableRow>))}</TableBody></Table>}
         </div>
         {count > 0 && <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
           <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
           <span className="pe-6 text-sm text-gray-500 dark:text-gray-400">{(page - 1) * PER + 1}–{Math.min(count, page * PER)} of {count.toLocaleString()}</span></div>}
-      </div>
+      </Card>
       {edit !== undefined && <CustomerDialog c={edit} onClose={() => setEdit(undefined)} onSaved={() => setTick(t => t + 1)} />}
     </>
   );
@@ -83,7 +86,7 @@ export function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () =>
     if (res.error) return setErr(/duplicate|unique/i.test(res.error.message) ? "A customer with this phone already exists (check the Deleted tab)." : res.error.message);
     toast(c?.id ? "Customer saved" : "Customer added"); onSaved(); onClose();
   }
-  const sel = "h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50";
+  const sel = "h-9 w-full py-1.5";
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
@@ -91,11 +94,11 @@ export function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () =>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Name <span className="text-red-500">*</span></FieldLabel><Input className="h-9" value={name} onChange={e => setName(e.target.value)} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
-            <div className="flex gap-3"><select aria-label="Country code" className={sel.replace("w-full", "w-28 shrink-0")} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
+            <div className="flex gap-3"><SelectNative aria-label="Country code" className={sel.replace("w-full", "w-28 shrink-0")} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</SelectNative>
               <Input className="h-9 flex-1" type="tel" inputMode="tel" value={num} onChange={e => setNum(e.target.value)} /></div></Field>
           <Field><FieldLabel className="mb-1.5 block">Email</FieldLabel><Input className="h-9" type="email" value={email} onChange={e => setEmail(e.target.value)} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Birth Date</FieldLabel><DateInput value={bday || ""} onChange={setBday} /></Field>
-          <Field><FieldLabel className="mb-1.5 block">Gender</FieldLabel><select className={sel} value={gender} onChange={e => setGender(e.target.value)}><option value="">—</option><option value="male">Male</option><option value="female">Female</option></select></Field>
+          <Field><FieldLabel className="mb-1.5 block">Gender</FieldLabel><SelectNative className={sel} value={gender} onChange={e => setGender(e.target.value)}><option value="">—</option><option value="male">Male</option><option value="female">Female</option></SelectNative></Field>
           <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Customer Notes</FieldLabel><Textarea rows={3} placeholder="Allergies, preferences, gate code…" value={notes} onChange={e => setNotes(e.target.value)} />
             <p className="mt-1.5 text-xs text-gray-500">Shown to the cashier and call center when this customer orders.</p></Field>
           <Field orientation="horizontal" className="col-span-full items-center gap-3"><Switch checked={black} onCheckedChange={v => setBlack(!!v)} /><FieldLabel className="text-sm font-normal text-gray-700 dark:text-gray-400">Blacklist</FieldLabel></Field>

@@ -1,3 +1,5 @@
+import { Label } from "@/components/tremor/Label";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), in TailAdmin metric cards + statistics chart.
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
 // (the one before by default, or one picked by its date).
@@ -62,13 +64,13 @@ export default function Dashboard() {
     <>
       <PageBreadcrumb pageTitle="Summary" />
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        {<div className="w-full sm:w-52"><select aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>}
-        <div className="w-full sm:w-52"><select aria-label="Store" className={SEL} value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+        {<div className="w-full sm:w-52"><SelectNative aria-label="Brand" className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></div>}
+        <div className="w-full sm:w-52"><SelectNative aria-label="Store" className={SEL} value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></div>
         {/* as in Foodics: the period kind, one date (the day, or any day in the week or month), and Compare */}
         <SegTabs value={days === "c" ? "" : days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
         {/* the same business-date box as Orders: it shows the period; picking dates sets that period (Day / Week / Month pick it again from the first date) */}
         <div className="w-64"><RangeInput key={iso(per.start) + per.n} from={iso(per.start)} to={per.n > 1 ? iso(new Date(+per.start + (per.n - 1) * 86400000)) : ""} onChange={(a, b) => { if (!a) { setDays("1"); setAt(iso(new Date())); return; } if (a === b && days !== "c") { setAt(a); return; } setRng([a, b]); setDays("c"); setAt(a); }} /></div>
-        <label className="flex h-9 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</label>
+        <Label className="flex h-9 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</Label>
         {cmp && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">with</span><div className="w-44" title={days === "1" ? "Compare with this day" : days === "7" ? "Compare with the week of" : "Compare with the month of"}>
           <DateInput value={cmpAt || iso(cmpPer.start)} onChange={v => setCmpAt(v)} /></div></div>}
       </div>
