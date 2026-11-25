@@ -1,3 +1,4 @@
+import { SkwydLogo } from "@/components/shared/skwyd-logo";
 // Tremor dashboard template navigation: fixed sidebar on large screens, a top bar with a drawer on phones and tablets.
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
@@ -53,13 +54,14 @@ export function AppSidebar() {
       {/* sidebar (lg+) */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo markClass="h-9 w-8" wordClass="h-10 w-auto" /></Link>
           <NavList />
           <div className="mt-auto"><UserMenu /></div>
         </aside>
       </div>
       {/* top bar (below lg) */}
       <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-x-2 border-b border-gray-200 bg-white px-2 shadow-sm sm:px-4 lg:hidden dark:border-gray-800 dark:bg-gray-950">
-        <span className="px-2 font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub</span>
+        <Link to="/" aria-label="Skwyd Hub" className="px-2"><SkwydLogo markClass="h-8 w-7" wordClass="h-9 w-auto" /></Link>
         <div className="flex items-center gap-1 sm:gap-2">
           <UserMenu compact />
           <DialogPrimitive.Root open={mobile} onOpenChange={setMobile}>
@@ -70,7 +72,7 @@ export function AppSidebar() {
               <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/30 data-[state=open]:animate-dialogOverlayShow" />
               <DialogPrimitive.Content aria-describedby={undefined} onOpenAutoFocus={e => e.preventDefault()} className="fixed inset-y-2 right-2 z-[101] flex w-[min(20rem,calc(100vw-1rem))] flex-col overflow-y-auto rounded-md border border-gray-200 bg-white p-4 shadow-lg data-[state=open]:animate-drawerSlideLeftAndFade dark:border-gray-900 dark:bg-gray-950">
                 <div className="mb-4 flex items-center justify-between gap-2">
-                  <DialogPrimitive.Title className="text-base font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub</DialogPrimitive.Title>
+                  <DialogPrimitive.Title><span className="sr-only">Skwyd Hub</span><SkwydLogo markClass="h-8 w-7" wordClass="h-9 w-auto" /></DialogPrimitive.Title>
                   <DialogPrimitive.Close aria-label="Close menu" className={cx("rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900", focusRing)}><RiCloseLine className="size-5" /></DialogPrimitive.Close>
                 </div>
                 <NavList onGo={() => setMobile(false)} />
