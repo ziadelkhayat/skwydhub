@@ -1,4 +1,3 @@
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // Employee Management → Payroll: a month's pay from clock-ins, overtime and leave, plus bonuses, deductions, social security and tax;
 // close / reopen the month, payslips, CSV, cost by store. Same formulas and settings documents as the current portal.
@@ -92,11 +91,11 @@ export default function PayrollPage() {
       {closed && <p className="mb-6 rounded-md border border-green-500 bg-green-50 p-4 text-sm text-gray-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-white/80">Closed by {doc.closedBy || "—"} on {dmy(doc.closedAt)}. The figures are frozen; Reopen Month to change them.</p>}
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">{kpis.map(([l, v]) => <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]">
         <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4></div>)}</div>
-      <Card className="overflow-hidden p-0">
-        <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Employees</h3>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 custom-scrollbar dark:border-gray-800">
+      <div className="space-y-3">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-50">Employees</h3>
+        <div className="relative overflow-x-auto">
           {!lines.length ? <EmptyState text="Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app." />
-            : <Table className="min-w-[1400px] w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Pay</TableHeaderCell>{nums.map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+            : <Table className="min-w-[1400px] w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Pay</TableHeaderCell>{nums.map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{lines.map(l => <TableRow key={l.id}>
                 <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{l.name}</span>{l.no && <span className="ms-1 text-xs text-gray-400">{l.no}</span>}<span className="block text-xs text-gray-500">{l.job}</span></TableCell>
                 <TableCell className={TD}>{l.type ? money(l.rate) + " " + (TY[l.type] || "").toLowerCase() : <span className="text-gray-400">No pay rate</span>}{l.unpaid ? <span className="block text-xs text-gray-500">{l.unpaid} unpaid day{l.unpaid === 1 ? "" : "s"}</span> : null}</TableCell>
@@ -111,7 +110,7 @@ export default function PayrollPage() {
         </div>
         <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ {+st.workDays || 26}). Overtime is hours over {+st.otAfter || 8} a day at {+st.otRate || 1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at {+st.otAfter || 8} hours a day for hourly and daily staff.{" "}
           {+st.ssEmp || +st.taxRate ? `Social security: ${+st.ssEmp || 0}% employee, ${+st.ssEr || 0}% employer${+st.ssCap ? ` on pay up to ${money(st.ssCap)}` : ""}, for employees marked as registered. Tax: ${+st.taxRate || 0}% above ${money(st.taxFree)}.` : "Social security and tax are off: set their rates in Settings."}</p>
-      </Card>
+      </div>
       <div className={BOX + " mt-6"}>
         <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Cost By Store</h3>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800"><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Store</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Gross Pay</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Share</TableHeaderCell></TableRow></TableHead>

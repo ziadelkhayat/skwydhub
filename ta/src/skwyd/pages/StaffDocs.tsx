@@ -1,4 +1,3 @@
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Documents & Onboarding: papers with expiry dates (files in the private "staff-docs" bucket), required documents,
@@ -44,29 +43,29 @@ export default function StaffDocsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Documents" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={tab} onChange={setTab} items={[["expiring", `Expiring & Expired (${alert.length})`], ["all", "All Documents"], ["compliance", "Compliance"], ["onboarding", "Onboarding"]]} />
           <div className="flex gap-3"><Button variant="outline" onClick={() => setSetOpen(true)}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Add Document</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {tab === "compliance" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell>{st.required.map((t: string) => <TableHeaderCell key={t} className={TH}>{t}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Complete</TableHeaderCell></TableRow></TableHead>
+        <div className="relative overflow-x-auto">
+          {tab === "compliance" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Employee</TableHeaderCell>{st.required.map((t: string) => <TableHeaderCell key={t} className={TH}>{t}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Complete</TableHeaderCell></TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const miss = missing(u); return <TableRow key={u.id}><TableCell className={TD}><Emp u={u} /></TableCell>
               {st.required.map((t: string) => { const d = docs.filter(x => x.employeeId === u.id && x.docType === t).sort((a, b) => String(b.expiresOn || "9999").localeCompare(String(a.expiresOn || "9999")))[0]; return <TableCell key={t} className={TD}>{d ? tag(d) : <Badge variant="light" color="error">Missing</Badge>}</TableCell>; })}
               <TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{st.required.length ? Math.round((st.required.length - miss.length) / st.required.length * 100) : 100}%</TableCell></TableRow>; })}</TableBody></Table>)
-          : tab === "onboarding" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Hire Date", "Progress", "Next Step"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+          : tab === "onboarding" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Employee", "Hire Date", "Progress", "Next Step"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const o = u.onboarding || {}, n = st.checklist.length, d = st.checklist.filter((i: string) => o[i]).length, next = st.checklist.find((i: string) => !o[i]);
               return <TableRow key={u.id}><TableCell className={TD}><Emp u={u} /></TableCell><TableCell className={TD}>{u.hireDate ? dmy(u.hireDate) : "—"}</TableCell>
                 <TableCell className={TD}><div className="flex items-center gap-3"><div className="h-2 w-40 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className={"h-full rounded-full " + (d === n ? "bg-green-500" : "bg-blue-500")} style={{ width: (n ? d / n * 100 : 100) + "%" }} /></div><span>{d}/{n}</span></div></TableCell>
                 <TableCell className={TD}>{next || <Badge variant="light" color="success">Done</Badge>}</TableCell></TableRow>; })}</TableBody></Table>)
           : !rows.length ? <EmptyState text={tab === "expiring" ? `Nothing expiring in the next ${+st.remindDays || 30} days.` : "No documents yet. Add IDs, contracts and health certificates with their expiry dates."} />
-          : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Document", "Number", "Issued", "Status", "File"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+          : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Employee", "Document", "Number", "Issued", "Status", "File"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(d => <TableRow key={d.id}><TableCell className={TD}><Emp u={byId[d.employeeId]} /></TableCell>
               <TableCell className={TD}>{d.docType}{d.note && <span className="block text-xs text-gray-500">{d.note}</span>}</TableCell><TableCell className={TD}>{d.number || "—"}</TableCell><TableCell className={TD}>{d.issuedOn ? dmy(d.issuedOn) : "—"}</TableCell><TableCell className={TD}>{tag(d)}</TableCell>
               <TableCell className={TD}>{d.filePath ? <Button size="xs" variant="outline" onClick={() => view(d)}>View</Button> : "—"}</TableCell><TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => setForm(d)}>Edit</Button></TableCell></TableRow>)}</TableBody></Table>}
         </div>
         {(tab === "compliance" || tab === "onboarding") && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">{tab === "compliance" ? "Required documents are set in Settings. A document counts while it hasn't expired." : "Tick the steps on each employee's page. Edit the checklist in Settings."}</p>}
-      </Card>
+      </div>
       {form !== undefined && <DocForm d={form} s={s} types={[...new Set([...st.required, ...DOC_TYPES])]} onClose={() => setForm(undefined)} />}
       {setOpen && <SettingsDialog st={st} onClose={() => setSetOpen(false)} />}
     </>

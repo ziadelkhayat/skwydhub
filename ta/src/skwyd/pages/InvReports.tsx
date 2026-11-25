@@ -1,7 +1,6 @@
-import { Card } from "@/components/tremor/Card";
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
-import { Input } from "@/components/tremor/Input";
 // Inventory Reports: Inventory Levels (one store or warehouse, All / Low Level), Inventory History (rpc skwyd_inv_history) and Purchasing
 // (purchases received by item and supplier). Same data, filters and exports as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -53,21 +52,21 @@ export function InvLevelsPage() {
       <Head title="Inventory Levels" back={() => nav("/inventory-reports")}>
         <Button variant="outline" onClick={() => csv("inventory-levels.csv", [["Name", "SKU", "Barcode", "Storage Unit", "Quantity", "Cost Per Unit", "Total Cost"], ...rows.map(r => [r.it.name, r.it.sku || "", r.it.barcode || "", r.it.storageUnit || "", r.qn ?? 0, r.cost, +r.value.toFixed(5)])])}><DownloadIcon className="size-5" />Export</Button>
         <Button variant="outline" onClick={() => setTick(t => t + 1)}><RegenerateIcon className="size-5" />Refresh</Button></Head>
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-3 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={low} onChange={setLow} items={[["all", "All"], ["low", "Low Level"]]} />
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap"><BrandSel s={s} v={brand} set={setBrand} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><BrandSel s={s} v={brand} set={setBrand} />
             <SelectNative aria-label="Store or warehouse" className={SEL + " sm:w-48"} value={loc} onChange={e => setLoc(e.target.value)}>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative>
             <SelectNative aria-label="Category" className={SEL + " sm:w-44"} value={cat} onChange={e => setCat(e.target.value)}><option value="">All categories</option>{catNames.map(n => <option key={n}>{n}</option>)}</SelectNative>
-            <Input type="search" className="sm:w-52" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
+            <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {!locs.length ? <EmptyState text="Add a store or a warehouse first." /> : !stock ? <EmptyState text="Loading stock…" /> : !rows.length ? <EmptyState text={low === "low" ? "Nothing is at a low level." : "No items."} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Name", "SKU", "Barcode", "Storage Unit"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{["Quantity", "Cost Per Unit", "Total Cost"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Name", "SKU", "Barcode", "Storage Unit"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{["Quantity", "Cost Per Unit", "Total Cost"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => <TableRow key={r.it.id}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.it.name}</TableCell><TableCell className={TD}>{r.it.sku || "—"}</TableCell><TableCell className={TD}>{r.it.barcode || "—"}</TableCell><TableCell className={TD}>{r.it.storageUnit || "—"}</TableCell>
                 <TableCell className={TD + " text-end" + (r.st === "low" || r.st === "out" ? " font-semibold text-red-500" : "")}>{r.qn === undefined ? "0" : fx(r.qn)}</TableCell><TableCell className={TD + " text-end"}>{money(r.cost)}</TableCell><TableCell className={TD + " text-end"}>{money(r.value)}</TableCell></TableRow>)}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
     </>);
 }
 
@@ -90,21 +89,21 @@ export function InvHistoryPage() {
       <Head title="Inventory History" back={() => nav("/inventory-reports")}>
         <Button variant="outline" onClick={() => csv("inventory-history.csv", [["Date", "Location", "Item", "Type", "Change", "Quantity after", "Unit", "Reference", "Note", "By"], ...list.map(r => { const it = itemOf(r.item_id) || {} as any; return [fmtDateTime(r.counted_at), name(r.branch_id), it.name, moveType(r), r.delta, r.qty, it.storageUnit, r.batch, r.note, r.counted_by]; })])}><DownloadIcon className="size-5" />Export</Button></Head>
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Every stock movement: sales, returns, purchases, transfers, production, adjustments and counts.</p>
-      <Card className="overflow-hidden p-0">
+      <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:px-6">
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div><BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} />
           <SelectNative aria-label="Location" className={SEL + " sm:w-44"} value={loc} onChange={e => setLoc(e.target.value)}><option value="">All locations</option>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative>
           <SelectNative aria-label="Item" className={SEL + " sm:w-48"} value={item} onChange={e => setItem(e.target.value)}><option value="">All items</option>{s.inv_items.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</SelectNative>
           <SelectNative aria-label="Type" className={SEL + " sm:w-40"} value={type} onChange={e => setType(e.target.value)}><option value="">All types</option>{["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => <option key={t}>{t}</option>)}</SelectNative>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {err ? <EmptyState text={err} /> : !rows ? <EmptyState text="Loading…" /> : !list.length ? <EmptyState text="No stock movements in these dates." />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Date", "Location", "Item", "Type"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Change</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity After</TableHeaderCell>{["Reference", "Note", "By"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Date", "Location", "Item", "Type"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Change</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity After</TableHeaderCell>{["Reference", "Note", "By"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map((r, i) => { const it = itemOf(r.item_id) || {} as any, d = +r.delta || 0; return <TableRow key={i}>
                 <TableCell className={TD}>{fmtDateTime(r.counted_at)}</TableCell><TableCell className={TD}>{name(r.branch_id)}</TableCell><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{moveType(r)}</TableCell>
                 <TableCell className={TD + " text-end font-semibold " + (d < 0 ? "text-red-500" : d > 0 ? "text-green-600" : "")}>{d > 0 ? "+" : ""}{n2(d)} {it.storageUnit || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(r.qty)}</TableCell><TableCell className={TD + " font-mono text-xs"}>{r.batch || ""}</TableCell><TableCell className={TD}>{r.note || ""}</TableCell><TableCell className={TD}>{r.counted_by || ""}</TableCell></TableRow>; })}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
     </>);
 }
 
@@ -124,15 +123,15 @@ export function PurchasingReportPage() {
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">What was received from suppliers (closed purchasing), with quantities and cost.</p>
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">{[["Purchases received", String(docs.length)], ["Total cost", money(total)], ["Items", String(new Set(rows.map(r => r.itemId)).size)], ["Suppliers", String(new Set(docs.map(d => d.supplierId)).size)]].map(([l, v]) =>
         <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]"><span className="text-sm text-gray-500">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4></div>)}</div>
-      <Card className="overflow-hidden p-0">
+      <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:px-6"><div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
           <BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} /><SelectNative aria-label="Location" className={SEL + " sm:w-44"} value={loc} onChange={e => setLoc(e.target.value)}><option value="">All locations</option>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative></div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!rows.length ? <EmptyState text="No purchases received in these dates." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Item</TableHeaderCell><TableHeaderCell className={TH}>Supplier</TableHeaderCell>{["Quantity", "Average Cost", "Total Cost"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+        <div className="relative overflow-x-auto">
+          {!rows.length ? <EmptyState text="No purchases received in these dates." /> : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Item</TableHeaderCell><TableHeaderCell className={TH}>Supplier</TableHeaderCell>{["Quantity", "Average Cost", "Total Cost"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const it = itemOf(r.itemId) || {} as any; return <TableRow key={r.itemId + r.sup}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{sup(r.sup)}</TableCell>
               <TableCell className={TD + " text-end"}>{n2(r.qty)} {it.storageUnit || ""}</TableCell><TableCell className={TD + " text-end"}>{money(r.qty ? r.total / r.qty : 0)}</TableCell><TableCell className={TD + " text-end"}>{money(r.total)}</TableCell></TableRow>; })}</TableBody>
             <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={4}>Total</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</TableCell></TableRow></TableFoot></Table>}
         </div>
-      </Card>
+      </div>
     </>);
 }

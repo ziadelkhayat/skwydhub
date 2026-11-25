@@ -1,3 +1,4 @@
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -9,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, FilterIcon, PlusIcon, UploadIcon } from "@/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
@@ -182,22 +182,22 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
     <>
       <PageBreadcrumb pageTitle={title} />
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">{K.intro}</p>
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
-          <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             {docFltFields(K).length > 0 && <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
             <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}><DownloadIcon className="size-5" />Export<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
             <Button onClick={() => K.kind === "cost" ? nav(`/${route}?id=new`) : setNw(true)}><PlusIcon className="size-5" />New {K.title}</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{head.map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map((r, i) => <TableRow key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
                 {r.cells.map((c, j) => <TableCell key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</TableCell>)}</TableRow>)}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
       {nw && <NewDialog route={route} K={K} s={s} onClose={() => setNw(false)} />}
       {fOpen && <DocFilterDialog K={K} s={s} f0={f} onClose={() => setFOpen(false)} onApply={v => { setF(v); setFOpen(false); }} />}
       {ex && <DocExportDialog route={route} K={K} s={s} lvl={ex} onClose={() => setEx("")} />}
@@ -471,12 +471,12 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
         <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-blue-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
           <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</Card>}
       <Card className="mb-6 grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</Card>
-      {pv === "pc" ? <Usage page /> : pv === "pw" ? <Card className="overflow-hidden p-0"><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Items</h3>
+      {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className="space-y-3"><h3 className="font-semibold text-gray-900 dark:text-gray-50">Items</h3>
         {(() => { const w = d.items.filter((l: any) => +l.waste > 0); return !w.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">Nothing was wasted.</p>
-          : <Table className="min-w-full border-t border-gray-200 dark:border-gray-800"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Deducted Quantity</TableHeaderCell></TableRow></TableHead>
-            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <TableRow key={l.itemId}><TableCell className={TD}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</TableCell></TableRow>; })}</TableBody></Table>; })()}</Card>
+          : <Table className="min-w-full border-t border-gray-200 dark:border-gray-800"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Deducted Quantity</TableHeaderCell></TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <TableRow key={l.itemId}><TableCell className={TD}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</TableCell></TableRow>; })}</TableBody></Table>; })()}</div>
       : <>
-        <Card className="overflow-hidden p-0">
+        <div className="space-y-3">
           <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div className="flex items-center gap-2"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Items</h3><span className="text-sm text-gray-500">{d.items.length}</span></div>
             {!ro && <div className="flex flex-wrap gap-3">
@@ -486,9 +486,9 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
               {K.kind !== "sheet" && <Button size="sm" variant="outline" onClick={importCsv}><UploadIcon className="size-4" />Import Items</Button>}
               <Button size="sm" onClick={() => setDlg({ kind: "add" })}><PlusIcon className="size-4" />Add Items</Button></div>}
           </div>
-          <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+          <div className="relative overflow-x-auto">
             {!d.items.length ? <EmptyState text="No items yet. Add items above." />
-              : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{head.map((h, i) => <TableHeaderCell key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</TableHeaderCell>)}{!ro && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{head.map((h, i) => <TableHeaderCell key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</TableHeaderCell>)}{!ro && <TableHeaderCell className={TH} />}</TableRow></TableHead>
                 <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{d.items.map((l: any, ix: number) => { const it = itemOf(l.itemId) || { name: "(deleted item)", sku: "" } as any; return (
                   <TableRow key={l.itemId + ix} onClick={() => openRow(ix)} className={editable && K.kind !== "sheet" ? TR : ""}>
                     <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell>
@@ -496,7 +496,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
                     {!ro && <TableCell className={TD + " text-end"}><Button type="button" aria-label={"Remove " + it.name} onClick={e => { e.stopPropagation(); up({ items: d.items.filter((_: any, j: number) => j !== ix) }); }} variant="ghost" size="icon-xs" className="text-gray-400 hover:text-red-600">×</Button></TableCell>}</TableRow>); })}</TableBody>
                 {total != null && <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={head.length - 1}>Total</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</TableCell>{!ro && <TableCell />}</TableRow></TableFoot>}</Table>}
           </div>
-        </Card>
+        </div>
         {K.kind === "production" && d.items.length > 0 && !ro && <Usage />}
       </>}
       {dlg?.kind === "add" && <PickDialog title="Add Items" opts={avail.map(i => [i.id, i.name, i.sku || ""])} value={[]} onClose={() => setDlg(null)} onSave={ids => { const n = addItems(ids); if (n) toast(`${n} item${n === 1 ? "" : "s"} added`); }} />}

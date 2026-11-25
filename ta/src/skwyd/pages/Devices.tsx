@@ -1,6 +1,6 @@
+import { DataTable } from "@/components/tremor/data-table/DataTable";
 import { Label } from "@/components/tremor/Label";
 import { ChoiceButton } from "../ui/Choice";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Manage → Devices: the same list (type tabs), device page (Force Sync, Copy Settings, Device Settings, Edit, Deactivate, Delete),
 // create / edit / settings forms and rules as the current portal, in TailAdmin layout.
@@ -21,7 +21,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { Card, F, L, SEL, TD, TH, TR } from "../ui/kit";
+import { Card, F, L, SEL } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -60,23 +60,21 @@ export default function DevicesPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Devices" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
-          <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} />
-          <Button onClick={() => setCreate(true)}><PlusIcon className="size-5" />Create Device</Button>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!list.length ? <EmptyState text={all.length ? "No devices of this type." : "No devices yet"} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-              <TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Reference</TableHeaderCell><TableHeaderCell className={TH}>Type</TableHeaderCell><TableHeaderCell className={TH}>Status</TableHeaderCell><TableHeaderCell className={TH}>Store</TableHeaderCell></TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(d => (
-                <TableRow key={d.id} className={TR} onClick={() => openWin("/devices?id=" + d.id)}>
-                  <TableCell className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></TableCell>
-                  <TableCell className={TD}>{d.reference || "—"}</TableCell><TableCell className={TD}>{devType(d.type)}</TableCell>
-                  <TableCell className={TD}>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</TableCell>
-                  <TableCell className={TD}>{bName(d.branchId) || "—"}</TableCell></TableRow>))}</TableBody></Table>}
-        </div>
-      </Card>
+      <DataTable<any>
+        data={list} getRowId={(r: any) => r.id} key={tab}
+        columns={[
+          { id: "Name", title: "Name", cell: d => <><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></> },
+          { id: "Reference", title: "Reference", cell: d => <>{d.reference || "—"}</> },
+          { id: "Type", title: "Type", cell: d => <>{devType(d.type)}</> },
+          { id: "Status", title: "Status", cell: d => <>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</> },
+          { id: "Store", title: "Store", cell: d => <>{bName(d.branchId) || "—"}</> },
+        ]}
+        toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} />}
+        actions={<><Button className="h-[30px] py-1" onClick={() => setCreate(true)}><PlusIcon className="size-4" />Create Device</Button></>}
+        onRowClick={d => { openWin("/devices?id=" + d.id); }}
+        rowActions={[...([{ label: "Open", onSelect: (d: any) => { openWin("/devices?id=" + d.id); } }])]}
+        empty={<EmptyState text={all.length ? "No devices of this type." : "No devices yet"} />}
+      />
       {create && <CreateDevice s={s} onClose={() => setCreate(false)} />}
     </>
   );

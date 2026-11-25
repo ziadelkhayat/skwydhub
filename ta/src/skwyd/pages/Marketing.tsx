@@ -1,6 +1,6 @@
+import { DataTable } from "@/components/tremor/data-table/DataTable";
 import { Label } from "@/components/tremor/Label";
 import { Card } from "@/components/tremor/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Marketing → Loyalty, Gift Cards and Coupons: same settings documents ("loyalty", "gift_cards", "coupons"), fields, rules and
 // database calls (skwyd_gift_info, skwyd_coupon_counts) as the current portal, in TailAdmin layout.
@@ -19,7 +19,7 @@ import { live } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { F, L, SEL, TD, TH, TR } from "../ui/kit";
+import { F, L, SEL } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -111,24 +111,21 @@ export function GiftCardsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Gift Cards" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
-          <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setCheck(true)}><SearchIcon className="size-5" />Check Balance</Button>
-            <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Gift Card</Button></div>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!rows.length ? <EmptyState text={del ? "No deleted gift cards" : "Create Gift Cards which customers can buy and later use to pay for their orders. The gift card is sold as an item and the amount of selling will not be reflected in the sales reports."} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-              <TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH}>Category</TableHeaderCell><TableHeaderCell className={TH}>Pricing Method</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Price</TableHeaderCell>{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(g => (
-                <TableRow key={g.id} className={del ? "" : TR} onClick={() => !del && setForm(g)}>
-                  <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</TableCell>
-                  <TableCell className={TD}><span className="font-mono">{g.sku || "—"}</span></TableCell><TableCell className={TD}>{cats.find(c => c.id === g.categoryId)?.name || "—"}</TableCell>
-                  <TableCell className={TD}>{g.pricing === "open" ? "Open Price" : "Fixed Price"}</TableCell><TableCell className={TD + " text-end"}>{g.pricing === "open" ? "—" : money(+g.price || 0)}</TableCell>
-                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === g.id ? { ...x, deleted: false } : x))) toast("Gift card restored"); }}>Restore</Button></TableCell>}</TableRow>))}</TableBody></Table>}
-        </div>
-      </Card>
+      <DataTable<any>
+        data={rows} getRowId={(r: any) => r.id} key={tab}
+        columns={[
+          { id: "Name", title: "Name", cell: g => <><span className="font-medium text-gray-900 dark:text-gray-50">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</> },
+          { id: "SKU", title: "SKU", cell: g => <><span className="font-mono">{g.sku || "—"}</span></> },
+          { id: "Category", title: "Category", cell: g => <>{cats.find(c => c.id === g.categoryId)?.name || "—"}</> },
+          { id: "Pricing Method", title: "Pricing Method", cell: g => <>{g.pricing === "open" ? "Open Price" : "Fixed Price"}</> },
+          { id: "Price", title: "Price", num: true, cell: g => <>{g.pricing === "open" ? "—" : money(+g.price || 0)}</> },
+        ]}
+        toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />}
+        actions={<><Button className="h-[30px] py-1" variant="outline" onClick={() => setCheck(true)}><SearchIcon className="size-4" />Check Balance</Button><Button className="h-[30px] py-1" onClick={() => setForm(null)}><PlusIcon className="size-4" />Create Gift Card</Button></>}
+        onRowClick={del ? undefined : g => { setForm(g); }}
+        rowActions={[...(del ? [{ label: "Restore", onSelect: (g: any) => (async () => { if (await save(list.map(x => x.id === g.id ? { ...x, deleted: false } : x))) toast("Gift card restored"); })() }] : []), ...(del ? [] : [{ label: "Open", onSelect: (g: any) => { setForm(g); } }])]}
+        empty={<EmptyState text={del ? "No deleted gift cards" : "Create Gift Cards which customers can buy and later use to pay for their orders. The gift card is sold as an item and the amount of selling will not be reflected in the sales reports."} />}
+      />
       {form !== undefined && <GiftForm g={form} list={list} cats={catOpts} save={save} onClose={() => setForm(undefined)} />}
       {check && <GiftCheck onClose={() => setCheck(false)} />}
     </>
@@ -194,26 +191,24 @@ export function CouponsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Coupons" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
-          <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setForm({ c: null, bulk: true })}>Bulk Create</Button>
-            <Button onClick={() => setForm({ c: null, bulk: false })}><PlusIcon className="size-5" />Create Coupon</Button></div>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!rows.length ? <EmptyState text={del ? "No deleted coupons" : "Create coupons that your customers can use to get discounts on orders."} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-              {["Name", "Code", "Coupon Type", "Discount"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Uses</TableHeaderCell>
-              {["Start Date", "End Date", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const st = status(c); return (
-                <TableRow key={c.id} className={del ? "" : TR} onClick={() => !del && setForm({ c, bulk: false })}>
-                  <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{c.name}</TableCell><TableCell className={TD}><span className="font-mono">{c.code}</span></TableCell>
-                  <TableCell className={TD}>{c.type === "product" ? "Item" : "Order"}</TableCell><TableCell className={TD}>{discs.find(d => d.id === c.discountId)?.name || "—"}</TableCell>
-                  <TableCell className={TD + " text-end"}>{counts ? (counts[c.id] || 0) : "…"} / {c.maxUses ?? "—"}</TableCell><TableCell className={TD}>{fmtDate(c.start)}</TableCell><TableCell className={TD}>{fmtDate(c.end)}</TableCell>
-                  <TableCell className={TD}><Badge variant="light" color={color(st) as any}>{st}</Badge></TableCell>
-                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === c.id ? { ...x, deleted: false } : x))) toast("Coupon restored"); }}>Restore</Button></TableCell>}</TableRow>); })}</TableBody></Table>}
-        </div>
-      </Card>
+      <DataTable<any>
+        data={rows} getRowId={(r: any) => r.id} key={tab}
+        columns={[
+          { id: "Name", title: "Name", cell: c => <>{c.name}</> },
+          { id: "Code", title: "Code", cell: c => <><span className="font-mono">{c.code}</span></> },
+          { id: "Coupon Type", title: "Coupon Type", cell: c => <>{c.type === "product" ? "Item" : "Order"}</> },
+          { id: "Discount", title: "Discount", cell: c => <>{discs.find(d => d.id === c.discountId)?.name || "—"}</> },
+          { id: "Uses", title: "Uses", num: true, cell: c => <>{counts ? (counts[c.id] || 0) : "…"} / {c.maxUses ?? "—"}</> },
+          { id: "Start Date", title: "Start Date", cell: c => <>{fmtDate(c.start)}</> },
+          { id: "End Date", title: "End Date", cell: c => <>{fmtDate(c.end)}</> },
+          { id: "Status", title: "Status", cell: c => { const st = status(c); return <><Badge variant="light" color={color(st) as any}>{st}</Badge></>; } },
+        ]}
+        toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />}
+        actions={<><Button className="h-[30px] py-1" variant="outline" onClick={() => setForm({ c: null, bulk: true })}>Bulk Create</Button><Button className="h-[30px] py-1" onClick={() => setForm({ c: null, bulk: false })}><PlusIcon className="size-4" />Create Coupon</Button></>}
+        onRowClick={del ? undefined : c => { setForm({ c, bulk: false }); }}
+        rowActions={[...(del ? [{ label: "Restore", onSelect: (c: any) => (async () => { if (await save(list.map(x => x.id === c.id ? { ...x, deleted: false } : x))) toast("Coupon restored"); })() }] : []), ...(del ? [] : [{ label: "Open", onSelect: (c: any) => { setForm({ c, bulk: false }); } }])]}
+        empty={<EmptyState text={del ? "No deleted coupons" : "Create coupons that your customers can use to get discounts on orders."} />}
+      />
       {form && <CouponForm c={form.c} bulk={form.bulk} list={list} discs={discs} save={save} onClose={() => setForm(null)} />}
     </>
   );

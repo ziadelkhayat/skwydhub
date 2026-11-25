@@ -1,5 +1,4 @@
 import { Label } from "@/components/tremor/Label";
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Web Ordering → Delivery Zones: overview map of every zone, the zones table (All / Deleted) and the zone form with the polygon drawn on the map,
@@ -79,11 +78,11 @@ function Overview({ zones, bName, color, onOpen }: { zones: Row[]; bName: (id?: 
     return () => { off = true; m?.remove(); }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const legend = [...new Set(zones.map(z => z.branchId))];
   return (
-    <Card className="overflow-hidden p-0">
+    <div className="space-y-3">
       {err ? <p className="p-6 text-sm text-gray-500">{err}</p> : <div ref={el} className="relative z-0 h-80 isolate sm:h-96" />}
       <div className="flex flex-wrap gap-4 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:text-gray-400">{legend.length ? legend.map(id => <span key={id} className="flex items-center gap-2"><i className="size-3 rounded-full" style={{ background: color(id) }} />{bName(id)}</span>)
         : <span className="text-gray-500">No zones drawn yet. Add a zone and draw it on the map.</span>}</div>
-    </Card>);
+    </div>);
 }
 
 function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: string) => string; onClose: () => void }) {

@@ -1,5 +1,5 @@
-import { Card } from "@/components/tremor/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTable";
+import { downloadCsv } from "@/components/tremor/data-table/textOf";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Customers: the same tabs, columns and add/edit form as the current portal (rpc skwyd_customers), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusIcon } from "@/icons";
@@ -17,7 +16,6 @@ import { fmtDate, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { Pager } from "../ui/Pager";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -37,34 +35,31 @@ export default function CustomersPage() {
       if (off) return; setLoading(false);
       if (error) setErr(error.message); else { setErr(""); setRows((data as any)?.rows || []); setCount((data as any)?.count || 0); } }, q ? 250 : 0);
     return () => { off = true; clearTimeout(t); }; }, [tab, q, page, tick]);
-  const pages = Math.max(1, Math.ceil(count / PER));
-  const th = "border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50", td = "px-4 py-2.5 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400";
+  const cols: DTColumn<any>[] = [
+    { id: "name", title: "Name", value: c => c.name || "", hideable: false, cell: c => <><span className="font-medium text-gray-900 dark:text-gray-50">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
+      {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</> },
+    { id: "phone", title: "Phone", value: c => c.phone || "", cell: c => tel(c.phone) },
+    { id: "email", title: "Email", value: c => c.email || "", cell: c => c.email || "—" },
+    { id: "n", title: "Total Orders", num: true, value: c => +c.n || 0 },
+    { id: "last", title: "Last Order", value: c => c.last_at || "", cell: c => ago(c.last_at) },
+  ];
   return (
     <>
       <PageBreadcrumb pageTitle="Customers" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
-          <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
-            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Customer</Button>
-          </div>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {err ? <p className="p-6 text-sm text-red-500">Couldn't load customers: {err}</p>
-            : !rows.length ? <EmptyState text={loading ? "Loading customers…" : q || tab !== "all" ? "No customers match." : "No customers yet"} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-                <TableHeaderCell className={th}>Name</TableHeaderCell><TableHeaderCell className={th}>Phone</TableHeaderCell><TableHeaderCell className={th}>Email</TableHeaderCell><TableHeaderCell className={th + " text-end"}>Total Orders</TableHeaderCell><TableHeaderCell className={th}>Last Order</TableHeaderCell></TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => (
-                <TableRow key={c.id} onClick={() => openWin("/customer?id=" + c.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                  <TableCell className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
-                    {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</TableCell>
-                  <TableCell className={td}>{tel(c.phone)}</TableCell><TableCell className={td}>{c.email || "—"}</TableCell><TableCell className={td + " text-end"}>{c.n ?? 0}</TableCell><TableCell className={td}>{ago(c.last_at)}</TableCell></TableRow>))}</TableBody></Table>}
-        </div>
-        {count > 0 && <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
-          <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
-          <span className="pe-6 text-sm text-gray-500 dark:text-gray-400">{(page - 1) * PER + 1}–{Math.min(count, page * PER)} of {count.toLocaleString()}</span></div>}
-      </Card>
+      {err ? <p className="py-6 text-sm text-red-600">Couldn't load customers: {err}</p> : (
+        <DataTable<any>
+          data={rows} columns={cols} getRowId={c => c.id}
+          server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
+          searchPlaceholder="Search name or phone..."
+          toolbar={<SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />}
+          actions={<Button className="h-[30px] py-1" onClick={() => setEdit(null)}><PlusIcon className="size-4" />Add Customer</Button>}
+          onRowClick={c => openWin("/customer?id=" + c.id)}
+          rowActions={[{ label: "Open", onSelect: c => openWin("/customer?id=" + c.id) }, { label: "Edit", onSelect: c => setEdit(c) }]}
+          onExport={list => downloadCsv("Customers", cols.map(c => c.title), list.map(c => cols.map(x => String(x.value?.(c) ?? ""))))}
+          empty={<EmptyState text={loading ? "Loading customers…" : q || tab !== "all" ? "No customers match." : "No customers yet"} />}
+          pageSize={PER}
+        />
+      )}
       {edit !== undefined && <CustomerDialog c={edit} onClose={() => setEdit(undefined)} onSaved={() => setTick(t => t + 1)} />}
     </>
   );
