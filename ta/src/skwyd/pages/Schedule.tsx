@@ -1,4 +1,3 @@
-import { Card } from "@/components/tremor/Card";
 import { ChoiceButton } from "../ui/Choice";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -127,7 +126,7 @@ export default function SchedulePage() {
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{cards.map(([l, v, d]) => (
         <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]"><span className="text-sm text-gray-500 dark:text-gray-400">{l}</span>
           <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4><span className="text-xs text-gray-400">{d}</span></div>))}</div>
-      <Card className="overflow-hidden p-0">
+      <div className="space-y-3">
         <div className="max-w-full overflow-x-auto custom-scrollbar">
           <Table className="w-full" style={{ minWidth: nDays > 7 ? 208 + nDays * 120 : nDays === 1 ? 0 : 1000 }}>
             <TableHead><TableRow><TableHeaderCell className="sticky start-0 z-[1] bg-white px-4 py-3 text-start text-xs font-medium text-gray-500 dark:bg-gray-900">Employee</TableHeaderCell>{days.map(d => { const ds = week.filter(x => d10s(x.day) === d), hrs = ds.reduce((a, x) => a + shHrs(x), 0), cost = ds.reduce((a, x) => a + shCost(x, s.users), 0), sl = sales[d] || 0, dt = new Date(d + "T12:00:00");
@@ -141,7 +140,7 @@ export default function SchedulePage() {
         <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-gray-100 px-5 py-3 text-xs text-gray-500 dark:border-gray-800">
           <span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm border-s-3 border-blue-500 bg-blue-50" />Published</span><span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm border-s-3 border-dashed border-gray-400 bg-gray-100" />Draft (not published yet)</span>
           <span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm ring-2 ring-red-500" />Overlaps another shift</span><span>Click a day to add · drag a shift to move it, hold Ctrl or Alt to copy it</span></div>
-      </Card>
+      </div>
       {!emps.length && <p className="mt-3 text-sm text-gray-500">No employees work at this store yet. Pick their stores on each employee's page (Employee Management → Employees).</p>}
       {form && <ShiftForm s={s} br={br} f={form} clash={clash} onClose={() => setForm(null)} />}
     </>

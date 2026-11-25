@@ -25,7 +25,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
     const keys = items.map(i => i.key).filter(k => k !== drag); keys.splice(keys.indexOf(target) + (items.findIndex(i => i.key === drag) < items.findIndex(i => i.key === target) ? 1 : 0), 0, drag); onMove(keys);
   };
   return (
-    <Card className="overflow-hidden p-0">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3>
         {onNew && <Button size="sm" variant="outline" onClick={onNew}><PlusIcon className="size-4.5" />Create</Button>}
@@ -42,7 +42,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
             <span className="flex-1" />{action?.(it)}
           </li>))}
       </ul>
-    </Card>);
+    </div>);
 }
 
 function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, onRestore }: { title: string; name: string; nameAr?: string; onSave?: (n: string, ar: string) => Promise<string | null>; onDelete?: () => Promise<boolean>; onClose: () => void; readOnly?: boolean; onRestore?: () => void }) {

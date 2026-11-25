@@ -1,8 +1,6 @@
-import { Card } from "@/components/tremor/Card";
 import { ChoiceButton } from "../ui/Choice";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
-// A Skwyd list page in TailAdmin style: title + breadcrumb, one card (tabs · search · add button), table, pages, and a dialog to add or edit.
+// A Skwyd list page in the Tremor template style: title, data table (tabs, search, filters, export, view options, row menu, bulk actions), and a dialog to add or edit.
 // Driven by the same kind of config as the current portal (CRUD in index.html): tabs, columns, fields, unique name, prep.
 import { Suspense } from "react";
 import { openWin } from "@/lib/util";
@@ -11,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,7 +20,9 @@ import { useSearchParams } from "react-router";
 import { ImageField } from "../ui/ImageField";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { Pager } from "../ui/Pager";
+import { askYes } from "../ui/confirm";
+import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTable";
+import { downloadCsv, sortValue, textOf } from "@/components/tremor/data-table/textOf";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -61,8 +60,6 @@ export function useS(names: string[]): S | null {
 export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const s = useS([cfg.col, ...(cfg.needs || [])]);
   const [tab, setTab] = useState(cfg.tabs[0][0]);
-  const [q, setQ] = useState("");
-  const [page, setPage] = useState(1);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
@@ -70,43 +67,45 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const list = useMemo(() => {
     if (!s) return [];
     const f = cfg.tabs.find(t => t[0] === tab)?.[2] || live;
-    const needle = q.trim().toLowerCase();
-    return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf).filter(r => !needle || (cfg.search ? cfg.search(r, s) : String(r.name || "")).toLowerCase().includes(needle))
+    return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
-  }, [s, tab, q, cfg, uf]);
-  const pages = Math.max(1, Math.ceil(list.length / PER)), cur = Math.min(page, pages);
-  const shown = list.slice((cur - 1) * PER, cur * PER);
+  }, [s, tab, cfg, uf]);
+  const open = (r: Row) => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r);
+  const del = async (rows: Row[], on: boolean) => {
+    if (!s) return;
+    if (on) { const why = rows.map(r => cfg.canDelete?.(r, s) || "").find(Boolean); if (why) return toast(why, "error");
+      if (!(await askYes(rows.length === 1 ? `Delete ${rows[0].name || "this " + cfg.one.toLowerCase()}?` : `Delete ${rows.length} ${cfg.title.toLowerCase()}?`, "Delete", true))) return; }
+    try { for (const r of rows) await softDelete(cfg.col, r.id, on); toast(on ? `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} deleted` : `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} restored`, on ? "error" : "success"); }
+    catch (e: any) { toast(e?.message || "Couldn't save.", "error"); } };
+  const deletedTab = /deleted/i.test(cfg.tabs.find(t => t[0] === tab)?.[1] || "");
+  const columns = useMemo<DTColumn<Row>[]>(() => !s ? [] : cfg.cols.map(c => ({ id: c.h, title: c.h, num: c.num, value: r => sortValue(c.cell(r, s)), cell: r => c.cell(r, s) })), [s, cfg]);
 
+  // Tremor dashboard template "Details" page: title, then the data table (filter bar, sortable columns, row menu, pagination)
   return (
     <>
       <PageBreadcrumb pageTitle={cfg.title} />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={cfg.tabs.map(t => [t[0], t[1]])} />
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
-            <TInput type="search" className="flex-1 sm:w-75 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />{cfg.addLbl || "Add " + cfg.one}</Button>
-          </div>
-        </div>
-        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-gray-800 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<Button type="button" variant="link" className="" onClick={() => setSp({})}>Show all</Button></div>}
-        {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-gray-800 dark:text-gray-400">{cfg.note}</p>}
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div>
-            : !list.length ? <EmptyState text={q ? "Nothing matches." : tab === cfg.tabs[0][0] ? `No ${cfg.title.toLowerCase()} yet.` : "Nothing here."} />
-            : <Table className="min-w-full">
-              <TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-                {cfg.cols.map(c => <TableHeaderCell key={c.h} className={cn("border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50", c.num && "text-end")}>{c.h}</TableHeaderCell>)}
-              </TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">
-                {shown.map(r => (
-                  <TableRow key={r.id} onClick={() => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                    {cfg.cols.map(c => <TableCell key={c.h} className={cn("px-4 py-2.5 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400", c.num && "text-end")}>{c.cell(r, s)}</TableCell>)}
-                  </TableRow>))}
-              </TableBody>
-            </Table>}
-        </div>
-        {list.length > PER && <Pager className="border-t border-gray-200 dark:border-gray-800" currentPage={cur} totalPages={pages} onPageChange={setPage} />}
-      </Card>
+      {uf && <div className="mb-4 flex items-center gap-3 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 ring-1 ring-inset ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}<Button variant="link" onClick={() => { sp.delete(cfg.urlFilter![0]); setSp(sp); }}>Show all</Button></div>}
+      {cfg.note && <p className="mb-4 text-sm text-gray-500 dark:text-gray-500">{cfg.note}</p>}
+      {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div> : (
+        <DataTable<Row>
+          key={tab}
+          data={list}
+          columns={columns}
+          getRowId={r => r.id}
+          searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
+          toolbar={cfg.tabs.length > 1 ? <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} /> : undefined}
+          actions={<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button>}
+          onRowClick={open}
+          rowActions={[
+            { label: cfg.detail ? "Open" : "Edit", onSelect: open },
+            ...(deletedTab ? [{ label: "Restore", onSelect: (r: Row) => del([r], false) }] : [{ label: "Delete", danger: true, onSelect: (r: Row) => del([r], true) }]),
+          ]}
+          bulk={deletedTab ? [{ label: "Restore", action: (rows: Row[]) => del(rows, false) }] : [{ label: "Delete", action: (rows: Row[]) => del(rows, true) }]}
+          onExport={rows => downloadCsv(cfg.title, cfg.cols.map(c => c.h), rows.map(r => cfg.cols.map(c => textOf(c.cell(r, s)))))}
+          empty={<EmptyState text={tab === cfg.tabs[0][0] ? `No ${cfg.title.toLowerCase()} yet.` : "Nothing here."} />}
+          pageSize={PER}
+        />
+      )}
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
   );

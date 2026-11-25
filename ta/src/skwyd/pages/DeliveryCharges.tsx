@@ -1,4 +1,4 @@
-import { Card } from "@/components/tremor/Card";
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Web Ordering → Delivery Charges: which charge each store adds when it delivers to a zone (settings "dcharges": { map: { zoneId: chargeId } }).
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { newId, put, type Row } from "@/lib/db";
 import { money, sym } from "@/lib/util";
 import { useState } from "react";
@@ -50,19 +49,19 @@ export default function DeliveryChargesPage() {
     <>
       <PageBreadcrumb pageTitle="Delivery Charges" />
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set the charge each store adds when it delivers to a delivery zone. Call center orders get it automatically when the customer's address is in the zone and the order is made by that store; web ordering uses it as the delivery fee.</p>
-      <Card className="overflow-hidden p-0">
+      <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row"><SelectNative aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><SelectNative aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
           <SelectNative aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></div>
-          <TInput type="search" className="sm:w-64" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
+          <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>
         {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-blue-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-blue-500/5">
           <b className="text-sm text-gray-900 dark:text-gray-50">{picked.length} Selected</b>
           <Button size="sm" onClick={() => setForm(picked)}>Assign Charge</Button>
           <Button size="sm" variant="outline" onClick={async () => { if (await askYes(`Unassign the charge from ${picked.length} zone${picked.length > 1 ? "s" : ""}?`, "Unassign") && await assign(s, picked, "")) { setSel(new Set()); toast("Charge unassigned"); } }}>Unassign Charge</Button></div>}
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {!list.length ? <EmptyState text={all.length ? "Nothing matches." : "No delivery zones yet. Add delivery zones to the stores first."}>{!all.length && <Link to="/delivery-zones"><Button variant="outline">Delivery Zones</Button></Link>}</EmptyState>
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">
               <TableHeaderCell className={TH + " w-12"}><Checkbox aria-label="Select all" checked={allOn} onCheckedChange={c => setSel(c ? new Set(list.map(z => z.id)) : new Set())} /></TableHeaderCell>
               <TableHeaderCell className={TH}>From (Store)</TableHeaderCell><TableHeaderCell className={TH}>To (Delivery Zone)</TableHeaderCell><TableHeaderCell className={TH}>Charge</TableHeaderCell></TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(z => { const c = chargeOf(z); return (
@@ -71,7 +70,7 @@ export default function DeliveryChargesPage() {
                   <TableCell className={TD}>{bName(z.branchId)}</TableCell><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{z.name}</TableCell>
                   <TableCell className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</TableCell></TableRow>); })}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
       {form && <AssignDialog s={s} ids={form} bName={bName} cur={form.length === 1 ? chargeOf(s.zones.find(z => z.id === form[0])!) : null} onClose={() => setForm(null)} onDone={() => setSel(new Set())} />}
     </>
   );

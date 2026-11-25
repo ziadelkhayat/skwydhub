@@ -226,14 +226,14 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
           {B.series && B.rows.length > 0 && <Card className="mb-6 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Day</h3><p className="mt-1 text-sm text-gray-500">{B.series.labels[0]} – {B.series.labels[B.series.labels.length - 1]}{prev ? ` · compared with the ${nDays} days before` : ""}</p>
             <AreaChart className="mt-4 h-64" data={B.series!.labels.map((l: string, i: number) => ({ day: l, Sales: B.series!.values[i] }))} index="day" categories={["Sales"]} colors={["blue"]} valueFormatter={v => money(v)} showLegend={false} yAxisWidth={56} /></Card>}
-          <Card className="overflow-hidden p-0">
+          <div className="space-y-3">
             <div className="custom-scrollbar max-w-full overflow-x-auto">
               {!B.rows.length ? <EmptyState text="No data to display" />
-                : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{B.head.map(([l, tip, num]) => <TableHeaderCell key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</TableHeaderCell>)}</TableRow></TableHead>
+                : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{B.head.map(([l, tip, num]) => <TableHeaderCell key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</TableHeaderCell>)}</TableRow></TableHead>
                   <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{B.rows.map((r, i) => <TableRow key={i}>{r.map((c, j) => <TableCell key={j} className={TD + (B.head[j]?.[2] ? " text-end" : j === 0 ? " font-medium text-gray-900 dark:text-gray-50" : "")}>{c}</TableCell>)}</TableRow>)}</TableBody>
                   {B.foot && <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow>{B.foot.map((c, j) => <TableCell key={j} className={TD + " font-semibold text-gray-900 dark:text-gray-50" + (B.head[j]?.[2] ? " text-end" : "")}>{c}</TableCell>)}</TableRow></TableFoot>}</Table>}
             </div>
-          </Card>
+          </div>
         </>}
     </>
   );

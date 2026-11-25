@@ -1,4 +1,3 @@
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Time Clock and Requests: same data (settings "timeclock", table staff_requests), tabs, filters, rules and actions
@@ -71,10 +70,10 @@ export function TimeClockPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Time Clock" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={tab} onChange={setTab} items={[["now", `Clocked In Now (${open.length})`], ["sheet", "Timesheets"]]} />
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
             {tab === "sheet" && <>
               <SelectNative aria-label="Employee" className={SEL + " sm:w-48"} value={emp} onChange={e => setEmp(e.target.value)}><option value="">All Employees</option>{emps.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</SelectNative>
@@ -82,22 +81,22 @@ export function TimeClockPage() {
               <Button variant="outline" onClick={exportCsv}><DownloadIcon className="size-5" />Export CSV</Button></>}
           </div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {tab === "now" ? (!open.length ? <EmptyState text={`Nobody is clocked in${branch ? " at this store" : ""}. Employees clock in on the cashier app: they type their PIN, then Clock In.`} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Job Title", "Store", "Clocked In"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Hours So Far</TableHeaderCell><TableHeaderCell className={TH} /></TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Employee", "Job Title", "Store", "Clocked In"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Hours So Far</TableHeaderCell><TableHeaderCell className={TH} /></TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{open.map(o => { const u = byId[o.userId]; return (
                 <TableRow key={o.userId}><TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{u?.name || o.name || "—"}</span><Flags x={o} /></TableCell><TableCell className={TD}>{u?.jobTitle || "—"}</TableCell><TableCell className={TD}>{bName(o.branchId)}</TableCell>
                   <TableCell className={TD}>{dmy(dayOf(o.at))} {hm(o.at)}</TableCell><TableCell className={TD + " text-end"}>{tcHrs({ in: o.at }).toFixed(2)}</TableCell>
                   <TableCell className={TD + " text-end"}><Button size="sm" variant="outline" onClick={() => clockOut(o)}>Clock Out</Button></TableCell></TableRow>); })}</TableBody></Table>)
           : !sum.length ? <EmptyState text="No clock-ins in this period." />
-          : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>{["Days", "Hours", "Overtime", "Late", "Estimated Pay"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+          : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>{["Days", "Hours", "Overtime", "Late", "Estimated Pay"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{sum.map(r => <TableRow key={r.name}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.name}</TableCell><TableCell className={TD}>{r.job}</TableCell>
               <TableCell className={TD + " text-end"}>{r.days}</TableCell><TableCell className={TD + " text-end"}>{r.hrs.toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{r.ot ? r.ot.toFixed(2) : "—"}</TableCell><TableCell className={TD + " text-end"}>{r.late || "—"}</TableCell><TableCell className={TD + " text-end"}>{r.p != null ? money(r.p) : "—"}</TableCell></TableRow>)}</TableBody>
             <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow className="font-semibold"><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"}>Total</TableCell><TableCell /><TableCell /><TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.hrs, 0).toFixed(2)}</TableCell><TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.ot, 0).toFixed(2)}</TableCell>
               <TableCell className={TD + " text-end"}>{sum.reduce((a, r) => a + r.late, 0) || "—"}</TableCell><TableCell className={TD + " text-end"}>{sum.some(r => r.p) ? money(sum.reduce((a, r) => a + (r.p || 0), 0)) : "—"}</TableCell></TableRow></TableFoot></Table>}
         </div>
         {tab === "sheet" && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Overtime counts hours over 8 in a day. Late means clocking in more than 5 minutes after the published shift starts; Unscheduled means no published shift. Estimated pay uses each employee's hourly or daily rate (Edit Employee → Pay).</p>}
-      </Card>
+      </div>
       {tab === "sheet" && <div className={BOX + " mt-6"}>
         <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Entries</h3>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
@@ -171,20 +170,20 @@ export function RequestsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Requests" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All Requests"], ["pending", "Pending" + (n("pending") ? ` (${n("pending")})` : "")], ["declined", "Declined"], ["approved", "Approved"], ["balances", "Leave Balances"]]} />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center"><StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
             {tab === "balances" && <SelectNative aria-label="Year" className={SEL + " sm:w-28"} value={year} onChange={e => setYear(+e.target.value)}>{[0, 1, 2].map(i => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}</SelectNative>}</div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {tab === "balances" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>
+        <div className="relative overflow-x-auto">
+          {tab === "balances" ? (!emps.length ? <EmptyState text="No employees yet." /> : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Employee</TableHeaderCell><TableHeaderCell className={TH}>Job Title</TableHeaderCell>
             {["Annual Leave Days", "Annual Used", "Annual Left", "Sick Days", "Unpaid Days"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const al = u.leaveDays == null || u.leaveDays === "" ? null : +u.leaveDays, used = rqUsed(reqs, u.id, "annual", year);
               return <TableRow key={u.id}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{u.name}</TableCell><TableCell className={TD}>{u.jobTitle || "—"}</TableCell><TableCell className={TD + " text-end"}>{al ?? "—"}</TableCell><TableCell className={TD + " text-end"}>{used || "—"}</TableCell>
                 <TableCell className={TD + " text-end"}>{al == null ? "—" : <b className={al - used < 0 ? "text-red-500" : "text-gray-900 dark:text-gray-50"}>{al - used}</b>}</TableCell><TableCell className={TD + " text-end"}>{rqUsed(reqs, u.id, "sick", year) || "—"}</TableCell><TableCell className={TD + " text-end"}>{rqUsed(reqs, u.id, "unpaid", year) || "—"}</TableCell></TableRow>; })}</TableBody></Table>)
           : !rows.length ? <EmptyState text={tab === "pending" || tab === "all" ? "No requests yet. Staff ask for time off or a shift swap through the app." : "Nothing here yet."} />
-          : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Employee", "Request", "Note", "Asked", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+          : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Employee", "Request", "Note", "Asked", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const u = byId[r.employeeId], al = u && u.leaveDays != null && u.leaveDays !== "" ? +u.leaveDays : null;
               return <TableRow key={r.id}><TableCell className={TD}><span className="block font-medium text-gray-900 dark:text-gray-50">{u?.name || "—"}</span><span className="text-xs text-gray-500">{u?.jobTitle || ""}</span></TableCell>
                 <TableCell className={TD}>{what(r)}{r.kind === "time_off" && r.leaveType === "annual" && al != null && <span className="block text-xs text-gray-500">Annual left: {al - rqUsed(reqs, r.employeeId, "annual", d10s(r.fromDay).slice(0, 4))}</span>}</TableCell>
@@ -195,7 +194,7 @@ export function RequestsPage() {
                     try { await put("work_requests", r.id, { status: "cancelled", decidedBy: who(staff), decidedAt: new Date().toISOString() }); toast("Request cancelled"); } catch { toast("Couldn't save.", "error"); } }}>Cancel</Button> : null}</div></TableCell></TableRow>; })}</TableBody></Table>}
         </div>
         {tab === "balances" && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Set each employee's Annual Leave Days on Edit Employee. Approved requests count on the year they start.</p>}
-      </Card>
+      </div>
       {dec && <DeclineDialog r={dec} name={byId[dec.employeeId]?.name || ""} onClose={() => setDec(null)} onGo={async why => { await put("work_requests", dec.id, { status: "declined", decidedBy: who(staff), decidedAt: new Date().toISOString(), decisionNote: why || null }); toast("Request declined"); }} />}
     </>
   );

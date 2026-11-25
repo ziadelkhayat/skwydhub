@@ -198,15 +198,15 @@ export function SubscriptionPage() {
       {+q.discount > 0 && <><TableRow><TableCell colSpan={3} className={TD + " text-end"}>Subtotal</TableCell><TableCell className={TD + " text-end"}>{m(q.subtotal, q.currency)}</TableCell></TableRow><TableRow><TableCell colSpan={3} className={TD + " text-end"}>Discount</TableCell><TableCell className={TD + " text-end"}>−{m(q.discount, q.currency)}</TableCell></TableRow></>}
       <TableRow><TableCell colSpan={3} className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total per {q.cycle === "yearly" ? "year" : "month"}</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{m(q.total, q.currency)}</TableCell></TableRow></TableBody></Table></div></Card>}
     <h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-50">Invoices</h3>
-    <Card className="overflow-hidden p-0">{!(s.invoices || []).length ? <EmptyState text="No invoices yet." /> : <div className="overflow-x-auto"><Table className="w-full min-w-[760px]"><TableHead><TableRow>{["Invoice", "Period", "Due", "Total", "Status", "Paid", ""].map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+    <div className="space-y-3">{!(s.invoices || []).length ? <EmptyState text="No invoices yet." /> : <div className="overflow-x-auto"><Table className="w-full min-w-[760px]"><TableHead><TableRow>{["Invoice", "Period", "Due", "Total", "Status", "Paid", ""].map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
       {s.invoices.map((i: any) => <TableRow key={i.id} className={TR}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{i.number}</TableCell><TableCell className={TD}>{sDate(i.periodStart)} – {sDate(i.periodEnd)}</TableCell><TableCell className={TD}>{sDate(i.dueAt)}</TableCell><TableCell className={TD + " text-end"}>{m(i.total, i.currency)}</TableCell>
         <TableCell className={TD}>{i.status === "paid" ? <Badge variant="light" color="success">Paid</Badge> : new Date(i.dueAt) < new Date() ? <Badge variant="light" color="error">Overdue</Badge> : <Badge variant="light" color="warning">Open</Badge>}</TableCell>
-        <TableCell className={TD}>{i.paidAt ? sDate(i.paidAt) + (i.method ? " · " + i.method[0].toUpperCase() + i.method.slice(1) : "") : "—"}</TableCell><TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => showInv(i)}>View</Button></TableCell></TableRow>)}</TableBody></Table></div>}</Card>
+        <TableCell className={TD}>{i.paidAt ? sDate(i.paidAt) + (i.method ? " · " + i.method[0].toUpperCase() + i.method.slice(1) : "") : "—"}</TableCell><TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => showInv(i)}>View</Button></TableCell></TableRow>)}</TableBody></Table></div>}</div>
     <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">To pay an invoice, add POS devices or modules, or change your billing, contact {contact.length ? contact.reduce((a: any[], x, i) => i ? [...a, " · ", x] : [x], []) : "Skwyd Hub support"}. Card payments here are coming soon.</p>
   </>;
 }
 
 /* ---------- Marketplace: integrations are listed here one by one as they become available (none yet, as in the portal) ---------- */
 export function MarketplacePage() {
-  return <><PageBreadcrumb pageTitle="Marketplace" /><Card className="overflow-hidden p-0"><EmptyState text="No integrations yet" /></Card></>;
+  return <><PageBreadcrumb pageTitle="Marketplace" /><div className="space-y-3"><EmptyState text="No integrations yet" /></div></>;
 }

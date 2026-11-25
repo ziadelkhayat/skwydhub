@@ -11,7 +11,7 @@ import { Link, useSearchParams } from "react-router";
 import { TD, TR } from "../ui/kit";
 import { Head, Info, None, Sec } from "./Details";
 // the item list is kept compact: short rows, small type
-const ITH = "border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50", ITD = "px-3 py-1.5 text-sm text-gray-700 dark:text-gray-400", ITR = "border-t border-gray-200 dark:border-gray-800";
+const ITH = "whitespace-nowrap border-y border-gray-200 px-4 py-1 text-start text-sm font-semibold text-gray-900 sm:text-xs dark:border-gray-800 dark:text-gray-50", ITD = "px-3 py-1.5 text-sm text-gray-700 dark:text-gray-400", ITR = "border-t border-gray-200 dark:border-gray-800";
 import { CHL, chkNo, ORD_ST, ordRef, srcOf, ST_COLOR, tel, TYPE_LBL, camel } from "./Orders";
 
 const tm = (t?: string) => t ? fmtDate(t) + " " + new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";

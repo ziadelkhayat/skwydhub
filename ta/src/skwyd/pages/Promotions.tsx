@@ -1,7 +1,6 @@
+import { DataTable } from "@/components/tremor/data-table/DataTable";
 import { Label } from "@/components/tremor/Label";
-import { Card } from "@/components/tremor/Card";
 import { ChoiceButton } from "../ui/Choice";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Marketing → Promotions: list (All / Active / Inactive / Deleted, search) and the two-step form (Offer, then Schedule) with a live preview,
 // same types, rules and "promotions" settings document as the current portal.
@@ -21,7 +20,7 @@ import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -52,7 +51,7 @@ const period = (p: any) => p.start || p.end ? (p.start ? fmtDate(p.start + "T00:
 
 export default function PromotionsPage() {
   const s = useS(["settings", "products", "categories", "branches"]);
-  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [form, setForm] = useState<any>(undefined);
+  const [tab, setTab] = useState("all"), [q] = useState(""), [form, setForm] = useState<any>(undefined);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const list: any[] = (s.settings.find(x => x.id === "promotions") as any)?.list || [];
   const save = async (l: any[]) => { try { await put("settings", "promotions", { list: l }); return true; } catch { toast("Couldn't save. Only the owner or an admin can change promotions.", "error"); return false; } };
@@ -61,26 +60,21 @@ export default function PromotionsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Promotions" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
-          <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["inactive", "Inactive"], ["deleted", "Deleted"]]} />
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
-            <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Promotion</Button>
-          </div>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {!rows.length ? <EmptyState text={tab === "deleted" ? "No deleted promotions" : q ? "No promotions match." : "No promotions yet"} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-              {["Name", "Type", "Offer", "Period", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{tab === "deleted" && <TableHeaderCell className={TH} />}</TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(p => { const st = status(p); return (
-                <TableRow key={p.id} className={p.deleted ? "" : TR} onClick={() => !p.deleted && setForm(p)}>
-                  <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{p.name}</span>{p.nameAr && <span className="ms-2 text-gray-500" dir="auto">{p.nameAr}</span>}</TableCell>
-                  <TableCell className={TD}>{typeLbl(p.type)}</TableCell><TableCell className={TD}>{summary(p, s.products)}</TableCell><TableCell className={TD}>{period(p)}</TableCell>
-                  <TableCell className={TD}><Badge variant="light" color={st[1] as any}>{st[0]}</Badge></TableCell>
-                  {tab === "deleted" && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await askYes("Restore this promotion?", "Restore") && await save(list.map(x => x.id === p.id ? { ...x, deleted: false } : x))) toast("Promotion restored"); }}>Restore</Button></TableCell>}</TableRow>); })}</TableBody></Table>}
-        </div>
-      </Card>
+      <DataTable<any>
+        data={rows} getRowId={(r: any) => r.id} key={tab}
+        columns={[
+          { id: "Name", title: "Name", cell: p => <><span className="font-medium text-gray-900 dark:text-gray-50">{p.name}</span>{p.nameAr && <span className="ms-2 text-gray-500" dir="auto">{p.nameAr}</span>}</> },
+          { id: "Type", title: "Type", cell: p => <>{typeLbl(p.type)}</> },
+          { id: "Offer", title: "Offer", cell: p => <>{summary(p, s.products)}</> },
+          { id: "Period", title: "Period", cell: p => <>{period(p)}</> },
+          { id: "Status", title: "Status", cell: p => { const st = status(p); return <><Badge variant="light" color={st[1] as any}>{st[0]}</Badge></>; } },
+        ]}
+        toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["inactive", "Inactive"], ["deleted", "Deleted"]]} />}
+        actions={<><Button className="h-[30px] py-1" onClick={() => setForm(null)}><PlusIcon className="size-4" />Create Promotion</Button></>}
+        onRowClick={tab === "deleted" ? undefined : p => { setForm(p); }}
+        rowActions={[...(tab === "deleted" ? [{ label: "Restore", onSelect: (p: any) => (async () => { if (await askYes("Restore this promotion?", "Restore") && await save(list.map(x => x.id === p.id ? { ...x, deleted: false } : x))) toast("Promotion restored"); })() }] : []), ...(tab === "deleted" ? [] : [{ label: "Open", onSelect: (p: any) => { setForm(p); } }])]}
+        empty={<EmptyState text={tab === "deleted" ? "No deleted promotions" : q ? "No promotions match." : "No promotions yet"} />}
+      />
       {form !== undefined && <PromoForm p0={form} s={s} list={list} save={save} onClose={() => setForm(undefined)} />}
     </>
   );

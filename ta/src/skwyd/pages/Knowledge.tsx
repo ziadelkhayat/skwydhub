@@ -1,3 +1,4 @@
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Label } from "@/components/tremor/Label";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -63,15 +64,15 @@ export default function KnowledgePage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Knowledge Base" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={tab} onChange={setTab} items={[["active", `Active (${act.length})`], ["archived", `Archived (${arc.length})`]]} />
-          <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <Button onClick={() => setEd({ a: null, step: 0 })}><PlusIcon className="size-5" />Add New</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {!rows.length ? <EmptyState text={tab === "archived" ? "Nothing archived." : all.length ? "Nothing matches." : "No knowledge base yet. Press Add New to make your first one."} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Status</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Views</TableHeaderCell>{["Assign To", "Created By", "Administrated By", "Date Created"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Status</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Views</TableHeaderCell>{["Assign To", "Created By", "Administrated By", "Date Created"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(a => { const n = audience(s, a).length; return (
                 <TableRow key={a.id} className={TR} onClick={() => setOpen(a.id)}>
                   <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{a.title}</TableCell><TableCell className={TD}><St a={a} /></TableCell><TableCell className={TD + " text-end"}>{views(a.id)}</TableCell>
@@ -82,7 +83,7 @@ export default function KnowledgePage() {
                     <Button size="icon-sm" variant="ghost" title="Delete" onClick={async () => { if (!(await askYes(`Delete ${a.title}? Employees will no longer see it.`, "Delete", true))) return; try { await put("kb_articles", a.id, { deleted: true }); toast("Deleted"); } catch { toast("Couldn't delete.", "error"); } }}><TrashBinIcon className="size-4.5" /></Button></div></TableCell>
                 </TableRow>); })}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
     </>
   );
 }
@@ -177,7 +178,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
         <PageBreadcrumb pageTitle={STEPS[step - 1]} />
         <div className="mb-6 flex items-center justify-center gap-3">{STEPS.map((t, i) => <div key={t} className="flex items-center gap-3">{i > 0 && <i className={cn("h-px w-10", step > i ? "bg-blue-500" : "bg-gray-300")} />}
           <span className={cn("flex size-8 items-center justify-center rounded-full text-sm font-semibold", step > i + 1 ? "bg-blue-500 text-white" : step === i + 1 ? "border-2 border-blue-500 text-blue-500" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{step > i + 1 ? "✓" : "0" + (i + 1)}</span><small className="hidden text-sm text-gray-600 sm:inline dark:text-gray-400">{t}</small></div>)}</div>
-        <Card className="overflow-hidden p-0">
+        <div className="space-y-3">
           {step === 3 ? <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-2 lg:p-6">
             <div className="rounded-md border border-gray-200 p-5 dark:border-gray-800"><b className="text-gray-900 dark:text-gray-50">Assigned Employees · {aud.length}</b>
               <p className="mb-3 text-sm text-gray-500">{E.mode === "groups" ? [...E.roleIds.map(r => "Role: " + (s.roles.find(x => x.id === r)?.name || "—")), ...E.branchIds.map(b => "Store: " + (s.branches.find(x => x.id === b)?.name || "—"))].join(" · ") || "Everyone" : "Picked one by one"}</p>
@@ -187,15 +188,15 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
           </div> : <>
             <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               {adm ? <span /> : <SegTabs value={mode} onChange={v => up({ mode: v })} items={[["groups", "Select By Groups"], ["users", "Select By Users"]]} />}
-              <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></div>
-            <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-              {mode === "groups" ? <><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Group</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Members</TableHeaderCell></TableRow></TableHead>
+              <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></div>
+            <div className="relative overflow-x-auto">
+              {mode === "groups" ? <><Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Group</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Members</TableHeaderCell></TableRow></TableHead>
                 <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{[...s.roles.filter(r => live(r) && (!qq || String(r.name).toLowerCase().includes(qq))).map(r => ["r", r] as const), ...s.branches.filter(b => live(b) && b.active !== false && (!qq || String(b.name).toLowerCase().includes(qq))).map(b => ["b", b] as const)].map(([k, x]) => {
                   const arr = k === "r" ? E.roleIds : E.branchIds, mem = emps.filter(u => k === "r" ? roleIds(u).includes(x.id) : (u.branchIds || []).includes(x.id)).length;
                   return <TableRow key={k + x.id}><TableCell className={TD}><Label className="flex cursor-pointer items-center gap-3 font-medium text-gray-900 dark:text-gray-50"><Checkbox checked={arr.includes(x.id)} onCheckedChange={c => up(k === "r" ? { roleIds: tog(arr, x.id, !!c) } : { branchIds: tog(arr, x.id, !!c) })} />{x.name}</Label></TableCell>
                     <TableCell className={TD}>{k === "r" ? "Role" : "Store"}</TableCell><TableCell className={TD + " text-end"}>{mem} employees</TableCell></TableRow>; })}</TableBody></Table>
                 <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Pick nothing to give it to everyone. Roles and stores together: employees with one of the roles at one of the stores.</p></>
-              : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH + " w-12"}><Checkbox checked={users.length > 0 && users.every(u => sel.includes(u.id))} onCheckedChange={c => setSel(c ? [...new Set([...sel, ...users.map(u => u.id)])] : sel.filter(id => !users.some(u => u.id === id)))} /></TableHeaderCell>{["Name", "Store", "Job"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+              : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH + " w-12"}><Checkbox checked={users.length > 0 && users.every(u => sel.includes(u.id))} onCheckedChange={c => setSel(c ? [...new Set([...sel, ...users.map(u => u.id)])] : sel.filter(id => !users.some(u => u.id === id)))} /></TableHeaderCell>{["Name", "Store", "Job"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
                 <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{users.map(u => <TableRow key={u.id}><TableCell className={TD}><Checkbox checked={sel.includes(u.id)} onCheckedChange={c => setSel(tog(sel, u.id, !!c))} /></TableCell>
                   <TableCell className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></TableCell><TableCell className={TD}>{brN(u)}</TableCell><TableCell className={TD}>{u.jobTitle ? <Badge variant="light" color="primary">{u.jobTitle}</Badge> : "—"}</TableCell></TableRow>)}
                   {!users.length && <TableRow><TableCell colSpan={4} className={TD}>Nobody matches.</TableCell></TableRow>}</TableBody></Table>}
@@ -204,13 +205,13 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
             <Button variant="outline" onClick={() => step === 1 && step0 === 1 ? onDone() : (setStep(step - 1), setAq(""))}>{step === 1 && step0 === 1 ? "Cancel" : "Back"}</Button>
             <Button disabled={busy} onClick={async () => { if (step < 3) { setStep(step + 1); setAq(""); return; } setBusy(true); try { const id = await persist("published"); toast(step0 === 1 ? "Assignments saved" : "Knowledge base published"); onDone(id); } catch { toast("Couldn't save. Check your connection.", "error"); } setBusy(false); }}>{step === 3 ? "Publish" : "Next"}</Button>
           </div>
-        </Card>
+        </div>
       </>);
   }
   return (
     <>
       <PageBreadcrumb pageTitle={E.id ? "Edit Knowledge Base" : "Create a Knowledge Base"} />
-      <Card className="overflow-hidden p-0">
+      <div className="space-y-3">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
           <aside className="border-b border-gray-100 p-3 lg:border-e lg:border-b-0 dark:border-gray-800">
             <p className="px-3 pb-2 text-xs font-medium tracking-wide text-gray-400 uppercase">Folders</p>
@@ -224,7 +225,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
               {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><button type="button" onClick={() => setFolder(c.id)} className="hover:text-blue-500">{c.name}</button></span>)}</div>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">{[["text", "Add Text"], ["link", "Add Link"], ["file", "Add Files"], ["folder", "Add Folder"]].map(([k, t]) => <Button key={k} size="sm" variant="outline" onClick={() => k === "file" ? fileIn.current?.click() : setDlg({ kind: k })}>{ICO[k]}{t}</Button>)}</div>
-              <TInput type="search" className="sm:w-56" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
+              <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
             <input ref={fileIn} type="file" multiple hidden accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={e => { upload(e.target.files); e.target.value = ""; }} />
             <div className="divide-y divide-gray-100 rounded-md border border-gray-200 dark:divide-white/5 dark:border-gray-800">
               {!folder && E.body && <div className="flex items-center gap-3 px-4 py-3">{ICO.text}<b className="text-sm font-medium text-gray-900 dark:text-gray-50">Text (from the old article)</b><span className="flex-1 truncate text-xs text-gray-500">{E.body.slice(0, 80)}</span>
@@ -247,7 +248,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
             <Button onClick={() => { if (!E.title) return setDlg({ kind: "name" }); if (!E.body && !E.items.some(x => x.kind !== "folder")) return toast("Add a text, link or file first.", "error"); setStep(1); }}>Save</Button>
           </div>
         </div>
-      </Card>
+      </div>
       {dlg && <ItemDialog d={dlg} E={E} folder={folder} up={up} onClose={() => setDlg(null)} cats={[...new Set([...CATS, ...s.kb_articles.map(x => x.category).filter(Boolean)])]} />}
     </>
   );

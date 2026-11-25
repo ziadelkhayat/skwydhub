@@ -1,4 +1,3 @@
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // Order Transactions: what each completed sale took out of stock (Consumption From Order) and what voided sales put back (Return From Order).
 // Read from the order_transactions table, 50 per page, newest first, for the chosen store; a transaction opens as its own page with its items.
@@ -64,10 +63,10 @@ export default function OrderTxPage() {
         <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></div>
       <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3"}>{[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no ? String(r.order_no) : "—"], ["Type", kindName(r.kind)], ["Total Cost", money(r.total_cost)]].map(([l, v]) =>
         <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
-      <Card className="overflow-hidden p-0"><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
+      <div className="space-y-3"><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
         <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>
           {(r.items || []).map((x: any, i: number) => { const it = item(x.itemId); return <TableRow key={i} className={TR}><TableCell className={TD}>{it?.name || "(deleted item)"}</TableCell><TableCell className={TD + " text-end"}>{n2(x.qty)} {it?.storageUnit || ""}</TableCell></TableRow>; })}
-          {!(r.items || []).length && <TableRow><TableCell colSpan={2} className={TD + " text-center text-gray-500"}>No items.</TableCell></TableRow>}</TableBody></Table></div></Card>
+          {!(r.items || []).length && <TableRow><TableCell colSpan={2} className={TD + " text-center text-gray-500"}>No items.</TableCell></TableRow>}</TableBody></Table></div></div>
     </>;
   }
 
@@ -75,7 +74,7 @@ export default function OrderTxPage() {
   return <>
     <PageBreadcrumb pageTitle="Order Transactions" />
     <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">Every completed sale takes its recipe ingredients (item and options, for its order type) out of the store's stock. Voided sales put them back.</p>
-    <Card className="overflow-hidden p-0">
+    <div className="space-y-3">
       <div className="flex flex-col gap-3 border-b border-gray-200 p-4 sm:flex-row sm:items-center dark:border-gray-800">
         <StoreFilter s={s as any} brand={brand} setBrand={v => { setBrand(v); setPage(1); }} branch={branch} setBranch={v => { setBranch(v); setPage(1); }} />
         <Button variant="outline" className="sm:ms-auto" disabled={!rows?.length} onClick={() => csv("order-transactions.csv", [["Reference", "Store", "Order Reference", "Type", "Business Date", "Created"], ...(rows || []).map(r => [r.ref, bName(r.branch_id), r.order_no || "", kindName(r.kind), bd(r), fmtDateTime(r.created_at)])])}><DownloadIcon className="size-5" />Export</Button>
@@ -87,6 +86,6 @@ export default function OrderTxPage() {
             <TableCell className={TD}><Badge variant="light" color={r.kind === "return" ? "warning" : "primary"}>{kindName(r.kind)}</Badge></TableCell><TableCell className={TD}>{bd(r)}</TableCell><TableCell className={TD}>{fmtDateTime(r.created_at)}</TableCell></TableRow>)}</TableBody></Table></div>}
       <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row dark:border-gray-800">
         <span className="text-sm text-gray-500">{count} transaction{count === 1 ? "" : "s"}</span>{pages > 1 && <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />}</div>
-    </Card>
+    </div>
   </>;
 }

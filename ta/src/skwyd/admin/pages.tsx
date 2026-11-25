@@ -1,5 +1,5 @@
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Label } from "@/components/tremor/Label";
-import { Card } from "@/components/tremor/Card";
 import { ChoiceButton } from "../ui/Choice";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon, PlusIcon, TrashBinIcon } from "@/icons";
 import { cn } from "@/utils";
@@ -39,11 +38,11 @@ export function AdminDashboard() {
   const ending = cs.filter(c => !c.sub?.complimentary && ["trial", "grace"].includes(c.sub?.state) && c.sub?.daysLeft != null).sort((a, b) => a.sub.daysLeft - b.sub.daysLeft).slice(0, 6);
   const newest = cs.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 6);
   const busy = cs.filter(c => c.orders30).sort((a, b) => (b.orders30 || 0) - (a.orders30 || 0)).slice(0, 6);
-  const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <Card className="overflow-hidden p-0">
+  const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className="space-y-3">
     <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">{title}</h3>
     {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-500 dark:bg-blue-500/15">{initials(c.name)}</span>
-      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</Card>;
+      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
   return <>
     <PageBreadcrumb pageTitle="Dashboard" />
     <H t={hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"} sub={`${now.toLocaleDateString("en-GB", { weekday: "long" })} ${dmy(now)} · every restaurant on Skwyd Hub, their plans and what they owe.`} />
@@ -64,21 +63,21 @@ export function Companies() {
   const rows = cs.filter(c => (tab === "all" || (tab === "free" ? c.sub?.complimentary : !c.sub?.complimentary && c.sub?.state === tab)) && (!s || [c.name, c.account_no, c.email, c.phone, c.contact_name].some(v => String(v || "").toLowerCase().includes(s))));
   return <>
     <PageBreadcrumb pageTitle="Companies" />
-    <Card className="overflow-hidden p-0">
-      <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
         <div className="flex flex-wrap items-center gap-3"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["trial", "Trial"], ["grace", "Grace Period"], ["locked", "Locked"], ["free", "Free"]]} />
           <span className="flex-1" /><Button onClick={() => setNw(true)}><PlusIcon className="size-5" />New Business</Button></div>
-        <div className="flex flex-wrap items-center gap-3"><TInput type="search" className="w-full sm:w-72" inputClassName="h-9 py-1.5" placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} />
+        <div className="flex flex-wrap items-center gap-3"><Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} />
           <span className="text-sm text-gray-500">{rows.length} of {cs.length}</span></div>
       </div>
-      <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">{rows.length ? <Table className="w-full"><TableHead><TableRow className="border-b border-gray-200 dark:border-gray-800">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+      <div className="relative overflow-x-auto">{rows.length ? <Table className="w-full"><TableHead><TableRow className="border-b border-gray-200 dark:border-gray-800">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
         <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const x = c.sub || {}; return <TableRow key={c.id} className={TR} onClick={() => openWin("/company?id=" + c.id)}>
           <TableCell className={TD}><b className="block font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.subcategory || c.category || ""}</span></TableCell><TableCell className={TD}>{c.account_no || "—"}</TableCell>
           <TableCell className={TD}>{c.contact_name || "—"}<span className="block text-xs text-gray-500">{[c.email, c.phone].filter(Boolean).join(" · ")}</span></TableCell><TableCell className={TD}><State c={c} /></TableCell>
           <TableCell className={TD}>{x.complimentary ? "—" : x.daysLeft != null ? x.daysLeft + (x.daysLeft === 1 ? " Day" : " Days") : "—"}</TableCell><TableCell className={TD}>{x.posUsed ?? 0} / {x.complimentary ? "∞" : x.posDevices ?? 0}</TableCell>
           <TableCell className={TD}>{x.complimentary ? "—" : <>{money(c.quote?.total)}<span className="block text-xs text-gray-500">{c.quote?.cycle === "yearly" ? "Yearly" : "Monthly"}</span></>}</TableCell>
           <TableCell className={TD}>{Number(x.owed) ? money(x.owed) : "—"}</TableCell><TableCell className={TD}>{c.orders30 || 0}</TableCell><TableCell className={TD}>{dmy(c.created_at)}</TableCell></TableRow>; })}</TableBody></Table> : <Empty t="No companies match." />}</div>
-    </Card>
+    </div>
     {nw && <NewBusiness onClose={() => setNw(false)} />}
   </>;
 }
@@ -148,7 +147,7 @@ const Mods = ({ value, set }: { value: string[]; set: (v: string[]) => void }) =
 export function CompanyPage() {
   const { data, reload } = useAdmin(), id = useSearchParams()[0].get("id") || "", c = (data.companies || []).find(x => x.id === id), [inv, setInv] = useState<any[] | null>(null), [tick, setTick] = useState(0);
   useEffect(() => { if (id) rpc<any[]>("slick_pa_invoices", { p_company: id }).then(setInv).catch(() => setInv([])); }, [id, tick]);
-  if (!c) return <><PageBreadcrumb pageTitle="Companies" /><Card className="overflow-hidden p-0"><Empty t="This company wasn't found." /></Card></>;
+  if (!c) return <><PageBreadcrumb pageTitle="Companies" /><div className="space-y-3"><Empty t="This company wasn't found." /></div></>;
   const s = c.subscription || {}, x = c.sub || {}, cur = data.settings?.currency || "USD";
   const refresh = async () => { await reload(); setTick(t => t + 1); };
   const viewAs = async () => { const w = window.open("about:blank", "_blank");
@@ -210,7 +209,7 @@ const InvState = ({ i }: { i: any }) => { const over = i.status === "open" && ne
   return <Badge variant="light" color={over ? "error" : i.status === "paid" ? "success" : i.status === "open" ? "warning" : "light"}>{over ? "Overdue" : String(i.status || "").replace(/^./, (m: string) => m.toUpperCase())}</Badge>; };
 function Invoices1({ c, inv, onChange }: { c: any; inv: any[] | null; onChange: () => Promise<void> }) {
   const { data } = useAdmin(), [pay, setPay] = useState<any>(null), [nw, setNw] = useState(false);
-  return <Card className="overflow-hidden p-0">
+  return <div className="space-y-3">
     <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="flex-1 text-base font-medium text-gray-900 dark:text-gray-50">Invoices</h3><Button size="sm" disabled={!!c.sub?.complimentary} onClick={() => setNw(true)}><PlusIcon className="size-4" />Create Invoice</Button></div>
     {inv === null ? <Empty t="Loading…" /> : !inv.length ? <Empty t="No invoices yet." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow className="border-b border-gray-200 dark:border-gray-800">{["Number", "Period", "Total", "Status", "Due", "Paid", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
       <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{inv.map(i => <TableRow key={i.id}><TableCell className={TD}><b className="font-medium text-gray-900 dark:text-gray-50">{i.number}</b></TableCell>
@@ -222,7 +221,7 @@ function Invoices1({ c, inv, onChange }: { c: any; inv: any[] | null; onChange: 
             try { await rpc("slick_pa_void_invoice", { p_invoice: i.id }); toast("Invoice voided"); await onChange(); } catch (e: any) { toast(e.message, "error"); } }}>Void</Button></>}</div></TableCell></TableRow>)}</TableBody></Table></div>}
     {pay && <PayDialog i={pay} onClose={() => setPay(null)} onDone={async () => { setPay(null); await onChange(); }} />}
     {nw && <NewInvoice c={c} onClose={() => setNw(false)} onDone={async (x: any) => { setNw(false); await onChange(); if (x) showInvoice(x, data.settings, c).catch(() => {}); }} />}
-  </Card>;
+  </div>;
 }
 function PayDialog({ i, onClose, onDone }: { i: any; onClose: () => void; onDone: () => Promise<void> }) {
   const [m, setM] = useState(""), [ref, setRef] = useState(""), [busy, setBusy] = useState(false);
@@ -261,9 +260,9 @@ export function Invoices() {
   return <>
     <PageBreadcrumb pageTitle="Invoices" />
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4"><Kpi l="Open" v={money(sum(l.filter(i => i.status === "open")), cur)} /><Kpi l="Overdue" v={money(sum(l.filter(over)), cur)} /><Kpi l="Paid This Month" v={money(sum(month), cur)} /><Kpi l="Invoices" v={l.length} /></div>
-    <Card className="overflow-hidden p-0">
-      <div className="flex flex-col gap-4 px-5 py-4 sm:px-6"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["void", "Void"]]} />
-        <TInput type="search" className="w-full sm:w-72" inputClassName="h-9 py-1.5" placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} />
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["void", "Void"]]} />
+        <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} />
         <p className="text-xs text-gray-500">New invoices are created automatically {data.settings?.invoiceDaysBefore ?? 7} days before each period ends.</p></div>
       <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800">{err ? <Empty t={err} /> : all === null ? <Empty t="Loading…" /> : !rows.length ? <Empty t="No invoices match." /> :
         <Table className="w-full"><TableHead><TableRow className="border-b border-gray-200 dark:border-gray-800">{["Number", "Business", "Period", "Due", "Total", "Status", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
@@ -272,7 +271,7 @@ export function Invoices() {
             <TableCell className={TD}>{dmy(i.period_start)} → {dmy(i.period_end)}</TableCell><TableCell className={TD}>{dmy(i.due_at)}</TableCell><TableCell className={TD}>{money(i.total, i.currency)}</TableCell><TableCell className={TD}><InvState i={i} /></TableCell>
             <TableCell className={TD + " text-end"}><div className="flex justify-end gap-2"><Button size="sm" variant="outline" onClick={() => showInvoice(i, data.settings, (data.companies || []).find(x => x.id === i.company_id)).catch(e => toast(e.message, "error"))}>View</Button>
               {i.status === "open" && <Button size="sm" variant="outline" onClick={() => setPay(i)}>Mark Paid</Button>}</div></TableCell></TableRow>)}</TableBody></Table>}</div>
-    </Card>
+    </div>
     {pay && <PayDialog i={pay} onClose={() => setPay(null)} onDone={async () => { setPay(null); setTick(t => t + 1); }} />}
   </>;
 }
@@ -284,7 +283,7 @@ export function Prices() {
   const set = (k: number, f: string, v: any) => setPs(o => o.map((p, j) => j === k ? { ...p, [f]: v } : p));
   return <>
     <PageBreadcrumb pageTitle="Price List" />
-    <Card className="overflow-hidden p-0">
+    <div className="space-y-3">
       <p className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">What each part of Skwyd Hub costs ({cur}). New invoices use these prices; a company's discount applies on top.</p>
       <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800"><Table className="w-full"><TableHead><TableRow className="border-b border-gray-200 dark:border-gray-800">{["Name", "Charged", "Monthly", "Yearly", "Always Included", "Offered"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
         <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{ps.map((p, k) => <TableRow key={p.id}>
@@ -296,7 +295,7 @@ export function Prices() {
           <TableCell className={TD}><Checkbox aria-label={p.name + " offered"} checked={!!p.active} onCheckedChange={(chk: boolean) => set(k, "active", chk)} /></TableCell></TableRow>)}</TableBody></Table></div>
       <div className="flex justify-end border-t border-gray-100 px-6 py-4 dark:border-gray-800"><Button disabled={busy} onClick={async () => { setBusy(true);
         try { await rpc("slick_pa_save_products", { p: ps.map((p, i) => ({ id: p.id, name: String(p.name).trim(), unit: p.unit, monthly: +p.monthly || 0, yearly: +p.yearly || 0, required: !!p.required, active: !!p.active, sort: i + 1 })) }); toast("Saved"); await reload(); } catch (e: any) { toast(e.message, "error"); } setBusy(false); }}>{busy ? "Saving…" : "Save"}</Button></div>
-    </Card></>;
+    </div></>;
 }
 
 /* ---------- settings: trials, grace, support contact, invoices ---------- */

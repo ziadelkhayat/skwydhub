@@ -1,5 +1,3 @@
-import { Card } from "@/components/tremor/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -9,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Input as TInput } from "@/components/tremor/Input";
 import { RangeInput } from "../ui/DateInput";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { EmptyState } from "../ui/EmptyState";
-import { Pager } from "../ui/Pager";
+import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTable";
+import { downloadCsv } from "@/components/tremor/data-table/textOf";
 import { SegTabs } from "../ui/SegTabs";
 
 const ORD_TABS: [string, string][] = [["all", "All"], ["today", "Today"], ["draft", "Draft"], ["pending", "Pending"], ["active", "Active"], ["dispatched", "Dispatched"], ["ahead", "Ahead"], ["online", "API"]];
@@ -92,66 +90,48 @@ export default function OrdersPage() {
     return () => { sb.removeChannel(ch); };
   }, []);
 
-  const pages = Math.max(1, Math.ceil(count / PER));
-  const th = "border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50";
-  const td = "px-4 py-2.5 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400";
   const sub = "block text-xs text-gray-500 dark:text-gray-400";
+  const store = (o: any) => branches.find(b => b.id === o.branchId)?.name || "—";
+  const cols: DTColumn<any>[] = [
+    { id: "ref", title: "Reference", value: o => ordRef(o), cell: o => <span className="font-medium text-gray-900 dark:text-gray-50">{ordRef(o)}</span>, hideable: false },
+    { id: "chk", title: "Check Number", value: o => chkNo(o) },
+    { id: "no", title: "Order", value: o => +o.no || 0, cell: o => o.no || "—" },
+    { id: "store", title: "Store", value: store, cell: o => <>{store(o)}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</> },
+    { id: "cust", title: "Customer", value: o => o.customerName || "", cell: o => <><span className="block font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</> },
+    { id: "status", title: "Status", value: o => ORD_ST[o.status] || o.status, cell: o => <Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge> },
+    { id: "type", title: "Order Type", value: o => TYPE_LBL[o.type] || o.type || "", cell: o => <>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</> },
+    { id: "source", title: "Order Source", value: o => srcOf(o) || "", cell: o => srcOf(o) || "—" },
+    { id: "bdate", title: "Business Date", value: o => o.createdAt, cell: o => fmtDate(o.createdAt) },
+    { id: "opened", title: "Opened At", value: o => o.createdAt, cell: o => <>{fmtDate(o.createdAt)}<span className={sub}>{new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></> },
+    { id: "pay", title: "Payment Type", value: o => o.payment?.method || "", cell: o => o.payment?.method || "—" },
+    { id: "total", title: "Total", num: true, value: o => +o.total || 0, cell: o => <span className="font-medium text-gray-900 dark:text-gray-50">{money(o.total)}</span> },
+  ];
 
+  // Tremor dashboard template "Details" page: filter bar + data table + pagination (rows are paged on the server)
   return (
     <>
       <PageBreadcrumb pageTitle="Orders" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
-          {/* every tab shown (they wrap on small screens), the filters on the line under them */}
-          <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            {<SelectNative aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-            <SelectNative aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
-            <div className="sm:w-56"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
-            <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          </div>
-        </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-          {err ? <p className="p-6 text-sm text-red-500">Couldn't load orders: {err}</p>
-            : !rows.length ? <EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />
-            : <>
-            {/* phones: one row per order, Tremor list style */}
-            <ul className="divide-y divide-gray-100 md:hidden dark:divide-white/5">{rows.map(o => (
-              <li key={o.id}><button type="button" onClick={() => openWin("/order?id=" + o.id)} className="flex w-full items-start justify-between gap-3 px-4 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
-                <span className="min-w-0"><span className="flex flex-wrap items-center gap-2"><b className="font-semibold text-gray-900 dark:text-gray-50">{ordRef(o)}</b><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></span>
-                  <span className="block text-xs text-gray-500">{[TYPE_LBL[o.type] || o.type, srcOf(o), o.customerName].filter(Boolean).join(" · ")}</span>
-                  <span className="block text-xs text-gray-400">{[branches.find(b => b.id === o.branchId)?.name, fmtDate(o.createdAt) + " " + new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })].filter(Boolean).join(" · ")}</span></span>
-                <b className="shrink-0 font-medium text-gray-900 dark:text-gray-50">{money(o.total)}</b></button></li>))}</ul>
-            <Table className="hidden min-w-full md:table">
-              <TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
-                {["Reference", "Check Number", "Order", "Store", "Customer", "Status", "Order Type", "Order Source", "Business Date", "Opened At", "Payment Type"].map(h => <TableHeaderCell key={h} className={th}>{h}</TableHeaderCell>)}
-                <TableHeaderCell className={th + " text-end"}>Total</TableHeaderCell></TableRow></TableHead>
-              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">
-                {rows.map(o => { const t = new Date(o.createdAt);
-                  return (
-                    <TableRow key={o.id} onClick={() => openWin("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                      <TableCell className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{ordRef(o)}</span></TableCell>
-                      <TableCell className={td}>{chkNo(o)}</TableCell>
-                      <TableCell className={td}>{o.no || "—"}</TableCell>
-                      <TableCell className={td}>{branches.find(b => b.id === o.branchId)?.name || "—"}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</TableCell>
-                      <TableCell className={td}><span className="block font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</TableCell>
-                      <TableCell className={td}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></TableCell>
-                      <TableCell className={td}>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</TableCell>
-                      <TableCell className={td}>{srcOf(o) || "—"}</TableCell>
-                      <TableCell className={td}>{fmtDate(o.createdAt)}</TableCell>
-                      <TableCell className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></TableCell>
-                      <TableCell className={td}>{o.payment?.method || "—"}</TableCell>
-                      <TableCell className={td + " text-end font-medium text-gray-900 dark:text-gray-50"}>{money(o.total)}</TableCell>
-                    </TableRow>); })}
-              </TableBody>
-            </Table></>}
-        </div>
-        {count > 0 && <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
-          <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
-          <span className="pe-6 text-sm text-gray-500 dark:text-gray-400">{(page - 1) * PER + 1}–{Math.min(count, page * PER)} of {count.toLocaleString()}</span>
-        </div>}
-      </Card>
+      <SegTabs className="mb-4 flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
+      {err ? <p className="py-6 text-sm text-red-600">Couldn't load orders: {err}</p> : (
+        <DataTable<any>
+          data={rows}
+          columns={cols}
+          getRowId={o => o.id}
+          server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
+          searchPlaceholder="Search reference, customer, phone..."
+          toolbar={<>
+            {brands.length > 1 && <SelectNative aria-label="Brand" className="h-[30px] py-1 text-sm sm:w-40" value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
+            <SelectNative aria-label="Store" className="h-[30px] py-1 text-sm sm:w-40" value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+            <div className="sm:w-56 [&_button]:h-[30px] [&_button]:py-1"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
+            <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+          </>}
+          onRowClick={o => openWin("/order?id=" + o.id)}
+          rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
+          onExport={list => downloadCsv("Orders", cols.map(c => c.title), list.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}
+          empty={<EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />}
+          pageSize={PER}
+        />
+      )}
       {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)}
         brands={brands} devices={devices} sources={sources.filter(x => !x.deleted).map(x => x.name)} pays={[...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])]} />}
     </>

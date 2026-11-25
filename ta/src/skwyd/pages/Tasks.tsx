@@ -1,5 +1,5 @@
+import { Searchbar } from "@/components/tremor/Searchbar";
 import { Label } from "@/components/tremor/Label";
-import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Tasks: tasks given to employees (or everyone at a store), done in the Employee App. Same table and rules as the current portal.
@@ -39,25 +39,25 @@ export default function TasksPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Tasks" />
-      <Card className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+            <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
             <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-x-auto">
           {!rows.length ? <EmptyState text={all.length ? "Nothing here." : "No tasks yet. Employees see their tasks in the Employee App and tick them when done."} />
-            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Task", "Given To", "Due", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+            : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{["Task", "Given To", "Due", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(t => <TableRow key={t.id} className={TR} onClick={() => setForm(t)}>
                 <TableCell className={TD + " whitespace-normal"}><span className="block font-medium text-gray-900 dark:text-gray-50">{t.title}</span>{t.notes && <span className="text-xs text-gray-500">{String(t.notes).slice(0, 90)}</span>}</TableCell>
                 <TableCell className={TD + " whitespace-normal"}>{whoOf(t)}</TableCell><TableCell className={TD}>{t.dueDay ? <span className={late(t) ? "font-semibold text-red-500" : ""}>{dmy(t.dueDay)}</span> : "—"}</TableCell>
                 <TableCell className={TD}>{t.status === "done" ? <><Badge variant="light" color="success">Done</Badge><span className="block text-xs text-gray-500">{t.doneBy || ""}{t.doneAt ? " · " + dmy(t.doneAt) : ""}</span></> : late(t) ? <Badge variant="light" color="error">Late</Badge> : <Badge variant="light" color="warning">Open</Badge>}</TableCell>
                 <TableCell className={TD + " text-end"}><Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); toggle(t); }}>{t.status === "done" ? "Reopen" : "Mark Done"}</Button></TableCell></TableRow>)}</TableBody></Table>}
         </div>
-      </Card>
+      </div>
       {form !== undefined && <TaskForm t={form} s={s} by={who(staff)} onClose={() => setForm(undefined)} />}
     </>
   );
