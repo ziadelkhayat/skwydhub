@@ -330,15 +330,18 @@ export function Register() {
         <View style={{ flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 16, paddingTop: 12, gap: 8 }}>
           {live_eo && STL[st] ? <Pill text={STL[st][0]} tone={STL[st][1]} /> : null}
           <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} size={20} color={C.brand600} />
-          <T w="s" size={16} style={{ flex: 1 }}>{TYPE_LBL[otype] || otype}</T>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <T w="s" size={16}>{TYPE_LBL[otype] || otype}</T>
+            {otype === "dinein" && table ? <Pressable accessibilityRole="button" accessibilityLabel="Change table" disabled={!!live_eo} onPress={askTable} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <T w="s" size={16} color={C.brand}>· {tblLbl(table)}</T>{guests ? <T size={13} color={C.mut}>{guests} guests</T> : null}
+              {!live_eo ? <Pressable accessibilityLabel="Remove table" hitSlop={8} onPress={() => { setTable(""); setGuests(0); }}><Icon name="x" size={15} color={C.bad} /></Pressable> : null}</Pressable> : null}
+          </View>
           {!online || pending ? <Pill text={!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`} tone="warn" /> : null}
           <View style={{ alignItems: "flex-end" }}><T size={11} color={C.mut}>Order</T><T w="s" size={15}>{live_eo?.no || "New"}</T></View>
           {live_eo?.ref ? <View style={{ alignItems: "flex-end", marginLeft: 8 }}><T size={11} color={C.mut}>Reference</T><T w="s" size={15}>{live_eo.ref}</T></View> : null}
         </View>
         <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 10, borderBottomWidth: 1, borderColor: C.line }}>
-          {otype === "dinein" ? <Pressable accessibilityRole="button" disabled={!!live_eo} onPress={askTable} style={box}>
-            <Icon name="table" size={18} color={C.ink2} /><T size={14} style={{ flex: 1 }} numberOfLines={1}>{table ? tblLbl(table) + (guests ? " · " + guests + " guests" : "") : "Add table"}</T>
-            {table && !live_eo ? <Pressable accessibilityLabel="Remove table" hitSlop={8} onPress={() => { setTable(""); setGuests(0); }}><Icon name="x" size={16} color={C.bad} /></Pressable> : null}</Pressable> : null}
+          {/* no "Add table" box: the table is picked from Tables below; once set it shows next to the order type */}
           <Pressable accessibilityRole="button" disabled={!!live_eo} onPress={() => askCust(otype)} style={box}>
             <Icon name="user" size={18} color={C.ink2} />
             <View style={{ flex: 1, minWidth: 0 }}>{c.name || c.phone ? <><T w="s" size={14} numberOfLines={1}>{c.name || c.phone}</T>{c.name && c.phone ? <T size={11.5} color={C.mut} numberOfLines={1}>{c.phone}</T> : null}</> : <T size={14} color={C.mut}>Add customer</T>}</View>
@@ -434,13 +437,13 @@ export function Register() {
           </ScrollView> : null}
         </View>
         {pages > 1 ? <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: -6 }}>{Array.from({ length: pages }, (_, i) => <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: i === page ? C.brand600 : C.line }} />)}</View> : null}
-        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, backgroundColor: "#fff", borderRadius: R.sm, borderWidth: 1, borderColor: C.line, justifyContent: "space-evenly", alignItems: "center" }}>{/* one white box, blue text */}
+        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, backgroundColor: "#fff", borderRadius: R.sm, borderWidth: 1, borderColor: C.line, justifyContent: "space-evenly", alignItems: "center" }}>{/* one white box, black text */}
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 10, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
-              <Icon name={ic} size={20} color={C.brand600} /><T w="m" size={14.5} color={C.brand600} numberOfLines={1}>{l}</T>
+              <Icon name={ic} size={20} color={C.ink} /><T w="m" size={14.5} color={C.ink} numberOfLines={1}>{l}</T>
               {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -2, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
             </Pressable>))}
         </View>
