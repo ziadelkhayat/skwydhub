@@ -93,16 +93,11 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
                       </Pressable>); })}
                 </View>
               </View>))}
-            {/* the item's note: the same box as the note editor of an item without modifiers */}
-            <View style={{ paddingTop: 6, paddingBottom: 18 }}>
-              <T w="s" size={15} style={{ marginBottom: 8 }}>Note</T>
-              <TextInput value={note} onChangeText={setNote} multiline placeholder="Item note: no onions, extra spicy…" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
-                style={{ minHeight: 120, borderWidth: 1, borderColor: C.field, borderRadius: 6, padding: 10, fontFamily: F.r, fontSize: 14, color: C.ink, backgroundColor: "#fff", textAlignVertical: "top" }} />
-            </View>
           </ScrollView>
           {err ? <T size={14} color={C.bad} style={{ paddingHorizontal: 18, paddingBottom: 6 }}>{err}</T> : null}
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, backgroundColor: "#fff", borderTopWidth: 1, borderColor: C.line }}>
-            <View style={{ flex: 1 }} />
+            <TextInput value={note} onChangeText={setNote} placeholder="Note for this item" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
+              style={{ flex: 1, height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, paddingHorizontal: 16, fontFamily: F.r, fontSize: 14, color: C.ink, backgroundColor: "#fff" }} />
             {!edit ? <View style={{ flexDirection: "row", alignItems: "center", height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, backgroundColor: "#fff" }}>
               <Pressable accessibilityLabel="One less" onPress={() => setQty(q => Math.max(1, q - 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={22} color={C.brand} /></Pressable>
               <T w="s" size={16} style={{ minWidth: 34, textAlign: "center" }}>{qty}</T>
