@@ -25,7 +25,7 @@ export function EndDayDialog({ x, onDone }: { x: Ctx; onDone: (msg?: string) => 
       <View style={{ gap: 14 }}>
         <View style={{ flexDirection: "row", gap: 12 }}>
           {[["Orders", String(sales.length)], ["Net sales", money(x.S, sales.reduce((a, o) => a + (+o.total || 0) - (+o.tax || 0), 0))], ["Payments", money(x.S, sales.reduce((a, o) => a + (+o.total || 0), 0))]].map(([l, v]) =>
-            <View key={l} style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: C.bg }}><T size={13} color={C.mut}>{l}</T><T w="s" size={18}>{v}</T></View>)}
+            <View key={l} style={{ flex: 1, padding: 12, borderRadius: 6, backgroundColor: C.bg }}><T size={13} color={C.mut}>{l}</T><T w="s" size={18}>{v}</T></View>)}
         </View>
         <T color={C.mut}>Ending the day closes {fmtDay(day)} for {branch?.name || "this store"}. Every device at the store then starts the next business day.</T>
       </View>

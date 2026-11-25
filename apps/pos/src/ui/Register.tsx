@@ -15,7 +15,7 @@ import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
 import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
 import { SplitDialog } from "./Split";
-import { TagsDialog, orderTags, tagDoc } from "./Tags";
+import { TagsPop, orderTags, tagDoc } from "./Tags";
 import { PrintersDialog } from "./Printers";
 import { ReportsDialog } from "./Reports";
 import { chg2, CUR2, fullyBack, num2 } from "../lib/pos";
@@ -191,6 +191,8 @@ export function Register() {
     await AsyncStorage.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes } }]));
     reset(); say("Order held as H" + n); };
   const [held, setHeld] = useState<Held[]>([]);
+  const [tagInit, setTagInit] = useState<string[]>([]);
+  const tagsDone = (r: string[] | null) => { setPop(null); if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } };
   const heldLabel = (h: Held) => { const d = h.data || {}; return d.table ? tblLbl(d.table) : [TYPE_LBL[d.otype as OType] || d.otype, d.cust?.name].filter(Boolean).join(" · "); };
   const delHeld = async (h: Held) => { const l = (await heldList()).filter(y => y.id !== h.id); await AsyncStorage.setItem(HK, JSON.stringify(l)); setHeld(l); setHeldN(l.length); if (!l.length) setPop(null); };
   const retrieve = async (h: Held) => { setPop(null); const l = await heldList();
@@ -229,8 +231,7 @@ export function Register() {
     if (a === "Print") return doPrint("receipt");
     // Kitchen sends what wasn't sent yet and saves the order at the same time
     if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(); }
-    if (a === "Tags") { const cur0 = tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : []); const r = await ask<string[] | null>(done => <TagsDialog S={S} init={cur0} onDone={done} />);
-      if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } return; }
+    if (a === "Tags") { setTagInit(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : [])); return setPop({ k: a, ax }); }
     if (a === "Hold") return hold();
     if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop({ k: a, ax }); }
     say(a + " comes in the next step.");
@@ -403,7 +404,7 @@ export function Register() {
         <View style={{ flexDirection: "row", gap: AG }}>
           {acts.map((a, i) => (
             <Pressable key={a} accessibilityRole="button" onPress={() => action(a, CART_W + PADX + i * (ab + AG) + ab / 2)}
-              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: 0, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
+              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: 6, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
                 borderWidth: pop?.k === a ? 3 : 0, borderColor: "#93C5FD" })}>
               <Icon name={BTN[a]} size={24} color="#fff" /><T w="m" size={13} color="#fff">{a}</T>
               {a === "Retrieve" && heldN ? <View style={{ position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: C.bg2, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{heldN}</T></View> : null}
@@ -422,7 +423,7 @@ export function Register() {
             contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", columnGap: TG, rowGap: TG }}>
             {tiles.map((it: any, k: number) => it.back
               ? <Pressable key="back" accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
-                  style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: 0, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
+                  style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: 6, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
                   <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Pressable>
               : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
@@ -430,20 +431,21 @@ export function Register() {
           </ScrollView> : null}
         </View>
         {pages > 1 ? <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: -6 }}>{Array.from({ length: pages }, (_, i) => <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: i === page ? C.brand600 : C.line }} />)}</View> : null}
-        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, backgroundColor: "#fff", borderRadius: R.sm, borderWidth: 1, borderColor: C.line, justifyContent: "space-evenly", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, gap: AG }}>{/* each one in its own white box, all the same width */}
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
-              style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 10, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
+              style={({ pressed }) => ({ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 56, paddingHorizontal: 6, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff" })}>
               <Icon name={ic} size={20} color={C.brand600} /><T w="m" size={14.5} color={C.brand600} numberOfLines={1}>{l}</T>
-              {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -2, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
+              {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -8, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
             </Pressable>))}
         </View>
       </View>
 
-      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : pop.k === "Retrieve" ? 580 : 370} maxX={W} onClose={() => setPop(null)}>
-        {pop.k === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} maxH={H - (insTop + 12 + ab + 8) - 80} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
+      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : pop.k === "Retrieve" ? 580 : pop.k === "Tags" ? 400 : 370} maxX={W} onClose={() => setPop(null)}>
+        {pop.k === "Tags" ? <TagsPop S={S} init={tagInit} maxH={H - (insTop + 12 + ab + 8) - 140} onDone={tagsDone} />
+          : pop.k === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} maxH={H - (insTop + 12 + ab + 8) - 80} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
           : pop.k === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
           : pop.k === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
           : <NotesPop init={notes} onDone={r => { setPop(null); if (r) setNotes(r); }} />}
@@ -480,16 +482,16 @@ export function fitTiles(W: number, H: number, gap = TG) {
   if (!W || !H) return { cols, rows, w: 100, h: 160 };
   return { cols, rows, w: (W - gap * (cols - 1)) / cols, h: (H - gap * (rows - 1)) / rows };
 }
-// a tile: straight edges, no border; the whole photo as a square on top (as wide as the tile when there's room), then the name on up to 3 lines and the price in blue
+// a tile: slightly curved edges, no border; the photo fills the whole width of the tile (cropped to fit), then the name on up to 3 lines and the price in blue
 const TILE_TXT = 66;   // room under the photo: 3 lines of name + the price
 function Tile({ w, h, name, img, sub, oos, n, onPress }: { w: number; h: number; name: string; img?: string; sub?: string; oos?: boolean; n?: number; onPress: () => void }) {
   const ph = Math.max(10, Math.floor(Math.min(w, h - TILE_TXT)));
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + (sub ? ", " + sub : "")} disabled={oos} onPress={onPress}
-      style={({ pressed }) => ({ width: w, height: h, borderRadius: 0, borderWidth: n ? 2 : 0, borderColor: C.brand500, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", overflow: "hidden", opacity: oos ? 0.5 : 1 })}>
-      <View style={{ width: ph, height: ph, backgroundColor: "#FBF6EE", alignItems: "center", justifyContent: "center" }}>
-        {img ? <Image source={{ uri: img }} style={{ width: ph, height: ph }} resizeMode="cover" /> : <Icon name="bowl" size={28} color="#9CA3AF" />}</View>
-      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 6, paddingTop: 4, paddingBottom: 5 }}>
+      style={({ pressed }) => ({ width: w, height: h, borderRadius: 6, borderWidth: n ? 2 : 0, borderColor: C.brand500, backgroundColor: pressed ? C.brand50 : "#fff", overflow: "hidden", opacity: oos ? 0.5 : 1 })}>
+      <View style={{ width: "100%", height: ph, backgroundColor: "#FBF6EE", alignItems: "center", justifyContent: "center" }}>
+        {img ? <Image source={{ uri: img }} style={{ width: "100%", height: ph }} resizeMode="cover" /> : <Icon name="bowl" size={28} color="#9CA3AF" />}</View>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "space-between", paddingHorizontal: 6, paddingTop: 4, paddingBottom: 5 }}>
         <T w="m" size={12.5} numberOfLines={3} style={{ textAlign: "center", lineHeight: 15 }}>{name}</T>
         {sub ? <T w="s" size={12.5} color={oos ? C.bad : C.brand} numberOfLines={1}>{oos ? "Out of stock" : sub}</T> : null}</View>
       {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
