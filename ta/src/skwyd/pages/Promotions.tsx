@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Switch } from "@/components/ui/switch";
-import { BoxIcon, DollarIcon, PlusIcon, SearchIcon, TagIcon, TruckDeliveryIcon, StarIcon } from "@/icons";
+import { BoxIcon, DollarIcon, PlusIcon, TagIcon, TruckDeliveryIcon, StarIcon } from "@/icons";
 import { newId, put, type Row } from "@/lib/db";
 import { fmtDate, money, sym } from "@/lib/util";
 import { useState } from "react";
@@ -60,8 +60,7 @@ export default function PromotionsPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["inactive", "Inactive"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-              <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Promotion</Button>
           </div>
         </div>
@@ -96,7 +95,7 @@ function CheckList({ opts, value, onChange, empty }: { opts: [string, string][];
 const Chips = ({ opts, value, onChange }: { opts: [string, string][]; value: string[]; onChange: (v: string[]) => void }) => (
   <div className="flex flex-wrap gap-2">{opts.map(([k, t]) => { const on = value.includes(k); return (
     <button key={k} type="button" aria-pressed={on} onClick={() => onChange(on ? value.filter(x => x !== k) : [...value, k])}
-      className={"h-9 rounded-lg border px-3.5 text-sm font-medium transition-colors " + (on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/3")}>{t}</button>); })}</div>);
+      className={"h-9 rounded-lg border px-3.5 text-sm font-medium transition-colors " + (on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/3")}>{t}</button>); })}</div>);
 
 function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[]; save: (l: any[]) => Promise<boolean>; onClose: () => void }) {
   const ed = !!p0;
@@ -137,8 +136,8 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
   }
   const st = status({ ...P, deleted: false }), dy = (P.days || []).map((k: string) => DAYS.find(x => x[0] === k)?.[1]).filter(Boolean), br = (P.branchIds || []).map((id: string) => s.branches.find(b => b.id === id)?.name).filter(Boolean);
   const KV = ({ k, children }: { k: string; children: React.ReactNode }) => <div className="flex justify-between gap-3 py-2 text-sm"><span className="text-gray-500 dark:text-gray-400">{k}</span><b className="text-end font-medium text-gray-900 dark:text-gray-50">{children}</b></div>;
-  const stepBtn = (n: number, t: string) => <button type="button" onClick={() => n === 1 ? setStep(1) : next()} className={"flex items-center gap-2 text-sm font-medium " + (step === n ? "text-brand-500" : "text-gray-500 dark:text-gray-400")}>
-    <i className={"flex size-6 items-center justify-center rounded-full text-xs not-italic " + (step === n ? "bg-brand-500 text-white" : "bg-gray-100 dark:bg-white/5")}>{n}</i>{t}</button>;
+  const stepBtn = (n: number, t: string) => <button type="button" onClick={() => n === 1 ? setStep(1) : next()} className={"flex items-center gap-2 text-sm font-medium " + (step === n ? "text-blue-500" : "text-gray-500 dark:text-gray-400")}>
+    <i className={"flex size-6 items-center justify-center rounded-full text-xs not-italic " + (step === n ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-white/5")}>{n}</i>{t}</button>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[92dvh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
@@ -151,7 +150,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
               <F l="Name Localized"><Input className="h-9" dir="auto" value={P.nameAr || ""} onChange={e => set("nameAr", e.target.value)} /></F>
               <F l="Type" req full><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{TYPES.map(([k, t, ic]) => (
                 <button key={k} type="button" onClick={() => set("type", k)} aria-pressed={P.type === k}
-                  className={"flex flex-col items-center gap-2 rounded-md border p-3 text-sm font-medium transition-colors " + (P.type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-800 dark:text-gray-400")}>{ic}{t}</button>))}</div></F>
+                  className={"flex flex-col items-center gap-2 rounded-md border p-3 text-sm font-medium transition-colors " + (P.type === k ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-800 dark:text-gray-400")}>{ic}{t}</button>))}</div></F>
               {fields}
             </> : <>
               <F l="Start Date"><DateInput value={P.start || ""} onChange={v => set("start", v)} /></F><F l="End Date"><DateInput value={P.end || ""} onChange={v => set("end", v)} /></F>
@@ -165,7 +164,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
           </div>
           <aside className="h-fit rounded-lg lg:sticky lg:top-0 border border-gray-200 p-4 dark:border-gray-800">
             <p className="mb-3 text-xs font-medium tracking-wide text-gray-400 uppercase">Preview</p>
-            <div className="mb-3 rounded-md bg-brand-500 p-4 text-white"><span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{typeLbl(P.type)}</span>
+            <div className="mb-3 rounded-md bg-blue-500 p-4 text-white"><span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{typeLbl(P.type)}</span>
               <b className="mt-2 block text-base">{P.name || "Promotion name"}</b><p className="mt-1 text-sm text-white/80">{summary(P, s.products)}</p></div>
             <div className="divide-y divide-gray-200 dark:divide-gray-800">
               <KV k="Status"><Badge variant="light" color={st[1] as any}>{st[0]}</Badge></KV><KV k="Period">{period(P)}</KV>

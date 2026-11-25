@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, FilterIcon, PlusIcon, SearchIcon, UploadIcon } from "@/icons";
+import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, FilterIcon, PlusIcon, UploadIcon } from "@/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { useAuth } from "@/lib/auth";
 import { newId, put, refresh, type Row } from "@/lib/db";
@@ -182,7 +182,7 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
       <div className={BOX}>
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
-          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             {docFltFields(K).length > 0 && <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
             <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}><DownloadIcon className="size-5" />Export<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
@@ -385,7 +385,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     : K.kind === "torder" ? <><Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button><Button disabled={B} onClick={() => flow("fulfil")}>Accept</Button></>
     : <>{K.kind === "purchase" && <Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button>}<Button disabled={B} onClick={() => flow("receive")}>{B ? "Working…" : "Receive Items"}</Button></>;
   // the document's summary
-  const lnk = (r: string, lid: string) => <button type="button" className="text-brand-500 hover:underline" onClick={() => openWin(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</button>;
+  const lnk = (r: string, lid: string) => <button type="button" className="text-blue-500 hover:underline" onClick={() => openWin(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</button>;
   const info: [string, React.ReactNode][] = K.flow ? [
     ...(K.kind === "purchase" ? [["Supplier", supName(d.supplierId)]] as any : []),
     ...(K.kind === "torder" ? [["Source", locName(d.destId)], ["Destination", locName(d.locationId)]] : [[K.kind === "purchase" ? "Destination" : "Source", locName(d.locationId)], ...(K.kind !== "purchase" ? [["Destination", locName(d.destId)]] : [])]),
@@ -465,7 +465,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
       </div>
       {err && <p className="mb-6 rounded-md border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
       {steps && <div className="mb-6 grid grid-cols-3 gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">{steps.map((x, i) => (
-        <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-brand-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
+        <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-blue-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
           <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</div>}
       <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-white p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</div>
       {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className={BOX}><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Items</h3>

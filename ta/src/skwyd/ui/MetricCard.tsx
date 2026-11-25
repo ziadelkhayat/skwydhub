@@ -21,7 +21,7 @@ export default function MetricCard({ title, value, change, direction = "up", bad
         <span className="truncate">{title}</span>
         {badge !== undefined ? badge : change ? <Badge color={direction === "down" ? "error" : "success"}>{direction === "down" ? "−" : "+"}{change.replace(/^[+−-]/, "")}</Badge> : null}
       </dt>
-      <dd className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-50">{value}</dd>
+      <dd className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-50">{value}</dd>
       {children}
     </div>
   );

@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusIcon, SearchIcon } from "@/icons";
+import { PlusIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { put, type Row } from "@/lib/db";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export default function TasksPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <select aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>

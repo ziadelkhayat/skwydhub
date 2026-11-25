@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { SearchIcon } from "@/icons";
+import { Input as TInput } from "@/components/tremor/Input";
 import { newId, put, type Row } from "@/lib/db";
 import { money, sym } from "@/lib/util";
 import { useState } from "react";
@@ -52,10 +51,9 @@ export default function DeliveryChargesPage() {
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row"><select aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
           <select aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
-          <InputGroup className="h-9 sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-            <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <TInput type="search" className="sm:w-64" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>
-        {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-brand-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-brand-500/5">
+        {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-blue-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-blue-500/5">
           <b className="text-sm text-gray-900 dark:text-gray-50">{picked.length} Selected</b>
           <Button size="sm" onClick={() => setForm(picked)}>Assign Charge</Button>
           <Button size="sm" variant="outline" onClick={async () => { if (await askYes(`Unassign the charge from ${picked.length} zone${picked.length > 1 ? "s" : ""}?`, "Unassign") && await assign(s, picked, "")) { setSel(new Set()); toast("Charge unassigned"); } }}>Unassign Charge</Button></div>}

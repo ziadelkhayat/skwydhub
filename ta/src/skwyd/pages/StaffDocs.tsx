@@ -54,7 +54,7 @@ export default function StaffDocsPage() {
           : tab === "onboarding" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Hire Date", "Progress", "Next Step"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const o = u.onboarding || {}, n = st.checklist.length, d = st.checklist.filter((i: string) => o[i]).length, next = st.checklist.find((i: string) => !o[i]);
               return <tr key={u.id}><td className={TD}><Emp u={u} /></td><td className={TD}>{u.hireDate ? dmy(u.hireDate) : "—"}</td>
-                <td className={TD}><div className="flex items-center gap-3"><div className="h-2 w-40 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className={"h-full rounded-full " + (d === n ? "bg-green-500" : "bg-brand-500")} style={{ width: (n ? d / n * 100 : 100) + "%" }} /></div><span>{d}/{n}</span></div></td>
+                <td className={TD}><div className="flex items-center gap-3"><div className="h-2 w-40 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className={"h-full rounded-full " + (d === n ? "bg-green-500" : "bg-blue-500")} style={{ width: (n ? d / n * 100 : 100) + "%" }} /></div><span>{d}/{n}</span></div></td>
                 <td className={TD}>{next || <Badge variant="light" color="success">Done</Badge>}</td></tr>; })}</tbody></table>)
           : !rows.length ? <EmptyState text={tab === "expiring" ? `Nothing expiring in the next ${+st.remindDays || 30} days.` : "No documents yet. Add IDs, contracts and health certificates with their expiry dates."} />
           : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Document", "Number", "Issued", "Status", "File"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
@@ -101,7 +101,7 @@ export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; ty
           <F l="Expires"><DateInput value={v.exp} onChange={x => set("exp", x)} /></F>
           <F l="File" full help="PDF or photo, up to 10 MB.">
             <div onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) setFile(f); }} onClick={() => inp.current?.click()}
-              className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-4 text-sm text-gray-600 hover:border-brand-500 dark:border-gray-700 dark:text-gray-400">
+              className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-4 text-sm text-gray-600 hover:border-blue-500 dark:border-gray-700 dark:text-gray-400">
               <span className="truncate">{file ? file.name : d?.fileName ? "Current file: " + d.fileName : "Drop a file here or browse"}</span><Button type="button" size="sm" variant="outline">{file || d?.fileName ? "Replace" : "Browse"}</Button></div>
             <input ref={inp} type="file" hidden accept="image/*,application/pdf" onChange={e => setFile(e.target.files?.[0] || null)} /></F>
           <F l="Note" full><Input className="h-9" value={v.note} onChange={e => set("note", e.target.value)} /></F>

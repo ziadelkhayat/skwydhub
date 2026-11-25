@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeftIcon, ChevronDownIcon, PlusIcon, SearchIcon } from "@/icons";
+import { ArrowLeftIcon, ChevronDownIcon, PlusIcon } from "@/icons";
 import { put, remove, type Row } from "@/lib/db";
 import { money } from "@/lib/util";
 import { cn } from "@/utils";
@@ -123,7 +123,7 @@ function Tree({ s, M, open }: { s: S; M: M; open: (b: string, c: string) => void
     <button type="button" onClick={() => tog(b.id)} className="flex w-full items-center gap-3 px-5 py-3 ps-10 text-start text-sm hover:bg-gray-50 dark:hover:bg-white/3"><Chev on={on} /><b className="font-medium text-gray-900 dark:text-gray-50">{b.name}</b><span className="text-gray-500">{cs.length} channel{cs.length === 1 ? "" : "s"}</span></button>
     {on && <div className="pb-2">{cs.map(c => <button key={c.id} type="button" onClick={() => open(b.id, scCode(c))} className="flex w-full items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm hover:bg-gray-50 dark:hover:bg-white/3">
       <span className="min-w-0 flex-1"><b className="block font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{(SC_KINDS.find(k => k[0] === c.kind) || SC_KINDS[3])[1]} · {[...new Set((c.types || []).map(t => t === "fast" ? "dinein" : t))].map(t => (OTYPES.find(x => x[0] === t) || [t, t])[1]).join(", ")}</span></span><span className="text-gray-400">›</span></button>)}
-      <button type="button" onClick={() => setDlg(b.id)} className="flex w-full items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm text-brand-500 hover:bg-gray-50 dark:hover:bg-white/3"><PlusIcon className="size-4" />Create Sales Channel</button></div>}</div>; };
+      <button type="button" onClick={() => setDlg(b.id)} className="flex w-full items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm text-blue-500 hover:bg-gray-50 dark:hover:bg-white/3"><PlusIcon className="size-4" />Create Sales Channel</button></div>}</div>; };
   const loose = list.filter(b => !b.brandId || !brands.some(x => x.id === b.brandId));
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" />
@@ -163,7 +163,7 @@ function ScDialog({ s, M, b, code, onClose, onSaved, onDeleted }: { s: S; M: M; 
         <select className={SEL} disabled={!!cur} value={kind} onChange={e => { setKind(e.target.value); setTypes([]); }}>{!cur && <option value="">Choose…</option>}{(cur ? SC_KINDS.filter(k => k[0] === cur.kind) : avail).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
       <F l="Name" req><Input className="h-9" value={name} placeholder="e.g. Toters" onChange={e => setName(e.target.value)} /></F>
       <F l="Order Types" req>{!kind ? <p className="text-sm text-gray-500">Choose the type first</p> : <div className="flex flex-wrap gap-4">{OTYPES.filter(([t]) => SC_ALLOWED[kind].includes(t)).map(([t, tl]) =>
-        <label key={t} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={types.includes(t)} onChange={e => setTypes(o => e.target.checked ? [...o, t] : o.filter(x => x !== t))} />{tl}</label>)}</div>}</F>
+        <label key={t} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={types.includes(t)} onChange={e => setTypes(o => e.target.checked ? [...o, t] : o.filter(x => x !== t))} />{tl}</label>)}</div>}</F>
       {err && <p className="text-sm text-red-500">{err}</p>}
     </div>
     <div className="mt-6 flex gap-3">{cur && <Button variant="destructive" onClick={del}>Delete</Button>}<Button className="ms-auto" disabled={busy} onClick={save}>Save</Button></div></DialogContent></Dialog>;
@@ -251,11 +251,11 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
   const others = M.scFor(b).filter(c => scCode(c) !== code);
   const nCatTop = rowsOf("").filter(x => !x.sub).map(x => x.c), nCatOn = nCatTop.filter(catOn).length;
   const vis = rowsOf(cq.trim().toLowerCase()).filter(({ c, sub }) => !sub || cq || cex.has(catPar(c)));
-  const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <input type="checkbox" aria-label={label} className="size-4 shrink-0 accent-brand-500" checked={on} onChange={e => set(e.target.checked)} onClick={e => e.stopPropagation()} />;
+  const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <input type="checkbox" aria-label={label} className="size-4 shrink-0 accent-blue-500" checked={on} onChange={e => set(e.target.checked)} onClick={e => e.stopPropagation()} />;
   const Acts = ({ items }: { items: [string, () => void, boolean?][] }) => <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>Actions<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
     <DropdownMenuContent align="start" className="w-44 p-2">{items.map(([t, f, d]) => <DropdownMenuItem key={t} className={d ? "text-error-500" : ""} onClick={f}>{t}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
   const PriceIn = ({ v, ph, dis, onSet, label }: { v: string; ph: number; dis?: boolean; onSet: (v: string) => void; label: string }) =>
-    <Input key={v} aria-label={label} inputMode="decimal" defaultValue={v} placeholder={String(ph)} disabled={dis} className={cn("h-9 w-24 text-end", v !== "" && "border-brand-300 bg-brand-25 dark:bg-brand-500/10")} onBlur={e => { const x = e.target.value.trim(); if (x !== v) onSet(x); }} onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />;
+    <Input key={v} aria-label={label} inputMode="decimal" defaultValue={v} placeholder={String(ph)} disabled={dis} className={cn("h-9 w-24 text-end", v !== "" && "border-blue-300 bg-blue-25 dark:bg-blue-500/10")} onBlur={e => { const x = e.target.value.trim(); if (x !== v) onSet(x); }} onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />;
 
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" current={ch.name + (br ? " · " + br.name : "")} />
@@ -275,7 +275,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
         <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3 dark:border-gray-800"><b className="font-medium whitespace-nowrap text-gray-900 dark:text-gray-50">Categories</b><span className="text-xs whitespace-nowrap text-gray-500">{nCatOn} of {nCatTop.length}</span>
           <Button size="sm" className="ms-auto" onClick={() => setEdit(null)}><PlusIcon className="size-4" />Add Category</Button></div>
         {cats.length > 0 && <div className="space-y-2 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-          <InputGroup className="h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-4 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search categories" value={cq} onChange={e => setCq(e.target.value)} /></InputGroup>
+          <TInput type="search" className="h-10" inputClassName="h-9 py-1.5" placeholder="Search categories" value={cq} onChange={e => setCq(e.target.value)} />
           <div className="flex items-center gap-2"><label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><CB label="Select all categories" on={!!vis.length && vis.every(x => csel.has(x.c.id))} set={v => setCsel(v ? new Set(vis.map(x => x.c.id)) : new Set())} />{csel.size ? <b>{csel.size} Selected</b> : "Select All"}</label>
             <span className="ms-auto"><Acts items={[["Activate", () => csel.size ? change(Object.fromEntries([...csel].map(id => ["cat:" + id, { on: true }]))).then(() => setCsel(new Set())) : toast("Select categories first")],
               ["Deactivate", () => csel.size ? change(Object.fromEntries([...csel].map(id => ["cat:" + id, { on: false }]))).then(() => setCsel(new Set())) : toast("Select categories first")], ["Delete", () => csel.size ? delCats([...csel]) : toast("Select categories first"), true]]} /></span></div></div>}
@@ -283,7 +283,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
           : !vis.length ? <p className="px-4 py-6 text-center text-sm text-gray-500">No categories match.</p>
           : vis.map(({ c, sub }) => { const on = catOn(c), nSub = cats.filter(x => catPar(x) === c.id).length; return (
             <div key={c.id} {...dnd("c:" + c.id)} onClick={() => { setCat(c.id); setIsel(new Set()); if (!sub && nSub) setCex(o => new Set(o).add(c.id)); }}
-              className={cn("flex cursor-pointer items-center gap-2.5 border-b border-gray-100 px-4 py-2.5 text-sm dark:border-gray-800", sub && "ps-10", c.id === cat ? "bg-brand-50 dark:bg-brand-500/10" : "hover:bg-gray-50 dark:hover:bg-white/3", !on && "opacity-60", drag?.k === "c:" + c.id && "opacity-40")}>
+              className={cn("flex cursor-pointer items-center gap-2.5 border-b border-gray-100 px-4 py-2.5 text-sm dark:border-gray-800", sub && "ps-10", c.id === cat ? "bg-blue-50 dark:bg-blue-500/10" : "hover:bg-gray-50 dark:hover:bg-white/3", !on && "opacity-60", drag?.k === "c:" + c.id && "opacity-40")}>
               <CB label={"Select " + c.name} on={csel.has(c.id)} set={v => setCsel(o => { const n = new Set(o); if (v) n.add(c.id); else n.delete(c.id); return n; })} />
               {!cq && <span className="cursor-grab text-gray-400 select-none" aria-hidden>⋮⋮</span>}
               <span onClick={e => e.stopPropagation()}><Switch size="sm" checked={on} aria-label={"Show " + c.name} onCheckedChange={v => change({ ["cat:" + c.id]: { on: v } })} /></span>
@@ -306,7 +306,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
                 ["Deactivate", () => isel.size ? setTypesOf([...isel].flatMap(id => { const p = M.prod(id); return p ? [p.id, ...M.varKids(p).map(k => k.id)] : []; }), false).then(() => setIsel(new Set())) : toast("Select items first")],
                 ["Delete", async () => { const ids = [...isel]; if (!ids.length) return toast("Select items first"); if (!(await askYes(`Delete ${ids.length} item${ids.length === 1 ? "" : "s"} from ${cur.name}? ${ids.length === 1 ? "It stays" : "They stay"} in Catalog → Items.`, "Delete", true))) return;
                   try { await put("categories", cur.id, { productIds: (cur.productIds || []).filter((x: string) => !ids.includes(M.root(x))) }); setIsel(new Set()); } catch { toast("Couldn't save.", "error"); } }, true]]} />
-              <InputGroup className="ms-auto h-10 w-full sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-4 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items" value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
+              <TInput type="search" className="ms-auto h-10 w-full sm:w-64" inputClassName="h-9 py-1.5" placeholder="Search items" value={q} onChange={e => setQ(e.target.value)} /></div>
             <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm"><thead><tr className="border-b border-gray-100 text-xs text-gray-500 dark:border-gray-800"><th className="w-24" /><th className="px-3 py-2.5 text-start font-medium">Product</th>{types.map(([t, tl]) => <th key={t} className="px-3 py-2.5 text-start font-medium">{tl}</th>)}<th /></tr></thead>
               <tbody>{!rows.length ? <tr><td colSpan={types.length + 3} className="px-4 py-8 text-center text-gray-500">No products match.</td></tr> : rows.flatMap(r => [r, ...M.varKids(r).map(k => Object.assign(Object.create(null), k, { __par: r }))]).map((r: any) => {
                 const par = r.__par as Row | undefined, x = st(r), vk = par ? [] : M.varKids(r), nm = par ? ((par.variants || []).find((v: any) => v.productId === r.id)?.name || r.name) : r.name, base = x.price !== "" ? +x.price : x.fallback;
@@ -384,11 +384,11 @@ function AddItems({ s, M, c, onClose }: { s: S; M: M; c: Row; onClose: () => voi
   async function save() { setBusy(true); const ids = [...(c.productIds || []).filter((x: string) => on.has(M.root(x))), ...add];
     try { await put("categories", c.id, { productIds: ids }); toast(`${add.length} item${add.length === 1 ? "" : "s"} added to ${c.name}`); onClose(); } catch { toast("Couldn't save.", "error"); } finally { setBusy(false); } }
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Items in {c.name}</DialogTitle></DialogHeader>
-    <InputGroup className="mt-3 h-9"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search products" value={q} onChange={e => setQ(e.target.value)} autoFocus /></InputGroup>
+    <TInput type="search" className="mt-3" inputClassName="h-9 py-1.5" placeholder="Search products" value={q} onChange={e => setQ(e.target.value)} autoFocus />
     <div className="mt-3 space-y-5">{!Object.keys(groups).length ? <p className="py-8 text-center text-sm text-gray-500">No products.</p> : Object.keys(groups).sort().map(g => { const ps = groups[g].sort(bySort), allOn = ps.every(p => on.has(p.id));
-      return <div key={g}><div className="mb-2 flex items-center justify-between"><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{g}</b><button type="button" className="text-sm text-brand-500" onClick={() => setOn(o => { const n = new Set(o); ps.forEach(p => allOn ? n.delete(p.id) : n.add(p.id)); return n; })}>{allOn ? "Clear" : "Select all"}</button></div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{ps.map(p => <label key={p.id} className={cn("flex cursor-pointer items-center gap-3 rounded-lg border p-2 text-sm", on.has(p.id) ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 dark:border-gray-800")}>
-          <input type="checkbox" className="size-4 accent-brand-500" checked={on.has(p.id)} onChange={e => setOn(o => { const n = new Set(o); if (e.target.checked) n.add(p.id); else n.delete(p.id); return n; })} />
+      return <div key={g}><div className="mb-2 flex items-center justify-between"><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{g}</b><button type="button" className="text-sm text-blue-500" onClick={() => setOn(o => { const n = new Set(o); ps.forEach(p => allOn ? n.delete(p.id) : n.add(p.id)); return n; })}>{allOn ? "Clear" : "Select all"}</button></div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{ps.map(p => <label key={p.id} className={cn("flex cursor-pointer items-center gap-3 rounded-lg border p-2 text-sm", on.has(p.id) ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10" : "border-gray-200 dark:border-gray-800")}>
+          <input type="checkbox" className="size-4 accent-blue-500" checked={on.has(p.id)} onChange={e => setOn(o => { const n = new Set(o); if (e.target.checked) n.add(p.id); else n.delete(p.id); return n; })} />
           <span className="size-9 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">{p.imageUrl && <img src={p.imageUrl} alt="" loading="lazy" className="size-full object-cover" />}</span>
           <span className="min-w-0"><b className="block truncate font-medium text-gray-900 dark:text-gray-50">{p.name}</b><span className="text-xs text-gray-500">{priceOf(p)}</span></span></label>)}</div></div>; })}</div>
     <div className="mt-4 flex items-center gap-3"><span className="text-sm text-gray-500">{on.size} in this category{add.length ? ` · ${add.length} to add` : ""}{rm.length ? ` · ${rm.length} to remove` : ""}</span><Button className="ms-auto" disabled={busy || !(add.length || rm.length)} onClick={save}>Save</Button></div></DialogContent></Dialog>;
@@ -404,6 +404,6 @@ function ScopeAsk({ s, M, b, code, onDone }: { s: S; M: M; b: string; code: stri
     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">This sales channel gets it. Tick any other channels that should get the same change.</p>
     <div className="mt-4 divide-y divide-gray-200 dark:divide-gray-800">{!brs.length ? <p className="py-3 text-sm text-gray-500">No other sales channels</p> : brs.map(({ x, chs }) =>
       <div key={x.id} className="flex flex-wrap items-center gap-x-5 gap-y-2 py-3"><b className="w-40 text-sm font-medium text-gray-900 dark:text-gray-50">{x.name}</b>{chs.map(([c, n]) =>
-        <label key={c} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={!!pick[x.id]?.has(c)} onChange={e => tog(x.id, c, e.target.checked)} />{n}</label>)}</div>)}</div>
+        <label key={c} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={!!pick[x.id]?.has(c)} onChange={e => tog(x.id, c, e.target.checked)} />{n}</label>)}</div>)}</div>
     <div className="mt-5 flex justify-end gap-3"><Button variant="outline" onClick={() => onDone(null)}>Cancel</Button><Button onClick={go} autoFocus>Save</Button></div></DialogContent></Dialog>;
 }

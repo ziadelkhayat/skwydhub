@@ -35,7 +35,7 @@ export const CRUD: Record<string, CrudCfg> = {
     tabs: [["all", "All", r => live(r) && !r.channel], ["deleted", "Deleted", r => del(r) && !r.channel]],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref,
-      { h: "Products", cell: (r, s) => <Link className="text-brand-500 hover:underline" to={"/products?cat=" + r.id} onClick={e => e.stopPropagation()}>Products ({s.products.filter(p => live(p) && p.categoryId === r.id).length})</Link> }, created],
+      { h: "Products", cell: (r, s) => <Link className="text-blue-500 hover:underline" to={"/products?cat=" + r.id} onClick={e => e.stopPropagation()}>Products ({s.products.filter(p => live(p) && p.categoryId === r.id).length})</Link> }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
   },
   products: {
@@ -64,7 +64,7 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier",
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref,
-      { h: "Options", cell: (r, s) => <Link className="text-brand-500 hover:underline" to={"/modifier-options?mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</Link> },
+      { h: "Options", cell: (r, s) => <Link className="text-blue-500 hover:underline" to={"/modifier-options?mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</Link> },
       { h: "Linked Products", cell: (r, s) => `Products (${s.products.filter(p => live(p) && (p.modifiers || []).some((l: any) => l.modifierId === r.id)).length})` }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
@@ -159,7 +159,7 @@ export const CRUD: Record<string, CrudCfg> = {
   "inv-categories": {
     col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel,
     search: r => r.name + " " + (r.reference || ""),
-    cols: [{ h: "Name", cell: nameCell }, ref, { h: "Products", cell: (r, s) => <Link className="text-brand-500 hover:underline" to={"/inv-items?icat=" + encodeURIComponent(r.name)} onClick={e => e.stopPropagation()}>Products ({s.inv_items.filter(i => live(i) && i.category === r.name).length})</Link> }, created],
+    cols: [{ h: "Name", cell: nameCell }, ref, { h: "Products", cell: (r, s) => <Link className="text-blue-500 hover:underline" to={"/inv-items?icat=" + encodeURIComponent(r.name)} onClick={e => e.stopPropagation()}>Products ({s.inv_items.filter(i => live(i) && i.category === r.name).length})</Link> }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
   },

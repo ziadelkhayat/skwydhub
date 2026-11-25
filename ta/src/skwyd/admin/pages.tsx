@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, PlusIcon, SearchIcon, TrashBinIcon } from "@/icons";
+import { ArrowLeftIcon, PlusIcon, TrashBinIcon } from "@/icons";
 import { cn } from "@/utils";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
@@ -36,7 +36,7 @@ export function AdminDashboard() {
   const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className={BOX}>
     <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">{title}</h3>
     {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-500 dark:bg-brand-500/15">{initials(c.name)}</span>
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-500 dark:bg-blue-500/15">{initials(c.name)}</span>
       <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
   return <>
     <PageBreadcrumb pageTitle="Dashboard" />
@@ -62,7 +62,7 @@ export function Companies() {
       <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-3"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["trial", "Trial"], ["grace", "Grace Period"], ["locked", "Locked"], ["free", "Free"]]} />
           <span className="flex-1" /><Button onClick={() => setNw(true)}><PlusIcon className="size-5" />New Business</Button></div>
-        <div className="flex flex-wrap items-center gap-3"><InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+        <div className="flex flex-wrap items-center gap-3"><TInput type="search" className="w-full sm:w-72" inputClassName="h-9 py-1.5" placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} />
           <span className="text-sm text-gray-500">{rows.length} of {cs.length}</span></div>
       </div>
       <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">{rows.length ? <table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
@@ -126,7 +126,7 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
       <F l="POS Devices"><Input className="h-9" type="number" min="0" value={v.posDevices} onChange={e => set("posDevices", e.target.value)} /></F>
       <F l="Warehouses"><Input className="h-9" type="number" min="0" value={v.warehouses} onChange={e => set("warehouses", e.target.value)} /></F>
       <F l="Paid Until"><DateInput value={v.paidUntil} onChange={x => set("paidUntil", x)} /></F>
-      <label className="mt-7 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
+      <label className="mt-7 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
       <div className="sm:col-span-2"><Mods value={v.modules} set={x => set("modules", x)} /></div>
     </div>
     {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
@@ -136,7 +136,7 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
 const Sub = ({ t }: { t: string }) => <h4 className="mt-6 mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</h4>;
 const Mods = ({ value, set }: { value: string[]; set: (v: string[]) => void }) => <div><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Modules</span>
   <div className="flex flex-wrap gap-2">{MODULES.map(([k, t]) => { const on = value.includes(k); return <button key={k} type="button" onClick={() => set(on ? value.filter(x => x !== k) : [...value, k])}
-    className={cn("h-10 rounded-lg border px-3 text-sm font-medium", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{on ? "✓ " : ""}{t}</button>; })}</div></div>;
+    className={cn("h-10 rounded-lg border px-3 text-sm font-medium", on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{on ? "✓ " : ""}{t}</button>; })}</div></div>;
 
 /* ---------- one company: summary, business & owner, plan, invoices ---------- */
 export function CompanyPage() {
@@ -193,8 +193,8 @@ function PlanForm({ c, onSaved }: { c: any; onSaved: () => Promise<void> }) {
         <F l="Grace Days"><Input className="h-9" type="number" min="0" placeholder={`Default (${data.settings?.graceDays ?? 7})`} value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
         <F l="Discount %"><Input className="h-9" type="number" min="0" max="100" step="0.01" value={v.discountPct} onChange={e => set("discountPct", e.target.value)} /></F>
         <div className="sm:col-span-2 xl:col-span-4"><Mods value={v.modules} set={x => set("modules", x)} /></div>
-        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.locked} onChange={e => set("locked", e.target.checked)} />Locked By Hand</label>
-        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
+        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={v.locked} onChange={e => set("locked", e.target.checked)} />Locked By Hand</label>
+        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
         <div className="sm:col-span-2 xl:col-span-4"><F l="Notes"><Textarea rows={2} value={v.notes} onChange={e => set("notes", e.target.value)} /></F></div>
       </div>
       <div className="mt-5 flex justify-end"><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div></div>
@@ -257,12 +257,12 @@ export function Invoices() {
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4"><Kpi l="Open" v={money(sum(l.filter(i => i.status === "open")), cur)} /><Kpi l="Overdue" v={money(sum(l.filter(over)), cur)} /><Kpi l="Paid This Month" v={money(sum(month), cur)} /><Kpi l="Invoices" v={l.length} /></div>
     <div className={BOX}>
       <div className="flex flex-col gap-4 px-5 py-4 sm:px-6"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["void", "Void"]]} />
-        <InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+        <TInput type="search" className="w-full sm:w-72" inputClassName="h-9 py-1.5" placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} />
         <p className="text-xs text-gray-500">New invoices are created automatically {data.settings?.invoiceDaysBefore ?? 7} days before each period ends.</p></div>
       <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800">{err ? <Empty t={err} /> : all === null ? <Empty t="Loading…" /> : !rows.length ? <Empty t="No invoices match." /> :
         <table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Number", "Business", "Period", "Due", "Total", "Status", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(i => <tr key={i.id}><td className={TD}><b className="font-medium text-gray-900 dark:text-gray-50">{i.number}</b>{i.auto && <span className="block text-xs text-gray-500">Automatic</span>}</td>
-            <td className={TD}><button type="button" className="font-medium text-brand-500 hover:underline" onClick={() => nav("/company?id=" + i.company_id)}>{i.company}</button><span className="block text-xs text-gray-500">{i.accountNo}</span></td>
+            <td className={TD}><button type="button" className="font-medium text-blue-500 hover:underline" onClick={() => nav("/company?id=" + i.company_id)}>{i.company}</button><span className="block text-xs text-gray-500">{i.accountNo}</span></td>
             <td className={TD}>{dmy(i.period_start)} → {dmy(i.period_end)}</td><td className={TD}>{dmy(i.due_at)}</td><td className={TD}>{money(i.total, i.currency)}</td><td className={TD}><InvState i={i} /></td>
             <td className={TD + " text-end"}><div className="flex justify-end gap-2"><Button size="sm" variant="outline" onClick={() => showInvoice(i, data.settings, (data.companies || []).find(x => x.id === i.company_id)).catch(e => toast(e.message, "error"))}>View</Button>
               {i.status === "open" && <Button size="sm" variant="outline" onClick={() => setPay(i)}>Mark Paid</Button>}</div></td></tr>)}</tbody></table>}</div>
@@ -286,8 +286,8 @@ export function Prices() {
           <td className={TD}><select className={cn(SEL, "h-10 min-w-40")} value={p.unit} onChange={e => set(k, "unit", e.target.value)}>{UNIT.map(([u, t]) => <option key={u} value={u}>{t}</option>)}</select></td>
           <td className={TD}><Input className="h-10 w-28 text-end" type="number" min="0" step="0.01" value={p.monthly} onChange={e => set(k, "monthly", e.target.value)} /></td>
           <td className={TD}><Input className="h-10 w-28 text-end" type="number" min="0" step="0.01" value={p.yearly} onChange={e => set(k, "yearly", e.target.value)} /></td>
-          <td className={TD}><input type="checkbox" className="size-4 accent-brand-500" aria-label={p.name + " always included"} checked={!!p.required} onChange={e => set(k, "required", e.target.checked)} /></td>
-          <td className={TD}><input type="checkbox" className="size-4 accent-brand-500" aria-label={p.name + " offered"} checked={!!p.active} onChange={e => set(k, "active", e.target.checked)} /></td></tr>)}</tbody></table></div>
+          <td className={TD}><input type="checkbox" className="size-4 accent-blue-500" aria-label={p.name + " always included"} checked={!!p.required} onChange={e => set(k, "required", e.target.checked)} /></td>
+          <td className={TD}><input type="checkbox" className="size-4 accent-blue-500" aria-label={p.name + " offered"} checked={!!p.active} onChange={e => set(k, "active", e.target.checked)} /></td></tr>)}</tbody></table></div>
       <div className="flex justify-end border-t border-gray-100 px-6 py-4 dark:border-gray-800"><Button disabled={busy} onClick={async () => { setBusy(true);
         try { await rpc("slick_pa_save_products", { p: ps.map((p, i) => ({ id: p.id, name: String(p.name).trim(), unit: p.unit, monthly: +p.monthly || 0, yearly: +p.yearly || 0, required: !!p.required, active: !!p.active, sort: i + 1 })) }); toast("Saved"); await reload(); } catch (e: any) { toast(e.message, "error"); } setBusy(false); }}>{busy ? "Saving…" : "Save"}</Button></div>
     </div></>;

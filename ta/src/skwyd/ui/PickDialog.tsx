@@ -1,9 +1,8 @@
+import { Input } from "@/components/tremor/Input";
 // A searchable checklist in a TailAdmin dialog (pick stores, categories, items, tags…), with Select All
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { SearchIcon } from "@/icons";
 import { useState } from "react";
 
 export type PickOpt = [id: string, name: string, sub?: string];
@@ -16,8 +15,7 @@ export function PickDialog({ title, opts, value, onSave, onClose }: { title: str
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{title}</DialogTitle></DialogHeader>
         <div className="mt-5 flex gap-3">
-          <InputGroup className="h-9 flex-1"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-            <InputGroupInput placeholder="Search" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <Input type="search" className="flex-1" inputClassName="h-9 py-1.5" placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
           <Button variant="outline" className="h-9" onClick={toggleAll}>Select All</Button>
         </div>
         <div className="mt-4 max-h-[50dvh] space-y-0.5 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">

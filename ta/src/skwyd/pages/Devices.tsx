@@ -112,7 +112,7 @@ function DevicePage({ d, s, bName, back }: { d: Row; s: S; bName: (id?: string) 
             </div>
             <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
               <span title={d.activatedAt ? "Activation code (already used: deactivate the device to get a new one)" : "Activation code (enter it on the tablet to activate)"}
-                className={"col-span-2 rounded-lg border px-3 py-2 text-center font-mono text-base tracking-[0.3em] " + (d.activatedAt ? "border-gray-200 text-gray-400 line-through dark:border-gray-800" : "border-brand-200 bg-brand-50 text-brand-600 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-400")}>{d.code || "——————"}</span>
+                className={"col-span-2 rounded-lg border px-3 py-2 text-center font-mono text-base tracking-[0.3em] " + (d.activatedAt ? "border-gray-200 text-gray-400 line-through dark:border-gray-800" : "border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400")}>{d.code || "——————"}</span>
               <Button variant="outline" onClick={sync}><RegenerateIcon className="size-4.5" />Force Sync Data</Button>
               <Button variant="outline" onClick={() => setDlg("copy")}><CopyIcon className="size-4.5" />Copy Settings</Button>
               <Button variant="outline" onClick={() => setDlg("set")}><GearIcon className="size-4.5" />Device Settings</Button>
@@ -206,7 +206,7 @@ function EditDevice({ d, s, onClose, onDeactivate }: { d: Row; s: S; onClose: ()
         <F l="Type" full>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Type">{DEV_TYPES.map(([k, t]) => (
             <button key={k} type="button" role="radio" aria-checked={type === k} onClick={() => setType(k)}
-              className={"rounded-md border p-3 text-start transition-colors " + (type === k ? "border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700")}>
+              className={"rounded-md border p-3 text-start transition-colors " + (type === k ? "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700")}>
               <b className="block text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b><span className="text-xs text-gray-500 dark:text-gray-400">{TYPE_NOTE[k]}</span></button>))}</div></F>
         <Field orientation="horizontal" className="col-span-full items-start gap-3 rounded-md border border-gray-200 p-4 dark:border-gray-800">
           <Switch checked={master} onCheckedChange={v => setMaster(!!v)} />

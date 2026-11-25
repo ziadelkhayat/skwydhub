@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Switch } from "@/components/ui/switch";
-import { PlusIcon, SearchIcon } from "@/icons";
+import { PlusIcon } from "@/icons";
 import { newId, put, softDelete, type Row } from "@/lib/db";
 import { money, sym } from "@/lib/util";
 import { useEffect, useRef, useState } from "react";
@@ -39,8 +39,7 @@ export default function DeliveryZonesPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-              <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Delivery Zone</Button>
           </div>
         </div>

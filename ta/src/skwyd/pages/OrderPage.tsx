@@ -48,7 +48,7 @@ export default function OrderPage() {
     {(o.customerName || o.phone || o.address) && <Sec title="Customer" act={o.customerId ? <Button size="sm" variant="outline" onClick={() => openWin("/customer?id=" + o.customerId)}>Open Customer</Button> : undefined}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div><span className="block text-sm text-gray-500">Name</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</b></div>
-        <div><span className="block text-sm text-gray-500">Phone</span>{o.phone ? <a className="text-sm font-medium text-brand-500" href={"tel:" + o.phone}>{tel(o.phone)}</a> : "—"}</div>
+        <div><span className="block text-sm text-gray-500">Phone</span>{o.phone ? <a className="text-sm font-medium text-blue-500" href={"tel:" + o.phone}>{tel(o.phone)}</a> : "—"}</div>
         {o.address && <div><span className="block text-sm text-gray-500">Address</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{o.address}</b></div>}
       </div></Sec>}
 
@@ -75,7 +75,7 @@ export default function OrderPage() {
 
     {rel.length > 0 && <Sec title={ret ? "Original Order" : "Returns"}>
       <table className="w-full"><tbody>{rel.map(r => <tr key={r.id} className={TR}>
-        <td className={TD}><Link className="font-medium text-brand-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</Link></td><td className={TD}>Check {chkNo(r)}</td>
+        <td className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</Link></td><td className={TD}>Check {chkNo(r)}</td>
         <td className={TD}>{fmtDate(r.createdAt)}</td><td className={TD + " text-end"}>{money(r.total)}</td></tr>)}</tbody></table></Sec>}
   </>;
 }

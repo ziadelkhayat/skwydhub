@@ -34,7 +34,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
           <li key={it.key} draggable={!!onMove} onDragStart={() => setDrag(it.key)} onDragEnd={() => { setDrag(null); setOver(null); }}
             onDragOver={e => { if (onMove) { e.preventDefault(); setOver(it.key); } }} onDrop={e => { e.preventDefault(); drop(it.key); setDrag(null); setOver(null); }}
             onClick={() => onOpen?.(it)}
-            className={"flex items-center gap-3 px-5 py-3.5 text-sm sm:px-6 " + (onOpen ? "cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2 " : "") + (over === it.key && drag !== it.key ? "bg-brand-50 dark:bg-brand-500/10 " : "") + (drag === it.key ? "opacity-50" : "")}>
+            className={"flex items-center gap-3 px-5 py-3.5 text-sm sm:px-6 " + (onOpen ? "cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2 " : "") + (over === it.key && drag !== it.key ? "bg-blue-50 dark:bg-blue-500/10 " : "") + (drag === it.key ? "opacity-50" : "")}>
             {onMove && <span className="cursor-grab text-gray-400 select-none" title="Drag to move" aria-hidden>⋮⋮</span>}
             <span className="font-medium text-gray-900 dark:text-gray-50">{it.name}</span>
             {it.nameAr && <span className="text-gray-500 dark:text-gray-400" dir="auto">{it.nameAr}</span>}
