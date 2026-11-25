@@ -11,6 +11,7 @@ import { LineExtras, ModPicker, NumberAsk, VariantPicker, type LineEdit, type Pi
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
+import { SwipeRow } from "./SwipeRow";
 import { VoidReturnDialog } from "./VoidReturn";
 import { TablesDialog, tblLbl } from "./Tables";
 import { DRV_ST, DriverPick, DriversDialog } from "./Drivers";
@@ -355,7 +356,8 @@ export function Register() {
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
             : cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", C.bad] : st === "returned" || st === "refund" ? ["Returned", C.bad] : sent && ["active", "pending"].includes(st) ? ["Sent", C.ok] : null) : null;
-              return <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
+              // swipe an unsent line left to delete it; − stops at 1
+              return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -(l.qty - (l.saved || 0)))} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
                 {ro || sent ? <T size={14} color={C.mut} style={{ minWidth: 26 }}>{l.qty}×</T> : null}
                 <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
                   <T w="m" size={14.5} numberOfLines={2}>{l.name}{tag ? <T w="s" size={11} color={tag[1] as string}>{"  " + tag[0]}</T> : null}</T>
@@ -367,11 +369,11 @@ export function Register() {
                   {/* the item's note is the last line under the item */}
                   {l.note ? <T size={12.5} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}</Pressable>
                 {ro || sent ? null : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
-                  <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} onPress={() => qty(i, -1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name={l.qty - (l.saved || 0) <= 1 ? "trash" : "minus"} size={17} color={l.qty - (l.saved || 0) <= 1 ? C.bad : C.ink2} /></Pressable>
+                  <Pressable accessibilityRole="button" accessibilityLabel={"Less " + l.name} accessibilityState={{ disabled: l.qty - (l.saved || 0) <= 1 }} disabled={l.qty - (l.saved || 0) <= 1} onPress={() => qty(i, -1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={17} color={l.qty - (l.saved || 0) <= 1 ? C.mut2 : C.ink2} /></Pressable>
                   <T w="s" style={{ minWidth: 24, textAlign: "center" }}>{l.qty - (l.saved || 0)}</T>
                   <Pressable accessibilityRole="button" accessibilityLabel={"More " + l.name} onPress={() => qty(i, 1)} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={17} color={C.ink2} /></Pressable></View>}
                 <T w="m" size={14.5} style={{ width: 72, textAlign: "right" }}>{money(S, lineNet(l))}</T>
-              </View>; })}
+              </SwipeRow>; })}
         </ScrollView>
         <View style={{ paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: C.line, gap: 4 }}>
           {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} muted /> : null}
