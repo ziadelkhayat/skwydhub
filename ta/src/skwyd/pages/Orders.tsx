@@ -1,5 +1,4 @@
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
-import { SelectNative } from "@/components/tremor/SelectNative";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +23,6 @@ export const ST_COLOR: Record<string, any> = { closed: "success", active: "prima
 export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
-const SEL = "h-9 py-1.5";
 export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
 export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
 // every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
@@ -68,7 +66,7 @@ export default function OrdersPage() {
   const [tick, setTick] = useState(0);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
   const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
-  const nF = Object.entries(F).filter(([k, v]) => v && !["from", "to", "branch", "brand"].includes(k)).length;
+  const nT = Object.entries(F).filter(([k, v]) => v && TXT.includes(k)).length;
 
   useEffect(() => {
     let off = false; setLoading(true); setErr("");
@@ -124,7 +122,13 @@ export default function OrdersPage() {
             {<FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
             <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <div className="sm:w-56 [&_button]:h-[30px] [&_button]:py-1"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
-            <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+            {([["status", "Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]]],
+              ["type", "Type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]]],
+              ["source", "Source", sources.filter(x => !x.deleted).map(x => [x.name, x.name])], ["channel", "Sales Channel", Object.entries(CHL)],
+              ["pay", "Payment Type", [...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])].map(x => [x, x])],
+              ["device", "Device", devices.filter(x => !x.deleted).map(x => [x.id, x.name])], ["ahead", "Ahead", [["yes", "Yes"], ["no", "No"]]]] as [string, string, [string, string][]][]).map(([k, l, o]) =>
+              <FilterSelect key={k} title={l} value={F[k] || ""} onChange={v => { setF({ ...F, [k]: v }); setPage(1); }} options={o.map(([v, t]) => ({ value: String(v), label: String(t) }))} />)}
+            <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />More Filters{nT ? <Badge variant="solid" color="primary" className="ms-1">{nT}</Badge> : null}</Button>
           </>}
           onRowClick={o => openWin("/order?id=" + o.id)}
           rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
@@ -133,32 +137,25 @@ export default function OrdersPage() {
           pageSize={PER}
         />
       )}
-      {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)}
-        brands={brands} devices={devices} sources={sources.filter(x => !x.deleted).map(x => x.name)} pays={[...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])]} />}
+      {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />}
     </>
   );
 }
 
-function FilterDialog({ F, onApply, onClose, brands, devices, sources, pays }: { F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void; brands: any[]; devices: any[]; sources: string[]; pays: string[] }) {
+const TXT = ["ref", "num", "rnotes", "knotes", "cust"];
+function FilterDialog({ F, onApply, onClose }: { F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void }) {
   const [d, setD] = useState<Record<string, string>>({ ...F });
   const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><Input className="h-9" placeholder={ph || ""} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })} /></Field>;
-  const sel = (k: string, l: string, opts: [string, string][]) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><SelectNative className={SEL + " w-full"} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })}><option value="">Any</option>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</SelectNative></Field>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Filter</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">More Filters</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {txt("ref", "Reference")}{txt("num", "Number")}
-          {brands.length > 1 && sel("brand", "Brand", brands.map(b => [b.id, b.name]))}
-          {sel("status", "Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]])}
-          {sel("type", "Type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]])}
-          {sel("source", "Source", sources.map(x => [x, x]))}{sel("channel", "Sales Channel", Object.entries(CHL))}
-          {sel("ahead", "Ahead", [["yes", "Yes"], ["no", "No"]])}{sel("pay", "Payment Type", pays.map(x => [x, x]))}
           {txt("rnotes", "Receipt Notes")}{txt("knotes", "Kitchen Notes")}{txt("cust", "Customer", "Name or phone")}
-          {sel("device", "Device", devices.filter(x => !x.deleted).map(x => [x.id, x.name]))}
         </div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="outline" className="sm:me-auto" onClick={() => onApply({ from: F.from || "", to: F.to || "", branch: F.branch || "", brand: F.brand || "" })}>Reset</Button>
+          <Button variant="outline" className="sm:me-auto" onClick={() => onApply(Object.fromEntries(Object.entries(F).filter(([k]) => !TXT.includes(k))))}>Reset</Button>
           <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply(d)}>Apply</Button>
         </div>
       </DialogContent>

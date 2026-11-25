@@ -1,3 +1,4 @@
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { ChoiceButton } from "../ui/Choice";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // A Skwyd list page in the Tremor template style: title, data table (tabs, search, filters, export, view options, row menu, bulk actions), and a dialog to add or edit.
@@ -44,6 +45,7 @@ export type CrudCfg = {
   detail?: string;   // open rows on their own page (path?id=)
   form?: (p: { s: S; row: Row | null; onClose: () => void }) => ReactNode;   // a page of its own form instead of the generic one
   urlFilter?: [string, string];
+  scope?: { brand?: (r: Row, s: S) => string[]; store?: (r: Row, s: S) => string[] };   // Brand / Store filter buttons (an empty list = all brands / stores)
   saved?: (old: Row | null, data: Record<string, any>) => Promise<void> | void;   // after saving (e.g. update the employee app login)   // e.g. ["cat", "categoryId"]: /products?cat=… shows one category
 };
 
@@ -58,7 +60,8 @@ export function useS(names: string[]): S | null {
 }
 
 export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
-  const s = useS([cfg.col, ...(cfg.needs || [])]);
+  const s = useS([cfg.col, ...(cfg.needs || []), ...(cfg.scope ? ["brands", "branches"] : [])]);
+  const [fb, setFb] = useState(""), [fs, setFs] = useState("");
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
   const [sp, setSp] = useSearchParams();
@@ -67,9 +70,12 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const list = useMemo(() => {
     if (!s) return [];
     const f = cfg.tabs.find(t => t[0] === tab)?.[2] || live;
+    const hit = (sel: string, l: string[]) => !sel || !l.length || l.some(x => inSel(sel, x));
+    const brandsOf = (r: Row) => cfg.scope?.brand ? cfg.scope.brand(r, s).filter(Boolean) : (cfg.scope?.store?.(r, s) || []).map(id => s.branches.find(b => b.id === id)?.brandId).filter(Boolean);
     return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
+      .filter(r => !cfg.scope || (hit(fb, brandsOf(r)) && (!cfg.scope.store || hit(fs, cfg.scope.store(r, s).filter(Boolean)))))
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
-  }, [s, tab, cfg, uf]);
+  }, [s, tab, cfg, uf, fb, fs]);
   const open = (r: Row) => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r);
   const del = async (rows: Row[], on: boolean) => {
     if (!s) return;
@@ -93,7 +99,9 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           columns={columns}
           getRowId={r => r.id}
           searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
-          toolbar={cfg.tabs.length > 1 ? <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} /> : undefined}
+          toolbar={cfg.tabs.length > 1 || cfg.scope ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
+            {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+            {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}</> : undefined}
           actions={<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button>}
           onRowClick={open}
           rowActions={[

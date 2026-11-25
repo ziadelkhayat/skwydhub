@@ -1,3 +1,4 @@
+import { BrandStoreFilters, inBS, useBrandStore } from "../ui/BrandStore";
 import { Label } from "@/components/tremor/Label";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -25,7 +26,7 @@ import { toast } from "../ui/toast";
 const drawn = (z: Row) => Array.isArray(z.polygon) && z.polygon.length >= 3;
 
 export default function DeliveryZonesPage() {
-  const s = useS(["zones", "branches", "charges", "settings"]);
+  const s = useS(["zones", "branches", "brands", "charges", "settings"]), bs = useBrandStore();
   const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [edit, setEdit] = useState<Row | null | undefined>(undefined);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const bName = (id?: string) => s.branches.find(b => b.id === id)?.name || "";
@@ -33,14 +34,14 @@ export default function DeliveryZonesPage() {
   const dmap: Record<string, string> = (s.settings.find(x => x.id === "dcharges") as any)?.map || {};
   const chargeOf = (z: Row) => { const id = dmap[z.id]; return id ? s.charges.find(c => c.id === id && live(c)) : null; };
   const del = tab === "deleted", qq = q.trim().toLowerCase();
-  const rows = s.zones.filter(z => !!z.deleted === del && (!qq || (z.name + " " + bName(z.branchId)).toLowerCase().includes(qq))).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
+  const rows = s.zones.filter(z => !!z.deleted === del && inBS(s.branches, bs.brand, bs.store, z.branchId) && (!qq || (z.name + " " + bName(z.branchId)).toLowerCase().includes(qq))).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   return (
     <>
       <PageBreadcrumb pageTitle="Delivery Zones" />
-      <Overview zones={s.zones.filter(z => live(z) && drawn(z))} bName={bName} color={color} onOpen={z => setEdit(z)} />
+      <Overview zones={s.zones.filter(z => live(z) && drawn(z) && inBS(s.branches, bs.brand, bs.store, z.branchId))} bName={bName} color={color} onOpen={z => setEdit(z)} />
       <div className={BOX + " mt-6"}>
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
-          <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
+          <div className="flex flex-wrap items-center gap-2"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} /><BrandStoreFilters brands={s.brands} stores={s.branches} {...bs} /></div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
             <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Delivery Zone</Button>

@@ -1,3 +1,4 @@
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, FilterIcon, PlusIcon, UploadIcon } from "@/icons";
+import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, PlusIcon, UploadIcon } from "@/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { useAuth } from "@/lib/auth";
 import { newId, put, refresh, type Row } from "@/lib/db";
@@ -96,27 +97,26 @@ const docFltFields = (K: K): [string, string, string][] => { const f: [string, s
   return f; };
 const docDay = (d: Row) => String(d.businessDate || d.createdAt || "").slice(0, 10);
 function docFltOk(s: S, K: K, f: Record<string, string>) {
-  const { locBrand } = locBOf(s), has = (b: string, id?: string) => !b || !id || !locBrand(id) || locBrand(id) === b;
+  const { locBrand } = locBOf(s), has = (b: string, id?: string) => !b || !id || !locBrand(id) || inSel(b, locBrand(id));
   return (d: Row) => (!f.ref || String(d.ref || "").toLowerCase().includes(f.ref.toLowerCase())) && (!f.from || docDay(d) >= f.from) && (!f.to || docDay(d) <= f.to)
-    && (!f.status || d.status === f.status) && (!f.brand || (d.brandId ? d.brandId === f.brand : has(f.brand, d.locationId) && has(f.brand, d.destId)))
-    && (!f.loc || (K.kind === "torder" ? d.locationId === f.loc : (d.locationId === f.loc || (K.kind === "transfer" && d.destId === f.loc))))
-    && (!f.dest || d.destId === f.dest) && (!f.sup || d.supplierId === f.sup) && (!f.reason || d.reason === f.reason) && (!f.by || d.createdBy === f.by) && (!f.sub || d.submittedBy === f.sub); }
+    && (!f.status || inSel(f.status, d.status)) && (!f.brand || (d.brandId ? inSel(f.brand, d.brandId) : has(f.brand, d.locationId) && has(f.brand, d.destId)))
+    && (!f.loc || (K.kind === "torder" ? inSel(f.loc, d.locationId) : (inSel(f.loc, d.locationId) || (K.kind === "transfer" && inSel(f.loc, d.destId)))))
+    && (!f.dest || inSel(f.dest, d.destId)) && (!f.sup || inSel(f.sup, d.supplierId)) && (!f.reason || inSel(f.reason, d.reason)) && (!f.by || inSel(f.by, d.createdBy)) && (!f.sub || inSel(f.sub, d.submittedBy)); }
 const locBOf = (s: S) => ({ locBrand: (id: string) => s.branches.find(b => b.id === id)?.brandId || s.warehouses.find(w => w.id === id)?.brandId || "" });
-function DocFilterDialog({ K, s, f0, onClose, onApply }: { K: K; s: S; f0: Record<string, string>; onClose: () => void; onApply: (f: Record<string, string>) => void }) {
-  const [f, setF] = useState<Record<string, string>>({ ...f0 }), { locBrand } = locBOf(s), set = (k: string, v: string) => setF(o => ({ ...o, [k]: v }));
+// the list's filters as Tremor filter buttons (Business Date, Status, Brand, places, Supplier, Reason, Creator, Submitter); the search box covers the reference
+function DocFilters({ K, s, f, setF }: { K: K; s: S; f: Record<string, string>; setF: (f: Record<string, string>) => void }) {
+  const { locBrand } = locBOf(s), set = (k: string, v: string) => { const n = { ...f, [k]: v };
+    if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x]) n[x] = selList(n[x]).filter(id => !v || !locBrand(id) || inSel(v, locBrand(id))).join(","); });
+    setF(Object.fromEntries(Object.entries(n).filter(([, x]) => x))); };
   const docs = s.inv_docs.filter(d => docOf(K)(d) && live(d)), people = (k: string) => [...new Set(docs.map(d => d[k]).filter(Boolean))].sort().map(x => [x, x] as [string, string]);
   const st: [string, string][] = K.flow ? [["draft", "Draft"], ["pending", "Pending"], ["closed", "Closed"], ["rejected", "Declined"]] : [["draft", "Draft"], ["closed", "Closed"]];
-  const has = (id: string) => !f.brand || !locBrand(id) || locBrand(id) === f.brand;
-  const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!f.brand || b.brandId === f.brand)).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name] as [string, string])];
+  const has = (id: string) => !f.brand || !locBrand(id) || inSel(f.brand, locBrand(id));
+  const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!f.brand || inSel(f.brand, b.brandId))).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name] as [string, string])];
   const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter((x: string) => x && !GONE.has(x)); })();
   const opts = (t: string): [string, string][] => t === "status" ? st : t === "brand" ? s.brands.filter(live).map(b => [b.id, b.name]) : t === "loc" ? locs : t === "sup" ? s.suppliers.filter(live).map(x => [x.id, x.name]) : t === "reason" ? qa.map((r: string) => [r, r]) : people(t === "by" ? "createdBy" : "submittedBy");
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-9" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
-      : t === "range" ? <F key={k} l={l} full><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => setF(o => ({ ...o, from: a, to: b }))} /></F>
-      : <F key={k} l={l}><SelectNative className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
-          <option value="">Any</option>{opts(t).map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative></F>)}</div>
-    <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => onApply({})}>Reset</Button><Button className="ms-auto" onClick={() => onApply(Object.fromEntries(Object.entries(f).filter(([, v]) => v && String(v).trim())))}>Apply</Button></div>
-  </DialogContent></Dialog>;
+  return <>{docFltFields(K).filter(([, , t]) => t !== "text").map(([k, l, t]) => t === "range"
+    ? <div key={k} className="w-full sm:w-auto"><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => { const n: Record<string, string> = { ...f, from: a, to: b }; setF(Object.fromEntries(Object.entries(n).filter(([, x]) => x))); }} /></div>
+    : <FilterSelect key={k} multiple title={l} value={f[k] || ""} onChange={v => set(k, v)} options={opts(t).map(([id, n]) => ({ value: String(id), label: String(n) }))} />)}</>;
 }
 // Export: a business date range of up to 31 days, then the documents (one row each) or their items (one row per line)
 function DocExportDialog({ route, K, s, lvl, onClose }: { route: string; K: K; s: S; lvl: "docs" | "items"; onClose: () => void }) {
@@ -138,8 +138,8 @@ function DocExportDialog({ route, K, s, lvl, onClose }: { route: string; K: K; s
 }
 function DocList({ route, K, s }: { route: string; K: K; s: S }) {
   const nav = useNavigate(), { locName } = useLoc(s);
-  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [nw, setNw] = useState(false), [f, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false), [ex, setEx] = useState<"" | "docs" | "items">("");
-  const all0 = s.inv_docs.filter(d => docOf(K)(d) && live(d)), fOk = docFltOk(s, K, f), all = all0.filter(fOk), qq = q.trim().toLowerCase(), nF = Object.values(f).filter(Boolean).length;
+  const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [nw, setNw] = useState(false), [f, setF] = useState<Record<string, string>>({}), [ex, setEx] = useState<"" | "docs" | "items">("");
+  const all0 = s.inv_docs.filter(d => docOf(K)(d) && live(d)), fOk = docFltOk(s, K, f), all = all0.filter(fOk), qq = q.trim().toLowerCase();
   const match = (d: Row) => !qq || (refOf(d) + " " + (d.name || "") + " " + locName(d.locationId) + " " + locName(d.destId) + " " + (s.suppliers.find(x => x.id === d.supplierId)?.name || "")).toLowerCase().includes(qq);
   const supName = (id: string) => s.suppliers.find(x => x.id === id)?.name || "—";
   const fmtD = (v?: string) => v ? dmy(v) : "—";
@@ -186,11 +186,12 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
-            {docFltFields(K).length > 0 && <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
             <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}><DownloadIcon className="size-5" />Export<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
             <Button onClick={() => K.kind === "cost" ? nav(`/${route}?id=new`) : setNw(true)}><PlusIcon className="size-5" />New {K.title}</Button></div>
         </div>
+        {docFltFields(K).some(x => x[2] !== "text") && <div className="flex flex-wrap items-center gap-2"><DocFilters K={K} s={s} f={f} setF={setF} />
+          {Object.keys(f).length > 0 && <Button variant="ghost" onClick={() => setF({})} className="h-[30px] py-1 text-gray-500">Clear filters</Button>}</div>}
         <div className="relative overflow-x-auto">
           {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
             : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800">{head.map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead>
@@ -199,7 +200,6 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
         </div>
       </div>
       {nw && <NewDialog route={route} K={K} s={s} onClose={() => setNw(false)} />}
-      {fOpen && <DocFilterDialog K={K} s={s} f0={f} onClose={() => setFOpen(false)} onApply={v => { setF(v); setFOpen(false); }} />}
       {ex && <DocExportDialog route={route} K={K} s={s} lvl={ex} onClose={() => setEx("")} />}
     </>
   );
