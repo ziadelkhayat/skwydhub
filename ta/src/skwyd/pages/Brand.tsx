@@ -1,3 +1,4 @@
+import { LineTabs, Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { ChoiceButton } from "../ui/Choice";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import { ArrowLeftIcon, GearIcon, PencilIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { put } from "@/lib/db";
 import { fmtDate } from "@/lib/util";
-import { cn } from "@/utils";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { EditDialog, live, useS } from "../crud/CrudPage";
@@ -90,14 +90,12 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
   return <>
     <PageBreadcrumb pageTitle="Brands" current={b.name + " · Settings"} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />{b.name}</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name} · Settings</h2></div>
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">
-      <nav className={BOX + " self-start p-2"}>{tabs.map(([k, t]) => <button key={k} type="button" onClick={() => { setTab(k); setSeen(o => new Set(o).add(k)); }}
-        className={cn("block w-full rounded-lg px-3 py-2.5 text-start text-sm", tab === k ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>{t}</button>)}</nav>
-      <div className={BOX + " p-5 sm:p-6"}><h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">{T[2]}</h3>
-        {!admin && <p className="mt-3 rounded-lg bg-warning-50 px-4 py-3 text-sm text-warning-700 dark:bg-warning-500/10 dark:text-warning-400">Only the owner or an admin can change settings.</p>}
-        <div>{T[3].map(field)}</div>
-        {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
-        {admin && <div className="mt-6 flex justify-end"><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div>}</div>
-    </div>
+    <LineTabs className="mb-8" value={tab} onChange={k => { setTab(k); setSeen(o => new Set(o).add(k)); }} items={tabs.map(([k, t]) => [k, t])} />
+    {!admin && <p className="mb-6 rounded-md bg-yellow-50 px-4 py-3 text-sm text-yellow-800 ring-1 ring-inset ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500">Only the owner or an admin can change settings.</p>}
+    <Section title={T[2]} desc={b.name}>
+      <div className="[&>div:first-child]:pt-0 [&>div:last-child]:border-0 [&>div:last-child]:pb-0">{T[3].map(field)}</div>
+      {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
+      {admin && <div className="mt-6 flex justify-end"><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save settings"}</Button></div>}
+    </Section>
   </>;
 }

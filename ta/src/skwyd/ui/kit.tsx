@@ -2,6 +2,7 @@
 import { Field, FieldLabel } from "@/components/ui/field";
 import { cx } from "@/components/tremor/utils";
 import { Card as TremorCard } from "@/components/tremor/Card";
+import { Section } from "./Section";
 import { selectNativeStyles } from "@/components/tremor/SelectNative";
 
 /** extra classes for Tremor SelectNative (its look comes from Tremor) */
@@ -14,12 +15,9 @@ export const TD = "px-4 py-2 text-sm whitespace-nowrap text-gray-600 dark:text-g
 export const TR = "group cursor-pointer select-none hover:bg-gray-50 hover:dark:bg-gray-900";
 /** Tremor Card (no padding) for lists and tables */
 export const BOX = "overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-900 dark:bg-[#090E1A]";
-/** Tremor Card, with an optional title row (title + action) */
-export const Card = ({ title, action, children, className }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) => (
-  <TremorCard className={className}>
-    {title != null && <div className="mb-4 flex items-center justify-between gap-4"><h3 className="font-semibold text-gray-900 dark:text-gray-50">{title}</h3>{action}</div>}
-    {children}
-  </TremorCard>);
+/** Tremor Card; with a title it is a template settings section (title on the left, the card on the right) */
+export const Card = ({ title, action, desc, children, className }: { title?: string; action?: React.ReactNode; desc?: React.ReactNode; children: React.ReactNode; className?: string }) =>
+  title == null ? <TremorCard className={className}>{children}</TremorCard> : <Section title={title} desc={desc} act={action} className={className}>{children}</Section>;
 export const L = ({ l, children }: { l: string; children: React.ReactNode }) => <div><p className="mb-1 text-sm text-gray-500 dark:text-gray-500">{l}</p><div className="text-sm font-medium text-gray-900 dark:text-gray-50">{children}</div></div>;
 export const F = ({ l, req, help, full, children }: { l: string; req?: boolean; help?: string; full?: boolean; children: React.ReactNode }) => (
   <Field className={full ? "col-span-full" : ""}><FieldLabel className="mb-1.5 block">{l}{req && <span className="text-red-500"> *</span>}</FieldLabel>{children}

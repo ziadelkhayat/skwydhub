@@ -1,3 +1,4 @@
+import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -61,7 +62,7 @@ export default function StorePage() {
   const deleted = b.active === false || b.deleted;
   const saveSt = async (patch: any, msg: string) => { try { await put("branches", b.id, { settings: { ...st, ...patch }, updatedAt: new Date().toISOString() }); toast(msg); } catch { toast("Couldn't save. You may not have edit access.", "error"); } };
   const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>{rows.map((r, i) => <TableRow key={i} className={TR}>{r.map((c, j) => <TableCell key={j} className={TD}>{c}</TableCell>)}</TableRow>)}</TableBody></Table></div>;
-  const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>;
+  const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <Section title={title} act={act}>{children}</Section>;
   async function wipe(kind: "orders" | "inv") {
     const c = await count(), what = kind === "orders" ? `all ${c.orders} orders` : `all ${c.inv} inventory transactions`;
     const typed = window.prompt(`This permanently deletes ${what} of ${b!.name}. It can't be undone.${kind === "orders" ? "\n\nReference numbers keep counting. This store's check numbers start again at 100001 and returns at RET-100001." : ""}\n\nType the store name to confirm:`);
