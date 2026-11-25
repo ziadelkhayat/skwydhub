@@ -57,20 +57,20 @@ export default function SignInPage({ message }: { message: string }) {
             </div>
             <form onSubmit={submit} className="space-y-5" noValidate>
               <Field><FieldLabel className="mb-1.5 block">Account Number <span className="text-red-500">*</span></FieldLabel>
-                <Input className="h-11" inputMode="numeric" autoComplete="organization" value={acct} onChange={e => setAcct(e.target.value)} /></Field>
+                <Input className="h-9" inputMode="numeric" autoComplete="organization" value={acct} onChange={e => setAcct(e.target.value)} /></Field>
               {pw ? <>
                 <Field><FieldLabel className="mb-1.5 block">Email <span className="text-red-500">*</span></FieldLabel>
-                  <Input className="h-11" type="email" autoComplete="username" placeholder="info@gmail.com" value={email} onChange={e => setEmail(e.target.value)} /></Field>
+                  <Input className="h-9" type="email" autoComplete="username" placeholder="info@gmail.com" value={email} onChange={e => setEmail(e.target.value)} /></Field>
                 <Field><FieldLabel className="mb-1.5 block">Password <span className="text-red-500">*</span></FieldLabel>
-                  <Input className="h-11" type="password" autoComplete="current-password" placeholder="Enter your password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
+                  <Input className="h-9" type="password" autoComplete="current-password" placeholder="Enter your password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
               </> : <>
                 <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
                   <div className="flex gap-3">
-                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className="h-11 w-28 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
-                    <Input className="h-11 flex-1" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="70 123 456" value={num} onChange={e => { setNum(e.target.value); setSentTo(""); }} />
+                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className="h-9 w-28 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+                    <Input className="h-9 flex-1" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="70 123 456" value={num} onChange={e => { setNum(e.target.value); setSentTo(""); }} />
                   </div></Field>
                 {sentTo && <Field><FieldLabel className="mb-1.5 block">Code Sent On WhatsApp <span className="text-red-500">*</span></FieldLabel>
-                  <Input className="h-11 text-center tracking-[.3em]" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="6 digits" autoFocus value={code}
+                  <Input className="h-9 text-center tracking-[.3em]" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="6 digits" autoFocus value={code}
                     onChange={e => { setCode(e.target.value); if (e.target.value.replace(/\D/g, "").length === 6) setTimeout(() => submit(), 0); }} /></Field>}
               </>}
               {(err || note) && <p className={err ? "text-sm text-red-500" : "text-sm text-green-600"}>{err || note}</p>}

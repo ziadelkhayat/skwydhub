@@ -44,13 +44,13 @@ function compute(s: S, m: string, st: any) {
 function payslip(l: any, m: string) {
   const co = coSet(), ml = new Date(m + "-15T12:00:00").toLocaleDateString("en-GB", { month: "long", year: "numeric" }), row = (k: string, v: any, b?: boolean) => `<tr><td>${k}</td><td style="text-align:right">${b ? "<b>" + v + "</b>" : v}</td></tr>`, M = (v: number) => esc(money(v));
   const w = window.open("", "_blank"); if (!w) return toast("Allow pop-ups to open the payslip", "error");
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Payslip ${esc(l.name)} ${esc(m)}</title><style>body{font:14px/1.5 Outfit,system-ui,sans-serif;color:#1d2939;max-width:640px;margin:32px auto;padding:0 20px}h1{font-size:22px;margin:0}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#667085;margin:24px 0 6px}table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid #eaecf0}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #465fff;padding-bottom:14px}.net{background:#465fff;color:#fff;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;font-size:18px;margin-top:20px}@media print{button{display:none}}</style></head><body>
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Payslip ${esc(l.name)} ${esc(m)}</title><style>body{font:14px/1.5 Inter,system-ui,sans-serif;color:#1d2939;max-width:640px;margin:32px auto;padding:0 20px}h1{font-size:22px;margin:0}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#667085;margin:24px 0 6px}table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid #eaecf0}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #3b82f6;padding-bottom:14px}.net{background:#3b82f6;color:#fff;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;font-size:18px;margin-top:20px}@media print{button{display:none}}</style></head><body>
     <div class="top"><div><h1>Payslip</h1><div>${esc(ml)}</div></div><div style="text-align:right"><b>${esc(co.name || "")}</b></div></div>
     <h2>Employee</h2><table>${row("Name", esc(l.name))}${l.no ? row("Employee Number", esc(l.no)) : ""}${l.job ? row("Job Title", esc(l.job)) : ""}${row("Days Worked", l.days)}${row("Hours", (+l.hrs).toFixed(2))}${l.ot ? row("Overtime Hours", (+l.ot).toFixed(2)) : ""}${l.paidLeave ? row("Paid Leave Days", l.paidLeave) : ""}${l.unpaid ? row("Unpaid Leave Days", l.unpaid) : ""}</table>
     <h2>Earnings</h2><table>${row("Base Pay", M(l.base))}${l.otPay ? row("Overtime", M(l.otPay)) : ""}${l.leavePay ? row("Paid Leave", M(l.leavePay)) : ""}${l.bonus ? row("Bonus", M(l.bonus)) : ""}${row("Gross Pay", M(l.gross), true)}</table>
     ${l.deduction || l.advance || l.ssE || l.tax ? `<h2>Deductions</h2><table>${l.ssE ? row("Social Security", "−" + M(l.ssE)) : ""}${l.tax ? row("Income Tax", "−" + M(l.tax)) : ""}${l.deduction ? row("Deductions", "−" + M(l.deduction)) : ""}${l.advance ? row("Advance", "−" + M(l.advance)) : ""}</table>` : ""}
     <div class="net"><span>Net Pay</span><b>${M(l.net)}</b></div>${l.note ? `<p style="color:#667085">${esc(l.note)}</p>` : ""}
-    <p style="margin-top:40px;display:flex;justify-content:space-between;color:#667085"><span>Employee signature ____________</span><span>Date ____________</span></p><button onclick="print()" style="margin-top:16px;padding:10px 18px;border-radius:10px;border:0;background:#465fff;color:#fff;font-size:14px">Print</button></body></html>`);
+    <p style="margin-top:40px;display:flex;justify-content:space-between;color:#667085"><span>Employee signature ____________</span><span>Date ____________</span></p><button onclick="print()" style="margin-top:16px;padding:10px 18px;border-radius:10px;border:0;background:#3b82f6;color:#fff;font-size:14px">Print</button></body></html>`);
   w.document.close();
 }
 
@@ -132,8 +132,8 @@ function AdjustDialog({ u, j, onClose, onSave }: { u: Row; j: any; onClose: () =
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Adjust · {u.name}</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <F l="Bonus"><Input className="h-11" type="number" min="0" step="any" value={v.b} onChange={e => set("b", e.target.value)} /></F><F l="Deductions"><Input className="h-11" type="number" min="0" step="any" value={v.d} onChange={e => set("d", e.target.value)} /></F>
-          <F l="Advance Paid"><Input className="h-11" type="number" min="0" step="any" value={v.a} onChange={e => set("a", e.target.value)} /></F><F l="Note"><Input className="h-11" placeholder="Shown on the payslip" value={v.n} onChange={e => set("n", e.target.value)} /></F></div>
+          <F l="Bonus"><Input className="h-9" type="number" min="0" step="any" value={v.b} onChange={e => set("b", e.target.value)} /></F><F l="Deductions"><Input className="h-9" type="number" min="0" step="any" value={v.d} onChange={e => set("d", e.target.value)} /></F>
+          <F l="Advance Paid"><Input className="h-9" type="number" min="0" step="any" value={v.a} onChange={e => set("a", e.target.value)} /></F><F l="Note"><Input className="h-9" placeholder="Shown on the payslip" value={v.n} onChange={e => set("n", e.target.value)} /></F></div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={async () => { try { await onSave({ bonus: n(v.b), deduction: n(v.d), advance: n(v.a), note: v.n.trim() }); toast("Saved"); onClose(); } catch { toast("Couldn't save. Check your connection.", "error"); } }}>Save</Button></div>
       </DialogContent>
@@ -141,17 +141,17 @@ function AdjustDialog({ u, j, onClose, onSave }: { u: Row; j: any; onClose: () =
 }
 function PaySettings({ st, onClose }: { st: any; onClose: () => void }) {
   const [v, setV] = useState<Record<string, string>>(Object.fromEntries(Object.entries(st).map(([k, x]) => [k, +(x as any) ? String(x) : ""]))), set = (k: string, x: string) => setV(p => ({ ...p, [k]: x }));
-  const num = (k: string, l: string, ph?: string) => <F l={l}><Input className="h-11" type="number" min="0" step="any" placeholder={ph} value={v[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
+  const num = (k: string, l: string, ph?: string) => <F l={l}><Input className="h-9" type="number" min="0" step="any" placeholder={ph} value={v[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Payroll Settings</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {num("otAfter", "Overtime After (Hours A Day)", "8")}{num("otRate", "Overtime Rate (×)", "1.5")}
-          <F l="Working Days A Month" help="Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime)."><Input className="h-11" type="number" min="1" max="31" placeholder="26" value={v.workDays ?? ""} onChange={e => set("workDays", e.target.value)} /></F><div />
+          <F l="Working Days A Month" help="Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime)."><Input className="h-9" type="number" min="1" max="31" placeholder="26" value={v.workDays ?? ""} onChange={e => set("workDays", e.target.value)} /></F><div />
           <h4 className="col-span-full mt-2 text-base font-semibold text-gray-800 dark:text-white/90">Social Security</h4>
           {num("ssEmp", "Employee Share (%)", "0")}{num("ssEr", "Employer Share (%)", "0")}
-          <F l="Monthly Pay Cap" help={'Only for employees ticked "Registered for social security" on Edit Employee.'}><Input className="h-11" type="number" min="0" step="any" placeholder="No cap" value={v.ssCap ?? ""} onChange={e => set("ssCap", e.target.value)} /></F><div />
+          <F l="Monthly Pay Cap" help={'Only for employees ticked "Registered for social security" on Edit Employee.'}><Input className="h-9" type="number" min="0" step="any" placeholder="No cap" value={v.ssCap ?? ""} onChange={e => set("ssCap", e.target.value)} /></F><div />
           <h4 className="col-span-full mt-2 text-base font-semibold text-gray-800 dark:text-white/90">Income Tax</h4>
           {num("taxRate", "Tax Rate (%)", "0")}{num("taxFree", "Tax-Free Amount A Month", "0")}
           <p className="col-span-full text-xs text-gray-500">Rates change by law; check them with your accountant. Leave at 0 to turn a deduction off.</p>

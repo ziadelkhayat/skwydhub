@@ -52,7 +52,7 @@ export default function DeliveryChargesPage() {
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row"><select aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
           <select aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
-          <InputGroup className="h-11 sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
+          <InputGroup className="h-9 sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
             <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
         </div>
         {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-brand-50/50 px-5 py-3 sm:px-6 dark:border-white/5 dark:bg-brand-500/5">
@@ -100,9 +100,9 @@ function AssignDialog({ s, ids, bName, cur, onClose, onDone }: { s: S; ids: stri
         <div className="mt-5 space-y-5">
           {mode === "pick" ? <F l="Charge" req help={chs.length ? undefined : "Only fixed charges for delivery orders can be delivery charges. Create one with New Charge."}>
             <select className={SEL} value={ch} onChange={e => setCh(e.target.value)}><option value="">Choose a charge</option>{chs.map(c => <option key={c.id} value={c.id}>{c.name} · {money(+c.value || 0)}</option>)}</select></F>
-            : <><F l="Name" req><Input className="h-11" autoFocus placeholder="e.g. Delivery Charge Zone 1" value={n} onChange={e => setN(e.target.value)} /></F>
-              <F l="Name Localized"><Input className="h-11" dir="auto" value={ar} onChange={e => setAr(e.target.value)} /></F>
-              <F l={`Value (${sym()})`} req><Input className="h-11" type="number" min="0" step="any" inputMode="decimal" value={val} onChange={e => setVal(e.target.value)} /></F></>}
+            : <><F l="Name" req><Input className="h-9" autoFocus placeholder="e.g. Delivery Charge Zone 1" value={n} onChange={e => setN(e.target.value)} /></F>
+              <F l="Name Localized"><Input className="h-9" dir="auto" value={ar} onChange={e => setAr(e.target.value)} /></F>
+              <F l={`Value (${sym()})`} req><Input className="h-9" type="number" min="0" step="any" inputMode="decimal" value={val} onChange={e => setVal(e.target.value)} /></F></>}
           {err && <p className="text-sm text-red-500">{err}</p>}
         </div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

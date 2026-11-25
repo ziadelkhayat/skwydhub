@@ -173,8 +173,8 @@ function CreateDevice({ s, onClose }: { s: S; onClose: () => void }) {
     <Modal title="Create Device" onClose={onClose} footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></>}>
       <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
         <F l="Type" req full help="Choose the type of device."><select className={SEL} value={type} onChange={e => setType(e.target.value)}>{DEV_TYPES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
-        <F l="Name" req full><Input className="h-11" autoFocus placeholder="e.g. Main Cashier, 2nd Floor Cashier" value={name} onChange={e => setName(e.target.value)} /></F>
-        <F l="Reference" req full><div className="flex gap-3"><Input className="h-11 flex-1" value={ref} onChange={e => setRef(e.target.value)} /><Button variant="outline" className="h-11" onClick={() => setRef(devRef(s.devices))}>Generate</Button></div></F>
+        <F l="Name" req full><Input className="h-9" autoFocus placeholder="e.g. Main Cashier, 2nd Floor Cashier" value={name} onChange={e => setName(e.target.value)} /></F>
+        <F l="Reference" req full><div className="flex gap-3"><Input className="h-9 flex-1" value={ref} onChange={e => setRef(e.target.value)} /><Button variant="outline" className="h-9" onClick={() => setRef(devRef(s.devices))}>Generate</Button></div></F>
         <F l="Brand" req><select className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); }}><option value="">Choose…</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
         <F l="Store" req><select className={SEL} value={branch} onChange={e => setBranch(e.target.value)}><option value="">{brand ? "Choose…" : "Pick the brand first"}</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
         {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
@@ -200,8 +200,8 @@ function EditDevice({ d, s, onClose, onDeactivate }: { d: Row; s: S; onClose: ()
     <Modal title="Edit Device" onClose={onClose} footer={<>{d.activatedAt && <Button variant="destructive" className="sm:me-auto" onClick={() => { onClose(); onDeactivate(); }}>Deactivate</Button>}
       <Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></>}>
       <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-        <F l="Name" req><Input className="h-11" placeholder="e.g. Main cashier" value={name} onChange={e => setName(e.target.value)} /></F>
-        <F l="Reference" req><div className="flex gap-3"><Input className="h-11 flex-1" value={ref} onChange={e => setRef(e.target.value)} />
+        <F l="Name" req><Input className="h-9" placeholder="e.g. Main cashier" value={name} onChange={e => setName(e.target.value)} /></F>
+        <F l="Reference" req><div className="flex gap-3"><Input className="h-9 flex-1" value={ref} onChange={e => setRef(e.target.value)} />
           <Button variant="outline" size="icon-lg" aria-label="Generate a reference" onClick={() => setRef(devRef(s.devices.filter(x => x.id !== d.id)))}><RegenerateIcon className="size-5" /></Button></div></F>
         <F l="Type" full>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Type">{DEV_TYPES.map(([k, t]) => (
@@ -228,7 +228,7 @@ function DeviceSettings({ d, onClose }: { d: Row; onClose: () => void }) {
   const [off, setOff] = useState<string[]>(OT3.map(x => x[0]).filter(k => !(s0.orderTypes || OT3.map(x => x[0])).includes(k)));
   const [err, setErr] = useState(""), [busy, setBusy] = useState(false);
   const set = (k: string, x: any) => setV(p => ({ ...p, [k]: x }));
-  const txt = (k: string, l: string, help?: string, type = "text", ph?: string) => <F l={l} help={help}><Input className="h-11" type={type} placeholder={ph} value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
+  const txt = (k: string, l: string, help?: string, type = "text", ph?: string) => <F l={l} help={help}><Input className="h-9" type={type} placeholder={ph} value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
   const tg = (k: string, l: string, help: string) => (
     <Field orientation="horizontal" className="col-span-full items-start gap-3"><Switch checked={!!v[k]} onCheckedChange={x => set(k, !!x)} />
       <div><FieldLabel className="text-sm font-medium text-gray-800 dark:text-white/90">{l}</FieldLabel><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{help}</p></div></Field>);

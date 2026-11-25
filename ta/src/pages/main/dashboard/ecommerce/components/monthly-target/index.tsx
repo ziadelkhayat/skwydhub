@@ -11,9 +11,9 @@ export default function MonthlyTarget() {
 
   const series = [75.55];
   const options: ApexOptions = {
-    colors: ["#9CB9FF"],
+    colors: ["#93c5fd"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Inter, sans-serif",
       type: "radialBar",
       height: 330,
       sparkline: {
@@ -54,7 +54,7 @@ export default function MonthlyTarget() {
         shade: "light",
         type: "horizontal",
         shadeIntensity: 0.5,
-        gradientToColors: ["#465FFF"],
+        gradientToColors: ["#3b82f6"],
         inverseColors: false,
         opacityFrom: 1,
         opacityTo: 1,
@@ -62,12 +62,12 @@ export default function MonthlyTarget() {
         colorStops: [
           {
             offset: 0,
-            color: "#9CB9FF",
+            color: "#93c5fd",
             opacity: 1,
           },
           {
             offset: 100,
-            color: "#465FFF",
+            color: "#3b82f6",
             opacity: 1,
           },
         ],

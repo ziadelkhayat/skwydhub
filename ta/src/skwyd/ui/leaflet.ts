@@ -9,7 +9,7 @@ export function loadLeaflet(): Promise<any> {
   });
 }
 export const LB: [number, number] = [33.89, 35.52];
-export const ZCOL = ["#465fff", "#1f8a4c", "#c2410c", "#2c5fb8", "#b91c5c", "#0f766e", "#a16207", "#7a5af8"];
+export const ZCOL = ["#3b82f6", "#1f8a4c", "#c2410c", "#2c5fb8", "#b91c5c", "#0f766e", "#a16207", "#7a5af8"];
 export function baseMap(L: any, el: HTMLElement) {
   const m = L.map(el).setView(LB, 11);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(m);

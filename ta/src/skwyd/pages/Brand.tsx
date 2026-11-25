@@ -79,7 +79,7 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
     else if (f.t === "img") ctl = <div className="flex flex-wrap items-center gap-3">{v[f.k] ? <img src={v[f.k]} alt="" className="h-16 max-w-40 rounded-lg border border-gray-200 object-contain dark:border-gray-800" /> : <span className="text-sm text-gray-500">No image</span>}
       {admin && <><label className="inline-flex h-9 cursor-pointer items-center rounded-lg border border-gray-300 px-3 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">Choose photo<input type="file" accept="image/*" hidden onChange={async e => { const fl = e.target.files?.[0]; if (fl) { try { set(f.k, await shrink(fl)); } catch { toast("Couldn't read the picture.", "error"); } } }} /></label>
         {v[f.k] && <Button size="sm" variant="outline" onClick={() => set(f.k, "")}>Remove</Button>}</>}</div>;
-    else ctl = <Input className="h-11" type={f.t === "num" ? "number" : "text"} min={f.t === "num" ? 0 : undefined} disabled={!admin} placeholder={f.ph || ""} value={v[f.k] ?? ""} onChange={e => set(f.k, f.t === "num" ? (e.target.value === "" ? null : +e.target.value) : e.target.value)} />;
+    else ctl = <Input className="h-9" type={f.t === "num" ? "number" : "text"} min={f.t === "num" ? 0 : undefined} disabled={!admin} placeholder={f.ph || ""} value={v[f.k] ?? ""} onChange={e => set(f.k, f.t === "num" ? (e.target.value === "" ? null : +e.target.value) : e.target.value)} />;
     return <div key={f.k} className="border-b border-gray-100 py-4 dark:border-white/5">{lab}{help}{ctl}</div>;
   };
   return <>

@@ -4,7 +4,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const badgeVariants = cva(
-  "group/badge inline-flex w-fit shrink-0 items-center justify-center gap-1 font-medium whitespace-nowrap transition-colors select-none [&>svg]:pointer-events-none [&>svg]:shrink-0",
+  "group/badge inline-flex ring-1 ring-inset ring-current/20 w-fit shrink-0 items-center justify-center gap-1 font-medium whitespace-nowrap transition-colors select-none [&>svg]:pointer-events-none [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -23,10 +23,10 @@ const badgeVariants = cva(
         dark: "",
       },
       size: {
-        sm: "h-5.5 rounded-lg px-2 py-0.5 text-xs [&:has(>svg:first-child)]:ps-1.5 [&:has(>svg:last-child)]:pe-1.5 [&>svg]:size-3",
+        sm: "h-5.5 rounded-md px-2 py-0.5 text-xs [&:has(>svg:first-child)]:ps-1.5 [&:has(>svg:last-child)]:pe-1.5 [&>svg]:size-3",
         default:
-          "h-6 rounded-lg px-2.5 py-0.5 text-sm [&:has(>svg:first-child)]:ps-2 [&:has(>svg:last-child)]:pe-2 [&>svg]:size-3.5",
-        lg: "h-7 rounded-[10px] px-3 py-1 text-sm [&:has(>svg:first-child)]:ps-2.5 [&:has(>svg:last-child)]:pe-2.5 [&>svg]:size-3.5",
+          "h-6 rounded-md px-2 py-0.5 text-xs [&:has(>svg:first-child)]:ps-2 [&:has(>svg:last-child)]:pe-2 [&>svg]:size-3.5",
+        lg: "h-7 rounded-md px-2.5 py-1 text-sm [&:has(>svg:first-child)]:ps-2.5 [&:has(>svg:last-child)]:pe-2.5 [&>svg]:size-3.5",
       },
     },
     compoundVariants: [
@@ -41,13 +41,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "primary",
         className:
-          "bg-brand-50 text-brand-500 [text-shadow:0_4px_4px_var(--color-brand-200)] dark:bg-brand-500/15 dark:text-brand-400 dark:[text-shadow:0_4px_4px_rgba(70,95,255,0.20)]",
+          "bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400",
       },
       {
         variant: "solid",
         color: "primary",
         className:
-          "bg-brand-500 text-white shadow-[0_4px_8px_0_var(--color-brand-200)] dark:shadow-[0_4px_8px_0_rgba(70,95,255,0.20)]",
+          "bg-brand-500 text-white",
       },
       {
         variant: "ghost",
@@ -59,13 +59,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "success",
         className:
-          "bg-green-50 text-green-600 [text-shadow:0_4px_4px_var(--color-green-200)] dark:bg-green-500/15 dark:text-green-500 dark:[text-shadow:0_4px_4px_rgba(18,183,106,0.20)]",
+          "bg-green-50 text-green-600 dark:bg-green-500/15 dark:text-green-500",
       },
       {
         variant: "solid",
         color: "success",
         className:
-          "bg-green-500 text-white shadow-[0_4px_8px_0_var(--color-green-200)] dark:shadow-[0_4px_8px_0_rgba(18,183,106,0.20)]",
+          "bg-green-500 text-white",
       },
       {
         variant: "ghost",
@@ -77,13 +77,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "error",
         className:
-          "bg-red-50 text-red-600 [text-shadow:0_4px_4px_var(--color-red-200)] dark:bg-red-500/15 dark:text-red-500 dark:[text-shadow:0_4px_4px_rgba(240,68,56,0.20)]",
+          "bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-500",
       },
       {
         variant: "solid",
         color: "error",
         className:
-          "bg-red-500 text-white shadow-[0_4px_8px_0_var(--color-red-200)] dark:shadow-[0_4px_8px_0_rgba(240,68,56,0.20)]",
+          "bg-red-500 text-white",
       },
       {
         variant: "ghost",
@@ -95,13 +95,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "warning",
         className:
-          "bg-amber-50 text-amber-600 [text-shadow:0_4px_4px_rgba(254,223,137,0.60)] dark:bg-amber-500/15 dark:text-orange-400 dark:[text-shadow:0_4px_4px_rgba(247,144,9,0.20)]",
+          "bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-orange-400",
       },
       {
         variant: "solid",
         color: "warning",
         className:
-          "bg-amber-500 text-white shadow-[0_4px_8px_0_rgba(254,223,137,0.60)] dark:shadow-[0_4px_8px_0_rgba(247,144,9,0.20)]",
+          "bg-amber-500 text-white",
       },
       {
         variant: "ghost",
@@ -113,13 +113,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "info",
         className:
-          "bg-sky-50 text-sky-500 [text-shadow:0_4px_4px_var(--color-sky-200)] dark:bg-sky-500/15 dark:text-sky-500 dark:[text-shadow:0_4px_4px_rgba(11,165,236,0.20)]",
+          "bg-sky-50 text-sky-500 dark:bg-sky-500/15 dark:text-sky-500",
       },
       {
         variant: "solid",
         color: "info",
         className:
-          "bg-sky-500 text-white shadow-[0_4px_8px_0_rgba(184,230,254,1)] dark:shadow-[0_4px_8px_0_rgba(11,165,236,0.20)]",
+          "bg-sky-500 text-white",
       },
       {
         variant: "ghost",
@@ -131,13 +131,13 @@ const badgeVariants = cva(
         variant: "light",
         color: "gray",
         className:
-          "bg-gray-100 text-gray-700 [text-shadow:0_4px_4px_var(--color-gray-300)] dark:bg-white/5 dark:text-white/80 dark:[text-shadow:0_4px_4px_rgba(255,255,255,0.10)]",
+          "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
       },
       {
         variant: "solid",
         color: "gray",
         className:
-          "bg-gray-700 text-white shadow-[0_4px_8px_0_rgba(209,213,220,1)] dark:bg-gray-700 dark:text-white dark:shadow-[0_4px_8px_0_rgba(255,255,255,0.10)]",
+          "bg-gray-700 text-white dark:bg-gray-700 dark:text-white",
       },
       {
         variant: "ghost",

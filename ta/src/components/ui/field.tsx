@@ -137,7 +137,7 @@ function FieldLabel({
       className={cn(
         "group/field-label peer/field-label flex w-fit gap-2 text-sm leading-snug font-medium text-gray-700 select-none group-data-[disabled=true]/field:opacity-50 dark:text-gray-300",
         "has-data-checked:border-brand-500/30 has-data-checked:bg-brand-500/5 dark:has-data-checked:border-brand-500/20 dark:has-data-checked:bg-brand-500/10",
-        "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-[10px] has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-gray-200 dark:has-[>[data-slot=field]]:border-gray-800",
+        "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-gray-200 dark:has-[>[data-slot=field]]:border-gray-800",
         "has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-gray-50/60 dark:has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-white/2",
         "has-[>[data-slot=field]]:has-focus-visible:border-brand-300 has-[>[data-slot=field]]:has-focus-visible:ring-3 has-[>[data-slot=field]]:has-focus-visible:ring-brand-500/20 dark:has-[>[data-slot=field]]:has-focus-visible:border-brand-500/40",
         "*:data-[slot=field]:p-2.5",

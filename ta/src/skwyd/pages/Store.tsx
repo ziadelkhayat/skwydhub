@@ -131,8 +131,8 @@ function SectionDialog({ s, b, sc, onClose }: { s: S; b: string; sc: string | nu
     try { await tblSave(b, list.filter(t => (t.section || "") !== sc), secs.filter(x => x && x !== sc)); toast("Section deleted"); onClose(); } catch { setErr("Couldn't save."); } }
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{isNew ? "Add Section" : "Edit Section"}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
-      <F l="Name" req={isNew || !!sc}><Input className="h-11" value={name} placeholder={sc === "" ? "No section" : "e.g. Family section, Terrace"} onChange={e => setName(e.target.value)} autoFocus /></F>
-      {isNew ? <F l="Number of Tables" req><Input className="h-11" type="number" min="1" max="100" value={n} onChange={e => setN(e.target.value)} /></F> : <div>
+      <F l="Name" req={isNew || !!sc}><Input className="h-9" value={name} placeholder={sc === "" ? "No section" : "e.g. Family section, Terrace"} onChange={e => setName(e.target.value)} autoFocus /></F>
+      {isNew ? <F l="Number of Tables" req><Input className="h-9" type="number" min="1" max="100" value={n} onChange={e => setN(e.target.value)} /></F> : <div>
         <div className="mb-2 flex items-center"><b className="text-sm font-medium text-gray-800 dark:text-white/90">Tables</b><Button size="sm" variant="outline" className="ms-auto" onClick={() => setRows(r => [...r, { id: newId("tb"), name: String(nextNo([...list, ...r])), section: sc, seats: null }])}><PlusIcon className="size-4" />Add Table</Button></div>
         {!rows.length ? <p className="text-sm text-gray-500">No tables yet.</p> : <table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Seats</th><th /></tr></thead><tbody>{rows.map((r, i) => <tr key={r.id} className={TR}>
           <td className={TD}><Input className="h-9" aria-label="Table name" value={r.name} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} /></td>
@@ -190,15 +190,15 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <H t="General" />
       <F l="Brand" req><select className={SEL} value={v.brandId} onChange={e => set("brandId", e.target.value)}><option value="">Choose brand…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F>
-      <F l="Store name" req><Input className="h-11" maxLength={60} placeholder="e.g. Hamra" value={v.name} onChange={e => set("name", e.target.value)} /></F>
-      <F l="Name Localized"><Input className="h-11" dir="auto" maxLength={60} value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
-      <F l="Reference code" req><Input className="h-11" maxLength={20} placeholder="e.g. B01" value={v.code} onChange={e => set("code", e.target.value)} /></F>
+      <F l="Store name" req><Input className="h-9" maxLength={60} placeholder="e.g. Hamra" value={v.name} onChange={e => set("name", e.target.value)} /></F>
+      <F l="Name Localized"><Input className="h-9" dir="auto" maxLength={60} value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
+      <F l="Reference code" req><Input className="h-9" maxLength={20} placeholder="e.g. B01" value={v.code} onChange={e => set("code", e.target.value)} /></F>
       <F l="Tax group" help="Used for items that have no tax group of their own."><select className={SEL} value={v.taxGroup} onChange={e => set("taxGroup", e.target.value)}><option value="">Choose…</option>{s.tax_groups.filter(live).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></F>
-      <F l="Store tax registration name"><Input className="h-11" maxLength={80} placeholder="Leave empty to use the company's" value={v.taxName} onChange={e => set("taxName", e.target.value)} /></F>
-      <F l="Store tax number"><Input className="h-11" maxLength={40} placeholder="Leave empty to use the company's" value={v.taxNumber} onChange={e => set("taxNumber", e.target.value)} /></F>
-      <F l="Phone"><Input className="h-11" maxLength={30} value={v.phone} onChange={e => set("phone", e.target.value)} /></F>
-      <F l="Address" full><Input className="h-11" maxLength={160} value={v.address} onChange={e => set("address", e.target.value)} /></F>
-      <F l="Area / city"><Input className="h-11" maxLength={60} placeholder="e.g. Beirut" value={v.city} onChange={e => set("city", e.target.value)} /></F>
+      <F l="Store tax registration name"><Input className="h-9" maxLength={80} placeholder="Leave empty to use the company's" value={v.taxName} onChange={e => set("taxName", e.target.value)} /></F>
+      <F l="Store tax number"><Input className="h-9" maxLength={40} placeholder="Leave empty to use the company's" value={v.taxNumber} onChange={e => set("taxNumber", e.target.value)} /></F>
+      <F l="Phone"><Input className="h-9" maxLength={30} value={v.phone} onChange={e => set("phone", e.target.value)} /></F>
+      <F l="Address" full><Input className="h-9" maxLength={160} value={v.address} onChange={e => set("address", e.target.value)} /></F>
+      <F l="Area / city"><Input className="h-9" maxLength={60} placeholder="e.g. Beirut" value={v.city} onChange={e => set("city", e.target.value)} /></F>
       <div className="col-span-full"><F l="Location"><MapPick lat={v.lat} lng={v.lng} set={(a, b) => setV(o => ({ ...o, lat: a, lng: b }))} /></F></div>
       <H t="Business day" />
       <F l="New business day starts at" help="Sales before this time count on the previous business day. Set it after your closing time, e.g. 03:00 if you close at 2 AM. Must be between 12:00 AM and 11:59 AM."><TimeSel label="Business day starts" maxH={12} v={v.dayStart} set={x => set("dayStart", x)} /></F>

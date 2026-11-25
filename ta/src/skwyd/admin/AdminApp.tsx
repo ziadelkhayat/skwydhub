@@ -43,10 +43,10 @@ function SignIn({ msg, onIn }: { msg: string; onIn: () => void }) {
       <div className="mb-6"><img src="/images/logo/logo.svg" alt="skwyd" className="mb-6 h-9 dark:hidden" onError={e => (e.currentTarget.style.display = "none")} />
         <h1 className="text-title-sm font-semibold text-gray-800 dark:text-white/90">Skwyd Hub Admin</h1><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Sign in with your admin email and password.</p></div>
       <div className="space-y-4">
-        <div><label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email <span className="text-red-500">*</span></label><Input id="ae" className="h-11" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
-        <div><label htmlFor="ap" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password <span className="text-red-500">*</span></label><Input id="ap" className="h-11" type="password" autoComplete="current-password" required value={pw} onChange={e => setPw(e.target.value)} /></div>
+        <div><label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email <span className="text-red-500">*</span></label><Input id="ae" className="h-9" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
+        <div><label htmlFor="ap" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password <span className="text-red-500">*</span></label><Input id="ap" className="h-9" type="password" autoComplete="current-password" required value={pw} onChange={e => setPw(e.target.value)} /></div>
         {err && <p className="text-sm text-red-500">{err}</p>}
-        <Button className="h-11 w-full" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</Button>
+        <Button className="h-9 w-full" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</Button>
       </div></form></div>;
 }
 

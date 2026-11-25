@@ -39,7 +39,7 @@ export default function DeliveryZonesPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
+            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Delivery Zone</Button>
           </div>
@@ -99,10 +99,10 @@ function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: 
       <DialogContent className="max-h-[94dvh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{z ? "Edit" : "Add"} Delivery Zone</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
-          <F l="Zone / area name" req><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
+          <F l="Zone / area name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
           <F l="Delivering store" req><select className={SEL} value={v.branchId} onChange={e => set("branchId", e.target.value)}><option value="">Choose…</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
-          <F l={`Minimum order (${sym()})`}><Input className="h-11" type="number" min="0" step="any" value={v.minOrder} onChange={e => set("minOrder", e.target.value)} /></F>
-          <F l="Estimated time (min)"><Input className="h-11" type="number" min="0" value={v.eta} onChange={e => set("eta", e.target.value)} /></F>
+          <F l={`Minimum order (${sym()})`}><Input className="h-9" type="number" min="0" step="any" value={v.minOrder} onChange={e => set("minOrder", e.target.value)} /></F>
+          <F l="Estimated time (min)"><Input className="h-9" type="number" min="0" value={v.eta} onChange={e => set("eta", e.target.value)} /></F>
           <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-800 dark:text-white/90">Accept orders for this zone</span></label>
           <F l="Zone area on the map" req full help="Click the map to add corners around the area this store delivers to. Drag a corner to adjust it.">
             <ZoneMap pts={pts} setPts={setPts} others={s.zones.filter(o => live(o) && o.id !== z?.id && drawn(o))} color={color} />
@@ -123,7 +123,7 @@ function ZoneMap({ pts, setPts, others, color }: { pts: [number, number][]; setP
   useEffect(() => { let off = false;
     loadLeaflet().then(L => { if (off || !el.current) return; const m = baseMap(L, el.current);
       others.forEach(o => L.polygon(o.polygon, { color: color(o.branchId), weight: 1, fillOpacity: .08, dashArray: "4", interactive: false }).addTo(m).bindTooltip(o.name));
-      const poly = L.polygon(pts, { color: "#465fff", weight: 2, fillOpacity: .2 }).addTo(m);
+      const poly = L.polygon(pts, { color: "#3b82f6", weight: 2, fillOpacity: .2 }).addTo(m);
       st.current = { L, m, poly, handles: [] };
       m.on("click", (e: any) => setPts(p => [...p, [e.latlng.lat, e.latlng.lng]]));
       if (pts.length >= 3) m.fitBounds(poly.getBounds(), { padding: [20, 20] });
@@ -133,7 +133,7 @@ function ZoneMap({ pts, setPts, others, color }: { pts: [number, number][]; setP
   // redraw the shape and its draggable corners when the points change
   useEffect(() => { const { L, m, poly } = st.current; if (!L) return;
     poly.setLatLngs(pts); st.current.handles.forEach((h: any) => h.remove());
-    st.current.handles = pts.map((p, i) => L.marker(p, { draggable: true, icon: L.divIcon({ className: "", html: '<span style="display:block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #465fff"></span>', iconSize: [12, 12] }) }).addTo(m)
+    st.current.handles = pts.map((p, i) => L.marker(p, { draggable: true, icon: L.divIcon({ className: "", html: '<span style="display:block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #3b82f6"></span>', iconSize: [12, 12] }) }).addTo(m)
       .on("drag", (e: any) => { const ll = e.target.getLatLng(), n = pts.slice(); n[i] = [ll.lat, ll.lng]; poly.setLatLngs(n); })
       .on("dragend", (e: any) => { const ll = e.target.getLatLng(); setPts(p => p.map((x, j) => j === i ? [ll.lat, ll.lng] : x)); }));
   }, [pts, err]);

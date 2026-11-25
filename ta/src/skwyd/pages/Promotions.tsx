@@ -60,7 +60,7 @@ export default function PromotionsPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["inactive", "Inactive"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
+            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Promotion</Button>
           </div>
@@ -106,7 +106,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
   const prods: [string, string][] = s.products.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(p => [p.id, p.name]);
   const cats: [string, string][] = s.categories.filter(c => live(c) && !c.channel).sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)).map(c => [c.id, c.name]);
   const stores: [string, string][] = s.branches.filter(b => live(b) && b.active !== false).map(b => [b.id, b.name]);
-  const num = (k: string, l: string, req?: boolean) => <F l={l} req={req}><Input className="h-11" type="number" min="0" step="any" value={P[k] ?? ""} onChange={e => set(k, e.target.value === "" ? null : +e.target.value)} /></F>;
+  const num = (k: string, l: string, req?: boolean) => <F l={l} req={req}><Input className="h-9" type="number" min="0" step="any" value={P[k] ?? ""} onChange={e => set(k, e.target.value === "" ? null : +e.target.value)} /></F>;
   const pick = (k: string, l: string, opts: [string, string][], req?: boolean) => <F l={l} req={req} full><CheckList opts={opts} value={P[k] || []} onChange={v => set(k, v)} empty="No items yet" /></F>;
   const vt = <><F l="Discount Type" req><select className={SEL} value={P.valueType === "fixed" ? "fixed" : "pct"} onChange={e => set("valueType", e.target.value)}><option value="pct">Percentage</option><option value="fixed">Amount</option></select></F>
     {num("value", `Discount (${P.valueType === "fixed" ? sym() : "%"})`, true)}</>;
@@ -147,15 +147,15 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
           <div className="grid grid-cols-1 content-start gap-x-6 gap-y-5 sm:grid-cols-2">
             {step === 1 ? <>
-              <F l="Name" req><Input className="h-11" autoFocus value={P.name || ""} onChange={e => set("name", e.target.value)} /></F>
-              <F l="Name Localized"><Input className="h-11" dir="auto" value={P.nameAr || ""} onChange={e => set("nameAr", e.target.value)} /></F>
+              <F l="Name" req><Input className="h-9" autoFocus value={P.name || ""} onChange={e => set("name", e.target.value)} /></F>
+              <F l="Name Localized"><Input className="h-9" dir="auto" value={P.nameAr || ""} onChange={e => set("nameAr", e.target.value)} /></F>
               <F l="Type" req full><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{TYPES.map(([k, t, ic]) => (
                 <button key={k} type="button" onClick={() => set("type", k)} aria-pressed={P.type === k}
                   className={"flex flex-col items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-colors " + (P.type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-800 dark:text-gray-400")}>{ic}{t}</button>))}</div></F>
               {fields}
             </> : <>
               <F l="Start Date"><DateInput value={P.start || ""} onChange={v => set("start", v)} /></F><F l="End Date"><DateInput value={P.end || ""} onChange={v => set("end", v)} /></F>
-              <F l="From Time"><Input className="h-11" type="time" value={P.from || ""} onChange={e => set("from", e.target.value)} /></F><F l="To Time"><Input className="h-11" type="time" value={P.to || ""} onChange={e => set("to", e.target.value)} /></F>
+              <F l="From Time"><Input className="h-9" type="time" value={P.from || ""} onChange={e => set("from", e.target.value)} /></F><F l="To Time"><Input className="h-9" type="time" value={P.to || ""} onChange={e => set("to", e.target.value)} /></F>
               <F l="Days" full help="None chosen: every day."><Chips opts={DAYS} value={P.days || []} onChange={v => set("days", v)} /></F>
               <F l="Applies On Order Types" req full><Chips opts={OT} value={P.orderTypes || []} onChange={v => set("orderTypes", v)} /></F>
               <F l="Applies On Stores" full help="None chosen: all stores."><CheckList opts={stores} value={P.branchIds || []} onChange={v => set("branchIds", v)} empty="No stores yet" /></F>

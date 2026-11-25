@@ -76,7 +76,7 @@ export function TeamChatPage() {
           <div ref={box} className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-gray-50 p-4 dark:bg-white/2">{!msgs.length ? <p className="m-auto text-sm text-gray-500">{direct(g) ? "No messages yet." : "No messages yet. Say hello!"}</p> : msgs.map(m => { const me = direct(g) ? m.senderId === (g.memberIds || [])[0] : m.fromOffice;
             return <div key={m.id} className={cn("flex max-w-[75%] flex-col", me ? "self-end items-end" : "self-start items-start")}><span className={cn("rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap", me ? "rounded-br-sm bg-brand-500 text-white" : "rounded-bl-sm bg-white text-gray-800 shadow-theme-xs dark:bg-gray-800 dark:text-white/90")}>
               {(!me || direct(g)) && <b className="block text-xs font-semibold opacity-80">{m.senderName || "—"}</b>}{m.body}</span><small className="mt-0.5 text-[11px] text-gray-400">{me && !direct(g) && m.senderName ? m.senderName + " · " : ""}{tm(m.createdAt)}</small></div>; })}</div>
-          {!direct(g) && <form onSubmit={send} className="flex gap-2 border-t border-gray-200 p-3 dark:border-gray-800"><Input className="h-11 flex-1" placeholder="Write a message…" autoComplete="off" maxLength={2000} value={draft} onChange={e => setDraft(e.target.value)} /><Button type="submit" className="h-11">Send</Button></form>}</>}
+          {!direct(g) && <form onSubmit={send} className="flex gap-2 border-t border-gray-200 p-3 dark:border-gray-800"><Input className="h-9 flex-1" placeholder="Write a message…" autoComplete="off" maxLength={2000} value={draft} onChange={e => setDraft(e.target.value)} /><Button type="submit" className="h-9">Send</Button></form>}</>}
       </section>
     </div>
     {dlg && <GroupDialog s={s} g={dlg.g} kind={dlg.kind} by={by} onClose={() => setDlg(null)} onSaved={id => setSel(id)} onDeleted={() => setSel("")} />}
@@ -100,7 +100,7 @@ function GroupDialog({ s, g, kind, by, onClose, onSaved, onDeleted }: { s: S; g?
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{g ? "Edit " + T : "New " + T}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       {chan && <p className="text-sm text-gray-500">Only the back office and the channel's creator can post. Members read the announcements in the app.</p>}
-      <F l={T + " Name"} req><Input className="h-11" placeholder="e.g. Mar Mikhael Kitchen" value={nm} onChange={e => setNm(e.target.value)} autoFocus /></F>
+      <F l={T + " Name"} req><Input className="h-9" placeholder="e.g. Mar Mikhael Kitchen" value={nm} onChange={e => setNm(e.target.value)} autoFocus /></F>
       <F l="Stores (everyone working there)"><Pick items={stores.map(b => [b.id, b.name])} on={bs} set={setBs} /></F>
       <F l="Roles (everyone with the role, now and later)"><Pick items={roles.map(r => [r.id, r.name])} on={rs} set={setRs} /></F>
       <F l="Employees"><div className="mb-2 flex gap-2"><Input className="h-10 flex-1" placeholder="Search employees" value={q} onChange={e => setQ(e.target.value)} /><Button variant="outline" onClick={() => setMem([...new Set([...mem, ...vis.map(u => u.id)])])}>All</Button><Button variant="outline" onClick={() => setMem([])}>None</Button></div>

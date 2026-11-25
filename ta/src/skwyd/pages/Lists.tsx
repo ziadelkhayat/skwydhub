@@ -52,8 +52,8 @@ function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, 
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 space-y-5" onSubmit={e => { e.preventDefault(); if (!readOnly) go(); }}>
-          <F l="Name" req={!readOnly}><Input className="h-11" autoFocus disabled={readOnly} value={n} onChange={e => setN(e.target.value)} /></F>
-          <F l="Name Localized"><Input className="h-11" dir="auto" disabled={readOnly} value={ar} onChange={e => setAr(e.target.value)} /></F>
+          <F l="Name" req={!readOnly}><Input className="h-9" autoFocus disabled={readOnly} value={n} onChange={e => setN(e.target.value)} /></F>
+          <F l="Name Localized"><Input className="h-9" dir="auto" disabled={readOnly} value={ar} onChange={e => setAr(e.target.value)} /></F>
           {err && <p className="text-sm text-red-500">{err}</p>}
           <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
             {onDelete && <Button type="button" variant="destructive" className="sm:me-auto" onClick={async () => { if (await askYes("Are you sure you want to delete this?", "Delete", true) && await onDelete()) onClose(); }}>Delete</Button>}

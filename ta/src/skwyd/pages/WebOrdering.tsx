@@ -92,7 +92,7 @@ export default function WebOrderingPage() {
     try { await put("settings", "online_" + bid, data); toast("Web ordering saved"); } catch { toast("Couldn't save settings", "error"); }
     setBusy(false);
   }
-  const inp = (path: string, l: string, ph?: string, type?: string) => { const v = path.split(".").reduce((o: any, k) => o?.[k], c); return <F l={l}><Input className="h-11" type={type} placeholder={ph} value={v ?? ""} onChange={e => up(path, e.target.value)} /></F>; };
+  const inp = (path: string, l: string, ph?: string, type?: string) => { const v = path.split(".").reduce((o: any, k) => o?.[k], c); return <F l={l}><Input className="h-9" type={type} placeholder={ph} value={v ?? ""} onChange={e => up(path, e.target.value)} /></F>; };
   const stores = branches.filter(b => live(b) && b.active !== false && b.brandId === bid);
   const bset = (id: string, k: string, v: any) => up("branches", { ...bc, [id]: { ...(bc[id] || {}), [k]: v } });
   const previewW = dev === "desk" ? 1440 : dev === "tab" ? 820 : 390, previewH = dev === "desk" ? 900 : dev === "tab" ? 1180 : 780;
@@ -113,7 +113,7 @@ export default function WebOrderingPage() {
               <Tg on={!!c.enabled} set={v => up("enabled", v)} l="Accept web orders" note="Turn off to show a “closed” page." />
               <F l="Web Address" req>
                 <div className="flex items-center gap-2"><span className="hidden text-sm text-gray-500 sm:inline">{ORDER_HOST.replace(/^https:\/\//, "")}</span>
-                  <Input className="h-11 flex-1" value={slug} autoComplete="off" spellCheck={false} maxLength={40} onChange={e => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))} />
+                  <Input className="h-9 flex-1" value={slug} autoComplete="off" spellCheck={false} maxLength={40} onChange={e => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))} />
                   {link && <><Button variant="outline" size="icon-lg" aria-label="Copy the link" onClick={() => navigator.clipboard?.writeText(link).then(() => toast("Link copied"))}><CopyIcon className="size-5" /></Button>
                     <a href={link} target="_blank" rel="noopener" aria-label="Open the ordering page" className="inline-flex size-11 items-center justify-center rounded-[10px] border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><ShareIcon className="size-5" /></a></>}</div>
                 <p className={cn("mt-1.5 text-xs", slugMsg[1] === true ? "text-green-600" : slugMsg[1] === false ? "text-red-500" : "text-gray-500")}>{slugMsg[0]}</p></F>
@@ -137,8 +137,8 @@ export default function WebOrderingPage() {
                 <button key={n} type="button" onClick={() => { up("theme", { ...th, accent: a, bg: b }); }} className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm", on ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 dark:border-gray-800")}>
                   <span className={cn("size-4 rounded-full ring-2", b === "dark" ? "ring-gray-800" : b === "warm" ? "ring-amber-100" : "ring-gray-100")} style={{ background: a }} /><span className="text-gray-700 dark:text-gray-300">{n}</span></button>); })}</div>
               <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <F l="Brand color"><div className="flex gap-3"><input type="color" aria-label="Brand color" value={/^#[\da-f]{6}$/i.test(acc) ? acc : "#007AFF"} onChange={e => up("theme.accent", e.target.value)} className="h-11 w-14 cursor-pointer rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700" />
-                  <Input className="h-11 flex-1" maxLength={7} spellCheck={false} value={acc} onChange={e => up("theme.accent", e.target.value)} /></div></F></div>
+                <F l="Brand color"><div className="flex gap-3"><input type="color" aria-label="Brand color" value={/^#[\da-f]{6}$/i.test(acc) ? acc : "#007AFF"} onChange={e => up("theme.accent", e.target.value)} className="h-9 w-14 cursor-pointer rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700" />
+                  <Input className="h-9 flex-1" maxLength={7} spellCheck={false} value={acc} onChange={e => up("theme.accent", e.target.value)} /></div></F></div>
               <div className="mt-5 space-y-5"><F l="Background"><Radios value={th.bg || "light"} set={v => up("theme.bg", v)} opts={[["light", "Light"], ["warm", "Warm"], ["dark", "Dark"], ["auto", "Same As Device"]]} /></F>
                 <F l="Corners"><Radios value={th.radius || "round"} set={v => up("theme.radius", v)} opts={[["round", "Rounded"], ["soft", "Soft"], ["sharp", "Sharp"]]} /></F></div>
             </Card>
@@ -167,7 +167,7 @@ export default function WebOrderingPage() {
               <div className="mt-3">{inp("checkout.terms", "Checkout message", "e.g. Orders over USD 100 need a call to confirm")}</div></Card>
           </>}
           {tab === "branches" && (!stores.length ? <EmptyState text="This brand has no stores yet. Add them under Manage → Stores." /> : stores.map(b => { const x = bc[b.id] || {}, z = zones.filter(zz => live(zz) && zz.branchId === b.id && zz.active !== false).length;
-            const bv = (k: string, l: string, ph: string, type?: string) => <F l={l}><Input className="h-11" type={type} min={type === "number" ? 0 : undefined} placeholder={ph} value={x[k] ?? ""} onChange={e => { const t = e.target.value; bset(b.id, k, t === "" ? null : type === "number" ? +t : t); }} /></F>;
+            const bv = (k: string, l: string, ph: string, type?: string) => <F l={l}><Input className="h-9" type={type} min={type === "number" ? 0 : undefined} placeholder={ph} value={x[k] ?? ""} onChange={e => { const t = e.target.value; bset(b.id, k, t === "" ? null : type === "number" ? +t : t); }} /></F>;
             const qr = (n: number) => (br?.slug ? ORDER_HOST + br.slug + "?" : "../order.html?brand=" + encodeURIComponent(bid) + "&") + "branch=" + encodeURIComponent(b.id) + "&table=" + n;
             return (
               <div key={b.id} className={cn("rounded-2xl border bg-white p-5 lg:p-6 dark:bg-white/3", x.paused ? "border-amber-300 dark:border-amber-500/40" : "border-gray-200 dark:border-gray-800")}>
@@ -182,7 +182,7 @@ export default function WebOrderingPage() {
                   {bv("prep", "Pickup ready in (min)", "20", "number")}{bv("minPickup", `Pickup minimum (${sym()})`, "0", "number")}{bv("phone", "Store phone", "+961 …", "tel")}
                   {bv("whatsapp", "Store WhatsApp", "+961 …", "tel")}{bv("address", "Address", "Street, area")}{bv("note", "Message to customers", "e.g. Parking available")}</div>
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start">
-                  <div className="sm:w-36"><F l="Tables for QR"><Input className="h-11" type="number" min={0} value={x.tables ?? ""} onChange={e => bset(b.id, "tables", e.target.value === "" ? null : +e.target.value)} /></F></div>
+                  <div className="sm:w-36"><F l="Tables for QR"><Input className="h-9" type="number" min={0} value={x.tables ?? ""} onChange={e => bset(b.id, "tables", e.target.value === "" ? null : +e.target.value)} /></F></div>
                   <div className="flex flex-1 flex-wrap gap-1.5 sm:pt-7">{x.tables ? Array.from({ length: Math.min(+x.tables, 40) }, (_, i) => <a key={i} href={qr(i + 1)} target="_blank" rel="noopener" className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-brand-500 hover:bg-brand-50 dark:bg-white/5">T{i + 1}</a>)
                     : <span className="text-sm text-gray-500">Set the number of tables to get a QR link for each.</span>}</div></div>
               </div>); }))}
