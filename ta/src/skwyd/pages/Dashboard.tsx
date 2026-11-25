@@ -57,7 +57,6 @@ export default function Dashboard() {
     return [k, ns, ps, k ? ns / k : 0, +(X.active?.n ?? X.open ?? 0), +(X.declined?.n ?? 0), +X.discount || 0, +X.tax || 0, +(X.returns?.v || X.refunds?.v || 0), +(X.voids?.v || 0)]; };
   const cur = D ? nums(D) : [], old = P ? nums(P) : null;
   const fmtD = (d: Date) => iso(d).split("-").reverse().join("-");
-  const prevStart = cmpPer.start, prevEnd = new Date(+cmpPer.start + (cmpPer.n - 1) * 86400000);
 
   const labels = Array.from({ length: 24 }, (_, h) => (h % 12 || 12) + (h < 12 ? " AM" : " PM"));
   const ch = (j: number) => (old && old[j] ? (cur[j] - old[j]) / Math.abs(old[j]) : null);
