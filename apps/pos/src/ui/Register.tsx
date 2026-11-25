@@ -135,13 +135,17 @@ export function Register() {
   };
   const base = (no: string) => ({ no, channel: "pos", source: "", brandId: branch?.brandId || null, branchId: device!.branchId, deviceId: device!.id, shiftId: openShift(x)?.id || null, agent: cashier?.name || device!.name });
   // Save: the order goes to the kitchen open (active), to be billed later from Orders
-  const saveOrder = async () => {
+  // keep: Kitchen saves the order but leaves it open in the cart (the lines now count as sent); Save saves it and starts a new order
+  const saveOrder = async (keep = false) => {
     if (!cart.length || !ready(false)) return;
-    if (live_eo) { write("orders", live_eo.id, { ...fields(), updatedAt: new Date().toISOString() }); saveTags(live_eo.id); say("Saved · order " + ordRef(live_eo)); reset(); return; }
+    if (live_eo) { const upd = { ...fields(), updatedAt: new Date().toISOString() }; write("orders", live_eo.id, upd); saveTags(live_eo.id);
+      if (keep) { openOrder({ ...live_eo, ...upd }); return say("Sent to the kitchen · order " + ordRef(live_eo)); }
+      say("Saved · order " + ordRef(live_eo)); reset(); return; }
     if (otype === "dinein" && !table.trim()) return say("Pick a table to save this order, or take the payment");
     const no = await takeNo(), now = new Date().toISOString();
-    const nid = newId("pos"); write("orders", nid, { ...base(no), ...fields(), status: "active", createdAt: now, updatedAt: now }, "set"); saveTags(nid);
-    reset(); say(`Order #${no} sent to the kitchen`);
+    const nid = newId("pos"), row = { ...base(no), ...fields(), status: "active", createdAt: now, updatedAt: now }; write("orders", nid, row, "set"); saveTags(nid);
+    if (keep) { openOrder({ id: nid, ...row } as Row); return say(`Order #${no} sent to the kitchen`); }
+    reset(); say(`Order #${no} saved`);
   };
   const pay = async () => {
     if (!cart.length || !ready(true)) return;
@@ -231,7 +235,7 @@ export function Register() {
     if (a === "Notes") return setPop({ k: a, ax });
     if (a === "Print") return doPrint("receipt");
     // Kitchen sends what wasn't sent yet and saves the order at the same time
-    if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(); }
+    if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(true); }
     if (a === "Tags") { setTagInit(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : [])); return setPop({ k: a, ax }); }
     if (a === "Hold") return hold();
     if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop({ k: a, ax }); }
@@ -405,8 +409,8 @@ export function Register() {
               {st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</T>
             <T w="s" size={17} color={st === "closed" ? C.ok : st === "void" ? C.ink2 : C.bad800} style={st === "void" ? { textDecorationLine: "line-through" } : undefined}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</T></View>
           : <>
-            {/* Save only on a new order that can be kept open: an In-Store order needs a table; a saved order is saved by Kitchen */}
-            {!live_eo && !noTable ? <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length} onPress={saveOrder} /> : null}
+            {/* Save: keeps the order open and starts a new one (an In-Store order needs a table); Kitchen saves too but leaves the order in the cart */}
+            {live_eo || !noTable ? <Btn height={56} style={{ flex: 1 }} label="Save" disabled={!cart.length} onPress={() => saveOrder()} /> : null}
             <Pressable accessibilityRole="button" disabled={!cart.length} onPress={pay}
               style={({ pressed }) => ({ flex: 2, height: 56, borderRadius: R.sm, backgroundColor: pressed ? C.brand500 : C.brand600, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, opacity: cart.length ? 1 : 0.45 })}>
               <T w="s" size={17} color="#fff">TOTAL</T><T w="s" size={17} color="#fff">{money(S, t.total)}</T></Pressable>
