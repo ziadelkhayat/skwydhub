@@ -16,4 +16,5 @@ export const fmtDateTime = (v?: string | null) => { if (!v) return "—"; const 
 export const sym = () => { const c = coSet(); return String(c.currencySymbol || "").trim() || c.currency || "USD"; };
 
 // open a page of the portal in its own browser tab / window (detail pages: orders, customers, items…)
-export const openWin = (path: string) => { const w = window.open(location.origin + location.pathname + "#" + (path.startsWith("/") ? path : "/" + path), "_blank"); if (w) w.opener = null; };
+// opens a page of the portal in this same window (detail pages used to open a new window)
+export const openWin = (path: string) => { location.hash = path.startsWith("/") ? path : "/" + path; };
