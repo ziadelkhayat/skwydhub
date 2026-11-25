@@ -403,7 +403,7 @@ export function Register() {
         <View style={{ flexDirection: "row", gap: AG }}>
           {acts.map((a, i) => (
             <Pressable key={a} accessibilityRole="button" onPress={() => action(a, CART_W + PADX + i * (ab + AG) + ab / 2)}
-              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: R.lg, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
+              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: 0, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
                 borderWidth: pop?.k === a ? 3 : 0, borderColor: "#93C5FD" })}>
               <Icon name={BTN[a]} size={24} color="#fff" /><T w="m" size={13} color="#fff">{a}</T>
               {a === "Retrieve" && heldN ? <View style={{ position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: C.bg2, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{heldN}</T></View> : null}
@@ -422,7 +422,7 @@ export function Register() {
             contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", columnGap: TG, rowGap: TG }}>
             {tiles.map((it: any, k: number) => it.back
               ? <Pressable key="back" accessibilityRole="button" accessibilityLabel="Back" onPress={() => setCat(m.parentOf(top))}
-                  style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: R.lg, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
+                  style={({ pressed }) => ({ width: fit.w, height: fit.h, borderRadius: 0, borderWidth: 1.5, borderStyle: "dashed", borderColor: C.mut2, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center", gap: 4 })}>
                   <Icon name="back" size={26} color={C.ink2} /><T w="m" size={14}>Back</T></Pressable>
               : it.sub ? <Tile key={it.sub.id} w={fit.w} h={fit.h} name={it.sub.name} img={it.sub.imageUrl} sub={(m.itemsOf(it.sub.id).length + m.subsOf(it.sub.id).length) + " items"} onPress={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} w={fit.w} h={fit.h} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))}
@@ -474,29 +474,25 @@ const Row = ({ l, r, muted }: { l: string; r: string; muted?: boolean }) =>
 
 // menu tiles (style D): tall tiles, a framed square photo on top, the name (2 lines) and price centred under it.
 // The grid fills the menu exactly with the same gap across and down: the column / row count is the one where the label under the photo comes closest to 48 px.
+// menu tiles: always 6 across and 3 down, filling the menu exactly with the same gap across and down
 export function fitTiles(W: number, H: number, gap = TG) {
-  let best = { cols: 6, rows: 3, w: 100, h: 150, sc: 1e9 };
-  if (!W || !H) return best;
-  for (let cols = 4; cols <= 8; cols++) for (let rows = 2; rows <= 5; rows++) {
-    const w = (W - gap * (cols - 1)) / cols, h = (H - gap * (rows - 1)) / rows, L = h - w;
-    if (L < 36 || L > 70) continue;
-    const sc = Math.abs(L - 48) + Math.abs(cols - 6) * 4;
-    if (sc < best.sc) best = { cols, rows, w, h, sc };
-  }
-  if (best.sc === 1e9) { const cols = 6, w = (W - gap * 5) / 6, rows = Math.max(1, Math.round((H + gap) / (w + 48 + gap))); best = { cols, rows, w, h: (H - gap * (rows - 1)) / rows, sc: 0 }; }
-  return best;
+  const cols = 6, rows = 3;
+  if (!W || !H) return { cols, rows, w: 100, h: 160 };
+  return { cols, rows, w: (W - gap * (cols - 1)) / cols, h: (H - gap * (rows - 1)) / rows };
 }
+// a tile: straight edges, no border; the whole photo as a square on top (as wide as the tile when there's room), then the name on up to 3 lines and the price in blue
+const TILE_TXT = 66;   // room under the photo: 3 lines of name + the price
 function Tile({ w, h, name, img, sub, oos, n, onPress }: { w: number; h: number; name: string; img?: string; sub?: string; oos?: boolean; n?: number; onPress: () => void }) {
-  const ph = Math.max(10, Math.min(w - 12, h - 50));
+  const ph = Math.max(10, Math.floor(Math.min(w, h - TILE_TXT)));
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={name + (sub ? ", " + sub : "")} disabled={oos} onPress={onPress}
-      style={({ pressed }) => [{ width: w, height: h, borderRadius: R.lg, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: pressed ? C.bg2 : "#fff", padding: 6, alignItems: "center", opacity: oos ? 0.5 : 1 }, shadowXs]}>
-      <View style={{ width: ph, height: ph, borderRadius: 6, overflow: "hidden", backgroundColor: "#FBF6EE", alignItems: "center", justifyContent: "center" }}>
+      style={({ pressed }) => ({ width: w, height: h, borderRadius: 0, borderWidth: n ? 2 : 0, borderColor: C.brand500, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", overflow: "hidden", opacity: oos ? 0.5 : 1 })}>
+      <View style={{ width: ph, height: ph, backgroundColor: "#FBF6EE", alignItems: "center", justifyContent: "center" }}>
         {img ? <Image source={{ uri: img }} style={{ width: ph, height: ph }} resizeMode="cover" /> : <Icon name="bowl" size={28} color="#9CA3AF" />}</View>
-      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center", paddingTop: 3 }}>
-        <T w="m" size={12.5} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8} style={{ textAlign: "center", lineHeight: 15 }}>{name}</T>
-        {sub ? <T size={12} color={oos ? C.bad : C.mut} numberOfLines={1}>{oos ? "Out of stock" : sub}</T> : null}</View>
-      {n ? <View style={{ position: "absolute", top: 2, right: 2, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
+      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 6, paddingTop: 4, paddingBottom: 5 }}>
+        <T w="m" size={12.5} numberOfLines={3} style={{ textAlign: "center", lineHeight: 15 }}>{name}</T>
+        {sub ? <T w="s" size={12.5} color={oos ? C.bad : C.brand} numberOfLines={1}>{oos ? "Out of stock" : sub}</T> : null}</View>
+      {n ? <View style={{ position: "absolute", top: 4, right: 4, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 }}><T w="s" size={12} color="#fff">{n}</T></View> : null}
     </Pressable>
   );
 }
