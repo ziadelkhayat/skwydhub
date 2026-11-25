@@ -1,6 +1,7 @@
 // The register's action windows: Discount, Notes, Charges, Hold / Retrieve.
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { chargeList, dsCalc, dsHere, type Ctx, type Disc, type Line } from "../lib/pos";
 import { C, F, R } from "../lib/theme";
 import { Btn, Pad, T } from "./kit";

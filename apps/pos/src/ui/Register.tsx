@@ -3,7 +3,8 @@
 // The action buttons and the bottom bar are the current POS's: Print, Kitchen, Void, Hold, Retrieve, Discount, Charges, Tags, Notes;
 // Functions, Orders, Tables, Pickup & Delivery, New.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Image, Pressable, ScrollView, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { useScreen } from "../lib/screen";
 import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
 import { LineExtras, ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";

@@ -1,6 +1,7 @@
 // Functions → Devices (pos.html openPrinters / prForm): this register's printers, kept in the device's settings.
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { live, type Ctx } from "../lib/pos";
 import { printers, type Printer } from "../lib/print";
 import { useStore } from "../lib/store";

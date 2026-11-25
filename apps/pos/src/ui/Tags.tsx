@@ -1,6 +1,7 @@
 // Order tags (Manage → Tags, type Order): picked on the register, saved on the order (settings "tags" on.order[orderId]).
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import type { Data } from "../lib/db";
 import { C, F, R } from "../lib/theme";
 import { Btn, T } from "./kit";

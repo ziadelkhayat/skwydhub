@@ -1,7 +1,8 @@
 // Void an open order (or some of its items) or return a done one (or some items): the reason, where the food goes,
 // then a manager's PIN. A return is a new refund ticket today, so an ended day never changes. Needs the connection (stock is moved on the server).
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { afterVoid, isAdminUser, live, money, openShift, pinUser, refundOf, retLeft, userPerms, vrReasons, type Ctx } from "../lib/pos";
 import type { Row } from "../lib/db";
 import { appSet } from "../lib/print";

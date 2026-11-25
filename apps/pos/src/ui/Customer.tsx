@@ -1,6 +1,7 @@
 // Pickup and delivery: the customer (looked up by phone), the order source, and the delivery address (saved ones or a new one).
 import { useEffect, useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { TextInput } from "./Keyboard";
 import { addrJoin, addrParts, custMissing, normPhone, phoneVariants, posSources, type Addr, type Cust, type OType } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { C, F, R } from "../lib/theme";
