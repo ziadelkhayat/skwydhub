@@ -15,19 +15,22 @@ export function driverList(x: Ctx) {
   const here = x.S.users.filter(u => live(u) && u.active !== false && !isAdminUser(u) && (!(u.branchIds || []).length || u.branchIds.includes(x.device.branchId)));
   const d = here.filter(u => userPerms(x.S, u).includes("drv_app") || /driver|delivery|rider/i.test(u.jobTitle || "")); return (d.length ? d : here).sort((a, b) => String(a.name).localeCompare(b.name));
 }
+// clocked in at this store now (Time Clock: settings "timeclock".open[userId] = { at, branchId })
+export const clockedIn = (x: Ctx, u: Row) => { const c = ((x.S.settings.find(y => y.id === "timeclock") || {}) as any).open?.[u.id]; return !!c && (!c.branchId || c.branchId === x.device.branchId); };
 const owes = (o: Row) => o.type === "delivery" && o.driverId && o.status === "closed" && (o.payment?.type || o.payment?.method) === "cash" && !o.driverSettledAt;
 
 export function DriverPick({ x, o, onDone }: { x: Ctx; o: Row; onDone: (msg?: string) => void }) {
-  const { write } = useStore(), l = driverList(x);
+  const { write } = useStore(), l = [...driverList(x)].sort((a, b) => +clockedIn(x, b) - +clockedIn(x, a));
   const set = (u: Row | null) => { const now = new Date().toISOString();
     write("orders", o.id, { driverId: u ? u.id : null, driverName: u ? u.name : null, driverStatus: u ? "assigned" : null, driverAssignedAt: u ? now : null, driverAcceptedAt: null, updatedAt: now });
     onDone(u ? `Sent to ${u.name} · waiting for them to accept` : "Driver removed"); };
   return (
     <Sheet title="Driver" width={620} onClose={() => onDone()} footer={o.driverId ? <><View style={{ flex: 1 }} /><Btn label="Remove Driver" height={48} onPress={() => set(null)} /></> : undefined}>
       {!l.length ? <T color={C.mut}>No employees at this store yet. Add drivers in the back office: Employee Management → Employees, with the job title Driver.</T> :
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>{l.map(u => { const on = o.driverId === u.id; return (
-          <Pressable key={u.id} accessibilityRole="button" onPress={() => set(u)} style={{ width: 170, height: 72, borderRadius: R.md, borderWidth: on ? 2 : 1, borderColor: on ? C.brand : C.line, backgroundColor: on ? C.brand50 : "#fff", padding: 12, justifyContent: "center" }}>
-            <T w="s">{u.name}</T>{u.jobTitle ? <T size={12} color={C.mut}>{u.jobTitle}</T> : null}</Pressable>); })}</View>}
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>{l.map(u => { const on = o.driverId === u.id, ok = clockedIn(x, u); return (
+          // a driver who isn't clocked in at this store can't be picked
+          <Pressable key={u.id} accessibilityRole="button" accessibilityState={{ disabled: !ok }} disabled={!ok} onPress={() => set(u)} style={{ width: 170, height: 72, borderRadius: R.md, borderWidth: on ? 2 : 1, borderColor: on ? C.brand : C.line, backgroundColor: on ? C.brand50 : ok ? "#fff" : "#F9FAFB", padding: 12, justifyContent: "center" }}>
+            <T w="s" color={ok ? undefined : C.mut2}>{u.name}</T><T size={12} color={ok ? C.ok : C.mut2}>{ok ? "Clocked in" : "Not clocked in"}</T></Pressable>); })}</View>}
     </Sheet>
   );
 }
