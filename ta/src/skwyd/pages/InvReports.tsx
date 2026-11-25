@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -34,7 +35,7 @@ function locsOf(s: S, brand: string) {
 const Head = ({ title, back, children }: { title: string; back: () => void; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={title} />
   <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Inventory Reports</Button><div className="flex flex-wrap gap-3">{children}</div></div></>;
-const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <SelectNative aria-label="Brand" className={SEL + " sm:w-40"} value={v} onChange={e => set(e.target.value)}><option value="">All Brands</option>{s.brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative> : null;
+const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <FilterSelect title="Brand" value={v} onChange={v => set(v)} all="All Brands" options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} /> : null;
 
 export function InvLevelsPage() {
   const s = useS(["inv_items", "inv_categories", "branches", "warehouses", "brands"]), nav = useNavigate();
@@ -56,8 +57,8 @@ export function InvLevelsPage() {
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
           <SegTabs value={low} onChange={setLow} items={[["all", "All"], ["low", "Low Level"]]} />
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><BrandSel s={s} v={brand} set={setBrand} />
-            <SelectNative aria-label="Store or warehouse" className={SEL + " sm:w-48"} value={loc} onChange={e => setLoc(e.target.value)}>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative>
-            <SelectNative aria-label="Category" className={SEL + " sm:w-44"} value={cat} onChange={e => setCat(e.target.value)}><option value="">All categories</option>{catNames.map(n => <option key={n}>{n}</option>)}</SelectNative>
+            <FilterSelect title="Store" value={loc} onChange={v => setLoc(v)} required options={locs.map(([id, n]) => ({ value: String(id), label: String(n) }))} />
+            <FilterSelect title="Category" value={cat} onChange={v => setCat(v)} all="All categories" options={catNames.map(n => ({ value: String(n), label: String(n) }))} />
             <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
         </div>
         <div className="relative overflow-x-auto">
@@ -92,9 +93,9 @@ export function InvHistoryPage() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:px-6">
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div><BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} />
-          <SelectNative aria-label="Location" className={SEL + " sm:w-44"} value={loc} onChange={e => setLoc(e.target.value)}><option value="">All locations</option>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative>
+          <FilterSelect title="Location" value={loc} onChange={v => setLoc(v)} all="All locations" options={locs.map(([id, n]) => ({ value: String(id), label: String(n) }))} />
           <SelectNative aria-label="Item" className={SEL + " sm:w-48"} value={item} onChange={e => setItem(e.target.value)}><option value="">All items</option>{s.inv_items.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</SelectNative>
-          <SelectNative aria-label="Type" className={SEL + " sm:w-40"} value={type} onChange={e => setType(e.target.value)}><option value="">All types</option>{["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => <option key={t}>{t}</option>)}</SelectNative>
+          <FilterSelect title="Type" value={type} onChange={v => setType(v)} all="All types" options={["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => ({ value: String(t), label: String(t) }))} />
         </div>
         <div className="relative overflow-x-auto">
           {err ? <EmptyState text={err} /> : !rows ? <EmptyState text="Loading…" /> : !list.length ? <EmptyState text="No stock movements in these dates." />
@@ -125,7 +126,7 @@ export function PurchasingReportPage() {
         <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]"><span className="text-sm text-gray-500">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4></div>)}</div>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:px-6"><div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
-          <BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} /><SelectNative aria-label="Location" className={SEL + " sm:w-44"} value={loc} onChange={e => setLoc(e.target.value)}><option value="">All locations</option>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative></div>
+          <BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} /><FilterSelect title="Location" value={loc} onChange={v => setLoc(v)} all="All locations" options={locs.map(([id, n]) => ({ value: String(id), label: String(n) }))} /></div>
         <div className="relative overflow-x-auto">
           {!rows.length ? <EmptyState text="No purchases received in these dates." /> : <Table className="min-w-full"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Item</TableHeaderCell><TableHeaderCell className={TH}>Supplier</TableHeaderCell>{["Quantity", "Average Cost", "Total Cost"].map(h => <TableHeaderCell key={h} className={TH + " text-end"}>{h}</TableHeaderCell>)}</TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const it = itemOf(r.itemId) || {} as any; return <TableRow key={r.itemId + r.sup}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{sup(r.sup)}</TableCell>

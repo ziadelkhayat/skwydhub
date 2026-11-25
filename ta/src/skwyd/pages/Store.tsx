@@ -1,3 +1,4 @@
+import { InfoList, Kpis, PageHead } from "../ui/Record";
 import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,7 +22,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { baseMap, LB, loadLeaflet } from "../ui/leaflet";
 import { PickDialog } from "../ui/PickDialog";
 import { toast } from "../ui/toast";
@@ -84,17 +85,13 @@ export default function StorePage() {
   const restore = async () => { const x = { ...st }; delete x.deletedAt; try { await put("branches", b.id, { active: true, deleted: false, settings: x }); toast("Store restored"); } catch { toast("Couldn't restore", "error"); } };
   return <>
     <PageBreadcrumb pageTitle="Stores" current={b.name} />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/branches" />}><ArrowLeftIcon className="size-5" />Stores</Button>
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name}</h2>{b.code && <Badge variant="light" color="light">{b.code}</Badge>}{deleted && <Badge variant="light" color="error">Deleted</Badge>}
-      <div className="ms-auto flex gap-3">{deleted ? <Button onClick={restore}>Restore</Button> : <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Store</Button>}</div></div>
-    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">{[["Delivery zones", zones.length], ["Employees", users.length], ["Devices", devs.length], ["Tables", tl.length], ["Charges", chs.length]].map(([l, v]) =>
-      <div key={l} className={BOX + " p-4"}><span className="text-sm text-gray-500">{l}</span><b className="mt-1 block text-xl font-semibold text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
-    <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{([["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Reference", b.code || "—"], ["Brand", s.brands.find(x => x.id === b.brandId)?.name || "—"],
+    <PageHead back={<><Button variant="outline" size="sm" render={<Link to="/branches" />}><ArrowLeftIcon className="size-4" />Stores</Button></>} title={<>{b.name}</>} badges={<>{b.code && <Badge variant="light" color="light">{b.code}</Badge>}{deleted && <Badge variant="light" color="error">Deleted</Badge>}</>} actions={<>{deleted ? <Button onClick={restore}>Restore</Button> : <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Store</Button>}</>} />
+    <Kpis items={[["Delivery zones", zones.length], ["Employees", users.length], ["Devices", devs.length], ["Tables", tl.length], ["Charges", chs.length]] as any} />
+    <InfoList rows={[["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Reference", b.code || "—"], ["Brand", s.brands.find(x => x.id === b.brandId)?.name || "—"],
       ["Opening From", t12(mon.open || b.open)], ["Opening To", t12(mon.close || b.close)], ["Business day starts", t12(st.dayStart || "00:00")], ["Inventory End of Day", t12(st.invEnd || st.dayStart || "00:00")],
       ["Tax Group", tg || "—"], ["Tax Registration Name", st.taxName || "—"], ["Tax Number", b.taxNumber || "—"], ["Phone", b.phone || "—"], ["Address", b.address || "—"],
       ["Location", b.lat && b.lng ? <a className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps?q=${b.lat},${b.lng}`}>{b.lat}, {b.lng}</a> : "—"],
-      ["Receive Call Center, Web & API Orders", b.callCenter ? "Yes" : "No"], ["Automatic end of day", st.autoDayEnd === false ? "No" : "Yes"]] as [string, React.ReactNode][]).map(([l, v]) =>
-      <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
+      ["Receive Call Center, Web & API Orders", b.callCenter ? "Yes" : "No"], ["Automatic end of day", st.autoDayEnd === false ? "No" : "Yes"]] as [string, React.ReactNode][]} />
     <Sec title="Delivery Zones" act={<Button size="sm" variant="outline" onClick={() => setZonesDlg(true)}>Delivery Zones</Button>}><Tbl head={["Name", "Delivery charge", "Min. order"]} rows={zones.map(z => { const c = chOf(z); return [z.name, c ? `${c.name} · ${money(+c.value || 0)}` : "—", money(+z.minOrder || 0)]; })} /></Sec>
     <Sec title="Users"><Tbl head={["Name", "Email", "Phone"]} rows={users.map(u => [<Link key="n" className="text-blue-500 hover:underline" to={"/employee?id=" + u.id}>{u.name}</Link>, u.email || "—", u.phone || "—"])} /></Sec>
     <Sec title="Sections" act={<Button size="sm" variant="outline" onClick={() => setSec(null)}><PlusIcon className="size-4" />Add Section</Button>}>

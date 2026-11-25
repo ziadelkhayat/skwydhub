@@ -1,3 +1,4 @@
+import { PageHead } from "../ui/Record";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -263,16 +264,11 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
 
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" current={ch.name + (br ? " · " + br.name : "")} />
-    <div className="mb-6 flex flex-wrap items-center gap-3">
-      <Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Sales Channels</Button>
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{ch.name}</h2>
-      <span className="text-sm text-gray-500">{ch.kind === "online" ? (s.brands.find(x => x.id === ch.brandId)?.name || "") + " / all stores" : [s.brands.find(x => x.id === br?.brandId)?.name, br?.name].filter(Boolean).join(" / ")}</span>
-      {busy && <Badge variant="light" color="warning">{busy}</Badge>}
-      <div className="ms-auto flex gap-3">
+    <PageHead back={<><Button variant="outline" size="sm" onClick={back}><ArrowLeftIcon className="size-4" />Sales Channels</Button></>} title={<>{ch.name}</>} badges={<><span className="text-sm text-gray-500">{ch.kind === "online" ? (s.brands.find(x => x.id === ch.brandId)?.name || "") + " / all stores" : [s.brands.find(x => x.id === br?.brandId)?.name, br?.name].filter(Boolean).join(" / ")}</span>
+      {busy && <Badge variant="light" color="warning">{busy}</Badge>}</>} actions={<>
         {others.length > 0 && <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}>Copy From<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52 p-2">{others.map(c => <DropdownMenuItem key={c.id} onClick={() => copyFrom(scCode(c))}>{c.name}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>}
-        <Button variant="outline" onClick={() => setScEdit(true)}>Settings</Button></div>
-    </div>
+        <Button variant="outline" onClick={() => setScEdit(true)}>Settings</Button></>} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       {/* categories */}
       <aside className={BOX + " flex min-h-0 flex-col self-start overflow-hidden"}>

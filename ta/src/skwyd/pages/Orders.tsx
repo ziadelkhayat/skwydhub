@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -120,8 +121,8 @@ export default function OrdersPage() {
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder="Search reference, customer, phone..."
           toolbar={<>
-            {brands.length > 1 && <SelectNative aria-label="Brand" className="h-[30px] py-1 text-sm sm:w-40" value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-            <SelectNative aria-label="Store" className="h-[30px] py-1 text-sm sm:w-40" value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+            {<FilterSelect title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+            <FilterSelect title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <div className="sm:w-56 [&_button]:h-[30px] [&_button]:py-1"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
             <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           </>}

@@ -1,3 +1,4 @@
+import { InfoList, PageHead } from "../ui/Record";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // Order Transactions: what each completed sale took out of stock (Consumption From Order) and what voided sales put back (Return From Order).
 // Read from the order_transactions table, 50 per page, newest first, for the chosen store; a transaction opens as its own page with its items.
@@ -11,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { live, useS } from "../crud/CrudPage";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, TD, TH, TR } from "../ui/kit";
+import { TD, TH, TR } from "../ui/kit";
 import { Pager } from "../ui/Pager";
 import { toast } from "../ui/toast";
 import { csv } from "./em";
@@ -58,11 +59,9 @@ export default function OrderTxPage() {
         <Table><TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>${(r.items || []).map((x: any) => { const it = item(x.itemId); return `<TableRow><TableCell>${e(it?.name || "(deleted item)")}</TableCell><TableCell>${n2(x.qty)} ${e(it?.storageUnit || "")}</TableCell></TableRow>`; }).join("")}</TableBody></Table><script>window.onload=()=>window.print()<\/script>`); w.document.close(); };
     return <>
       <PageBreadcrumb pageTitle="Order Transactions" current={r.ref} />
-      <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={() => open(null)}><ArrowLeftIcon className="size-5" />Order Transactions</Button>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{ret ? "Return" : "Consumption"} from order ({r.ref})</h2><Badge variant="light" color="success">Closed</Badge>
-        <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></div>
-      <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3"}>{[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no ? String(r.order_no) : "—"], ["Type", kindName(r.kind)], ["Total Cost", money(r.total_cost)]].map(([l, v]) =>
-        <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
+      <PageHead back={<><Button variant="outline" size="sm" onClick={() => open(null)}><ArrowLeftIcon className="size-4" />Order Transactions</Button></>} title={<>{ret ? "Return" : "Consumption"} from order ({r.ref})</>} badges={<><Badge variant="light" color="success">Closed</Badge>
+        <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></>} />
+      <InfoList rows={[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no ? String(r.order_no) : "—"], ["Type", kindName(r.kind)], ["Total Cost", money(r.total_cost)]] as [string, React.ReactNode][]} />
       <div className="space-y-3"><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
         <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell></TableRow></TableHead><TableBody>
           {(r.items || []).map((x: any, i: number) => { const it = item(x.itemId); return <TableRow key={i} className={TR}><TableCell className={TD}>{it?.name || "(deleted item)"}</TableCell><TableCell className={TD + " text-end"}>{n2(x.qty)} {it?.storageUnit || ""}</TableCell></TableRow>; })}

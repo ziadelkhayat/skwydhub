@@ -1,3 +1,4 @@
+import { PageHead } from "../ui/Record";
 import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +21,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { EditDialog, live, useS } from "../crud/CrudPage";
 import { CRUD } from "../crud/configs";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, TD, TH, TR } from "../ui/kit";
+import { F, TD, TH, TR } from "../ui/kit";
 import { PickDialog } from "../ui/PickDialog";
 import { toast } from "../ui/toast";
 import { addDays, d10s, dmy, hm, tcHrs, today } from "./em";
@@ -29,7 +30,7 @@ import { DEF, DOC_TYPES, DocForm } from "./StaffDocs";
 const ET: Record<string, string> = { full: "Full Time", part: "Part Time", temp: "Temporary", intern: "Intern" }, PT: Record<string, string> = { monthly: "/ month", hourly: "/ hour", daily: "/ day" };
 const roleIds = (u: Row): string[] => u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : [];
 const Sec = ({ title, act, children }: { title: React.ReactNode; act?: React.ReactNode; children: React.ReactNode }) => <Section title={title} act={act}>{children}</Section>;
-const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>;
+const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div className="min-w-0"><dt className="text-sm text-gray-500 dark:text-gray-500">{l}</dt><dd className="mt-1 text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</dd></div>;
 const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
 
 export default function EmployeePage() {
@@ -53,19 +54,15 @@ export default function EmployeePage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Employees" current={u.name} />
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <Button variant="outline" render={<Link to="/users" />}><ArrowLeftIcon className="size-5" />Employees</Button>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{u.name}</h2>{u.deleted && <Badge variant="light" color="error">Deleted</Badge>}
-        <div className="ms-auto flex gap-3">{canPw && <Button variant="outline" onClick={() => setPw(true)}>{u.userId ? "Change Password" : "Create Password"}</Button>}<Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Employee</Button></div>
-      </div>
-      <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>
+      <PageHead back={<><Button variant="outline" size="sm" render={<Link to="/users" />}><ArrowLeftIcon className="size-4" />Employees</Button></>} title={<>{u.name}</>} badges={<>{u.deleted && <Badge variant="light" color="error">Deleted</Badge>}</>} actions={<>{canPw && <Button variant="outline" onClick={() => setPw(true)}>{u.userId ? "Change Password" : "Create Password"}</Button>}<Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Employee</Button></>} />
+      <Sec title="Details"><dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
         <Info l="Name" v={u.name} /><Info l="Email" v={u.email || "—"} /><Info l="Phone" v={u.phone || "—"} /><Info l="Language" v={u.language === "ar" ? "Arabic" : "English"} />
         <Info l="Display Localized Names" v={u.displayLocalized ? "Yes" : "No"} /><Info l="Console Access" v={u.email ? (u.userId ? "Yes" : "Not created yet") : "No"} /><Info l="App Access (PIN)" v={u.pinHash ? "Yes" : "No"} /><Info l="Created" v={fmtDateTime(u.createdAt)} />
-      </div>
-      <Sec title="Employment"><div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      </dl></Sec>
+      <Sec title="Employment"><dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
         <Info l="Employee Number" v={u.employeeNo || "—"} /><Info l="Job Title" v={u.jobTitle || "—"} /><Info l="Employment Type" v={ET[u.employmentType] || "—"} /><Info l="Hire Date" v={u.hireDate ? dmy(u.hireDate) : "—"} />
         <Info l="Date Of Birth" v={u.birthDate ? dmy(u.birthDate) : "—"} /><Info l="Pay" v={u.payRate != null && u.payRate !== "" ? "$" + (+u.payRate).toFixed(2) + " " + (PT[u.payType] || "") : "—"} />
-        <Info l="Emergency Contact" v={[u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—"} /><Info l="Now" v={open ? `Clocked in since ${hm(open.at)}` : "Not clocked in"} /></div>
+        <Info l="Emergency Contact" v={[u.emergencyName, u.emergencyPhone].filter(Boolean).join(" · ") || "—"} /><Info l="Now" v={open ? `Clocked in since ${hm(open.at)}` : "Not clocked in"} /></dl>
         {u.notes && <p className="mt-4 text-sm whitespace-pre-wrap text-gray-500 dark:text-gray-400">{u.notes}</p>}</Sec>
       <Sec title="Documents" act={<Button size="sm" variant="outline" onClick={() => setDoc(null)}>Add Document</Button>}>
         {miss.length > 0 && <p className="mb-3 text-sm text-red-500">Missing: {miss.join(", ")}</p>}

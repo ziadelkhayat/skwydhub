@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Time Clock and Requests: same data (settings "timeclock", table staff_requests), tabs, filters, rules and actions
@@ -24,10 +25,8 @@ import { addDays, csv, d10s, dayOf, dmy, empStores, hm, inBrand, LEAVE_T, monOf,
 export function StoreFilter({ s, brand, setBrand, branch, setBranch }: { s: S; brand: string; setBrand: (v: string) => void; branch: string; setBranch: (v: string) => void }) {
   const bl = s.brands.filter(b => live(b) && b.active !== false);
   return <>
-    {<SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && !inBrand(s.branches, branch, e.target.value)) setBranch(""); }}>
-      <option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-    <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>
-      {s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+    {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); if (branch && !inBrand(s.branches, branch, v)) setBranch(""); }} all="All Brands" options={bl.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+    <FilterSelect title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
   </>;
 }
 const Flags = ({ x }: { x: any }) => <>{x.unscheduled && <Badge className="ms-1" variant="light" color="light">Unscheduled</Badge>}{x.late ? <Badge className="ms-1" variant="light" color="error">Late {+x.late}m</Badge> : null}{x.earlyOut ? <Badge className="ms-1" variant="light" color="warning">Left {+x.earlyOut}m early</Badge> : null}</>;
@@ -76,7 +75,7 @@ export function TimeClockPage() {
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
             {tab === "sheet" && <>
-              <SelectNative aria-label="Employee" className={SEL + " sm:w-48"} value={emp} onChange={e => setEmp(e.target.value)}><option value="">All Employees</option>{emps.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</SelectNative>
+              <FilterSelect title="Employee" value={emp} onChange={v => setEmp(v)} all="All Employees" options={emps.map(u => ({ value: String(u.id), label: String(u.name) }))} />
               <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { setFrom(a || monOf(today())); setTo(b || today()); }} /></div>
               <Button variant="outline" onClick={exportCsv}><DownloadIcon className="size-5" />Export CSV</Button></>}
           </div>

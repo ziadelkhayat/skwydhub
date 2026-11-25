@@ -1,6 +1,6 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { CategoryBarCard, ChartCard, ProgressBarCard, CAT_COLORS, changeBadge } from "@/components/tremor/overview/OverviewCards";
 import { BarList } from "@/components/tremor/BarList";
-import { SelectNative } from "@/components/tremor/SelectNative";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), laid out like the Tremor dashboard template Overview.
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
 // (the one before by default, or one picked by its date).
@@ -9,38 +9,32 @@ import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { DateRangePicker } from "@/components/tremor/DatePicker";
+import { DatePicker } from "@/components/tremor/DatePicker";
+import { SegTabs } from "../ui/SegTabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
+const today = () => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; };
+
 export default function Dashboard() {
   useCol("settings");
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
-  // Tremor template Overview filter: a date range (with presets) "compared to" the previous period, last year, or nothing
-  const today = () => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; };
-  const [range, setRange] = useState<{ from?: Date; to?: Date } | undefined>(() => ({ from: today(), to: today() }));
+
+  // Day / Week (Mon–Sun) / Month of one business date, "compared to" the period before, last year, or nothing
+  const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(today);
   const [period, setPeriod] = useState<"previous-period" | "last-year" | "no-comparison">("no-comparison");
   const [brand, setBrand] = useState(""), [store, setStore] = useState("");
   const cmp = period !== "no-comparison";
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
   const myStores = stores.filter((x: Row) => !brand || x.brandId === brand);
-  const noon = (d: Date) => { const x = new Date(d); x.setHours(12, 0, 0, 0); return x; };
-  const per = (() => { const a = noon(range?.from || today()), b = noon(range?.to || range?.from || today()); return { start: a, n: Math.max(1, Math.round((+b - +a) / 86400000) + 1) }; })();
-  const cmpPer = period === "last-year" ? { start: (() => { const x = new Date(per.start); x.setFullYear(x.getFullYear() - 1); return x; })(), n: per.n }
-    : { start: new Date(+per.start - per.n * 86400000), n: per.n };
-  const day0 = (o: number) => { const d = today(); d.setDate(d.getDate() + o); return d; };
-  const monday = () => { const d = today(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
-  const presets = [
-    { label: "Today", dateRange: { from: today(), to: today() } },
-    { label: "Yesterday", dateRange: { from: day0(-1), to: day0(-1) } },
-    { label: "This week", dateRange: { from: monday(), to: today() } },
-    { label: "Last 7 days", dateRange: { from: day0(-6), to: today() } },
-    { label: "This month", dateRange: { from: (() => { const d = today(); d.setDate(1); return d; })(), to: today() } },
-    { label: "Last 30 days", dateRange: { from: day0(-29), to: today() } },
-    { label: "Last month", dateRange: { from: (() => { const d = today(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d; })(), to: (() => { const d = today(); d.setDate(0); return d; })() } },
-    { label: "This year", dateRange: { from: (() => { const d = today(); d.setMonth(0, 1); return d; })(), to: today() } },
-  ];
+  const span = (k: string, d0: Date) => { const d = new Date(d0); d.setHours(12, 0, 0, 0);
+    if (k === "7") { d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return { start: d, n: 7 }; }
+    if (k === "30") { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12); return { start: a, n: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() }; }
+    return { start: d, n: 1 }; };
+  const per = span(kind, at);
+  const cmpPer = period === "last-year" ? span(kind, (() => { const x = new Date(at); x.setFullYear(x.getFullYear() - 1); return x; })())
+    : span(kind, new Date(+per.start - 86400000));
   const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
@@ -83,10 +77,12 @@ export default function Dashboard() {
     <>
       <PageBreadcrumb pageTitle="Summary" />
       <div className="sticky top-16 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10 lg:pt-4 dark:border-gray-800 dark:bg-gray-950">
-        {brands.length > 1 && <SelectNative aria-label="Brand" className="h-[30px] py-1 text-sm sm:w-44" value={brand} onChange={e => { setBrand(e.target.value); setStore(""); }}><option value="">All brands</option>{brands.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-        <SelectNative aria-label="Store" className="h-[30px] py-1 text-sm sm:w-44" value={store} onChange={e => setStore(e.target.value)}><option value="">All stores</option>{myStores.map((b: Row) => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
-        <DateRangePicker value={range as any} onChange={r => setRange(r ? { from: r.from, to: r.to || r.from } : { from: today(), to: today() })} presets={presets as any}
-          toDate={today()} enableYearNavigation align="start" className="h-[30px] w-full py-1 sm:w-fit" />
+        {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setStore(""); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+        <FilterSelect title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
+        <SegTabs value={kind} onChange={v => setKind(v as any)} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
+        <DatePicker value={at} onChange={d => d && setAt(d)} toDate={today()} enableYearNavigation align="start" placeholder="Business Date"
+          presets={[{ label: "Today", date: today() }, { label: "Yesterday", date: new Date(+today() - 86400000) }]} className="h-[30px] w-full py-1 sm:w-44" />
+        {per.n > 1 && <span className="text-xs text-gray-500">{fmtD(per.start)} → {fmtD(new Date(+per.start + (per.n - 1) * 86400000))}</span>}
         <span className="hidden text-sm font-medium text-gray-500 sm:block">compared to</span>
         <Select value={period} onValueChange={v => setPeriod(v as any)}>
           <SelectTrigger className="h-[30px] w-full py-1 sm:w-fit"><SelectValue /></SelectTrigger>

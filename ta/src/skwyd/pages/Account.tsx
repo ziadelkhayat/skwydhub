@@ -1,3 +1,4 @@
+import { PageHead } from "../ui/Record";
 import { LineTabs } from "../ui/Section";
 import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
@@ -40,8 +41,8 @@ export function AccountPage() {
   const owner = staff?.role === "owner";
   return <>
     <PageBreadcrumb pageTitle="Account" />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{staff?.name || "Account"}</h2><Badge variant="light" color="primary">{owner ? "Account Owner" : ROLE_LBL[staff?.role || ""] || staff?.role || "User"}</Badge>
-      <Button variant="outline" className="ms-auto" onClick={() => setPw(true)}>Change Password</Button></div>
+    <PageHead back={<></>} title={<>{staff?.name || "Account"}</>} badges={<><Badge variant="light" color="primary">{owner ? "Account Owner" : ROLE_LBL[staff?.role || ""] || staff?.role || "User"}</Badge>
+      <Button variant="outline" className="ms-auto" onClick={() => setPw(true)}>Change Password</Button></>} />
     <LineTabs className="mb-8" value={tab} onChange={setTab} items={[["profile", "My Profile"], ["business", "Business Details"]]} />
     {tab === "profile" ? <Profile s={s} reload={reload} /> : <Business s={s} />}
     {pw && <MyPw owner={owner} email={staff?.email || ""} onClose={() => setPw(false)} />}

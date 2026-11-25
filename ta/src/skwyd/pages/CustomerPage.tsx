@@ -1,3 +1,4 @@
+import { Kpis } from "../ui/Record";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // A customer's page, as in the current portal: insights (orders, spent, average, favourite item and store,
@@ -12,7 +13,7 @@ import { sb } from "@/lib/supabase";
 import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { askYes } from "../ui/confirm";
 import { PickMany } from "../ui/PickMany";
 import { toast } from "../ui/toast";
@@ -63,12 +64,8 @@ export default function CustomerPage() {
       {c.blacklisted && <Badge variant="light" color="error">Blacklisted</Badge>}
       <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Customer</Button></Head>
 
-    <div className={BOX + " mb-6 p-5"}>
-      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">Customer Insights</h3>
-        <span className="text-sm text-gray-500 dark:text-gray-400">Customer since {since ? fmtDate(since) : "—"}</span></div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="rounded-md bg-gray-50 p-4 dark:bg-[#090E1A]">
-        <span className="block text-xs text-gray-500 dark:text-gray-400">{l}</span><b className="mt-1 block text-base font-semibold break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
-    </div>
+    <Kpis items={stats as any} />
+    <p className="-mt-4 mb-8 text-sm text-gray-500 dark:text-gray-500">Customer since {since ? fmtDate(since) : "—"}</p>
 
     <Info rows={[["Name", c.name || "—"], ["Phone", c.phone ? <a className="text-blue-500" href={"tel:" + c.phone}>{tel(c.phone)}</a> : "—"], ["Email", c.email || "—"], ["Birth Date", c.birthday ? fmtDate(c.birthday + "T12:00:00") : "—"],
       ["Gender", ({ male: "Male", female: "Female" } as any)[c.gender] || "—"], ["Loyalty", c.loyalty ? "Enabled" : "Disabled"], ["House Account", c.house_account ? "Enabled" : "Disabled"], ["Created", fmtDate(c.created_at)],

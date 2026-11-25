@@ -554,6 +554,8 @@ const SingleDatePicker = ({
       }
     }
     setDate(newDate);
+    // Skwyd: picking a day applies it (no Apply/Cancel)
+    if (!showTimePicker) { setOpen(false); onChange?.(newDate); }
   };
 
   const onTimeChange = (time: TimeValue | null) => {
@@ -663,24 +665,11 @@ const SingleDatePicker = ({
                   />
                 </div>
               )}
-              <div className="flex items-center gap-x-2 border-t border-gray-200 p-3 dark:border-gray-800">
-                <Button
-                  variant="secondary"
-                  className="h-8 w-full"
-                  type="button"
-                  onClick={onCancel}
-                >
-                  {translations?.cancel ?? 'Cancel'}
-                </Button>
-                <Button
-                  variant="primary"
-                  className="h-8 w-full"
-                  type="button"
-                  onClick={onApply}
-                >
-                  {translations?.apply ?? 'Apply'}
-                </Button>
-              </div>
+              {showTimePicker && (
+                <div className="flex items-center justify-end border-t border-gray-200 p-3 dark:border-gray-800">
+                  <Button variant="primary" className="h-8" type="button" onClick={onApply}>{translations?.apply ?? 'Apply'}</Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -760,6 +749,15 @@ const RangeDatePicker = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  const picking = React.useRef(false);
+  // Skwyd: no Apply/Cancel. A click starts a new range, the next click ends it and applies; a preset applies at once.
+  const onDayPick = (_r: DateRange | undefined, day: Date) => {
+    if (!picking.current) { picking.current = true; setRange({ from: day, to: undefined }); return; }
+    picking.current = false;
+    const a = range?.from || day, r = +day < +a ? { from: day, to: a } : { from: a, to: day };
+    setRange(r); setOpen(false); onChange?.(r);
+  };
+  const onPreset = (r: DateRange | undefined) => { picking.current = false; setRange(r); setOpen(false); onChange?.(r); };
   const onRangeChange = (range: DateRange | undefined) => {
     const newRange = range;
     if (showTimePicker) {
@@ -804,7 +802,7 @@ const RangeDatePicker = ({
     if (!open) {
       onCancel();
     }
-
+    picking.current = false;
     setOpen(open);
   };
 
@@ -897,11 +895,6 @@ const RangeDatePicker = ({
     }`;
   }, [range, locale, showTimePicker]);
 
-  const onApply = () => {
-    setOpen(false);
-    onChange?.(range);
-  };
-
   return (
     <PopoverPrimitives.Root
       tremor-id="tremor-raw"
@@ -935,7 +928,7 @@ const RangeDatePicker = ({
                   <PresetContainer
                     currentValue={range}
                     presets={presets}
-                    onSelect={onRangeChange}
+                    onSelect={onPreset}
                   />
                 </div>
               </div>
@@ -944,7 +937,7 @@ const RangeDatePicker = ({
               <CalendarPrimitive
                 mode="range"
                 selected={range}
-                onSelect={onRangeChange}
+                onSelect={(r: DateRange | undefined, day: Date) => (showTimePicker ? onRangeChange(r) : onDayPick(r, day))}
                 month={month}
                 onMonthChange={setMonth}
                 numberOfMonths={1}
@@ -988,32 +981,9 @@ const RangeDatePicker = ({
                   </div>
                 </div>
               )}
-              <div className="space-y-2 border-t border-gray-200 p-3 dark:border-gray-800">
-                <p className="text-sm tabular-nums text-gray-900 dark:text-gray-50">
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {translations?.range ?? 'Range'}:
-                  </span>{' '}
-                  <span className="font-medium">{displayRange}</span>
-                </p>
-                <div className="flex items-center justify-end gap-x-2">
-                  <Button
-                    variant="secondary"
-                    className="h-8 w-full sm:w-fit"
-                    type="button"
-                    onClick={onCancel}
-                  >
-                    {translations?.cancel ?? 'Cancel'}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    className="h-8 w-full sm:w-fit"
-                    type="button"
-                    onClick={onApply}
-                  >
-                    {translations?.apply ?? 'Apply'}
-                  </Button>
-                </div>
-              </div>
+              <p className="border-t border-gray-200 p-3 text-sm tabular-nums text-gray-500 dark:border-gray-800">
+                {picking.current ? "Pick the last day" : <>{translations?.range ?? "Range"}: <span className="font-medium text-gray-900 dark:text-gray-50">{displayRange}</span></>}
+              </p>
             </div>
           </div>
         </div>

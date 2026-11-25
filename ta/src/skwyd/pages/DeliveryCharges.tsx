@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -51,8 +52,8 @@ export default function DeliveryChargesPage() {
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set the charge each store adds when it delivers to a delivery zone. Call center orders get it automatically when the customer's address is in the zone and the order is made by that store; web ordering uses it as the delivery fee.</p>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><SelectNative aria-label="Brand" className={SEL + " sm:w-48"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); setSel(new Set()); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
-          <SelectNative aria-label="Store" className={SEL + " sm:w-56"} value={br} onChange={e => { setBr(e.target.value); setSel(new Set()); }}><option value="">All Stores</option>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></div>
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); setSel(new Set()); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+          <FilterSelect title="Store" value={br} onChange={v => { setBr(v); setSel(new Set()); }} all="All Stores" options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} /></div>
           <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>
         {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-blue-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-blue-500/5">
