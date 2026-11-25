@@ -1,7 +1,7 @@
-// The PIN sign-in (option A): the skwyd logo, PIN dots and pad in the middle; the store and register in the corner.
+// The PIN sign-in: a light-blue screen, the skwyd logo, PIN dots, white keys with navy numbers, Sync Users, and the store and register under it.
 // Users of this branch (and owners/admins) sign in with their 4–5 digit PIN.
 import { useState } from "react";
-import { Image, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 import { pinUser, posUsers } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { C } from "../lib/theme";
@@ -22,17 +22,16 @@ export function Lock() {
   };
   const devName = (device as any)?.name as string | undefined;
   return (
-    <View style={{ flex: 1, backgroundColor: C.bg, alignItems: "center", justifyContent: "center", gap: 16 }}>
-      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 6 }} />
+    <View style={{ flex: 1, backgroundColor: "#EFF5FE", alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 12 }} />
       <T w="s" size={21}>Enter Your PIN</T>
       <Dots n={pin.length} />
-      <T size={14} color={C.bad} style={{ minHeight: 20 }}>{err}</T>
-      <Pad onKey={press} size={84} flatFn />
-      <Btn kind="ghost" label={syncing ? "Syncing…" : "Sync Users"} onPress={() => { setSyncing(true); reload(); setTimeout(() => setSyncing(false), 1500); }} />
-      <View style={{ position: "absolute", left: 24, bottom: 20 }}>
-        <T size={13} color={C.mut}>{[brand?.name, branch?.name].filter(Boolean).join(" · ")}</T>
-        <T size={13} color={C.mut}>{[devName, acct ? "Account " + acct : ""].filter(Boolean).join(" · ")}</T>
-      </View>
+      <T size={14} color={C.bad} style={{ minHeight: 18, marginTop: -6 }}>{err}</T>
+      <Pad onKey={press} size={84} flatFn navy />
+      <Pressable accessibilityRole="button" onPress={() => { setSyncing(true); reload(); setTimeout(() => setSyncing(false), 1500); }}
+        style={({ pressed }) => ({ height: 44, paddingHorizontal: 20, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" })}>
+        <T w="m" size={15} color={C.brand}>{syncing ? "Syncing…" : "Sync Users"}</T></Pressable>
+      <T size={13} color={C.mut}>{[brand?.name, branch?.name, devName].filter(Boolean).join(" · ")}{acct ? "  ·  Account " + acct : ""}</T>
     </View>
   );
-}
+}}

@@ -42,15 +42,16 @@ export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?:
   <View {...p} style={[{ backgroundColor: C.card, borderRadius: R.lg, borderWidth: 1, borderColor: C.line }, shadowXs, style]} />;
 
 // the 0–9 pad used for the activation code and PINs
-export function Pad({ onKey, size = 72, flatFn, c = "Clear" }: { onKey: (k: string) => void; size?: number; flatFn?: boolean; c?: string }) {   // flatFn: Clear and ⌫ without a box
+export function Pad({ onKey, size = 72, flatFn, c = "Clear", navy }: { onKey: (k: string) => void; size?: number; flatFn?: boolean; c?: string; navy?: boolean }) {   // flatFn: Clear and ⌫ without a box; navy: white keys without a border, navy numbers (sign-in)
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "c", "0", "b"];
   return (
     <View style={{ width: size * 3 + 24, flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
       {keys.map(k => (
         <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === "c" ? "Clear" : k === "b" ? "Delete" : k} onPress={() => onKey(k)}
           style={({ pressed }) => flatFn && (k === "c" || k === "b") ? { width: size, height: Math.round(size * 0.82), borderRadius: R.lg, backgroundColor: pressed ? C.brand50 : "transparent", alignItems: "center", justifyContent: "center" }
-            : [{ width: size, height: flatFn ? Math.round(size * 0.82) : size, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" }, shadowXs]}>
-          <T w="m" size={k === "c" || k === "b" ? 15 : 24} color={k === "c" || k === "b" ? C.mut : C.ink}>{k === "c" ? c : k === "b" ? "⌫" : k}</T>
+            : [{ width: size, height: flatFn ? Math.round(size * 0.82) : size, borderRadius: R.lg, borderWidth: navy ? 0 : 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" },
+              navy ? { shadowColor: "#1E3A8A", shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 } : shadowXs]}>
+          <T w="m" size={k === "c" || k === "b" ? 15 : 24} color={navy ? "#1E3A8A" : k === "c" || k === "b" ? C.mut : C.ink}>{k === "c" ? c : k === "b" ? "⌫" : k}</T>
         </Pressable>
       ))}
     </View>
