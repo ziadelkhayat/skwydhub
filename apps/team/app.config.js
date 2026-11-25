@@ -45,5 +45,7 @@ const base = {
     "typedRoutes": false
   }
 };
-const driver = (process.env.EXPO_PUBLIC_SKWYD_APP || process.env.SKWYD_APP) === "driver";
-module.exports = { expo: { ...base, ...(driver ? { name: "SKWYD Driver", slug: "skwyd-driver", scheme: "skwyddriver", android: { ...base.android, package: "com.skwydhub.driverrn" } } : {}), extra: { ...(base.extra || {}), app: driver ? "driver" : "team" } } };
+const app = process.env.EXPO_PUBLIC_SKWYD_APP || process.env.SKWYD_APP || "team";
+// one code base, three apps: Team (employees), Driver (+ delivery orders), Insights (the owner's view)
+const VAR = { driver: { name: "SKWYD Driver", slug: "skwyd-driver", scheme: "skwyddriver", package: "com.skwydhub.driverrn" }, insights: { name: "SKWYD Insights", slug: "skwyd-insights", scheme: "skwydinsights", package: "com.skwydhub.insightsrn" } }[app];
+module.exports = { expo: { ...base, ...(VAR ? { name: VAR.name, slug: VAR.slug, scheme: VAR.scheme, android: { ...base.android, package: VAR.package } } : {}), extra: { ...(base.extra || {}), app } } };

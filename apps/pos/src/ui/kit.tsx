@@ -31,7 +31,7 @@ export function Btn({ kind = "outline", label, sub, style, textStyle, height = 4
 
 export function Pill({ text, tone = "gray" }: { text: string; tone?: "gray" | "ok" | "brand" | "warn" | "bad" }) {
   const t = { gray: [C.line2, C.ink2], ok: [C.okBg, C.ok], brand: [C.brand50, C.brand600], warn: [C.warnBg, C.warn], bad: [C.badBg, C.bad] }[tone];
-  return <View style={{ backgroundColor: t[0], borderRadius: 999, paddingHorizontal: 10, paddingVertical: 2 }}><T w="m" size={12} color={t[1]}>{text}</T></View>;
+  return <View style={{ backgroundColor: t[0], borderRadius: 6, borderWidth: 1, borderColor: t[1] + "33", paddingHorizontal: 8, paddingVertical: 1 }}><T w="m" size={12} color={t[1]}>{text}</T></View>;
 }
 
 export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?: React.ReactNode }) =>

@@ -2,6 +2,7 @@
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 
 const P: Record<string, (c: string) => React.ReactNode> = {
+  chart: () => <Path d="M5 20V10M12 20V4M19 20v-7" />,
   search: () => <><Circle cx={11} cy={11} r={7} /><Path d="m20 20-3.5-3.5" /></>,
   table: () => <><Rect x={3} y={7} width={18} height={5} rx={1.5} /><Path d="M6 12v7M18 12v7M9 7V4h6v3" /></>,
   user: () => <><Circle cx={12} cy={8} r={4} /><Path d="M4 21a8 8 0 0 1 16 0" /></>,
