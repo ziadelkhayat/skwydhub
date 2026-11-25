@@ -74,17 +74,22 @@ export function ChargesPop({ x, cur, picked, open, onDone }: { x: Ctx; cur: (n: 
         style={{ height: 48, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 12, fontFamily: F.r, fontSize: 18, color: C.ink, textAlign: "right" }} />
       <Btn kind="primary" height={44} label="OK" disabled={!(+v > 0)} onPress={() => { setO(m => ({ ...m, [ask]: +v })); setP(l => [...new Set([...l, ask])]); setAsk(null); setV(""); }} />
     </View>);
+  // same look as Tags: a header, one row per charge (name, amount, a tick on the right), Done across the bottom
+  const tot = p.length;
   return (
     <View>
-      {!list.length ? <T size={13} color={C.mut} style={{ padding: 12 }}>No charges for this order type. Add them in the back office under Manage → Charges.</T> : null}
+      <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 }}>
+        <T w="s" size={16} style={{ flex: 1 }}>Charges</T><T size={13} color={C.mut}>{tot ? tot + " on this order" : ""}</T>
+      </View>
+      {!list.length ? <T size={13} color={C.mut} style={{ padding: 12 }}>No charges for this order type. Add them in the back office under Manage → Charges.</T> :
       <ScrollView style={{ maxHeight: 380 }}>{list.map(c => { const on = p.includes(c.id);
-        return <Row key={c.id} onPress={() => on ? setP(l => l.filter(y => y !== c.id)) : c.type === "open" ? (setAsk(c.id), setV(o[c.id] ? String(o[c.id]) : "")) : setP(l => [...l, c.id])}>
-          <Tick on={on} /><View style={{ flex: 1 }}><T w="m" size={14.5}>{c.name}</T><T size={12.5} color={C.mut}>{c.type === "percent" ? c.value + "% of the order" : c.type === "open" ? "Open: you type the amount" : "Fixed"}</T></View>
-          <T w="s" size={13.5}>{c.type === "percent" ? c.value + "%" : c.type === "open" ? (o[c.id] ? cur(o[c.id]) + " ✎" : "✎") : cur(+c.value || 0)}</T></Row>; })}</ScrollView>
-      <View style={{ height: 1, backgroundColor: C.line2, marginVertical: 4 }} />
-      <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 6 }}>
-        <T size={13} color={C.mut} style={{ flex: 1 }}>{p.length ? p.length + (p.length === 1 ? " charge" : " charges") : "No charges"}</T>
-        <Btn kind="primary" height={38} label="Done" onPress={() => onDone({ picked: p, open: o })} /></View>
+        return <Pressable key={c.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }} onPress={() => on ? setP(l => l.filter(y => y !== c.id)) : c.type === "open" ? (setAsk(c.id), setV(o[c.id] ? String(o[c.id]) : "")) : setP(l => [...l, c.id])}
+          style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, minHeight: 56, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: C.line2, backgroundColor: pressed ? C.bg2 : "#fff" })}>
+          <T w="m" size={16} style={{ flex: 1 }} numberOfLines={1}>{c.name}</T>
+          <T size={14} color={C.mut}>{c.type === "percent" ? c.value + "%" : c.type === "open" ? (o[c.id] ? cur(o[c.id]) : "Open amount") : cur(+c.value || 0)}</T>
+          <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: on ? 0 : 1.5, borderColor: C.field, backgroundColor: on ? C.brand600 : "#fff", alignItems: "center", justifyContent: "center" }}>{on ? <Icon name="check" size={15} color="#fff" /> : null}</View>
+        </Pressable>; })}</ScrollView>}
+      <View style={{ padding: 8, paddingTop: 10 }}><Btn kind="primary" height={52} label="Done" onPress={() => onDone({ picked: p, open: o })} /></View>
     </View>
   );
 }
