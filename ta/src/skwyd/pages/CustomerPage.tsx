@@ -68,7 +68,7 @@ export default function CustomerPage() {
         <span className="block text-xs text-gray-500 dark:text-gray-400">{l}</span><b className="mt-1 block text-base font-semibold break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     </div>
 
-    <Info rows={[["Name", c.name || "—"], ["Phone", c.phone ? <a className="text-brand-500" href={"tel:" + c.phone}>{tel(c.phone)}</a> : "—"], ["Email", c.email || "—"], ["Birth Date", c.birthday ? fmtDate(c.birthday + "T12:00:00") : "—"],
+    <Info rows={[["Name", c.name || "—"], ["Phone", c.phone ? <a className="text-blue-500" href={"tel:" + c.phone}>{tel(c.phone)}</a> : "—"], ["Email", c.email || "—"], ["Birth Date", c.birthday ? fmtDate(c.birthday + "T12:00:00") : "—"],
       ["Gender", ({ male: "Male", female: "Female" } as any)[c.gender] || "—"], ["Loyalty", c.loyalty ? "Enabled" : "Disabled"], ["House Account", c.house_account ? "Enabled" : "Disabled"], ["Created", fmtDate(c.created_at)],
       ...(c.notes ? [["Customer Notes", c.notes] as [string, string]] : [])]} />
 
@@ -87,7 +87,7 @@ export default function CustomerPage() {
 
     <Sec title="Tags" act={<PickMany label="Add tag" opts={tagList.filter(t => !myTags.includes(t)).map(t => ({ id: t, name: t }))} onAdd={ids => upd({ tags: [...myTags, ...ids] }, ids.length > 1 ? "Tags added" : "Tag added")} />}>
       {!myTags.length ? <None t={tagList.length ? "No tags." : "No tags. Customer tags are created in Manage → Tags."} /> : <div className="flex flex-wrap gap-2">{myTags.map(t => <Badge key={t} variant="light" color="primary" className="gap-1.5">{t}
-        <button type="button" aria-label={"Remove tag " + t} className="text-brand-400 hover:text-error-500" onClick={() => upd({ tags: myTags.filter(x => x !== t) }, "Tag removed")}>×</button></Badge>)}</div>}
+        <button type="button" aria-label={"Remove tag " + t} className="text-blue-400 hover:text-error-500" onClick={() => upd({ tags: myTags.filter(x => x !== t) }, "Tag removed")}>×</button></Badge>)}</div>}
     </Sec>
 
     {(c.house_account || ha.length > 0) && <Sec title="House Account">

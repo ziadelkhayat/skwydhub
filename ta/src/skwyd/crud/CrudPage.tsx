@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusIcon, SearchIcon } from "@/icons";
+import { PlusIcon } from "@/icons";
 import { put, softDelete, newId, useCol, type Row } from "@/lib/db";
 import { cn } from "@/utils";
 import { useMemo, useState, type ReactNode } from "react";
@@ -80,14 +80,11 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={cfg.tabs.map(t => [t[0], t[1]])} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
-            <InputGroup className="h-9 flex-1 sm:w-75 sm:flex-initial">
-              <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-              <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            </InputGroup>
+            <TInput type="search" className="flex-1 sm:w-75 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />{cfg.addLbl || "Add " + cfg.one}</Button>
           </div>
         </div>
-        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-gray-800 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
+        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-gray-800 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<button type="button" className="text-blue-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
         {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-gray-800 dark:text-gray-400">{cfg.note}</p>}
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div>
@@ -188,7 +185,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
     return (<Field className="col-span-full">{label}
       <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);
         return <button type="button" key={value} onClick={() => set(on ? cur.filter(x => x !== value) : [...cur, value])}
-          className={cn("rounded-lg border px-3 py-2 text-sm transition-colors", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5")}>{l}</button>; })}</div>{note}</Field>); }
+          className={cn("rounded-lg border px-3 py-2 text-sm transition-colors", on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5")}>{l}</button>; })}</div>{note}</Field>); }
   if (f.t === "items") { const cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
       <div className="flex flex-col gap-2">{[...cur, ""].map((x, i) => (
@@ -196,7 +193,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
   if (f.t === "phone") { const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"]; const str = String(v || ""); const cc = CCS.find(x => str.startsWith(x)) || "+961"; const num = str.startsWith(cc) ? str.slice(cc.length) : str;
     const mk = (c: string, n: string) => { const d = n.replace(/\D/g, "").replace(/^0+/, ""); return d ? c + d : ""; };
     return (<Field className={cn(full && "col-span-full")}>{label}
-      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-9 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-9 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50">{CCS.map(c => <option key={c}>{c}</option>)}</select>
         <Input className="h-9 flex-1" type="tel" inputMode="tel" placeholder={f.ph || "70 123 456"} value={num} onChange={e => set(mk(cc, e.target.value))} /></div>{note}</Field>); }
   if (f.t === "pin") return (<Field className={cn(full && "col-span-full")}>{label}
     <div className="flex gap-3"><Input className="h-9 flex-1 tracking-widest" inputMode="numeric" maxLength={5} placeholder={f.ph || "5 digits"} value={v || ""} onChange={e => set(e.target.value.replace(/\D/g, "").slice(0, 5))} />

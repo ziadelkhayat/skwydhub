@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusIcon, SearchIcon } from "@/icons";
+import { PlusIcon } from "@/icons";
 import { sb } from "@/lib/supabase";
 import { fmtDate, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
@@ -43,10 +43,7 @@ export default function CustomersPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
-            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial">
-              <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-              <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            </InputGroup>
+            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Customer</Button>
           </div>
         </div>
@@ -86,7 +83,7 @@ export function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () =>
     if (res.error) return setErr(/duplicate|unique/i.test(res.error.message) ? "A customer with this phone already exists (check the Deleted tab)." : res.error.message);
     toast(c?.id ? "Customer saved" : "Customer added"); onSaved(); onClose();
   }
-  const sel = "h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50";
+  const sel = "h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50";
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">

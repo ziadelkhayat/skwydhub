@@ -74,7 +74,7 @@ export function LoyaltyPage() {
         </div>
         {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
         {c.enabled && <>
-          <div className="mt-6 space-y-2 rounded-md border border-brand-100 bg-brand-50/60 p-4 text-sm leading-6 text-gray-600 dark:border-brand-500/20 dark:bg-brand-500/5 dark:text-gray-400">
+          <div className="mt-6 space-y-2 rounded-md border border-blue-100 bg-blue-50/60 p-4 text-sm leading-6 text-gray-600 dark:border-blue-500/20 dark:bg-blue-500/5 dark:text-gray-400">
             <p>{pt ? <>When your customer spends <B>{money(+c.minOrder || 0)}</B> or more on 1 order, a punch will be added to their account after <B>{(+c.delayMin || 0) + " minutes"}</B> from closing the order. They can get at most 1 punch per day.</>
               : <>When your customer spends <B>{money(+c.minOrder || 0)}</B> or more on 1 order, they will get <B>1 point</B> for each <B>{money(1)}</B> spent. The points are added after <B>{(+c.delayMin || 0) + " minutes"}</B> from closing the order.</>}</p>
             <p>Once the customer accumulates <B>{(+c.required || 0) + " " + unit(+c.required || 0)}</B> they can receive an order discount of <B>{amt ? money(+c.rewardValue || 0) : (+c.rewardValue || 0) + " %"}</B>

@@ -3,14 +3,12 @@
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, BarChartIcon, DownloadIcon } from "@/icons";
-import { useTheme } from "@/contexts";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
 import { cn } from "@/utils";
-import type { ApexOptions } from "apexcharts";
 import { useEffect, useMemo, useState } from "react";
-import ReactApexChart from "react-apexcharts";
+import { AreaChart } from "@/components/tremor/AreaChart";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { live } from "../crud/CrudPage";
 import { RangeInput } from "../ui/DateInput";
@@ -55,16 +53,15 @@ export default function ReportsPage() {
     <>
       <PageBreadcrumb pageTitle={hub[0]} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{hub[1].map(([k, t, d]) => (
-        <Link key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-sm dark:border-gray-800 dark:bg-[#090E1A]">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-brand-50 text-brand-500 dark:bg-brand-500/15"><BarChartIcon className="size-6" /></span>
-          <span><b className="block font-semibold text-gray-800 group-hover:text-brand-500 dark:text-gray-50">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></Link>))}</div>
+        <Link key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-[#090E1A]">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-500/15"><BarChartIcon className="size-6" /></span>
+          <span><b className="block font-semibold text-gray-800 group-hover:text-blue-500 dark:text-gray-50">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></Link>))}</div>
     </>);
   return <Report key={hubKey + r} hubKey={hubKey} rk={r} back={() => nav("/" + hubKey)} />;
 }
 
 function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => void }) {
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], products = useCol("products") || [], cats = useCol("categories") || [], devices = useCol("devices") || [], closes = useCol("day_closes") || [];
-  const { theme } = useTheme();
   const [from, setFrom] = useState(today().slice(0, 8) + "01"), [to, setTo] = useState(today()), [brand, setBrand] = useState(""), [branch, setBranch] = useState(""), [dim, setDim] = useState("branch"), [group, setGroup] = useState("");
   const [rows, setRows] = useState<any[] | null>(null), [prev, setPrev] = useState<any[] | null>(null), [err, setErr] = useState(""), [loading, setLoading] = useState(false);
   const bName = (id?: string) => branches.find(b => b.id === id)?.name || "—";
@@ -204,9 +201,6 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
   const print = () => { if (!B) return; const w = window.open("", "_blank"); if (!w) return; const e = (x: any) => String(x ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
     w.document.write(`<!doctype html><title>${e(B.title)}</title><style>body{font:12px Inter,system-ui,sans-serif;margin:24px;color:#1d2939}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #eaecf0;padding:6px 8px;text-align:left}.n{text-align:right}h2{margin:0 0 4px}</style><h2>${e(B.title)}</h2><p>${dmy(from)} – ${dmy(to)} · ${e(branch ? branches.find(b => b.id === branch)?.name : brand ? (brands.find(b => b.id === brand)?.name || "") + " · All Stores" : "All Stores")}</p>
       <table><thead><tr>${B.head.map(h => `<th class="${h[2] ? "n" : ""}">${e(h[0])}</th>`).join("")}</tr></thead><tbody>${B.rows.map(r => `<tr>${r.map((c, i) => `<td class="${B.head[i]?.[2] ? "n" : ""}">${e(c)}</td>`).join("")}</tr>`).join("")}${B.foot && B.rows.length ? `<tr>${B.foot.map((c, i) => `<td class="${B.head[i]?.[2] ? "n" : ""}"><b>${e(c)}</b></td>`).join("")}</tr>` : ""}</tbody></table><script>print()<\/script>`); w.document.close(); };
-  const opts: ApexOptions = { legend: { show: false }, colors: ["#3b82f6"], chart: { fontFamily: "Inter, sans-serif", height: 280, type: "area", toolbar: { show: false } }, fill: { type: "gradient", gradient: { opacityFrom: 0.55, opacityTo: 0 } },
-    stroke: { curve: "straight", width: 2 }, markers: { size: 0 }, dataLabels: { enabled: false }, grid: { borderColor: theme === "dark" ? "#1E2640" : "#F3F4F6", xaxis: { lines: { show: false } } },
-    xaxis: { type: "category", categories: B?.series?.labels || [], axisBorder: { show: false }, axisTicks: { show: false }, tickAmount: 8, labels: { style: { colors: "#6B7280" } } }, yaxis: { labels: { style: { colors: ["#6B7280"] }, formatter: v => (+v).toLocaleString() } }, tooltip: { y: { formatter: v => money(v) } } };
   return (
     <>
       <PageBreadcrumb pageTitle={rk === "sales" ? DIMS.find(d => d[0] === dim)?.[1] || name : name} />
@@ -226,9 +220,9 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
         : <>
           {B.kpis && B.rows.length > 0 && <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{B.kpis.map(([l, v]) => <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]">
             <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4>{delta(l)}</div>)}</div>}
-          {B.series && B.rows.length > 0 && <div className="mb-6 rounded-lg border border-gray-200 bg-white px-5 pt-5 sm:px-6 dark:border-gray-800 dark:bg-[#090E1A]">
+          {B.series && B.rows.length > 0 && <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-900 dark:bg-[#090E1A]">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Day</h3><p className="mt-1 text-sm text-gray-500">{B.series.labels[0]} – {B.series.labels[B.series.labels.length - 1]}{prev ? ` · compared with the ${nDays} days before` : ""}</p>
-            <ReactApexChart options={opts} series={[{ name: "Sales", data: B.series.values }]} type="area" height={280} /></div>}
+            <AreaChart className="mt-4 h-64" data={B.series!.labels.map((l: string, i: number) => ({ day: l, Sales: B.series!.values[i] }))} index="day" categories={["Sales"]} colors={["blue"]} valueFormatter={v => money(v)} showLegend={false} yAxisWidth={56} /></div>}
           <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
             <div className="custom-scrollbar max-w-full overflow-x-auto">
               {!B.rows.length ? <EmptyState text="No data to display" />

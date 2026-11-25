@@ -1,5 +1,4 @@
 // Sign in (TailAdmin sign-in page): account number + phone number + a code on WhatsApp; email and password stays as a fallback for the owner.
-import GridShape from "@/components/shared/grid-shape";
 import { SkwydLogo } from "@/components/shared/skwyd-logo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -8,6 +7,7 @@ import { sb } from "@/lib/supabase";
 import { ls } from "@/lib/util";
 import ThemeToggler from "../ui/ThemeToggler";
 import { useState, type FormEvent } from "react";
+import { SEL } from "../ui/kit";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
 
@@ -46,14 +46,13 @@ export default function SignInPage({ message }: { message: string }) {
   }
 
   return (
-    <div className="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900">
-      <div className="relative flex min-h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
-        <div className="flex w-full flex-1 flex-col lg:w-1/2">
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
-            <div className="mb-8 lg:hidden"><SkwydLogo /></div>
-            <div className="mb-5 sm:mb-8">
-              <h1 className="sm:text-3xl mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-50">Sign In</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to the back office with your account number.</p>
+    // Tremor login block: centred, logo, title, form
+    <div className="flex min-h-dvh items-center justify-center bg-white px-4 py-10 lg:px-6 dark:bg-gray-950">
+      <div className="relative sm:mx-auto sm:w-full sm:max-w-sm">
+            <div className="mb-6"><SkwydLogo /></div>
+            <div className="mb-6">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sign in to Skwyd Hub</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">Sign in to the back office with your account number.</p>
             </div>
             <form onSubmit={submit} className="space-y-5" noValidate>
               <Field><FieldLabel className="mb-1.5 block">Account Number <span className="text-red-500">*</span></FieldLabel>
@@ -66,7 +65,7 @@ export default function SignInPage({ message }: { message: string }) {
               </> : <>
                 <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
                   <div className="flex gap-3">
-                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className="h-9 w-28 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className={SEL + " w-28"}>{CCS.map(c => <option key={c}>{c}</option>)}</select>
                     <Input className="h-9 flex-1" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="70 123 456" value={num} onChange={e => { setNum(e.target.value); setSentTo(""); }} />
                   </div></Field>
                 {sentTo && <Field><FieldLabel className="mb-1.5 block">Code Sent On WhatsApp <span className="text-red-500">*</span></FieldLabel>
@@ -74,23 +73,12 @@ export default function SignInPage({ message }: { message: string }) {
                     onChange={e => { setCode(e.target.value); if (e.target.value.replace(/\D/g, "").length === 6) setTimeout(() => submit(), 0); }} /></Field>}
               </>}
               {(err || note) && <p className={err ? "text-sm text-red-500" : "text-sm text-green-600"}>{err || note}</p>}
-              <Button className="w-full" size="lg" type="submit" disabled={busy}>{busy ? "…" : pw || sentTo ? "Sign In" : "Send Code On WhatsApp"}</Button>
+              <Button className="w-full" type="submit" disabled={busy}>{busy ? "…" : pw || sentTo ? "Sign In" : "Send Code On WhatsApp"}</Button>
             </form>
-            <button type="button" className="mt-5 text-start text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400" onClick={() => { setPw(!pw); setErr(""); setNote(""); }}>
+            <button type="button" className="mt-6 text-start text-sm text-blue-600 hover:text-blue-500 dark:text-blue-500" onClick={() => { setPw(!pw); setErr(""); setNote(""); }}>
               {pw ? "Sign in with your phone number instead" : "Sign in with email and password instead"}</button>
-          </div>
-        </div>
-        <div className="relative hidden h-full min-h-screen w-full items-center justify-center bg-brand-950 lg:grid lg:w-1/2 dark:bg-white/5">
-          <div className="z-1 flex h-full items-center justify-center">
-            <GridShape />
-            <div className="flex max-w-xs flex-col items-center [--sk-ink:#fff]">
-              <span className="mb-4 block [&_*]:[--sk-ink:#fff]"><SkwydLogo markClass="h-14 w-12" wordClass="h-16 w-auto" /></span>
-              <p className="text-center text-gray-400 dark:text-white/60">Every store, order and shift in one place.</p>
-            </div>
-          </div>
-        </div>
-        <div className="fixed inset-e-6 bottom-6 z-50 hidden sm:block"><ThemeToggler /></div>
       </div>
+      <div className="fixed right-6 bottom-6 z-50 hidden sm:block"><ThemeToggler /></div>
     </div>
   );
 }

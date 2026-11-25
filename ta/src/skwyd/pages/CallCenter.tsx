@@ -81,7 +81,7 @@ export default function CallCenterPage() {
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
           <div key={k} className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
             <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b>
-              <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
+              <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
             <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending", "active"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
           </div>); })}
       </div>
@@ -107,7 +107,7 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
   const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
   return (
-    <button type="button" onClick={onOpen} className="block w-full rounded-md border border-gray-200 bg-white p-3 text-start shadow-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
+    <button type="button" onClick={onOpen} className="block w-full rounded-md border border-gray-200 bg-white p-3 text-start shadow-xs transition hover:border-blue-300 dark:border-gray-800 dark:bg-gray-900">
       <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-900 dark:text-gray-50">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
       {o.status === "declined" && o.voidReason && <p className="mb-2 text-xs text-red-500">Reason: {o.voidReason}</p>}
       <div className="space-y-2">

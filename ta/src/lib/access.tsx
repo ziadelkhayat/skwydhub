@@ -64,7 +64,7 @@ export function SubBar() {
   else if (sub.state === "grace") { warn = true; btn = "Pay Now"; text = <><b>Payment overdue.</b> {+sub.owed ? subMoney(sub.owed, cur) + " is due. " : ""}Access locks in <b>{days(+sub.daysLeft || 0)}</b>.</>; }
   else if (sub.state === "active" && +sub.openInvoices && +sub.daysLeft <= 7) text = <>Your invoice of <b>{subMoney(sub.owed, cur)}</b> is ready. The plan renews in {days(+sub.daysLeft || 0)}.</>;
   if (!text) return null;
-  return <div className={"mb-4 flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm " + (warn ? "bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-400" : "bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300")}>
+  return <div className={"mb-4 flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm " + (warn ? "bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-400" : "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300")}>
     <span>{text}</span>{go && <Button size="sm" variant="outline" className="ms-auto" render={<Link to="/subscription" />}>{btn}</Button>}</div>;
 }
 

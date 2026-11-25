@@ -61,14 +61,13 @@ const CombosPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default
 // the addresses of the inventory document lists and the report hubs (InvDocs DOC_KINDS, Reports RPT_HUB)
 const DOC_ROUTES = ["quantity-adjustments", "cost-adjustments", "inventory-count", "spot-check", "po", "purchase-orders", "transfer-orders", "transfers", "production", "count-sheets"];
 const RPT_ROUTES = ["sales-reports", "inventory-reports", "business-reports", "employee-reports", "analysis-reports"];
-import "flatpickr/dist/flatpickr.css";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import { Blocked, Locked, useAccess, useSub } from "@/lib/access";
 
 // Skwyd Hub back office on the TailAdmin template. Addresses with no page show NotMoved (Kitchen Flows: Coming next, as in the portal).
 export default function App() {
   const { staff, loading, message } = useAuth();
-  if (loading) return <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900"><span className="size-10 animate-spin rounded-full border-4 border-gray-200 border-t-brand-500" /></div>;
+  if (loading) return <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900"><span className="size-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" /></div>;
   if (!staff) return <SignInPage message={message} />;
   return <Gate />;
 }
@@ -144,5 +143,5 @@ function Gate() {
 function FullScreen() {
   const { pathname } = useLocation(), acc = useAccess();
   return <div className="min-h-dvh bg-gray-50 p-3 md:p-4 dark:bg-gray-900">{!acc.ready ? null : acc.canOpen(pathname)
-    ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-500" /></div>}><Outlet /></Suspense> : <Blocked path={pathname} />}</div>;
+    ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" /></div>}><Outlet /></Suspense> : <Blocked path={pathname} />}</div>;
 }

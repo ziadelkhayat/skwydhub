@@ -38,8 +38,8 @@ const Card = ({ title, note, children, right }: { title: string; note?: string; 
 function Radios({ value, set, opts }: { value: string; set: (v: string) => void; opts: [string, string, string?][] }) {
   return <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{opts.map(([v, t, s]) => (
     <button key={v} type="button" onClick={() => set(v)} aria-pressed={value === v}
-      className={cn("rounded-md border p-3 text-start text-sm transition-colors", value === v ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800")}>
-      <b className={cn("block font-medium", value === v ? "text-brand-600 dark:text-brand-400" : "text-gray-900 dark:text-gray-50")}>{t}</b>{s && <span className="text-xs text-gray-500">{s}</span>}</button>))}</div>;
+      className={cn("rounded-md border p-3 text-start text-sm transition-colors", value === v ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800")}>
+      <b className={cn("block font-medium", value === v ? "text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-gray-50")}>{t}</b>{s && <span className="text-xs text-gray-500">{s}</span>}</button>))}</div>;
 }
 
 export default function WebOrderingPage() {
@@ -134,7 +134,7 @@ export default function WebOrderingPage() {
           {tab === "look" && <>
             <Card title="Theme" note="Pick a preset, then fine-tune the color.">
               <div className="flex flex-wrap gap-2">{PRE.map(([n, a, b]) => { const on = a.toLowerCase() === acc.toLowerCase() && (th.bg || "light") === b; return (
-                <button key={n} type="button" onClick={() => { up("theme", { ...th, accent: a, bg: b }); }} className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm", on ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 dark:border-gray-800")}>
+                <button key={n} type="button" onClick={() => { up("theme", { ...th, accent: a, bg: b }); }} className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm", on ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10" : "border-gray-200 dark:border-gray-800")}>
                   <span className={cn("size-4 rounded-full ring-2", b === "dark" ? "ring-gray-800" : b === "warm" ? "ring-amber-100" : "ring-gray-100")} style={{ background: a }} /><span className="text-gray-700 dark:text-gray-300">{n}</span></button>); })}</div>
               <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <F l="Brand color"><div className="flex gap-3"><input type="color" aria-label="Brand color" value={/^#[\da-f]{6}$/i.test(acc) ? acc : "#007AFF"} onChange={e => up("theme.accent", e.target.value)} className="h-9 w-14 cursor-pointer rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700" />
@@ -177,13 +177,13 @@ export default function WebOrderingPage() {
                   <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">{x.paused ? "Paused" : "Taking orders"}<Switch checked={!x.paused} onCheckedChange={v => bset(b.id, "paused", !v)} /></label>
                 </div>
                 <div className="mb-5 flex flex-wrap gap-2">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "In Store"]].map(([k, t]) => { const on = x[k] !== false; return (
-                  <button key={k} type="button" aria-pressed={on} onClick={() => bset(b.id, k, !on)} className={cn("h-9 rounded-lg border px-3.5 text-sm font-medium", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-300 text-gray-500 dark:border-gray-700")}>{t}</button>); })}</div>
+                  <button key={k} type="button" aria-pressed={on} onClick={() => bset(b.id, k, !on)} className={cn("h-9 rounded-lg border px-3.5 text-sm font-medium", on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-300 text-gray-500 dark:border-gray-700")}>{t}</button>); })}</div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
                   {bv("prep", "Pickup ready in (min)", "20", "number")}{bv("minPickup", `Pickup minimum (${sym()})`, "0", "number")}{bv("phone", "Store phone", "+961 …", "tel")}
                   {bv("whatsapp", "Store WhatsApp", "+961 …", "tel")}{bv("address", "Address", "Street, area")}{bv("note", "Message to customers", "e.g. Parking available")}</div>
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start">
                   <div className="sm:w-36"><F l="Tables for QR"><Input className="h-9" type="number" min={0} value={x.tables ?? ""} onChange={e => bset(b.id, "tables", e.target.value === "" ? null : +e.target.value)} /></F></div>
-                  <div className="flex flex-1 flex-wrap gap-1.5 sm:pt-7">{x.tables ? Array.from({ length: Math.min(+x.tables, 40) }, (_, i) => <a key={i} href={qr(i + 1)} target="_blank" rel="noopener" className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-brand-500 hover:bg-brand-50 dark:bg-white/5">T{i + 1}</a>)
+                  <div className="flex flex-1 flex-wrap gap-1.5 sm:pt-7">{x.tables ? Array.from({ length: Math.min(+x.tables, 40) }, (_, i) => <a key={i} href={qr(i + 1)} target="_blank" rel="noopener" className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-blue-500 hover:bg-blue-50 dark:bg-white/5">T{i + 1}</a>)
                     : <span className="text-sm text-gray-500">Set the number of tables to get a QR link for each.</span>}</div></div>
               </div>); }))}
         </div>

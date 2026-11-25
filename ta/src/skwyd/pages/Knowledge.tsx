@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Input as TInput } from "@/components/tremor/Input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ArchiveIcon, ArrowLeftIcon, FileIcon, FolderIcon, GearIcon, LinkIcon, PencilIcon, PieChartIcon, PlusIcon, SearchIcon, TextIcon, TrashBinIcon, UserIcon } from "@/icons";
+import { ArchiveIcon, ArrowLeftIcon, FileIcon, FolderIcon, GearIcon, LinkIcon, PencilIcon, PieChartIcon, PlusIcon, TextIcon, TrashBinIcon, UserIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { put, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -29,7 +29,7 @@ const isAdminRow = (r: Row) => r.role === "owner" || r.role === "admin";
 const roleIds = (u: Row) => (u?.roleIds || []).length ? u.roleIds : (u?.roleId ? [u.roleId] : []);
 const itemsOf = (a?: Row | null): Item[] => (a?.files || []).map((f: any, i: number) => ({ ...f, id: f.id || "f" + i, kind: f.kind || "file", parent: f.parent || "" }));
 const kids = (items: Item[], p: string) => items.filter(x => x.parent === p).sort((a, b) => +(a.kind !== "folder") - +(b.kind !== "folder"));
-const ICO: Record<string, React.ReactNode> = { folder: <FolderIcon className="size-5 text-amber-500" />, text: <TextIcon className="size-5 text-brand-500" />, link: <LinkIcon className="size-5 text-green-600" />, file: <FileIcon className="size-5 text-pink-500" /> };
+const ICO: Record<string, React.ReactNode> = { folder: <FolderIcon className="size-5 text-amber-500" />, text: <TextIcon className="size-5 text-blue-500" />, link: <LinkIcon className="size-5 text-green-600" />, file: <FileIcon className="size-5 text-pink-500" /> };
 const COLS = ["#f59e0b", "#3b82f6", "#e11d48", "#7c3aed", "#0ea5e9", "#ec4899", "#16a34a", "#ea580c"];
 const Av = ({ n }: { n?: string }) => <span title={n} className="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white ring-2 ring-white dark:ring-gray-900" style={{ background: COLS[[...String(n || "")].reduce((a, c) => a + c.charCodeAt(0), 0) % 8] }}>{String(n || "?").trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase()}</span>;
 const St = ({ a }: { a: Row }) => a.archived ? <Badge variant="light" color="light">Archived</Badge> : a.status === "draft" ? <Badge variant="light" color="warning">Draft</Badge> : <Badge variant="light" color="success">Published</Badge>;
@@ -62,7 +62,7 @@ export default function KnowledgePage() {
       <div className={BOX}>
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["active", `Active (${act.length})`], ["archived", `Archived (${arc.length})`]]} />
-          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
             <Button onClick={() => setEd({ a: null, step: 0 })}><PlusIcon className="size-5" />Add New</Button></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
@@ -89,11 +89,11 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
   const viewed = aud.filter(u => byU[u.id]).length, vm = aud.filter(u => String(byU[u.id]?.lastViewedAt || byU[u.id]?.readAt || "").slice(0, 7) === mon).length, pc = (n: number) => aud.length ? Math.round(n * 100 / aud.length) : 0;
   const Ring = ({ p, c }: { p: number; c: string }) => <span className="relative flex size-16 items-center justify-center rounded-full" style={{ background: `conic-gradient(${c} ${p * 3.6}deg,#eef0f4 0)` }}><i className="flex size-12 items-center justify-center rounded-full bg-white text-sm font-semibold not-italic text-gray-800 dark:bg-gray-900 dark:text-gray-50">{p}%</i></span>;
   const tree = (p: string, d: number): React.ReactNode => kids(items, p).filter(x => x.kind === "folder").map(f => <div key={f.id}>
-    <button type="button" onClick={() => setNode(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("flex w-full items-center gap-2 rounded-lg py-2 pe-3 text-start text-sm", node === f.id ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>{ICO.folder}{f.name}</button>{tree(f.id, d + 1)}</div>);
-  const Prev = ({ x }: { x: Item }) => x.kind === "folder" ? <button type="button" onClick={() => setNode(x.id)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-brand-300 dark:border-gray-800">{ICO.folder}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{kids(items, x.id).length} items</span></button>
+    <button type="button" onClick={() => setNode(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("flex w-full items-center gap-2 rounded-lg py-2 pe-3 text-start text-sm", node === f.id ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>{ICO.folder}{f.name}</button>{tree(f.id, d + 1)}</div>);
+  const Prev = ({ x }: { x: Item }) => x.kind === "folder" ? <button type="button" onClick={() => setNode(x.id)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-blue-300 dark:border-gray-800">{ICO.folder}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{kids(items, x.id).length} items</span></button>
     : x.kind === "text" ? <div className="rounded-md border border-gray-200 p-4 dark:border-gray-800"><div className="mb-2 flex items-center gap-2">{ICO.text}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name || "Text"}</b></div><Body t={x.body} /></div>
-    : x.kind === "link" ? <a href={/^https?:\/\//i.test(x.url || "") ? x.url : "https://" + (x.url || "")} target="_blank" rel="noopener" className="flex items-center gap-3 rounded-md border border-gray-200 p-4 hover:border-brand-300 dark:border-gray-800">{ICO.link}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name || x.url}</b><span className="ms-auto truncate text-xs text-gray-500">{x.url}</span></a>
-    : <button type="button" onClick={() => openFile(x.path)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-brand-300 dark:border-gray-800">{ICO.file}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{x.size ? (x.size / 1048576).toFixed(1) + " MB" : ""}</span></button>;
+    : x.kind === "link" ? <a href={/^https?:\/\//i.test(x.url || "") ? x.url : "https://" + (x.url || "")} target="_blank" rel="noopener" className="flex items-center gap-3 rounded-md border border-gray-200 p-4 hover:border-blue-300 dark:border-gray-800">{ICO.link}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name || x.url}</b><span className="ms-auto truncate text-xs text-gray-500">{x.url}</span></a>
+    : <button type="button" onClick={() => openFile(x.path)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-blue-300 dark:border-gray-800">{ICO.file}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{x.size ? (x.size / 1048576).toFixed(1) + " MB" : ""}</span></button>;
   const cur = items.find(x => x.id === node);
   return (
     <>
@@ -105,8 +105,8 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         <aside className="h-fit rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-[#090E1A]">
-          <button type="button" onClick={() => setNode("")} className={cn("mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm font-medium", !node ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300")}><PieChartIcon className="size-5" />Overall Statistics</button>
-          <button type="button" onClick={() => setNode("__root")} className={cn("flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm font-semibold", node === "__root" ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "text-gray-800 hover:bg-gray-50 dark:text-gray-50")}>{ICO.folder}{a.title}</button>
+          <button type="button" onClick={() => setNode("")} className={cn("mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm font-medium", !node ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300")}><PieChartIcon className="size-5" />Overall Statistics</button>
+          <button type="button" onClick={() => setNode("__root")} className={cn("flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm font-semibold", node === "__root" ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-800 hover:bg-gray-50 dark:text-gray-50")}>{ICO.folder}{a.title}</button>
           {tree("", 1)}
         </aside>
         <section className="min-w-0 rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
@@ -116,9 +116,9 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
               {(node === "__root" ? !kids(items, "").length && !a.body : cur!.kind === "folder" && !kids(items, cur!.id).length) && <p className="py-10 text-center text-sm text-gray-500">This folder is empty</p>}</div></>
           : <><h4 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50"><PieChartIcon className="size-5" />Overall Statistics</h4>
             <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(viewed)} c="#3b82f6" /><span><small className="block text-gray-500">{viewed}/{aud.length} viewers</small><b className="text-brand-500">{a.ack ? "Confirmed reading" : "Viewed this"}</b></span></div>
+              <div className="flex items-center gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(viewed)} c="#3b82f6" /><span><small className="block text-gray-500">{viewed}/{aud.length} viewers</small><b className="text-blue-500">{a.ack ? "Confirmed reading" : "Viewed this"}</b></span></div>
               <div className="flex items-center gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(vm)} c="#f59e0b" /><span><small className="block text-gray-500">{vm}/{aud.length} viewers</small><b className="text-amber-600">Views this month</b></span></div></div>
-            <InputGroup className="mb-4 h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={dq} onChange={e => setDq(e.target.value)} /></InputGroup>
+            <TInput type="search" className="mb-4  sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={dq} onChange={e => setDq(e.target.value)} />
             <div className="-mx-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Name", "Groups", "Last Viewed"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Total Views</th></tr></thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{aud.filter(u => !dq || String(u.name).toLowerCase().includes(dq.toLowerCase())).map(u => { const r = byU[u.id]; return <tr key={u.id}>
                 <td className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></td><td className={TD}>{roleIds(u).map((id: string) => s.roles.find(x => x.id === id)?.name).filter(Boolean).join(", ") || "—"}</td>
@@ -155,7 +155,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
   const rm = async (it: Item) => { const gone = new Set([it.id]); let more = true; while (more) { more = false; E.items.forEach(x => { if (gone.has(x.parent) && !gone.has(x.id)) { gone.add(x.id); more = true; } }); }
     if (await askYes(it.kind === "folder" ? `Delete the folder ${it.name} and everything in it?` : `Delete ${it.name || "this item"}?`, "Delete", true)) up({ items: E.items.filter(x => !gone.has(x.id)) }); };
   const tree = (p: string, d: number): React.ReactNode => kids(E.items, p).filter(x => x.kind === "folder").map(f => <div key={f.id}>
-    <div onClick={() => setFolder(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("group flex cursor-pointer items-center gap-2 rounded-lg py-2 pe-2 text-sm", folder === f.id ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>
+    <div onClick={() => setFolder(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("group flex cursor-pointer items-center gap-2 rounded-lg py-2 pe-2 text-sm", folder === f.id ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>
       {ICO.folder}<span className="flex-1 truncate">{f.name}</span><button type="button" title="Rename" onClick={e => { e.stopPropagation(); setDlg({ kind: "folder", it: f }); }} className="opacity-0 group-hover:opacity-100"><PencilIcon className="size-4" /></button></div>{tree(f.id, d + 1)}</div>);
   const crumbs: Item[] = []; for (let f = E.items.find(x => x.id === folder); f; f = E.items.find(x => x.id === f!.parent)) crumbs.unshift(f);
   const list = q.trim() ? E.items.filter(x => ((x.name || "") + " " + (x.url || "") + " " + (x.body || "")).toLowerCase().includes(q.trim().toLowerCase())) : kids(E.items, folder);
@@ -171,8 +171,8 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
     return (
       <>
         <PageBreadcrumb pageTitle={STEPS[step - 1]} />
-        <div className="mb-6 flex items-center justify-center gap-3">{STEPS.map((t, i) => <div key={t} className="flex items-center gap-3">{i > 0 && <i className={cn("h-px w-10", step > i ? "bg-brand-500" : "bg-gray-300")} />}
-          <span className={cn("flex size-8 items-center justify-center rounded-full text-sm font-semibold", step > i + 1 ? "bg-brand-500 text-white" : step === i + 1 ? "border-2 border-brand-500 text-brand-500" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{step > i + 1 ? "✓" : "0" + (i + 1)}</span><small className="hidden text-sm text-gray-600 sm:inline dark:text-gray-400">{t}</small></div>)}</div>
+        <div className="mb-6 flex items-center justify-center gap-3">{STEPS.map((t, i) => <div key={t} className="flex items-center gap-3">{i > 0 && <i className={cn("h-px w-10", step > i ? "bg-blue-500" : "bg-gray-300")} />}
+          <span className={cn("flex size-8 items-center justify-center rounded-full text-sm font-semibold", step > i + 1 ? "bg-blue-500 text-white" : step === i + 1 ? "border-2 border-blue-500 text-blue-500" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{step > i + 1 ? "✓" : "0" + (i + 1)}</span><small className="hidden text-sm text-gray-600 sm:inline dark:text-gray-400">{t}</small></div>)}</div>
         <div className={BOX}>
           {step === 3 ? <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-2 lg:p-6">
             <div className="rounded-md border border-gray-200 p-5 dark:border-gray-800"><b className="text-gray-900 dark:text-gray-50">Assigned Employees · {aud.length}</b>
@@ -183,7 +183,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
           </div> : <>
             <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               {adm ? <span /> : <SegTabs value={mode} onChange={v => up({ mode: v })} items={[["groups", "Select By Groups"], ["users", "Select By Users"]]} />}
-              <InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></InputGroup></div>
+              <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></div>
             <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
               {mode === "groups" ? <><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>Group</th><th className={TH + " text-end"}>Members</th></tr></thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{[...s.roles.filter(r => live(r) && (!qq || String(r.name).toLowerCase().includes(qq))).map(r => ["r", r] as const), ...s.branches.filter(b => live(b) && b.active !== false && (!qq || String(b.name).toLowerCase().includes(qq))).map(b => ["b", b] as const)].map(([k, x]) => {
@@ -210,17 +210,17 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
           <aside className="border-b border-gray-100 p-3 lg:border-e lg:border-b-0 dark:border-gray-800">
             <p className="px-3 pb-2 text-xs font-medium tracking-wide text-gray-400 uppercase">Folders</p>
-            <div onClick={() => setFolder("")} className={cn("group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold", !folder ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "text-gray-800 hover:bg-gray-50 dark:text-gray-50")}>
+            <div onClick={() => setFolder("")} className={cn("group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold", !folder ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-800 hover:bg-gray-50 dark:text-gray-50")}>
               {ICO.folder}<span className="flex-1 truncate">{E.title || "Untitled"}</span><button type="button" title="Rename" onClick={e => { e.stopPropagation(); setDlg({ kind: "name" }); }}><PencilIcon className="size-4" /></button></div>
             {tree("", 1)}
             <Button variant="outline" className="mt-3 w-full" onClick={() => setDlg({ kind: "folder" })}><PlusIcon className="size-4.5" />Add Folder</Button>
           </aside>
           <section className="min-w-0 p-5 lg:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-1 text-sm"><button type="button" className="font-semibold text-gray-900 dark:text-gray-50" onClick={() => setFolder("")}>{E.title || "Untitled"}</button>
-              {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><button type="button" onClick={() => setFolder(c.id)} className="hover:text-brand-500">{c.name}</button></span>)}</div>
+              {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><button type="button" onClick={() => setFolder(c.id)} className="hover:text-blue-500">{c.name}</button></span>)}</div>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">{[["text", "Add Text"], ["link", "Add Link"], ["file", "Add Files"], ["folder", "Add Folder"]].map(([k, t]) => <Button key={k} size="sm" variant="outline" onClick={() => k === "file" ? fileIn.current?.click() : setDlg({ kind: k })}>{ICO[k]}{t}</Button>)}</div>
-              <InputGroup className="h-9 sm:w-56"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
+              <TInput type="search" className="sm:w-56" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
             <input ref={fileIn} type="file" multiple hidden accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={e => { upload(e.target.files); e.target.value = ""; }} />
             <div className="divide-y divide-gray-100 rounded-md border border-gray-200 dark:divide-white/5 dark:border-gray-800">
               {!folder && E.body && <div className="flex items-center gap-3 px-4 py-3">{ICO.text}<b className="text-sm font-medium text-gray-900 dark:text-gray-50">Text (from the old article)</b><span className="flex-1 truncate text-xs text-gray-500">{E.body.slice(0, 80)}</span>
@@ -235,7 +235,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
           </section>
         </div>
         <div className="flex flex-col gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-gray-800">
-          <div className="flex flex-1 items-center gap-3 text-xs text-gray-500"><span>Storage</span><span className="h-2 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><i className="block h-full bg-brand-500" style={{ width: Math.min(100, size / (500 * 10485.76)) + "%" }} /></span><span>{(size / 1048576).toFixed(1)} MB of 500 MB</span></div>
+          <div className="flex flex-1 items-center gap-3 text-xs text-gray-500"><span>Storage</span><span className="h-2 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><i className="block h-full bg-blue-500" style={{ width: Math.min(100, size / (500 * 10485.76)) + "%" }} /></span><span>{(size / 1048576).toFixed(1)} MB of 500 MB</span></div>
           <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={async () => { if (await askYes("Leave without saving your changes?", "Leave")) onDone(); }}>Cancel</Button>
             <Button variant="outline" onClick={() => setDlg({ kind: "settings" })}><GearIcon className="size-4.5" />Settings</Button>

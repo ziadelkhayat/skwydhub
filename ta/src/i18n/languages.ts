@@ -1,7 +1,3 @@
-import type { ComponentType, SVGProps } from "react";
-
-// Direct imports (not the `@/icons` barrel) keep this module's graph small.
-import UsFlagIcon from "@/icons/flag-us.svg?react";
 
 import { type Locale, isRtl, routing } from "./routing";
 
@@ -11,12 +7,11 @@ export interface Language {
   name: string;
   /** Short code shown in compact UI (e.g. the dropdown trigger). */
   shortName: string;
-  FlagIcon: ComponentType<SVGProps<SVGSVGElement>>;
   badge?: string;
 }
 
 export const languages: readonly Language[] = [
-  { id: "en", name: "English", shortName: "EN", FlagIcon: UsFlagIcon },
+  { id: "en", name: "English", shortName: "EN" },
 ];
 
 const defaultLanguage = languages.find(

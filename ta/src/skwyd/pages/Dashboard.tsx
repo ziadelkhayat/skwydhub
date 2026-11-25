@@ -2,15 +2,14 @@
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
 // (the one before by default, or one picked by its date).
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
-import { useTheme } from "@/contexts";
 import { BanknoteUndoIcon, BoxIcon, CartIcon, ClockIcon, DollarIcon, OctagonAlertIcon, TagIcon, TicketIcon, UserDollarIcon, XIcon } from "@/icons";
 import MetricCard from "../ui/MetricCard";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
-import type { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
-import ReactApexChart from "react-apexcharts";
+import { Card } from "@/components/tremor/Card";
+import { AreaChart } from "@/components/tremor/AreaChart";
 import { SegTabs } from "../ui/SegTabs";
 import { DateInput, RangeInput } from "../ui/DateInput";
 import { Switch } from "@/components/ui/switch";
@@ -19,7 +18,7 @@ import { SEL } from "../ui/kit";
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
 export default function Dashboard() {
-  const { theme } = useTheme(); useCol("settings");
+  useCol("settings");
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
   const [days, setDays] = useState("1"), [rng, setRng] = useState<[string, string]>(["", ""]), [at, setAt] = useState(iso(new Date())), [cmpAt, setCmpAt] = useState("");
   const [brand, setBrand] = useState(""), [store, setStore] = useState(""), [cmp, setCmp] = useState(false);
@@ -57,17 +56,7 @@ export default function Dashboard() {
   const fmtD = (d: Date) => iso(d).split("-").reverse().join("-");
   const prevStart = cmpPer.start, prevEnd = new Date(+cmpPer.start + (cmpPer.n - 1) * 86400000);
 
-  const labels = Array.from({ length: 24 }, (_, h) => (h % 12 || 12) + (h < 12 ? "am" : "pm"));
-  const options: ApexOptions = {
-    legend: { show: false }, colors: ["#3b82f6", "#93c5fd"],
-    chart: { fontFamily: "Inter, sans-serif", height: 310, type: "area", toolbar: { show: false } },
-    stroke: { curve: "straight", width: [2, 2] }, fill: { type: "gradient", gradient: { opacityFrom: 0.55, opacityTo: 0 } },
-    markers: { size: 0, strokeColors: "#fff", strokeWidth: 2, hover: { size: 6 } },
-    grid: { borderColor: theme === "dark" ? "#1E2640" : "#F3F4F6", xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
-    dataLabels: { enabled: false }, tooltip: { enabled: true, shared: true, intersect: false },
-    xaxis: { type: "category", categories: labels, axisBorder: { show: false }, axisTicks: { show: false }, tickAmount: 8, labels: { style: { colors: "#6B7280" } } },
-    yaxis: { labels: { style: { fontSize: "12px", colors: ["#6B7280"] }, formatter: v => (+v).toLocaleString() } },
-  };
+  const labels = Array.from({ length: 24 }, (_, h) => (h % 12 || 12) + (h < 12 ? " AM" : " PM"));
 
   return (
     <>
@@ -90,17 +79,17 @@ export default function Dashboard() {
           <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-5">
             {cards.map(c => <MetricCard key={c.t} icon={c.i} title={c.t} value={c.v} change={c.ch} direction={c.dir} />)}
           </div>
-          <div className="col-span-12 rounded-lg border border-gray-200 bg-white px-5 pt-5 pb-5 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-[#090E1A]">
+          <Card className="col-span-12">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Hour</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-50">Sales By Hour</h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{P ? "Net sales through the day, this period and the one before" : "Net sales and payments through the day"}</p>
             </div>
-            <div className="custom-scrollbar max-w-full overflow-x-auto">
-              <div className="min-w-250 xl:min-w-full">
-                <ReactApexChart options={options} series={[{ name: "Net sales", data: hrs("net").map(v => +v.toFixed(2)) }, P ? { name: "Net sales (before)", data: hrsOf(P, "net").map(v => +v.toFixed(2)) } : { name: "Net payments", data: hrs("pay").map(v => +v.toFixed(2)) }]} type="area" height={310} />
-              </div>
-            </div>
-          </div>
+            {(() => {
+              const a = hrs("net"), b = P ? hrsOf(P, "net") : hrs("pay"), k1 = "Net sales", k2 = P ? "Net sales (before)" : "Net payments";
+              const data = labels.map((l, h) => ({ hour: l, [k1]: +a[h].toFixed(2), [k2]: +b[h].toFixed(2) }));
+              return <AreaChart className="h-72" data={data} index="hour" categories={[k1, k2]} colors={["blue", "cyan"]} valueFormatter={v => v.toLocaleString()} showLegend yAxisWidth={56} />;
+            })()}
+          </Card>
         </div>}
     </>
   );

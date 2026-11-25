@@ -1,12 +1,12 @@
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { FilterIcon, SearchIcon } from "@/icons";
+import { FilterIcon } from "@/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Input as TInput } from "@/components/tremor/Input";
 import { RangeInput } from "../ui/DateInput";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -22,7 +22,7 @@ export const ST_COLOR: Record<string, any> = { closed: "success", active: "prima
 export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
-const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
+const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-xs focus:border-blue-300 focus:ring-3 focus:ring-blue-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
 export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
 export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
 // every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
@@ -102,10 +102,7 @@ export default function OrdersPage() {
           {/* every tab shown (they wrap on small screens), the filters on the line under them */}
           <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial">
-              <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
-              <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
-            </InputGroup>
+            <TInput type="search" className="flex-1 sm:w-64 sm:flex-initial" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             {<select aria-label="Brand" className={SEL} value={F.brand || ""} onChange={e => { const v = e.target.value; setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }}><option value="">All Brands</option>{brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
             <select aria-label="Store" className={SEL} value={F.branch || ""} onChange={e => { setF({ ...F, branch: e.target.value }); setPage(1); }}><option value="">All Stores</option>{branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <div className="sm:w-56"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>

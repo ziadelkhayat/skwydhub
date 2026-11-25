@@ -22,7 +22,7 @@ export function ImageField({ value, onChange, wide, hint = "JPG or PNG. It's res
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
       <button type="button" onClick={() => inp.current?.click()} onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={e => { e.preventDefault(); setDrag(false); take(e.dataTransfer.files?.[0]); }}
         className={cn("flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-dashed bg-gray-50 text-gray-400 transition-colors dark:bg-[#090E1A]", wide ? "h-24 w-full sm:w-56" : "size-24",
-          drag ? "border-brand-500 bg-brand-50" : "border-gray-300 hover:border-brand-500 dark:border-gray-700")} aria-label="Choose photo">
+          drag ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-500 dark:border-gray-700")} aria-label="Choose photo">
         {value ? <img src={value} alt="" className="size-full object-cover" /> : <CameraIcon className="size-7" />}</button>
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" size="sm" onClick={() => inp.current?.click()}>{value ? "Change photo" : "Choose photo"}</Button>

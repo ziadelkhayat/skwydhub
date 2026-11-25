@@ -77,7 +77,7 @@ function Profile({ s, reload }: { s: Record<string, Row[]>; reload: () => Promis
         <Button variant="outline" className="h-9" onClick={() => setPin(String(Math.floor(10000 + Math.random() * 90000)))}>Generate</Button></div>{pinErr && <p className="mt-1.5 text-sm text-red-500">{pinErr}</p>}</F> : <span />}
       <F l="Language" req><select className={SEL} value={lang} onChange={e => setLang(e.target.value)}><option value="en">English</option><option value="ar">Arabic</option></select></F>
     </div>
-    <label className="mt-5 flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={locN} onChange={e => setLocN(e.target.checked)} />Display Localized Names</label>
+    <label className="mt-5 flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={locN} onChange={e => setLocN(e.target.checked)} />Display Localized Names</label>
     {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
     <div className="mt-6 flex justify-end"><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div>
   </Card>;
@@ -133,7 +133,7 @@ function Business({ s }: { s: Record<string, Row[]> }) {
       <F l="Google Maps API Key" help="Optional. With a key, location search uses Google Places; without one it uses OpenStreetMap. Restrict the key to your website in Google Cloud."><Input className="h-9" disabled={dis} autoComplete="off" spellCheck={false} placeholder="Optional · AIza…" value={v.gmapsKey} onChange={e => set("gmapsKey", e.target.value)} /></F>
     </div>
     <div className="mt-5 space-y-3">{([["chargesBeforeDisc", "Apply charges on the order's subtotal without tax exclusive discounts", "On: percentage charges are worked out on the order before any discount. Off: on the order after discounts."], ["localization", "Enable Localization", "Shows the Name Localized fields everywhere, so menus, receipts and apps can show a second language."]] as const).map(([k, l, n]) =>
-      <label key={k} className="flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="mt-0.5 size-4 accent-brand-500" disabled={dis} checked={!!v[k]} onChange={e => set(k, e.target.checked)} /><span>{l}<span className="block text-xs text-gray-500">{n}</span></span></label>)}</div>
+      <label key={k} className="flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="mt-0.5 size-4 accent-blue-500" disabled={dis} checked={!!v[k]} onChange={e => set(k, e.target.checked)} /><span>{l}<span className="block text-xs text-gray-500">{n}</span></span></label>)}</div>
     {err && <p className="mt-4 text-sm text-red-500">{err}</p>}{sv}</Card>
   </>;
 }
@@ -174,14 +174,14 @@ export function SubscriptionPage() {
   const co = s.company || {}, pkg = s.complimentary ? "Complimentary" : s.state === "trial" || s.status === "trial" ? "Free Trial" : s.cycle === "yearly" ? "Yearly" : "Monthly";
   const mods = (s.products || []).filter((p: any) => !p.required && p.unit !== "device" && p.unit !== "warehouse"), q = s.quote, b = s.billing || {};
   const unit = (l: any) => l.unit === "device" ? " per device" : l.unit === "warehouse" ? " per warehouse" : l.unit === "branch" ? " per store" : "";
-  const contact = [b.supportPhone && <a key="p" className="text-brand-500" href={"tel:" + String(b.supportPhone).replace(/\s+/g, "")}>{b.supportPhone}</a>, b.supportEmail && <a key="e" className="text-brand-500" href={"mailto:" + b.supportEmail}>{b.supportEmail}</a>].filter(Boolean);
+  const contact = [b.supportPhone && <a key="p" className="text-blue-500" href={"tel:" + String(b.supportPhone).replace(/\s+/g, "")}>{b.supportPhone}</a>, b.supportEmail && <a key="e" className="text-blue-500" href={"mailto:" + b.supportEmail}>{b.supportEmail}</a>].filter(Boolean);
   const showInv = async (i: any) => { try { (await loadInv())(i, b, co); } catch { toast("Couldn't open the invoice.", "error"); } };
   const cards: [string, string, string][] = [["Plan", stName, stNote], ["POS Devices", `${+s.posUsed || 0} / ${s.complimentary ? "∞" : s.posDevices ?? "—"}`, "Activated registers"], ["Warehouses", `${+s.warehousesUsed || 0} / ${s.complimentary ? "∞" : s.warehouses ?? "—"}`, "Warehouses in use"],
     ["Amount Due", m(s.owed), +s.openInvoices ? `${s.openInvoices} open invoice${+s.openInvoices === 1 ? "" : "s"}` : "Nothing to pay"], ["Account Number", co.accountNo || "—", "Staff sign in with it"]];
   return <>
     <PageBreadcrumb pageTitle="Subscription" />
     {!s.complimentary && s.state === "grace" && <p className="mb-5 rounded-lg bg-error-50 px-4 py-3 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400"><b>Payment overdue.</b> {+s.owed ? m(s.owed) + " is due. " : ""}Access locks in <b>{sDays(+s.daysLeft || 0)}</b>.</p>}
-    {!s.complimentary && s.state === "trial" && <p className="mb-5 rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">Free trial: <b>{sDays(+s.daysLeft || 0)} left</b>. Your plan starts after the trial ends.</p>}
+    {!s.complimentary && s.state === "trial" && <p className="mb-5 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">Free trial: <b>{sDays(+s.daysLeft || 0)} left</b>. Your plan starts after the trial ends.</p>}
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-5">{cards.map(([l, v, n]) => <div key={l} className={BOX + " p-5"}><span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="mt-2 block text-xl font-semibold text-gray-900 dark:text-gray-50">{v}</b><span className="text-xs text-gray-500">{n}</span></div>)}</div>
     <Card title="General Information"><div className="grid grid-cols-1 gap-5 sm:grid-cols-3">{[["Account Package Type", pkg], ["Account Creation Date", co.createdAt ? sDate(co.createdAt) + " " + new Date(co.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—"], ["Account Email", co.email || "—"]].map(([l, x]) =>
       <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{x}</b></div>)}</div></Card>

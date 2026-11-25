@@ -27,8 +27,8 @@ export function PickMany({ label, opts, onAdd, className }: { label: string; opt
         </div>
         <div className="custom-scrollbar max-h-72 overflow-y-auto p-1">
           {list.length ? list.map(o => { const sel = on.includes(o.id); return (
-            <label key={o.id} className={cn("flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5", sel && "bg-brand-50 dark:bg-brand-500/10")}>
-              <input type="checkbox" checked={sel} onChange={() => tick(o.id)} className="size-4 accent-brand-500" />
+            <label key={o.id} className={cn("flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5", sel && "bg-blue-50 dark:bg-blue-500/10")}>
+              <input type="checkbox" checked={sel} onChange={() => tick(o.id)} className="size-4 accent-blue-500" />
               <span className="flex-1 text-gray-900 dark:text-gray-50">{o.name}{o.sub ? <span className="text-gray-500"> ({o.sub})</span> : null}</span>
             </label>); }) : <p className="px-3 py-6 text-center text-sm text-gray-500">{opts.length ? "Nothing matches." : "Nothing left to add."}</p>}
         </div>

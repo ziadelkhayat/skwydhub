@@ -1,9 +1,9 @@
+import { Input } from "@/components/tremor/Input";
 // Inventory Reports: Inventory Levels (one store or warehouse, All / Low Level), Inventory History (rpc skwyd_inv_history) and Purchasing
 // (purchases received by item and supplier). Same data, filters and exports as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ArrowLeftIcon, DownloadIcon, RegenerateIcon, SearchIcon } from "@/icons";
+import { ArrowLeftIcon, DownloadIcon, RegenerateIcon } from "@/icons";
 import { type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDateTime, money } from "@/lib/util";
@@ -56,7 +56,7 @@ export function InvLevelsPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap"><BrandSel s={s} v={brand} set={setBrand} />
             <select aria-label="Store or warehouse" className={SEL + " sm:w-48"} value={loc} onChange={e => setLoc(e.target.value)}>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select>
             <select aria-label="Category" className={SEL + " sm:w-44"} value={cat} onChange={e => setCat(e.target.value)}><option value="">All categories</option>{catNames.map(n => <option key={n}>{n}</option>)}</select>
-            <InputGroup className="h-9 sm:w-52"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
+            <Input type="search" className="sm:w-52" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!locs.length ? <EmptyState text="Add a store or a warehouse first." /> : !stock ? <EmptyState text="Loading stock…" /> : !rows.length ? <EmptyState text={low === "low" ? "Nothing is at a low level." : "No items."} />

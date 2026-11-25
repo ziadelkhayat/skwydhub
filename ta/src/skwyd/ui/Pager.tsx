@@ -1,153 +1,29 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { cn } from "@/utils";
+// Tremor data table pagination: page x of y, with first / previous / next / last buttons.
+import { RiArrowLeftDoubleLine, RiArrowLeftSLine, RiArrowRightDoubleLine, RiArrowRightSLine } from "@remixicon/react";
+import { Button } from "@/components/tremor/Button";
+import { cx } from "@/components/tremor/utils";
 
-export interface PagerProps {
-  currentPage?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
-  className?: string;
-}
+export interface PagerProps { currentPage?: number; totalPages?: number; onPageChange?: (page: number) => void; className?: string }
 
-export function Pager({
-  currentPage = 1,
-  totalPages = 1,
-  onPageChange,
-  className,
-}: PagerProps) {
-  const getPageNumbers = (): (number | "ellipsis-start" | "ellipsis-end")[] => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    if (currentPage <= 4) {
-      return [1, 2, 3, 4, 5, "ellipsis-end", totalPages];
-    }
-
-    if (currentPage >= totalPages - 3) {
-      return [
-        1,
-        "ellipsis-start",
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    }
-
-    return [
-      1,
-      "ellipsis-start",
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      "ellipsis-end",
-      totalPages,
-    ];
-  };
-
-  const pages = getPageNumbers();
-
+export function Pager({ currentPage = 1, totalPages = 1, onPageChange, className }: PagerProps) {
+  const go = (p: number) => onPageChange?.(Math.min(totalPages, Math.max(1, p)));
+  const btns = [
+    { l: "First page", icon: RiArrowLeftDoubleLine, to: 1, off: currentPage <= 1, cls: "hidden sm:inline-flex" },
+    { l: "Previous page", icon: RiArrowLeftSLine, to: currentPage - 1, off: currentPage <= 1, cls: "" },
+    { l: "Next page", icon: RiArrowRightSLine, to: currentPage + 1, off: currentPage >= totalPages, cls: "" },
+    { l: "Last page", icon: RiArrowRightDoubleLine, to: totalPages, off: currentPage >= totalPages, cls: "hidden sm:inline-flex" },
+  ];
   return (
-    <div className={cn("border-t-0 px-5 py-4 sm:px-6", className)}>
-      {/* Mobile Pagination (< sm) */}
-      <div className="flex w-full items-center justify-between sm:hidden">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-400">
-          {currentPage}/{totalPages}
-        </span>
-
-        <div className="flex items-center gap-2">
-          <PaginationPrevious
-            href="#"
-            size="icon"
-            variant="outline"
-            disabled={currentPage <= 1}
-            onClick={(e) => {
-              e.preventDefault();
-              if (currentPage > 1) onPageChange?.(currentPage - 1);
-            }}
-          />
-          <PaginationNext
-            href="#"
-            size="icon"
-            variant="outline"
-            disabled={currentPage >= totalPages}
-            onClick={(e) => {
-              e.preventDefault();
-              if (currentPage < totalPages) onPageChange?.(currentPage + 1);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Desktop Pagination (>= sm) */}
-      <div className="hidden sm:flex sm:items-center sm:justify-start">
-        <Pagination className="mx-0 w-auto justify-start">
-          <PaginationContent className="gap-1.5">
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                size="icon"
-                variant="outline"
-                disabled={currentPage <= 1}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (currentPage > 1) onPageChange?.(currentPage - 1);
-                }}
-              />
-            </PaginationItem>
-
-            {pages.map((item) => {
-              if (item === "ellipsis-start" || item === "ellipsis-end") {
-                return (
-                  <PaginationItem key={item}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
-              }
-
-              const page = item;
-              const isActive = currentPage === page;
-
-              return (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    href="#"
-                    size="icon"
-                    variant="outline"
-                    isActive={isActive}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onPageChange?.(page);
-                    }}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                size="icon"
-                variant="outline"
-                disabled={currentPage >= totalPages}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (currentPage < totalPages) onPageChange?.(currentPage + 1);
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+    <div className={cx("flex items-center justify-between px-4 py-3", className)}>
+      <p className="text-sm tabular-nums text-gray-500">
+        Page <span className="font-medium text-gray-900 dark:text-gray-50">{currentPage}</span> of <span className="font-medium text-gray-900 dark:text-gray-50">{totalPages}</span>
+      </p>
+      <div className="flex items-center gap-x-1.5">
+        {btns.map(b => (
+          <Button key={b.l} variant="secondary" className={cx(b.cls, "p-1.5")} disabled={b.off} onClick={() => go(b.to)}>
+            <span className="sr-only">{b.l}</span><b.icon className="size-4 shrink-0" aria-hidden="true" />
+          </Button>
+        ))}
       </div>
     </div>
   );

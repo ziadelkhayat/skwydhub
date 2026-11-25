@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ArrowLeftIcon, DownloadIcon, PlusIcon, SearchIcon } from "@/icons";
+import { Input as TInput } from "@/components/tremor/Input";
+import { ArrowLeftIcon, DownloadIcon, PlusIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { put, type Row } from "@/lib/db";
 import { cn } from "@/utils";
@@ -22,7 +22,7 @@ const roleIds = (u: Row): string[] => u.roleIds?.length ? u.roleIds : u.roleId ?
 const nid = (p: string) => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const tm = (t: string) => { const d = new Date(t), today = new Date().toDateString() === d.toDateString(), hm = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   return today ? hm : `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()} ${hm}`; };
-const Av = ({ n }: { n: string }) => <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">{String(n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase()}</span>;
+const Av = ({ n }: { n: string }) => <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">{String(n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase()}</span>;
 
 export function TeamChatPage() {
   const s = useS(["chat_groups", "chat_messages", "users", "roles", "branches"]), { staff } = useAuth(), by = who(staff);
@@ -47,7 +47,7 @@ export function TeamChatPage() {
     const id = nid("cg"); try { await put("chat_groups", id, { name: u.name, kind: "group", memberIds: [u.id], roleIds: [], branchIds: [], createdBy: by, deleted: false }); setSel(id); setAdding(false); setKind(""); } catch { toast("Couldn't start the chat", "error"); } }
   const emps = s.users.filter(u => live(u) && u.active !== false && !isAdminRow(u) && (!aq.trim() || (String(u.name || "") + " " + String(u.phone || "")).toLowerCase().includes(aq.trim().toLowerCase()))).sort((a, b) => String(a.name).localeCompare(String(b.name)));
   const roleOf = (u: Row) => roleIds(u).map(id => s.roles.find(r => r.id === id)?.name).filter(Boolean)[0] || u.jobTitle || "";
-  const Item = ({ x }: { x: Row }) => { const l = last(x); return <button type="button" onClick={() => setSel(x.id)} className={cn("flex w-full items-center gap-3 px-4 py-3 text-start", x.id === sel ? "bg-brand-50 dark:bg-brand-500/10" : "hover:bg-gray-50 dark:hover:bg-white/3")}>
+  const Item = ({ x }: { x: Row }) => { const l = last(x); return <button type="button" onClick={() => setSel(x.id)} className={cn("flex w-full items-center gap-3 px-4 py-3 text-start", x.id === sel ? "bg-blue-50 dark:bg-blue-500/10" : "hover:bg-gray-50 dark:hover:bg-white/3")}>
     <Av n={name(x)} /><span className="min-w-0 flex-1"><b className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50"><span className="truncate">{name(x)}</span>{direct(x) ? <Badge variant="light" color="light">Private</Badge> : x.kind === "channel" ? <Badge variant="light" color="light">Channel</Badge> : null}</b>
       <span className="block truncate text-xs text-gray-500">{l ? (l.fromOffice ? "You: " : (l.senderName || "") + ": ") + l.body : members(x).length + " members"}</span></span>{l && <span className="shrink-0 text-xs text-gray-400">{tm(l.createdAt)}</span>}</button>; };
   const sub = g && !direct(g) ? [...(g.branchIds || []).map((id: string) => s.branches.find(b => b.id === id)?.name).filter(Boolean).map((n: string) => "Store: " + n), ...(g.roleIds || []).map((id: string) => s.roles.find(r => r.id === id)?.name).filter(Boolean).map((n: string) => "Role: " + n), ...(g.memberIds || []).map((id: string) => byId[id]?.name || "—")].join(", ") || "No members" : "";
@@ -57,15 +57,15 @@ export function TeamChatPage() {
       <aside className={cn("flex min-h-0 flex-col border-gray-200 md:border-e dark:border-gray-800", g && "hidden md:flex")}>
         {adding ? <>
           <div className="flex items-center gap-2 border-b border-gray-200 p-4 dark:border-gray-800"><Button size="icon-sm" variant="ghost" aria-label="Back" onClick={() => setAdding(false)}><ArrowLeftIcon className="size-5" /></Button><b className="text-gray-900 dark:text-gray-50">Add new</b></div>
-          <div className="p-3"><InputGroup className="h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-4 text-gray-400" /></InputGroupAddon><InputGroupInput autoFocus placeholder="Search name or number" value={aq} onChange={e => setAq(e.target.value)} /></InputGroup></div>
+          <div className="p-3"><TInput type="search" className="h-10" inputClassName="h-9 py-1.5" autoFocus placeholder="Search name or number" value={aq} onChange={e => setAq(e.target.value)} /></div>
           <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
             {[["group", "New Group"], ["channel", "New Channel"]].map(([k, t]) => <button key={k} type="button" onClick={() => { setAdding(false); setDlg({ kind: k }); }} className="flex w-full items-center gap-3 px-4 py-3 text-start text-sm font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-50 dark:hover:bg-white/3"><span className="flex size-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800"><PlusIcon className="size-5" /></span>{t}</button>)}
             <p className="px-4 pt-3 pb-1 text-xs font-medium text-gray-500 uppercase">Contacts</p>
             {!emps.length ? <p className="px-4 py-6 text-center text-sm text-gray-500">{aq ? "Nothing matches." : "No employees yet."}</p> : emps.map(u => <button key={u.id} type="button" onClick={() => dm(u)} className="flex w-full items-center gap-3 px-4 py-2.5 text-start hover:bg-gray-50 dark:hover:bg-white/3"><Av n={u.name} /><span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{u.name}</b><span className="text-xs text-gray-500 uppercase">{roleOf(u)}</span></span></button>)}</div></>
         : <>
           <div className="flex items-center gap-2 border-b border-gray-200 p-4 dark:border-gray-800"><Button size="sm" onClick={() => { setAdding(true); setAq(""); }}><PlusIcon className="size-4" />Add New</Button></div>
-          <div className="space-y-3 p-3"><InputGroup className="h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-4 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
-            <div className="flex flex-wrap gap-2">{[["", "All"], ["group", "Group"], ["channel", "Channel"], ["direct", "Private"]].map(([k, t]) => <button key={k} type="button" onClick={() => setKind(k)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", kind === k ? "border-brand-500 bg-brand-500 text-white" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div></div>
+          <div className="space-y-3 p-3"><TInput type="search" className="h-10" inputClassName="h-9 py-1.5" placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
+            <div className="flex flex-wrap gap-2">{[["", "All"], ["group", "Group"], ["channel", "Channel"], ["direct", "Private"]].map(([k, t]) => <button key={k} type="button" onClick={() => setKind(k)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", kind === k ? "border-blue-500 bg-blue-500 text-white" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div></div>
           <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">{!gs.length ? <p className="px-4 py-10 text-center text-sm text-gray-500">{qq ? "Nothing matches." : kind === "direct" ? "No private chats yet." : "No conversations yet."}</p> : gs.map(x => <Item key={x.id} x={x} />)}</div></>}
       </aside>
       <section className={cn("flex min-h-0 flex-col", !g && "hidden md:flex")}>
@@ -74,7 +74,7 @@ export function TeamChatPage() {
             <div className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{name(g)}</b><span className="block truncate text-xs text-gray-500">{direct(g) ? "Private chat between two employees · read only" : `${sub} · ${members(g).length} members`}</span></div>
             {!direct(g) && <Button size="sm" variant="outline" onClick={() => setDlg({ g, kind: g.kind })}>{g.kind === "channel" ? "Edit Channel" : "Edit Group"}</Button>}</header>
           <div ref={box} className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-gray-50 p-4 dark:bg-white/2">{!msgs.length ? <p className="m-auto text-sm text-gray-500">{direct(g) ? "No messages yet." : "No messages yet. Say hello!"}</p> : msgs.map(m => { const me = direct(g) ? m.senderId === (g.memberIds || [])[0] : m.fromOffice;
-            return <div key={m.id} className={cn("flex max-w-[75%] flex-col", me ? "self-end items-end" : "self-start items-start")}><span className={cn("rounded-lg px-3.5 py-2 text-sm whitespace-pre-wrap", me ? "rounded-br-sm bg-brand-500 text-white" : "rounded-bl-sm bg-white text-gray-800 shadow-xs dark:bg-gray-800 dark:text-gray-50")}>
+            return <div key={m.id} className={cn("flex max-w-[75%] flex-col", me ? "self-end items-end" : "self-start items-start")}><span className={cn("rounded-lg px-3.5 py-2 text-sm whitespace-pre-wrap", me ? "rounded-br-sm bg-blue-500 text-white" : "rounded-bl-sm bg-white text-gray-800 shadow-xs dark:bg-gray-800 dark:text-gray-50")}>
               {(!me || direct(g)) && <b className="block text-xs font-semibold opacity-80">{m.senderName || "—"}</b>}{m.body}</span><small className="mt-0.5 text-[11px] text-gray-400">{me && !direct(g) && m.senderName ? m.senderName + " · " : ""}{tm(m.createdAt)}</small></div>; })}</div>
           {!direct(g) && <form onSubmit={send} className="flex gap-2 border-t border-gray-200 p-3 dark:border-gray-800"><Input className="h-9 flex-1" placeholder="Write a message…" autoComplete="off" maxLength={2000} value={draft} onChange={e => setDraft(e.target.value)} /><Button type="submit" className="h-9">Send</Button></form>}</>}
       </section>
@@ -96,7 +96,7 @@ function GroupDialog({ s, g, kind, by, onClose, onSaved, onDeleted }: { s: S; g?
   async function del() { if (!(await askYes(`Delete the ${T.toLowerCase()} ${g!.name}? Its messages are removed for everyone.`, "Delete", true))) return;
     try { await put("chat_groups", g!.id, { deleted: true }); toast(T + " deleted"); onDeleted(); onClose(); } catch { setErr(`Couldn't delete the ${T.toLowerCase()}.`); } }
   const Pick = ({ items, on, set }: { items: [string, string, string?][]; on: string[]; set: (x: string[]) => void }) => <div className="custom-scrollbar max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-800">{!items.length ? <p className="text-sm text-gray-500">None yet</p> : items.map(([id, t, n]) =>
-    <label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={on.includes(id)} onChange={e => tog(on, set, id, e.target.checked)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</label>)}</div>;
+    <label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={on.includes(id)} onChange={e => tog(on, set, id, e.target.checked)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</label>)}</div>;
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{g ? "Edit " + T : "New " + T}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       {chan && <p className="text-sm text-gray-500">Only the back office and the channel's creator can post. Members read the announcements in the app.</p>}
