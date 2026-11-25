@@ -176,8 +176,9 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
 // long press on a cart line: its note (printed on the kitchen ticket) and its discount, as a % (follows the quantity) or an amount
 // area: the cart's place on the register (option G): the cart column turns into the line editor and the menu stays as it is; without it, a window
 export type LineEdit = { note: string; disc?: number; discPct?: number; qty?: number; remove?: boolean };
-export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone, area, minQty = 0 }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
-  onDone: (r: LineEdit | null) => void; area?: { top: number; width: number }; minQty?: number }) {
+// part: "note" shows only the item note, "disc" only the item discount (an item without modifiers: tap = note, long press = discount)
+export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone, area, minQty = 0, part }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
+  onDone: (r: LineEdit | null) => void; area?: { top: number; width: number }; minQty?: number; part?: "note" | "disc" }) {
   const [n, setN] = useState(note || ""), [kind, setKind] = useState<"pct" | "amt">(disc && !discPct && canAmt ? "amt" : canPct ? "pct" : "amt"), [v, setV] = useState(discPct ? String(discPct) : disc ? String(disc) : "");
   const [q, setQ] = useState(qty), kbH = useKbHeight();
   const full = unit * (area ? q : qty), x = Math.max(0, +v.replace(",", ".") || 0), d = kind === "pct" ? full * Math.min(100, x) / 100 : Math.min(x, full), allowed = kind === "pct" ? canPct : canAmt;
@@ -192,11 +193,11 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
     return (
       <View style={{ position: "absolute", left: 0, top: area.top, width: area.width, bottom: kbH, backgroundColor: "#fff", borderRightWidth: 1, borderColor: C.line, zIndex: 30 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line }}>
-          <View style={{ flex: 1 }}><T w="s" size={16} numberOfLines={1}>{q + " × " + name}</T><T size={13} color={C.mut}>{money(unit)} each</T></View>
+          <View style={{ flex: 1 }}><T w="s" size={16} numberOfLines={1}>{part === "note" ? "Note · " + name : part === "disc" ? "Discount · " + name : q + " × " + name}</T><T size={13} color={C.mut}>{money(unit)} each</T></View>
           <Pressable accessibilityLabel="Back to the cart" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={20} /></Pressable>
         </View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          {!part && <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <View style={{ flexDirection: "row", alignItems: "center", height: 46, borderWidth: 1, borderColor: C.field, borderRadius: 6 }}>
               <Pressable accessibilityLabel="One less" disabled={q <= Math.max(1, minQty)} onPress={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} style={{ width: 46, height: 44, alignItems: "center", justifyContent: "center", opacity: q <= Math.max(1, minQty) ? 0.35 : 1 }}><Icon name="minus" size={20} color={C.brand} /></Pressable>
               <T w="s" size={16} style={{ minWidth: 30, textAlign: "center" }}>{q}</T>
@@ -205,10 +206,10 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
             <View style={{ flex: 1 }} />
             {!minQty ? <Pressable accessibilityRole="button" onPress={() => onDone({ note: n.trim(), remove: true })} style={({ pressed }) => ({ height: 46, paddingHorizontal: 14, borderRadius: 6, borderWidth: 1, borderColor: "#FECACA", backgroundColor: pressed ? C.badBg : "#fff", flexDirection: "row", alignItems: "center", gap: 6 })}>
               <Icon name="trash" size={16} color={C.bad} /><T w="s" size={14} color={C.bad}>Remove</T></Pressable> : null}
-          </View>
-          <TextInput value={n} onChangeText={setN} multiline placeholder="Item note: no onions, extra spicy…" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
-            style={{ minHeight: 60, borderWidth: 1, borderColor: C.field, borderRadius: 6, padding: 10, fontFamily: F.r, fontSize: 14, color: C.ink, textAlignVertical: "top" }} />
-          {!canPct && !canAmt ? <T color={C.mut}>Your role doesn't allow discounts.</T> : <>
+          </View>}
+          {part !== "disc" && <TextInput value={n} onChangeText={setN} multiline autoFocus={part === "note"} placeholder="Item note: no onions, extra spicy…" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
+            style={{ minHeight: part === "note" ? 120 : 60, borderWidth: 1, borderColor: C.field, borderRadius: 6, padding: 10, fontFamily: F.r, fontSize: 14, color: C.ink, textAlignVertical: "top" }} />}
+          {part === "note" ? null : !canPct && !canAmt ? <T color={C.mut}>Your role doesn't allow discounts.</T> : <>
             <View style={{ flexDirection: "row", borderWidth: 1, borderColor: C.field, borderRadius: 6, overflow: "hidden" }}>
               {([["pct", "%", canPct], ["amt", "Amount", canAmt]] as const).filter(z => z[2]).map(([k, l]) => <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: kind === k }} onPress={() => { setKind(k); setV(""); }}
                 style={{ flex: 1, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: kind === k ? C.brand : "#fff" }}><T w="m" size={14} color={kind === k ? "#fff" : C.ink2}>{l}</T></Pressable>)}

@@ -292,15 +292,15 @@ export function Register() {
   const editLine = async (i: number) => { const l = cart[i], p = S.products.find(z => z.id === l.productId); if (!p) return;
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (l.saved) return say("This item was sent to the kitchen. Void it to change it.");
-    const md = modData(x, p); if (!md.links.length) return;
+    const md = modData(x, p); if (!md.links.length) return lineExtras(i, "note");   // no modifiers: a tap edits the item's note
     const base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
     const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={modArea} edit={{ options: l.options || [], note: l.note }} onDone={done} />); if (!r) return;
     setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, mods: modLabel(r.mods, r.note) }; if (r.options.length) z.options = r.options; else delete z.options; if (r.note) z.note = r.note; else delete z.note; if (!z.mods) delete z.mods; return reDisc(z); })); };
-  // a long press: the line's note and discount
-  const lineExtras = async (i: number) => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
+  // a long press: the line's discount; a tap on an item without modifiers: its note
+  const lineExtras = async (i: number, part?: "note" | "disc") => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     const canPct = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), canAmt = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
     // option G: the cart column turns into this line's editor (quantity, remove, note, discount); an item already sent keeps at least what was sent
-    const r = await ask<LineEdit | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={canPct} canAmt={canAmt} area={{ top: insTop, width: CART_W }} minQty={l.saved || 0} onDone={done} />); if (!r) return;
+    const r = await ask<LineEdit | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={canPct} canAmt={canAmt} area={{ top: insTop, width: CART_W }} minQty={l.saved || 0} part={part} onDone={done} />); if (!r) return;
     if (r.remove) return setCart(c => c.filter((_, j) => j !== i));
     setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; if (r.qty) z.qty = r.qty;
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return reDisc(z); })); };
@@ -368,7 +368,7 @@ export function Register() {
               // swipe an unsent line left to delete it; − stops at 1
               return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -(l.qty - (l.saved || 0)))} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
                 {ro || sent ? <T size={14} color={C.mut} style={{ minWidth: 26 }}>{l.qty}×</T> : null}
-                <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
+                <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i, "disc")} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
                   <T w="m" size={14.5} numberOfLines={2}>{l.name}{tag ? <T w="s" size={11} color={tag[1] as string}>{"  " + tag[0]}</T> : null}</T>
                   {/* the modifiers one under the other, pushed in under the name, each with its price on the right */}
                   {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 8, paddingLeft: 12 }}>
