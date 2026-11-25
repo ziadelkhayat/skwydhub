@@ -347,7 +347,10 @@ export function Register() {
                 {ro || sent ? <T size={14} color={C.mut} style={{ minWidth: 26 }}>{l.qty}×</T> : null}
                 <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
                   <T w="m" size={14.5} numberOfLines={2}>{l.name}{tag ? <T w="s" size={11} color={tag[1] as string}>{"  " + tag[0]}</T> : null}</T>
-                  {(l.options || []).length ? <T size={12.5} color={C.mut} numberOfLines={2}>{optRows(l.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(" · ")}</T> : l.mods && !l.note ? <T size={12.5} color={C.mut}>{l.mods}</T> : null}
+                  {/* the modifiers one under the other, pushed in under the name, each with its price on the right */}
+                  {(l.options || []).length ? optRows(l.options!).map((o, k) => <View key={k} style={{ flexDirection: "row", gap: 8, paddingLeft: 12 }}>
+                      <T size={12.5} color={C.mut} style={{ flex: 1 }} numberOfLines={1}>{(o.n > 1 ? o.n + "× " : "") + o.name}</T>{o.price ? <T size={12.5} color={C.mut}>+{money(S, o.price)}</T> : null}</View>)
+                    : l.mods && !l.note ? <T size={12.5} color={C.mut} style={{ paddingLeft: 12 }}>{l.mods}</T> : null}
                   {l.note ? <T size={12.5} color={C.mut} style={{ fontStyle: "italic" }}>Note: {l.note}</T> : null}
                   {l.disc ? <T size={12.5} color={C.ok}>Discount{l.discPct ? " " + l.discPct + "%" : ""} −{money(S, l.disc)}</T> : null}</Pressable>
                 {ro || sent ? null : <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.field, borderRadius: R.sm }}>
