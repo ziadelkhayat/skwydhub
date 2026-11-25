@@ -69,24 +69,24 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
         {area.cover ? <Pressable accessibilityLabel="Close options" onPress={() => onDone(null)} style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: area.cover, zIndex: 29 }} /> : null}
         <View style={{ position: "absolute", left: area.left, top: area.top, right: 0, bottom: kbH, backgroundColor: "#E5E7EB", zIndex: 30 }}>
           <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 12, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: C.line }}>
-            <View style={{ flex: 1 }}><T w="s" size={21} numberOfLines={1}>{name}</T><T size={15} color={C.mut}>{money(basePrice)}</T></View>
-            <Pressable accessibilityLabel="Close" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={22} /></Pressable>
+            <View style={{ flex: 1 }}><T w="s" size={17} numberOfLines={1}>{name}</T><T size={13} color={C.mut}>{money(basePrice)}</T></View>
+            <Pressable accessibilityLabel="Close" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 46, height: 46, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={22} /></Pressable>
           </View>
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 18, paddingTop: 12 }} showsVerticalScrollIndicator={false}>
             {links.map((l, gi) => (
               <View key={l.modifierId} style={{ marginBottom: 14 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                  <T w="s" size={18}>{data.groups[l.modifierId]?.name || "Options"}</T>
-                  <View style={{ borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: +(l.min || 0) ? C.badBg : C.line2 }}><T w="s" size={13} color={+(l.min || 0) ? C.bad800 : C.ink2}>{modRule(l)}</T></View>
+                  <T w="s" size={15}>{data.groups[l.modifierId]?.name || "Options"}</T>
+                  <View style={{ borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: +(l.min || 0) ? C.badBg : C.line2 }}><T w="s" size={12} color={+(l.min || 0) ? C.bad800 : C.ink2}>{modRule(l)}</T></View>
                   {+(l.free || 0) ? <T size={13} color={C.mut}>{l.free} free</T> : null}
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap }}>
                   {l.opts.map(o => { const n = sel[gi][o.id] || 0, mx = +(l.max || 0), full = mx > 1 && cnt(gi) >= mx && !n, dis = o.oos || full, rep = l.multi && mx !== 1;
                     return (
                       <Pressable key={o.id} accessibilityRole="button" accessibilityLabel={o.name + (n ? ", " + n + " picked" : "")} disabled={dis && !n} onPress={() => tap(gi, o)}
-                        style={({ pressed }) => ({ width: tw, minHeight: 76, borderRadius: 6, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: n ? C.brand50 : pressed ? C.bg2 : "#fff", paddingHorizontal: 14, paddingVertical: 10, justifyContent: "center", opacity: dis && !n ? 0.45 : 1 })}>
-                        <T w="m" size={17} numberOfLines={2} style={{ paddingRight: n ? 26 : 0 }}>{o.name}</T>
-                        <T size={14} color={o.oos ? C.warn : C.mut}>{o.oos ? "Out of stock" : o.price ? "+" + money(o.price) : "Free"}</T>
+                        style={({ pressed }) => ({ width: tw, minHeight: 64, borderRadius: 6, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: n ? C.brand50 : pressed ? C.bg2 : "#fff", paddingHorizontal: 14, paddingVertical: 10, justifyContent: "center", opacity: dis && !n ? 0.45 : 1 })}>
+                        <T w="m" size={14} numberOfLines={2} style={{ paddingRight: n ? 26 : 0 }}>{o.name}</T>
+                        <T size={12.5} color={o.oos ? C.warn : C.mut}>{o.oos ? "Out of stock" : o.price ? "+" + money(o.price) : "Free"}</T>
                         {n ? <View style={{ position: "absolute", top: rep ? -10 : 8, right: rep ? -10 : 10, minWidth: rep ? 30 : 24, height: rep ? 30 : 24, borderRadius: 15, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 6 }}>
                           {rep ? <T w="s" size={15} color="#fff">{n}</T> : <Icon name="check" size={15} color="#fff" />}</View> : null}
                         {n && rep ? <Pressable accessibilityLabel={"One less " + o.name} hitSlop={6} onPress={() => tap(gi, o, -1)} style={{ position: "absolute", right: 8, bottom: 8, width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={16} /></Pressable> : null}
@@ -97,14 +97,14 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
           {err ? <T size={14} color={C.bad} style={{ paddingHorizontal: 18, paddingBottom: 6 }}>{err}</T> : null}
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, backgroundColor: "#fff", borderTopWidth: 1, borderColor: C.line }}>
             <TextInput value={note} onChangeText={setNote} placeholder="Note for this item" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
-              style={{ flex: 1, height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, paddingHorizontal: 16, fontFamily: F.r, fontSize: 16, color: C.ink, backgroundColor: "#fff" }} />
+              style={{ flex: 1, height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, paddingHorizontal: 16, fontFamily: F.r, fontSize: 14, color: C.ink, backgroundColor: "#fff" }} />
             {!edit ? <View style={{ flexDirection: "row", alignItems: "center", height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, backgroundColor: "#fff" }}>
               <Pressable accessibilityLabel="One less" onPress={() => setQty(q => Math.max(1, q - 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={22} color={C.brand} /></Pressable>
-              <T w="s" size={20} style={{ minWidth: 34, textAlign: "center" }}>{qty}</T>
+              <T w="s" size={16} style={{ minWidth: 34, textAlign: "center" }}>{qty}</T>
               <Pressable accessibilityLabel="One more" onPress={() => setQty(q => Math.min(99, q + 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={22} color={C.brand} /></Pressable>
             </View> : null}
-            <Pressable accessibilityRole="button" onPress={ok} style={({ pressed }) => ({ height: 60, paddingHorizontal: 28, borderRadius: 6, backgroundColor: pressed ? C.brand800 : C.brand, alignItems: "center", justifyContent: "center" })}>
-              <T w="s" size={18} color="#fff">{(edit ? "Save · " : "Add · ") + money(price() * (edit ? 1 : qty))}</T></Pressable>
+            <Pressable accessibilityRole="button" onPress={ok} style={({ pressed }) => ({ height: 56, paddingHorizontal: 24, borderRadius: 6, backgroundColor: pressed ? C.brand800 : C.brand, alignItems: "center", justifyContent: "center" })}>
+              <T w="s" size={16} color="#fff">{(edit ? "Save · " : "Add · ") + money(price() * (edit ? 1 : qty))}</T></Pressable>
           </View>
         </View>
       </>
