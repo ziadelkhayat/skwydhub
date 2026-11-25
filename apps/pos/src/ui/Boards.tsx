@@ -43,7 +43,7 @@ function Tile({ o, x, onOpen, onDriver, onDispatch }: { o: Row; x: Ctx; onOpen: 
   const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
     <View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={ic as any} size={16} color={C.mut2} /></View>
     <View style={{ flex: 1 }}><T size={14} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut2} numberOfLines={1}>{sub}</T> : null}</View></View>;
-  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: "#fff", borderRadius: 0, borderWidth: 1, borderColor: pressed ? "#93C5FD" : C.line, padding: 12, gap: 8, shadowColor: "#000000", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } })}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: "#fff", borderRadius: 6, borderWidth: 1, borderColor: pressed ? "#93C5FD" : C.line, padding: 12, gap: 8, shadowColor: "#000000", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } })}>
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{o.ref || ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
     <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
     <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
@@ -68,7 +68,7 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
     <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>
-      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F9FAFB", borderRadius: 0, borderWidth: 1, borderColor: C.line, padding: 12 }}>
+      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F9FAFB", borderRadius: 6, borderWidth: 1, borderColor: C.line, padding: 12 }}>
         {/* as on the call center board: the column name, its count (blue only for Active), "You don't have … orders" when empty */}
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 12 }}><T w="s" size={14}>{t}</T>
           <View style={{ minWidth: 24, height: 22, borderRadius: 11, backgroundColor: col.length && k === "active" ? C.brand : "#E5E7EB", alignItems: "center", justifyContent: "center", paddingHorizontal: 8 }}><T w="m" size={12} color={col.length && k === "active" ? "#fff" : "#475467"}>{col.length}</T></View></View>

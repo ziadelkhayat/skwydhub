@@ -43,7 +43,7 @@ export function OnScreenKeyboard() {
   const rows = num ? NUM : lang === "ar" ? AR : EN;
   const Key = ({ label, onPress, flex = 1, gray, a11y }: { label: string; onPress: () => void; flex?: number; gray?: boolean; a11y?: string }) =>
     <Pressable accessibilityRole="button" accessibilityLabel={a11y || label} onPress={onPress}
-      style={({ pressed }) => ({ flex, height: KEY_H, borderRadius: 0, backgroundColor: pressed ? C.brand100 : gray ? "#AEB4BD" : "#fff", alignItems: "center", justifyContent: "center",
+      style={({ pressed }) => ({ flex, height: KEY_H, borderRadius: 6, backgroundColor: pressed ? C.brand100 : gray ? "#AEB4BD" : "#fff", alignItems: "center", justifyContent: "center",
         shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 0, shadowOffset: { width: 0, height: 1 }, elevation: 1 })}>
       <T w={gray ? "m" : "r"} size={gray ? 15 : 21} color={C.ink}>{label}</T></Pressable>;
   const ch = (c: string) => (shift && lang === "en" && !num ? c.toUpperCase() : c);

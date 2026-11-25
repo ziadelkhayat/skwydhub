@@ -37,7 +37,7 @@ export function AlertBanner() {
   const what = edit ? "Order edit" : "New " + (o.channel === "callcenter" ? "call center" : o.channel === "web" || o.channel === "online" ? "web" : "API") + " order";
   return (
     <View pointerEvents="box-none" style={{ position: "absolute", top: top + 8, left: 0, right: 0, alignItems: "center", zIndex: 60 }}>
-      <View style={{ width: 660, maxWidth: "94%", flexDirection: "row", alignItems: "center", gap: 14, padding: 14, backgroundColor: "#fff", borderRadius: 0, borderWidth: 1, borderColor: "#FDE68A",
+      <View style={{ width: 660, maxWidth: "94%", flexDirection: "row", alignItems: "center", gap: 14, padding: 14, backgroundColor: "#fff", borderRadius: 6, borderWidth: 1, borderColor: "#FDE68A",
         shadowColor: "#000000", shadowOpacity: 0.22, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 14 }}>
         <View style={{ width: 46, height: 46, borderRadius: R.lg, backgroundColor: "#FEF3C7", alignItems: "center", justifyContent: "center" }}><Icon name="bell" size={24} color="#B45309" /></View>
         <View style={{ flex: 1 }}>

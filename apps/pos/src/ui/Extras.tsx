@@ -64,7 +64,7 @@ export function NotesDialog({ init, onDone }: { init: { receipt: string; kitchen
         {box("Kitchen note", "printed on the kitchen ticket", k, setK)}
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>{QUICK.map(q => { const on = k.split(/,\s*/).includes(q);
           return <Pressable key={q} accessibilityRole="button" onPress={() => setK(s => on ? s.split(/,\s*/).filter(y => y && y !== q).join(", ") : [s.trim(), q].filter(Boolean).join(", "))}
-            style={{ paddingHorizontal: 12, height: 36, borderRadius: 0, borderWidth: 1, borderColor: on ? C.brand : C.field, backgroundColor: on ? C.brand50 : "#fff", justifyContent: "center" }}>
+            style={{ paddingHorizontal: 12, height: 36, borderRadius: 6, borderWidth: 1, borderColor: on ? C.brand : C.field, backgroundColor: on ? C.brand50 : "#fff", justifyContent: "center" }}>
             <T w="m" size={13} color={on ? C.brand600 : C.ink2}>{on ? "✓ " : "+ "}{q}</T></Pressable>; })}</View>
         {box("Receipt note", "printed on the customer's receipt", r, setR)}
       </View>

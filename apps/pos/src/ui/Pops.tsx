@@ -17,7 +17,7 @@ export function Popover({ ax, top, width, maxX, onClose, children }: { ax: numbe
   return (
     <Pressable accessibilityLabel="Close" onPress={onClose} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 40 } as any}>
       <View style={{ position: "absolute", top: top + 2, left: ax - 7, width: 14, height: 14, backgroundColor: "#fff", borderLeftWidth: 1, borderTopWidth: 1, borderColor: C.line, transform: [{ rotate: "45deg" }], zIndex: 2 }} />
-      <Pressable onPress={() => {}} style={[{ position: "absolute", top: top + 8, left, width, backgroundColor: "#fff", borderRadius: 0, borderWidth: 1, borderColor: C.line, padding: 6 }, shadow]}>{children}</Pressable>
+      <Pressable onPress={() => {}} style={[{ position: "absolute", top: top + 8, left, width, backgroundColor: "#fff", borderRadius: 6, borderWidth: 1, borderColor: C.line, padding: 6 }, shadow]}>{children}</Pressable>
     </Pressable>
   );
 }
@@ -101,7 +101,7 @@ export function NotesPop({ init, onDone }: { init: { receipt: string; kitchen: s
       <View style={{ flexDirection: "row", gap: 8 }}><Btn height={44} style={{ flex: 1 }} label="Clear" onPress={() => setT("")} /><Btn kind="primary" height={44} style={{ flex: 1 }} label="Save" onPress={() => onDone({ ...init, [which]: t.trim() })} /></View>
     </View>);
   const R2 = ({ k, ic, l, help }: { k: "kitchen" | "receipt"; ic: string; l: string; help: string }) =>
-    <Row onPress={() => { setWhich(k); setT(init[k] || ""); }}><View style={{ width: 34, height: 34, borderRadius: 0, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}><Icon name={ic} size={18} color={C.brand600} /></View>
+    <Row onPress={() => { setWhich(k); setT(init[k] || ""); }}><View style={{ width: 34, height: 34, borderRadius: 6, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}><Icon name={ic} size={18} color={C.brand600} /></View>
       <View style={{ flex: 1 }}><T w="m" size={14.5}>{l}</T><T size={12.5} color={C.mut} numberOfLines={1}>{init[k] || help}</T></View></Row>;
   return <View><R2 k="kitchen" ic="till" l="Kitchen Note" help="Printed on the kitchen ticket" /><R2 k="receipt" ic="note" l="Receipt Note" help="Printed for the customer" /></View>;
 }

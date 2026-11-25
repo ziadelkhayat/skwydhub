@@ -19,7 +19,7 @@ export function TagsDialog({ S, init, onDone }: { S: Data; init: string[]; onDon
         {l.length > 8 ? <TextInput value={q} onChangeText={setQ} placeholder="Search tags" placeholderTextColor={C.mut2} style={{ height: 44, borderWidth: 1, borderColor: C.field, borderRadius: R.md, paddingHorizontal: 12, fontFamily: F.r, fontSize: 15, color: C.ink }} /> : null}
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{shown.map(t => { const on = sel.includes(t.id), dot = DOT[l.indexOf(t) % DOT.length]; return (
           <Pressable key={t.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }} onPress={() => setSel(v => (on ? v.filter(y => y !== t.id) : [...v, t.id]))}
-            style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, height: 42, borderRadius: 0, borderWidth: 1, borderColor: on ? C.brand : C.field, backgroundColor: on ? C.brand50 : "#fff" }}>
+            style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, height: 42, borderRadius: 6, borderWidth: 1, borderColor: on ? C.brand : C.field, backgroundColor: on ? C.brand50 : "#fff" }}>
             <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: dot }} /><T w="m" color={on ? C.brand600 : C.ink}>{t.name}{on ? "  ✓" : ""}</T></Pressable>); })}</View></View>}
     </Sheet>
   );
