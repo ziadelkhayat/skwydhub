@@ -6,6 +6,7 @@ import { addrJoin, addrParts, custMissing, normPhone, phoneVariants, posSources,
 import { useStore } from "../lib/store";
 import { C, F, R } from "../lib/theme";
 import { Btn, T } from "./kit";
+import { Icon } from "./Icon";
 import { Sheet } from "./Pickers";
 
 const Field = ({ label, value, onChange, kb, half }: { label: string; value: string; onChange: (v: string) => void; kb?: "phone-pad"; half?: boolean }) => (
@@ -38,52 +39,69 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </View>);
 }
 
+// option A: two columns for delivery: the customer on the left (type, source, phone, name, returning-customer card), the address on the right (saved addresses as cards, or a new one)
 export function CustomerDialog({ type, types, init, onDone }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // dine-in: just the customer's name and phone
-  const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [hint, setHint] = useState(""), [err, setErr] = useState("");
+  const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
+  const [newAddr, setNewAddr] = useState(false);
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
-  // a returning customer: their name, notes and saved addresses
-  useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setHint(""); setSaved([]); return; }
+  // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
+  useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setWho(null); setSaved([]); return; }
     let off = false; const tm = setTimeout(async () => {
       const { data } = await sb.from("customers").select("id,name,phone,addresses,blacklisted,notes,tags").in("phone", phoneVariants(ph)).limit(1); if (off) return;
-      const d = data?.[0]; if (!d) { setHint("New customer · enter their name"); setSaved([]); return; }
-      setHint((d.blacklisted ? "⚠ Blacklisted customer. " : "Returning customer. ") + (d.notes || "")); setSaved((d.addresses || []).map((a: any) => a.address).filter(Boolean));
-      setC(o => (o.name.trim() ? o : { ...o, name: d.name || "" }));
+      const d = data?.[0]; if (!d) { setWho({ name: "", notes: "", black: false, isNew: true }); setSaved([]); setNewAddr(true); return; }
+      const sv = (d.addresses || []).map((a: any) => a.address).filter(Boolean) as string[];
+      setWho({ name: d.name || "", notes: d.notes || "", black: !!d.blacklisted }); setSaved(sv); setNewAddr(!sv.length);
+      setC(o => ({ ...o, name: o.name.trim() ? o.name : d.name || "", addr: addrJoin(o.addr) || !sv.length ? o.addr : addrParts(sv[0]) }));
     }, 400); return () => { off = true; clearTimeout(tm); }; }, [c.phone, sb]);
   const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
-  const src = posSources(S);
+  const src = posSources(S), del = t === "delivery";
+  const ini = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("") || "?";
+  const left = (
+    <View style={{ gap: 14, flex: 1 }}>
+      {t !== "dinein" && <View style={{ flexDirection: "row", borderWidth: 1, borderColor: C.field, borderRadius: R.sm, overflow: "hidden" }}>
+        {types.filter(k => k !== "dinein").map(k => <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: t === k }} onPress={() => setT(k)}
+          style={{ flex: 1, height: 46, alignItems: "center", justifyContent: "center", backgroundColor: t === k ? C.brand : "#fff" }}><T w="m" size={15} color={t === k ? "#fff" : C.ink}>{k === "delivery" ? "Delivery" : "Pickup"}</T></Pressable>)}
+      </View>}
+      {src.length > 0 && t !== "dinein" && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{src.map(s => { const on = c.source === s; return <Pressable key={s} accessibilityRole="button" onPress={() => set("source", s)}
+          style={{ height: 42, paddingHorizontal: 16, borderRadius: R.sm, borderWidth: on ? 2 : 1, borderColor: on ? C.brand500 : C.field, backgroundColor: on ? C.brand50 : "#fff", justifyContent: "center" }}><T w="m" size={14} color={on ? C.brand : C.ink}>{s}</T></Pressable>; })}</View></View>}
+      <PhoneField value={c.phone} onChange={v => set("phone", v)} />
+      <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
+      {who ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: R.sm, borderWidth: 1, borderColor: who.black ? "#FECACA" : who.isNew ? C.line : "#A7F3D0", backgroundColor: who.black ? C.badBg : who.isNew ? C.line2 : C.okBg }}>
+        <View style={{ width: 44, height: 44, borderRadius: R.sm, backgroundColor: who.black ? C.bad : who.isNew ? C.mut2 : "#059669", alignItems: "center", justifyContent: "center" }}><T w="s" size={16} color="#fff">{ini(c.name || who.name)}</T></View>
+        <View style={{ flex: 1 }}><T w="s" size={15} numberOfLines={1}>{who.isNew ? "New customer" : c.name || who.name}</T>
+          <T size={13} color={who.black ? C.bad : C.mut} numberOfLines={2}>{who.isNew ? "Enter their name" + (del ? " and address" : "") : (who.black ? "Blacklisted customer" : "Returning customer") + (who.notes ? " · " + who.notes : "")}</T></View>
+      </View> : null}
+    </View>);
+  const right = del ? (
+    <View style={{ gap: 10, flex: 1 }}>
+      <T w="s" size={15}>Delivery address</T>
+      {saved.map((a, i) => { const p = addrParts(a), on = !newAddr && addrJoin(p) === addrJoin(c.addr), body = addrJoin({ ...p, label: "" } as Addr); return (
+        <Pressable key={i} accessibilityRole="radio" accessibilityState={{ checked: on }} onPress={() => { setNewAddr(false); set("addr", p); }}
+          style={{ flexDirection: "row", gap: 12, alignItems: "center", padding: 12, borderRadius: R.sm, borderWidth: on ? 2 : 1, borderColor: on ? C.brand500 : C.line, backgroundColor: on ? C.brand50 : "#fff" }}>
+          <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: on ? 7 : 1.5, borderColor: on ? C.brand600 : C.field, backgroundColor: "#fff" }} />
+          <View style={{ flex: 1 }}><T w="s" size={15}>{p.label || "Address " + (i + 1)}</T><T size={13.5} color={C.ink2} numberOfLines={2}>{body}</T></View></Pressable>); })}
+      <Pressable accessibilityRole="button" onPress={() => { setNewAddr(true); set("addr", {}); }}
+        style={{ height: 46, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: newAddr ? 2 : 1, borderColor: newAddr ? C.brand500 : C.line, backgroundColor: newAddr ? C.brand50 : "#fff", flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <Icon name="plus" size={16} color={C.brand} /><T w="m" size={14.5} color={C.brand}>New address</T></Pressable>
+      {newAddr || !saved.length ? <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10 }}>
+        <Field half label="Address type" value={c.addr.label || ""} onChange={v => setA("label", v)} />
+        <Field half label="Area / street *" value={c.addr.street || ""} onChange={v => setA("street", v)} />
+        <Field half label="Building name / no. *" value={c.addr.building || ""} onChange={v => setA("building", v)} />
+        <Field half label="Floor / Apartment *" value={c.addr.floor || ""} onChange={v => setA("floor", v)} />
+        <Field half label="Door / name on intercom" value={c.addr.door || ""} onChange={v => setA("door", v)} />
+        <Field half label="Instructions" value={c.addr.extra || ""} onChange={v => setA("extra", v)} />
+      </View> : null}
+    </View>) : null;
   return (
-    <Sheet title="Customer Details" width={t === "delivery" ? 700 : 460} onClose={() => onDone(null)} footer={<>
+    <Sheet title="Customer Details" width={del ? 1000 : 520} onClose={() => onDone(null)} footer={<>
       <T size={13} color={C.bad} style={{ flex: 1 }}>{err}</T>
-      <Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label="Continue" onPress={go} />
+      <Btn label="Cancel" height={52} style={{ minWidth: 120 }} onPress={() => onDone(null)} /><Btn kind="primary" height={52} style={{ minWidth: 150 }} label="Continue" onPress={go} />
     </>}>
-      <View style={{ gap: 14 }}>
-        {t !== "dinein" && <View style={{ flexDirection: "row", gap: 8 }}>
-          {types.filter(k => k !== "dinein").map(k => <Btn key={k} kind={t === k ? "primary" : "outline"} height={44} style={{ flex: 1 }} label={k === "delivery" ? "Delivery" : "Pickup"} onPress={() => setT(k)} />)}
-        </View>}
-        {src.length > 0 && t !== "dinein" && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Order source *</T>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{src.map(s => <Btn key={s} kind={c.source === s ? "soft" : "outline"} height={40} label={s} style={c.source === s ? { borderColor: C.brand } : undefined} onPress={() => set("source", s)} />)}</View></View>}
-        <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 12 }}>
-          <PhoneField value={c.phone} onChange={v => set("phone", v)} />
-          <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
-        </View>
-        {hint ? <T size={13} color={hint.startsWith("⚠") ? C.bad : C.mut}>{hint}</T> : null}
-        {t === "delivery" && <>
-          {saved.length > 0 && <View style={{ gap: 6 }}><T size={13} color={C.ink2}>Saved addresses</T>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{saved.map((a, i) => { const on = addrJoin(addrParts(a)) === addrJoin(c.addr); return (
-              <Pressable key={i} accessibilityRole="button" onPress={() => set("addr", addrParts(a))} style={{ maxWidth: 340, borderRadius: R.md, borderWidth: on ? 2 : 1, borderColor: on ? C.brand : C.line, backgroundColor: on ? C.brand50 : "#fff", padding: 10 }}>
-                <T size={13} numberOfLines={2}>{a}</T></Pressable>); })}</View></View>}
-          <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 12 }}>
-            <Field half label="Address type" value={c.addr.label || ""} onChange={v => setA("label", v)} />
-            <Field half label="Area / street *" value={c.addr.street || ""} onChange={v => setA("street", v)} />
-            <Field half label="Building name / no. *" value={c.addr.building || ""} onChange={v => setA("building", v)} />
-            <Field half label="Floor / Apartment no. *" value={c.addr.floor || ""} onChange={v => setA("floor", v)} />
-            <Field half label="Door details / Name on intercom" value={c.addr.door || ""} onChange={v => setA("door", v)} />
-            <Field half label="Instructions" value={c.addr.extra || ""} onChange={v => setA("extra", v)} />
-          </View></>}
-      </View>
+      <View style={{ flexDirection: "row", gap: 24 }}>{left}{right}</View>
     </Sheet>
   );
 }
