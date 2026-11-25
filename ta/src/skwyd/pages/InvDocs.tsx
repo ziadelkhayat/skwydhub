@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Inventory transactions: Purchase Orders, Purchasing, Transfer Orders, Transfers, Production, Inventory Count, Spot Check, Quantity Adjustment,
 // Cost Adjustment and Count Sheets. Same documents (inventory_docs), steps, rules and database calls (skwyd_close_inv_doc, skwyd_doc_action,
 // stock_counts) as the current portal, in TailAdmin layout. Route: /<kind route>, a document: /<kind route>?id=… (?id=new for a new draft).
@@ -110,8 +113,8 @@ function DocFilterDialog({ K, s, f0, onClose, onApply }: { K: K; s: S; f0: Recor
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-9" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
       : t === "range" ? <F key={k} l={l} full><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => setF(o => ({ ...o, from: a, to: b }))} /></F>
-      : <F key={k} l={l}><select className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
-          <option value="">Any</option>{opts(t).map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select></F>)}</div>
+      : <F key={k} l={l}><SelectNative className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
+          <option value="">Any</option>{opts(t).map(([id, n]) => <option key={id} value={id}>{n}</option>)}</SelectNative></F>)}</div>
     <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => onApply({})}>Reset</Button><Button className="ms-auto" onClick={() => onApply(Object.fromEntries(Object.entries(f).filter(([, v]) => v && String(v).trim())))}>Apply</Button></div>
   </DialogContent></Dialog>;
 }
@@ -179,7 +182,7 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
     <>
       <PageBreadcrumb pageTitle={title} />
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">{K.intro}</p>
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
           <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
@@ -190,11 +193,11 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{head.map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
-                {r.cells.map((c, j) => <td key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</td>)}</tr>)}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map((r, i) => <TableRow key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
+                {r.cells.map((c, j) => <TableCell key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</TableCell>)}</TableRow>)}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {nw && <NewDialog route={route} K={K} s={s} onClose={() => setNw(false)} />}
       {fOpen && <DocFilterDialog K={K} s={s} f0={f} onClose={() => setFOpen(false)} onApply={v => { setF(v); setFOpen(false); }} />}
       {ex && <DocExportDialog route={route} K={K} s={s} lvl={ex} onClose={() => setEx("")} />}
@@ -211,19 +214,19 @@ function NewDialog({ route, K, s, onClose }: { route: string; K: K; s: S; onClos
   const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter((x: string) => x && !GONE.has(x)); })();
   // a store passes the brand; warehouses with no brand serve every brand; a warehouse only serves the stores of its brand
   const okLoc = (id: string, other: string) => (!v.brand || !locBrand(id) || locBrand(id) === v.brand) && id !== other && (!other || !locBrand(other) || !locBrand(id) || locBrand(other) === locBrand(id));
-  const sel = (k: string, l: string, opts: [string, string][], other = "") => <F l={l} req><select className={SEL} value={v[k]} onChange={e => set(k, e.target.value)}><option value="">Choose…</option>{opts.filter(([id]) => k === "sup" || okLoc(id, other)).map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></F>;
+  const sel = (k: string, l: string, opts: [string, string][], other = "") => <F l={l} req><SelectNative className={SEL} value={v[k]} onChange={e => set(k, e.target.value)}><option value="">Choose…</option>{opts.filter(([id]) => k === "sup" || okLoc(id, other)).map(([id, t]) => <option key={id} value={id}>{t}</option>)}</SelectNative></F>;
   const sups: [string, string][] = s.suppliers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(x => [x.id, x.name]);
   const fields: React.ReactNode[] = [];
-  if (K.loc && !PUR) fields.push(<F key="b" l="Brand"><select className={SEL} value={v.brand} onChange={e => setV(p => ({ ...p, brand: e.target.value, loc: "", dest: "" }))}><option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>);
+  if (K.loc && !PUR) fields.push(<F key="b" l="Brand"><SelectNative className={SEL} value={v.brand} onChange={e => setV(p => ({ ...p, brand: e.target.value, loc: "", dest: "" }))}><option value="">All Brands</option>{bl.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>);
   if (K.kind === "purchase") fields.push(...(K.po ? [<div key="l">{sel("loc", "Destination", locs)}</div>, <div key="s">{sel("sup", "Supplier", sups)}</div>] : [<div key="s">{sel("sup", "Supplier", sups)}</div>, <div key="l">{sel("loc", "Destination", locs)}</div>]));
-  else if (K.kind === "transfer") fields.push(<F key="t" l="Type" req><select className={SEL} value={v.ttype} onChange={e => set("ttype", e.target.value)}><option value="">Transfer</option><option value="return">Transfer Return</option></select></F>,
+  else if (K.kind === "transfer") fields.push(<F key="t" l="Type" req><SelectNative className={SEL} value={v.ttype} onChange={e => set("ttype", e.target.value)}><option value="">Transfer</option><option value="return">Transfer Return</option></SelectNative></F>,
     <div key="l">{sel("loc", "Source", locs, v.dest)}</div>, <div key="d">{sel("dest", "Destination", locs, v.loc)}</div>, <F key="due" l="Receiving Due Date"><DateInput value={v.due} onChange={x => set("due", x)} /></F>);
   else if (K.kind === "torder") fields.push(<div key="d">{sel("dest", "Source", locs, v.loc)}</div>, <div key="l">{sel("loc", "Destination", locs, v.dest)}</div>);
   else if (K.kind === "sheet") fields.push(<F key="n" l="Name" req><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>);
   else if (K.loc) fields.push(<div key="l">{sel("loc", "Destination", locs)}</div>);
   if (K.po) fields.push(<F key="dd" l="Delivery Date"><DateInput value={v.del} onChange={x => set("del", x)} /></F>);
   if (K.po || (K.kind === "spot" && !K.count)) fields.push(<F key="no" l="Notes"><Textarea rows={3} value={v.notes} onChange={e => set("notes", e.target.value)} /></F>);
-  if (K.kind === "quantity") fields.push(<F key="r" l="Reason" req><select className={SEL} value={v.reason} onChange={e => set("reason", e.target.value)}><option value="">Choose…</option>{qa.map(r => <option key={r}>{r}</option>)}</select></F>);
+  if (K.kind === "quantity") fields.push(<F key="r" l="Reason" req><SelectNative className={SEL} value={v.reason} onChange={e => set("reason", e.target.value)}><option value="">Choose…</option>{qa.map(r => <option key={r}>{r}</option>)}</SelectNative></F>);
   function go() {
     const need = [K.kind === "purchase" && "sup", K.loc && "loc", (K.kind === "transfer" || K.kind === "torder") && "dest", K.kind === "sheet" && "name", K.kind === "quantity" && "reason"].filter(Boolean) as string[];
     if (need.some(k => !v[k].trim())) return setErr("Fill in every field marked *.");
@@ -369,10 +372,10 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
   function print() {
     const w = window.open("", "_blank", "width=820,height=900"); if (!w) return toast("Allow pop-ups to print", "error");
     const e = (x: any) => String(x ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
-    const rows = d.items.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return `<tr><td>${e(it.name)}</td><td>${e(it.sku)}</td><td>${e(storUnit(it))}</td>${K.kind === "sheet" ? `<td>____ ${e(ingUnit(it))}</td>` : K.kind === "cost" ? `<td>${e(l.cost)}</td>` : `<td>${e(l.qty)}</td>`}</tr>`; }).join("");
+    const rows = d.items.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return `<TableRow><TableCell>${e(it.name)}</TableCell><TableCell>${e(it.sku)}</TableCell><TableCell>${e(storUnit(it))}</TableCell>${K.kind === "sheet" ? `<TableCell>____ ${e(ingUnit(it))}</TableCell>` : K.kind === "cost" ? `<TableCell>${e(l.cost)}</TableCell>` : `<TableCell>${e(l.qty)}</TableCell>`}</TableRow>`; }).join("");
     w.document.write(`<!doctype html><title>${e(d.ref || d.name || K.title)}</title><style>body{font:13px/1.4 Inter,Arial,sans-serif;padding:24px;color:#1d2939}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d0d5dd;padding:8px;text-align:left}th{background:#f2f4f7}</style>
       <h2>${e(K.title)} ${e(refOf(d))}${d.name ? " — " + e(d.name) : ""}</h2><p>${K.loc ? "Location: " + e(locName(d.locationId)) + " · " : ""}${d.reason && d.reason !== "po" && d.reason !== "count" ? "Reason: " + e(d.reason) + " · " : ""}${d.businessDate ? "Date: " + e(dmy(d.businessDate)) : ""}</p>
-      <table><thead><tr><th>Name</th><th>SKU</th><th>Unit</th><th>${K.kind === "sheet" || K.kind === "spot" ? "Counted" : K.kind === "cost" ? "New cost" : "Quantity"}</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
+      <Table><TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>SKU</TableHeaderCell><TableHeaderCell>Unit</TableHeaderCell><TableHeaderCell>${K.kind === "sheet" || K.kind === "spot" ? "Counted" : K.kind === "cost" ? "New cost" : "Quantity"}</TableHeaderCell></TableRow></TableHead><TableBody>${rows}</TableBody></Table><script>window.onload=()=>window.print()<\/script>`);
     w.document.close();
   }
 
@@ -385,7 +388,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     : K.kind === "torder" ? <><Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button><Button disabled={B} onClick={() => flow("fulfil")}>Accept</Button></>
     : <>{K.kind === "purchase" && <Button variant="destructive" disabled={B} onClick={() => flow("reject")}>Decline</Button>}<Button disabled={B} onClick={() => flow("receive")}>{B ? "Working…" : "Receive Items"}</Button></>;
   // the document's summary
-  const lnk = (r: string, lid: string) => <button type="button" className="text-blue-500 hover:underline" onClick={() => openWin(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</button>;
+  const lnk = (r: string, lid: string) => <Button type="button" variant="link" className="" onClick={() => openWin(`/${r}?id=${lid}`)}>{refOf(s.inv_docs.find(x => x.id === lid)) || "Open"}</Button>;
   const info: [string, React.ReactNode][] = K.flow ? [
     ...(K.kind === "purchase" ? [["Supplier", supName(d.supplierId)]] as any : []),
     ...(K.kind === "torder" ? [["Source", locName(d.destId)], ["Destination", locName(d.locationId)]] : [[K.kind === "purchase" ? "Destination" : "Source", locName(d.locationId)], ...(K.kind !== "purchase" ? [["Destination", locName(d.destId)]] : [])]),
@@ -440,11 +443,11 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     <div className={BOX + (page ? "" : " mt-6")}>
       <div className="flex items-center gap-2 px-5 py-4 sm:px-6"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{page ? "Items" : ro ? "Consumption From Production" : "Ingredients That Will Be Used"}</h3><span className="text-sm text-gray-500">{page ? usage.length : ro ? "Taken out of stock when this was submitted." : "Updates as you type quantities."}</span></div>
       {!usage.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">{ro ? "Nothing was consumed." : "Enter quantities, and make sure each produced item has ingredients (open it under Inventory → Items)."}</p>
-        : <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Quantity</th>{!ro && <th className={TH + " text-end"}>In Stock</th>}<th className={TH + " text-end"}>Unit Cost</th><th className={TH + " text-end"}>Total Cost</th></tr></thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{usage.sort((a: any, b: any) => (itemOf(a.itemId)?.name || "").localeCompare(itemOf(b.itemId)?.name || "")).map((x: any) => { const it = itemOf(x.itemId) || {} as any, cur = stockOf(loc, x.itemId), short = !ro && cur !== undefined && cur < x.qty;
-            return <tr key={x.itemId}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(x.qty)} {it.storageUnit || ""}</td>
-              {!ro && <td className={TD + " text-end" + (short ? " font-semibold text-red-500" : "")}>{cur === undefined ? <span className="text-gray-400">Not counted</span> : n2(cur)}</td>}<td className={TD + " text-end"}>{fmtCost(x.cost)}</td><td className={TD + " text-end"}>{fmtCost(x.qty * x.cost)}</td></tr>; })}</tbody>
-          <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={ro ? 4 : 5}>Total</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{fmtCost(usage.reduce((t: number, x: any) => t + x.qty * x.cost, 0))}</td></tr></tfoot></table></div>}
+        : <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800"><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Quantity</TableHeaderCell>{!ro && <TableHeaderCell className={TH + " text-end"}>In Stock</TableHeaderCell>}<TableHeaderCell className={TH + " text-end"}>Unit Cost</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Total Cost</TableHeaderCell></TableRow></TableHead>
+          <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{usage.sort((a: any, b: any) => (itemOf(a.itemId)?.name || "").localeCompare(itemOf(b.itemId)?.name || "")).map((x: any) => { const it = itemOf(x.itemId) || {} as any, cur = stockOf(loc, x.itemId), short = !ro && cur !== undefined && cur < x.qty;
+            return <TableRow key={x.itemId}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(x.qty)} {it.storageUnit || ""}</TableCell>
+              {!ro && <TableCell className={TD + " text-end" + (short ? " font-semibold text-red-500" : "")}>{cur === undefined ? <span className="text-gray-400">Not counted</span> : n2(cur)}</TableCell>}<TableCell className={TD + " text-end"}>{fmtCost(x.cost)}</TableCell><TableCell className={TD + " text-end"}>{fmtCost(x.qty * x.cost)}</TableCell></TableRow>; })}</TableBody>
+          <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={ro ? 4 : 5}>Total</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{fmtCost(usage.reduce((t: number, x: any) => t + x.qty * x.cost, 0))}</TableCell></TableRow></TableFoot></Table></div>}
     </div>);
   const avail = s.inv_items.filter(i => live(i) && !d.items.some((l: any) => l.itemId === i.id) && (K.kind !== "production" || (i.ingredients || []).length)).sort((a, b) => a.name.localeCompare(b.name));
   const sheets = s.inv_docs.filter(x => x.kind === "sheet" && live(x) && x.id !== d.id);
@@ -452,7 +455,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
   return (
     <>
       <PageBreadcrumb pageTitle={title} />
-      <div className="mb-6 flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 lg:flex-row lg:items-center dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="mb-6 flex flex-col gap-4 p-5 lg:flex-row lg:items-center">
         <div className="flex flex-1 items-center gap-3"><Button variant="outline" size="icon" aria-label="Back" onClick={() => nav("/" + route)}><ArrowLeftIcon className="size-5" /></Button>
           <div><span className="block text-xs text-gray-500">Inventory · {K.title}</span><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3></div>{K.kind !== "sheet" && <St d={d} />}</div>
         {(d.items.length > 0 || d.id) && <div className="flex flex-wrap gap-3">
@@ -462,38 +465,38 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
           {!ro && <Button variant={K.kind === "sheet" ? "default" : "outline"} disabled={B} onClick={() => saveDoc()}>{K.kind === "sheet" ? "Save" : "Save Draft"}</Button>}
           {!ro && K.kind !== "sheet" && !K.flow && <Button disabled={B || !d.items.length} onClick={submit}>{B ? "Working…" : K.count || K.kind === "spot" ? "Submit Count" : K.kind === "production" ? "Produce Items" : "Submit"}</Button>}
           {flowBtns}</div>}
-      </div>
+      </Card>
       {err && <p className="mb-6 rounded-md border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
-      {steps && <div className="mb-6 grid grid-cols-3 gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">{steps.map((x, i) => (
+      {steps && <Card className="mb-6 grid grid-cols-3 gap-3 p-4">{steps.map((x, i) => (
         <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-blue-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
-          <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</div>}
-      <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-white p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</div>
-      {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className={BOX}><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Items</h3>
+          <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</Card>}
+      <Card className="mb-6 grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</Card>
+      {pv === "pc" ? <Usage page /> : pv === "pw" ? <Card className="overflow-hidden p-0"><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Items</h3>
         {(() => { const w = d.items.filter((l: any) => +l.waste > 0); return !w.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">Nothing was wasted.</p>
-          : <table className="min-w-full border-t border-gray-200 dark:border-gray-800"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Deducted Quantity</th></tr></thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <tr key={l.itemId}><td className={TD}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</td></tr>; })}</tbody></table>; })()}</div>
+          : <Table className="min-w-full border-t border-gray-200 dark:border-gray-800"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Deducted Quantity</TableHeaderCell></TableRow></TableHead>
+            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <TableRow key={l.itemId}><TableCell className={TD}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</TableCell></TableRow>; })}</TableBody></Table>; })()}</Card>
       : <>
-        <div className={BOX}>
+        <Card className="overflow-hidden p-0">
           <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div className="flex items-center gap-2"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Items</h3><span className="text-sm text-gray-500">{d.items.length}</span></div>
             {!ro && <div className="flex flex-wrap gap-3">
               {K.kind !== "sheet" && d.items.length > 0 && <Button size="sm" variant="outline" onClick={() => setDlg({ kind: "all" })}>{K.kind === "purchase" ? "Edit Quantities & Cost" : K.kind === "cost" ? "Edit Costs" : "Edit Quantities"}</Button>}
-              {K.kind === "spot" && sheets.length > 0 && <select aria-label="Load a count sheet" className={SEL + " h-9 w-48"} value="" onChange={e => { const sh = sheets.find(x => x.id === e.target.value); if (sh) { const n = addItems((sh.items || []).map((l: any) => l.itemId)); toast(`${n} item${n === 1 ? "" : "s"} added from ${sh.name || "the count sheet"}`); } }}>
-                <option value="">Load Count Sheet…</option>{sheets.map(x => <option key={x.id} value={x.id}>{x.name || x.ref}</option>)}</select>}
+              {K.kind === "spot" && sheets.length > 0 && <SelectNative aria-label="Load a count sheet" className={SEL + " h-9 w-48"} value="" onChange={e => { const sh = sheets.find(x => x.id === e.target.value); if (sh) { const n = addItems((sh.items || []).map((l: any) => l.itemId)); toast(`${n} item${n === 1 ? "" : "s"} added from ${sh.name || "the count sheet"}`); } }}>
+                <option value="">Load Count Sheet…</option>{sheets.map(x => <option key={x.id} value={x.id}>{x.name || x.ref}</option>)}</SelectNative>}
               {K.kind !== "sheet" && <Button size="sm" variant="outline" onClick={importCsv}><UploadIcon className="size-4" />Import Items</Button>}
               <Button size="sm" onClick={() => setDlg({ kind: "add" })}><PlusIcon className="size-4" />Add Items</Button></div>}
           </div>
           <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
             {!d.items.length ? <EmptyState text="No items yet. Add items above." />
-              : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{head.map((h, i) => <th key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</th>)}{!ro && <th className={TH} />}</tr></thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{d.items.map((l: any, ix: number) => { const it = itemOf(l.itemId) || { name: "(deleted item)", sku: "" } as any; return (
-                  <tr key={l.itemId + ix} onClick={() => openRow(ix)} className={editable && K.kind !== "sheet" ? TR : ""}>
-                    <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name}</td><td className={TD}>{it.sku || ""}</td>
-                    {cells(l, ix).map((c, j) => <td key={j} className={TD + (K.kind === "sheet" ? "" : " text-end")}>{c}</td>)}
-                    {!ro && <td className={TD + " text-end"}><button type="button" aria-label={"Remove " + it.name} onClick={e => { e.stopPropagation(); up({ items: d.items.filter((_: any, j: number) => j !== ix) }); }} className="text-gray-400 hover:text-red-500">×</button></td>}</tr>); })}</tbody>
-                {total != null && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={head.length - 1}>Total</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</td>{!ro && <td />}</tr></tfoot>}</table>}
+              : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{head.map((h, i) => <TableHeaderCell key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</TableHeaderCell>)}{!ro && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+                <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{d.items.map((l: any, ix: number) => { const it = itemOf(l.itemId) || { name: "(deleted item)", sku: "" } as any; return (
+                  <TableRow key={l.itemId + ix} onClick={() => openRow(ix)} className={editable && K.kind !== "sheet" ? TR : ""}>
+                    <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell>
+                    {cells(l, ix).map((c, j) => <TableCell key={j} className={TD + (K.kind === "sheet" ? "" : " text-end")}>{c}</TableCell>)}
+                    {!ro && <TableCell className={TD + " text-end"}><Button type="button" aria-label={"Remove " + it.name} onClick={e => { e.stopPropagation(); up({ items: d.items.filter((_: any, j: number) => j !== ix) }); }} variant="ghost" size="icon-xs" className="text-gray-400 hover:text-red-600">×</Button></TableCell>}</TableRow>); })}</TableBody>
+                {total != null && <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={head.length - 1}>Total</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</TableCell>{!ro && <TableCell />}</TableRow></TableFoot>}</Table>}
           </div>
-        </div>
+        </Card>
         {K.kind === "production" && d.items.length > 0 && !ro && <Usage />}
       </>}
       {dlg?.kind === "add" && <PickDialog title="Add Items" opts={avail.map(i => [i.id, i.name, i.sku || ""])} value={[]} onClose={() => setDlg(null)} onSave={ids => { const n = addItems(ids); if (n) toast(`${n} item${n === 1 ? "" : "s"} added`); }} />}
@@ -510,7 +513,7 @@ function HeadDialog({ d, K, s, locs, onClose, onSave }: { d: any; K: K; s: S; lo
   const [v, setV] = useState<any>({ name: d.name || "", supplierId: d.supplierId || "", locationId: d.locationId || "", destId: d.destId || "", reason: d.reason || "", direction: d.direction || "deduct", businessDate: d.businessDate || "", additionalCost: +d.additionalCost ? String(d.additionalCost) : "", notes: d.notes || "", del: d.deliveryAt ? String(d.deliveryAt).slice(0, 10) : "" });
   const set = (k: string, x: any) => setV((p: any) => ({ ...p, [k]: x })), [err, setErr] = useState("");
   const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter(Boolean); })();
-  const selL = (k: string, l: string, opts: [string, string][]) => <F l={l} req><select className={SEL} value={v[k]} onChange={e => set(k, e.target.value)}><option value="">Choose…</option>{opts.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</select></F>;
+  const selL = (k: string, l: string, opts: [string, string][]) => <F l={l} req><SelectNative className={SEL} value={v[k]} onChange={e => set(k, e.target.value)}><option value="">Choose…</option>{opts.map(([id, t]) => <option key={id} value={id}>{t}</option>)}</SelectNative></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
@@ -521,7 +524,7 @@ function HeadDialog({ d, K, s, locs, onClose, onSave }: { d: any; K: K; s: S; lo
           {K.loc && selL("locationId", K.kind === "transfer" ? "Source" : "Destination", locs)}
           {(K.kind === "transfer" || K.kind === "torder") && selL("destId", K.kind === "torder" ? "Source" : "Destination", locs.filter(([x]) => x !== v.locationId))}
           {K.kind === "quantity" && <><F l="Reason"><Input className="h-9" list="qaR" value={v.reason} onChange={e => set("reason", e.target.value)} /><datalist id="qaR">{qa.map(r => <option key={r} value={r} />)}</datalist></F>
-            <F l="Type"><select className={SEL} value={v.direction} onChange={e => set("direction", e.target.value)}><option value="deduct">Deduct from stock</option><option value="add">Add to stock</option></select></F></>}
+            <F l="Type"><SelectNative className={SEL} value={v.direction} onChange={e => set("direction", e.target.value)}><option value="deduct">Deduct from stock</option><option value="add">Add to stock</option></SelectNative></F></>}
           {K.kind !== "sheet" && <F l="Business Date"><DateInput value={v.businessDate} onChange={x => set("businessDate", x)} /></F>}
           {K.kind === "purchase" && <F l={`Additional Cost (${sym()})`}><Input className="h-9" type="number" min="0" step="any" value={v.additionalCost} onChange={e => set("additionalCost", e.target.value)} /></F>}
           {K.po && <F l="Delivery Date"><DateInput value={v.del} onChange={x => set("del", x)} /></F>}

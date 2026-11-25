@@ -1,3 +1,4 @@
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Sign in (TailAdmin sign-in page): account number + phone number + a code on WhatsApp; email and password stays as a fallback for the owner.
 import { SkwydLogo } from "@/components/shared/skwyd-logo";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ export default function SignInPage({ message }: { message: string }) {
               </> : <>
                 <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
                   <div className="flex gap-3">
-                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className={SEL + " w-28"}>{CCS.map(c => <option key={c}>{c}</option>)}</select>
+                    <SelectNative aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className={SEL + " w-28"}>{CCS.map(c => <option key={c}>{c}</option>)}</SelectNative>
                     <Input className="h-9 flex-1" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="70 123 456" value={num} onChange={e => { setNum(e.target.value); setSentTo(""); }} />
                   </div></Field>
                 {sentTo && <Field><FieldLabel className="mb-1.5 block">Code Sent On WhatsApp <span className="text-red-500">*</span></FieldLabel>
@@ -75,8 +76,8 @@ export default function SignInPage({ message }: { message: string }) {
               {(err || note) && <p className={err ? "text-sm text-red-500" : "text-sm text-green-600"}>{err || note}</p>}
               <Button className="w-full" type="submit" disabled={busy}>{busy ? "…" : pw || sentTo ? "Sign In" : "Send Code On WhatsApp"}</Button>
             </form>
-            <button type="button" className="mt-6 text-start text-sm text-blue-600 hover:text-blue-500 dark:text-blue-500" onClick={() => { setPw(!pw); setErr(""); setNote(""); }}>
-              {pw ? "Sign in with your phone number instead" : "Sign in with email and password instead"}</button>
+            <Button type="button" variant="link" className="mt-6 justify-start" onClick={() => { setPw(!pw); setErr(""); setNote(""); }}>
+              {pw ? "Sign in with your phone number instead" : "Sign in with email and password instead"}</Button>
       </div>
       <div className="fixed right-6 bottom-6 z-50 hidden sm:block"><ThemeToggler /></div>
     </div>

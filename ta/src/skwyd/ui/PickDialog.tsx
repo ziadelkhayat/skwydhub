@@ -1,3 +1,4 @@
+import { Label } from "@/components/tremor/Label";
 import { Input } from "@/components/tremor/Input";
 // A searchable checklist in a TailAdmin dialog (pick stores, categories, items, tags…), with Select All
 import { Button } from "@/components/ui/button";
@@ -20,9 +21,9 @@ export function PickDialog({ title, opts, value, onSave, onClose }: { title: str
         </div>
         <div className="mt-4 max-h-[50dvh] space-y-0.5 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">
           {!vis.length ? <p className="p-3 text-sm text-gray-500">Nothing to choose yet.</p> : vis.map(([id, t, s]) => (
-            <label key={id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
+            <Label key={id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
               <Checkbox checked={sel.has(id)} onCheckedChange={c => { const n = new Set(sel); if (c) n.add(id); else n.delete(id); setSel(n); }} />
-              <span className="text-gray-900 dark:text-gray-50">{t}</span>{s && <span className="text-gray-400">{s}</span>}</label>))}
+              <span className="text-gray-900 dark:text-gray-50">{t}</span>{s && <span className="text-gray-400">{s}</span>}</Label>))}
         </div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
           <span className="text-sm text-gray-500 sm:me-auto">{sel.size} selected</span>

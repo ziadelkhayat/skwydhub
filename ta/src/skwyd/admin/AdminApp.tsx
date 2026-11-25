@@ -1,3 +1,4 @@
+import { Label } from "@/components/tremor/Label";
 // Skwyd Hub admin (admin.skwydhub.com) in the portal's TailAdmin look: sign in with email and password (Skwyd Hub admins only),
 // then Dashboard, Companies (each company's plan, owner and invoices), Invoices, Price List and Settings. Replaces the old hub.html admin.
 import { Button } from "@/components/ui/button";
@@ -43,8 +44,8 @@ function SignIn({ msg, onIn }: { msg: string; onIn: () => void }) {
       <div className="mb-6"><img src="/images/logo/logo.svg" alt="skwyd" className="mb-6 h-9 dark:hidden" onError={e => (e.currentTarget.style.display = "none")} />
         <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub Admin</h1><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Sign in with your admin email and password.</p></div>
       <div className="space-y-4">
-        <div><label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Email <span className="text-red-500">*</span></label><Input id="ae" className="h-9" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
-        <div><label htmlFor="ap" className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Password <span className="text-red-500">*</span></label><Input id="ap" className="h-9" type="password" autoComplete="current-password" required value={pw} onChange={e => setPw(e.target.value)} /></div>
+        <div><Label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Email <span className="text-red-500">*</span></Label><Input id="ae" className="h-9" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
+        <div><Label htmlFor="ap" className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Password <span className="text-red-500">*</span></Label><Input id="ap" className="h-9" type="password" autoComplete="current-password" required value={pw} onChange={e => setPw(e.target.value)} /></div>
         {err && <p className="text-sm text-red-500">{err}</p>}
         <Button className="h-9 w-full" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</Button>
       </div></form></div>;
@@ -69,7 +70,7 @@ function Shell() {
     <main className="lg:pl-72"><div className="mx-auto w-full max-w-(--breakpoint-2xl) p-4 sm:px-6 sm:pt-8 sm:pb-10 lg:px-10 lg:pt-7">
       {view && <div className="mb-6 flex flex-wrap items-center gap-2 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 ring-1 ring-inset ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400">Viewing <b>{view.name}</b> in the portal
         <a className="font-semibold underline" href="https://dev.portal.skwydhub.com/" target="_blank" rel="noreferrer">Open</a>
-        <button type="button" className="font-semibold underline" onClick={async () => { await rpc("slick_stop_view"); await reload(); }}>Stop Viewing</button></div>}
+        <Button type="button" variant="link" className="font-semibold text-inherit underline dark:text-inherit" onClick={async () => { await rpc("slick_stop_view"); await reload(); }}>Stop Viewing</Button></div>}
       <Suspense fallback={<Spin />}><Routes>
         <Route index element={<Pages.dash />} /><Route path="/companies" element={<Pages.cos />} /><Route path="/company" element={<Pages.co />} />
         <Route path="/invoices" element={<Pages.inv />} /><Route path="/prices" element={<Pages.prices />} /><Route path="/settings" element={<Pages.settings />} />

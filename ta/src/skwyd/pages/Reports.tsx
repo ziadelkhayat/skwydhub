@@ -1,3 +1,6 @@
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Reports: the five hubs (Sales, Inventory, Business, Employee, Analysis) and one report page with the same reports, columns, formulas,
 // "Group By", brand / store / date filters, Export (CSV) and Print as the current portal. Route: /<hub>?r=<report>.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -200,37 +203,37 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
   const exportCsv = () => B && csv(`skwyd-${B.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${from}-to-${to}.csv`, [B.head.map(h => h[0]), ...B.rows.map(r => r.map(strip)), ...(B.foot ? [B.foot.map(strip)] : [])]);
   const print = () => { if (!B) return; const w = window.open("", "_blank"); if (!w) return; const e = (x: any) => String(x ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
     w.document.write(`<!doctype html><title>${e(B.title)}</title><style>body{font:12px Inter,system-ui,sans-serif;margin:24px;color:#1d2939}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #eaecf0;padding:6px 8px;text-align:left}.n{text-align:right}h2{margin:0 0 4px}</style><h2>${e(B.title)}</h2><p>${dmy(from)} – ${dmy(to)} · ${e(branch ? branches.find(b => b.id === branch)?.name : brand ? (brands.find(b => b.id === brand)?.name || "") + " · All Stores" : "All Stores")}</p>
-      <table><thead><tr>${B.head.map(h => `<th class="${h[2] ? "n" : ""}">${e(h[0])}</th>`).join("")}</tr></thead><tbody>${B.rows.map(r => `<tr>${r.map((c, i) => `<td class="${B.head[i]?.[2] ? "n" : ""}">${e(c)}</td>`).join("")}</tr>`).join("")}${B.foot && B.rows.length ? `<tr>${B.foot.map((c, i) => `<td class="${B.head[i]?.[2] ? "n" : ""}"><b>${e(c)}</b></td>`).join("")}</tr>` : ""}</tbody></table><script>print()<\/script>`); w.document.close(); };
+      <Table><TableHead><TableRow>${B.head.map(h => `<TableHeaderCell class="${h[2] ? "n" : ""}">${e(h[0])}</TableHeaderCell>`).join("")}</TableRow></TableHead><TableBody>${B.rows.map(r => `<TableRow>${r.map((c, i) => `<TableCell class="${B.head[i]?.[2] ? "n" : ""}">${e(c)}</TableCell>`).join("")}</TableRow>`).join("")}${B.foot && B.rows.length ? `<TableRow>${B.foot.map((c, i) => `<TableCell class="${B.head[i]?.[2] ? "n" : ""}"><b>${e(c)}</b></TableCell>`).join("")}</TableRow>` : ""}</TableBody></Table><script>print()<\/script>`); w.document.close(); };
   return (
     <>
       <PageBreadcrumb pageTitle={rk === "sales" ? DIMS.find(d => d[0] === dim)?.[1] || name : name} />
-      <div className="mb-6 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 xl:flex-row xl:items-center dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="mb-6 flex flex-col gap-3 p-4 xl:flex-row xl:items-center">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button variant="outline" size="icon-lg" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
-          {rk === "sales" && <select aria-label="Report" className={SEL + " sm:w-52"} value={dim} onChange={e => { setDim(e.target.value); if (group === e.target.value) setGroup(""); }}>{DIMS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>}
-          {rk === "sales" && <select aria-label="Group By" className={SEL + " sm:w-44"} value={group} onChange={e => setGroup(e.target.value)}>{GROUPS.filter(g => g[0] !== dim).map(([v, t]) => <option key={v} value={v}>Group By: {t}</option>)}</select>}
-          {<select aria-label="Brand" className={SEL + " sm:w-40"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && e.target.value && branches.find(b => b.id === branch)?.brandId !== e.target.value) setBranch(""); }}><option value="">All Brands</option>{brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
-          <select aria-label="Store" className={SEL + " sm:w-40"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>{branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+          {rk === "sales" && <SelectNative aria-label="Report" className={SEL + " sm:w-52"} value={dim} onChange={e => { setDim(e.target.value); if (group === e.target.value) setGroup(""); }}>{DIMS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</SelectNative>}
+          {rk === "sales" && <SelectNative aria-label="Group By" className={SEL + " sm:w-44"} value={group} onChange={e => setGroup(e.target.value)}>{GROUPS.filter(g => g[0] !== dim).map(([v, t]) => <option key={v} value={v}>Group By: {t}</option>)}</SelectNative>}
+          {<SelectNative aria-label="Brand" className={SEL + " sm:w-40"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && e.target.value && branches.find(b => b.id === branch)?.brandId !== e.target.value) setBranch(""); }}><option value="">All Brands</option>{brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
+          <SelectNative aria-label="Store" className={SEL + " sm:w-40"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>{branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
         </div>
         <div className="flex gap-3">{loading && <span className="self-center text-sm text-gray-500">Loading…</span>}<Button variant="outline" disabled={!B} onClick={exportCsv}><DownloadIcon className="size-5" />Export</Button><Button variant="outline" disabled={!B} onClick={print}>Print</Button></div>
-      </div>
+      </Card>
       {err ? <p className="rounded-lg border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:bg-red-500/10 dark:text-white/80">Couldn't load the report: {err}</p>
         : !B ? <p className="rounded-lg border border-gray-200 bg-white p-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-[#090E1A]">Loading report…</p>
         : <>
           {B.kpis && B.rows.length > 0 && <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{B.kpis.map(([l, v]) => <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]">
             <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4>{delta(l)}</div>)}</div>}
-          {B.series && B.rows.length > 0 && <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-900 dark:bg-[#090E1A]">
+          {B.series && B.rows.length > 0 && <Card className="mb-6 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Day</h3><p className="mt-1 text-sm text-gray-500">{B.series.labels[0]} – {B.series.labels[B.series.labels.length - 1]}{prev ? ` · compared with the ${nDays} days before` : ""}</p>
-            <AreaChart className="mt-4 h-64" data={B.series!.labels.map((l: string, i: number) => ({ day: l, Sales: B.series!.values[i] }))} index="day" categories={["Sales"]} colors={["blue"]} valueFormatter={v => money(v)} showLegend={false} yAxisWidth={56} /></div>}
-          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+            <AreaChart className="mt-4 h-64" data={B.series!.labels.map((l: string, i: number) => ({ day: l, Sales: B.series!.values[i] }))} index="day" categories={["Sales"]} colors={["blue"]} valueFormatter={v => money(v)} showLegend={false} yAxisWidth={56} /></Card>}
+          <Card className="overflow-hidden p-0">
             <div className="custom-scrollbar max-w-full overflow-x-auto">
               {!B.rows.length ? <EmptyState text="No data to display" />
-                : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{B.head.map(([l, tip, num]) => <th key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</th>)}</tr></thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{B.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={TD + (B.head[j]?.[2] ? " text-end" : j === 0 ? " font-medium text-gray-900 dark:text-gray-50" : "")}>{c}</td>)}</tr>)}</tbody>
-                  {B.foot && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr>{B.foot.map((c, j) => <td key={j} className={TD + " font-semibold text-gray-900 dark:text-gray-50" + (B.head[j]?.[2] ? " text-end" : "")}>{c}</td>)}</tr></tfoot>}</table>}
+                : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{B.head.map(([l, tip, num]) => <TableHeaderCell key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</TableHeaderCell>)}</TableRow></TableHead>
+                  <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{B.rows.map((r, i) => <TableRow key={i}>{r.map((c, j) => <TableCell key={j} className={TD + (B.head[j]?.[2] ? " text-end" : j === 0 ? " font-medium text-gray-900 dark:text-gray-50" : "")}>{c}</TableCell>)}</TableRow>)}</TableBody>
+                  {B.foot && <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow>{B.foot.map((c, j) => <TableCell key={j} className={TD + " font-semibold text-gray-900 dark:text-gray-50" + (B.head[j]?.[2] ? " text-end" : "")}>{c}</TableCell>)}</TableRow></TableFoot>}</Table>}
             </div>
-          </div>
+          </Card>
         </>}
     </>
   );

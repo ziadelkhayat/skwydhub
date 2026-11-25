@@ -1,3 +1,8 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { ChoiceButton } from "../ui/Choice";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Marketing → Promotions: list (All / Active / Inactive / Deleted, search) and the two-step form (Offer, then Schedule) with a live preview,
 // same types, rules and "promotions" settings document as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -16,7 +21,7 @@ import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -56,7 +61,7 @@ export default function PromotionsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Promotions" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["inactive", "Inactive"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
@@ -66,16 +71,16 @@ export default function PromotionsPage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={tab === "deleted" ? "No deleted promotions" : q ? "No promotions match." : "No promotions yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              {["Name", "Type", "Offer", "Period", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}{tab === "deleted" && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(p => { const st = status(p); return (
-                <tr key={p.id} className={p.deleted ? "" : TR} onClick={() => !p.deleted && setForm(p)}>
-                  <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{p.name}</span>{p.nameAr && <span className="ms-2 text-gray-500" dir="auto">{p.nameAr}</span>}</td>
-                  <td className={TD}>{typeLbl(p.type)}</td><td className={TD}>{summary(p, s.products)}</td><td className={TD}>{period(p)}</td>
-                  <td className={TD}><Badge variant="light" color={st[1] as any}>{st[0]}</Badge></td>
-                  {tab === "deleted" && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await askYes("Restore this promotion?", "Restore") && await save(list.map(x => x.id === p.id ? { ...x, deleted: false } : x))) toast("Promotion restored"); }}>Restore</Button></td>}</tr>); })}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              {["Name", "Type", "Offer", "Period", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{tab === "deleted" && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(p => { const st = status(p); return (
+                <TableRow key={p.id} className={p.deleted ? "" : TR} onClick={() => !p.deleted && setForm(p)}>
+                  <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{p.name}</span>{p.nameAr && <span className="ms-2 text-gray-500" dir="auto">{p.nameAr}</span>}</TableCell>
+                  <TableCell className={TD}>{typeLbl(p.type)}</TableCell><TableCell className={TD}>{summary(p, s.products)}</TableCell><TableCell className={TD}>{period(p)}</TableCell>
+                  <TableCell className={TD}><Badge variant="light" color={st[1] as any}>{st[0]}</Badge></TableCell>
+                  {tab === "deleted" && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await askYes("Restore this promotion?", "Restore") && await save(list.map(x => x.id === p.id ? { ...x, deleted: false } : x))) toast("Promotion restored"); }}>Restore</Button></TableCell>}</TableRow>); })}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {form !== undefined && <PromoForm p0={form} s={s} list={list} save={save} onClose={() => setForm(undefined)} />}
     </>
   );
@@ -84,18 +89,18 @@ export default function PromotionsPage() {
 function CheckList({ opts, value, onChange, empty }: { opts: [string, string][]; value: string[]; onChange: (v: string[]) => void; empty: string }) {
   const [q, setQ] = useState(""); const vis = opts.filter(o => !q || o[1].toLowerCase().includes(q.toLowerCase()));
   return (
-    <div className="rounded-lg border border-gray-300 dark:border-gray-700">
-      {opts.length > 8 && <input className="h-10 w-full border-b border-gray-200 bg-transparent px-3 text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:border-gray-800 dark:text-gray-50" placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />}
+    <div className="rounded-md border border-gray-300 shadow-sm dark:border-gray-800">
+      {opts.length > 8 && <div className="border-b border-gray-200 p-1.5 dark:border-gray-800"><TInput type="search" placeholder="Search" value={q} onChange={e => setQ(e.target.value)} inputClassName="h-8 py-1" /></div>}
       <div className="max-h-44 overflow-y-auto p-1.5">{!opts.length ? <p className="p-2 text-sm text-gray-500">{empty}</p> : vis.map(([id, t]) => (
-        <label key={id} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
-          <Checkbox checked={value.includes(id)} onCheckedChange={c => onChange(c ? [...value, id] : value.filter(x => x !== id))} />{t}</label>))}</div>
+        <Label key={id} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
+          <Checkbox checked={value.includes(id)} onCheckedChange={c => onChange(c ? [...value, id] : value.filter(x => x !== id))} />{t}</Label>))}</div>
       {value.length > 0 && <p className="border-t border-gray-200 px-3 py-1.5 text-xs text-gray-500 dark:border-gray-800">{value.length} selected</p>}
     </div>);
 }
 const Chips = ({ opts, value, onChange }: { opts: [string, string][]; value: string[]; onChange: (v: string[]) => void }) => (
   <div className="flex flex-wrap gap-2">{opts.map(([k, t]) => { const on = value.includes(k); return (
-    <button key={k} type="button" aria-pressed={on} onClick={() => onChange(on ? value.filter(x => x !== k) : [...value, k])}
-      className={"h-9 rounded-lg border px-3.5 text-sm font-medium transition-colors " + (on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/3")}>{t}</button>); })}</div>);
+    <ChoiceButton on={on} key={k} aria-pressed={on} onClick={() => onChange(on ? value.filter(x => x !== k) : [...value, k])}
+      className="h-9">{t}</ChoiceButton>); })}</div>);
 
 function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[]; save: (l: any[]) => Promise<boolean>; onClose: () => void }) {
   const ed = !!p0;
@@ -107,7 +112,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
   const stores: [string, string][] = s.branches.filter(b => live(b) && b.active !== false).map(b => [b.id, b.name]);
   const num = (k: string, l: string, req?: boolean) => <F l={l} req={req}><Input className="h-9" type="number" min="0" step="any" value={P[k] ?? ""} onChange={e => set(k, e.target.value === "" ? null : +e.target.value)} /></F>;
   const pick = (k: string, l: string, opts: [string, string][], req?: boolean) => <F l={l} req={req} full><CheckList opts={opts} value={P[k] || []} onChange={v => set(k, v)} empty="No items yet" /></F>;
-  const vt = <><F l="Discount Type" req><select className={SEL} value={P.valueType === "fixed" ? "fixed" : "pct"} onChange={e => set("valueType", e.target.value)}><option value="pct">Percentage</option><option value="fixed">Amount</option></select></F>
+  const vt = <><F l="Discount Type" req><SelectNative className={SEL} value={P.valueType === "fixed" ? "fixed" : "pct"} onChange={e => set("valueType", e.target.value)}><option value="pct">Percentage</option><option value="fixed">Amount</option></SelectNative></F>
     {num("value", `Discount (${P.valueType === "fixed" ? sym() : "%"})`, true)}</>;
   const minO = num("minOrder", `Minimum Order (${sym()})`);
   const fields = P.type === "freedel" ? minO
@@ -149,8 +154,8 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
               <F l="Name" req><Input className="h-9" autoFocus value={P.name || ""} onChange={e => set("name", e.target.value)} /></F>
               <F l="Name Localized"><Input className="h-9" dir="auto" value={P.nameAr || ""} onChange={e => set("nameAr", e.target.value)} /></F>
               <F l="Type" req full><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{TYPES.map(([k, t, ic]) => (
-                <button key={k} type="button" onClick={() => set("type", k)} aria-pressed={P.type === k}
-                  className={"flex flex-col items-center gap-2 rounded-md border p-3 text-sm font-medium transition-colors " + (P.type === k ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-800 dark:text-gray-400")}>{ic}{t}</button>))}</div></F>
+                <ChoiceButton on={P.type === k} key={k} onClick={() => set("type", k)} aria-pressed={P.type === k}
+                  className="flex flex-col items-center gap-2 p-3">{ic}{t}</ChoiceButton>))}</div></F>
               {fields}
             </> : <>
               <F l="Start Date"><DateInput value={P.start || ""} onChange={v => set("start", v)} /></F><F l="End Date"><DateInput value={P.end || ""} onChange={v => set("end", v)} /></F>
@@ -158,7 +163,7 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
               <F l="Days" full help="None chosen: every day."><Chips opts={DAYS} value={P.days || []} onChange={v => set("days", v)} /></F>
               <F l="Applies On Order Types" req full><Chips opts={OT} value={P.orderTypes || []} onChange={v => set("orderTypes", v)} /></F>
               <F l="Applies On Stores" full help="None chosen: all stores."><CheckList opts={stores} value={P.branchIds || []} onChange={v => set("branchIds", v)} empty="No stores yet" /></F>
-              <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={P.active !== false} onCheckedChange={v => set("active", !!v)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Active</span></label>
+              <Label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={P.active !== false} onCheckedChange={v => set("active", !!v)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Active</span></Label>
             </>}
             {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           </div>

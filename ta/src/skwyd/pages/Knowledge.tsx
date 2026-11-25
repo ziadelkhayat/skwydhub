@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Knowledge Base: folders of texts, links and files (private "kb" bucket), assigned to roles, stores or employees,
 // read in the SKWYD apps; read statistics; the editor and the three assignment steps. Same data and rules as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -18,7 +22,7 @@ import { useRef, useState } from "react";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 import { dmy, who } from "./em";
@@ -59,7 +63,7 @@ export default function KnowledgePage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Knowledge Base" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["active", `Active (${act.length})`], ["archived", `Archived (${arc.length})`]]} />
           <div className="flex flex-col gap-3 sm:flex-row"><TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
@@ -67,18 +71,18 @@ export default function KnowledgePage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={tab === "archived" ? "Nothing archived." : all.length ? "Nothing matches." : "No knowledge base yet. Press Add New to make your first one."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>Status</th><th className={TH + " text-end"}>Views</th>{["Assign To", "Created By", "Administrated By", "Date Created"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(a => { const n = audience(s, a).length; return (
-                <tr key={a.id} className={TR} onClick={() => setOpen(a.id)}>
-                  <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{a.title}</td><td className={TD}><St a={a} /></td><td className={TD + " text-end"}>{views(a.id)}</td>
-                  <td className={TD}><Badge variant="light" color="primary">{n} employee{n === 1 ? "" : "s"}</Badge></td><td className={TD}><span className="flex items-center gap-2"><Av n={a.createdBy} />{a.createdBy || "—"}</span></td>
-                  <td className={TD}><span className="flex -space-x-2">{(a.adminIds || []).map((id: string) => <Av key={id} n={uName(id)} />)}{!(a.adminIds || []).length && "—"}</span></td><td className={TD}>{dmy(a.createdAt)}</td>
-                  <td className={TD + " text-end"} onClick={e => e.stopPropagation()}><div className="flex justify-end gap-1">
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Status</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Views</TableHeaderCell>{["Assign To", "Created By", "Administrated By", "Date Created"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(a => { const n = audience(s, a).length; return (
+                <TableRow key={a.id} className={TR} onClick={() => setOpen(a.id)}>
+                  <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{a.title}</TableCell><TableCell className={TD}><St a={a} /></TableCell><TableCell className={TD + " text-end"}>{views(a.id)}</TableCell>
+                  <TableCell className={TD}><Badge variant="light" color="primary">{n} employee{n === 1 ? "" : "s"}</Badge></TableCell><TableCell className={TD}><span className="flex items-center gap-2"><Av n={a.createdBy} />{a.createdBy || "—"}</span></TableCell>
+                  <TableCell className={TD}><span className="flex -space-x-2">{(a.adminIds || []).map((id: string) => <Av key={id} n={uName(id)} />)}{!(a.adminIds || []).length && "—"}</span></TableCell><TableCell className={TD}>{dmy(a.createdAt)}</TableCell>
+                  <TableCell className={TD + " text-end"} onClick={e => e.stopPropagation()}><div className="flex justify-end gap-1">
                     <Button size="icon-sm" variant="ghost" title={a.archived ? "Restore" : "Archive"} onClick={async () => { try { await put("kb_articles", a.id, { archived: !a.archived }); toast(a.archived ? "Restored" : "Archived · the apps no longer show it"); } catch { toast("Couldn't save.", "error"); } }}><ArchiveIcon className="size-4.5" /></Button>
-                    <Button size="icon-sm" variant="ghost" title="Delete" onClick={async () => { if (!(await askYes(`Delete ${a.title}? Employees will no longer see it.`, "Delete", true))) return; try { await put("kb_articles", a.id, { deleted: true }); toast("Deleted"); } catch { toast("Couldn't delete.", "error"); } }}><TrashBinIcon className="size-4.5" /></Button></div></td>
-                </tr>); })}</tbody></table>}
+                    <Button size="icon-sm" variant="ghost" title="Delete" onClick={async () => { if (!(await askYes(`Delete ${a.title}? Employees will no longer see it.`, "Delete", true))) return; try { await put("kb_articles", a.id, { deleted: true }); toast("Deleted"); } catch { toast("Couldn't delete.", "error"); } }}><TrashBinIcon className="size-4.5" /></Button></div></TableCell>
+                </TableRow>); })}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
     </>
   );
 }
@@ -90,19 +94,19 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
   const Ring = ({ p, c }: { p: number; c: string }) => <span className="relative flex size-16 items-center justify-center rounded-full" style={{ background: `conic-gradient(${c} ${p * 3.6}deg,#eef0f4 0)` }}><i className="flex size-12 items-center justify-center rounded-full bg-white text-sm font-semibold not-italic text-gray-800 dark:bg-gray-900 dark:text-gray-50">{p}%</i></span>;
   const tree = (p: string, d: number): React.ReactNode => kids(items, p).filter(x => x.kind === "folder").map(f => <div key={f.id}>
     <button type="button" onClick={() => setNode(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("flex w-full items-center gap-2 rounded-lg py-2 pe-3 text-start text-sm", node === f.id ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>{ICO.folder}{f.name}</button>{tree(f.id, d + 1)}</div>);
-  const Prev = ({ x }: { x: Item }) => x.kind === "folder" ? <button type="button" onClick={() => setNode(x.id)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-blue-300 dark:border-gray-800">{ICO.folder}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{kids(items, x.id).length} items</span></button>
+  const Prev = ({ x }: { x: Item }) => x.kind === "folder" ? <Card asChild className="flex w-full items-center gap-3 p-4 text-start transition hover:border-blue-500"><button type="button" onClick={() => setNode(x.id)} >{ICO.folder}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{kids(items, x.id).length} items</span></button></Card>
     : x.kind === "text" ? <div className="rounded-md border border-gray-200 p-4 dark:border-gray-800"><div className="mb-2 flex items-center gap-2">{ICO.text}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name || "Text"}</b></div><Body t={x.body} /></div>
     : x.kind === "link" ? <a href={/^https?:\/\//i.test(x.url || "") ? x.url : "https://" + (x.url || "")} target="_blank" rel="noopener" className="flex items-center gap-3 rounded-md border border-gray-200 p-4 hover:border-blue-300 dark:border-gray-800">{ICO.link}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name || x.url}</b><span className="ms-auto truncate text-xs text-gray-500">{x.url}</span></a>
-    : <button type="button" onClick={() => openFile(x.path)} className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-4 text-start hover:border-blue-300 dark:border-gray-800">{ICO.file}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{x.size ? (x.size / 1048576).toFixed(1) + " MB" : ""}</span></button>;
+    : <Card asChild className="flex w-full items-center gap-3 p-4 text-start transition hover:border-blue-500"><button type="button" onClick={() => openFile(x.path)} >{ICO.file}<b className="font-medium text-gray-900 dark:text-gray-50">{x.name}</b><span className="ms-auto text-xs text-gray-500">{x.size ? (x.size / 1048576).toFixed(1) + " MB" : ""}</span></button></Card>;
   const cur = items.find(x => x.id === node);
   return (
     <>
       <PageBreadcrumb pageTitle={a.title} />
-      <div className="mb-6 flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 sm:flex-row sm:items-center dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
         <div className="flex flex-1 items-center gap-3"><Button variant="outline" size="icon" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{a.title}</h3><St a={a} /></div>
         <span className="flex -space-x-2">{(a.adminIds || []).map((id: string) => <Av key={id} n={uName(id)} />)}</span>
         <div className="flex gap-3"><Button onClick={edit}><PencilIcon className="size-4.5" />Edit</Button><Button variant="outline" onClick={assign}><UserIcon className="size-4.5" />Edit Assignments</Button></div>
-      </div>
+      </Card>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         <aside className="h-fit rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-[#090E1A]">
           <button type="button" onClick={() => setNode("")} className={cn("mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm font-medium", !node ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300")}><PieChartIcon className="size-5" />Overall Statistics</button>
@@ -119,11 +123,11 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
               <div className="flex items-center gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(viewed)} c="#3b82f6" /><span><small className="block text-gray-500">{viewed}/{aud.length} viewers</small><b className="text-blue-500">{a.ack ? "Confirmed reading" : "Viewed this"}</b></span></div>
               <div className="flex items-center gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(vm)} c="#f59e0b" /><span><small className="block text-gray-500">{vm}/{aud.length} viewers</small><b className="text-amber-600">Views this month</b></span></div></div>
             <TInput type="search" className="mb-4  sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={dq} onChange={e => setDq(e.target.value)} />
-            <div className="-mx-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Name", "Groups", "Last Viewed"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Total Views</th></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{aud.filter(u => !dq || String(u.name).toLowerCase().includes(dq.toLowerCase())).map(u => { const r = byU[u.id]; return <tr key={u.id}>
-                <td className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></td><td className={TD}>{roleIds(u).map((id: string) => s.roles.find(x => x.id === id)?.name).filter(Boolean).join(", ") || "—"}</td>
-                <td className={TD}>{r ? dmy(r.lastViewedAt || r.readAt) : <span className="text-gray-400">Not yet</span>}</td><td className={TD + " text-end"}>{r ? (+r.views || 1) : 0}</td></tr>; })}
-                {!aud.length && <tr><td colSpan={4} className={TD}>No assigned employees yet.</td></tr>}</tbody></table></div></>}
+            <div className="-mx-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 dark:border-gray-800"><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Name", "Groups", "Last Viewed"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Total Views</TableHeaderCell></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{aud.filter(u => !dq || String(u.name).toLowerCase().includes(dq.toLowerCase())).map(u => { const r = byU[u.id]; return <TableRow key={u.id}>
+                <TableCell className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></TableCell><TableCell className={TD}>{roleIds(u).map((id: string) => s.roles.find(x => x.id === id)?.name).filter(Boolean).join(", ") || "—"}</TableCell>
+                <TableCell className={TD}>{r ? dmy(r.lastViewedAt || r.readAt) : <span className="text-gray-400">Not yet</span>}</TableCell><TableCell className={TD + " text-end"}>{r ? (+r.views || 1) : 0}</TableCell></TableRow>; })}
+                {!aud.length && <TableRow><TableCell colSpan={4} className={TD}>No assigned employees yet.</TableCell></TableRow>}</TableBody></Table></div></>}
         </section>
       </div>
     </>
@@ -173,7 +177,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
         <PageBreadcrumb pageTitle={STEPS[step - 1]} />
         <div className="mb-6 flex items-center justify-center gap-3">{STEPS.map((t, i) => <div key={t} className="flex items-center gap-3">{i > 0 && <i className={cn("h-px w-10", step > i ? "bg-blue-500" : "bg-gray-300")} />}
           <span className={cn("flex size-8 items-center justify-center rounded-full text-sm font-semibold", step > i + 1 ? "bg-blue-500 text-white" : step === i + 1 ? "border-2 border-blue-500 text-blue-500" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{step > i + 1 ? "✓" : "0" + (i + 1)}</span><small className="hidden text-sm text-gray-600 sm:inline dark:text-gray-400">{t}</small></div>)}</div>
-        <div className={BOX}>
+        <Card className="overflow-hidden p-0">
           {step === 3 ? <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-2 lg:p-6">
             <div className="rounded-md border border-gray-200 p-5 dark:border-gray-800"><b className="text-gray-900 dark:text-gray-50">Assigned Employees · {aud.length}</b>
               <p className="mb-3 text-sm text-gray-500">{E.mode === "groups" ? [...E.roleIds.map(r => "Role: " + (s.roles.find(x => x.id === r)?.name || "—")), ...E.branchIds.map(b => "Store: " + (s.branches.find(x => x.id === b)?.name || "—"))].join(" · ") || "Everyone" : "Picked one by one"}</p>
@@ -185,28 +189,28 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
               {adm ? <span /> : <SegTabs value={mode} onChange={v => up({ mode: v })} items={[["groups", "Select By Groups"], ["users", "Select By Users"]]} />}
               <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></div>
             <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-              {mode === "groups" ? <><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>Group</th><th className={TH + " text-end"}>Members</th></tr></thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{[...s.roles.filter(r => live(r) && (!qq || String(r.name).toLowerCase().includes(qq))).map(r => ["r", r] as const), ...s.branches.filter(b => live(b) && b.active !== false && (!qq || String(b.name).toLowerCase().includes(qq))).map(b => ["b", b] as const)].map(([k, x]) => {
+              {mode === "groups" ? <><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Group</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Members</TableHeaderCell></TableRow></TableHead>
+                <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{[...s.roles.filter(r => live(r) && (!qq || String(r.name).toLowerCase().includes(qq))).map(r => ["r", r] as const), ...s.branches.filter(b => live(b) && b.active !== false && (!qq || String(b.name).toLowerCase().includes(qq))).map(b => ["b", b] as const)].map(([k, x]) => {
                   const arr = k === "r" ? E.roleIds : E.branchIds, mem = emps.filter(u => k === "r" ? roleIds(u).includes(x.id) : (u.branchIds || []).includes(x.id)).length;
-                  return <tr key={k + x.id}><td className={TD}><label className="flex cursor-pointer items-center gap-3 font-medium text-gray-900 dark:text-gray-50"><Checkbox checked={arr.includes(x.id)} onCheckedChange={c => up(k === "r" ? { roleIds: tog(arr, x.id, !!c) } : { branchIds: tog(arr, x.id, !!c) })} />{x.name}</label></td>
-                    <td className={TD}>{k === "r" ? "Role" : "Store"}</td><td className={TD + " text-end"}>{mem} employees</td></tr>; })}</tbody></table>
+                  return <TableRow key={k + x.id}><TableCell className={TD}><Label className="flex cursor-pointer items-center gap-3 font-medium text-gray-900 dark:text-gray-50"><Checkbox checked={arr.includes(x.id)} onCheckedChange={c => up(k === "r" ? { roleIds: tog(arr, x.id, !!c) } : { branchIds: tog(arr, x.id, !!c) })} />{x.name}</Label></TableCell>
+                    <TableCell className={TD}>{k === "r" ? "Role" : "Store"}</TableCell><TableCell className={TD + " text-end"}>{mem} employees</TableCell></TableRow>; })}</TableBody></Table>
                 <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Pick nothing to give it to everyone. Roles and stores together: employees with one of the roles at one of the stores.</p></>
-              : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH + " w-12"}><Checkbox checked={users.length > 0 && users.every(u => sel.includes(u.id))} onCheckedChange={c => setSel(c ? [...new Set([...sel, ...users.map(u => u.id)])] : sel.filter(id => !users.some(u => u.id === id)))} /></th>{["Name", "Store", "Job"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{users.map(u => <tr key={u.id}><td className={TD}><Checkbox checked={sel.includes(u.id)} onCheckedChange={c => setSel(tog(sel, u.id, !!c))} /></td>
-                  <td className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></td><td className={TD}>{brN(u)}</td><td className={TD}>{u.jobTitle ? <Badge variant="light" color="primary">{u.jobTitle}</Badge> : "—"}</td></tr>)}
-                  {!users.length && <tr><td colSpan={4} className={TD}>Nobody matches.</td></tr>}</tbody></table>}
+              : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow><TableHeaderCell className={TH + " w-12"}><Checkbox checked={users.length > 0 && users.every(u => sel.includes(u.id))} onCheckedChange={c => setSel(c ? [...new Set([...sel, ...users.map(u => u.id)])] : sel.filter(id => !users.some(u => u.id === id)))} /></TableHeaderCell>{["Name", "Store", "Job"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+                <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{users.map(u => <TableRow key={u.id}><TableCell className={TD}><Checkbox checked={sel.includes(u.id)} onCheckedChange={c => setSel(tog(sel, u.id, !!c))} /></TableCell>
+                  <TableCell className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></TableCell><TableCell className={TD}>{brN(u)}</TableCell><TableCell className={TD}>{u.jobTitle ? <Badge variant="light" color="primary">{u.jobTitle}</Badge> : "—"}</TableCell></TableRow>)}
+                  {!users.length && <TableRow><TableCell colSpan={4} className={TD}>Nobody matches.</TableCell></TableRow>}</TableBody></Table>}
             </div></>}
           <div className="flex justify-between gap-3 border-t border-gray-100 px-5 py-4 sm:px-6 dark:border-gray-800">
             <Button variant="outline" onClick={() => step === 1 && step0 === 1 ? onDone() : (setStep(step - 1), setAq(""))}>{step === 1 && step0 === 1 ? "Cancel" : "Back"}</Button>
             <Button disabled={busy} onClick={async () => { if (step < 3) { setStep(step + 1); setAq(""); return; } setBusy(true); try { const id = await persist("published"); toast(step0 === 1 ? "Assignments saved" : "Knowledge base published"); onDone(id); } catch { toast("Couldn't save. Check your connection.", "error"); } setBusy(false); }}>{step === 3 ? "Publish" : "Next"}</Button>
           </div>
-        </div>
+        </Card>
       </>);
   }
   return (
     <>
       <PageBreadcrumb pageTitle={E.id ? "Edit Knowledge Base" : "Create a Knowledge Base"} />
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="overflow-hidden p-0">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
           <aside className="border-b border-gray-100 p-3 lg:border-e lg:border-b-0 dark:border-gray-800">
             <p className="px-3 pb-2 text-xs font-medium tracking-wide text-gray-400 uppercase">Folders</p>
@@ -243,7 +247,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
             <Button onClick={() => { if (!E.title) return setDlg({ kind: "name" }); if (!E.body && !E.items.some(x => x.kind !== "folder")) return toast("Add a text, link or file first.", "error"); setStep(1); }}>Save</Button>
           </div>
         </div>
-      </div>
+      </Card>
       {dlg && <ItemDialog d={dlg} E={E} folder={folder} up={up} onClose={() => setDlg(null)} cats={[...new Set([...CATS, ...s.kb_articles.map(x => x.category).filter(Boolean)])]} />}
     </>
   );
@@ -272,10 +276,10 @@ function ItemDialog({ d, E, folder, up, cats, onClose }: { d: any; E: Ed; folder
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 space-y-5" onSubmit={e => { e.preventDefault(); save(); }}>
           {d.kind === "settings" ? <>
-            <F l="Category"><select className={SEL} value={cat} onChange={e => setCat(e.target.value)}>{cats.map(c => <option key={c}>{c}</option>)}<option value="__other">New category…</option></select></F>
+            <F l="Category"><SelectNative className={SEL} value={cat} onChange={e => setCat(e.target.value)}>{cats.map(c => <option key={c}>{c}</option>)}<option value="__other">New category…</option></SelectNative></F>
             {cat === "__other" && <F l="New Category" req><Input className="h-9" maxLength={40} placeholder="e.g. Cleaning" value={other} onChange={e => setOther(e.target.value)} /></F>}
-            <label className="flex cursor-pointer items-center gap-3"><Switch checked={pin} onCheckedChange={v => setPin(!!v)} /><span className="text-sm text-gray-900 dark:text-gray-50">Pin to the top in the apps</span></label>
-            <label className="flex cursor-pointer items-center gap-3"><Switch checked={ack} onCheckedChange={v => setAck(!!v)} /><span className="text-sm text-gray-900 dark:text-gray-50">Employees must confirm they read it</span></label>
+            <Label className="flex cursor-pointer items-center gap-3"><Switch checked={pin} onCheckedChange={v => setPin(!!v)} /><span className="text-sm text-gray-900 dark:text-gray-50">Pin to the top in the apps</span></Label>
+            <Label className="flex cursor-pointer items-center gap-3"><Switch checked={ack} onCheckedChange={v => setAck(!!v)} /><span className="text-sm text-gray-900 dark:text-gray-50">Employees must confirm they read it</span></Label>
           </> : <>
             <F l={d.kind === "link" ? "Title" : "Name"} req={d.kind === "folder" || d.kind === "name" || d.kind === "rename"}><Input className="h-9" autoFocus maxLength={160} placeholder={d.kind === "folder" ? "e.g. Opening" : d.kind === "link" ? "e.g. Training video" : d.kind === "name" ? "e.g. Kitchen Guide" : "e.g. Opening checklist"} value={name} onChange={e => setName(e.target.value)} /></F>
             {d.kind === "link" && <F l="Link" req><Input className="h-9" placeholder="https://" value={url} onChange={e => setUrl(e.target.value)} /></F>}

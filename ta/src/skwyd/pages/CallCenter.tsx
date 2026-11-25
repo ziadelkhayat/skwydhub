@@ -1,3 +1,5 @@
+import { Card } from "@/components/tremor/Card";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Call Center board: the business day's call center and web orders in columns (Drafts, Pending, Active, Done,
 // Declined), live, with the same filter (brand, store, business date, user) and order tiles as the current portal. Pressing a tile opens the order.
 // New, draft, waiting and pending orders open in the order screen (CallCenterOrder); the rest open in the order panel.
@@ -71,7 +73,7 @@ export default function CallCenterPage() {
       {answers.length > 0 && <div className="mb-4 space-y-2">{answers.map(o => { const er = o.editRequest, no = er.status === "rejected", what = er.summary?.voidAll ? "void" : "change";
         return <div key={er.id} className={cn("flex items-start gap-3 rounded-md border px-4 py-3 text-sm", no ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" : "border-green-200 bg-green-50 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400")}>
           <div className="flex-1"><b className="font-semibold">Order {o.ref || o.no}: {what} {no ? "rejected" : "approved"}</b> by {bName(o.branchId) || "the store"}{er.decidedBy ? " (" + er.decidedBy + ")" : ""}{no && er.reason ? <span className="block">Reason: {er.reason}</span> : null}{no ? <span className="block text-xs opacity-80">Nothing was changed on the order.</span> : null}</div>
-          <button type="button" aria-label="Close" onClick={() => dismiss(er.id)} className="text-lg leading-none opacity-70 hover:opacity-100">×</button></div>; })}</div>}
+          <Button type="button" aria-label="Close" onClick={() => dismiss(er.id)} variant="ghost" size="icon-xs" className="text-inherit opacity-70 hover:bg-transparent hover:opacity-100">×</Button></div>; })}</div>}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
         <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
@@ -107,7 +109,7 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
   const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
   return (
-    <button type="button" onClick={onOpen} className="block w-full rounded-md border border-gray-200 bg-white p-3 text-start shadow-xs transition hover:border-blue-300 dark:border-gray-800 dark:bg-gray-900">
+    <Card asChild className="block w-full p-3 text-start transition hover:border-blue-500"><button type="button" onClick={onOpen} >
       <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-900 dark:text-gray-50">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
       {o.status === "declined" && o.voidReason && <p className="mb-2 text-xs text-red-500">Reason: {o.voidReason}</p>}
       <div className="space-y-2">
@@ -119,7 +121,7 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
         {(brName(o.brandId) || bName(o.branchId)) && <R k="Store" sub={brName(o.brandId) && bName(o.branchId) ? bName(o.branchId) : undefined}>{brName(o.brandId) || bName(o.branchId)}</R>}
       </div>
       {o.editRequest && o.status === "active" && <p className="mt-1 text-xs text-gray-500">{o.editRequest.status === "pending" ? "Order edit: waiting for the store" : o.editRequest.status === "approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + o.editRequest.reason : "")}</p>}
-    </button>);
+    </button></Card>);
 }
 
 function FilterDlg({ F0, today, brands, branches, agents, onClose, onApply }: { F0: any; today: string; brands: Row[]; branches: Row[]; agents: string[]; onClose: () => void; onApply: (f: any) => void }) {
@@ -129,10 +131,10 @@ function FilterDlg({ F0, today, brands, branches, agents, onClose, onApply }: { 
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <F l="Brand"><select className={SEL} value={v.brand} onChange={e => setV((p: any) => ({ ...p, brand: e.target.value, branch: "" }))}><option value="">Any</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
-          <F l="Store"><select className={SEL} value={v.branch} onChange={e => set("branch", e.target.value)}><option value="">Any</option>{branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
+          <F l="Brand"><SelectNative className={SEL} value={v.brand} onChange={e => setV((p: any) => ({ ...p, brand: e.target.value, branch: "" }))}><option value="">Any</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
+          <F l="Store"><SelectNative className={SEL} value={v.branch} onChange={e => set("branch", e.target.value)}><option value="">Any</option>{branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
           <F l="Business Date"><DateInput value={v.date} onChange={x => set("date", x)} /></F>
-          <F l="User"><select className={SEL} value={v.user} onChange={e => set("user", e.target.value)}><option value="">Any</option>{agents.map(n => <option key={n}>{n}</option>)}</select></F>
+          <F l="User"><SelectNative className={SEL} value={v.user} onChange={e => set("user", e.target.value)}><option value="">Any</option>{agents.map(n => <option key={n}>{n}</option>)}</SelectNative></F>
         </div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button variant="outline" className="sm:me-auto" onClick={() => onApply({ brand: "", branch: "", date: "", user: "" })}>Reset</Button>

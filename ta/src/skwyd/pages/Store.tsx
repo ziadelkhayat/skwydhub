@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // A store's page (Manage → Stores → a store) and its full form, as in the current portal: details, delivery zones, users, sections & tables,
 // devices, charges, inactive payment methods, deleting its orders / inventory transactions, deleting the store. The form has general details,
 // location on a map, business day, opening hours by day, tags, receipt texts and taking call center / web orders.
@@ -29,7 +33,7 @@ const isAdminRow = (r: Row) => r.role === "owner" || r.role === "admin";
 const tblLbl = (n: any) => /^\d+$/.test(String(n).trim()) ? "Table " + String(n).trim() : String(n);
 const TimeSel = ({ v, set, maxH, label, dis }: { v: string; set: (x: string) => void; maxH?: number; label: string; dis?: boolean }) => {
   const l = times(maxH); if (v && !l.includes(v)) l.unshift(v);
-  return <select aria-label={label} className={SEL} disabled={dis} value={v} onChange={e => set(e.target.value)}>{l.map(t => <option key={t} value={t}>{t12(t)}</option>)}</select>; };
+  return <SelectNative aria-label={label} className={SEL} disabled={dis} value={v} onChange={e => set(e.target.value)}>{l.map(t => <option key={t} value={t}>{t12(t)}</option>)}</SelectNative>; };
 
 /* tables: settings "tables" { [storeId]: [{ id, name, section, seats }], [storeId + "__sections"]: [names] } */
 const tblOf = (s: S, b: string) => { const d: any = s.settings.find(x => x.id === "tables") || {}, list: any[] = (d[b] || []).slice(), secs: string[] = [...(d[b + "__sections"] || [])];
@@ -56,7 +60,7 @@ export default function StorePage() {
   const dch: any = (s.settings.find(x => x.id === "dcharges") as any)?.map || {}, chOf = (z: Row) => s.charges.find(c => c.id === dch[z.id] && live(c));
   const deleted = b.active === false || b.deleted;
   const saveSt = async (patch: any, msg: string) => { try { await put("branches", b.id, { settings: { ...st, ...patch }, updatedAt: new Date().toISOString() }); toast(msg); } catch { toast("Couldn't save. You may not have edit access.", "error"); } };
-  const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{head.map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>{rows.map((r, i) => <tr key={i} className={TR}>{r.map((c, j) => <td key={j} className={TD}>{c}</td>)}</tr>)}</tbody></table></div>;
+  const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>{rows.map((r, i) => <TableRow key={i} className={TR}>{r.map((c, j) => <TableCell key={j} className={TD}>{c}</TableCell>)}</TableRow>)}</TableBody></Table></div>;
   const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>;
   async function wipe(kind: "orders" | "inv") {
     const c = await count(), what = kind === "orders" ? `all ${c.orders} orders` : `all ${c.inv} inventory transactions`;
@@ -93,8 +97,8 @@ export default function StorePage() {
     <Sec title="Delivery Zones" act={<Button size="sm" variant="outline" onClick={() => setZonesDlg(true)}>Delivery Zones</Button>}><Tbl head={["Name", "Delivery charge", "Min. order"]} rows={zones.map(z => { const c = chOf(z); return [z.name, c ? `${c.name} · ${money(+c.value || 0)}` : "—", money(+z.minOrder || 0)]; })} /></Sec>
     <Sec title="Users"><Tbl head={["Name", "Email", "Phone"]} rows={users.map(u => [<Link key="n" className="text-blue-500 hover:underline" to={"/employee?id=" + u.id}>{u.name}</Link>, u.email || "—", u.phone || "—"])} /></Sec>
     <Sec title="Sections" act={<Button size="sm" variant="outline" onClick={() => setSec(null)}><PlusIcon className="size-4" />Add Section</Button>}>
-      {!secs.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Tables</th><th className={TH}>Table names</th></tr></thead><tbody>
-        {secs.map(sc => { const l = tl.filter(t => (t.section || "") === sc); return <tr key={sc || "_"} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => setSec(sc)}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{sc || "No section"}</td><td className={TD}>{l.length}</td><td className={TD}>{l.map(t => tblLbl(t.name)).join(", ") || "—"}</td></tr>; })}</tbody></table></div>}</Sec>
+      {!secs.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Tables</TableHeaderCell><TableHeaderCell className={TH}>Table names</TableHeaderCell></TableRow></TableHead><TableBody>
+        {secs.map(sc => { const l = tl.filter(t => (t.section || "") === sc); return <TableRow key={sc || "_"} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => setSec(sc)}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{sc || "No section"}</TableCell><TableCell className={TD}>{l.length}</TableCell><TableCell className={TD}>{l.map(t => tblLbl(t.name)).join(", ") || "—"}</TableCell></TableRow>; })}</TableBody></Table></div>}</Sec>
     <Sec title="Assigned Devices"><Tbl head={["Name", "Reference", "Type"]} rows={devs.map(d => [d.name, d.reference || "—", String(d.type || "").toUpperCase()])} /></Sec>
     <Sec title="Assigned Charges"><Tbl head={["Name", "Value", "Applies On"]} rows={chs.map(c => [c.name, c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0), (c.orderTypes || []).length ? [...new Set((c.orderTypes as string[]).map(t => TYPE_LBL[t] || t))].join(", ") : "All order types"])} /></Sec>
     <Sec title="Inactive Payment Methods" act={<Button size="sm" variant="outline" onClick={() => setPays(true)}>Payment Methods</Button>}>
@@ -134,10 +138,10 @@ function SectionDialog({ s, b, sc, onClose }: { s: S; b: string; sc: string | nu
       <F l="Name" req={isNew || !!sc}><Input className="h-9" value={name} placeholder={sc === "" ? "No section" : "e.g. Family section, Terrace"} onChange={e => setName(e.target.value)} autoFocus /></F>
       {isNew ? <F l="Number of Tables" req><Input className="h-9" type="number" min="1" max="100" value={n} onChange={e => setN(e.target.value)} /></F> : <div>
         <div className="mb-2 flex items-center"><b className="text-sm font-medium text-gray-900 dark:text-gray-50">Tables</b><Button size="sm" variant="outline" className="ms-auto" onClick={() => setRows(r => [...r, { id: newId("tb"), name: String(nextNo([...list, ...r])), section: sc, seats: null }])}><PlusIcon className="size-4" />Add Table</Button></div>
-        {!rows.length ? <p className="text-sm text-gray-500">No tables yet.</p> : <table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Seats</th><th /></tr></thead><tbody>{rows.map((r, i) => <tr key={r.id} className={TR}>
-          <td className={TD}><Input className="h-9" aria-label="Table name" value={r.name} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} /></td>
-          <td className={TD}><Input className="h-9 w-24" type="number" min="0" aria-label="Seats" placeholder="—" value={r.seats ?? ""} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, seats: e.target.value === "" ? null : Math.max(0, +e.target.value) } : x))} /></td>
-          <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove table" onClick={() => setRows(o => o.filter((_, j) => j !== i))}><TrashBinIcon className="size-5 text-red-500" /></Button></td></tr>)}</tbody></table>}</div>}
+        {!rows.length ? <p className="text-sm text-gray-500">No tables yet.</p> : <Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Seats</TableHeaderCell><TableHeaderCell /></TableRow></TableHead><TableBody>{rows.map((r, i) => <TableRow key={r.id} className={TR}>
+          <TableCell className={TD}><Input className="h-9" aria-label="Table name" value={r.name} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} /></TableCell>
+          <TableCell className={TD}><Input className="h-9 w-24" type="number" min="0" aria-label="Seats" placeholder="—" value={r.seats ?? ""} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, seats: e.target.value === "" ? null : Math.max(0, +e.target.value) } : x))} /></TableCell>
+          <TableCell className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove table" onClick={() => setRows(o => o.filter((_, j) => j !== i))}><TrashBinIcon className="size-5 text-red-500" /></Button></TableCell></TableRow>)}</TableBody></Table>}</div>}
       {err && <p className="text-sm text-red-500">{err}</p>}</div>
     <div className="mt-6 flex gap-3">{!isNew && sc && <Button variant="destructive" onClick={del}>Delete</Button>}<Button className="ms-auto" onClick={save}>Save</Button></div></DialogContent></Dialog>;
 }
@@ -189,11 +193,11 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <H t="General" />
-      <F l="Brand" req><select className={SEL} value={v.brandId} onChange={e => set("brandId", e.target.value)}><option value="">Choose brand…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F>
+      <F l="Brand" req><SelectNative className={SEL} value={v.brandId} onChange={e => set("brandId", e.target.value)}><option value="">Choose brand…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</SelectNative></F>
       <F l="Store name" req><Input className="h-9" maxLength={60} placeholder="e.g. Hamra" value={v.name} onChange={e => set("name", e.target.value)} /></F>
       <F l="Name Localized"><Input className="h-9" dir="auto" maxLength={60} value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
       <F l="Reference code" req><Input className="h-9" maxLength={20} placeholder="e.g. B01" value={v.code} onChange={e => set("code", e.target.value)} /></F>
-      <F l="Tax group" help="Used for items that have no tax group of their own."><select className={SEL} value={v.taxGroup} onChange={e => set("taxGroup", e.target.value)}><option value="">Choose…</option>{s.tax_groups.filter(live).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></F>
+      <F l="Tax group" help="Used for items that have no tax group of their own."><SelectNative className={SEL} value={v.taxGroup} onChange={e => set("taxGroup", e.target.value)}><option value="">Choose…</option>{s.tax_groups.filter(live).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</SelectNative></F>
       <F l="Store tax registration name"><Input className="h-9" maxLength={80} placeholder="Leave empty to use the company's" value={v.taxName} onChange={e => set("taxName", e.target.value)} /></F>
       <F l="Store tax number"><Input className="h-9" maxLength={40} placeholder="Leave empty to use the company's" value={v.taxNumber} onChange={e => set("taxNumber", e.target.value)} /></F>
       <F l="Phone"><Input className="h-9" maxLength={30} value={v.phone} onChange={e => set("phone", e.target.value)} /></F>
@@ -203,21 +207,21 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
       <H t="Business day" />
       <F l="New business day starts at" help="Sales before this time count on the previous business day. Set it after your closing time, e.g. 03:00 if you close at 2 AM. Must be between 12:00 AM and 11:59 AM."><TimeSel label="Business day starts" maxH={12} v={v.dayStart} set={x => set("dayStart", x)} /></F>
       <F l="Inventory end of day" help="Inventory transactions after this time are added to the next business day."><TimeSel label="Inventory end of day" v={v.invEnd} set={x => set("invEnd", x)} /></F>
-      <label className="col-span-full flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="mt-0.5 size-4 accent-blue-500" checked={v.autoDayEnd} onChange={e => set("autoDayEnd", e.target.checked)} />
-        <span>Automatic end of day<span className="block text-xs text-gray-500">At the start time, if the previous day wasn't ended manually and all its orders are closed, the store's POS ends it automatically.</span></span></label>
+      <Label className="col-span-full flex cursor-pointer items-start gap-3 text-sm text-gray-700 dark:text-gray-300"><Checkbox className="mt-0.5" checked={v.autoDayEnd} onCheckedChange={(chk: boolean) => set("autoDayEnd", chk)} />
+        <span>Automatic end of day<span className="block text-xs text-gray-500">At the start time, if the previous day wasn't ended manually and all its orders are closed, the store's POS ends it automatically.</span></span></Label>
       <H t="Opening hours" />
       <div className="col-span-full space-y-2">{DAYS.map(([k, t], i) => { const d = hours[k]; return <div key={k} className="flex flex-wrap items-center gap-2 sm:flex-nowrap"><b className="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">{t}</b>
         <div className="w-36"><TimeSel label={t + " opens"} dis={d.closed} v={d.open} set={x => setHours(o => ({ ...o, [k]: { ...o[k], open: x } }))} /></div><span className="text-sm text-gray-500">to</span>
         <div className="w-36"><TimeSel label={t + " closes"} dis={d.closed} v={d.close} set={x => setHours(o => ({ ...o, [k]: { ...o[k], close: x } }))} /></div>
-        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={!!d.closed} onChange={e => setHours(o => ({ ...o, [k]: { ...o[k], closed: e.target.checked } }))} />Closed</label>
-        {i === 0 && <button type="button" className="text-sm text-blue-500 sm:ms-auto" onClick={() => setHours(o => Object.fromEntries(DAYS.map(([x]) => [x, { ...o.mon }])))}>Apply to all days</button>}</div>; })}</div>
+        <Label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={!!d.closed} onCheckedChange={(chk: boolean) => setHours(o => ({ ...o, [k]: { ...o[k], closed: chk } }))} />Closed</Label>
+        {i === 0 && <Button type="button" variant="link" className="sm:ms-auto" onClick={() => setHours(o => Object.fromEntries(DAYS.map(([x]) => [x, { ...o.mon }])))}>Apply to all days</Button>}</div>; })}</div>
       <H t="Tags" />
-      <div className="col-span-full">{!tagList.length ? <p className="text-sm text-gray-500">Store tags are created in Manage → Tags.</p> : <div className="flex flex-wrap gap-x-5 gap-y-2">{tagList.map((t: any) => <label key={t.id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={v.tags.includes(t.id)} onChange={e => set("tags", e.target.checked ? [...v.tags, t.id] : v.tags.filter((x: string) => x !== t.id))} />{t.name}</label>)}</div>}</div>
+      <div className="col-span-full">{!tagList.length ? <p className="text-sm text-gray-500">Store tags are created in Manage → Tags.</p> : <div className="flex flex-wrap gap-x-5 gap-y-2">{tagList.map((t: any) => <Label key={t.id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={v.tags.includes(t.id)} onCheckedChange={(chk: boolean) => set("tags", chk ? [...v.tags, t.id] : v.tags.filter((x: string) => x !== t.id))} />{t.name}</Label>)}</div>}</div>
       <H t="Receipt" />
       <F l="Receipt header" full><Textarea rows={2} maxLength={300} placeholder="e.g. Welcome to The Wok Hamra" value={v.receiptHeader} onChange={e => set("receiptHeader", e.target.value)} /></F>
       <F l="Receipt footer" full><Textarea rows={2} maxLength={300} placeholder="e.g. Thank you! Follow us @thewok" value={v.receiptFooter} onChange={e => set("receiptFooter", e.target.value)} /></F>
       <H t="Options" />
-      <label className="col-span-full flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={v.callCenter} onChange={e => set("callCenter", e.target.checked)} />Receive Call Center, Web &amp; API Orders</label>
+      <Label className="col-span-full flex cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={v.callCenter} onCheckedChange={(chk: boolean) => set("callCenter", chk)} />Receive Call Center, Web &amp; API Orders</Label>
       {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
     </div>
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div></DialogContent></Dialog>;

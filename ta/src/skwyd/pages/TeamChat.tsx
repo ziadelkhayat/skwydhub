@@ -1,3 +1,6 @@
+import { Label } from "@/components/tremor/Label";
+import { ChoiceButton } from "../ui/Choice";
+import { Checkbox } from "@/components/ui/checkbox";
 // Employee Management → Chats (groups, channels and private chats with employees, answered in the SKWYD apps) and Manage → Applications
 // (every SKWYD app with its download link). Same data (chat_groups, chat_messages) and rules as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -65,7 +68,7 @@ export function TeamChatPage() {
         : <>
           <div className="flex items-center gap-2 border-b border-gray-200 p-4 dark:border-gray-800"><Button size="sm" onClick={() => { setAdding(true); setAq(""); }}><PlusIcon className="size-4" />Add New</Button></div>
           <div className="space-y-3 p-3"><TInput type="search" className="h-10" inputClassName="h-9 py-1.5" placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-            <div className="flex flex-wrap gap-2">{[["", "All"], ["group", "Group"], ["channel", "Channel"], ["direct", "Private"]].map(([k, t]) => <button key={k} type="button" onClick={() => setKind(k)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", kind === k ? "border-blue-500 bg-blue-500 text-white" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div></div>
+            <div className="flex flex-wrap gap-2">{[["", "All"], ["group", "Group"], ["channel", "Channel"], ["direct", "Private"]].map(([k, t]) => <ChoiceButton on={kind === k} key={k} onClick={() => setKind(k)} className="text-xs">{t}</ChoiceButton>)}</div></div>
           <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">{!gs.length ? <p className="px-4 py-10 text-center text-sm text-gray-500">{qq ? "Nothing matches." : kind === "direct" ? "No private chats yet." : "No conversations yet."}</p> : gs.map(x => <Item key={x.id} x={x} />)}</div></>}
       </aside>
       <section className={cn("flex min-h-0 flex-col", !g && "hidden md:flex")}>
@@ -96,7 +99,7 @@ function GroupDialog({ s, g, kind, by, onClose, onSaved, onDeleted }: { s: S; g?
   async function del() { if (!(await askYes(`Delete the ${T.toLowerCase()} ${g!.name}? Its messages are removed for everyone.`, "Delete", true))) return;
     try { await put("chat_groups", g!.id, { deleted: true }); toast(T + " deleted"); onDeleted(); onClose(); } catch { setErr(`Couldn't delete the ${T.toLowerCase()}.`); } }
   const Pick = ({ items, on, set }: { items: [string, string, string?][]; on: string[]; set: (x: string[]) => void }) => <div className="custom-scrollbar max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-800">{!items.length ? <p className="text-sm text-gray-500">None yet</p> : items.map(([id, t, n]) =>
-    <label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-blue-500" checked={on.includes(id)} onChange={e => tog(on, set, id, e.target.checked)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</label>)}</div>;
+    <Label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={on.includes(id)} onCheckedChange={(chk: boolean) => tog(on, set, id, chk)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</Label>)}</div>;
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{g ? "Edit " + T : "New " + T}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       {chan && <p className="text-sm text-gray-500">Only the back office and the channel's creator can post. Members read the announcements in the app.</p>}

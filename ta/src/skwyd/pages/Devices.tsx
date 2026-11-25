@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { ChoiceButton } from "../ui/Choice";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Manage → Devices: the same list (type tabs), device page (Force Sync, Copy Settings, Device Settings, Edit, Deactivate, Delete),
 // create / edit / settings forms and rules as the current portal, in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -17,7 +21,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, Card, F, L, SEL, TD, TH, TR } from "../ui/kit";
+import { Card, F, L, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -56,23 +60,23 @@ export default function DevicesPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Devices" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} />
           <Button onClick={() => setCreate(true)}><PlusIcon className="size-5" />Create Device</Button>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!list.length ? <EmptyState text={all.length ? "No devices of this type." : "No devices yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Type</th><th className={TH}>Status</th><th className={TH}>Store</th></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(d => (
-                <tr key={d.id} className={TR} onClick={() => openWin("/devices?id=" + d.id)}>
-                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></td>
-                  <td className={TD}>{d.reference || "—"}</td><td className={TD}>{devType(d.type)}</td>
-                  <td className={TD}>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</td>
-                  <td className={TD}>{bName(d.branchId) || "—"}</td></tr>))}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              <TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Reference</TableHeaderCell><TableHeaderCell className={TH}>Type</TableHeaderCell><TableHeaderCell className={TH}>Status</TableHeaderCell><TableHeaderCell className={TH}>Store</TableHeaderCell></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(d => (
+                <TableRow key={d.id} className={TR} onClick={() => openWin("/devices?id=" + d.id)}>
+                  <TableCell className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></TableCell>
+                  <TableCell className={TD}>{d.reference || "—"}</TableCell><TableCell className={TD}>{devType(d.type)}</TableCell>
+                  <TableCell className={TD}>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</TableCell>
+                  <TableCell className={TD}>{bName(d.branchId) || "—"}</TableCell></TableRow>))}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {create && <CreateDevice s={s} onClose={() => setCreate(false)} />}
     </>
   );
@@ -99,7 +103,7 @@ function DevicePage({ d, s, bName, back }: { d: Row; s: S; bName: (id?: string) 
   return (
     <>
       <PageBreadcrumb pageTitle={d.name} />
-      <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="p-5 lg:p-6">
         <div className="space-y-6">
           <div className="flex flex-col gap-5 rounded-lg border border-gray-200 p-5 lg:p-6 xl:flex-row xl:items-center xl:justify-between dark:border-gray-800">
             <div className="flex items-center gap-4">
@@ -130,7 +134,7 @@ function DevicePage({ d, s, bName, back }: { d: Row; s: S; bName: (id?: string) 
             ? <DangerRow title="Deactivate Device" text="Make sure all its orders are uploaded. The tablet signs out and a new activation code is generated." btn="Deactivate Device" onClick={deactivate} />
             : <DangerRow title="Delete Device" text="Removes this device from skwyd hub. Its past orders are kept." btn="Delete" onClick={del} />}
         </div>
-      </div>
+      </Card>
       {dlg === "edit" && <EditDevice d={d} s={s} onClose={() => setDlg("")} onDeactivate={deactivate} />}
       {dlg === "set" && <DeviceSettings d={d} onClose={() => setDlg("")} />}
       {dlg === "copy" && <CopySettings d={d} s={s} bName={bName} onClose={() => setDlg("")} />}
@@ -172,11 +176,11 @@ function CreateDevice({ s, onClose }: { s: S; onClose: () => void }) {
   return (
     <Modal title="Create Device" onClose={onClose} footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></>}>
       <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-        <F l="Type" req full help="Choose the type of device."><select className={SEL} value={type} onChange={e => setType(e.target.value)}>{DEV_TYPES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
+        <F l="Type" req full help="Choose the type of device."><SelectNative className={SEL} value={type} onChange={e => setType(e.target.value)}>{DEV_TYPES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>
         <F l="Name" req full><Input className="h-9" autoFocus placeholder="e.g. Main Cashier, 2nd Floor Cashier" value={name} onChange={e => setName(e.target.value)} /></F>
         <F l="Reference" req full><div className="flex gap-3"><Input className="h-9 flex-1" value={ref} onChange={e => setRef(e.target.value)} /><Button variant="outline" className="h-9" onClick={() => setRef(devRef(s.devices))}>Generate</Button></div></F>
-        <F l="Brand" req><select className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); }}><option value="">Choose…</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
-        <F l="Store" req><select className={SEL} value={branch} onChange={e => setBranch(e.target.value)}><option value="">{brand ? "Choose…" : "Pick the brand first"}</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
+        <F l="Brand" req><SelectNative className={SEL} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); }}><option value="">Choose…</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
+        <F l="Store" req><SelectNative className={SEL} value={branch} onChange={e => setBranch(e.target.value)}><option value="">{brand ? "Choose…" : "Pick the brand first"}</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
         {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
       </div>
     </Modal>);
@@ -205,9 +209,9 @@ function EditDevice({ d, s, onClose, onDeactivate }: { d: Row; s: S; onClose: ()
           <Button variant="outline" size="icon-lg" aria-label="Generate a reference" onClick={() => setRef(devRef(s.devices.filter(x => x.id !== d.id)))}><RegenerateIcon className="size-5" /></Button></div></F>
         <F l="Type" full>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Type">{DEV_TYPES.map(([k, t]) => (
-            <button key={k} type="button" role="radio" aria-checked={type === k} onClick={() => setType(k)}
-              className={"rounded-md border p-3 text-start transition-colors " + (type === k ? "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700")}>
-              <b className="block text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b><span className="text-xs text-gray-500 dark:text-gray-400">{TYPE_NOTE[k]}</span></button>))}</div></F>
+            <ChoiceButton on={type === k} key={k} role="radio" aria-checked={type === k} onClick={() => setType(k)}
+              className="p-3 text-start">
+              <b className="block text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b><span className="text-xs text-gray-500 dark:text-gray-400">{TYPE_NOTE[k]}</span></ChoiceButton>))}</div></F>
         <Field orientation="horizontal" className="col-span-full items-start gap-3 rounded-md border border-gray-200 p-4 dark:border-gray-800">
           <Switch checked={master} onCheckedChange={v => setMaster(!!v)} />
           <div><FieldLabel className="text-sm font-medium text-gray-900 dark:text-gray-50">Receives online orders</FieldLabel>
@@ -250,10 +254,10 @@ function DeviceSettings({ d, onClose }: { d: Row; onClose: () => void }) {
         {txt("callReset", "Call Number Reset", "When this number is reached, numbering goes back to the Call Number Start.", "number", "No reset")}
         <F l="Disabled Order Types" full help="Choose the order types to disable on this cashier.">
           <div className="flex flex-wrap gap-5 pt-1">{OT3.map(([k, t]) => (
-            <label key={k} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-700 dark:text-gray-400">
-              <Checkbox checked={off.includes(k)} onCheckedChange={c => setOff(o => c ? [...o, k] : o.filter(x => x !== k))} />{t}</label>))}</div></F>
+            <Label key={k} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-700 dark:text-gray-400">
+              <Checkbox checked={off.includes(k)} onCheckedChange={c => setOff(o => c ? [...o, k] : o.filter(x => x !== k))} />{t}</Label>))}</div></F>
         <F l="Kitchen Print Language" help="Products on the kitchen ticket appear in this language.">
-          <select className={SEL} value={v.kitchenLang} onChange={e => set("kitchenLang", e.target.value)}><option value="main">Main</option><option value="localized">Localized</option><option value="both">Main & Localized</option></select></F>
+          <SelectNative className={SEL} value={v.kitchenLang} onChange={e => set("kitchenLang", e.target.value)}><option value="main">Main</option><option value="localized">Localized</option><option value="both">Main & Localized</option></SelectNative></F>
         {txt("copies", "Receipt copies", undefined, "number")}
         {txt("eodEmail", "Send End of Day Report To Email", "One email address to receive end of day reports.", "email")}
         {txt("shiftEmail", "Send Shift Report To Email", "One email address to receive opening and closing shift reports.", "email")}
@@ -289,8 +293,8 @@ function CopySettings({ d, s, bName, onClose }: { d: Row; s: S; bName: (id?: str
       <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Copy the device settings of {d.name} to these {devType(d.type)} devices. Their current settings are replaced.</p>
       <div className="mt-5 max-h-72 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-2 dark:border-gray-800">
         {!list.length ? <p className="p-3 text-sm text-gray-500">No other {devType(d.type)} devices</p> : list.map(x => (
-          <label key={x.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
-            <Checkbox checked={pick.includes(x.id)} onCheckedChange={c => setPick(p => c ? [...p, x.id] : p.filter(y => y !== x.id))} />{x.name}{x.branchId ? <span className="text-gray-400"> · {bName(x.branchId)}</span> : null}</label>))}
+          <Label key={x.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
+            <Checkbox checked={pick.includes(x.id)} onCheckedChange={c => setPick(p => c ? [...p, x.id] : p.filter(y => y !== x.id))} />{x.name}{x.branchId ? <span className="text-gray-400"> · {bName(x.branchId)}</span> : null}</Label>))}
       </div>
       {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
     </Modal>);

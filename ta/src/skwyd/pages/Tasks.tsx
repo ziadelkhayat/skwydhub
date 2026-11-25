@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Tasks: tasks given to employees (or everyone at a store), done in the Employee App. Same table and rules as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +18,7 @@ import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
+import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 import { d10s, dmy, today, who } from "./em";
@@ -35,25 +39,25 @@ export default function TasksPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Tasks" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <TInput type="search" className="sm:w-60" inputClassName="h-9 py-1.5" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
-            <select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
-            <select aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+            <SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+            <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={all.length ? "Nothing here." : "No tasks yet. Employees see their tasks in the Employee App and tick them when done."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Task", "Given To", "Due", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(t => <tr key={t.id} className={TR} onClick={() => setForm(t)}>
-                <td className={TD + " whitespace-normal"}><span className="block font-medium text-gray-900 dark:text-gray-50">{t.title}</span>{t.notes && <span className="text-xs text-gray-500">{String(t.notes).slice(0, 90)}</span>}</td>
-                <td className={TD + " whitespace-normal"}>{whoOf(t)}</td><td className={TD}>{t.dueDay ? <span className={late(t) ? "font-semibold text-red-500" : ""}>{dmy(t.dueDay)}</span> : "—"}</td>
-                <td className={TD}>{t.status === "done" ? <><Badge variant="light" color="success">Done</Badge><span className="block text-xs text-gray-500">{t.doneBy || ""}{t.doneAt ? " · " + dmy(t.doneAt) : ""}</span></> : late(t) ? <Badge variant="light" color="error">Late</Badge> : <Badge variant="light" color="warning">Open</Badge>}</td>
-                <td className={TD + " text-end"}><Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); toggle(t); }}>{t.status === "done" ? "Reopen" : "Mark Done"}</Button></td></tr>)}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{["Task", "Given To", "Due", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH} /></TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(t => <TableRow key={t.id} className={TR} onClick={() => setForm(t)}>
+                <TableCell className={TD + " whitespace-normal"}><span className="block font-medium text-gray-900 dark:text-gray-50">{t.title}</span>{t.notes && <span className="text-xs text-gray-500">{String(t.notes).slice(0, 90)}</span>}</TableCell>
+                <TableCell className={TD + " whitespace-normal"}>{whoOf(t)}</TableCell><TableCell className={TD}>{t.dueDay ? <span className={late(t) ? "font-semibold text-red-500" : ""}>{dmy(t.dueDay)}</span> : "—"}</TableCell>
+                <TableCell className={TD}>{t.status === "done" ? <><Badge variant="light" color="success">Done</Badge><span className="block text-xs text-gray-500">{t.doneBy || ""}{t.doneAt ? " · " + dmy(t.doneAt) : ""}</span></> : late(t) ? <Badge variant="light" color="error">Late</Badge> : <Badge variant="light" color="warning">Open</Badge>}</TableCell>
+                <TableCell className={TD + " text-end"}><Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); toggle(t); }}>{t.status === "done" ? "Reopen" : "Mark Done"}</Button></TableCell></TableRow>)}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {form !== undefined && <TaskForm t={form} s={s} by={who(staff)} onClose={() => setForm(undefined)} />}
     </>
   );
@@ -77,12 +81,12 @@ function TaskForm({ t, s, by, onClose }: { t: Row | null; s: S; by: string; onCl
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Task" req full><Input className="h-9" autoFocus maxLength={200} placeholder="e.g. Clean the fryer" value={v.title} onChange={e => set("title", e.target.value)} /></F>
           <F l="Notes" full><Textarea rows={3} value={v.notes} onChange={e => set("notes", e.target.value)} /></F>
-          <F l="Store"><select className={SEL} value={v.br} onChange={e => set("br", e.target.value)}><option value="">All Stores</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
+          <F l="Store"><SelectNative className={SEL} value={v.br} onChange={e => set("br", e.target.value)}><option value="">All Stores</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
           <F l="Due Date"><DateInput value={v.due} onChange={x => set("due", x)} /></F>
           <F l="Given To" full help="None chosen: everyone at the store.">
-            <div className="rounded-lg border border-gray-300 dark:border-gray-700"><input className="h-10 w-full border-b border-gray-200 bg-transparent px-3 text-sm outline-none dark:border-gray-800 dark:text-gray-50" placeholder="Search employees" value={q} onChange={e => setQ(e.target.value)} />
-              <div className="max-h-48 overflow-y-auto p-1.5">{emps.filter(u => !q || String(u.name).toLowerCase().includes(q.toLowerCase())).map(u => <label key={u.id} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
-                <Checkbox checked={on.includes(u.id)} onCheckedChange={c => setOn(c ? [...on, u.id] : on.filter(x => x !== u.id))} />{u.name}{u.jobTitle && <span className="text-gray-400">{u.jobTitle}</span>}</label>)}</div></div></F>
+            <div className="rounded-md border border-gray-300 shadow-sm dark:border-gray-800"><div className="border-b border-gray-200 p-1.5 dark:border-gray-800"><TInput type="search" placeholder="Search employees" value={q} onChange={e => setQ(e.target.value)} inputClassName="h-8 py-1" /></div>
+              <div className="max-h-48 overflow-y-auto p-1.5">{emps.filter(u => !q || String(u.name).toLowerCase().includes(q.toLowerCase())).map(u => <Label key={u.id} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
+                <Checkbox checked={on.includes(u.id)} onCheckedChange={c => setOn(c ? [...on, u.id] : on.filter(x => x !== u.id))} />{u.name}{u.jobTitle && <span className="text-gray-400">{u.jobTitle}</span>}</Label>)}</div></div></F>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
             {t && <Button type="button" variant="destructive" className="sm:me-auto" onClick={async () => { if (!(await askYes(`Delete the task ${t.title}?`, "Delete", true))) return; try { await put("tasks", t.id, { deleted: true }); toast("Task deleted"); onClose(); } catch { toast("Couldn't delete the task.", "error"); } }}>Delete</Button>}

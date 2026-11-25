@@ -1,3 +1,7 @@
+import { Card } from "@/components/tremor/Card";
+import { ChoiceButton } from "../ui/Choice";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Schedule: shifts per store by day / week / month (draft → publish), open shifts, labor cost vs sales,
 // time off and clock-ins shown in the grid, drag a shift to move it (Ctrl / Alt copies). Same rules as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -79,7 +83,7 @@ export default function SchedulePage() {
   const cell = (empId: string, d: string) => {
     const list = week.filter(x => (x.employeeId || "") === empId && d10s(x.day) === d).sort((a, b) => tMin(a.startTime) - tMin(b.startTime)), k = empId + "|" + d, w = empId && worked[k], off = empId && rqOffOn(reqs, empId, d);
     return (
-      <td key={d} onClick={() => setForm({ emp: empId, day: d })} onDragOver={e => { if (!e.dataTransfer.types.includes("text/shift")) return; e.preventDefault(); e.dataTransfer.dropEffect = e.ctrlKey || e.altKey ? "copy" : "move"; setOver(k); }}
+      <TableCell key={d} onClick={() => setForm({ emp: empId, day: d })} onDragOver={e => { if (!e.dataTransfer.types.includes("text/shift")) return; e.preventDefault(); e.dataTransfer.dropEffect = e.ctrlKey || e.altKey ? "copy" : "move"; setOver(k); }}
         onDragLeave={() => setOver(o => o === k ? "" : o)} onDrop={e => drop(e, empId, d)}
         className={cn("h-16 cursor-pointer border-s border-gray-100 p-1.5 align-top transition-colors hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/2", over === k && "bg-blue-50 dark:bg-blue-500/10", d === t0 && "bg-blue-50/30")}
         style={off ? { background: "repeating-linear-gradient(135deg,rgba(70,95,255,.10) 0 8px,transparent 8px 16px)" } : undefined}>
@@ -91,16 +95,16 @@ export default function SchedulePage() {
             <b className="font-semibold">{t5(x.startTime)} – {t5(x.endTime)}</b><span className="block text-[11px] opacity-75">{x.jobTitle || ""}{x.breakMin ? ` · ${+x.breakMin}m break` : ""}{x.published ? "" : " · Draft"}</span></span>); })}
         {!w && empId && d < t0 && list.some(x => x.published) && <span className="block text-[11px] text-red-500" title="Published shift with no clock-in">✗ No clock-in</span>}
         {w ? <span className={cn("block text-[11px]", wflag[k] ? "text-red-500" : "text-green-600")} title="Clocked in on the cashier app">✓ {w.toFixed(1)}h worked{wflag[k] ? " · " + wflag[k] : ""}</span> : null}
-      </td>);
+      </TableCell>);
   };
   const row = (u: Row | null) => { const mine = week.filter(x => u ? x.employeeId === u.id : !x.employeeId), hrs = mine.reduce((a, x) => a + shHrs(x), 0), cost = mine.reduce((a, x) => a + shCost(x, s.users), 0);
     return (
-      <tr key={u?.id || "open"} className="border-t border-gray-200 dark:border-gray-800">
-        <td className="sticky start-0 z-[1] w-52 min-w-52 bg-white px-4 py-2 dark:bg-gray-900">
+      <TableRow key={u?.id || "open"} className="border-t border-gray-200 dark:border-gray-800">
+        <TableCell className="sticky start-0 z-[1] w-52 min-w-52 bg-white px-4 py-2 dark:bg-gray-900">
           <div className="flex items-center gap-3"><span className={cn("flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold", u ? "bg-blue-50 text-blue-500 dark:bg-blue-500/15" : "bg-gray-100 text-gray-500 dark:bg-white/5")}>{u ? ini(u.name) : <PlusIcon className="size-4" />}</span>
             <div className="min-w-0"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{u ? u.name : "Open Shifts"}</b><span className="block truncate text-xs text-gray-500">{u ? u.jobTitle || "—" : "Not given to anyone yet"}</span>
-              <span className="block text-xs text-gray-400">{hrs ? hrs.toFixed(1) + "h" : "0h"}{cost ? " · " + money(cost) : ""}</span></div></div></td>
-        {days.map(d => cell(u ? u.id : "", d))}</tr>); };
+              <span className="block text-xs text-gray-400">{hrs ? hrs.toFixed(1) + "h" : "0h"}{cost ? " · " + money(cost) : ""}</span></div></div></TableCell>
+        {days.map(d => cell(u ? u.id : "", d))}</TableRow>); };
   const cards: [string, string, string][] = [["Scheduled Hours", wHrs.toFixed(1) + "h", `${week.length} shift${week.length === 1 ? "" : "s"}`], ["Labor Cost", money(wCost), "From pay rates"], ["Sales", money(wSales), view === "day" ? "This day" : view === "month" ? "This month" : "This week"],
     ["Labor %", wSales ? (wCost / wSales * 100).toFixed(1) + "%" : "—", "Labor ÷ sales"], ["Drafts", String(drafts.length), drafts.length ? "Not published yet" : "All published"]];
   return (
@@ -108,8 +112,8 @@ export default function SchedulePage() {
       <PageBreadcrumb pageTitle="Schedule" />
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          {<select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => setBrand(e.target.value)}><option value="">All Brands</option>{s.brands.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}
-          <select aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+          {<SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => setBrand(e.target.value)}><option value="">All Brands</option>{s.brands.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
+          <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
           <SegTabs value={view} onChange={setView} items={[["day", "Day"], ["week", "Week"], ["month", "Month"]]} />
           <div className="flex items-center gap-2"><Button variant="outline" size="icon-lg" aria-label="Previous" onClick={() => step(-1)}><ChevronLeftIcon className="size-5" /></Button>
             <span className="min-w-44 text-center text-sm font-medium text-gray-900 dark:text-gray-50">{label}</span>
@@ -123,21 +127,21 @@ export default function SchedulePage() {
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{cards.map(([l, v, d]) => (
         <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]"><span className="text-sm text-gray-500 dark:text-gray-400">{l}</span>
           <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4><span className="text-xs text-gray-400">{d}</span></div>))}</div>
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="overflow-hidden p-0">
         <div className="max-w-full overflow-x-auto custom-scrollbar">
-          <table className="w-full" style={{ minWidth: nDays > 7 ? 208 + nDays * 120 : nDays === 1 ? 0 : 1000 }}>
-            <thead><tr><th className="sticky start-0 z-[1] bg-white px-4 py-3 text-start text-xs font-medium text-gray-500 dark:bg-gray-900">Employee</th>{days.map(d => { const ds = week.filter(x => d10s(x.day) === d), hrs = ds.reduce((a, x) => a + shHrs(x), 0), cost = ds.reduce((a, x) => a + shCost(x, s.users), 0), sl = sales[d] || 0, dt = new Date(d + "T12:00:00");
-              return <th key={d} className={cn("border-s border-gray-100 px-2 py-3 text-start align-top text-xs font-medium dark:border-gray-800", d === t0 ? "text-blue-500" : "text-gray-500")}>
+          <Table className="w-full" style={{ minWidth: nDays > 7 ? 208 + nDays * 120 : nDays === 1 ? 0 : 1000 }}>
+            <TableHead><TableRow><TableHeaderCell className="sticky start-0 z-[1] bg-white px-4 py-3 text-start text-xs font-medium text-gray-500 dark:bg-gray-900">Employee</TableHeaderCell>{days.map(d => { const ds = week.filter(x => d10s(x.day) === d), hrs = ds.reduce((a, x) => a + shHrs(x), 0), cost = ds.reduce((a, x) => a + shCost(x, s.users), 0), sl = sales[d] || 0, dt = new Date(d + "T12:00:00");
+              return <TableHeaderCell key={d} className={cn("border-s border-gray-100 px-2 py-3 text-start align-top text-xs font-medium dark:border-gray-800", d === t0 ? "text-blue-500" : "text-gray-500")}>
                 <b className="block text-sm font-semibold text-gray-900 dark:text-gray-50">{dt.toLocaleDateString("en-GB", { weekday: "short" })} {dmy(d).slice(0, 5)}</b>
                 <span className="mt-1 block font-normal">{hrs.toFixed(1)}h · {ds.length} shift{ds.length === 1 ? "" : "s"}</span><span className="block font-normal">Labor {money(cost)} · Sales {money(sl)}</span>
-                <span className="block font-normal">Labor % {sl ? (cost / sl * 100).toFixed(1) + "%" : "—"}</span></th>; })}</tr></thead>
-            <tbody>{row(null)}{emps.map(u => row(u))}</tbody>
-          </table>
+                <span className="block font-normal">Labor % {sl ? (cost / sl * 100).toFixed(1) + "%" : "—"}</span></TableHeaderCell>; })}</TableRow></TableHead>
+            <TableBody>{row(null)}{emps.map(u => row(u))}</TableBody>
+          </Table>
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-gray-100 px-5 py-3 text-xs text-gray-500 dark:border-gray-800">
           <span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm border-s-3 border-blue-500 bg-blue-50" />Published</span><span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm border-s-3 border-dashed border-gray-400 bg-gray-100" />Draft (not published yet)</span>
           <span className="flex items-center gap-2"><i className="inline-block h-3 w-3 rounded-sm ring-2 ring-red-500" />Overlaps another shift</span><span>Click a day to add · drag a shift to move it, hold Ctrl or Alt to copy it</span></div>
-      </div>
+      </Card>
       {!emps.length && <p className="mt-3 text-sm text-gray-500">No employees work at this store yet. Pick their stores on each employee's page (Employee Management → Employees).</p>}
       {form && <ShiftForm s={s} br={br} f={form} clash={clash} onClose={() => setForm(null)} />}
     </>
@@ -171,11 +175,11 @@ function ShiftForm({ s, br, f, onClose }: { s: S; br: string; f: { id?: string; 
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[92dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{x ? "Edit Shift" : "Add Shift"}</DialogTitle></DialogHeader>
-        <div className="mt-5 flex flex-wrap gap-2">{pre.map(p => <button key={p} type="button" onClick={() => { const [a, b] = p.split("-"); setV(o => ({ ...o, a, b })); }}
-          className={cn("h-9 rounded-lg border px-3 text-sm font-medium", v.a + "-" + v.b === p ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400")}>{p.replace("-", " – ")}</button>)}</div>
+        <div className="mt-5 flex flex-wrap gap-2">{pre.map(p => <ChoiceButton on={v.a + "-" + v.b === p} key={p} onClick={() => { const [a, b] = p.split("-"); setV(o => ({ ...o, a, b })); }}
+          className="h-9">{p.replace("-", " – ")}</ChoiceButton>)}</div>
         <form className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
-          <F l="Employee"><select className={SEL} value={v.emp} onChange={e => { const u = s.users.find(y => y.id === e.target.value); setV(o => ({ ...o, emp: e.target.value, job: o.job || u?.jobTitle || "" })); }}>
-            <option value="">Open Shift (anyone)</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}{u.jobTitle ? " · " + u.jobTitle : ""}</option>)}</select></F>
+          <F l="Employee"><SelectNative className={SEL} value={v.emp} onChange={e => { const u = s.users.find(y => y.id === e.target.value); setV(o => ({ ...o, emp: e.target.value, job: o.job || u?.jobTitle || "" })); }}>
+            <option value="">Open Shift (anyone)</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}{u.jobTitle ? " · " + u.jobTitle : ""}</option>)}</SelectNative></F>
           <F l="Job Title"><Input className="h-9" list="shJobDl" placeholder="e.g. Cashier" value={v.job} onChange={e => set("job", e.target.value)} /><datalist id="shJobDl">{jobs.map(j => <option key={j} value={j} />)}</datalist></F>
           <F l="Start" req><Input className="h-9" type="time" value={v.a} onChange={e => set("a", e.target.value)} /></F>
           <F l="End" req><Input className="h-9" type="time" value={v.b} onChange={e => set("b", e.target.value)} /></F>
@@ -183,9 +187,9 @@ function ShiftForm({ s, br, f, onClose }: { s: S; br: string; f: { id?: string; 
           <F l="Length"><p className="flex h-9 items-center text-sm font-semibold text-gray-900 dark:text-gray-50">{len.toFixed(2)} hours{nextDay ? " (ends next day)" : ""}</p></F>
           <F l={x ? "Day" : "Days"} full help={x ? undefined : "Pick several days to add the same shift on each."}>
             {x ? <DateInput value={ds[0]} onChange={d => d && setDs([d])} />
-              : <div className="flex flex-wrap gap-2">{wk.map(d => { const on = ds.includes(d); return <button key={d} type="button" aria-pressed={on} onClick={() => setDs(on ? ds.filter(y => y !== d) : [...ds, d])}
-                className={cn("h-10 rounded-lg border px-3 text-sm font-medium", on ? "border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>
-                {new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short" })} {dmy(d).slice(0, 5)}</button>; })}</div>}</F>
+              : <div className="flex flex-wrap gap-2">{wk.map(d => { const on = ds.includes(d); return <ChoiceButton on={on} key={d} aria-pressed={on} onClick={() => setDs(on ? ds.filter(y => y !== d) : [...ds, d])}
+                className="h-10">
+                {new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short" })} {dmy(d).slice(0, 5)}</ChoiceButton>; })}</div>}</F>
           <F l="Note" full><Input className="h-9" placeholder="Shown to the employee" value={v.note} onChange={e => set("note", e.target.value)} /></F>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">

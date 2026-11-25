@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Marketing → Loyalty, Gift Cards and Coupons: same settings documents ("loyalty", "gift_cards", "coupons"), fields, rules and
 // database calls (skwyd_gift_info, skwyd_coupon_counts) as the current portal, in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -15,7 +19,7 @@ import { live } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { DateInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, F, L, SEL, TD, TH, TR } from "../ui/kit";
+import { F, L, SEL, TD, TH, TR } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
@@ -67,9 +71,9 @@ export function LoyaltyPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Loyalty Settings" />
-      <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
+      <Card className="p-5 lg:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex cursor-pointer items-center gap-3"><Switch checked={!!c.enabled} onCheckedChange={v => set("enabled", !!v)} /><span className="text-base font-semibold text-gray-900 dark:text-gray-50">Enable Loyalty</span></label>
+          <Label className="flex cursor-pointer items-center gap-3"><Switch checked={!!c.enabled} onCheckedChange={v => set("enabled", !!v)} /><span className="text-base font-semibold text-gray-900 dark:text-gray-50">Enable Loyalty</span></Label>
           <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save Changes"}</Button>
         </div>
         {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
@@ -81,16 +85,16 @@ export function LoyaltyPage() {
               {!amt && <> up to <B>{money(+c.maxDiscount || 0)}</B></>} within <B>{(+c.validityDays || 0) + " days"}</B> from the creation date.</p>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
-            <F l="Loyalty Method" req><select className={SEL} value={c.method} onChange={e => set("method", e.target.value)}><option value="points">Points</option><option value="punches">Punches</option></select></F>
+            <F l="Loyalty Method" req><SelectNative className={SEL} value={c.method} onChange={e => set("method", e.target.value)}><option value="points">Points</option><option value="punches">Punches</option></SelectNative></F>
             {num("minOrder", `Minimum Order Price (${sym()})`)}{num("delayMin", "Earning Delay (Minute)")}
-            <F l="Reward Type" req><select className={SEL} value={c.rewardType} onChange={e => set("rewardType", e.target.value)}><option value="pct">Discount Percentage</option><option value="amount">Discount Amount</option></select></F>
+            <F l="Reward Type" req><SelectNative className={SEL} value={c.rewardType} onChange={e => set("rewardType", e.target.value)}><option value="pct">Discount Percentage</option><option value="amount">Discount Amount</option></SelectNative></F>
             {num("rewardValue", `Reward Value (${amt ? sym() : "%"})`)}{!amt && num("maxDiscount", `Maximum Discount Amount (${sym()})`)}
             {num("required", `Reward Required ${pt ? "Punches" : "Points"}`)}{num("validityDays", "Reward Validity (Days)")}
           </div>
-          <label className="mt-6 flex cursor-pointer items-start gap-3"><Switch checked={!!c.sms} onCheckedChange={v => set("sms", !!v)} />
-            <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">Send Notifications By SMS</span><span className="text-xs text-gray-500 dark:text-gray-400">Check this to send loyalty notifications to the customer by SMS</span></span></label>
+          <Label className="mt-6 flex cursor-pointer items-start gap-3"><Switch checked={!!c.sms} onCheckedChange={v => set("sms", !!v)} />
+            <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">Send Notifications By SMS</span><span className="text-xs text-gray-500 dark:text-gray-400">Check this to send loyalty notifications to the customer by SMS</span></span></Label>
         </>}
-      </div>
+      </Card>
     </>
   );
 }
@@ -107,7 +111,7 @@ export function GiftCardsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Gift Cards" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setCheck(true)}><SearchIcon className="size-5" />Check Balance</Button>
@@ -115,16 +119,16 @@ export function GiftCardsPage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted gift cards" : "Create Gift Cards which customers can buy and later use to pay for their orders. The gift card is sold as an item and the amount of selling will not be reflected in the sales reports."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              <th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH}>Category</th><th className={TH}>Pricing Method</th><th className={TH + " text-end"}>Price</th>{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(g => (
-                <tr key={g.id} className={del ? "" : TR} onClick={() => !del && setForm(g)}>
-                  <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</td>
-                  <td className={TD}><span className="font-mono">{g.sku || "—"}</span></td><td className={TD}>{cats.find(c => c.id === g.categoryId)?.name || "—"}</td>
-                  <td className={TD}>{g.pricing === "open" ? "Open Price" : "Fixed Price"}</td><td className={TD + " text-end"}>{g.pricing === "open" ? "—" : money(+g.price || 0)}</td>
-                  {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === g.id ? { ...x, deleted: false } : x))) toast("Gift card restored"); }}>Restore</Button></td>}</tr>))}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              <TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH}>Category</TableHeaderCell><TableHeaderCell className={TH}>Pricing Method</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Price</TableHeaderCell>{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(g => (
+                <TableRow key={g.id} className={del ? "" : TR} onClick={() => !del && setForm(g)}>
+                  <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</TableCell>
+                  <TableCell className={TD}><span className="font-mono">{g.sku || "—"}</span></TableCell><TableCell className={TD}>{cats.find(c => c.id === g.categoryId)?.name || "—"}</TableCell>
+                  <TableCell className={TD}>{g.pricing === "open" ? "Open Price" : "Fixed Price"}</TableCell><TableCell className={TD + " text-end"}>{g.pricing === "open" ? "—" : money(+g.price || 0)}</TableCell>
+                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === g.id ? { ...x, deleted: false } : x))) toast("Gift card restored"); }}>Restore</Button></TableCell>}</TableRow>))}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {form !== undefined && <GiftForm g={form} list={list} cats={catOpts} save={save} onClose={() => setForm(undefined)} />}
       {check && <GiftCheck onClose={() => setCheck(false)} />}
     </>
@@ -149,9 +153,9 @@ function GiftForm({ g, list, cats, save, onClose }: { g: any; list: any[]; cats:
       onDelete={g ? async () => { if (await askYes("Delete this gift card?", "Delete", true) && await save(list.map(o => o.id === g.id ? { ...o, deleted: true } : o))) { toast("Gift card deleted"); onClose(); } } : undefined}>
       <F l="Name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
       <F l="Name Localized"><Input className="h-9" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
-      <F l="Category" req><select className={SEL} value={v.categoryId} onChange={e => set("categoryId", e.target.value)}><option value="">Choose…</option>{cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></F>
+      <F l="Category" req><SelectNative className={SEL} value={v.categoryId} onChange={e => set("categoryId", e.target.value)}><option value="">Choose…</option>{cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</SelectNative></F>
       <F l="SKU" req><div className="flex gap-3"><Input className="h-9 flex-1" value={v.sku} onChange={e => set("sku", e.target.value)} /><Button type="button" variant="outline" className="h-9" onClick={() => set("sku", nextSku())}>Generate</Button></div></F>
-      <F l="Pricing Method" req><select className={SEL} value={v.pricing} onChange={e => set("pricing", e.target.value)}><option value="fixed">Fixed Price</option><option value="open">Open Price</option></select></F>
+      <F l="Pricing Method" req><SelectNative className={SEL} value={v.pricing} onChange={e => set("pricing", e.target.value)}><option value="fixed">Fixed Price</option><option value="open">Open Price</option></SelectNative></F>
       {v.pricing === "fixed" && <F l={`Price (${sym()})`} req><Input className="h-9" type="number" min="0" step="any" value={v.price} onChange={e => set("price", e.target.value)} /></F>}
     </FormDialog>);
 }
@@ -190,7 +194,7 @@ export function CouponsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Coupons" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setForm({ c: null, bulk: true })}>Bulk Create</Button>
@@ -198,18 +202,18 @@ export function CouponsPage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted coupons" : "Create coupons that your customers can use to get discounts on orders."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              {["Name", "Code", "Coupon Type", "Discount"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Uses</th>
-              {["Start Date", "End Date", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const st = status(c); return (
-                <tr key={c.id} className={del ? "" : TR} onClick={() => !del && setForm({ c, bulk: false })}>
-                  <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{c.name}</td><td className={TD}><span className="font-mono">{c.code}</span></td>
-                  <td className={TD}>{c.type === "product" ? "Item" : "Order"}</td><td className={TD}>{discs.find(d => d.id === c.discountId)?.name || "—"}</td>
-                  <td className={TD + " text-end"}>{counts ? (counts[c.id] || 0) : "…"} / {c.maxUses ?? "—"}</td><td className={TD}>{fmtDate(c.start)}</td><td className={TD}>{fmtDate(c.end)}</td>
-                  <td className={TD}><Badge variant="light" color={color(st) as any}>{st}</Badge></td>
-                  {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === c.id ? { ...x, deleted: false } : x))) toast("Coupon restored"); }}>Restore</Button></td>}</tr>); })}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              {["Name", "Code", "Coupon Type", "Discount"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Uses</TableHeaderCell>
+              {["Start Date", "End Date", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const st = status(c); return (
+                <TableRow key={c.id} className={del ? "" : TR} onClick={() => !del && setForm({ c, bulk: false })}>
+                  <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{c.name}</TableCell><TableCell className={TD}><span className="font-mono">{c.code}</span></TableCell>
+                  <TableCell className={TD}>{c.type === "product" ? "Item" : "Order"}</TableCell><TableCell className={TD}>{discs.find(d => d.id === c.discountId)?.name || "—"}</TableCell>
+                  <TableCell className={TD + " text-end"}>{counts ? (counts[c.id] || 0) : "…"} / {c.maxUses ?? "—"}</TableCell><TableCell className={TD}>{fmtDate(c.start)}</TableCell><TableCell className={TD}>{fmtDate(c.end)}</TableCell>
+                  <TableCell className={TD}><Badge variant="light" color={color(st) as any}>{st}</Badge></TableCell>
+                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === c.id ? { ...x, deleted: false } : x))) toast("Coupon restored"); }}>Restore</Button></TableCell>}</TableRow>); })}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {form && <CouponForm c={form.c} bulk={form.bulk} list={list} discs={discs} save={save} onClose={() => setForm(null)} />}
     </>
   );
@@ -238,13 +242,13 @@ function CouponForm({ c, bulk, list, discs, save, onClose }: { c: any; bulk: boo
       onDelete={c ? async () => { if (await askYes("Delete this coupon?", "Delete", true) && await save(list.map(o => o.id === c.id ? { ...o, deleted: true } : o))) { toast("Coupon deleted"); onClose(); } } : undefined}>
       {bulk && <F l="Number Of Coupons" req help="Number of Coupons to be created."><Input className="h-9" type="number" min="1" max="500" step="1" value={v.n} onChange={e => set("n", e.target.value)} /></F>}
       <F l="Name" req help="The name of the coupon, used for reporting."><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
-      <F l="Coupon Type" req help="Whether the coupon applies on an order level or an item level"><select className={SEL} value={v.type} onChange={e => setV(p => ({ ...p, type: e.target.value, discountId: "" }))}><option value="product">Item</option><option value="order">Order</option></select></F>
+      <F l="Coupon Type" req help="Whether the coupon applies on an order level or an item level"><SelectNative className={SEL} value={v.type} onChange={e => setV(p => ({ ...p, type: e.target.value, discountId: "" }))}><option value="product">Item</option><option value="order">Order</option></SelectNative></F>
       {!bulk && <F l="Code" req help="Customers use this code. Only numbers or letters."><div className="flex gap-3"><Input className="h-9 flex-1 uppercase" value={v.code} onChange={e => set("code", e.target.value)} />
         <Button type="button" variant="outline" className="h-9" onClick={() => set("code", cpCode())}>Generate</Button></div></F>}
-      <F l="Discount" req help="A discount from Marketing → Discounts that matches the coupon type"><select className={SEL} value={v.discountId} onChange={e => set("discountId", e.target.value)}><option value="">Choose…</option>{opts.map(d => <option key={d.id} value={d.id}>{d.name} ({dsAmt(d)})</option>)}</select></F>
+      <F l="Discount" req help="A discount from Marketing → Discounts that matches the coupon type"><SelectNative className={SEL} value={v.discountId} onChange={e => set("discountId", e.target.value)}><option value="">Choose…</option>{opts.map(d => <option key={d.id} value={d.id}>{d.name} ({dsAmt(d)})</option>)}</SelectNative></F>
       <F l="Maximum Uses" req help="How many times this coupon can be used."><Input className="h-9" type="number" min="1" step="1" value={v.maxUses} onChange={e => set("maxUses", e.target.value)} /></F>
       <F l="Start Date" req><DateInput value={v.start} onChange={x => set("start", x)} /></F>
       <F l="End Date" req><DateInput value={v.end} onChange={x => set("end", x)} /></F>
-      {c && <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Active</span></label>}
+      {c && <Label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Active</span></Label>}
     </FormDialog>);
 }

@@ -1,3 +1,5 @@
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // A customer's page, as in the current portal: insights (orders, spent, average, favourite item and store,
 // first and last order, customer since), details, addresses (saved and from orders), tags, house account, and every order.
 import { Badge } from "@/components/ui/badge";
@@ -73,13 +75,13 @@ export default function CustomerPage() {
       ...(c.notes ? [["Customer Notes", c.notes] as [string, string]] : [])]} />
 
     <Sec title="Addresses" act={<Button size="sm" onClick={() => setAed({ ix: null, v: "" })}><PlusIcon className="size-4" />Add Address</Button>}>
-      {!addrs.length && !used.length ? <None t="No addresses yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Address", "Delivery Zone", "Added", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {addrs.map((a, i) => <tr key={"s" + i} className={TR}><td className={TD + " whitespace-normal text-gray-900 dark:text-gray-50"}>{a.address}</td><td className={TD}>{zones.find(z => z.id === a.zoneId)?.name || "—"}</td><td className={TD}>{a.createdAt ? fmtDate(a.createdAt) : "—"}</td>
-          <td className={TD + " text-end whitespace-nowrap"}><Button size="icon-sm" variant="ghost" aria-label="Edit address" onClick={() => setAed({ ix: i, v: a.address, zoneId: a.zoneId })}><PencilIcon className="size-4" /></Button>
-            <Button size="icon-sm" variant="ghost" aria-label="Delete address" onClick={async () => { if (await askYes("Delete this address?", "Delete", true)) upd({ addresses: addrs.filter((_, j) => j !== i) }, "Address deleted"); }}><TrashBinIcon className="size-4 text-error-500" /></Button></td></tr>)}
-        {used.map((v, i) => <tr key={"u" + i} className={TR}><td className={TD + " whitespace-normal"}>{v} <Badge variant="light" color="light">From orders</Badge></td><td className={TD}>—</td><td className={TD}>—</td>
-          <td className={TD + " text-end whitespace-nowrap"}><Button size="icon-sm" variant="ghost" aria-label="Edit and save address" onClick={() => setAed({ ix: null, v })}><PencilIcon className="size-4" /></Button><Button size="sm" variant="outline" onClick={() => saveAddr(v)}>Save</Button></td></tr>)}
-      </tbody></table></div>}
+      {!addrs.length && !used.length ? <None t="No addresses yet." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Address", "Delivery Zone", "Added", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+        {addrs.map((a, i) => <TableRow key={"s" + i} className={TR}><TableCell className={TD + " whitespace-normal text-gray-900 dark:text-gray-50"}>{a.address}</TableCell><TableCell className={TD}>{zones.find(z => z.id === a.zoneId)?.name || "—"}</TableCell><TableCell className={TD}>{a.createdAt ? fmtDate(a.createdAt) : "—"}</TableCell>
+          <TableCell className={TD + " text-end whitespace-nowrap"}><Button size="icon-sm" variant="ghost" aria-label="Edit address" onClick={() => setAed({ ix: i, v: a.address, zoneId: a.zoneId })}><PencilIcon className="size-4" /></Button>
+            <Button size="icon-sm" variant="ghost" aria-label="Delete address" onClick={async () => { if (await askYes("Delete this address?", "Delete", true)) upd({ addresses: addrs.filter((_, j) => j !== i) }, "Address deleted"); }}><TrashBinIcon className="size-4 text-error-500" /></Button></TableCell></TableRow>)}
+        {used.map((v, i) => <TableRow key={"u" + i} className={TR}><TableCell className={TD + " whitespace-normal"}>{v} <Badge variant="light" color="light">From orders</Badge></TableCell><TableCell className={TD}>—</TableCell><TableCell className={TD}>—</TableCell>
+          <TableCell className={TD + " text-end whitespace-nowrap"}><Button size="icon-sm" variant="ghost" aria-label="Edit and save address" onClick={() => setAed({ ix: null, v })}><PencilIcon className="size-4" /></Button><Button size="sm" variant="outline" onClick={() => saveAddr(v)}>Save</Button></TableCell></TableRow>)}
+      </TableBody></Table></div>}
     </Sec>
     {aed && <AddrDialog init={aed} zones={zones.filter((z: any) => !z.deleted && z.active !== false)} onClose={() => setAed(null)}
       onSave={async (v, zoneId) => { const row = { address: v, ...(zoneId ? { zoneId } : {}) }; const l = aed.ix == null ? [...addrs, { ...row, createdAt: new Date().toISOString() }] : addrs.map((a, j) => j === aed.ix ? { ...a, ...row, ...(zoneId ? {} : { zoneId: undefined }) } : a);
@@ -87,22 +89,22 @@ export default function CustomerPage() {
 
     <Sec title="Tags" act={<PickMany label="Add tag" opts={tagList.filter(t => !myTags.includes(t)).map(t => ({ id: t, name: t }))} onAdd={ids => upd({ tags: [...myTags, ...ids] }, ids.length > 1 ? "Tags added" : "Tag added")} />}>
       {!myTags.length ? <None t={tagList.length ? "No tags." : "No tags. Customer tags are created in Manage → Tags."} /> : <div className="flex flex-wrap gap-2">{myTags.map(t => <Badge key={t} variant="light" color="primary" className="gap-1.5">{t}
-        <button type="button" aria-label={"Remove tag " + t} className="text-blue-400 hover:text-error-500" onClick={() => upd({ tags: myTags.filter(x => x !== t) }, "Tag removed")}>×</button></Badge>)}</div>}
+        <Button type="button" aria-label={"Remove tag " + t} variant="ghost" size="icon-xs" className="text-gray-400 hover:text-red-600" onClick={() => upd({ tags: myTags.filter(x => x !== t) }, "Tag removed")}>×</Button></Badge>)}</div>}
     </Sec>
 
     {(c.house_account || ha.length > 0) && <Sec title="House Account">
-      {!ha.length ? <None t="No charges or payments yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Date", "Type", "Payment Type", "Reference", "Store", "Amount"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {ha.map(t => <tr key={t.id} className={TR}><td className={TD}>{fmtDate(t.created_at)}</td><td className={TD}>{t.kind === "payment" ? "Payment" : "Order"}</td><td className={TD}>{t.method || "—"}</td><td className={TD}>{t.order_ref || t.note || "—"}</td><td className={TD}>{t.branch_id ? bName(t.branch_id) : "—"}</td><td className={TD}>{money(t.amount)}</td></tr>)}
-      </tbody></table></div>}
+      {!ha.length ? <None t="No charges or payments yet." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Date", "Type", "Payment Type", "Reference", "Store", "Amount"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+        {ha.map(t => <TableRow key={t.id} className={TR}><TableCell className={TD}>{fmtDate(t.created_at)}</TableCell><TableCell className={TD}>{t.kind === "payment" ? "Payment" : "Order"}</TableCell><TableCell className={TD}>{t.method || "—"}</TableCell><TableCell className={TD}>{t.order_ref || t.note || "—"}</TableCell><TableCell className={TD}>{t.branch_id ? bName(t.branch_id) : "—"}</TableCell><TableCell className={TD}>{money(t.amount)}</TableCell></TableRow>)}
+      </TableBody></Table></div>}
     </Sec>}
 
     <Sec title={`Orders (${orders.length})`}>
-      {!orders.length ? <None t="No orders yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Reference", "Check Number", "Order", "Business Date", "Store", "Order Type", "Order Source", "Payment Type", "Status", "Total"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {orders.map(o => <tr key={o.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/2"} onClick={() => openWin("/order?id=" + o.id)}>
-          <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{ordRef(o)}</td><td className={TD}>{chkNo(o)}</td><td className={TD}>{o.no || "—"}</td><td className={TD}>{fmtDate(o.createdAt)}</td>
-          <td className={TD}>{bName(o.branchId)}</td><td className={TD}>{TYPE_LBL[o.type] || o.type || "—"}</td><td className={TD}>{srcOf(o) || "—"}</td><td className={TD}>{o.payment?.method || "—"}</td>
-          <td className={TD}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td><td className={TD}>{money(o.total)}</td></tr>)}
-      </tbody></table></div>}
+      {!orders.length ? <None t="No orders yet." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Reference", "Check Number", "Order", "Business Date", "Store", "Order Type", "Order Source", "Payment Type", "Status", "Total"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
+        {orders.map(o => <TableRow key={o.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/2"} onClick={() => openWin("/order?id=" + o.id)}>
+          <TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{ordRef(o)}</TableCell><TableCell className={TD}>{chkNo(o)}</TableCell><TableCell className={TD}>{o.no || "—"}</TableCell><TableCell className={TD}>{fmtDate(o.createdAt)}</TableCell>
+          <TableCell className={TD}>{bName(o.branchId)}</TableCell><TableCell className={TD}>{TYPE_LBL[o.type] || o.type || "—"}</TableCell><TableCell className={TD}>{srcOf(o) || "—"}</TableCell><TableCell className={TD}>{o.payment?.method || "—"}</TableCell>
+          <TableCell className={TD}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></TableCell><TableCell className={TD}>{money(o.total)}</TableCell></TableRow>)}
+      </TableBody></Table></div>}
     </Sec>
     {edit && <CustomerDialog c={c} onClose={() => setEdit(false)} onSaved={() => setTick(t => t + 1)} />}
   </>;
@@ -114,7 +116,7 @@ function AddrDialog({ init, zones, onClose, onSave }: { init: { ix: number | nul
   const L: [keyof Addr, string, boolean][] = [["label", "Address Type (Home, Work…)", false], ["street", "Area / Street", true], ["building", "Building Name / No.", true], ["floor", "Floor / Apartment No.", true], ["door", "Door Details / Name on Intercom", false], ["extra", "Instructions", false]];
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{init.ix == null ? "Add Address" : "Edit Address"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{L.map(([k, l, req]) => <div key={k} className={k === "street" || k === "extra" ? "sm:col-span-2" : ""}><F l={l} req={req}><Input className="h-9" value={a[k]} onChange={e => setA({ ...a, [k]: e.target.value })} /></F></div>)}
-      {zones.length > 0 && <div className="sm:col-span-2"><F l="Delivery Zone"><select className={SEL} value={z} onChange={e => setZ(e.target.value)}><option value="">None</option>{zones.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F></div>}</div>
+      {zones.length > 0 && <div className="sm:col-span-2"><F l="Delivery Zone"><SelectNative className={SEL} value={z} onChange={e => setZ(e.target.value)}><option value="">None</option>{zones.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</SelectNative></F></div>}</div>
     {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => { if (!a.street.trim() || !a.building.trim() || !a.floor.trim()) return setErr("Fill the area / street, building and floor."); onSave(addrJoin(a), z); }}>Save</Button></div>
   </DialogContent></Dialog>;

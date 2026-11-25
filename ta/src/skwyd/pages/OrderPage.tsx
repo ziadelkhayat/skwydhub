@@ -1,3 +1,4 @@
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // An order opened from Orders, Call Center or a customer: its own page, laid out like the other detail pages
 // (back button, details tiles, then customer, items with totals, payment, and links to its return or original order).
 import { Badge } from "@/components/ui/badge";
@@ -53,15 +54,15 @@ export default function OrderPage() {
       </div></Sec>}
 
     <Sec title="Items">
-      {!items.length ? <None t="No items." /> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className={ITH}>Item</th><th className={ITH + " text-end"}>Quantity</th><th className={ITH + " text-end"}>Price</th><th className={ITH + " text-end"}>Total</th></tr></thead><tbody>
-        {items.map((it, i) => <tr key={i} className={ITR + (it.voided ? " opacity-60" : "")}>
-          <td className={ITD}><span className={"font-medium text-gray-900 dark:text-gray-50" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
-            {it.mods && <span className="block text-xs text-gray-500">{String(it.mods)}</span>}{it.note && <span className="block text-xs text-gray-500">Note: {it.note}</span>}</td>
-          <td className={ITD + " text-end"}>{q2(it.qty)}</td><td className={ITD + " text-end"}>{money(it.price)}</td><td className={ITD + " text-end"}>{money((+it.price || 0) * (+it.qty || 0) - (+it.disc || 0))}</td></tr>)}
+      {!items.length ? <None t="No items." /> : <div className="overflow-x-auto"><Table className="w-full text-sm"><TableHead><TableRow><TableHeaderCell className={ITH}>Item</TableHeaderCell><TableHeaderCell className={ITH + " text-end"}>Quantity</TableHeaderCell><TableHeaderCell className={ITH + " text-end"}>Price</TableHeaderCell><TableHeaderCell className={ITH + " text-end"}>Total</TableHeaderCell></TableRow></TableHead><TableBody>
+        {items.map((it, i) => <TableRow key={i} className={ITR + (it.voided ? " opacity-60" : "")}>
+          <TableCell className={ITD}><span className={"font-medium text-gray-900 dark:text-gray-50" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
+            {it.mods && <span className="block text-xs text-gray-500">{String(it.mods)}</span>}{it.note && <span className="block text-xs text-gray-500">Note: {it.note}</span>}</TableCell>
+          <TableCell className={ITD + " text-end"}>{q2(it.qty)}</TableCell><TableCell className={ITD + " text-end"}>{money(it.price)}</TableCell><TableCell className={ITD + " text-end"}>{money((+it.price || 0) * (+it.qty || 0) - (+it.disc || 0))}</TableCell></TableRow>)}
         {([["Subtotal", o.subtotal], ["Discount", -(+o.discount || 0)], ...charges.map(c => [c.name, c.amount]), ["Delivery Fee", o.deliveryFee], ["Tax", o.tax]] as [string, any][])
-          .filter(([, v]) => v != null && +v !== 0).map(([l, v]) => <tr key={l}><td colSpan={3} className={ITD + " text-end text-gray-500"}>{l}</td><td className={ITD + " text-end"}>{money(v)}</td></tr>)}
-        <tr><td colSpan={3} className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total</td><td className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(o.total)}</td></tr>
-      </tbody></table></div>}
+          .filter(([, v]) => v != null && +v !== 0).map(([l, v]) => <TableRow key={l}><TableCell colSpan={3} className={ITD + " text-end text-gray-500"}>{l}</TableCell><TableCell className={ITD + " text-end"}>{money(v)}</TableCell></TableRow>)}
+        <TableRow><TableCell colSpan={3} className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total</TableCell><TableCell className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(o.total)}</TableCell></TableRow>
+      </TableBody></Table></div>}
     </Sec>
 
     {(pay.method || (pay.split || []).length) && <Sec title="Payment">
@@ -74,8 +75,8 @@ export default function OrderPage() {
     {o.notes && <Sec title="Notes"><p className="text-sm whitespace-pre-line text-gray-700 dark:text-gray-300">{o.notes}</p></Sec>}
 
     {rel.length > 0 && <Sec title={ret ? "Original Order" : "Returns"}>
-      <table className="w-full"><tbody>{rel.map(r => <tr key={r.id} className={TR}>
-        <td className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</Link></td><td className={TD}>Check {chkNo(r)}</td>
-        <td className={TD}>{fmtDate(r.createdAt)}</td><td className={TD + " text-end"}>{money(r.total)}</td></tr>)}</tbody></table></Sec>}
+      <Table className="w-full"><TableBody>{rel.map(r => <TableRow key={r.id} className={TR}>
+        <TableCell className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</Link></TableCell><TableCell className={TD}>Check {chkNo(r)}</TableCell>
+        <TableCell className={TD}>{fmtDate(r.createdAt)}</TableCell><TableCell className={TD + " text-end"}>{money(r.total)}</TableCell></TableRow>)}</TableBody></Table></Sec>}
   </>;
 }

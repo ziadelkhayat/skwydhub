@@ -1,3 +1,6 @@
+import { Label } from "@/components/tremor/Label";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Marketing → Discounts: list (All / Deleted, search), discount page (details + the five "applies on" sections) and the create / edit form,
 // same rules as the current portal. Discounts live in the "discounts" settings document.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -15,7 +18,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
 import { askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
-import { BOX, Card, F, L, SEL, TD, TH, TR } from "../ui/kit";
+import { Card, F, L, SEL, TD, TH, TR } from "../ui/kit";
 import { PickDialog, type PickOpt } from "../ui/PickDialog";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
@@ -50,7 +53,7 @@ export default function DiscountsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Discounts" />
-      <div className={BOX}>
+      <Card className="overflow-hidden p-0">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
@@ -60,15 +63,15 @@ export default function DiscountsPage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted discounts" : q ? "No discounts match." : "No discounts yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Qualification</th><th className={TH + " text-end"}>Discount</th>{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(d => (
-                <tr key={d.id} className={del ? "" : TR} onClick={() => !del && openWin("/discounts?id=" + d.id)}>
-                  <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{d.name}</span>{d.nameAr && <span className="ms-2 text-gray-500" dir="auto">{d.nameAr}</span>}</td>
-                  <td className={TD}>{d.reference || "—"}</td><td className={TD}>{(QUAL.find(x => x[0] === d.qualification) || QUAL[0])[1]}</td><td className={TD + " text-end"}>{amtLbl(d)}</td>
-                  {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await patch(d.id, { deleted: false })) toast("Discount restored"); }}>Restore</Button></td>}</tr>))}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              <TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Reference</TableHeaderCell><TableHeaderCell className={TH}>Qualification</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Discount</TableHeaderCell>{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(d => (
+                <TableRow key={d.id} className={del ? "" : TR} onClick={() => !del && openWin("/discounts?id=" + d.id)}>
+                  <TableCell className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{d.name}</span>{d.nameAr && <span className="ms-2 text-gray-500" dir="auto">{d.nameAr}</span>}</TableCell>
+                  <TableCell className={TD}>{d.reference || "—"}</TableCell><TableCell className={TD}>{(QUAL.find(x => x[0] === d.qualification) || QUAL[0])[1]}</TableCell><TableCell className={TD + " text-end"}>{amtLbl(d)}</TableCell>
+                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await patch(d.id, { deleted: false })) toast("Discount restored"); }}>Restore</Button></TableCell>}</TableRow>))}</TableBody></Table>}
         </div>
-      </div>
+      </Card>
       {dlg}
     </>
   );
@@ -81,7 +84,7 @@ function DiscountPage({ d, s, back, edit, patch }: { d: any; s: S; back: () => v
     <>
       <PageBreadcrumb pageTitle={d.name} />
       <div className="space-y-6">
-        <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
+        <Card className="p-5 lg:p-6">
           <div className="mb-6 flex items-center gap-4">
             <Button variant="outline" size="icon" className="shrink-0" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
             <h4 className="flex-1 text-lg font-semibold text-gray-900 dark:text-gray-50">Details</h4>
@@ -94,14 +97,14 @@ function DiscountPage({ d, s, back, edit, patch }: { d: any; s: S; back: () => v
             <L l="Order Types">{(d.orderTypes || []).filter((k: string) => k !== "fast").map((k: string) => otl[k] || k).join(", ") || "—"}</L>
             <L l="Reference">{d.reference || "—"}</L><L l="Taxable">{d.taxable ? "Yes" : "No"}</L>
           </div>
-        </div>
+        </Card>
         {SECS.map(sec => {
           const all = sec.opts(s), ids: string[] = d[sec.k] || [], rows = ids.map(i => all.find(o => o[0] === i)).filter(Boolean) as PickOpt[];
           return (
             <Card key={sec.k} title={sec.title} className="bg-white dark:bg-[#090E1A]" action={<Button size="sm" variant="outline" onClick={() => setPick(sec)}>{rows.length && sec.btn.startsWith("Add") ? sec.btn.replace("Add", "Edit") : sec.btn}</Button>}>
               {!rows.length ? <p className="text-sm text-gray-500 dark:text-gray-400">{sec.hint}</p>
-                : <div className="-mx-5 -mb-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 lg:-mb-6 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{sec.head.map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => <tr key={r[0]}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r[1]}</td>{sec.head.length > 1 && <td className={TD}>{r[2] || "—"}</td>}</tr>)}</tbody></table></div>}
+                : <div className="-mx-5 -mb-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 lg:-mb-6 dark:border-gray-800"><Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>{sec.head.map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead>
+                  <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => <TableRow key={r[0]}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r[1]}</TableCell>{sec.head.length > 1 && <TableCell className={TD}>{r[2] || "—"}</TableCell>}</TableRow>)}</TableBody></Table></div>}
             </Card>);
         })}
       </div>
@@ -137,20 +140,20 @@ function DiscountForm({ d, list, onClose, onSave, onDelete }: { d: any; list: an
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
           <F l="Name Localized"><Input className="h-9" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
-          <F l="Qualification" req><select className={SEL} value={v.qualification} onChange={e => set("qualification", e.target.value)}>{QUAL.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
-          <F l="Discount Type" req><select className={SEL} value={v.type} onChange={e => set("type", e.target.value)}><option value="fixed">Amount</option><option value="pct">Percentage</option></select></F>
+          <F l="Qualification" req><SelectNative className={SEL} value={v.qualification} onChange={e => set("qualification", e.target.value)}>{QUAL.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>
+          <F l="Discount Type" req><SelectNative className={SEL} value={v.type} onChange={e => set("type", e.target.value)}><option value="fixed">Amount</option><option value="pct">Percentage</option></SelectNative></F>
           <F l="Discount Value" req help={v.open ? "The cashier enters the " + (fx ? "amount" : "percentage") + " when applying it." : undefined}>
-            <select className={SEL} value={v.open ? "open" : "fixed"} onChange={e => set("open", e.target.value === "open")}><option value="fixed">Fixed</option><option value="open">Open</option></select></F>
+            <SelectNative className={SEL} value={v.open ? "open" : "fixed"} onChange={e => set("open", e.target.value === "open")}><option value="fixed">Fixed</option><option value="open">Open</option></SelectNative></F>
           {!v.open && <F l={`Discount Amount (${fx ? sym() : "%"})`} req><Input className="h-9" type="number" min="0" step="any" value={v.amount} onChange={e => set("amount", e.target.value)} /></F>}
           {!fx && numIn("maxDiscount", `Maximum Discount (${sym()})`)}
           {numIn("minOrder", `Minimum Order Price (${sym()})`)}{numIn("minProduct", `Minimum Product Price (${sym()})`)}
           <F l="Applies On Order Types" req full><div className="flex flex-wrap gap-5 pt-1">{OT.map(([k, t]) => (
-            <label key={k} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-700 dark:text-gray-400">
-              <Checkbox checked={v.orderTypes.includes(k)} onCheckedChange={c => set("orderTypes", c ? [...v.orderTypes, k] : v.orderTypes.filter((y: string) => y !== k))} />{t}</label>))}</div></F>
+            <Label key={k} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-700 dark:text-gray-400">
+              <Checkbox checked={v.orderTypes.includes(k)} onCheckedChange={c => set("orderTypes", c ? [...v.orderTypes, k] : v.orderTypes.filter((y: string) => y !== k))} />{t}</Label>))}</div></F>
           <F l="Reference"><Input className="h-9" value={v.reference} onChange={e => set("reference", e.target.value)} /></F>
-          <label className="col-span-full flex cursor-pointer items-start gap-3"><Switch checked={v.taxable} onCheckedChange={c => set("taxable", !!c)} />
+          <Label className="col-span-full flex cursor-pointer items-start gap-3"><Switch checked={v.taxable} onCheckedChange={c => set("taxable", !!c)} />
             <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">Taxable</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">On: the customer still pays the full tax of the order before the discount. Off: the tax is reduced with the discount.</span></span></label>
+              <span className="text-xs text-gray-500 dark:text-gray-400">On: the customer still pays the full tax of the order before the discount. Off: the tax is reduced with the discount.</span></span></Label>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
             {d && <Button type="button" variant="destructive" className="sm:me-auto" onClick={async () => { if (await askYes("Delete this discount?", "Delete", true)) onDelete(); }}>Delete</Button>}

@@ -1,3 +1,7 @@
+import { Label } from "@/components/tremor/Label";
+import { Card } from "@/components/tremor/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
+import { SelectNative } from "@/components/tremor/SelectNative";
 // Web Ordering → Delivery Zones: overview map of every zone, the zones table (All / Deleted) and the zone form with the polygon drawn on the map,
 // same fields and rules as the current portal.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -45,16 +49,16 @@ export default function DeliveryZonesPage() {
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted zones" : q ? "No zones match." : "No delivery zones yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
-              {["Zone", "Store", "Delivery Charge"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Min. Order</th>{["Est. Time", "Map Area", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(z => { const c = chargeOf(z); return (
-                <tr key={z.id} className={del ? "" : TR} onClick={() => !del && setEdit(z)}>
-                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className="size-2.5 rounded-full" style={{ background: color(z.branchId) }} />{z.name}</span></td>
-                  <td className={TD}>{bName(z.branchId) || "—"}</td><td className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</td>
-                  <td className={TD + " text-end"}>{z.minOrder != null && z.minOrder !== "" ? money(z.minOrder) : "—"}</td><td className={TD}>{z.eta ? z.eta + " min" : "—"}</td>
-                  <td className={TD}>{drawn(z) ? <Badge variant="light" color="success">Drawn · {z.polygon.length} points</Badge> : <Badge variant="light" color="light">Not drawn</Badge>}</td>
-                  <td className={TD}>{z.active === false ? <Badge variant="light" color="light">Off</Badge> : <Badge variant="light" color="success">On</Badge>}</td>
-                  {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { await softDelete("zones", z.id, false); toast("Zone restored"); }}>Restore</Button></td>}</tr>); })}</tbody></table>}
+            : <Table className="min-w-full"><TableHead className="border-b border-gray-200 dark:border-gray-800"><TableRow>
+              {["Zone", "Store", "Delivery Charge"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}<TableHeaderCell className={TH + " text-end"}>Min. Order</TableHeaderCell>{["Est. Time", "Map Area", "Status"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}{del && <TableHeaderCell className={TH} />}</TableRow></TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(z => { const c = chargeOf(z); return (
+                <TableRow key={z.id} className={del ? "" : TR} onClick={() => !del && setEdit(z)}>
+                  <TableCell className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className="size-2.5 rounded-full" style={{ background: color(z.branchId) }} />{z.name}</span></TableCell>
+                  <TableCell className={TD}>{bName(z.branchId) || "—"}</TableCell><TableCell className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</TableCell>
+                  <TableCell className={TD + " text-end"}>{z.minOrder != null && z.minOrder !== "" ? money(z.minOrder) : "—"}</TableCell><TableCell className={TD}>{z.eta ? z.eta + " min" : "—"}</TableCell>
+                  <TableCell className={TD}>{drawn(z) ? <Badge variant="light" color="success">Drawn · {z.polygon.length} points</Badge> : <Badge variant="light" color="light">Not drawn</Badge>}</TableCell>
+                  <TableCell className={TD}>{z.active === false ? <Badge variant="light" color="light">Off</Badge> : <Badge variant="light" color="success">On</Badge>}</TableCell>
+                  {del && <TableCell className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { await softDelete("zones", z.id, false); toast("Zone restored"); }}>Restore</Button></TableCell>}</TableRow>); })}</TableBody></Table>}
         </div>
       </div>
       {edit !== undefined && <ZoneForm z={edit} s={s} color={color} onClose={() => setEdit(undefined)} />}
@@ -75,11 +79,11 @@ function Overview({ zones, bName, color, onOpen }: { zones: Row[]; bName: (id?: 
     return () => { off = true; m?.remove(); }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const legend = [...new Set(zones.map(z => z.branchId))];
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+    <Card className="overflow-hidden p-0">
       {err ? <p className="p-6 text-sm text-gray-500">{err}</p> : <div ref={el} className="relative z-0 h-80 isolate sm:h-96" />}
       <div className="flex flex-wrap gap-4 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:text-gray-400">{legend.length ? legend.map(id => <span key={id} className="flex items-center gap-2"><i className="size-3 rounded-full" style={{ background: color(id) }} />{bName(id)}</span>)
         : <span className="text-gray-500">No zones drawn yet. Add a zone and draw it on the map.</span>}</div>
-    </div>);
+    </Card>);
 }
 
 function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: string) => string; onClose: () => void }) {
@@ -99,10 +103,10 @@ function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: 
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{z ? "Edit" : "Add"} Delivery Zone</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Zone / area name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
-          <F l="Delivering store" req><select className={SEL} value={v.branchId} onChange={e => set("branchId", e.target.value)}><option value="">Choose…</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
+          <F l="Delivering store" req><SelectNative className={SEL} value={v.branchId} onChange={e => set("branchId", e.target.value)}><option value="">Choose…</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
           <F l={`Minimum order (${sym()})`}><Input className="h-9" type="number" min="0" step="any" value={v.minOrder} onChange={e => set("minOrder", e.target.value)} /></F>
           <F l="Estimated time (min)"><Input className="h-9" type="number" min="0" value={v.eta} onChange={e => set("eta", e.target.value)} /></F>
-          <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Accept orders for this zone</span></label>
+          <Label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Accept orders for this zone</span></Label>
           <F l="Zone area on the map" req full help="Click the map to add corners around the area this store delivers to. Drag a corner to adjust it.">
             <ZoneMap pts={pts} setPts={setPts} others={s.zones.filter(o => live(o) && o.id !== z?.id && drawn(o))} color={color} />
             <div className="mt-3 flex flex-wrap items-center gap-3"><Button type="button" size="sm" variant="outline" onClick={() => setPts(p => p.slice(0, -1))}>Undo last point</Button>
