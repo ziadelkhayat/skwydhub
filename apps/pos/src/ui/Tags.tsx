@@ -31,7 +31,7 @@ export function TagsPop({ S, init, maxH, onDone }: { S: Data; init: string[]; ma
   return (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 }}>
-        <T w="s" size={16} style={{ flex: 1 }}>Tags</T><T size={13} color={C.mut}>{sel.length ? sel.length + " on this order" : ""}</T>
+        <T w="s" size={16} style={{ flex: 1 }}>Tags</T>
       </View>
       {!l.length ? <T color={C.mut} style={{ padding: 12 }}>No order tags yet. Add them in the back office under Manage → Tags.</T> :
       <ScrollView style={{ maxHeight: Math.max(170, maxH) }}>

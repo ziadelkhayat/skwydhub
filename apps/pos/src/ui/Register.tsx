@@ -343,6 +343,13 @@ export function Register() {
             {cust.name && !live_eo && otype === "dinein" ? <Pressable accessibilityLabel="Remove customer" hitSlop={8} onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}><Icon name="x" size={16} color={C.bad} /></Pressable> : null}</Pressable>
         </View>
         {c.addr ? <T size={12.5} color={C.mut} numberOfLines={2} style={{ paddingHorizontal: 16, paddingTop: 8 }}>{c.addr}</T> : null}
+        {/* the order's tags and notes, under the order details */}
+        {(() => { const tn = (tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean) as string[];
+          return tn.length || notes.kitchen || notes.receipt ? <View style={{ paddingHorizontal: 16, paddingTop: 8, gap: 4 }}>
+            {tn.length ? <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, alignItems: "center" }}><Icon name="tag" size={15} color={C.mut} />{tn.map(n => <Pill key={n} text={n} tone="brand" />)}</View> : null}
+            {notes.kitchen ? <View style={{ flexDirection: "row", gap: 6 }}><Icon name="chef" size={15} color={C.mut} /><T size={12.5} color={C.ink2} numberOfLines={2} style={{ flex: 1 }}>{notes.kitchen}</T></View> : null}
+            {notes.receipt ? <View style={{ flexDirection: "row", gap: 6 }}><Icon name="note" size={15} color={C.mut} /><T size={12.5} color={C.ink2} numberOfLines={2} style={{ flex: 1 }}>{notes.receipt}</T></View> : null}
+          </View> : null; })()}
         {erPending(live_eo) ? <View style={{ marginHorizontal: 16, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
           <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
@@ -370,8 +377,6 @@ export function Register() {
         <View style={{ paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: C.line, gap: 4 }}>
           {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} muted /> : null}
           {t.charges.map(ch => <Row key={ch.id} l={ch.name} r={money(S, ch.amount)} muted />)}
-          {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={12.5} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
-          {notes.kitchen || notes.receipt ? <T size={12.5} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
           <Row l="Subtotal" r={money(S, t.net)} muted />
           <Row l="Tax" r={money(S, t.tax)} muted />
           {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
