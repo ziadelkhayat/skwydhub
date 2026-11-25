@@ -103,7 +103,7 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.branches.filter(b => b.brandId === r.id).length; return n ? `Delete this brand's ${n} store${n === 1 ? "" : "s"} first (Manage → Stores).` : ""; },
   },
   branches: {
-    col: "branches", title: "Stores", one: "Store", needs: ["brands", "tax_groups", "settings"], detail: "/store", form: p => <StoreForm {...p} />,
+    col: "branches", title: "Stores", one: "Store", scope: { brand: r => [r.brandId] }, needs: ["brands", "tax_groups", "settings"], detail: "/store", form: p => <StoreForm {...p} />,
     tabs: [["all", "All", r => live(r) && r.active !== false], ["deleted", "Deleted", r => !!r.deleted || r.active === false]],
     cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
       { h: "Reference", cell: r => r.code || "—" }, { h: "Tax Group", cell: (r, s) => s.tax_groups.find(g => g.id === r.settings?.taxGroup)?.name || "—" },
@@ -164,7 +164,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   warehouses: {
-    col: "warehouses", title: "Warehouses", one: "Warehouse", needs: ["brands"], tabs: allDel, detail: "/warehouse",
+    col: "warehouses", title: "Warehouses", one: "Warehouse", scope: { brand: r => [r.brandId] }, needs: ["brands"], tabs: allDel, detail: "/warehouse",
     sort: (a, b) => String(a.reference || "").localeCompare(String(b.reference || ""), undefined, { numeric: true }) || String(a.name).localeCompare(String(b.name)),
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref, { h: "Brand", cell: (r, s) => s.brands.find(b => b.id === r.brandId)?.name || "—" }, created],
@@ -182,7 +182,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   users: {
-    col: "users", title: "Employees", one: "Employee", needs: ["roles", "branches"], detail: "/employee",
+    col: "users", title: "Employees", one: "Employee", scope: { store: r => r.branchIds || [] }, needs: ["roles", "branches"], detail: "/employee",
     tabs: [["all", "All", r => live(r) && !isAdminRow(r)], ["deleted", "Deleted", r => del(r) && !isAdminRow(r)]],
     search: r => r.name + " " + (r.email || "") + " " + (r.phone || "") + " " + (r.employeeNo || "") + " " + (r.jobTitle || ""),
     cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-xs text-gray-500">{r.employeeNo}</span> : null}</> },
@@ -245,7 +245,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "barcode", l: "Barcode" }, { k: "cost", l: "Cost (Per Storage Unit)", t: "number", req: true, when: { k: "costingMethod", is: "fixed" } }],
   },
   charges: {
-    col: "charges", title: "Charges", one: "Charge", needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort,
+    col: "charges", title: "Charges", one: "Charge", scope: { brand: r => r.brandIds || [], store: r => r.branchIds || [] }, needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort,
     note: "Charges are added on top of the items, e.g. a service charge. The cashier or call center agent adds them to an order.",
     search: r => r.name + " " + (r.nameAr || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => r.type === "percent" ? "Percentage" : r.type === "open" ? "Open amount" : "Amount" },

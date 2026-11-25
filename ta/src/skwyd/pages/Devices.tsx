@@ -1,3 +1,4 @@
+import { BrandStoreFilters, inBS, useBrandStore } from "../ui/BrandStore";
 import { DataTable } from "@/components/tremor/data-table/DataTable";
 import { Label } from "@/components/tremor/Label";
 import { ChoiceButton } from "../ui/Choice";
@@ -51,12 +52,12 @@ async function closeDeviceTill(deviceId: string) {
 export default function DevicesPage() {
   const s = useS(["devices", "branches", "brands"]);
   const [sp] = useSearchParams(), nav = useNavigate(), id = sp.get("id");
-  const [tab, setTab] = useState("all"), [create, setCreate] = useState(false);
+  const [tab, setTab] = useState("all"), [create, setCreate] = useState(false), bs = useBrandStore();
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const bName = (id?: string) => s.branches.find(b => b.id === id)?.name || "";
   const open = id && s.devices.find(d => d.id === id && live(d));
   if (open) return <DevicePage d={open} s={s} bName={bName} back={() => nav("/devices")} />;
-  const all = s.devices.filter(live), list = all.filter(d => tab === "all" || d.type === tab).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
+  const all = s.devices.filter(live), list = all.filter(d => (tab === "all" || d.type === tab) && inBS(s.branches, bs.brand, bs.store, d.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   return (
     <>
       <PageBreadcrumb pageTitle="Devices" />
@@ -69,7 +70,7 @@ export default function DevicesPage() {
           { id: "Status", title: "Status", cell: d => <>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</> },
           { id: "Store", title: "Store", cell: d => <>{bName(d.branchId) || "—"}</> },
         ]}
-        toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} />}
+        toolbar={<><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} /><BrandStoreFilters brands={s.brands} stores={s.branches} {...bs} /></>}
         actions={<><Button className="h-[30px] py-1" onClick={() => setCreate(true)}><PlusIcon className="size-4" />Create Device</Button></>}
         onRowClick={d => { openWin("/devices?id=" + d.id); }}
         rowActions={[...([{ label: "Open", onSelect: (d: any) => { openWin("/devices?id=" + d.id); } }])]}

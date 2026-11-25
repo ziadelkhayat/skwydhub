@@ -1,3 +1,5 @@
+import { BrandStoreFilters, inBS, useBrandStore } from "../ui/BrandStore";
+import { inSel } from "@/components/tremor/data-table/FilterSelect";
 import { PageHead } from "../ui/Record";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -120,8 +122,8 @@ export default function SalesChannelsPage() {
 
 /* ---------- the first page: brands → stores → channels ---------- */
 function Tree({ s, M, open }: { s: S; M: M; open: (b: string, c: string) => void }) {
-  const [ex, setEx] = useState<Set<string>>(new Set()), [dlg, setDlg] = useState<string | null>(null);
-  const list = s.branches.filter(b => live(b) && b.active !== false), brands = s.brands.filter(live);
+  const [ex, setEx] = useState<Set<string>>(new Set()), [dlg, setDlg] = useState<string | null>(null), F = useBrandStore();
+  const list = s.branches.filter(b => live(b) && b.active !== false && inBS(s.branches, F.brand, F.store, b.id)), brands = s.brands.filter(b => live(b) && (!F.brand || inSel(F.brand, b.id)));
   const tog = (k: string) => setEx(o => { const n = new Set(o); if (n.has(k)) { n.delete(k); if (k.startsWith("b:")) list.filter(b => b.brandId === k.slice(2)).forEach(b => n.delete(b.id)); } else n.add(k); return n; });
   const Chev = ({ on }: { on: boolean }) => <ChevronDownIcon className={cn("size-4 text-gray-400 transition-transform", !on && "-rotate-90 rtl:rotate-90")} />;
   const brRow = (b: Row) => { const cs = M.scFor(b.id), on = ex.has(b.id); return <div key={b.id}>
@@ -132,6 +134,7 @@ function Tree({ s, M, open }: { s: S; M: M; open: (b: string, c: string) => void
   const loose = list.filter(b => !b.brandId || !brands.some(x => x.id === b.brandId));
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" />
+    <div className="mb-4 flex flex-wrap items-center gap-2"><BrandStoreFilters brands={s.brands} stores={s.branches} {...F} /></div>
     <div className={BOX + " divide-y divide-gray-100 overflow-hidden dark:divide-white/5"}>
       {!list.length ? <EmptyState text="No active stores." /> : <>
         {brands.map(bd => { const bs = list.filter(b => b.brandId === bd.id), on = ex.has("b:" + bd.id); return <div key={bd.id}>

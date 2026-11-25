@@ -1,15 +1,15 @@
+import { BrandStoreFilters } from "../ui/BrandStore";
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Card } from "@/components/tremor/Card";
-import { SelectNative } from "@/components/tremor/SelectNative";
 // Call Center board: the business day's call center and web orders in columns (Drafts, Pending, Active, Done,
 // Declined), live, with the same filter (brand, store, business date, user) and order tiles as the current portal. Pressing a tile opens the order.
 // New, draft, waiting and pending orders open in the order screen (CallCenterOrder); the rest open in the order panel.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CallIcon, FilterIcon } from "@/icons";
+import { CallIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
-import { useCol, type Row } from "@/lib/db";
+import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { coSet, openWin } from "@/lib/util";
 import { cn } from "@/utils";
@@ -18,7 +18,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { live } from "../crud/CrudPage";
 import { DateInput } from "../ui/DateInput";
-import { F, SEL } from "../ui/kit";
 
 const COLS: [string, string, string][] = [["draft", "Drafts", "Orders saved as a draft and not sent to the store yet"], ["pending", "Pending", "Orders that are not yet accepted by the store"], ["active", "Active", "Orders the store accepted: being prepared, or on the way with a driver"],
   ["closed", "Done", "Orders that are completed"], ["declined", "Declined", "Orders that have been declined from the store or the call center"]];
@@ -34,7 +33,7 @@ export default function CallCenterPage() {
   const nav = useNavigate();   // New Order opens in this window
   const branches = useCol("branches") || [], brands = useCol("brands") || [], sets = useCol("settings") || [], users = useCol("users") || [], roles = useCol("roles") || [], closes = useCol("day_closes") || [];
   const { staff } = useAuth();
-  const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" }), [fOpen, setFOpen] = useState(false);
+  const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" });
   const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0);
   // the business day: a store's day starts at its day start (or the company's day end); a store that ended its day early starts the next one then
   const cut = (bid?: string) => cutOf(branches.find(b => b.id === bid)?.settings?.dayStart || (sets.find(x => x.id === "company") as any)?.dayEnd);
@@ -52,7 +51,7 @@ export default function CallCenterPage() {
   const route = (bid: string) => (sets.find(x => x.id === "brand_" + bid) as any)?.webOrderRoute || coSet().webOrderRoute || "branch";
   const ccWeb = (o: any) => o.channel === "callcenter" || o.status === "review" || route(o.brandId) === "callcenter";
   const byUser = (o: any, n: string) => o.agent === n || o.agent === String(n).split(/\s+/)[0];
-  const list = rows.filter(o => ccWeb(o) && (!F0.brand || o.brandId === F0.brand) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || o.branchId === F0.branch) && (!F0.user || byUser(o, F0.user)));
+  const list = rows.filter(o => ccWeb(o) && (!F0.brand || inSel(F0.brand, o.brandId)) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || inSel(F0.branch, o.branchId)) && (!F0.user || selList(F0.user).some(u => byUser(o, u))));
   const colOf = (k: string) => list.filter(o => k === "void" ? ["void", "returned", "refund"].includes(o.status) : k === "active" ? o.status === "active" : k === "pending" ? ["pending", "review"].includes(o.status) : o.status === k);
   // the store answered a change sent from the call center (edit or void of an accepted order): a message here until it is closed;
   // nothing changes on the order when the store rejects it
@@ -64,7 +63,6 @@ export default function CallCenterPage() {
     toast(er.status === "approved" ? `${bName(o.branchId) || "The store"} approved the change to order ${o.ref || o.no}` : `${bName(o.branchId) || "The store"} rejected the change to order ${o.ref || o.no}${er.reason ? ": " + er.reason : ""}`, er.status === "approved" ? "success" : "error"); }); }, [answers.map(o => o.editRequest.id).join()]); // eslint-disable-line react-hooks/exhaustive-deps
   // users who can use the call center (their role allows it, or they manage everything); the person signed in too
   const agents = [...new Set([...users.filter(u => live(u) && u.active !== false && u.role !== "owner" && u.role !== "admin" && roles.filter(r => ((u.roleIds || []).length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id) && live(r)).flatMap(r => r.permissions || []).some((p: string) => p === "bo_callcenter" || p === "bo_manage")).map(u => u.name), ...(staff?.name ? [staff.name] : [])])].sort((a, b) => a.localeCompare(b));
-  const nF = [F0.brand, F0.branch, F0.date && F0.date !== bizDate(new Date()) ? F0.date : "", F0.user].filter(Boolean).length;
   const bName = (id: string) => branches.find(b => b.id === id)?.name, brName = (id: string) => brands.find(b => b.id === id)?.name;
   const tm = (t: string) => { if (!t) return "—"; const d = new Date(t); const h = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); return bizDate(d) === bizDate(new Date()) ? h : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", " + h; };
   return (
@@ -76,7 +74,10 @@ export default function CallCenterPage() {
           <Button type="button" aria-label="Close" onClick={() => dismiss(er.id)} variant="ghost" size="icon-xs" className="text-inherit opacity-70 hover:bg-transparent hover:opacity-100">×</Button></div>; })}</div>}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">Business date {day.split("-").reverse().join("-")} · {list.length} order{list.length === 1 ? "" : "s"}</p>
-        <div className="flex gap-3"><Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <BrandStoreFilters brands={brands} stores={branches} brand={F0.brand} setBrand={v => setF(f => ({ ...f, brand: v }))} store={F0.branch} setStore={v => setF(f => ({ ...f, branch: v }))} />
+          <div className="w-44"><DateInput value={F0.date || bizDate(new Date())} onChange={x => setF(f => ({ ...f, date: x && x !== bizDate(new Date()) ? x : "" }))} /></div>
+          <FilterSelect multiple title="User" value={F0.user} onChange={v => setF(f => ({ ...f, user: v }))} options={agents.map(n => ({ value: n, label: n }))} />
           <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
       </div>
       <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -87,7 +88,6 @@ export default function CallCenterPage() {
             <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending", "active"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
           </div>); })}
       </div>
-      {fOpen && <FilterDlg F0={F0} today={bizDate(new Date())} brands={brands.filter(live)} branches={branches.filter(b => live(b) && (!F0.brand || b.brandId === F0.brand))} agents={agents} onClose={() => setFOpen(false)} onApply={f => { setF(f); setFOpen(false); }} />}
     </>
   );
 }
@@ -124,21 +124,3 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
     </button></Card>);
 }
 
-function FilterDlg({ F0, today, brands, branches, agents, onClose, onApply }: { F0: any; today: string; brands: Row[]; branches: Row[]; agents: string[]; onClose: () => void; onApply: (f: any) => void }) {
-  const [v, setV] = useState({ ...F0, date: F0.date || today }), set = (k: string, x: string) => setV((p: any) => ({ ...p, [k]: x }));
-  return (
-    <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <F l="Brand"><SelectNative className={SEL} value={v.brand} onChange={e => setV((p: any) => ({ ...p, brand: e.target.value, branch: "" }))}><option value="">Any</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
-          <F l="Store"><SelectNative className={SEL} value={v.branch} onChange={e => set("branch", e.target.value)}><option value="">Any</option>{branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative></F>
-          <F l="Business Date"><DateInput value={v.date} onChange={x => set("date", x)} /></F>
-          <F l="User"><SelectNative className={SEL} value={v.user} onChange={e => set("user", e.target.value)}><option value="">Any</option>{agents.map(n => <option key={n}>{n}</option>)}</SelectNative></F>
-        </div>
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="outline" className="sm:me-auto" onClick={() => onApply({ brand: "", branch: "", date: "", user: "" })}>Reset</Button>
-          <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply({ ...v, date: v.date && v.date !== today ? v.date : "" })}>Apply</Button></div>
-      </DialogContent>
-    </Dialog>);
-}

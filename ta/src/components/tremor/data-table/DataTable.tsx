@@ -127,7 +127,7 @@ export function DataTable<T>({
     <div className="space-y-3">
       {/* Filterbar */}
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
-        <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+        <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-1 sm:flex-row sm:flex-wrap sm:items-center">
           {toolbar}
           {filters.map(f => { const col = table.getColumn(f.column); if (!col?.getIsVisible()) return null;
             const v = col.getFilterValue() as any;
