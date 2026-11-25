@@ -26,14 +26,16 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
   );
 }
 
-export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string };
+export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string; qty?: number };
 // edit: a cart line being changed (its options start picked, its note is filled in, and the button says Save)
-export function ModPicker({ name, basePrice, data, money, onDone, edit }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; edit?: { options: { id: string; modifierId?: string }[]; note?: string } }) {
+// area: the menu's place on the register (option W): the options open there, big for touch, and the cart stays in view; without it, a window
+export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; edit?: { options: { id: string; modifierId?: string }[]; note?: string };
+  area?: { left: number; top: number; width: number; cover?: number } }) {
   const links = data.links.map(l => ({ ...l, opts: data.options.filter(o => o.modifierId === l.modifierId) }));
   const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {};
     if (edit) { edit.options.forEach(o => { if (l.opts.some(y => y.id === o.id) && (!o.modifierId || o.modifierId === l.modifierId)) m[o.id] = (m[o.id] || 0) + 1; }); return m; }
     (l.defaults || []).forEach(id => { if (l.opts.some(o => o.id === id)) m[id] = 1; }); return m; }));
-  const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState("");
+  const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState(""), [qty, setQty] = useState(1);
   const cnt = (gi: number) => Object.values(sel[gi]).reduce((a, n) => a + n, 0);
   const units = (gi: number) => links[gi].opts.flatMap(o => Array(sel[gi][o.id] || 0).fill(o) as ModOpt[]);
   const price = () => { let t = basePrice; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(o => { if (free > 0) free--; else t += o.price; }); }); return t; };
@@ -53,8 +55,57 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit }: { name
     if (bad >= 0) return setErr(`${data.groups[links[bad].modifierId]?.name || "Options"}: ${modRule(links[bad]).toLowerCase()}`);
     const chosen: Picked["options"] = []; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(o => { const c = free > 0 ? 0 : o.price; if (free > 0) free--; chosen.push({ id: o.id, modifierId: l.modifierId, name: o.name, price: c }); }); });
     const tally: { name: string; n: number }[] = []; chosen.forEach(o => { const t = tally.find(y => y.name === o.name); if (t) t.n++; else tally.push({ name: o.name, n: 1 }); });
-    onDone({ options: chosen, unitPrice: +price().toFixed(2), mods: tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), note: note.trim() });
+    onDone({ options: chosen, unitPrice: +price().toFixed(2), mods: tally.map(t => (t.n > 1 ? t.n + "× " : "") + t.name).join(", "), note: note.trim(), qty });
   };
+  if (area) {
+    const cols = 4, gap = 10, tw = Math.floor((area.width - 36 - gap * (cols - 1)) / cols);
+    return (
+      <>
+        {/* the cart stays in view but can't be changed while the options are open */}
+        {area.cover ? <Pressable accessibilityLabel="Close options" onPress={() => onDone(null)} style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: area.cover, zIndex: 29 }} /> : null}
+        <View style={{ position: "absolute", left: area.left, top: area.top, right: 0, bottom: 0, backgroundColor: "#E5E7EB", zIndex: 30 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 12, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: C.line }}>
+            <View style={{ flex: 1 }}><T w="s" size={21} numberOfLines={1}>{name}</T><T size={15} color={C.mut}>{money(basePrice)}</T></View>
+            <Pressable accessibilityLabel="Close" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 10, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={22} /></Pressable>
+          </View>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 18, paddingTop: 12 }} showsVerticalScrollIndicator={false}>
+            {links.map((l, gi) => (
+              <View key={l.modifierId} style={{ marginBottom: 14 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <T w="s" size={18}>{data.groups[l.modifierId]?.name || "Options"}</T>
+                  <View style={{ borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: +(l.min || 0) ? C.badBg : C.line2 }}><T w="s" size={13} color={+(l.min || 0) ? C.bad800 : C.ink2}>{modRule(l)}</T></View>
+                  {+(l.free || 0) ? <T size={13} color={C.mut}>{l.free} free</T> : null}
+                </View>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap }}>
+                  {l.opts.map(o => { const n = sel[gi][o.id] || 0, mx = +(l.max || 0), full = mx > 1 && cnt(gi) >= mx && !n, dis = o.oos || full, rep = l.multi && mx !== 1;
+                    return (
+                      <Pressable key={o.id} accessibilityRole="button" accessibilityLabel={o.name + (n ? ", " + n + " picked" : "")} disabled={dis && !n} onPress={() => tap(gi, o)}
+                        style={({ pressed }) => ({ width: tw, minHeight: 76, borderRadius: 10, borderWidth: n ? 2 : 1, borderColor: n ? C.brand500 : C.line, backgroundColor: n ? C.brand50 : pressed ? C.bg2 : "#fff", paddingHorizontal: 14, paddingVertical: 10, justifyContent: "center", opacity: dis && !n ? 0.45 : 1 })}>
+                        <T w="m" size={17} numberOfLines={2} style={{ paddingRight: n ? 26 : 0 }}>{o.name}</T>
+                        <T size={14} color={o.oos ? C.warn : C.mut}>{o.oos ? "Out of stock" : o.price ? "+" + money(o.price) : "Free"}</T>
+                        {n ? <View style={{ position: "absolute", top: rep ? -10 : 8, right: rep ? -10 : 10, minWidth: rep ? 30 : 24, height: rep ? 30 : 24, borderRadius: 15, backgroundColor: C.brand600, alignItems: "center", justifyContent: "center", paddingHorizontal: 6 }}>
+                          {rep ? <T w="s" size={15} color="#fff">{n}</T> : <Icon name="check" size={15} color="#fff" />}</View> : null}
+                        {n && rep ? <Pressable accessibilityLabel={"One less " + o.name} hitSlop={6} onPress={() => tap(gi, o, -1)} style={{ position: "absolute", right: 8, bottom: 8, width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: C.field, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={16} /></Pressable> : null}
+                      </Pressable>); })}
+                </View>
+              </View>))}
+          </ScrollView>
+          {err ? <T size={14} color={C.bad} style={{ paddingHorizontal: 18, paddingBottom: 6 }}>{err}</T> : null}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, backgroundColor: "#fff", borderTopWidth: 1, borderColor: C.line }}>
+            <TextInput value={note} onChangeText={setNote} placeholder="Note for this item" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
+              style={{ flex: 1, height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 10, paddingHorizontal: 16, fontFamily: F.r, fontSize: 16, color: C.ink, backgroundColor: "#fff" }} />
+            {!edit ? <View style={{ flexDirection: "row", alignItems: "center", height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 10, backgroundColor: "#fff" }}>
+              <Pressable accessibilityLabel="One less" onPress={() => setQty(q => Math.max(1, q - 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={22} color={C.brand} /></Pressable>
+              <T w="s" size={20} style={{ minWidth: 34, textAlign: "center" }}>{qty}</T>
+              <Pressable accessibilityLabel="One more" onPress={() => setQty(q => Math.min(99, q + 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={22} color={C.brand} /></Pressable>
+            </View> : null}
+            <Pressable accessibilityRole="button" onPress={ok} style={({ pressed }) => ({ height: 60, paddingHorizontal: 28, borderRadius: 10, backgroundColor: pressed ? C.brand800 : C.brand, alignItems: "center", justifyContent: "center" })}>
+              <T w="s" size={18} color="#fff">{(edit ? "Save · " : "Add · ") + money(price() * (edit ? 1 : qty))}</T></Pressable>
+          </View>
+        </View>
+      </>
+    );
+  }
   return (
     <Sheet title={name} onClose={() => onDone(null)} footer={<>
       <T size={13} color={C.bad} style={{ flex: 1 }}>{err}</T>
