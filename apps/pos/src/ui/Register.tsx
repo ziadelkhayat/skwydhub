@@ -351,7 +351,7 @@ export function Register() {
         </View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
           {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
-            : cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", C.bad] : st === "returned" || st === "refund" ? ["Returned", C.bad] : sent && ["active", "pending"].includes(st) ? ["Sent", C.ok] : !l.saved ? ["New", C.brand600] : null) : null;
+            : cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", C.bad] : st === "returned" || st === "refund" ? ["Returned", C.bad] : sent && ["active", "pending"].includes(st) ? ["Sent", C.ok] : null) : null;
               return <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
                 {ro || sent ? <T size={14} color={C.mut} style={{ minWidth: 26 }}>{l.qty}×</T> : null}
                 <Pressable accessibilityRole="button" accessibilityLabel={l.name} onPress={() => editLine(i)} onLongPress={() => lineExtras(i)} delayLongPress={450} style={{ flex: 1, minWidth: 0 }}>
