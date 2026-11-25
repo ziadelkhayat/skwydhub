@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Divider } from "@/components/tremor/Divider";
 import { cn } from "@/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { createContext, useContext, useId, useMemo } from "react";
@@ -37,7 +37,7 @@ function FieldLegend({
       data-slot="field-legend"
       data-variant={variant}
       className={cn(
-        "mb-1.5 font-medium text-gray-800 data-[variant=label]:text-sm data-[variant=legend]:text-base dark:text-white/90",
+        "mb-1.5 font-medium text-gray-800 data-[variant=label]:text-sm data-[variant=legend]:text-base dark:text-gray-50",
         className,
       )}
       {...props}
@@ -139,7 +139,7 @@ function FieldLabel({
         "has-data-checked:border-brand-500/30 has-data-checked:bg-brand-500/5 dark:has-data-checked:border-brand-500/20 dark:has-data-checked:bg-brand-500/10",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-gray-200 dark:has-[>[data-slot=field]]:border-gray-800",
         "has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-gray-50/60 dark:has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-white/2",
-        "has-[>[data-slot=field]]:has-focus-visible:border-brand-300 has-[>[data-slot=field]]:has-focus-visible:ring-3 has-[>[data-slot=field]]:has-focus-visible:ring-brand-500/20 dark:has-[>[data-slot=field]]:has-focus-visible:border-brand-500/40",
+        "has-[>[data-slot=field]]:has-focus-visible:border-blue-500 has-[>[data-slot=field]]:has-focus-visible:ring-2 has-[>[data-slot=field]]:has-focus-visible:ring-blue-200 dark:has-[>[data-slot=field]]:has-focus-visible:border-brand-500/40",
         "*:data-[slot=field]:p-2.5",
         className,
       )}
@@ -193,7 +193,7 @@ function FieldSeparator({
       )}
       {...props}
     >
-      <Separator className="absolute inset-0 top-1/2" />
+      <Divider className="absolute inset-0 top-1/2 my-0" />
       {children && (
         <span
           className="relative mx-auto block w-fit bg-white px-2 text-gray-500 dark:bg-gray-900 dark:text-gray-400"

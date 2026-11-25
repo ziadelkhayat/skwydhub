@@ -55,19 +55,19 @@ export default function DeliveryChargesPage() {
           <InputGroup className="h-9 sm:w-64"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
             <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
         </div>
-        {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-brand-50/50 px-5 py-3 sm:px-6 dark:border-white/5 dark:bg-brand-500/5">
-          <b className="text-sm text-gray-800 dark:text-white/90">{picked.length} Selected</b>
+        {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-brand-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-brand-500/5">
+          <b className="text-sm text-gray-900 dark:text-gray-50">{picked.length} Selected</b>
           <Button size="sm" onClick={() => setForm(picked)}>Assign Charge</Button>
           <Button size="sm" variant="outline" onClick={async () => { if (await askYes(`Unassign the charge from ${picked.length} zone${picked.length > 1 ? "s" : ""}?`, "Unassign") && await assign(s, picked, "")) { setSel(new Set()); toast("Charge unassigned"); } }}>Unassign Charge</Button></div>}
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!list.length ? <EmptyState text={all.length ? "Nothing matches." : "No delivery zones yet. Add delivery zones to the stores first."}>{!all.length && <Link to="/delivery-zones"><Button variant="outline">Delivery Zones</Button></Link>}</EmptyState>
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               <th className={TH + " w-12"}><Checkbox aria-label="Select all" checked={allOn} onCheckedChange={c => setSel(c ? new Set(list.map(z => z.id)) : new Set())} /></th>
               <th className={TH}>From (Store)</th><th className={TH}>To (Delivery Zone)</th><th className={TH}>Charge</th></tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{list.map(z => { const c = chargeOf(z); return (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(z => { const c = chargeOf(z); return (
                 <tr key={z.id} className={TR} onClick={() => setForm([z.id])}>
                   <td className={TD} onClick={e => e.stopPropagation()}><Checkbox aria-label={"Select " + z.name} checked={sel.has(z.id)} onCheckedChange={v => { const n = new Set(sel); if (v) n.add(z.id); else n.delete(z.id); setSel(n); }} /></td>
-                  <td className={TD}>{bName(z.branchId)}</td><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{z.name}</td>
+                  <td className={TD}>{bName(z.branchId)}</td><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{z.name}</td>
                   <td className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</td></tr>); })}</tbody></table>}
         </div>
       </div>
@@ -94,7 +94,7 @@ function AssignDialog({ s, ids, bName, cur, onClose, onDone }: { s: S; ids: stri
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{one ? "Assign Delivery Charge" : `Assign Charge to ${ids.length} Zones`}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{one ? "Assign Delivery Charge" : `Assign Charge to ${ids.length} Zones`}</DialogTitle></DialogHeader>
         {one && <p className="mt-2 text-sm text-gray-500">{bName(one.branchId)} → {one.name}</p>}
         <SegTabs className="mt-5" value={mode} onChange={setMode} items={[["pick", "Existing Charge"], ["new", "New Charge"]]} />
         <div className="mt-5 space-y-5">

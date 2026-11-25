@@ -1,12 +1,6 @@
-import { pageOf } from "@/components/layout/app-layout/sidebar/data";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { pageOf } from "@/components/layout/app-layout/nav-data";
+import { RiArrowRightSLine } from "@remixicon/react";
+import { Link } from "react-router";
 import { Fragment } from "react";
 import { useLocation } from "react-router";
 
@@ -35,24 +29,22 @@ export function PageBreadcrumb({ pageTitle, current }: BreadcrumbProps) {
     if (last) crumbs.push({ label: last });
   } else crumbs.push({ label: current || pageTitle });
   if (crumbs.length > 1 && !crumbs[crumbs.length - 1].to) delete crumbs[crumbs.length - 1].to;
+  // Tremor page header: small breadcrumb above the title
   return (
-    <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
-      <h2 className="text-title-lg font-semibold break-words text-gray-800 dark:text-white/90">
-        {pageTitle}
-      </h2>
-
-      <Breadcrumb className="min-w-0">
-        <BreadcrumbList className="flex-wrap">
+    <div className="mb-6">
+      <nav aria-label="Breadcrumb" className="mb-1 min-w-0">
+        <ol className="flex flex-wrap items-center gap-x-1 text-sm text-gray-500 dark:text-gray-400">
           {crumbs.map((c, i) => (
             <Fragment key={i}>
-              {i > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                {i === crumbs.length - 1 ? <BreadcrumbPage>{c.label}</BreadcrumbPage> : c.to ? <BreadcrumbLink to={c.to}>{c.label}</BreadcrumbLink> : <span className="text-gray-500 dark:text-gray-400">{c.label}</span>}
-              </BreadcrumbItem>
+              {i > 0 && <RiArrowRightSLine className="size-4 shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true" />}
+              <li className="min-w-0 truncate">
+                {i === crumbs.length - 1 ? <span aria-current="page" className="text-gray-900 dark:text-gray-50">{c.label}</span> : c.to ? <Link to={c.to} className="hover:text-gray-700 dark:hover:text-gray-300">{c.label}</Link> : c.label}
+              </li>
             </Fragment>
           ))}
-        </BreadcrumbList>
-      </Breadcrumb>
+        </ol>
+      </nav>
+      <h1 className="text-lg font-semibold break-words text-gray-900 sm:text-xl dark:text-gray-50">{pageTitle}</h1>
     </div>
   );
 }

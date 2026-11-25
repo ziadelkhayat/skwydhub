@@ -34,10 +34,10 @@ export default function BrandPage() {
   if (settingsOpen) return <Settings s={s} b={b} admin={!staff?.role || ["owner", "admin"].includes(staff.role)} back={() => { const n = new URLSearchParams(sp); n.delete("settings"); setSp(n); }} />;
   return <>
     <PageBreadcrumb pageTitle="Brands" current={b.name} />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/brands" />}><ArrowLeftIcon className="size-5" />Brands</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h2>
+    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/brands" />}><ArrowLeftIcon className="size-5" />Brands</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name}</h2>
       <div className="ms-auto flex gap-3"><Button variant="outline" onClick={() => { const n = new URLSearchParams(sp); n.set("settings", "1"); setSp(n); scrollTo(0, 0); }}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Brand</Button></div></div>
     <div className={BOX + " grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{[["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Stores", String(brs.length)], ["Created", fmtDate(b.createdAt)]].map(([l, v]) =>
-      <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
+      <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     {edit && <EditDialog cfg={CRUD.brands} s={s} row={b} onClose={() => setEdit(false)} />}
   </>;
 }
@@ -66,9 +66,9 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
     if (f.show && !f.show(v)) return null;
     const lab = <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{curL(f.l)}{f.req ? <span className="text-error-500"> *</span> : null}</label>;
     const help = f.n ? <p className="mb-2 text-xs text-gray-500 dark:text-gray-400" dangerouslySetInnerHTML={{ __html: f.n }} /> : null;
-    if (f.t === "chk") return <div key={f.k} className="flex items-start gap-3 border-b border-gray-100 py-4 dark:border-white/5"><Switch size="sm" className="mt-0.5" disabled={!admin} checked={!!v[f.k]} onCheckedChange={x => set(f.k, x)} aria-label={f.l} /><div><b className="block text-sm font-medium text-gray-800 dark:text-white/90">{curL(f.l)}</b>{help}</div></div>;
+    if (f.t === "chk") return <div key={f.k} className="flex items-start gap-3 border-b border-gray-100 py-4 dark:border-gray-800"><Switch size="sm" className="mt-0.5" disabled={!admin} checked={!!v[f.k]} onCheckedChange={x => set(f.k, x)} aria-label={f.l} /><div><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{curL(f.l)}</b>{help}</div></div>;
     let ctl: React.ReactNode;
-    if (f.t === "info") ctl = <p className="text-sm text-gray-800 dark:text-white/90">{f.v!()}</p>;
+    if (f.t === "info") ctl = <p className="text-sm text-gray-900 dark:text-gray-50">{f.v!()}</p>;
     else if (f.t === "radio") ctl = <div className="flex flex-wrap gap-2">{(f.o as [string, string][]).map(([k, t]) => <button key={k} type="button" disabled={!admin} onClick={() => set(f.k, k)}
       className={cn("rounded-lg border px-3.5 py-2 text-sm", String(v[f.k]) === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>;
     else if (f.t === "multi") { const o: [string, string][] = f.o(b), cur: string[] = v[f.k] || [];
@@ -80,15 +80,15 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
       {admin && <><label className="inline-flex h-9 cursor-pointer items-center rounded-lg border border-gray-300 px-3 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">Choose photo<input type="file" accept="image/*" hidden onChange={async e => { const fl = e.target.files?.[0]; if (fl) { try { set(f.k, await shrink(fl)); } catch { toast("Couldn't read the picture.", "error"); } } }} /></label>
         {v[f.k] && <Button size="sm" variant="outline" onClick={() => set(f.k, "")}>Remove</Button>}</>}</div>;
     else ctl = <Input className="h-9" type={f.t === "num" ? "number" : "text"} min={f.t === "num" ? 0 : undefined} disabled={!admin} placeholder={f.ph || ""} value={v[f.k] ?? ""} onChange={e => set(f.k, f.t === "num" ? (e.target.value === "" ? null : +e.target.value) : e.target.value)} />;
-    return <div key={f.k} className="border-b border-gray-100 py-4 dark:border-white/5">{lab}{help}{ctl}</div>;
+    return <div key={f.k} className="border-b border-gray-100 py-4 dark:border-gray-800">{lab}{help}{ctl}</div>;
   };
   return <>
     <PageBreadcrumb pageTitle="Brands" current={b.name + " · Settings"} />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />{b.name}</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name} · Settings</h2></div>
+    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />{b.name}</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name} · Settings</h2></div>
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">
       <nav className={BOX + " self-start p-2"}>{tabs.map(([k, t]) => <button key={k} type="button" onClick={() => { setTab(k); setSeen(o => new Set(o).add(k)); }}
         className={cn("block w-full rounded-lg px-3 py-2.5 text-start text-sm", tab === k ? "bg-brand-50 font-medium text-brand-600 dark:bg-brand-500/10 dark:text-brand-400" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>{t}</button>)}</nav>
-      <div className={BOX + " p-5 sm:p-6"}><h3 className="text-base font-semibold text-gray-800 dark:text-white/90">{T[2]}</h3>
+      <div className={BOX + " p-5 sm:p-6"}><h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">{T[2]}</h3>
         {!admin && <p className="mt-3 rounded-lg bg-warning-50 px-4 py-3 text-sm text-warning-700 dark:bg-warning-500/10 dark:text-warning-400">Only the owner or an admin can change settings.</p>}
         <div>{T[3].map(field)}</div>
         {err && <p className="mt-4 text-sm text-red-500">{err}</p>}

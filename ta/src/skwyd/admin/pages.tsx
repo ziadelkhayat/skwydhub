@@ -20,8 +20,8 @@ import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 import { CATEGORIES, COUNTRIES, CURRENCIES, dmy, endOf, fullPhone, initials, isoDay, MODULES, money, rpc, showInvoice, splitPhone, STATE_COLOR, STATE_LABEL, useAdmin } from "./data";
 
-const H = ({ t, sub, children }: { t: string; sub?: string; children?: React.ReactNode }) => <div className="mb-6 flex flex-wrap items-end gap-3"><div className="flex-1"><h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">{t}</h2>{sub && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{sub}</p>}</div>{children}</div>;
-const Kpi = ({ l, v }: { l: string; v: React.ReactNode }) => <div className={BOX + " p-5"}><span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="mt-2 block text-title-sm font-semibold text-gray-800 dark:text-white/90">{v}</b></div>;
+const H = ({ t, sub, children }: { t: string; sub?: string; children?: React.ReactNode }) => <div className="mb-6 flex flex-wrap items-end gap-3"><div className="flex-1"><h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">{t}</h2>{sub && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{sub}</p>}</div>{children}</div>;
+const Kpi = ({ l, v }: { l: string; v: React.ReactNode }) => <div className={BOX + " p-5"}><span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="mt-2 block text-2xl font-semibold text-gray-900 dark:text-gray-50">{v}</b></div>;
 const State = ({ c }: { c: any }) => { const s = c.sub || {}; return s.complimentary ? <Badge variant="light" color="light">Free</Badge> : <Badge variant="light" color={STATE_COLOR[s.state] || "light"}>{STATE_LABEL[s.state] || "—"}</Badge>; };
 const Empty = ({ t }: { t: string }) => <p className="px-6 py-10 text-center text-sm text-gray-500">{t}</p>;
 const mrrOf = (cs: any[]) => cs.filter(c => !c.sub?.complimentary && c.sub?.state === "active").reduce((a, c) => a + Number(c.quote?.total || 0) / (c.quote?.cycle === "yearly" ? 12 : 1), 0);
@@ -34,10 +34,10 @@ export function AdminDashboard() {
   const newest = cs.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 6);
   const busy = cs.filter(c => c.orders30).sort((a, b) => (b.orders30 || 0) - (a.orders30 || 0)).slice(0, 6);
   const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className={BOX}>
-    <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-white/90">{title}</h3>
+    <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">{title}</h3>
     {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-500 dark:bg-brand-500/15">{initials(c.name)}</span>
-      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-800 dark:text-white/90">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
+      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
   return <>
     <PageBreadcrumb pageTitle="Dashboard" />
     <H t={hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"} sub={`${now.toLocaleDateString("en-GB", { weekday: "long" })} ${dmy(now)} · every restaurant on Skwyd Hub, their plans and what they owe.`} />
@@ -46,7 +46,7 @@ export function AdminDashboard() {
       <Kpi l="Grace / Locked" v={`${count("grace")} / ${count("locked")}`} /><Kpi l="Open Invoices" v={money(cs.reduce((a, c) => a + Number(c.sub?.owed || 0), 0), cur)} /></div>
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
       <List title="Trials and grace ending soon" rows={ending} cell={c => <span className="flex items-center gap-2"><State c={c} /><span className="text-sm text-gray-500">{c.sub.daysLeft} {c.sub.daysLeft === 1 ? "day" : "days"}</span></span>} />
-      <List title="Busiest (orders, 30 days)" rows={busy} cell={c => <b className="text-sm font-semibold text-gray-800 dark:text-white/90">{c.orders30}</b>} />
+      <List title="Busiest (orders, 30 days)" rows={busy} cell={c => <b className="text-sm font-semibold text-gray-900 dark:text-gray-50">{c.orders30}</b>} />
       <List title="Newest businesses" rows={newest} cell={c => <span className="text-sm text-gray-500">{dmy(c.created_at)}</span>} />
     </div></>;
 }
@@ -65,9 +65,9 @@ export function Companies() {
         <div className="flex flex-wrap items-center gap-3"><InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
           <span className="text-sm text-gray-500">{rows.length} of {cs.length}</span></div>
       </div>
-      <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">{rows.length ? <table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(c => { const x = c.sub || {}; return <tr key={c.id} className={TR} onClick={() => openWin("/company?id=" + c.id)}>
-          <td className={TD}><b className="block font-medium text-gray-800 dark:text-white/90">{c.name}</b><span className="text-xs text-gray-500">{c.subcategory || c.category || ""}</span></td><td className={TD}>{c.account_no || "—"}</td>
+      <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">{rows.length ? <table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const x = c.sub || {}; return <tr key={c.id} className={TR} onClick={() => openWin("/company?id=" + c.id)}>
+          <td className={TD}><b className="block font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.subcategory || c.category || ""}</span></td><td className={TD}>{c.account_no || "—"}</td>
           <td className={TD}>{c.contact_name || "—"}<span className="block text-xs text-gray-500">{[c.email, c.phone].filter(Boolean).join(" · ")}</span></td><td className={TD}><State c={c} /></td>
           <td className={TD}>{x.complimentary ? "—" : x.daysLeft != null ? x.daysLeft + (x.daysLeft === 1 ? " Day" : " Days") : "—"}</td><td className={TD}>{x.posUsed ?? 0} / {x.complimentary ? "∞" : x.posDevices ?? 0}</td>
           <td className={TD}>{x.complimentary ? "—" : <>{money(c.quote?.total)}<span className="block text-xs text-gray-500">{c.quote?.cycle === "yearly" ? "Yearly" : "Monthly"}</span></>}</td>
@@ -101,7 +101,7 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
   };
   const subs = (CATEGORIES.find(x => x[0] === v.category) || ["", []])[1];
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="max-h-[92dvh] w-full overflow-y-auto p-6 sm:max-w-2xl">
-    <DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">New Business</DialogTitle></DialogHeader>
+    <DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">New Business</DialogTitle></DialogHeader>
     <Sub t="Business" />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <F l="Business Name" req><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>
@@ -133,7 +133,7 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Creating…" : "Create"}</Button></div>
   </DialogContent></Dialog>;
 }
-const Sub = ({ t }: { t: string }) => <h4 className="mt-6 mb-3 text-sm font-semibold text-gray-800 dark:text-white/90">{t}</h4>;
+const Sub = ({ t }: { t: string }) => <h4 className="mt-6 mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</h4>;
 const Mods = ({ value, set }: { value: string[]; set: (v: string[]) => void }) => <div><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Modules</span>
   <div className="flex flex-wrap gap-2">{MODULES.map(([k, t]) => { const on = value.includes(k); return <button key={k} type="button" onClick={() => set(on ? value.filter(x => x !== k) : [...value, k])}
     className={cn("h-10 rounded-lg border px-3 text-sm font-medium", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{on ? "✓ " : ""}{t}</button>; })}</div></div>;
@@ -150,10 +150,10 @@ export function CompanyPage() {
   return <>
     <PageBreadcrumb pageTitle="Companies" current={c.name} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/companies" />}><ArrowLeftIcon className="size-5" />Companies</Button>
-      <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{c.name}</h2><State c={c} /><span className="flex-1" /><Button onClick={viewAs}>Open Dashboard</Button></div>
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{c.name}</h2><State c={c} /><span className="flex-1" /><Button onClick={viewAs}>Open Dashboard</Button></div>
     <div className={BOX + " mb-6 grid grid-cols-2 gap-x-6 gap-y-5 p-5 lg:grid-cols-4"}>{([["Account Number", c.account_no || "—"], [s.status === "trial" ? "Trial Ends" : "Paid Until", dmy(s.status === "trial" ? s.trial_ends_at : s.paid_until)], ["Locks On", x.complimentary ? "Never" : dmy(x.lockAt)],
       ["POS Devices In Use", `${x.posUsed ?? 0} of ${x.complimentary ? "∞" : s.pos_devices ?? 0}`], ["Warehouses In Use", `${x.warehousesUsed ?? 0} of ${x.complimentary ? "∞" : s.warehouses ?? 1}`], ["Stores", String(x.branches ?? 0)], ["Next Invoice", money(c.quote?.total, cur)], ["Owed", Number(x.owed) ? money(x.owed, cur) : "—"]] as [string, string][]).map(([l, v]) =>
-      <div key={l}><p className="mb-1 text-xs text-gray-500 dark:text-gray-400">{l}</p><b className="text-sm font-medium text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
+      <div key={l}><p className="mb-1 text-xs text-gray-500 dark:text-gray-400">{l}</p><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     <PlanForm key={c.id + tick} c={c} onSaved={refresh} />
     <Invoices1 c={c} inv={inv} onChange={refresh} />
   </>;
@@ -170,7 +170,7 @@ function PlanForm({ c, onSaved }: { c: any; onSaved: () => Promise<void> }) {
       company: { name: v.name.trim(), contactName: (v.firstName.trim() + " " + v.lastName.trim()).trim(), firstName: v.firstName.trim(), lastName: v.lastName.trim(), email: v.email.trim(), phone: fullPhone(v.dial, v.phone), category: v.category, subcategory: v.subcategory, country: v.country, currency: v.currency } } });
       toast("Saved"); await onSaved(); } catch (e: any) { toast(e.message, "error"); } setBusy(false); };
   return <>
-    <div className={BOX + " mb-6 p-5"}><h3 className="mb-4 text-base font-medium text-gray-800 dark:text-white/90">Business & Owner</h3>
+    <div className={BOX + " mb-6 p-5"}><h3 className="mb-4 text-base font-medium text-gray-900 dark:text-gray-50">Business & Owner</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <F l="Business Name"><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>
         <F l="Owner First Name"><Input className="h-9" value={v.firstName} onChange={e => set("firstName", e.target.value)} /></F>
@@ -182,7 +182,7 @@ function PlanForm({ c, onSaved }: { c: any; onSaved: () => Promise<void> }) {
         <F l="Business Category"><select className={SEL} value={v.category} onChange={e => setV(o => ({ ...o, category: e.target.value, subcategory: "" }))}><option value="">Choose…</option>{CATEGORIES.map(([k]) => <option key={k}>{k}</option>)}</select></F>
         <F l="Business Subcategory"><select className={SEL} disabled={!v.category} value={v.subcategory} onChange={e => set("subcategory", e.target.value)}><option value="">Choose…</option>{subs.map(x => <option key={x}>{x}</option>)}</select></F>
       </div></div>
-    <div className={BOX + " mb-6 p-5"}><h3 className="mb-4 text-base font-medium text-gray-800 dark:text-white/90">Subscription</h3>
+    <div className={BOX + " mb-6 p-5"}><h3 className="mb-4 text-base font-medium text-gray-900 dark:text-gray-50">Subscription</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <F l="Status"><select className={SEL} value={v.status} onChange={e => set("status", e.target.value)}><option value="trial">Trial</option><option value="active">Active</option><option value="cancelled">Cancelled</option></select></F>
         <F l="Billing"><select className={SEL} value={v.cycle} onChange={e => set("cycle", e.target.value)}><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></F>
@@ -205,9 +205,9 @@ const InvState = ({ i }: { i: any }) => { const over = i.status === "open" && ne
 function Invoices1({ c, inv, onChange }: { c: any; inv: any[] | null; onChange: () => Promise<void> }) {
   const { data } = useAdmin(), [pay, setPay] = useState<any>(null), [nw, setNw] = useState(false);
   return <div className={BOX}>
-    <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="flex-1 text-base font-medium text-gray-800 dark:text-white/90">Invoices</h3><Button size="sm" disabled={!!c.sub?.complimentary} onClick={() => setNw(true)}><PlusIcon className="size-4" />Create Invoice</Button></div>
-    {inv === null ? <Empty t="Loading…" /> : !inv.length ? <Empty t="No invoices yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Number", "Period", "Total", "Status", "Due", "Paid", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-      <tbody className="divide-y divide-gray-100 dark:divide-white/5">{inv.map(i => <tr key={i.id}><td className={TD}><b className="font-medium text-gray-800 dark:text-white/90">{i.number}</b></td>
+    <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="flex-1 text-base font-medium text-gray-900 dark:text-gray-50">Invoices</h3><Button size="sm" disabled={!!c.sub?.complimentary} onClick={() => setNw(true)}><PlusIcon className="size-4" />Create Invoice</Button></div>
+    {inv === null ? <Empty t="Loading…" /> : !inv.length ? <Empty t="No invoices yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Number", "Period", "Total", "Status", "Due", "Paid", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+      <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{inv.map(i => <tr key={i.id}><td className={TD}><b className="font-medium text-gray-900 dark:text-gray-50">{i.number}</b></td>
         <td className={TD}>{dmy(i.period_start)} → {dmy(i.period_end)}<span className="block text-xs text-gray-500">{(i.lines || []).map((l: any) => l.name + " × " + l.qty).join(" · ")}</span></td>
         <td className={TD}>{money(i.total, i.currency)}</td><td className={TD}><InvState i={i} /></td><td className={TD}>{dmy(i.due_at)}</td>
         <td className={TD}>{i.paid_at ? <>{dmy(i.paid_at)}<span className="block text-xs text-gray-500">{[i.method, i.reference].filter(Boolean).join(" · ")}</span></> : "—"}</td>
@@ -220,7 +220,7 @@ function Invoices1({ c, inv, onChange }: { c: any; inv: any[] | null; onChange: 
 }
 function PayDialog({ i, onClose, onDone }: { i: any; onClose: () => void; onDone: () => Promise<void> }) {
   const [m, setM] = useState(""), [ref, setRef] = useState(""), [busy, setBusy] = useState(false);
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Mark {i.number} As Paid</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Mark {i.number} As Paid</DialogTitle></DialogHeader>
     <p className="mt-1 text-sm text-gray-500">{money(i.total, i.currency)}{i.company ? " · " + i.company : ""}</p>
     <div className="mt-4 space-y-4"><F l="Method" req><select className={SEL} value={m} onChange={e => setM(e.target.value)}><option value="">Choose…</option>{["Bank Transfer", "Whish", "OMT", "Cash", "Card", "Other"].map(x => <option key={x}>{x}</option>)}</select></F>
       <F l="Reference"><Input className="h-9" placeholder="Transfer or receipt number" value={ref} onChange={e => setRef(e.target.value)} /></F></div>
@@ -231,7 +231,7 @@ function PayDialog({ i, onClose, onDone }: { i: any; onClose: () => void; onDone
 function NewInvoice({ c, onClose, onDone }: { c: any; onClose: () => void; onDone: (inv: any) => Promise<void> }) {
   const [lines, setLines] = useState<{ name: string; amount: string }[]>([{ name: "", amount: "" }]), [due, setDue] = useState("7"), [notes, setNotes] = useState(""), [busy, setBusy] = useState(false);
   const yearly = (c.subscription?.cycle || "monthly") === "yearly";
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">New Invoice For {c.name}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">New Invoice For {c.name}</DialogTitle></DialogHeader>
     <p className="mt-1 text-sm text-gray-500">It bills the plan for the next {yearly ? "year" : "month"} ({money(c.quote?.total || 0, c.quote?.currency)}). Add one-off charges if needed.</p>
     <div className="mt-4"><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">One-Off Charges</span>
       <div className="space-y-2">{lines.map((l, k) => <div key={k} className="flex gap-2"><Input className="h-9 flex-1" placeholder="Setup fee" value={l.name} onChange={e => setLines(o => o.map((x, j) => j === k ? { ...x, name: e.target.value } : x))} />
@@ -259,9 +259,9 @@ export function Invoices() {
       <div className="flex flex-col gap-4 px-5 py-4 sm:px-6"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["void", "Void"]]} />
         <InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
         <p className="text-xs text-gray-500">New invoices are created automatically {data.settings?.invoiceDaysBefore ?? 7} days before each period ends.</p></div>
-      <div className="overflow-x-auto border-t border-gray-100 dark:border-white/5">{err ? <Empty t={err} /> : all === null ? <Empty t="Loading…" /> : !rows.length ? <Empty t="No invoices match." /> :
-        <table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Number", "Business", "Period", "Due", "Total", "Status", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(i => <tr key={i.id}><td className={TD}><b className="font-medium text-gray-800 dark:text-white/90">{i.number}</b>{i.auto && <span className="block text-xs text-gray-500">Automatic</span>}</td>
+      <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800">{err ? <Empty t={err} /> : all === null ? <Empty t="Loading…" /> : !rows.length ? <Empty t="No invoices match." /> :
+        <table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Number", "Business", "Period", "Due", "Total", "Status", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(i => <tr key={i.id}><td className={TD}><b className="font-medium text-gray-900 dark:text-gray-50">{i.number}</b>{i.auto && <span className="block text-xs text-gray-500">Automatic</span>}</td>
             <td className={TD}><button type="button" className="font-medium text-brand-500 hover:underline" onClick={() => nav("/company?id=" + i.company_id)}>{i.company}</button><span className="block text-xs text-gray-500">{i.accountNo}</span></td>
             <td className={TD}>{dmy(i.period_start)} → {dmy(i.period_end)}</td><td className={TD}>{dmy(i.due_at)}</td><td className={TD}>{money(i.total, i.currency)}</td><td className={TD}><InvState i={i} /></td>
             <td className={TD + " text-end"}><div className="flex justify-end gap-2"><Button size="sm" variant="outline" onClick={() => showInvoice(i, data.settings, (data.companies || []).find(x => x.id === i.company_id)).catch(e => toast(e.message, "error"))}>View</Button>
@@ -280,15 +280,15 @@ export function Prices() {
     <PageBreadcrumb pageTitle="Price List" />
     <div className={BOX}>
       <p className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">What each part of Skwyd Hub costs ({cur}). New invoices use these prices; a company's discount applies on top.</p>
-      <div className="overflow-x-auto border-t border-gray-100 dark:border-white/5"><table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Name", "Charged", "Monthly", "Yearly", "Always Included", "Offered"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-white/5">{ps.map((p, k) => <tr key={p.id}>
+      <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800"><table className="w-full"><thead><tr className="border-b border-gray-200 dark:border-gray-800">{["Name", "Charged", "Monthly", "Yearly", "Always Included", "Offered"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{ps.map((p, k) => <tr key={p.id}>
           <td className={TD}><Input className="h-10 min-w-48" value={p.name} onChange={e => set(k, "name", e.target.value)} /></td>
           <td className={TD}><select className={cn(SEL, "h-10 min-w-40")} value={p.unit} onChange={e => set(k, "unit", e.target.value)}>{UNIT.map(([u, t]) => <option key={u} value={u}>{t}</option>)}</select></td>
           <td className={TD}><Input className="h-10 w-28 text-end" type="number" min="0" step="0.01" value={p.monthly} onChange={e => set(k, "monthly", e.target.value)} /></td>
           <td className={TD}><Input className="h-10 w-28 text-end" type="number" min="0" step="0.01" value={p.yearly} onChange={e => set(k, "yearly", e.target.value)} /></td>
           <td className={TD}><input type="checkbox" className="size-4 accent-brand-500" aria-label={p.name + " always included"} checked={!!p.required} onChange={e => set(k, "required", e.target.checked)} /></td>
           <td className={TD}><input type="checkbox" className="size-4 accent-brand-500" aria-label={p.name + " offered"} checked={!!p.active} onChange={e => set(k, "active", e.target.checked)} /></td></tr>)}</tbody></table></div>
-      <div className="flex justify-end border-t border-gray-100 px-6 py-4 dark:border-white/5"><Button disabled={busy} onClick={async () => { setBusy(true);
+      <div className="flex justify-end border-t border-gray-100 px-6 py-4 dark:border-gray-800"><Button disabled={busy} onClick={async () => { setBusy(true);
         try { await rpc("slick_pa_save_products", { p: ps.map((p, i) => ({ id: p.id, name: String(p.name).trim(), unit: p.unit, monthly: +p.monthly || 0, yearly: +p.yearly || 0, required: !!p.required, active: !!p.active, sort: i + 1 })) }); toast("Saved"); await reload(); } catch (e: any) { toast(e.message, "error"); } setBusy(false); }}>{busy ? "Saving…" : "Save"}</Button></div>
     </div></>;
 }
@@ -301,7 +301,7 @@ export function AdminSettings() {
   const set = (k: string, x: any) => setV(o => ({ ...o, [k]: x }));
   return <>
     <PageBreadcrumb pageTitle="Settings" />
-    <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-800 dark:text-white/90">Trials & Payments</h3>
+    <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-900 dark:text-gray-50">Trials & Payments</h3>
       <p className="mb-4 text-sm text-gray-500">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><F l="Free Trial (Days)"><Input className="h-9" type="number" min="0" value={v.trialDays} onChange={e => set("trialDays", e.target.value)} /></F>
         <F l="Grace Period (Days)"><Input className="h-9" type="number" min="0" value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
@@ -309,7 +309,7 @@ export function AdminSettings() {
         <F l="Support Phone"><Input className="h-9" value={v.supportPhone} onChange={e => set("supportPhone", e.target.value)} /></F>
         <F l="Support Email"><Input className="h-9" type="email" value={v.supportEmail} onChange={e => set("supportEmail", e.target.value)} /></F></div>
       <p className="mt-3 text-xs text-gray-500">Restaurants see the support phone and email on their Subscription page and lock screen.</p></div>
-    <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-800 dark:text-white/90">Invoices</h3>
+    <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-900 dark:text-gray-50">Invoices</h3>
       <p className="mb-4 text-sm text-gray-500">Every morning, each business whose trial or paid period ends within these days gets its next invoice, due the day the period ends.</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><F l="Billing Name"><Input className="h-9" placeholder="Skwyd Hub S.A.R.L" value={v.billingName} onChange={e => set("billingName", e.target.value)} /></F>
         <F l="Tax Number"><Input className="h-9" value={v.billingTaxNo} onChange={e => set("billingTaxNo", e.target.value)} /></F>

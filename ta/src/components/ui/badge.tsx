@@ -1,221 +1,44 @@
-import { cn } from "@/utils";
-import { mergeProps } from "@base-ui/react/merge-props";
-import { useRender } from "@base-ui/react/use-render";
-import { cva, type VariantProps } from "class-variance-authority";
+// Tremor Raw Badge look (soft colour + ring, rounded corners), with our colour names.
+import * as React from "react";
+import { cx } from "@/components/tremor/utils";
+import { withRender } from "./render";
 
-const badgeVariants = cva(
-  "group/badge inline-flex ring-1 ring-inset ring-current/20 w-fit shrink-0 items-center justify-center gap-1 font-medium whitespace-nowrap transition-colors select-none [&>svg]:pointer-events-none [&>svg]:shrink-0",
-  {
-    variants: {
-      variant: {
-        light: "",
-        solid: "",
-        ghost: "bg-transparent",
-      },
-      color: {
-        primary: "",
-        success: "",
-        error: "",
-        warning: "",
-        info: "",
-        gray: "",
-        light: "",
-        dark: "",
-      },
-      size: {
-        sm: "h-5.5 rounded-md px-2 py-0.5 text-xs [&:has(>svg:first-child)]:ps-1.5 [&:has(>svg:last-child)]:pe-1.5 [&>svg]:size-3",
-        default:
-          "h-6 rounded-md px-2 py-0.5 text-xs [&:has(>svg:first-child)]:ps-2 [&:has(>svg:last-child)]:pe-2 [&>svg]:size-3.5",
-        lg: "h-7 rounded-md px-2.5 py-1 text-sm [&:has(>svg:first-child)]:ps-2.5 [&:has(>svg:last-child)]:pe-2.5 [&>svg]:size-3.5",
-      },
-    },
-    compoundVariants: [
-      // Ghost size overrides
-      {
-        variant: "ghost",
-        className:
-          "px-0 py-0 [&:has(>svg:first-child)]:ps-0 [&:has(>svg:last-child)]:pe-0",
-      },
-      // Primary
-      {
-        variant: "light",
-        color: "primary",
-        className:
-          "bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400",
-      },
-      {
-        variant: "solid",
-        color: "primary",
-        className:
-          "bg-brand-500 text-white",
-      },
-      {
-        variant: "ghost",
-        color: "primary",
-        className: "text-brand-500 dark:text-brand-400",
-      },
-      // Success
-      {
-        variant: "light",
-        color: "success",
-        className:
-          "bg-green-50 text-green-600 dark:bg-green-500/15 dark:text-green-500",
-      },
-      {
-        variant: "solid",
-        color: "success",
-        className:
-          "bg-green-500 text-white",
-      },
-      {
-        variant: "ghost",
-        color: "success",
-        className: "text-green-600 dark:text-green-500",
-      },
-      // Error
-      {
-        variant: "light",
-        color: "error",
-        className:
-          "bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-500",
-      },
-      {
-        variant: "solid",
-        color: "error",
-        className:
-          "bg-red-500 text-white",
-      },
-      {
-        variant: "ghost",
-        color: "error",
-        className: "text-red-600 dark:text-red-500",
-      },
-      // Warning
-      {
-        variant: "light",
-        color: "warning",
-        className:
-          "bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-orange-400",
-      },
-      {
-        variant: "solid",
-        color: "warning",
-        className:
-          "bg-amber-500 text-white",
-      },
-      {
-        variant: "ghost",
-        color: "warning",
-        className: "text-amber-600 dark:text-orange-400",
-      },
-      // Info
-      {
-        variant: "light",
-        color: "info",
-        className:
-          "bg-sky-50 text-sky-500 dark:bg-sky-500/15 dark:text-sky-500",
-      },
-      {
-        variant: "solid",
-        color: "info",
-        className:
-          "bg-sky-500 text-white",
-      },
-      {
-        variant: "ghost",
-        color: "info",
-        className: "text-sky-500",
-      },
-      // Gray
-      {
-        variant: "light",
-        color: "gray",
-        className:
-          "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
-      },
-      {
-        variant: "solid",
-        color: "gray",
-        className:
-          "bg-gray-700 text-white dark:bg-gray-700 dark:text-white",
-      },
-      {
-        variant: "ghost",
-        color: "gray",
-        className: "text-gray-700 dark:text-gray-300",
-      },
-      // Light (alias)
-      {
-        variant: "light",
-        color: "light",
-        className:
-          "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
-      },
-      {
-        variant: "solid",
-        color: "light",
-        className: "bg-gray-400 text-white dark:bg-white/5 dark:text-white/80",
-      },
-      {
-        variant: "ghost",
-        color: "light",
-        className: "text-gray-700 dark:text-gray-300",
-      },
-      // Dark (alias)
-      {
-        variant: "light",
-        color: "dark",
-        className:
-          "bg-gray-500/15 text-gray-800 dark:bg-white/5 dark:text-white",
-      },
-      {
-        variant: "solid",
-        color: "dark",
-        className: "bg-gray-800 text-white dark:bg-gray-700 dark:text-white",
-      },
-      {
-        variant: "ghost",
-        color: "dark",
-        className: "text-gray-800 dark:text-white",
-      },
-    ],
-    defaultVariants: {
-      variant: "light",
-      color: "primary",
-      size: "default",
-    },
-  },
-);
+type Color = "primary" | "success" | "error" | "warning" | "info" | "gray" | "light" | "dark";
+type Variant = "light" | "solid" | "ghost";
+type Size = "sm" | "default" | "lg";
 
-export interface BadgeProps
-  extends
-    Omit<useRender.ComponentProps<"span">, "color">,
-    VariantProps<typeof badgeVariants> {}
+const SOFT: Record<Color, string> = {
+  primary: "bg-blue-50 text-blue-800 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30",
+  info: "bg-sky-50 text-sky-800 ring-sky-500/30 dark:bg-sky-400/10 dark:text-sky-400 dark:ring-sky-400/30",
+  success: "bg-emerald-50 text-emerald-800 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20",
+  error: "bg-red-50 text-red-800 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20",
+  warning: "bg-yellow-50 text-yellow-800 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20",
+  gray: "bg-gray-50 text-gray-700 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:ring-gray-400/20",
+  light: "bg-gray-50 text-gray-700 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:ring-gray-400/20",
+  dark: "bg-gray-900 text-white ring-gray-900 dark:bg-gray-50 dark:text-gray-900 dark:ring-gray-50",
+};
+const SOLID: Record<Color, string> = {
+  primary: "bg-blue-600 text-white ring-blue-600", info: "bg-sky-600 text-white ring-sky-600", success: "bg-emerald-600 text-white ring-emerald-600",
+  error: "bg-red-600 text-white ring-red-600", warning: "bg-yellow-500 text-white ring-yellow-500", gray: "bg-gray-500 text-white ring-gray-500",
+  light: "bg-gray-200 text-gray-800 ring-gray-200", dark: "bg-gray-900 text-white ring-gray-900",
+};
+const GHOST: Record<Color, string> = {
+  primary: "text-blue-600 dark:text-blue-400", info: "text-sky-600", success: "text-emerald-700 dark:text-emerald-400", error: "text-red-700 dark:text-red-400",
+  warning: "text-yellow-700 dark:text-yellow-500", gray: "text-gray-600 dark:text-gray-400", light: "text-gray-600 dark:text-gray-400", dark: "text-gray-900 dark:text-gray-50",
+};
+const SIZE: Record<Size, string> = { sm: "px-1.5 py-0.5 text-xs [&>svg]:size-3", default: "px-1.5 py-0.5 text-xs [&>svg]:size-3.5", lg: "px-2 py-1 text-sm [&>svg]:size-3.5" };
 
-function Badge({
-  className,
-  variant = "light",
-  color = "primary",
-  size = "default",
-  render,
-  ...props
-}: BadgeProps) {
-  return useRender({
-    defaultTagName: "span",
-    props: mergeProps(
-      {
-        className: cn(badgeVariants({ variant, color, size }), className),
-      },
-      props,
-    ),
-    render,
-    state: {
-      slot: "badge",
-      variant,
-      color,
-      size,
-    },
-  });
+function badgeVariants({ variant = "light", color = "primary", size = "default" }: { variant?: Variant; color?: Color; size?: Size } = {}) {
+  return cx(
+    "inline-flex w-fit shrink-0 items-center gap-x-1 whitespace-nowrap rounded font-semibold [&>svg]:pointer-events-none [&>svg]:shrink-0",
+    variant === "ghost" ? cx("bg-transparent p-0", GHOST[color]) : cx("ring-1 ring-inset", variant === "solid" ? SOLID[color] : SOFT[color], SIZE[size]),
+  );
+}
+
+export interface BadgeProps extends Omit<React.ComponentProps<"span">, "color"> { variant?: Variant; color?: Color; size?: Size; render?: React.ReactElement }
+
+function Badge({ className, variant = "light", color = "primary", size = "default", ...props }: BadgeProps) {
+  return withRender("span", { "data-slot": "badge", className: cx(badgeVariants({ variant, color, size }), className), ...props });
 }
 
 export { Badge, badgeVariants };

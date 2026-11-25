@@ -37,7 +37,7 @@ export default function StaffDocsPage() {
   const alert = docs.filter(d => state(d) !== "ok"), rows = tab === "expiring" ? alert : docs;
   const missing = (u: Row) => st.required.filter((t: string) => !docs.some(d => d.employeeId === u.id && d.docType === t && state(d) !== "expired"));
   const view = async (d: Row) => { const w = window.open("", "_blank"); try { const { data, error } = await sb.storage.from("staff-docs").createSignedUrl(d.filePath, 300); if (error) throw error; if (w) w.location = data.signedUrl; else location.href = data.signedUrl; } catch { w?.close(); toast("Couldn't open the file.", "error"); } };
-  const Emp = ({ u }: { u?: Row }) => <><span className="block font-medium text-gray-800 dark:text-white/90">{u?.name || "—"}</span><span className="text-xs text-gray-500">{u?.jobTitle || ""}</span></>;
+  const Emp = ({ u }: { u?: Row }) => <><span className="block font-medium text-gray-900 dark:text-gray-50">{u?.name || "—"}</span><span className="text-xs text-gray-500">{u?.jobTitle || ""}</span></>;
   return (
     <>
       <PageBreadcrumb pageTitle="Documents" />
@@ -46,23 +46,23 @@ export default function StaffDocsPage() {
           <SegTabs value={tab} onChange={setTab} items={[["expiring", `Expiring & Expired (${alert.length})`], ["all", "All Documents"], ["compliance", "Compliance"], ["onboarding", "Onboarding"]]} />
           <div className="flex gap-3"><Button variant="outline" onClick={() => setSetOpen(true)}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Add Document</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
-          {tab === "compliance" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Employee</th>{st.required.map((t: string) => <th key={t} className={TH}>{t}</th>)}<th className={TH + " text-end"}>Complete</th></tr></thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">{emps.map(u => { const miss = missing(u); return <tr key={u.id}><td className={TD}><Emp u={u} /></td>
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+          {tab === "compliance" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Employee</th>{st.required.map((t: string) => <th key={t} className={TH}>{t}</th>)}<th className={TH + " text-end"}>Complete</th></tr></thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const miss = missing(u); return <tr key={u.id}><td className={TD}><Emp u={u} /></td>
               {st.required.map((t: string) => { const d = docs.filter(x => x.employeeId === u.id && x.docType === t).sort((a, b) => String(b.expiresOn || "9999").localeCompare(String(a.expiresOn || "9999")))[0]; return <td key={t} className={TD}>{d ? tag(d) : <Badge variant="light" color="error">Missing</Badge>}</td>; })}
-              <td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{st.required.length ? Math.round((st.required.length - miss.length) / st.required.length * 100) : 100}%</td></tr>; })}</tbody></table>)
-          : tab === "onboarding" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{["Employee", "Hire Date", "Progress", "Next Step"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">{emps.map(u => { const o = u.onboarding || {}, n = st.checklist.length, d = st.checklist.filter((i: string) => o[i]).length, next = st.checklist.find((i: string) => !o[i]);
+              <td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{st.required.length ? Math.round((st.required.length - miss.length) / st.required.length * 100) : 100}%</td></tr>; })}</tbody></table>)
+          : tab === "onboarding" ? (!emps.length ? <EmptyState text="No employees yet." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Hire Date", "Progress", "Next Step"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{emps.map(u => { const o = u.onboarding || {}, n = st.checklist.length, d = st.checklist.filter((i: string) => o[i]).length, next = st.checklist.find((i: string) => !o[i]);
               return <tr key={u.id}><td className={TD}><Emp u={u} /></td><td className={TD}>{u.hireDate ? dmy(u.hireDate) : "—"}</td>
                 <td className={TD}><div className="flex items-center gap-3"><div className="h-2 w-40 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className={"h-full rounded-full " + (d === n ? "bg-green-500" : "bg-brand-500")} style={{ width: (n ? d / n * 100 : 100) + "%" }} /></div><span>{d}/{n}</span></div></td>
                 <td className={TD}>{next || <Badge variant="light" color="success">Done</Badge>}</td></tr>; })}</tbody></table>)
           : !rows.length ? <EmptyState text={tab === "expiring" ? `Nothing expiring in the next ${+st.remindDays || 30} days.` : "No documents yet. Add IDs, contracts and health certificates with their expiry dates."} />
-          : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{["Employee", "Document", "Number", "Issued", "Status", "File"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(d => <tr key={d.id}><td className={TD}><Emp u={byId[d.employeeId]} /></td>
+          : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Employee", "Document", "Number", "Issued", "Status", "File"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH} /></tr></thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(d => <tr key={d.id}><td className={TD}><Emp u={byId[d.employeeId]} /></td>
               <td className={TD}>{d.docType}{d.note && <span className="block text-xs text-gray-500">{d.note}</span>}</td><td className={TD}>{d.number || "—"}</td><td className={TD}>{d.issuedOn ? dmy(d.issuedOn) : "—"}</td><td className={TD}>{tag(d)}</td>
               <td className={TD}>{d.filePath ? <Button size="xs" variant="outline" onClick={() => view(d)}>View</Button> : "—"}</td><td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={() => setForm(d)}>Edit</Button></td></tr>)}</tbody></table>}
         </div>
-        {(tab === "compliance" || tab === "onboarding") && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-white/5">{tab === "compliance" ? "Required documents are set in Settings. A document counts while it hasn't expired." : "Tick the steps on each employee's page. Edit the checklist in Settings."}</p>}
+        {(tab === "compliance" || tab === "onboarding") && <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">{tab === "compliance" ? "Required documents are set in Settings. A document counts while it hasn't expired." : "Tick the steps on each employee's page. Edit the checklist in Settings."}</p>}
       </div>
       {form !== undefined && <DocForm d={form} s={s} types={[...new Set([...st.required, ...DOC_TYPES])]} onClose={() => setForm(undefined)} />}
       {setOpen && <SettingsDialog st={st} onClose={() => setSetOpen(false)} />}
@@ -92,7 +92,7 @@ export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; ty
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit Document" : "Add Document"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{d ? "Edit Document" : "Add Document"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Employee" req><select className={SEL} disabled={!!d} value={v.emp} onChange={e => set("emp", e.target.value)}><option value="">Choose…</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></F>
           <F l="Document" req><Input className="h-9" list="sdTypes" placeholder="e.g. Health Certificate" value={v.type} onChange={e => set("type", e.target.value)} /><datalist id="sdTypes">{types.map(t => <option key={t} value={t} />)}</datalist></F>
@@ -121,7 +121,7 @@ function SettingsDialog({ st, onClose }: { st: any; onClose: () => void }) {
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Documents & Onboarding Settings</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Documents & Onboarding Settings</DialogTitle></DialogHeader>
         <div className="mt-6 space-y-5">
           <F l="Required Documents (one per line)"><Textarea rows={4} value={req} onChange={e => setReq(e.target.value)} /></F>
           <F l="Warn Before Expiry (Days)"><Input className="h-9" type="number" min="1" value={days} onChange={e => setDays(e.target.value)} /></F>

@@ -10,7 +10,7 @@ import { Link, useSearchParams } from "react-router";
 import { TD, TR } from "../ui/kit";
 import { Head, Info, None, Sec } from "./Details";
 // the item list is kept compact: short rows, small type
-const ITH = "px-3 py-2 text-start text-xs font-medium whitespace-nowrap text-gray-500 dark:text-gray-400", ITD = "px-3 py-1.5 text-sm text-gray-700 dark:text-gray-400", ITR = "border-t border-gray-100 dark:border-white/5";
+const ITH = "border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50", ITD = "px-3 py-1.5 text-sm text-gray-700 dark:text-gray-400", ITR = "border-t border-gray-200 dark:border-gray-800";
 import { CHL, chkNo, ORD_ST, ordRef, srcOf, ST_COLOR, tel, TYPE_LBL, camel } from "./Orders";
 
 const tm = (t?: string) => t ? fmtDate(t) + " " + new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
@@ -47,28 +47,28 @@ export default function OrderPage() {
 
     {(o.customerName || o.phone || o.address) && <Sec title="Customer" act={o.customerId ? <Button size="sm" variant="outline" onClick={() => openWin("/customer?id=" + o.customerId)}>Open Customer</Button> : undefined}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div><span className="block text-sm text-gray-500">Name</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{o.customerName || "—"}</b></div>
+        <div><span className="block text-sm text-gray-500">Name</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</b></div>
         <div><span className="block text-sm text-gray-500">Phone</span>{o.phone ? <a className="text-sm font-medium text-brand-500" href={"tel:" + o.phone}>{tel(o.phone)}</a> : "—"}</div>
-        {o.address && <div><span className="block text-sm text-gray-500">Address</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{o.address}</b></div>}
+        {o.address && <div><span className="block text-sm text-gray-500">Address</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{o.address}</b></div>}
       </div></Sec>}
 
     <Sec title="Items">
       {!items.length ? <None t="No items." /> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className={ITH}>Item</th><th className={ITH + " text-end"}>Quantity</th><th className={ITH + " text-end"}>Price</th><th className={ITH + " text-end"}>Total</th></tr></thead><tbody>
         {items.map((it, i) => <tr key={i} className={ITR + (it.voided ? " opacity-60" : "")}>
-          <td className={ITD}><span className={"font-medium text-gray-800 dark:text-white/90" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
+          <td className={ITD}><span className={"font-medium text-gray-900 dark:text-gray-50" + (it.voided ? " line-through" : "")}>{it.name}</span>{it.voided && <Badge className="ms-2" variant="light" color="error">Void</Badge>}
             {it.mods && <span className="block text-xs text-gray-500">{String(it.mods)}</span>}{it.note && <span className="block text-xs text-gray-500">Note: {it.note}</span>}</td>
           <td className={ITD + " text-end"}>{q2(it.qty)}</td><td className={ITD + " text-end"}>{money(it.price)}</td><td className={ITD + " text-end"}>{money((+it.price || 0) * (+it.qty || 0) - (+it.disc || 0))}</td></tr>)}
         {([["Subtotal", o.subtotal], ["Discount", -(+o.discount || 0)], ...charges.map(c => [c.name, c.amount]), ["Delivery Fee", o.deliveryFee], ["Tax", o.tax]] as [string, any][])
           .filter(([, v]) => v != null && +v !== 0).map(([l, v]) => <tr key={l}><td colSpan={3} className={ITD + " text-end text-gray-500"}>{l}</td><td className={ITD + " text-end"}>{money(v)}</td></tr>)}
-        <tr><td colSpan={3} className={ITD + " text-end font-semibold text-gray-800 dark:text-white/90"}>Total</td><td className={ITD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(o.total)}</td></tr>
+        <tr><td colSpan={3} className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>Total</td><td className={ITD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(o.total)}</td></tr>
       </tbody></table></div>}
     </Sec>
 
     {(pay.method || (pay.split || []).length) && <Sec title="Payment">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div><span className="block text-sm text-gray-500">Method</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{pay.method || "—"}</b></div>
-        {pay.tendered != null && <div><span className="block text-sm text-gray-500">Tendered</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{money(pay.tendered)}</b></div>}
-        {+pay.change ? <div><span className="block text-sm text-gray-500">Change</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{money(pay.change)}</b></div> : null}
+        <div><span className="block text-sm text-gray-500">Method</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{pay.method || "—"}</b></div>
+        {pay.tendered != null && <div><span className="block text-sm text-gray-500">Tendered</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{money(pay.tendered)}</b></div>}
+        {+pay.change ? <div><span className="block text-sm text-gray-500">Change</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{money(pay.change)}</b></div> : null}
       </div></Sec>}
 
     {o.notes && <Sec title="Notes"><p className="text-sm whitespace-pre-line text-gray-700 dark:text-gray-300">{o.notes}</p></Sec>}

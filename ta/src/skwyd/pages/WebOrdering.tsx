@@ -29,17 +29,17 @@ const clone = (x: any) => JSON.parse(JSON.stringify(x || {}));
 
 const Tg = ({ on, set, l, note }: { on: boolean; set: (v: boolean) => void; l: string; note?: string }) => (
   <label className="flex cursor-pointer items-start justify-between gap-4 py-3">
-    <span><span className="block text-sm font-medium text-gray-800 dark:text-white/90">{l}</span>{note && <span className="text-xs text-gray-500 dark:text-gray-400">{note}</span>}</span>
+    <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">{l}</span>{note && <span className="text-xs text-gray-500 dark:text-gray-400">{note}</span>}</span>
     <Switch checked={on} onCheckedChange={v => set(!!v)} /></label>);
 const Card = ({ title, note, children, right }: { title: string; note?: string; children: React.ReactNode; right?: React.ReactNode }) => (
-  <div className="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3">
-    <div className="mb-3 flex items-start justify-between gap-3"><div><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h3>{note && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{note}</p>}</div>{right}</div>
+  <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
+    <div className="mb-3 flex items-start justify-between gap-3"><div><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3>{note && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{note}</p>}</div>{right}</div>
     {children}</div>);
 function Radios({ value, set, opts }: { value: string; set: (v: string) => void; opts: [string, string, string?][] }) {
   return <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{opts.map(([v, t, s]) => (
     <button key={v} type="button" onClick={() => set(v)} aria-pressed={value === v}
-      className={cn("rounded-xl border p-3 text-start text-sm transition-colors", value === v ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800")}>
-      <b className={cn("block font-medium", value === v ? "text-brand-600 dark:text-brand-400" : "text-gray-800 dark:text-white/90")}>{t}</b>{s && <span className="text-xs text-gray-500">{s}</span>}</button>))}</div>;
+      className={cn("rounded-md border p-3 text-start text-sm transition-colors", value === v ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800")}>
+      <b className={cn("block font-medium", value === v ? "text-brand-600 dark:text-brand-400" : "text-gray-900 dark:text-gray-50")}>{t}</b>{s && <span className="text-xs text-gray-500">{s}</span>}</button>))}</div>;
 }
 
 export default function WebOrderingPage() {
@@ -123,7 +123,7 @@ export default function WebOrderingPage() {
                 {inp("social.instagram", "Instagram", "@thewok")}{inp("social.facebook", "Facebook", "page name or link")}{inp("social.tiktok", "TikTok", "@thewok")}{inp("social.website", "Website", "thewok.com")}</div>
             </Card>
             <Card title="Menu display">
-              <div className="divide-y divide-gray-100 dark:divide-white/5">
+              <div className="divide-y divide-gray-200 dark:divide-gray-800">
                 <Tg on={sh.search !== false} set={v => up("show.search", v)} l="Search bar" note="Customers can search the menu." />
                 <Tg on={sh.desc !== false} set={v => up("show.desc", v)} l="Item descriptions" note="Show the description under each item." />
                 <Tg on={sh.soldOut !== false} set={v => up("show.soldOut", v)} l="Show sold-out items" note="Off hides items marked out of stock." />
@@ -151,18 +151,18 @@ export default function WebOrderingPage() {
           </>}
           {tab === "checkout" && <>
             <Card title="Order types" note="For the whole page. Each store can turn them off under Stores.">
-              <div className="divide-y divide-gray-100 dark:divide-white/5">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "In Store (table QR)"]].map(([k, t]) => <Tg key={k} on={md[k] !== false} set={v => up("modes." + k, v)} l={t} />)}</div></Card>
+              <div className="divide-y divide-gray-200 dark:divide-gray-800">{[["delivery", "Delivery"], ["takeaway", "Pickup"], ["dinein", "In Store (table QR)"]].map(([k, t]) => <Tg key={k} on={md[k] !== false} set={v => up("modes." + k, v)} l={t} />)}</div></Card>
             <Card title="Scheduling">
               <Tg on={!!co.schedule} set={v => up("checkout.schedule", v)} l="Let customers order ahead" note="They can pick a later time, even while the store is closed." />
               <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <F l="Days ahead"><select className={SEL} value={co.scheduleDays ?? 3} onChange={e => up("checkout.scheduleDays", +e.target.value)}>{[0, 1, 2, 3, 5, 7, 14].map(n => <option key={n} value={n}>{n ? n + (n > 1 ? " days" : " day") : "Today only"}</option>)}</select></F>
                 <F l="Time slots every"><select className={SEL} value={co.slot || 30} onChange={e => up("checkout.slot", +e.target.value)}>{[15, 30, 60].map(n => <option key={n} value={n}>{n} min</option>)}</select></F></div></Card>
             <Card title="Payment" note="Paid when the order is handed over.">
-              <div className="divide-y divide-gray-100 dark:divide-white/5"><Tg on={(co.pay || {}).cash !== false} set={v => up("checkout.pay.cash", v)} l="Cash" note="On delivery or at the counter." />
+              <div className="divide-y divide-gray-200 dark:divide-gray-800"><Tg on={(co.pay || {}).cash !== false} set={v => up("checkout.pay.cash", v)} l="Cash" note="On delivery or at the counter." />
                 <Tg on={!!(co.pay || {}).card} set={v => up("checkout.pay.card", v)} l="Card" note="Card machine on delivery or at the counter." /></div></Card>
             <Card title="Customer details">
               <F l="Ask for email"><Radios value={co.email === "optional" || co.email === "required" ? "optional" : "off"} set={v => up("checkout.email", v)} opts={[["off", "Don't ask"], ["optional", "Optional"]]} /></F>
-              <div className="mt-2 divide-y divide-gray-100 dark:divide-white/5"><Tg on={co.notes !== false} set={v => up("checkout.notes", v)} l="Notes for the kitchen" note="A free-text box on checkout." />
+              <div className="mt-2 divide-y divide-gray-200 dark:divide-gray-800"><Tg on={co.notes !== false} set={v => up("checkout.notes", v)} l="Notes for the kitchen" note="A free-text box on checkout." />
                 <Tg on={!!co.whatsapp} set={v => up("checkout.whatsapp", v)} l="“Send on WhatsApp” button" note="After ordering, customers can send the order to the store's WhatsApp." /></div>
               <div className="mt-3">{inp("checkout.terms", "Checkout message", "e.g. Orders over USD 100 need a call to confirm")}</div></Card>
           </>}
@@ -170,9 +170,9 @@ export default function WebOrderingPage() {
             const bv = (k: string, l: string, ph: string, type?: string) => <F l={l}><Input className="h-9" type={type} min={type === "number" ? 0 : undefined} placeholder={ph} value={x[k] ?? ""} onChange={e => { const t = e.target.value; bset(b.id, k, t === "" ? null : type === "number" ? +t : t); }} /></F>;
             const qr = (n: number) => (br?.slug ? ORDER_HOST + br.slug + "?" : "../order.html?brand=" + encodeURIComponent(bid) + "&") + "branch=" + encodeURIComponent(b.id) + "&table=" + n;
             return (
-              <div key={b.id} className={cn("rounded-2xl border bg-white p-5 lg:p-6 dark:bg-white/3", x.paused ? "border-amber-300 dark:border-amber-500/40" : "border-gray-200 dark:border-gray-800")}>
+              <div key={b.id} className={cn("rounded-lg border bg-white p-5 lg:p-6 dark:bg-[#090E1A]", x.paused ? "border-amber-300 dark:border-amber-500/40" : "border-gray-200 dark:border-gray-800")}>
                 <div className="mb-4 flex items-start justify-between gap-4">
-                  <div><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h3>
+                  <div><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{b.open || b.close ? t12(b.open) + " – " + t12(b.close) : "Hours in Manage → Stores"} · {z} delivery zone{z === 1 ? "" : "s"}</p></div>
                   <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">{x.paused ? "Paused" : "Taking orders"}<Switch checked={!x.paused} onCheckedChange={v => bset(b.id, "paused", !v)} /></label>
                 </div>
@@ -187,8 +187,8 @@ export default function WebOrderingPage() {
                     : <span className="text-sm text-gray-500">Set the number of tables to get a QR link for each.</span>}</div></div>
               </div>); }))}
         </div>
-        <aside className="h-fit min-w-0 rounded-2xl border border-gray-200 bg-white p-4 2xl:sticky 2xl:top-24 dark:border-gray-800 dark:bg-white/3">
-          <div className="mb-3 flex items-center justify-between"><span className="text-sm font-medium text-gray-800 dark:text-white/90">Live preview</span>
+        <aside className="h-fit min-w-0 rounded-lg border border-gray-200 bg-white p-4 2xl:sticky 2xl:top-24 dark:border-gray-800 dark:bg-[#090E1A]">
+          <div className="mb-3 flex items-center justify-between"><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Live preview</span>
             <SegTabs value={dev} onChange={setDev} items={[["phone", "Phone"], ["tab", "Tablet"], ["desk", "Desktop"]]} /></div>
           <Preview w={previewW} h={previewH}><iframe ref={frame} title="Ordering page preview" src={"../order.html?brand=" + encodeURIComponent(bid) + "&preview=1"} onLoad={send} className="size-full border-0" /></Preview>
           <p className="mt-2 text-center text-xs text-gray-500">Changes show here before you save.</p>
@@ -202,6 +202,6 @@ export default function WebOrderingPage() {
 function Preview({ w, h, children }: { w: number; h: number; children: React.ReactNode }) {
   const box = useRef<HTMLDivElement>(null), [sc, setSc] = useState(1);
   useEffect(() => { const el = box.current; if (!el) return; const f = () => setSc(Math.min(1, el.clientWidth / w)); f(); const ro = new ResizeObserver(f); ro.observe(el); return () => ro.disconnect(); }, [w]);
-  return <div ref={box} className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-gray-800" style={{ height: h * sc }}>
+  return <div ref={box} className="overflow-hidden rounded-md border border-gray-200 bg-gray-50 dark:border-gray-800" style={{ height: h * sc }}>
     <div style={{ width: w, height: h, transform: `scale(${sc})`, transformOrigin: "0 0" }}>{children}</div></div>;
 }

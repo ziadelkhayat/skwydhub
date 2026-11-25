@@ -58,11 +58,11 @@ export default function OrderTxPage() {
     return <>
       <PageBreadcrumb pageTitle="Order Transactions" current={r.ref} />
       <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={() => open(null)}><ArrowLeftIcon className="size-5" />Order Transactions</Button>
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{ret ? "Return" : "Consumption"} from order ({r.ref})</h2><Badge variant="light" color="success">Closed</Badge>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{ret ? "Return" : "Consumption"} from order ({r.ref})</h2><Badge variant="light" color="success">Closed</Badge>
         <Button variant="outline" className="ms-auto" onClick={print}>Print</Button></div>
       <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3"}>{[["Store", bName(r.branch_id)], ["Business Date", bd(r)], ["Submitted At", fmtDateTime(r.created_at)], ["Order Reference", r.order_no ? String(r.order_no) : "—"], ["Type", kindName(r.kind)], ["Total Cost", money(r.total_cost)]].map(([l, v]) =>
-        <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
-      <div className={BOX}><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-white/90">Items</h3>
+        <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
+      <div className={BOX}><h3 className="border-b border-gray-200 px-5 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">Items</h3>
         <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH + " text-end"}>Quantity</th></tr></thead><tbody>
           {(r.items || []).map((x: any, i: number) => { const it = item(x.itemId); return <tr key={i} className={TR}><td className={TD}>{it?.name || "(deleted item)"}</td><td className={TD + " text-end"}>{n2(x.qty)} {it?.storageUnit || ""}</td></tr>; })}
           {!(r.items || []).length && <tr><td colSpan={2} className={TD + " text-center text-gray-500"}>No items.</td></tr>}</tbody></table></div></div>
@@ -81,7 +81,7 @@ export default function OrderTxPage() {
       {err ? <EmptyState text={"Couldn't load the transactions: " + err} /> : rows === null ? <p className="p-10 text-center text-sm text-gray-500">Loading…</p> : !rows.length ? <EmptyState text="No transactions yet" /> :
         <div className="overflow-x-auto"><table className="w-full min-w-[760px]"><thead><tr>{["Reference", "Store", "Order Reference", "Type", "Business Date", "Created"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
           {rows.map(r => <tr key={r.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => open(r.id)}>
-            <td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{r.ref}</td><td className={TD}>{bName(r.branch_id)}</td><td className={TD}>{r.order_no || "—"}</td>
+            <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.ref}</td><td className={TD}>{bName(r.branch_id)}</td><td className={TD}>{r.order_no || "—"}</td>
             <td className={TD}><Badge variant="light" color={r.kind === "return" ? "warning" : "primary"}>{kindName(r.kind)}</Badge></td><td className={TD}>{bd(r)}</td><td className={TD}>{fmtDateTime(r.created_at)}</td></tr>)}</tbody></table></div>}
       <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row dark:border-gray-800">
         <span className="text-sm text-gray-500">{count} transaction{count === 1 ? "" : "s"}</span>{pages > 1 && <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />}</div>

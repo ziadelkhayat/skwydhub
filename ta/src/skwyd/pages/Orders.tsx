@@ -22,7 +22,7 @@ export const ST_COLOR: Record<string, any> = { closed: "success", active: "prima
 export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
-const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
+const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
 export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
 export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
 // every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
@@ -90,14 +90,14 @@ export default function OrdersPage() {
   }, []);
 
   const pages = Math.max(1, Math.ceil(count / PER));
-  const th = "px-5 py-3 text-start text-xs font-medium whitespace-nowrap text-gray-500 sm:px-6 dark:text-gray-400";
-  const td = "px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400";
-  const sub = "block text-theme-xs text-gray-500 dark:text-gray-400";
+  const th = "border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50";
+  const td = "px-4 py-2.5 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400";
+  const sub = "block text-xs text-gray-500 dark:text-gray-400";
 
   return (
     <>
       <PageBreadcrumb pageTitle="Orders" />
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
           {/* every tab shown (they wrap on small screens), the filters on the line under them */}
           <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
@@ -112,42 +112,42 @@ export default function OrdersPage() {
             <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           </div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {err ? <p className="p-6 text-sm text-red-500">Couldn't load orders: {err}</p>
             : !rows.length ? <EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />
             : <>
             {/* phones: one row per order, Tremor list style */}
             <ul className="divide-y divide-gray-100 md:hidden dark:divide-white/5">{rows.map(o => (
               <li key={o.id}><button type="button" onClick={() => openWin("/order?id=" + o.id)} className="flex w-full items-start justify-between gap-3 px-4 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
-                <span className="min-w-0"><span className="flex flex-wrap items-center gap-2"><b className="font-semibold text-gray-900 dark:text-white/90">{ordRef(o)}</b><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></span>
+                <span className="min-w-0"><span className="flex flex-wrap items-center gap-2"><b className="font-semibold text-gray-900 dark:text-gray-50">{ordRef(o)}</b><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></span>
                   <span className="block text-xs text-gray-500">{[TYPE_LBL[o.type] || o.type, srcOf(o), o.customerName].filter(Boolean).join(" · ")}</span>
                   <span className="block text-xs text-gray-400">{[branches.find(b => b.id === o.branchId)?.name, fmtDate(o.createdAt) + " " + new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })].filter(Boolean).join(" · ")}</span></span>
-                <b className="shrink-0 font-medium text-gray-900 dark:text-white/90">{money(o.total)}</b></button></li>))}</ul>
+                <b className="shrink-0 font-medium text-gray-900 dark:text-gray-50">{money(o.total)}</b></button></li>))}</ul>
             <table className="hidden min-w-full md:table">
-              <thead className="border-b border-gray-100 dark:border-white/5"><tr>
+              <thead className="border-b border-gray-200 dark:border-gray-800"><tr>
                 {["Reference", "Check Number", "Order", "Store", "Customer", "Status", "Order Type", "Order Source", "Business Date", "Opened At", "Payment Type"].map(h => <th key={h} className={th}>{h}</th>)}
                 <th className={th + " text-end"}>Total</th></tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {rows.map(o => { const t = new Date(o.createdAt);
                   return (
                     <tr key={o.id} onClick={() => openWin("/order?id=" + o.id)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                      <td className={td}><span className="font-medium text-gray-800 dark:text-white/90">{ordRef(o)}</span></td>
+                      <td className={td}><span className="font-medium text-gray-900 dark:text-gray-50">{ordRef(o)}</span></td>
                       <td className={td}>{chkNo(o)}</td>
                       <td className={td}>{o.no || "—"}</td>
                       <td className={td}>{branches.find(b => b.id === o.branchId)?.name || "—"}{brands.length > 1 && <span className={sub}>{brands.find(b => b.id === o.brandId)?.name || "—"}</span>}</td>
-                      <td className={td}><span className="block font-medium text-gray-800 dark:text-white/90">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</td>
+                      <td className={td}><span className="block font-medium text-gray-900 dark:text-gray-50">{o.customerName || "—"}</span>{o.phone && <span className={sub}>{tel(o.phone)}</span>}</td>
                       <td className={td}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td>
                       <td className={td}>{TYPE_LBL[o.type] || o.type || "—"}{o.type === "dinein" && o.table && <span className={sub}>{/^\d+$/.test(String(o.table).trim()) ? "Table " + String(o.table).trim() : o.table}</span>}</td>
                       <td className={td}>{srcOf(o) || "—"}</td>
                       <td className={td}>{fmtDate(o.createdAt)}</td>
                       <td className={td}>{fmtDate(o.createdAt)}<span className={sub}>{t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span></td>
                       <td className={td}>{o.payment?.method || "—"}</td>
-                      <td className={td + " text-end font-medium text-gray-800 dark:text-white/90"}>{money(o.total)}</td>
+                      <td className={td + " text-end font-medium text-gray-900 dark:text-gray-50"}>{money(o.total)}</td>
                     </tr>); })}
               </tbody>
             </table></>}
         </div>
-        {count > 0 && <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/5">
+        {count > 0 && <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
           <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
           <span className="pe-6 text-sm text-gray-500 dark:text-gray-400">{(page - 1) * PER + 1}–{Math.min(count, page * PER)} of {count.toLocaleString()}</span>
         </div>}
@@ -165,7 +165,7 @@ function FilterDialog({ F, onApply, onClose, brands, devices, sources, pays }: {
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Filter</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Filter</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {txt("ref", "Reference")}{txt("num", "Number")}
           {brands.length > 1 && sel("brand", "Brand", brands.map(b => [b.id, b.name]))}

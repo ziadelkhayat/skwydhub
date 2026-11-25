@@ -60,7 +60,7 @@ export default function CurrencyPage() {
     try { await put("settings", "company", { currency2: "", currencySymbol2: "", rate2: null, decimals2: 0, quickTender2: "" }); setOn2(false); setD((o: any) => ({ ...o, currency2: "", currencySymbol2: "", rate2: "", decimals2: 0 })); setQt(q => ({ ...q, 2: [] })); toast("Secondary currency deactivated"); }
     catch { toast("Couldn't save. Only the owner or an admin can change this.", "error"); }
   }
-  const box = "rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3";
+  const box = "rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]";
   return (
     <>
       <PageBreadcrumb pageTitle="Currency" />
@@ -68,11 +68,11 @@ export default function CurrencyPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400">The currency your menu prices are in, how many decimals they show, and an optional second currency.</p>
         {admin && <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>}
       </div>
-      {!admin && <p className="mb-6 rounded-xl border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change the currency.</p>}
-      {err && <p className="mb-6 rounded-xl border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
+      {!admin && <p className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change the currency.</p>}
+      {err && <p className="mb-6 rounded-md border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
       <div className="space-y-6">
         <div className={box}>
-          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Main Currency</h3>
+          <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-50">Main Currency</h3>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-3">
             <F l="Main currency" req help={locked ? "Set when the business was created. It can't be changed." : undefined}>
               <select className={SEL} disabled={!admin || locked} value={d.currency} onChange={e => setD((o: any) => ({ ...o, currency: e.target.value, currencySymbol: "", currency2: o.currency2 === e.target.value ? "" : o.currency2 }))}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
@@ -84,7 +84,7 @@ export default function CurrencyPage() {
             <Rounding k={1} code={d.currency} dec={dec(1)} saved={co.roundRules1 || []} admin={admin} /></div>
         </div>
         <div className={box}>
-          <div className="mb-5 flex items-center justify-between gap-4"><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Secondary Currency</h3>
+          <div className="mb-5 flex items-center justify-between gap-4"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Secondary Currency</h3>
             {admin && (on2 ? <Button variant="outline" onClick={off2}>Deactivate</Button> : <Button onClick={() => setOn2(true)}>Activate</Button>)}</div>
           {!on2 ? <p className="text-sm text-gray-500 dark:text-gray-400">The secondary currency is off: the POS and web ordering show prices and totals in the main currency only. Activate it to add one.</p> : <>
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -106,9 +106,9 @@ export default function CurrencyPage() {
 /** the cash shortcut buttons the cashier taps (up to 6); saved with the page's Save */
 function QuickTender({ code, list, set, admin }: { code: string; list: string[]; set: (l: string[]) => void; admin: boolean }) {
   return (
-    <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+    <div className="rounded-md border border-gray-200 p-4 dark:border-gray-800">
       <div className="mb-3 flex items-center gap-2"><span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-white/5 dark:text-gray-300">{code}</span>
-        <b className="text-sm font-medium text-gray-800 dark:text-white/90">Quick Tender · {curName(code)}</b><span className="ms-auto text-xs text-gray-500">{list.length} amount{list.length === 1 ? "" : "s"}</span></div>
+        <b className="text-sm font-medium text-gray-900 dark:text-gray-50">Quick Tender · {curName(code)}</b><span className="ms-auto text-xs text-gray-500">{list.length} amount{list.length === 1 ? "" : "s"}</span></div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{list.map((v, i) => (
         <div key={i} className="flex items-center gap-1"><span className="w-4 text-xs text-gray-400">{i + 1}</span>
           <Input className="h-10 flex-1" inputMode="decimal" disabled={!admin} aria-label={"Amount " + (i + 1)} value={v} onChange={e => set(list.map((x, j) => j === i ? e.target.value : x))} />
@@ -129,9 +129,9 @@ function Rounding({ k, code, dec, saved, admin }: { k: number; code: string; dec
     try { await put("settings", "company", { ["roundRules" + k]: n }); setErr(""); toast("Rounding rules saved"); } catch { setErr("Couldn't save. Only the owner or an admin can change this."); }
   }
   return (
-    <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+    <div className="rounded-md border border-gray-200 p-4 dark:border-gray-800">
       <div className="mb-3 flex items-center gap-2"><span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-white/5 dark:text-gray-300">{code}</span>
-        <b className="text-sm font-medium text-gray-800 dark:text-white/90">Rounding · {curName(code)}</b><span className="ms-auto text-xs text-gray-500">{l.length} rule{l.length === 1 ? "" : "s"}</span></div>
+        <b className="text-sm font-medium text-gray-900 dark:text-gray-50">Rounding · {curName(code)}</b><span className="ms-auto text-xs text-gray-500">{l.length} rule{l.length === 1 ? "" : "s"}</span></div>
       <div className="mb-3 flex gap-1">{Array.from({ length: 10 }, (_, d) => { const x = dig(d); return <span key={d} className={cn("flex size-7 items-center justify-center rounded-md text-xs font-medium", x === "up" ? "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400" : x === "down" ? "bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400" : "bg-gray-100 text-gray-500 dark:bg-white/5")}>{d}</span>; })}</div>
       <div className="space-y-2">{!l.length ? <p className="text-sm text-gray-500">No rules: totals are not rounded.</p> : l.map((r, i) => (
         <div key={i} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">From<Input className="h-9 w-16" type="number" min={0} max={9} disabled={!admin} value={r.from} onChange={e => setL(l.map((x, j) => j === i ? { ...x, from: e.target.value } : x))} />

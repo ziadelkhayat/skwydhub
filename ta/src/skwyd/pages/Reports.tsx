@@ -55,9 +55,9 @@ export default function ReportsPage() {
     <>
       <PageBreadcrumb pageTitle={hub[0]} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{hub[1].map(([k, t, d]) => (
-        <Link key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-theme-sm dark:border-gray-800 dark:bg-white/3">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-brand-500/15"><BarChartIcon className="size-6" /></span>
-          <span><b className="block font-semibold text-gray-800 group-hover:text-brand-500 dark:text-white/90">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></Link>))}</div>
+        <Link key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-sm dark:border-gray-800 dark:bg-[#090E1A]">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-brand-50 text-brand-500 dark:bg-brand-500/15"><BarChartIcon className="size-6" /></span>
+          <span><b className="block font-semibold text-gray-800 group-hover:text-brand-500 dark:text-gray-50">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></Link>))}</div>
     </>);
   return <Report key={hubKey + r} hubKey={hubKey} rk={r} back={() => nav("/" + hubKey)} />;
 }
@@ -210,7 +210,7 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
   return (
     <>
       <PageBreadcrumb pageTitle={rk === "sales" ? DIMS.find(d => d[0] === dim)?.[1] || name : name} />
-      <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 xl:flex-row xl:items-center dark:border-gray-800 dark:bg-white/3">
+      <div className="mb-6 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 xl:flex-row xl:items-center dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button variant="outline" size="icon-lg" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
           {rk === "sales" && <select aria-label="Report" className={SEL + " sm:w-52"} value={dim} onChange={e => { setDim(e.target.value); if (group === e.target.value) setGroup(""); }}>{DIMS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>}
@@ -221,20 +221,20 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
         </div>
         <div className="flex gap-3">{loading && <span className="self-center text-sm text-gray-500">Loading…</span>}<Button variant="outline" disabled={!B} onClick={exportCsv}><DownloadIcon className="size-5" />Export</Button><Button variant="outline" disabled={!B} onClick={print}>Print</Button></div>
       </div>
-      {err ? <p className="rounded-2xl border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:bg-red-500/10 dark:text-white/80">Couldn't load the report: {err}</p>
-        : !B ? <p className="rounded-2xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-white/3">Loading report…</p>
+      {err ? <p className="rounded-lg border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:bg-red-500/10 dark:text-white/80">Couldn't load the report: {err}</p>
+        : !B ? <p className="rounded-lg border border-gray-200 bg-white p-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-[#090E1A]">Loading report…</p>
         : <>
-          {B.kpis && B.rows.length > 0 && <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{B.kpis.map(([l, v]) => <div key={l} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3">
-            <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">{v}</h4>{delta(l)}</div>)}</div>}
-          {B.series && B.rows.length > 0 && <div className="mb-6 rounded-2xl border border-gray-200 bg-white px-5 pt-5 sm:px-6 dark:border-gray-800 dark:bg-white/3">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Sales By Day</h3><p className="mt-1 text-theme-sm text-gray-500">{B.series.labels[0]} – {B.series.labels[B.series.labels.length - 1]}{prev ? ` · compared with the ${nDays} days before` : ""}</p>
+          {B.kpis && B.rows.length > 0 && <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{B.kpis.map(([l, v]) => <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]">
+            <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4>{delta(l)}</div>)}</div>}
+          {B.series && B.rows.length > 0 && <div className="mb-6 rounded-lg border border-gray-200 bg-white px-5 pt-5 sm:px-6 dark:border-gray-800 dark:bg-[#090E1A]">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Day</h3><p className="mt-1 text-sm text-gray-500">{B.series.labels[0]} – {B.series.labels[B.series.labels.length - 1]}{prev ? ` · compared with the ${nDays} days before` : ""}</p>
             <ReactApexChart options={opts} series={[{ name: "Sales", data: B.series.values }]} type="area" height={280} /></div>}
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
             <div className="custom-scrollbar max-w-full overflow-x-auto">
               {!B.rows.length ? <EmptyState text="No data to display" />
-                : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{B.head.map(([l, tip, num]) => <th key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</th>)}</tr></thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-white/5">{B.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={TD + (B.head[j]?.[2] ? " text-end" : j === 0 ? " font-medium text-gray-800 dark:text-white/90" : "")}>{c}</td>)}</tr>)}</tbody>
-                  {B.foot && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr>{B.foot.map((c, j) => <td key={j} className={TD + " font-semibold text-gray-800 dark:text-white/90" + (B.head[j]?.[2] ? " text-end" : "")}>{c}</td>)}</tr></tfoot>}</table>}
+                : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{B.head.map(([l, tip, num]) => <th key={l} title={tip || undefined} className={TH + (num ? " text-end" : "")}>{l}{tip ? <span className="ms-1 text-gray-400">ⓘ</span> : null}</th>)}</tr></thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{B.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={TD + (B.head[j]?.[2] ? " text-end" : j === 0 ? " font-medium text-gray-900 dark:text-gray-50" : "")}>{c}</td>)}</tr>)}</tbody>
+                  {B.foot && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr>{B.foot.map((c, j) => <td key={j} className={TD + " font-semibold text-gray-900 dark:text-gray-50" + (B.head[j]?.[2] ? " text-end" : "")}>{c}</td>)}</tr></tfoot>}</table>}
             </div>
           </div>
         </>}

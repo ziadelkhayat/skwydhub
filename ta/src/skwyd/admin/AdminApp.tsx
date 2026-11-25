@@ -38,10 +38,10 @@ export default function AdminApp() {
 function SignIn({ msg, onIn }: { msg: string; onIn: () => void }) {
   const [em, setEm] = useState(""), [pw, setPw] = useState(""), [err, setErr] = useState(msg), [busy, setBusy] = useState(false);
   return <div className="flex min-h-dvh items-center justify-center bg-gray-50 p-6 dark:bg-gray-900">
-    <form className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/3" onSubmit={async e => { e.preventDefault(); setBusy(true); setErr("");
+    <form className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-[#090E1A]" onSubmit={async e => { e.preventDefault(); setBusy(true); setErr("");
       const { error } = await sb.auth.signInWithPassword({ email: em.trim(), password: pw }); setBusy(false); if (error) return setErr("Wrong email or password."); onIn(); }}>
       <div className="mb-6"><img src="/images/logo/logo.svg" alt="skwyd" className="mb-6 h-9 dark:hidden" onError={e => (e.currentTarget.style.display = "none")} />
-        <h1 className="text-title-sm font-semibold text-gray-800 dark:text-white/90">Skwyd Hub Admin</h1><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Sign in with your admin email and password.</p></div>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub Admin</h1><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Sign in with your admin email and password.</p></div>
       <div className="space-y-4">
         <div><label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email <span className="text-red-500">*</span></label><Input id="ae" className="h-9" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
         <div><label htmlFor="ap" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password <span className="text-red-500">*</span></label><Input id="ap" className="h-9" type="password" autoComplete="current-password" required value={pw} onChange={e => setPw(e.target.value)} /></div>
@@ -55,7 +55,7 @@ function Shell() {
   useEffect(() => setOpen(false), [pathname]);
   return <div className="min-h-dvh bg-gray-50 dark:bg-gray-900">
     <aside className={cn("fixed inset-y-0 start-0 z-50 flex w-[260px] flex-col border-e border-gray-200 bg-white px-4 transition-transform lg:translate-x-0 dark:border-gray-800 dark:bg-gray-900", open ? "translate-x-0" : "-translate-x-full rtl:translate-x-full")}>
-      <div className="flex h-[76px] items-center gap-3 px-2"><span className="flex size-10 items-center justify-center rounded-xl bg-brand-500 text-lg font-bold text-white">S</span><span><b className="block text-base font-semibold text-gray-800 dark:text-white/90">skwyd</b><span className="text-xs font-medium text-brand-500">admin</span></span></div>
+      <div className="flex h-[76px] items-center gap-3 px-2"><span className="flex size-10 items-center justify-center rounded-md bg-brand-500 text-lg font-bold text-white">S</span><span><b className="block text-base font-semibold text-gray-900 dark:text-gray-50">skwyd</b><span className="text-xs font-medium text-brand-500">admin</span></span></div>
       <nav className="flex flex-col gap-1 py-4">{NAV.map(([to, t, d]) => <NavLink key={to} to={to} end={to === "/"} className={({ isActive }) => cn("menu-item group", isActive || (to === "/companies" && pathname === "/company") ? "menu-item-active" : "menu-item-inactive")}><Ico d={d} />{t}</NavLink>)}</nav>
       <div className="mt-auto flex items-center gap-3 border-t border-gray-200 py-4 dark:border-gray-800"><span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-500 dark:bg-brand-500/15">{initials(me.email)}</span>
         <span className="min-w-0 flex-1 truncate text-sm text-gray-700 dark:text-gray-300">{me.email}</span></div>

@@ -61,13 +61,13 @@ export default function DevicesPage() {
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} />
           <Button onClick={() => setCreate(true)}><PlusIcon className="size-5" />Create Device</Button>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!list.length ? <EmptyState text={all.length ? "No devices of this type." : "No devices yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Type</th><th className={TH}>Status</th><th className={TH}>Store</th></tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{list.map(d => (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map(d => (
                 <tr key={d.id} className={TR} onClick={() => openWin("/devices?id=" + d.id)}>
-                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-800 dark:text-white/90"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></td>
+                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className={"size-2 rounded-full " + (online(d) ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />{d.name}</span></td>
                   <td className={TD}>{d.reference || "—"}</td><td className={TD}>{devType(d.type)}</td>
                   <td className={TD}>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</td>
                   <td className={TD}>{bName(d.branchId) || "—"}</td></tr>))}</tbody></table>}
@@ -99,13 +99,13 @@ function DevicePage({ d, s, bName, back }: { d: Row; s: S; bName: (id?: string) 
   return (
     <>
       <PageBreadcrumb pageTitle={d.name} />
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="space-y-6">
-          <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 p-5 lg:p-6 xl:flex-row xl:items-center xl:justify-between dark:border-gray-800">
+          <div className="flex flex-col gap-5 rounded-lg border border-gray-200 p-5 lg:p-6 xl:flex-row xl:items-center xl:justify-between dark:border-gray-800">
             <div className="flex items-center gap-4">
               <Button variant="outline" size="icon" className="shrink-0" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
               <div>
-                <h4 className="mb-1 text-lg font-semibold text-gray-800 dark:text-white/90">{d.name}</h4>
+                <h4 className="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-50">{d.name}</h4>
                 <p className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"><span className={"size-2 rounded-full " + (onl ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600")} />
                   {onl ? "Online" : d.activatedAt ? "Offline" : "Not activated"} · {devType(d.type)} · {bName(d.branchId) || "No store"}</p>
               </div>
@@ -139,8 +139,8 @@ function DevicePage({ d, s, bName, back }: { d: Row; s: S; bName: (id?: string) 
 }
 
 const DangerRow = ({ title, text, btn, onClick }: { title: string; text: string; btn: string; onClick: () => void }) => (
-  <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6 dark:border-gray-800">
-    <div><h4 className="text-base font-semibold text-gray-800 dark:text-white/90">{title}</h4><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{text}</p></div>
+  <div className="flex flex-col gap-4 rounded-lg border border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6 dark:border-gray-800">
+    <div><h4 className="text-base font-semibold text-gray-900 dark:text-gray-50">{title}</h4><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{text}</p></div>
     <Button variant="destructive" onClick={onClick}>{btn}</Button>
   </div>);
 
@@ -148,7 +148,7 @@ function Modal({ title, wide, onClose, footer, children }: { title: string; wide
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className={"max-h-[90dvh] w-full overflow-y-auto p-6 sm:p-8 " + (wide ? "sm:max-w-3xl" : "sm:max-w-2xl")}>
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{title}</DialogTitle></DialogHeader>
         {children}
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div>
       </DialogContent>
@@ -206,15 +206,15 @@ function EditDevice({ d, s, onClose, onDeactivate }: { d: Row; s: S; onClose: ()
         <F l="Type" full>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Type">{DEV_TYPES.map(([k, t]) => (
             <button key={k} type="button" role="radio" aria-checked={type === k} onClick={() => setType(k)}
-              className={"rounded-xl border p-3 text-start transition-colors " + (type === k ? "border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700")}>
-              <b className="block text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b><span className="text-xs text-gray-500 dark:text-gray-400">{TYPE_NOTE[k]}</span></button>))}</div></F>
-        <Field orientation="horizontal" className="col-span-full items-start gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+              className={"rounded-md border p-3 text-start transition-colors " + (type === k ? "border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10" : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700")}>
+              <b className="block text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b><span className="text-xs text-gray-500 dark:text-gray-400">{TYPE_NOTE[k]}</span></button>))}</div></F>
+        <Field orientation="horizontal" className="col-span-full items-start gap-3 rounded-md border border-gray-200 p-4 dark:border-gray-800">
           <Switch checked={master} onCheckedChange={v => setMaster(!!v)} />
-          <div><FieldLabel className="text-sm font-medium text-gray-800 dark:text-white/90">Receives online orders</FieldLabel>
+          <div><FieldLabel className="text-sm font-medium text-gray-900 dark:text-gray-50">Receives online orders</FieldLabel>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Web and call center orders ring on this device. Only one cashier per store; it also ends the day.</p></div></Field>
-        {d.code && <div className="col-span-full flex items-center justify-between gap-4 rounded-xl bg-gray-50 p-4 dark:bg-white/3">
-          <div><b className="block text-sm font-medium text-gray-800 dark:text-white/90">Activation code</b><span className="text-xs text-gray-500 dark:text-gray-400">{d.activatedAt ? "Already used · deactivate the device to get a new one" : "Type it on a new tablet to connect it"}</span></div>
-          <em className="font-mono text-lg tracking-widest text-gray-800 not-italic dark:text-white/90">{String(d.code).replace(/(\d{3})(?=\d)/, "$1 ")}</em></div>}
+        {d.code && <div className="col-span-full flex items-center justify-between gap-4 rounded-md bg-gray-50 p-4 dark:bg-[#090E1A]">
+          <div><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">Activation code</b><span className="text-xs text-gray-500 dark:text-gray-400">{d.activatedAt ? "Already used · deactivate the device to get a new one" : "Type it on a new tablet to connect it"}</span></div>
+          <em className="font-mono text-lg tracking-widest text-gray-800 not-italic dark:text-gray-50">{String(d.code).replace(/(\d{3})(?=\d)/, "$1 ")}</em></div>}
         {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
       </div>
     </Modal>);
@@ -231,7 +231,7 @@ function DeviceSettings({ d, onClose }: { d: Row; onClose: () => void }) {
   const txt = (k: string, l: string, help?: string, type = "text", ph?: string) => <F l={l} help={help}><Input className="h-9" type={type} placeholder={ph} value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
   const tg = (k: string, l: string, help: string) => (
     <Field orientation="horizontal" className="col-span-full items-start gap-3"><Switch checked={!!v[k]} onCheckedChange={x => set(k, !!x)} />
-      <div><FieldLabel className="text-sm font-medium text-gray-800 dark:text-white/90">{l}</FieldLabel><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{help}</p></div></Field>);
+      <div><FieldLabel className="text-sm font-medium text-gray-900 dark:text-gray-50">{l}</FieldLabel><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{help}</p></div></Field>);
   async function save() {
     const orderTypes = OT3.map(x => x[0]).filter(k => !off.includes(k));
     if (!orderTypes.length) return setErr("At least one order type must stay enabled.");
@@ -260,7 +260,7 @@ function DeviceSettings({ d, onClose }: { d: Row; onClose: () => void }) {
         {txt("kitchenPrinter", "Kitchen printer (IP address or name)", undefined, "text", "e.g. 192.168.1.50")}
         {txt("receiptPrinter", "Receipt printer (IP address or name)", undefined, "text", "Built-in / 192.168.1.51")}
         {txt("lockMinutes", "Auto-lock after (minutes idle)", "0 = never lock.", "number")}
-        <div className="col-span-full my-1 border-t border-gray-100 dark:border-white/5" />
+        <div className="col-span-full my-1 border-t border-gray-200 dark:border-gray-800" />
         {tg("autoAccept", "Auto Accept Web & API Orders", "Accept web and API orders on this device automatically and send them to the kitchen. Call center orders are still accepted by hand.")}
         {tg("printOnline", "Print Online Order Info When Received", "Print call center and web orders automatically when they arrive.")}
         {tg("noAutoPrint", "Disable Automatic Receipt Printing", "Don't print receipts automatically after payments or closing orders.")}
@@ -287,7 +287,7 @@ function CopySettings({ d, s, bName, onClose }: { d: Row; s: S; bName: (id?: str
   return (
     <Modal title="Copy Settings" onClose={onClose} footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={go}>{busy ? "Copying…" : "Copy"}</Button></>}>
       <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Copy the device settings of {d.name} to these {devType(d.type)} devices. Their current settings are replaced.</p>
-      <div className="mt-5 max-h-72 space-y-1 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">
+      <div className="mt-5 max-h-72 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-2 dark:border-gray-800">
         {!list.length ? <p className="p-3 text-sm text-gray-500">No other {devType(d.type)} devices</p> : list.map(x => (
           <label key={x.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/3">
             <Checkbox checked={pick.includes(x.id)} onCheckedChange={c => setPick(p => c ? [...p, x.id] : p.filter(y => y !== x.id))} />{x.name}{x.branchId ? <span className="text-gray-400"> · {bName(x.branchId)}</span> : null}</label>))}

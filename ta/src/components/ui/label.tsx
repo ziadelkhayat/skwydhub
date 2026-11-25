@@ -1,17 +1,9 @@
-import { cn } from "@/utils";
+// Tremor Raw Label look.
 import * as React from "react";
+import { cx } from "@/components/tremor/utils";
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
-  return (
-    <label
-      data-slot="label"
-      className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium text-[#364153] select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:text-[#99A1AF]",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <label data-slot="label" className={cx("flex items-center gap-2 text-sm font-medium leading-none text-gray-900 select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:text-gray-50", className)} {...props} />;
 }
 
 export { Label };

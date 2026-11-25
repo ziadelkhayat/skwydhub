@@ -69,7 +69,7 @@ export default function CallCenterPage() {
     <>
       <PageBreadcrumb pageTitle="Call Center" />
       {answers.length > 0 && <div className="mb-4 space-y-2">{answers.map(o => { const er = o.editRequest, no = er.status === "rejected", what = er.summary?.voidAll ? "void" : "change";
-        return <div key={er.id} className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-sm", no ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" : "border-green-200 bg-green-50 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400")}>
+        return <div key={er.id} className={cn("flex items-start gap-3 rounded-md border px-4 py-3 text-sm", no ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" : "border-green-200 bg-green-50 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400")}>
           <div className="flex-1"><b className="font-semibold">Order {o.ref || o.no}: {what} {no ? "rejected" : "approved"}</b> by {bName(o.branchId) || "the store"}{er.decidedBy ? " (" + er.decidedBy + ")" : ""}{no && er.reason ? <span className="block">Reason: {er.reason}</span> : null}{no ? <span className="block text-xs opacity-80">Nothing was changed on the order.</span> : null}</div>
           <button type="button" aria-label="Close" onClick={() => dismiss(er.id)} className="text-lg leading-none opacity-70 hover:opacity-100">×</button></div>; })}</div>}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -79,8 +79,8 @@ export default function CallCenterPage() {
       </div>
       <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-5">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
-          <div key={k} className="min-w-0 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
-            <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-800 dark:text-white/90">{t}</b>
+          <div key={k} className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
+            <div className="mb-3 flex items-center justify-between px-1"><b className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t}</b>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", col.length && k === "active" ? "bg-brand-500 text-white" : "bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300")}>{col.length}</span></div>
             <div className="space-y-3">{!col.length ? <p className="px-1 py-6 text-center text-xs text-gray-400">You don't have {k === "draft" ? "drafts" : t.toLowerCase() + " orders"}</p> : col.map(o => <Tile key={o.id} o={o} tm={tm} bName={bName} brName={brName} onOpen={() => openWin((["draft", "review", "pending", "active"].includes(o.status) ? "/call-center-order?id=" : "/order?id=") + o.id)} />)}</div>
           </div>); })}
@@ -107,8 +107,8 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
   const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
   return (
-    <button type="button" onClick={onOpen} className="block w-full rounded-xl border border-gray-200 bg-white p-3 text-start shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-800 dark:text-white/90">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
+    <button type="button" onClick={onOpen} className="block w-full rounded-md border border-gray-200 bg-white p-3 text-start shadow-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
+      <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-900 dark:text-gray-50">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>
       {o.status === "declined" && o.voidReason && <p className="mb-2 text-xs text-red-500">Reason: {o.voidReason}</p>}
       <div className="space-y-2">
         {o.type && <R k={o.type === "delivery" ? "Type" : o.type === "dinein" ? "In Store" : "Pickup"}>{TYPE[o.type] || o.type}</R>}
@@ -127,7 +127,7 @@ function FilterDlg({ F0, today, brands, branches, agents, onClose, onApply }: { 
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Filter</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <F l="Brand"><select className={SEL} value={v.brand} onChange={e => setV((p: any) => ({ ...p, brand: e.target.value, branch: "" }))}><option value="">Any</option>{brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
           <F l="Store"><select className={SEL} value={v.branch} onChange={e => set("branch", e.target.value)}><option value="">Any</option>{branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
