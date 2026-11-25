@@ -6,7 +6,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { sb } from "@/lib/supabase";
 import { ls } from "@/lib/util";
-import ThemeToggler from "@/pages/others/auth/theme-toggler";
+import ThemeToggler from "../ui/ThemeToggler";
 import { useState, type FormEvent } from "react";
 
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
