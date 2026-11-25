@@ -20,13 +20,13 @@ import { EmptyState } from "../ui/EmptyState";
 import { BOX, F, SEL, TD, TH } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
-import { addDays, csv, d10s, dayOf, dmy, empStores, hm, inBrand, LEAVE_T, monOf, overlaps, rqDays, rqUsed, t5, tcHrs, today, who } from "./em";
+import { addDays, csv, d10s, dayOf, dmy, empStores, hm, inBrand, inStore, LEAVE_T, monOf, overlaps, rqDays, rqUsed, t5, tcHrs, today, who } from "./em";
 
 export function StoreFilter({ s, brand, setBrand, branch, setBranch }: { s: S; brand: string; setBrand: (v: string) => void; branch: string; setBranch: (v: string) => void }) {
   const bl = s.brands.filter(b => live(b) && b.active !== false);
   return <>
-    {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); if (branch && !inBrand(s.branches, branch, v)) setBranch(""); }} all="All Brands" options={bl.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-    <FilterSelect title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+    {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setBranch(branch.split(",").filter(id => id && inBrand(s.branches, id, v)).join(",")); }} all="All Brands" options={bl.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+    <FilterSelect multiple title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={s.branches.filter(b => live(b) && b.active !== false && inBrand(s.branches, b.id, brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
   </>;
 }
 const Flags = ({ x }: { x: any }) => <>{x.unscheduled && <Badge className="ms-1" variant="light" color="light">Unscheduled</Badge>}{x.late ? <Badge className="ms-1" variant="light" color="error">Late {+x.late}m</Badge> : null}{x.earlyOut ? <Badge className="ms-1" variant="light" color="warning">Left {+x.earlyOut}m early</Badge> : null}</>;
@@ -40,14 +40,14 @@ export function TimeClockPage() {
   const doc: any = s.settings.find(x => x.id === "timeclock") || {}, log: any[] = (doc.log || []);
   const byId = Object.fromEntries(s.users.map(u => [u.id, u])), bName = (id: string) => s.branches.find(b => b.id === id)?.name || "—";
   const save = async (next: any) => { await put("settings", "timeclock", { open: { ...(doc.open || {}) }, log: [...log], ...next }); };
-  const open = Object.entries(doc.open || {}).map(([userId, o]: any) => ({ userId, ...o })).filter(o => (!branch || o.branchId === branch) && inBrand(s.branches, o.branchId, brand)).sort((a, b) => String(a.at).localeCompare(String(b.at)));
+  const open = Object.entries(doc.open || {}).map(([userId, o]: any) => ({ userId, ...o })).filter(o => inStore(branch, o.branchId) && inBrand(s.branches, o.branchId, brand)).sort((a, b) => String(a.at).localeCompare(String(b.at)));
   const clockOut = async (o: any) => {
     const u = byId[o.userId]; if (!(await askYes(`Clock out ${u?.name || o.name || "this employee"} now?`, "Clock Out"))) return;
     const op = { ...doc.open }; delete op[o.userId];
     try { await save({ open: op, log: [...log, { userId: o.userId, name: u?.name || o.name, branchId: o.branchId, deviceId: o.deviceId, in: o.at, out: new Date().toISOString(), editedBy: who(staff) }].slice(-2000) }); toast("Clocked out"); }
     catch { toast("Couldn't clock out. Check your connection.", "error"); }
   };
-  const rows = log.map((x, i) => ({ ...x, i })).filter(x => x && x.in && (() => { const d = dayOf(x.in); return d >= from && d <= to; })() && (!branch || x.branchId === branch) && inBrand(s.branches, x.branchId, brand) && (!emp || x.userId === emp)).sort((a, b) => String(b.in).localeCompare(String(a.in)));
+  const rows = log.map((x, i) => ({ ...x, i })).filter(x => x && x.in && (() => { const d = dayOf(x.in); return d >= from && d <= to; })() && inStore(branch, x.branchId) && inBrand(s.branches, x.branchId, brand) && (!emp || x.userId === emp)).sort((a, b) => String(b.in).localeCompare(String(a.in)));
   // totals per employee: hours, overtime over 8 h a day, estimated pay for hourly / daily rates
   const tot: Record<string, { hrs: number; days: Record<string, number>; late: number }> = {};
   rows.forEach(x => { const t = tot[x.userId] ||= { hrs: 0, days: {}, late: 0 }; if (x.late) t.late++; const h = tcHrs(x); t.hrs += h; const d = dayOf(x.in); t.days[d] = (t.days[d] || 0) + h; });
@@ -59,7 +59,7 @@ export function TimeClockPage() {
   rows.slice().sort((a, b) => String(a.in).localeCompare(String(b.in))).forEach(x => { const k = x.userId + "|" + dayOf(x.in), h = tcHrs(x), b0 = used[k] || 0; used[k] = b0 + h; otOf.set(x, Math.max(0, b0 + h - 8) - Math.max(0, b0 - 8)); });
   const leave: { at: string; r: Row; day: string }[] = [];
   s.work_requests.filter(r => !r.deleted && r.status === "approved" && r.kind === "time_off" && (r.leaveType === "annual" || r.leaveType === "sick") && (!emp || r.employeeId === emp)
-    && empStores(byId[r.employeeId], s.branches).some((b: string) => (!branch || b === branch) && inBrand(s.branches, b, brand))).forEach(r => {
+    && empStores(byId[r.employeeId], s.branches).some((b: string) => inStore(branch, b) && inBrand(s.branches, b, brand))).forEach(r => {
     for (let d = d10s(r.fromDay); d <= d10s(r.toDay || r.fromDay); d = addDays(d, 1)) if (d >= from && d <= to) leave.push({ at: d + "T00:00:00", r, day: d }); });
   const items = [...rows.map(x => ({ at: x.in, x })), ...leave].sort((a, b) => String(b.at).localeCompare(String(a.at)));
   const nm = (n: string) => { const p = String(n || "—").trim().split(/\s+/); return [p[0] || "—", p.slice(1).join(" ") || "—"]; };
@@ -144,8 +144,8 @@ export function RequestsPage() {
   const [tab, setTab] = useState("all"), [brand, setBrand] = useState(""), [branch, setBranch] = useState(""), [year, setYear] = useState(new Date().getFullYear()), [dec, setDec] = useState<Row | null>(null);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const reqs = s.work_requests.filter(r => !r.deleted), byId = Object.fromEntries(s.users.map(u => [u.id, u]));
-  const userIn = (u?: Row) => !brand && !branch ? true : empStores(u, s.branches).some((id: string) => (!branch || id === branch) && inBrand(s.branches, id, brand));
-  const rqIn = (r: Row) => { if (r.kind === "swap") { const sh = s.work_shifts.find(x => x.id === r.shiftId); if (sh?.branchId) return (!branch || sh.branchId === branch) && inBrand(s.branches, sh.branchId, brand); } return userIn(byId[r.employeeId]); };
+  const userIn = (u?: Row) => !brand && !branch ? true : empStores(u, s.branches).some((id: string) => inStore(branch, id) && inBrand(s.branches, id, brand));
+  const rqIn = (r: Row) => { if (r.kind === "swap") { const sh = s.work_shifts.find(x => x.id === r.shiftId); if (sh?.branchId) return inStore(branch, sh.branchId) && inBrand(s.branches, sh.branchId, brand); } return userIn(byId[r.employeeId]); };
   const all = reqs.filter(rqIn).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))), n = (k: string) => all.filter(r => r.status === k).length;
   const what = (r: Row) => { if (r.kind === "swap") { const sh = s.work_shifts.find(x => x.id === r.shiftId), w = byId[r.swapWith];
       return <>Swap Shift{sh ? ` · ${dmy(sh.day)} ${t5(sh.startTime)} – ${t5(sh.endTime)}` : ""}{w && <> with <b className="font-medium text-gray-900 dark:text-gray-50">{w.name}</b></>}</>; }

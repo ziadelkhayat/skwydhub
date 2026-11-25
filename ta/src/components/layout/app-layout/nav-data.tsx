@@ -1,4 +1,4 @@
-import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiUserSettingsLine, RiWallet3Line } from "@remixicon/react";
+import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiUserSettingsLine } from "@remixicon/react";
 import type { ComponentType } from "react";
 
 export type SubItem = { key: string; path: string };
@@ -26,7 +26,6 @@ export const businessItems: NavItem[] = [
   { icon: RiUserSettingsLine, key: "skEmployees", subItems: [s("skEmployeeList", "/users"), s("skRoles", "/roles"), s("skSchedule", "/schedule"), s("skTimeClock", "/time-clock"), s("skRequests", "/requests"), s("skPayroll", "/payroll"), s("skDocuments", "/documents"), s("skChats", "/team-chat"), s("skTasks", "/tasks"), s("skKnowledge", "/knowledge")] },
   { icon: RiSettings5Line, key: "skManage", subItems: [s("skBrands", "/brands"), s("skStores", "/branches"), s("skDevices", "/devices"), s("skTaxes", "/taxes"), s("skTaxGroups", "/tax-groups"), s("skCurrency", "/currency"), s("skPaymentMethods", "/payment-methods"), s("skOrderSources", "/order-sources"), s("skCharges", "/charges"), s("skKitchenFlows", "/kitchen-flows"), s("skReasons", "/reasons"), s("skTags", "/tags"), s("skApplications", "/applications")] },
   { icon: RiApps2Line, key: "skMarketplace", path: "/marketplace" },
-  { icon: RiWallet3Line, key: "skSubscription", path: "/subscription" },
 ];
 
 export const LABELS: Record<string, string> = {

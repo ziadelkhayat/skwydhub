@@ -9,7 +9,12 @@ import { cx, focusRing } from "../utils";
 
 type Opt = { value: string; label: string };
 
-export function FilterSelect({ title, options, value, onChange, all, required }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean }) {
+/** several choices kept as one comma-joined string ("a,b"); "" = all */
+export const inSel = (sel: string, v: unknown) => !sel || sel.split(",").includes(String(v ?? ""));
+export const selList = (sel: string) => (sel ? sel.split(",") : []);
+
+export function FilterSelect({ title, options, value, onChange, all, required, multiple }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean; multiple?: boolean }) {
+  if (multiple) return <FilterMulti title={title} options={options} value={selList(value)} onChange={l => onChange(l.join(","))} />;
   const [open, setOpen] = React.useState(false);
   const cur = options.find(o => o.value === value);
   return (

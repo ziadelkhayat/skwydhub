@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel } from "@/components/tremor/data-table/FilterSelect";
 import { ChoiceButton } from "../ui/Choice";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -30,7 +30,7 @@ export default function SchedulePage() {
   const s = useS(["work_shifts", "work_requests", "users", "branches", "brands", "settings"]);
   const [brand, setBrand] = useState(""), [br0, setBr] = useState(""), [view, setView] = useState("week"), [at, setAt] = useState(today());
   const [form, setForm] = useState<{ id?: string; emp?: string; day: string } | null>(null), [sales, setSales] = useState<Record<string, number>>({}), [over, setOver] = useState("");
-  const brs = (s?.branches || []).filter(b => live(b) && b.active !== false && (!brand || !b.brandId || b.brandId === brand));
+  const brs = (s?.branches || []).filter(b => live(b) && b.active !== false && (!brand || !b.brandId || inSel(brand, b.brandId)));
   const br = brs.some(b => b.id === br0) ? br0 : brs[0]?.id || "";
   const mStart = at.slice(0, 8) + "01", mLen = new Date(+at.slice(0, 4), +at.slice(5, 7), 0).getDate();
   const first = view === "day" ? at : view === "month" ? mStart : monOf(at), nDays = view === "day" ? 1 : view === "month" ? mLen : 7;
@@ -38,7 +38,7 @@ export default function SchedulePage() {
   // sales per day of this store, for labor %
   useEffect(() => { if (!br) return; let off = false;
     (async () => { const { data, error } = await sb.from("orders").select("total,status,created_at,brand_id").eq("branch_id", br).in("status", ["closed", "returned"]).gte("created_at", new Date(first + "T00:00:00").toISOString()).lt("created_at", new Date(addDays(first, nDays) + "T00:00:00").toISOString()).limit(10000);
-      if (off || error) return; const m: Record<string, number> = {}; (data || []).filter((o: any) => !brand || o.brand_id === brand).forEach((o: any) => { const d = isoOf(new Date(o.created_at)); m[d] = (m[d] || 0) + (+o.total || 0); }); setSales(m); })();
+      if (off || error) return; const m: Record<string, number> = {}; (data || []).filter((o: any) => !brand || inSel(brand, o.brand_id)).forEach((o: any) => { const d = isoOf(new Date(o.created_at)); m[d] = (m[d] || 0) + (+o.total || 0); }); setSales(m); })();
     return () => { off = true; }; }, [br, first, nDays, brand]);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   if (!brs.length) return <><PageBreadcrumb pageTitle="Schedule" /><EmptyState text="No stores yet. Add a store first (Manage → Stores)." /></>;
@@ -112,7 +112,7 @@ export default function SchedulePage() {
       <PageBreadcrumb pageTitle="Schedule" />
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          {<FilterSelect title="Brand" value={brand} onChange={v => setBrand(v)} all="All Brands" options={s.brands.filter(b => live(b) && b.active !== false).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+          {<FilterSelect multiple title="Brand" value={brand} onChange={v => setBrand(v)} all="All Brands" options={s.brands.filter(b => live(b) && b.active !== false).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
           <FilterSelect title="Store" value={br} onChange={v => setBr(v)} required options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} />
           <SegTabs value={view} onChange={setView} items={[["day", "Day"], ["week", "Week"], ["month", "Month"]]} />
           <div className="flex items-center gap-2"><Button variant="outline" size="icon-lg" aria-label="Previous" onClick={() => step(-1)}><ChevronLeftIcon className="size-5" /></Button>

@@ -62,7 +62,7 @@ export default function PayrollPage() {
   const st = { ...DEF, ...((s.settings.find(x => x.id === "payroll_settings") as any) || {}) }, doc: any = s.settings.find(x => x.id === "payroll_" + m), closed = doc?.status === "closed";
   const saveDoc = async (patch: any) => { const { id: _i, updatedAt: _u, createdAt: _c, ...cur } = doc || { month: m, lines: {}, status: "draft" }; await put("settings", "payroll_" + m, { ...cur, ...patch }); };
   let lines: any[] = closed && doc.snapshot ? doc.snapshot : compute(s, m, st);
-  if (branch) lines = lines.filter(l => (l.br || {})[branch]); else if (brand) lines = lines.filter(l => Object.keys(l.br || {}).some(b => inBrand(s.branches, b, brand)));
+  if (branch) lines = lines.filter(l => branch.split(",").some(id => (l.br || {})[id])); else if (brand) lines = lines.filter(l => Object.keys(l.br || {}).some(b => inBrand(s.branches, b, brand)));
   const tot = (k: string) => lines.reduce((a, l) => a + (+l[k] || 0), 0), ml = new Date(m + "-15T12:00:00").toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   const step = (n: number) => { const [y, mo] = m.split("-").map(Number), d = new Date(y, mo - 1 + n, 15); setM(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")); };
   // cost by store: each person's gross split by the hours they worked at each store

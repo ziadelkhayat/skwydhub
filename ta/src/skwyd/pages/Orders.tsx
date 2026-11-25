@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -40,7 +40,7 @@ const SGRP: Record<string, string[]> = { draft: ["draft"], pending: ["pending", 
 function applyF(q: any, F: Record<string, string>) {
   const cl = (v?: string) => String(v || "").trim().replace(/[,()*%\\]/g, " ").trim();
   if (F.from) { const a = new Date(F.from + "T00:00:00"), b = new Date((F.to || F.from) + "T00:00:00"); b.setDate(b.getDate() + 1); q = q.gte("created_at", a.toISOString()).lt("created_at", b.toISOString()); }
-  if (F.branch) q = q.eq("branch_id", F.branch); if (F.brand) q = q.eq("brand_id", F.brand);
+  if (F.branch) q = q.in("branch_id", F.branch.split(",")); if (F.brand) q = q.in("brand_id", F.brand.split(","));
   if (F.source) q = q.eq("source", F.source); if (F.channel) q = q.eq("channel", F.channel);
   if (F.type) q = F.type === "pickup" ? q.in("type", ["pickup", "takeaway"]) : q.eq("type", F.type);
   if (F.pay) q = q.ilike("payment->>method", F.pay);
@@ -121,8 +121,8 @@ export default function OrdersPage() {
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder="Search reference, customer, phone..."
           toolbar={<>
-            {<FilterSelect title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: F.branch && v && branches.find(b => b.id === F.branch)?.brandId !== v ? "" : F.branch || "" }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-            <FilterSelect title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && (!F.brand || b.brandId === F.brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            {<FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+            <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <div className="sm:w-56 [&_button]:h-[30px] [&_button]:py-1"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
             <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           </>}

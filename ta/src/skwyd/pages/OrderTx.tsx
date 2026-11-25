@@ -30,10 +30,10 @@ export default function OrderTxPage() {
   const [sp, setSp] = useSearchParams(), openId = sp.get("id");
   const [brand, setBrand] = useState(""), [branch, setBranch] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[] | null>(null), [count, setCount] = useState(0), [err, setErr] = useState(""), [one, setOne] = useState<any>(null);
-  const brIds = s ? s.branches.filter(b => live(b) && (!brand || b.brandId === brand)).map(b => b.id) : [];
+  const brIds = s ? s.branches.filter(b => live(b) && (!brand || brand.split(",").includes(b.brandId))).map(b => b.id) : [];
   useEffect(() => { if (!s) return; let off = false; setRows(null);
     let q = sb.from("order_transactions").select("*", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * PER, page * PER - 1);
-    if (branch) q = q.eq("branch_id", branch); else if (brand) q = q.in("branch_id", brIds.length ? brIds : ["-"]);
+    if (branch) q = q.in("branch_id", branch.split(",")); else if (brand) q = q.in("branch_id", brIds.length ? brIds : ["-"]);
     q.then(({ data, error, count }) => { if (off) return; if (error) { setErr(error.message); setRows([]); } else { setErr(""); setRows(data || []); setCount(count ?? (page - 1) * PER + (data || []).length); } });
     return () => { off = true; }; }, [!!s, brand, branch, page]); // eslint-disable-line react-hooks/exhaustive-deps
   // an opened transaction that isn't on this page (a shared link) is loaded on its own
