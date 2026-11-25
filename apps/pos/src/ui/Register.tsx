@@ -25,14 +25,14 @@ import { usePins } from "../lib/pos";
 import { Sheet } from "./Pickers";
 import { Bubble, notify, touched } from "./Bubble";
 import { OrdersList, PDBoard } from "./Boards";
-import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, RetrieveDialog, type Held } from "./Extras";
+import { ChargesDialog, DiscountDialog, NotesDialog, ReasonAsk, type Held } from "./Extras";
 import type { Row } from "../lib/db";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAudioPlayer } from "expo-audio";
 import { useStore } from "../lib/store";
 import { C, F, R, shadowXs } from "../lib/theme";
 import { Icon } from "./Icon";
-import { ChargesPop, DiscountPop, NotesPop, Popover } from "./Pops";
+import { ChargesPop, DiscountPop, HeldPop, NotesPop, Popover } from "./Pops";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { onAlertOpen, pendingCount } from "./Alert";
 import { Btn, Card, Pill, T } from "./kit";
@@ -188,10 +188,13 @@ export function Register() {
     const l = await heldList(), n = Math.max(0, ...l.map(h => h.n)) + 1;
     await AsyncStorage.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes } }]));
     reset(); say("Order held as H" + n); };
-  const retrieve = async () => { const l = await heldList(); const h = await ask<Held | null>(done => <RetrieveDialog held={l} cur={cur} onDone={done} />); if (!h) return;
+  const [held, setHeld] = useState<Held[]>([]);
+  const heldLabel = (h: Held) => { const d = h.data || {}; return d.table ? tblLbl(d.table) : [TYPE_LBL[d.otype as OType] || d.otype, d.cust?.name].filter(Boolean).join(" · "); };
+  const delHeld = async (h: Held) => { const l = (await heldList()).filter(y => y.id !== h.id); await AsyncStorage.setItem(HK, JSON.stringify(l)); setHeld(l); setHeldN(l.length); if (!l.length) setPop(null); };
+  const retrieve = async (h: Held) => { setPop(null); const l = await heldList();
     if (cart.length) return say("Finish or hold the current order first");
     const d = h.data; setCart(d.cart); setOtype(d.otype); setTable(d.table); setCust(d.cust); setDisc(d.disc); setPicked(d.picked); setOpenCh(d.openCh); setNotes(d.notes);
-    await AsyncStorage.setItem(HK, JSON.stringify(l.filter(y => y.id !== h.id))); };
+    await AsyncStorage.setItem(HK, JSON.stringify(l.filter(y => y.id !== h.id))); setHeldN(l.length - 1); };
   const [heldN, setHeldN] = useState(0);
   useEffect(() => { heldList().then(l => setHeldN(l.length)); }, [cart.length, dlg]); // eslint-disable-line react-hooks/exhaustive-deps
   const usable = (a: string) => {
@@ -227,7 +230,7 @@ export function Register() {
     if (a === "Tags") { const cur0 = tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : []); const r = await ask<string[] | null>(done => <TagsDialog S={S} init={cur0} onDone={done} />);
       if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } return; }
     if (a === "Hold") return hold();
-    if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); return retrieve(); }
+    if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop({ k: a, ax }); }
     say(a + " comes in the next step.");
   };
   // Print: the bill of this order (or its receipt when done); Kitchen: the ticket of what wasn't sent yet (all of it on a new order)
@@ -437,8 +440,9 @@ export function Register() {
         </View>
       </View>
 
-      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : 370} maxX={W} onClose={() => setPop(null)}>
-        {pop.k === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
+      {pop ? <Popover ax={pop.ax} top={insTop + 12 + ab} width={pop.k === "Discount" ? 540 : pop.k === "Retrieve" ? 580 : 370} maxX={W} onClose={() => setPop(null)}>
+        {pop.k === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} maxH={H - (insTop + 12 + ab + 8) - 80} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
+          : pop.k === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
           : pop.k === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
           : <NotesPop init={notes} onDone={r => { setPop(null); if (r) setNotes(r); }} />}
       </Popover> : null}

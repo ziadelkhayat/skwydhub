@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { chargeList, dsCalc, dsHere, type Ctx, type Disc, type Line } from "../lib/pos";
 import { C, F, R } from "../lib/theme";
+import type { Held } from "./Extras";
 import { Icon } from "./Icon";
 import { Btn, T } from "./kit";
 
@@ -102,4 +103,37 @@ export function NotesPop({ init, onDone }: { init: { receipt: string; kitchen: s
     <Row onPress={() => { setWhich(k); setT(init[k] || ""); }}><View style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}><Icon name={ic} size={18} color={C.brand600} /></View>
       <View style={{ flex: 1 }}><T w="m" size={14.5}>{l}</T><T size={12.5} color={C.mut} numberOfLines={1}>{init[k] || help}</T></View></Row>;
   return <View><R2 k="kitchen" ic="till" l="Kitchen Note" help="Printed on the kitchen ticket" /><R2 k="receipt" ic="note" l="Receipt Note" help="Printed for the customer" /></View>;
+}
+
+// Held orders (Retrieve): a list under the button; it scrolls when there are more than fit on the screen
+export function HeldPop({ held, cur, label, maxH, onPick, onDelete, onClose }: { held: Held[]; cur: (n: number) => string; label: (h: Held) => string; maxH: number;
+  onPick: (h: Held) => void; onDelete: (h: Held) => void; onClose: () => void }) {
+  const [sure, setSure] = useState("");
+  const tm = (s: string) => new Date(s).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return (
+    <View>
+      <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 }}>
+        <T w="s" size={16} style={{ flex: 1 }}>Held Orders <T size={15} color={C.mut}>{held.length}</T></T>
+        <Pressable accessibilityLabel="Close" hitSlop={8} onPress={onClose} style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}><Icon name="x" size={18} color={C.mut} /></Pressable>
+      </View>
+      {!held.length ? <T color={C.mut} style={{ padding: 12 }}>No held orders on this register.</T> :
+      <ScrollView style={{ maxHeight: Math.max(160, maxH) }} showsVerticalScrollIndicator>
+        {held.map(h => { const lines: any[] = h.data?.cart || [], n = lines.reduce((a, l) => a + (+l.qty || 0), 0);
+          return (
+          <View key={h.id} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: C.line2 }}>
+            <View style={{ width: 44, height: 44, borderRadius: R.lg, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}><T w="s" size={15} color={C.brand}>H{h.n}</T></View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <T w="s" size={14.5} numberOfLines={1}>{label(h)} · {n} {n === 1 ? "item" : "items"}</T>
+              <T size={12.5} color={C.mut} numberOfLines={1}>{lines.map(l => (+l.qty > 1 ? l.qty + "× " : "") + l.name).join(", ")}</T>
+            </View>
+            <View style={{ alignItems: "flex-end" }}><T w="s" size={14.5}>{cur(h.total)}</T><T size={12.5} color={C.mut}>{tm(h.at)}</T></View>
+            {sure === h.id
+              ? <Btn kind="danger" height={44} label="Delete" onPress={() => { setSure(""); onDelete(h); }} />
+              : <Pressable accessibilityLabel={"Delete H" + h.n} onPress={() => setSure(h.id)} style={({ pressed }) => ({ width: 44, height: 44, borderRadius: R.md, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.badBg : "#fff", alignItems: "center", justifyContent: "center" })}>
+                  <Icon name="trash" size={18} color={C.bad} /></Pressable>}
+            <Btn kind="primary" height={44} label="Retrieve" onPress={() => onPick(h)} />
+          </View>); })}
+      </ScrollView>}
+    </View>
+  );
 }
