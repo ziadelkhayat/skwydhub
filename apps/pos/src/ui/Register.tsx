@@ -298,8 +298,8 @@ export function Register() {
     if (l.saved) return say("This item was sent to the kitchen. Void it to change it.");
     const md = modData(x, p); if (!md.links.length) return lineExtras(i, "note");   // no modifiers: a tap edits the item's note
     const base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
-    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={modArea} edit={{ options: l.options || [], note: l.note }} onDone={done} />); if (!r) return;
-    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, mods: modLabel(r.mods, r.note) }; if (r.options.length) z.options = r.options; else delete z.options; if (r.note) z.note = r.note; else delete z.note; if (!z.mods) delete z.mods; return reDisc(z); })); };
+    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={modArea} edit={{ options: l.options || [], note: l.note, qty: l.qty }} onDone={done} />); if (!r) return;
+    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, mods: modLabel(r.mods, r.note), ...(r.qty ? { qty: r.qty } : {}) }; if (r.options.length) z.options = r.options; else delete z.options; if (r.note) z.note = r.note; else delete z.note; if (!z.mods) delete z.mods; return reDisc(z); })); };
   // a long press: the line's discount; a tap on an item without modifiers: its note
   const lineExtras = async (i: number, part?: "note" | "disc") => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     const canPct = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), canAmt = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");

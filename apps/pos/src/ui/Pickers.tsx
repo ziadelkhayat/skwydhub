@@ -32,13 +32,13 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
 export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string; qty?: number };
 // edit: a cart line being changed (its options start picked, its note is filled in, and the button says Save)
 // area: the menu's place on the register (option W): the options open there, big for touch, and the cart stays in view; without it, a window
-export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; edit?: { options: { id: string; modifierId?: string }[]; note?: string };
+export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; edit?: { options: { id: string; modifierId?: string }[]; note?: string; qty?: number };
   area?: { left: number; top: number; width: number; cover?: number } }) {
   const links = data.links.map(l => ({ ...l, opts: data.options.filter(o => o.modifierId === l.modifierId) }));
   const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {};
     if (edit) { edit.options.forEach(o => { if (l.opts.some(y => y.id === o.id) && (!o.modifierId || o.modifierId === l.modifierId)) m[o.id] = (m[o.id] || 0) + 1; }); return m; }
     (l.defaults || []).forEach(id => { if (l.opts.some(o => o.id === id)) m[id] = 1; }); return m; }));
-  const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState(""), [qty, setQty] = useState(1);
+  const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState(""), [qty, setQty] = useState(edit?.qty || 1);   // editing a cart line starts at its quantity
   const cnt = (gi: number) => Object.values(sel[gi]).reduce((a, n) => a + n, 0);
   const units = (gi: number) => links[gi].opts.flatMap(o => Array(sel[gi][o.id] || 0).fill(o) as ModOpt[]);
   const price = () => { let t = basePrice; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(o => { if (free > 0) free--; else t += o.price; }); }); return t; };
@@ -98,13 +98,13 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 14, backgroundColor: "#fff", borderTopWidth: 1, borderColor: C.line }}>
             <TextInput value={note} onChangeText={setNote} placeholder="Note for this item" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
               style={{ flex: 1, height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, paddingHorizontal: 16, fontFamily: F.r, fontSize: 14, color: C.ink, backgroundColor: "#fff" }} />
-            {!edit ? <View style={{ flexDirection: "row", alignItems: "center", height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, backgroundColor: "#fff" }}>
+            {true ? <View style={{ flexDirection: "row", alignItems: "center", height: 56, borderWidth: 1, borderColor: C.field, borderRadius: 6, backgroundColor: "#fff" }}>
               <Pressable accessibilityLabel="One less" onPress={() => setQty(q => Math.max(1, q - 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="minus" size={22} color={C.brand} /></Pressable>
               <T w="s" size={16} style={{ minWidth: 34, textAlign: "center" }}>{qty}</T>
               <Pressable accessibilityLabel="One more" onPress={() => setQty(q => Math.min(99, q + 1))} style={{ width: 56, height: 54, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={22} color={C.brand} /></Pressable>
             </View> : null}
             <Pressable accessibilityRole="button" onPress={ok} style={({ pressed }) => ({ height: 56, paddingHorizontal: 24, borderRadius: 6, backgroundColor: pressed ? C.brand800 : C.brand, alignItems: "center", justifyContent: "center" })}>
-              <T w="s" size={16} color="#fff">{(edit ? "Save · " : "Add · ") + money(price() * (edit ? 1 : qty))}</T></Pressable>
+              <T w="s" size={16} color="#fff">{(edit ? "Save · " : "Add · ") + money(price() * qty)}</T></Pressable>
           </View>
         </View>
       </>
