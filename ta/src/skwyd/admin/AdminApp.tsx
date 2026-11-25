@@ -1,5 +1,5 @@
 // Skwyd Hub admin (admin.skwydhub.com) in the portal's TailAdmin look: sign in with email and password (Skwyd Hub admins only),
-// then Dashboard, Companies (each company's plan, owner and invoices), Invoices, Price List and Settings. Replaces hub.html (still at /hub).
+// then Dashboard, Companies (each company's plan, owner and invoices), Invoices, Price List and Settings. Replaces the old hub.html admin.
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts";

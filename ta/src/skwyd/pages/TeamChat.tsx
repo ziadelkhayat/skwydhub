@@ -111,10 +111,10 @@ function GroupDialog({ s, g, kind, by, onClose, onSaved, onDeleted }: { s: S; g?
 
 /* ---------- Manage → Applications ---------- */
 const APPS: [string, string, string, string, string][] = [
-  ["pos", "Point Of Sale App", "The cashier app on the store tablets: orders, payments, tables, tills, end of day. Staff sign in with their PIN.", "Android tablet", "https://ziadelkhayat.github.io/skwydhub/skwydhub-pos.apk"],
-  ["team", "Employee App", "For every employee: clock in and out, schedule, chats, guides and time-off requests. Sign in with the phone number and a WhatsApp code.", "Android phone", "https://ziadelkhayat.github.io/skwydhub/skwyd-team.apk"],
-  ["driver", "Driver App", "For delivery drivers: the orders they're given, the customer's map and phone, picked up and delivered. Sign in with the phone number and a WhatsApp code.", "Android phone", "https://ziadelkhayat.github.io/skwydhub/skwyd-driver.apk"],
-  ["insights", "Insights App", "For the owner: sales, today's orders, who's clocked in, the schedule, requests, chats, tasks and guides, live. Sign in with the account number, phone number and a WhatsApp code.", "Android phone", "https://ziadelkhayat.github.io/skwydhub/skwyd-insights.apk"],
+  ["pos", "Point Of Sale App", "The cashier app on the store tablets: orders, payments, tables, tills, end of day. Staff sign in with their PIN.", "Android tablet", location.origin + "/skwydhub-pos.apk"],
+  ["team", "Employee App", "For every employee: clock in and out, schedule, chats, guides and time-off requests. Sign in with the phone number and a WhatsApp code.", "Android phone", location.origin + "/skwyd-team.apk"],
+  ["driver", "Driver App", "For delivery drivers: the orders they're given, the customer's map and phone, picked up and delivered. Sign in with the phone number and a WhatsApp code.", "Android phone", location.origin + "/skwyd-driver.apk"],
+  ["insights", "Insights App", "For the owner: sales, today's orders, who's clocked in, the schedule, requests, chats, tasks and guides, live. Sign in with the account number, phone number and a WhatsApp code.", "Android phone", location.origin + "/skwyd-insights.apk"],
   ["manager", "Manager App", "For store and area managers: sales, orders, staff and approvals on the phone.", "Android phone", ""]];
 export function ApplicationsPage() {
   const copy = async (u: string) => { try { await navigator.clipboard.writeText(u); toast("Link copied"); } catch { toast("Couldn't copy the link", "error"); } };

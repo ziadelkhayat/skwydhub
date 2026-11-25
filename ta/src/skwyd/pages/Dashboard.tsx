@@ -4,7 +4,7 @@
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { useTheme } from "@/contexts";
 import { BanknoteUndoIcon, BoxIcon, CartIcon, ClockIcon, DollarIcon, OctagonAlertIcon, TagIcon, TicketIcon, UserDollarIcon, XIcon } from "@/icons";
-import MetricCard from "@/pages/main/dashboard/ecommerce/components/metrics/metric-card";
+import MetricCard from "../ui/MetricCard";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
