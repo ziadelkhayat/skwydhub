@@ -1,4 +1,4 @@
-import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold, useFonts } from "@expo-google-fonts/outfit";
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts } from "@expo-google-fonts/inter";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
@@ -7,7 +7,7 @@ import { StoreProvider } from "../lib/store";
 import { C } from "../lib/theme";
 
 export default function Layout() {
-  const [ok] = useFonts({ Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold });
+  const [ok] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
   if (!ok) return <View style={{ flex: 1, backgroundColor: C.bg }} />;
   return (
     <StoreProvider>

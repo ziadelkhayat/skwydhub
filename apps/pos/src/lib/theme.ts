@@ -6,6 +6,6 @@ export const C = {
   line: "#E5E7EB", line2: "#F3F4F6", field: "#D1D5DB",
   ok: "#047857", okBg: "#ECFDF5", warn: "#B45309", warnBg: "#FFFBEB", bad: "#DC2626", badBg: "#FEF2F2",
 };
-export const F = { r: "Outfit_400Regular", m: "Outfit_500Medium", s: "Outfit_600SemiBold", b: "Outfit_700Bold" };
+export const F = { r: "Inter_400Regular", m: "Inter_500Medium", s: "Inter_600SemiBold", b: "Inter_700Bold" };
 export const R = { sm: 6, md: 6, lg: 8 };
 export const shadowXs = { shadowColor: "#000000", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 };

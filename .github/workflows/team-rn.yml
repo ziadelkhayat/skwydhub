@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [team, driver]   # one code base: EXPO_PUBLIC_SKWYD_APP=driver adds the delivery orders
+        app: [team, driver, insights]   # one code base: EXPO_PUBLIC_SKWYD_APP=driver adds the delivery orders; insights is the owner's app
     env:
       EXPO_PUBLIC_SKWYD_APP: ${{ matrix.app }}
     defaults:
@@ -48,4 +48,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete ${{ matrix.app }}-rn --yes --cleanup-tag || true
-          gh release create ${{ matrix.app }}-rn skwyd-${{ matrix.app }}-rn.apk --prerelease --title "SKWYD ${{ matrix.app == 'driver' && 'Driver' || 'Team' }} (React Native) preview" --notes "Built from ${GITHUB_SHA::7}. Installs next to the current app."
+          gh release create ${{ matrix.app }}-rn skwyd-${{ matrix.app }}-rn.apk --prerelease --title "SKWYD ${{ matrix.app == 'driver' && 'Driver' || matrix.app == 'insights' && 'Insights' || 'Team' }} (React Native) preview" --notes "Built from ${GITHUB_SHA::7}. Installs next to the current app."
