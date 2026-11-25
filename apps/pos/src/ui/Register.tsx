@@ -436,14 +436,14 @@ export function Register() {
           </ScrollView> : null}
         </View>
         {pages > 1 ? <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: -6 }}>{Array.from({ length: pages }, (_, i) => <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: i === page ? C.brand600 : C.line }} />)}</View> : null}
-        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, gap: AG }}>{/* each one in its own blue box (like TOTAL), all the same width */}
+        <View style={{ flexDirection: "row", height: 56, marginBottom: 16, backgroundColor: "#fff", borderRadius: R.sm, borderWidth: 1, borderColor: C.line, justifyContent: "space-evenly", alignItems: "center" }}>{/* one white box, blue text */}
           {([["grid", "Functions"], ["list", "Orders"], ["table", "Tables"], ["scooter", "Pickup & Delivery"], ["plus", "New"]] as const).map(([ic, l]) => (
             <Pressable key={l} accessibilityRole="button" onPress={() => (setNav(l), l === "New" ? reset() : l === "Orders" ? setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />) : l === "Functions" ? setMore(v => !v)
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
-              style={({ pressed }) => ({ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 56, paddingHorizontal: 4, borderRadius: 6, backgroundColor: pressed ? C.brand500 : C.brand600 })}>
-              <Icon name={ic} size={19} color="#fff" /><T w="s" size={l.length > 12 ? 13.5 : 15} color="#fff" numberOfLines={2} style={{ flexShrink: 1, textAlign: "center", lineHeight: 16 }}>{l}</T>
-              {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -8, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
+              style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 10, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
+              <Icon name={ic} size={20} color={C.brand600} /><T w="m" size={14.5} color={C.brand600} numberOfLines={1}>{l}</T>
+              {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -2, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
             </Pressable>))}
         </View>
       </View>
