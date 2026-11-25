@@ -11,7 +11,7 @@ export default function Layout() {
   if (!ok) return <View style={{ flex: 1, backgroundColor: C.bg }} />;
   return (
     <StoreProvider>
-      <StatusBar hidden />
+      <StatusBar style="dark" />
       <Screen><Stack screenOptions={{ headerShown: false, animation: "none", contentStyle: { backgroundColor: C.bg } }} /></Screen>
     </StoreProvider>
   );
