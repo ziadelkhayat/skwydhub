@@ -34,4 +34,4 @@ export function Lock() {
       <T size={13} color={C.mut}>{[brand?.name, branch?.name, devName].filter(Boolean).join(" · ")}{acct ? "  ·  Account " + acct : ""}</T>
     </View>
   );
-}}
+}
