@@ -176,17 +176,17 @@ function ShiftForm({ s, br, f, onClose }: { s: S; br: string; f: { id?: string; 
         <form className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Employee"><select className={SEL} value={v.emp} onChange={e => { const u = s.users.find(y => y.id === e.target.value); setV(o => ({ ...o, emp: e.target.value, job: o.job || u?.jobTitle || "" })); }}>
             <option value="">Open Shift (anyone)</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}{u.jobTitle ? " · " + u.jobTitle : ""}</option>)}</select></F>
-          <F l="Job Title"><Input className="h-11" list="shJobDl" placeholder="e.g. Cashier" value={v.job} onChange={e => set("job", e.target.value)} /><datalist id="shJobDl">{jobs.map(j => <option key={j} value={j} />)}</datalist></F>
-          <F l="Start" req><Input className="h-11" type="time" value={v.a} onChange={e => set("a", e.target.value)} /></F>
-          <F l="End" req><Input className="h-11" type="time" value={v.b} onChange={e => set("b", e.target.value)} /></F>
-          <F l="Break (Minutes)"><Input className="h-11" type="number" min="0" step="5" value={v.brk} onChange={e => set("brk", e.target.value)} /></F>
-          <F l="Length"><p className="flex h-11 items-center text-sm font-semibold text-gray-800 dark:text-white/90">{len.toFixed(2)} hours{nextDay ? " (ends next day)" : ""}</p></F>
+          <F l="Job Title"><Input className="h-9" list="shJobDl" placeholder="e.g. Cashier" value={v.job} onChange={e => set("job", e.target.value)} /><datalist id="shJobDl">{jobs.map(j => <option key={j} value={j} />)}</datalist></F>
+          <F l="Start" req><Input className="h-9" type="time" value={v.a} onChange={e => set("a", e.target.value)} /></F>
+          <F l="End" req><Input className="h-9" type="time" value={v.b} onChange={e => set("b", e.target.value)} /></F>
+          <F l="Break (Minutes)"><Input className="h-9" type="number" min="0" step="5" value={v.brk} onChange={e => set("brk", e.target.value)} /></F>
+          <F l="Length"><p className="flex h-9 items-center text-sm font-semibold text-gray-800 dark:text-white/90">{len.toFixed(2)} hours{nextDay ? " (ends next day)" : ""}</p></F>
           <F l={x ? "Day" : "Days"} full help={x ? undefined : "Pick several days to add the same shift on each."}>
             {x ? <DateInput value={ds[0]} onChange={d => d && setDs([d])} />
               : <div className="flex flex-wrap gap-2">{wk.map(d => { const on = ds.includes(d); return <button key={d} type="button" aria-pressed={on} onClick={() => setDs(on ? ds.filter(y => y !== d) : [...ds, d])}
                 className={cn("h-10 rounded-lg border px-3 text-sm font-medium", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>
                 {new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short" })} {dmy(d).slice(0, 5)}</button>; })}</div>}</F>
-          <F l="Note" full><Input className="h-11" placeholder="Shown to the employee" value={v.note} onChange={e => set("note", e.target.value)} /></F>
+          <F l="Note" full><Input className="h-9" placeholder="Shown to the employee" value={v.note} onChange={e => set("note", e.target.value)} /></F>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
             {x && <Button type="button" variant="destructive" className="sm:me-auto" onClick={async () => { if (!(await askYes("Delete this shift?", "Delete", true))) return; try { await put("work_shifts", x.id, { deleted: true }); toast("Shift deleted"); onClose(); } catch { toast("Couldn't delete.", "error"); } }}>Delete</Button>}

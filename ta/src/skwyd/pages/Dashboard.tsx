@@ -59,8 +59,8 @@ export default function Dashboard() {
 
   const labels = Array.from({ length: 24 }, (_, h) => (h % 12 || 12) + (h < 12 ? "am" : "pm"));
   const options: ApexOptions = {
-    legend: { show: false }, colors: ["#465FFF", "#9CB9FF"],
-    chart: { fontFamily: "Outfit, sans-serif", height: 310, type: "area", toolbar: { show: false } },
+    legend: { show: false }, colors: ["#3b82f6", "#93c5fd"],
+    chart: { fontFamily: "Inter, sans-serif", height: 310, type: "area", toolbar: { show: false } },
     stroke: { curve: "straight", width: [2, 2] }, fill: { type: "gradient", gradient: { opacityFrom: 0.55, opacityTo: 0 } },
     markers: { size: 0, strokeColors: "#fff", strokeWidth: 2, hover: { size: 6 } },
     grid: { borderColor: theme === "dark" ? "#1E2640" : "#F3F4F6", xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
@@ -79,7 +79,7 @@ export default function Dashboard() {
         <SegTabs value={days === "c" ? "" : days} onChange={v => { setDays(v); setCmpAt(""); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
         {/* the same business-date box as Orders: it shows the period; picking dates sets that period (Day / Week / Month pick it again from the first date) */}
         <div className="w-64"><RangeInput key={iso(per.start) + per.n} from={iso(per.start)} to={per.n > 1 ? iso(new Date(+per.start + (per.n - 1) * 86400000)) : ""} onChange={(a, b) => { if (!a) { setDays("1"); setAt(iso(new Date())); return; } if (a === b && days !== "c") { setAt(a); return; } setRng([a, b]); setDays("c"); setAt(a); }} /></div>
-        <label className="flex h-11 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</label>
+        <label className="flex h-9 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</label>
         {cmp && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">with</span><div className="w-44" title={days === "1" ? "Compare with this day" : days === "7" ? "Compare with the week of" : "Compare with the month of"}>
           <DateInput value={cmpAt || iso(cmpPer.start)} onChange={v => setCmpAt(v)} /></div></div>}
       </div>

@@ -161,7 +161,7 @@ function ScDialog({ s, M, b, code, onClose, onSaved, onDeleted }: { s: S; M: M; 
     <div className="mt-4 space-y-4">
       <F l="Type" help={cur ? undefined : "POS and Call Center exist once per store, Web Ordering once per brand. Add as many marketplaces (delivery apps…) as you need."}>
         <select className={SEL} disabled={!!cur} value={kind} onChange={e => { setKind(e.target.value); setTypes([]); }}>{!cur && <option value="">Choose…</option>}{(cur ? SC_KINDS.filter(k => k[0] === cur.kind) : avail).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
-      <F l="Name" req><Input className="h-11" value={name} placeholder="e.g. Toters" onChange={e => setName(e.target.value)} /></F>
+      <F l="Name" req><Input className="h-9" value={name} placeholder="e.g. Toters" onChange={e => setName(e.target.value)} /></F>
       <F l="Order Types" req>{!kind ? <p className="text-sm text-gray-500">Choose the type first</p> : <div className="flex flex-wrap gap-4">{OTYPES.filter(([t]) => SC_ALLOWED[kind].includes(t)).map(([t, tl]) =>
         <label key={t} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={types.includes(t)} onChange={e => setTypes(o => e.target.checked ? [...o, t] : o.filter(x => x !== t))} />{tl}</label>)}</div>}</F>
       {err && <p className="text-sm text-red-500">{err}</p>}
@@ -367,7 +367,7 @@ function CatDialog({ s, M, b, code, c, cats, onClose, onNew }: { s: S; M: M; b: 
     setBusy(true); try { await put("categories", id, data); toast(c ? "Category saved" : "Category added"); if (!c) onNew(id); onClose(); } catch { setErr("Couldn't save. Only the owner or an admin can change the menu."); } finally { setBusy(false); }
   }
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{c ? "Edit Category" : "Add Category"}</DialogTitle></DialogHeader>
-    <div className="mt-4 space-y-4"><F l="Name" req><Input className="h-11" value={name} onChange={e => setName(e.target.value)} autoFocus /></F><F l="Name Localized"><Input className="h-11" dir="auto" value={nameAr} onChange={e => setNameAr(e.target.value)} /></F>
+    <div className="mt-4 space-y-4"><F l="Name" req><Input className="h-9" value={name} onChange={e => setName(e.target.value)} autoFocus /></F><F l="Name Localized"><Input className="h-9" dir="auto" value={nameAr} onChange={e => setNameAr(e.target.value)} /></F>
       {!hasSubs && <F l="Parent Category"><select className={SEL} value={par} onChange={e => setPar(e.target.value)}><option value="">None (main category)</option>{parents.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F>}
       {!par && <F l="Image"><ImageField value={img} onChange={setImg} /></F>}
       {err && <p className="text-sm text-red-500">{err}</p>}</div>
@@ -384,7 +384,7 @@ function AddItems({ s, M, c, onClose }: { s: S; M: M; c: Row; onClose: () => voi
   async function save() { setBusy(true); const ids = [...(c.productIds || []).filter((x: string) => on.has(M.root(x))), ...add];
     try { await put("categories", c.id, { productIds: ids }); toast(`${add.length} item${add.length === 1 ? "" : "s"} added to ${c.name}`); onClose(); } catch { toast("Couldn't save.", "error"); } finally { setBusy(false); } }
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Items in {c.name}</DialogTitle></DialogHeader>
-    <InputGroup className="mt-3 h-11"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search products" value={q} onChange={e => setQ(e.target.value)} autoFocus /></InputGroup>
+    <InputGroup className="mt-3 h-9"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search products" value={q} onChange={e => setQ(e.target.value)} autoFocus /></InputGroup>
     <div className="mt-3 space-y-5">{!Object.keys(groups).length ? <p className="py-8 text-center text-sm text-gray-500">No products.</p> : Object.keys(groups).sort().map(g => { const ps = groups[g].sort(bySort), allOn = ps.every(p => on.has(p.id));
       return <div key={g}><div className="mb-2 flex items-center justify-between"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{g}</b><button type="button" className="text-sm text-brand-500" onClick={() => setOn(o => { const n = new Set(o); ps.forEach(p => allOn ? n.delete(p.id) : n.add(p.id)); return n; })}>{allOn ? "Clear" : "Select all"}</button></div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{ps.map(p => <label key={p.id} className={cn("flex cursor-pointer items-center gap-3 rounded-lg border p-2 text-sm", on.has(p.id) ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-gray-200 dark:border-gray-800")}>

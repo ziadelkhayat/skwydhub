@@ -39,7 +39,7 @@ export default function TasksPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+            <InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             <select aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <select aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
@@ -75,7 +75,7 @@ function TaskForm({ t, s, by, onClose }: { t: Row | null; s: S; by: string; onCl
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{t ? "Edit Task" : "New Task"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
-          <F l="Task" req full><Input className="h-11" autoFocus maxLength={200} placeholder="e.g. Clean the fryer" value={v.title} onChange={e => set("title", e.target.value)} /></F>
+          <F l="Task" req full><Input className="h-9" autoFocus maxLength={200} placeholder="e.g. Clean the fryer" value={v.title} onChange={e => set("title", e.target.value)} /></F>
           <F l="Notes" full><Textarea rows={3} value={v.notes} onChange={e => set("notes", e.target.value)} /></F>
           <F l="Store"><select className={SEL} value={v.br} onChange={e => set("br", e.target.value)}><option value="">All Stores</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
           <F l="Due Date"><DateInput value={v.due} onChange={x => set("due", x)} /></F>

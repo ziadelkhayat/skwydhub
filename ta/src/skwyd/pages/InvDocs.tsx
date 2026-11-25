@@ -108,7 +108,7 @@ function DocFilterDialog({ K, s, f0, onClose, onApply }: { K: K; s: S; f0: Recor
   const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter((x: string) => x && !GONE.has(x)); })();
   const opts = (t: string): [string, string][] => t === "status" ? st : t === "brand" ? s.brands.filter(live).map(b => [b.id, b.name]) : t === "loc" ? locs : t === "sup" ? s.suppliers.filter(live).map(x => [x.id, x.name]) : t === "reason" ? qa.map((r: string) => [r, r]) : people(t === "by" ? "createdBy" : "submittedBy");
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Filter</DialogTitle></DialogHeader>
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-11" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-9" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
       : t === "range" ? <F key={k} l={l} full><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => setF(o => ({ ...o, from: a, to: b }))} /></F>
       : <F key={k} l={l}><select className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
           <option value="">Any</option>{opts(t).map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select></F>)}</div>
@@ -182,7 +182,7 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
       <div className={BOX}>
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           {tabs.length ? <SegTabs value={tab} onChange={setTab} items={tabs} /> : <span />}
-          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             {docFltFields(K).length > 0 && <Button variant="outline" onClick={() => setFOpen(true)}><FilterIcon className="size-5" />Filter{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
             <DropdownMenu><DropdownMenuTrigger render={<Button variant="outline" />}><DownloadIcon className="size-5" />Export<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
@@ -219,7 +219,7 @@ function NewDialog({ route, K, s, onClose }: { route: string; K: K; s: S; onClos
   else if (K.kind === "transfer") fields.push(<F key="t" l="Type" req><select className={SEL} value={v.ttype} onChange={e => set("ttype", e.target.value)}><option value="">Transfer</option><option value="return">Transfer Return</option></select></F>,
     <div key="l">{sel("loc", "Source", locs, v.dest)}</div>, <div key="d">{sel("dest", "Destination", locs, v.loc)}</div>, <F key="due" l="Receiving Due Date"><DateInput value={v.due} onChange={x => set("due", x)} /></F>);
   else if (K.kind === "torder") fields.push(<div key="d">{sel("dest", "Source", locs, v.loc)}</div>, <div key="l">{sel("loc", "Destination", locs, v.dest)}</div>);
-  else if (K.kind === "sheet") fields.push(<F key="n" l="Name" req><Input className="h-11" value={v.name} onChange={e => set("name", e.target.value)} /></F>);
+  else if (K.kind === "sheet") fields.push(<F key="n" l="Name" req><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>);
   else if (K.loc) fields.push(<div key="l">{sel("loc", "Destination", locs)}</div>);
   if (K.po) fields.push(<F key="dd" l="Delivery Date"><DateInput value={v.del} onChange={x => set("del", x)} /></F>);
   if (K.po || (K.kind === "spot" && !K.count)) fields.push(<F key="no" l="Notes"><Textarea rows={3} value={v.notes} onChange={e => set("notes", e.target.value)} /></F>);
@@ -370,7 +370,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     const w = window.open("", "_blank", "width=820,height=900"); if (!w) return toast("Allow pop-ups to print", "error");
     const e = (x: any) => String(x ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
     const rows = d.items.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return `<tr><td>${e(it.name)}</td><td>${e(it.sku)}</td><td>${e(storUnit(it))}</td>${K.kind === "sheet" ? `<td>____ ${e(ingUnit(it))}</td>` : K.kind === "cost" ? `<td>${e(l.cost)}</td>` : `<td>${e(l.qty)}</td>`}</tr>`; }).join("");
-    w.document.write(`<!doctype html><title>${e(d.ref || d.name || K.title)}</title><style>body{font:13px/1.4 Outfit,Arial,sans-serif;padding:24px;color:#1d2939}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d0d5dd;padding:8px;text-align:left}th{background:#f2f4f7}</style>
+    w.document.write(`<!doctype html><title>${e(d.ref || d.name || K.title)}</title><style>body{font:13px/1.4 Inter,Arial,sans-serif;padding:24px;color:#1d2939}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d0d5dd;padding:8px;text-align:left}th{background:#f2f4f7}</style>
       <h2>${e(K.title)} ${e(refOf(d))}${d.name ? " — " + e(d.name) : ""}</h2><p>${K.loc ? "Location: " + e(locName(d.locationId)) + " · " : ""}${d.reason && d.reason !== "po" && d.reason !== "count" ? "Reason: " + e(d.reason) + " · " : ""}${d.businessDate ? "Date: " + e(dmy(d.businessDate)) : ""}</p>
       <table><thead><tr><th>Name</th><th>SKU</th><th>Unit</th><th>${K.kind === "sheet" || K.kind === "spot" ? "Counted" : K.kind === "cost" ? "New cost" : "Quantity"}</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print()<\/script>`);
     w.document.close();
@@ -516,14 +516,14 @@ function HeadDialog({ d, K, s, locs, onClose, onSave }: { d: any; K: K; s: S; lo
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Edit {K.title}</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-          {K.kind === "sheet" && <F l="Name" req><Input className="h-11" placeholder="e.g. Store Count Sheet" value={v.name} onChange={e => set("name", e.target.value)} /></F>}
+          {K.kind === "sheet" && <F l="Name" req><Input className="h-9" placeholder="e.g. Store Count Sheet" value={v.name} onChange={e => set("name", e.target.value)} /></F>}
           {K.kind === "purchase" && selL("supplierId", "Supplier", s.suppliers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(x => [x.id, x.name]))}
           {K.loc && selL("locationId", K.kind === "transfer" ? "Source" : "Destination", locs)}
           {(K.kind === "transfer" || K.kind === "torder") && selL("destId", K.kind === "torder" ? "Source" : "Destination", locs.filter(([x]) => x !== v.locationId))}
-          {K.kind === "quantity" && <><F l="Reason"><Input className="h-11" list="qaR" value={v.reason} onChange={e => set("reason", e.target.value)} /><datalist id="qaR">{qa.map(r => <option key={r} value={r} />)}</datalist></F>
+          {K.kind === "quantity" && <><F l="Reason"><Input className="h-9" list="qaR" value={v.reason} onChange={e => set("reason", e.target.value)} /><datalist id="qaR">{qa.map(r => <option key={r} value={r} />)}</datalist></F>
             <F l="Type"><select className={SEL} value={v.direction} onChange={e => set("direction", e.target.value)}><option value="deduct">Deduct from stock</option><option value="add">Add to stock</option></select></F></>}
           {K.kind !== "sheet" && <F l="Business Date"><DateInput value={v.businessDate} onChange={x => set("businessDate", x)} /></F>}
-          {K.kind === "purchase" && <F l={`Additional Cost (${sym()})`}><Input className="h-11" type="number" min="0" step="any" value={v.additionalCost} onChange={e => set("additionalCost", e.target.value)} /></F>}
+          {K.kind === "purchase" && <F l={`Additional Cost (${sym()})`}><Input className="h-9" type="number" min="0" step="any" value={v.additionalCost} onChange={e => set("additionalCost", e.target.value)} /></F>}
           {K.po && <F l="Delivery Date"><DateInput value={v.del} onChange={x => set("del", x)} /></F>}
           <F l="Notes" full><Textarea rows={3} value={v.notes} onChange={e => set("notes", e.target.value)} /></F>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
@@ -558,9 +558,9 @@ function QtyDialog({ K, rows, d, rv, itemOf, onClose, onSave, onDelete }: { K: K
           {rows.map((ix, k) => { const it: any = itemOf(d.items[ix].itemId) || {}, t = two(it), x = v[ix], setX = (p: any) => setV(o => ({ ...o, [ix]: { ...o[ix], ...p } }));
             return <div key={ix} className="rounded-xl border border-gray-200 p-4 dark:border-gray-800"><b className="mb-3 block text-sm font-medium text-gray-800 dark:text-white/90">{it.name || "Item"}{it.sku && <span className="ms-1 text-gray-400">({it.sku})</span>}</b>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {q && <F l={`Quantity (${storUnit(it)})`} req><Input className="h-11" autoFocus={k === 0} type="number" min="0" step="any" inputMode="decimal" value={x.s} onChange={e => setX({ s: e.target.value })} /></F>}
-                {q && t && <F l={`Quantity (${ingUnit(it)})`} help={`1 ${storUnit(it)} = ${n2(+it.factor || 1)} ${ingUnit(it)}`}><Input className="h-11" type="number" min="0" step="any" inputMode="decimal" value={x.i} onChange={e => setX({ i: e.target.value })} /></F>}
-                {c && <F l={K.kind === "cost" ? "New Cost" : "Cost"} req><Input className="h-11" type="number" min="0" step="any" inputMode="decimal" value={x.c} onChange={e => setX({ c: e.target.value })} /></F>}</div></div>; })}
+                {q && <F l={`Quantity (${storUnit(it)})`} req><Input className="h-9" autoFocus={k === 0} type="number" min="0" step="any" inputMode="decimal" value={x.s} onChange={e => setX({ s: e.target.value })} /></F>}
+                {q && t && <F l={`Quantity (${ingUnit(it)})`} help={`1 ${storUnit(it)} = ${n2(+it.factor || 1)} ${ingUnit(it)}`}><Input className="h-9" type="number" min="0" step="any" inputMode="decimal" value={x.i} onChange={e => setX({ i: e.target.value })} /></F>}
+                {c && <F l={K.kind === "cost" ? "New Cost" : "Cost"} req><Input className="h-9" type="number" min="0" step="any" inputMode="decimal" value={x.c} onChange={e => setX({ c: e.target.value })} /></F>}</div></div>; })}
           {err && <p className="text-sm text-red-500">{err}</p>}
           <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">{onDelete && <Button type="button" variant="destructive" className="sm:me-auto" onClick={onDelete}>Delete</Button>}
             <Button type="button" variant="outline" onClick={onClose}>Close</Button><Button type="submit">Save</Button></div>

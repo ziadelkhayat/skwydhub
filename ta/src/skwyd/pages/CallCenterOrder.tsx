@@ -229,7 +229,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Order</h3>
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
-                className={cn("h-11 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
+                className={cn("h-9 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
               <F l="Order Source" req><select className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</select></F>
               {D.brands.length > 0 && <F l="Brand" req><select className={SEL} disabled={locked} value={brand} onChange={e => { setBrand(e.target.value); setBranch(""); setCat(""); }}><option value="">Choose…</option>{D.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>}
               <F l="Store" req><select className={SEL} disabled={locked} value={branch} onChange={e => { setBranch(e.target.value); setCat(""); }}><option value="">Choose…</option>{D.branches.map(b => <option key={b.id} value={b.id}>{b.name}{brOpenNow(b) ? "" : " · closed now"}</option>)}</select></F>
@@ -238,9 +238,9 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
               <F l="Customer Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-24 shrink-0")} disabled={locked} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
-                <Input className="h-11 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
+                <Input className="h-9 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
               {cust && <div className="space-y-1 text-xs">{cust.blacklisted && <p className="font-semibold text-red-500">⚠ Blacklisted customer.</p>}{(cust.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{cust.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</div>}{cust.notes && <p className="text-gray-500 italic">{cust.notes}</p>}</div>}
-              <F l="Customer Name" req><Input className="h-11" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
+              <F l="Customer Name" req><Input className="h-9" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
               {cust && <div className="grid grid-cols-2 gap-2 rounded-xl bg-gray-50 p-3 text-xs dark:bg-white/3">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB").replace(/\//g, "-") : "—"]].map(([l, v]) =>
                 <div key={l}><span className="block text-gray-500">{l}</span><b className="text-gray-800 dark:text-white/90">{v}</b></div>)}</div>}
               {cust && ok.length > 0 && <div>
@@ -327,7 +327,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
         {line != null && cart[line] && <LineDlg it={cart[line]} onClose={() => setLine(null)} onSave={x => { setCart(c => c.map((y, j) => j === line ? reDisc(x) : y)); setLine(null); }} />}
         {dlg === "disc" && <Small title="Discount" onClose={() => setDlg("")}>
           <div className="flex gap-2">{[["pct", "Percentage"], ["amt", "Amount"]].map(([k, t]) => <button key={k} type="button" onClick={() => setDiscType(k)} className={cn("h-10 flex-1 rounded-lg border text-sm", discType === k ? "border-brand-500 bg-brand-50 text-brand-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{t}</button>)}</div>
-          <F l={discType === "pct" ? "Discount (%)" : "Discount Amount"}><Input className="h-11" type="number" min="0" max={discType === "pct" ? 100 : undefined} step="any" value={disc || ""} onChange={e => setDisc(Math.max(0, Math.min(discType === "pct" ? 100 : 1e9, +e.target.value || 0)))} /></F></Small>}
+          <F l={discType === "pct" ? "Discount (%)" : "Discount Amount"}><Input className="h-9" type="number" min="0" max={discType === "pct" ? 100 : undefined} step="any" value={disc || ""} onChange={e => setDisc(Math.max(0, Math.min(discType === "pct" ? 100 : 1e9, +e.target.value || 0)))} /></F></Small>}
         {dlg === "chg" && <Small title="Charges" onClose={() => setDlg("")}>{!D.chList.length ? <p className="text-sm text-gray-500">No charges apply to this order type and store.</p> : D.chList.map(c => { const on = picked.some(x => x.id === c.id); return (
           <div key={c.id} className="flex items-center gap-3"><label className="flex flex-1 cursor-pointer items-center gap-3 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={on} onChange={e => { const n = new Set(picked.map(x => x.id)); if (e.target.checked) n.add(c.id); else n.delete(c.id); setChg(n); }} />{c.name}</label>
             {c.type === "open" ? <Input className="h-9 w-28" type="number" min="0" step="any" value={open[c.id] ?? c.value ?? ""} onChange={e => setOpen({ ...open, [c.id]: +e.target.value || 0 })} /> : <span className="text-sm text-gray-500">{c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0)}</span>}</div>); })}</Small>}
@@ -364,7 +364,7 @@ function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: 
   const [pick, setPick] = useState(reasons.length ? "" : "_other"), [txt, setTxt] = useState(""), [err, setErr] = useState("");
   return <Small title={title} onClose={onClose}>
     <div className="flex flex-wrap gap-2">{[...reasons, "_other"].map(r => <button key={r} type="button" onClick={() => setPick(r)} className={cn("rounded-lg border px-3 py-2 text-sm", pick === r ? "border-brand-500 bg-brand-50 text-brand-600" : "border-gray-300 text-gray-600 dark:border-gray-700")}>{r === "_other" ? "Other…" : r}</button>)}</div>
-    {pick === "_other" && <Input className="h-11" autoFocus placeholder="Write the reason" value={txt} onChange={e => setTxt(e.target.value)} />}
+    {pick === "_other" && <Input className="h-9" autoFocus placeholder="Write the reason" value={txt} onChange={e => setTxt(e.target.value)} />}
     {err && <p className="text-sm text-red-500">{err}</p>}
     <Button variant="destructive" onClick={() => { const v = pick === "_other" ? txt.trim() : pick; if (!v) return setErr("Choose a reason."); onGo(v); }}>{title.startsWith("Decline") ? "Decline Order" : "Cancel Order"}</Button>
   </Small>;

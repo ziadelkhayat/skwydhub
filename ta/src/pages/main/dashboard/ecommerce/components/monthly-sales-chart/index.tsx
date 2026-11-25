@@ -10,9 +10,9 @@ export default function MonthlySalesChart() {
   const { theme } = useTheme();
   const t = useTranslations("ecommerce");
   const options: ApexOptions = {
-    colors: ["#465FFF"],
+    colors: ["#3b82f6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Inter, sans-serif",
       type: "bar",
       height: 200,
       toolbar: {
@@ -36,7 +36,7 @@ export default function MonthlySalesChart() {
       offsetY: -20,
       style: {
         fontSize: "12px",
-        fontFamily: "Outfit, sans-serif",
+        fontFamily: "Inter, sans-serif",
         fontWeight: 400,
         colors: [theme === "dark" ? "#94A3B8" : "#364153"],
       },
@@ -58,7 +58,7 @@ export default function MonthlySalesChart() {
       labels: {
         style: {
           colors: theme === "dark" ? "#94A3B8" : "#364153",
-          fontFamily: "Outfit, sans-serif",
+          fontFamily: "Inter, sans-serif",
         },
       },
     },
@@ -107,7 +107,7 @@ export default function MonthlySalesChart() {
           },
           {
             offset: 100,
-            color: "#465FFF",
+            color: "#3b82f6",
             opacity: 1,
           },
         ],

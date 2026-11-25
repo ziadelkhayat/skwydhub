@@ -37,7 +37,7 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="input-otp-group"
       className={cn(
-        "flex items-center rounded-[10px] has-aria-invalid:border-red-500 has-aria-invalid:ring-3 has-aria-invalid:ring-red-500/20 has-data-[success=true]:border-green-500 has-data-[success=true]:ring-3 has-data-[success=true]:ring-green-500/20 data-[success=true]:border-green-500 data-[success=true]:ring-3 data-[success=true]:ring-green-500/20 dark:has-aria-invalid:border-red-500/50 dark:has-aria-invalid:ring-red-500/40 dark:has-data-[success=true]:border-green-500/50 dark:has-data-[success=true]:ring-green-500/40 dark:data-[success=true]:border-green-500/50 dark:data-[success=true]:ring-green-500/40",
+        "flex items-center rounded-md has-aria-invalid:border-red-500 has-aria-invalid:ring-3 has-aria-invalid:ring-red-500/20 has-data-[success=true]:border-green-500 has-data-[success=true]:ring-3 has-data-[success=true]:ring-green-500/20 data-[success=true]:border-green-500 data-[success=true]:ring-3 data-[success=true]:ring-green-500/20 dark:has-aria-invalid:border-red-500/50 dark:has-aria-invalid:ring-red-500/40 dark:has-data-[success=true]:border-green-500/50 dark:has-data-[success=true]:ring-green-500/40 dark:data-[success=true]:border-green-500/50 dark:data-[success=true]:ring-green-500/40",
         className,
       )}
       {...props}

@@ -18,7 +18,7 @@ export function DateInput({ value, onChange, placeholder = "dd-mm-yyyy" }: { val
   useEffect(() => { const f = fp.current; if (!f) return; const cur = f.selectedDates[0] ? iso(f.selectedDates[0]) : ""; if (cur !== (value || "")) { if (value) f.setDate(toDate(value)!, false); else f.clear(false); } }, [value]);
   return (
     <div className="relative">
-      <Input ref={ref} type="text" placeholder={placeholder} className="h-11 pe-10" />
+      <Input ref={ref} type="text" placeholder={placeholder} className="h-9 pe-10" />
       <span className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"><CalendarIcon className="size-5" /></span>
     </div>
   );
@@ -36,7 +36,7 @@ export function RangeInput({ from, to, onChange }: { from: string; to: string; o
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="relative">
-      <Input ref={ref} type="text" placeholder="Business Date" className="h-11 pe-10" readOnly />
+      <Input ref={ref} type="text" placeholder="Business Date" className="h-9 pe-10" readOnly />
       {from ? <button type="button" aria-label="Clear dates" onClick={() => { (ref.current as any)?._flatpickr?.clear(); onChange("", ""); }} className="absolute inset-e-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:text-gray-400">×</button>
         : <span className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"><CalendarIcon className="size-5" /></span>}
     </div>

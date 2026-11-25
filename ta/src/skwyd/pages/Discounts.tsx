@@ -54,7 +54,7 @@ export default function DiscountsPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center xl:w-auto">
-            <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
+            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Discount</Button>
           </div>
@@ -130,25 +130,25 @@ function DiscountForm({ d, list, onClose, onSave, onDelete }: { d: any; list: an
     setBusy(true); const ok = await onSave(l, nid); setBusy(false);
     if (ok) { toast(d ? "Discount saved" : "Discount created"); onClose(); }
   }
-  const numIn = (k: string, l: string) => <F l={l}><Input className="h-11" type="number" min="0" step="any" value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
+  const numIn = (k: string, l: string) => <F l={l}><Input className="h-9" type="number" min="0" step="any" value={v[k]} onChange={e => set(k, e.target.value)} /></F>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit" : "Create"} Discount</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
-          <F l="Name" req><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
-          <F l="Name Localized"><Input className="h-11" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
+          <F l="Name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
+          <F l="Name Localized"><Input className="h-9" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
           <F l="Qualification" req><select className={SEL} value={v.qualification} onChange={e => set("qualification", e.target.value)}>{QUAL.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
           <F l="Discount Type" req><select className={SEL} value={v.type} onChange={e => set("type", e.target.value)}><option value="fixed">Amount</option><option value="pct">Percentage</option></select></F>
           <F l="Discount Value" req help={v.open ? "The cashier enters the " + (fx ? "amount" : "percentage") + " when applying it." : undefined}>
             <select className={SEL} value={v.open ? "open" : "fixed"} onChange={e => set("open", e.target.value === "open")}><option value="fixed">Fixed</option><option value="open">Open</option></select></F>
-          {!v.open && <F l={`Discount Amount (${fx ? sym() : "%"})`} req><Input className="h-11" type="number" min="0" step="any" value={v.amount} onChange={e => set("amount", e.target.value)} /></F>}
+          {!v.open && <F l={`Discount Amount (${fx ? sym() : "%"})`} req><Input className="h-9" type="number" min="0" step="any" value={v.amount} onChange={e => set("amount", e.target.value)} /></F>}
           {!fx && numIn("maxDiscount", `Maximum Discount (${sym()})`)}
           {numIn("minOrder", `Minimum Order Price (${sym()})`)}{numIn("minProduct", `Minimum Product Price (${sym()})`)}
           <F l="Applies On Order Types" req full><div className="flex flex-wrap gap-5 pt-1">{OT.map(([k, t]) => (
             <label key={k} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-700 dark:text-gray-400">
               <Checkbox checked={v.orderTypes.includes(k)} onCheckedChange={c => set("orderTypes", c ? [...v.orderTypes, k] : v.orderTypes.filter((y: string) => y !== k))} />{t}</label>))}</div></F>
-          <F l="Reference"><Input className="h-11" value={v.reference} onChange={e => set("reference", e.target.value)} /></F>
+          <F l="Reference"><Input className="h-9" value={v.reference} onChange={e => set("reference", e.target.value)} /></F>
           <label className="col-span-full flex cursor-pointer items-start gap-3"><Switch checked={v.taxable} onCheckedChange={c => set("taxable", !!c)} />
             <span><span className="block text-sm font-medium text-gray-800 dark:text-white/90">Taxable</span>
               <span className="text-xs text-gray-500 dark:text-gray-400">On: the customer still pays the full tax of the order before the discount. Off: the tax is reduced with the discount.</span></span></label>

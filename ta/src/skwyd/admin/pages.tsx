@@ -62,7 +62,7 @@ export function Companies() {
       <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-3"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["active", "Active"], ["trial", "Trial"], ["grace", "Grace Period"], ["locked", "Locked"], ["free", "Free"]]} />
           <span className="flex-1" /><Button onClick={() => setNw(true)}><PlusIcon className="size-5" />New Business</Button></div>
-        <div className="flex flex-wrap items-center gap-3"><InputGroup className="h-11 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+        <div className="flex flex-wrap items-center gap-3"><InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search name, account, email, phone" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
           <span className="text-sm text-gray-500">{rows.length} of {cs.length}</span></div>
       </div>
       <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">{rows.length ? <table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Company", "Account Number", "Owner", "Status", "Ends In", "POS Devices", "Price", "Owed", "Orders (30 Days)", "Joined"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
@@ -104,7 +104,7 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
     <DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">New Business</DialogTitle></DialogHeader>
     <Sub t="Business" />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <F l="Business Name" req><Input className="h-11" value={v.name} onChange={e => set("name", e.target.value)} /></F>
+      <F l="Business Name" req><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>
       <F l="Country" req><select className={SEL} value={v.country} onChange={e => { const c = COUNTRIES.find(x => x[0] === e.target.value); setV(o => ({ ...o, country: e.target.value, ...(c ? { dial: c[0], currency: c[2] } : {}) })); }}>{COUNTRIES.map(([n]) => <option key={n}>{n}</option>)}</select></F>
       <F l="Currency" req><select className={SEL} value={v.currency} onChange={e => set("currency", e.target.value)}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
       <F l="Business Category" req><select className={SEL} value={v.category} onChange={e => setV(o => ({ ...o, category: e.target.value, subcategory: "" }))}><option value="">Choose…</option>{CATEGORIES.map(([c]) => <option key={c}>{c}</option>)}</select></F>
@@ -112,19 +112,19 @@ function NewBusiness({ onClose }: { onClose: () => void }) {
     </div>
     <Sub t="Owner" />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <F l="Owner First Name" req><Input className="h-11" value={v.firstName} onChange={e => set("firstName", e.target.value)} /></F>
-      <F l="Owner Last Name" req><Input className="h-11" value={v.lastName} onChange={e => set("lastName", e.target.value)} /></F>
-      <div className="sm:col-span-2"><F l="Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-56 shrink-0")} value={v.dial} onChange={e => set("dial", e.target.value)}>{COUNTRIES.map(([n, d]) => <option key={n} value={n}>{n} ({d})</option>)}</select><Input className="h-11 flex-1" inputMode="tel" placeholder="70 123 456" value={v.phone} onChange={e => set("phone", e.target.value)} /></div></F></div>
-      <F l="Email" req><Input className="h-11" type="email" autoComplete="off" value={v.email} onChange={e => set("email", e.target.value)} /></F>
-      <F l="Password" req><Input className="h-11" type="password" autoComplete="new-password" value={v.password} onChange={e => set("password", e.target.value)} /></F>
+      <F l="Owner First Name" req><Input className="h-9" value={v.firstName} onChange={e => set("firstName", e.target.value)} /></F>
+      <F l="Owner Last Name" req><Input className="h-9" value={v.lastName} onChange={e => set("lastName", e.target.value)} /></F>
+      <div className="sm:col-span-2"><F l="Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-56 shrink-0")} value={v.dial} onChange={e => set("dial", e.target.value)}>{COUNTRIES.map(([n, d]) => <option key={n} value={n}>{n} ({d})</option>)}</select><Input className="h-9 flex-1" inputMode="tel" placeholder="70 123 456" value={v.phone} onChange={e => set("phone", e.target.value)} /></div></F></div>
+      <F l="Email" req><Input className="h-9" type="email" autoComplete="off" value={v.email} onChange={e => set("email", e.target.value)} /></F>
+      <F l="Password" req><Input className="h-9" type="password" autoComplete="new-password" value={v.password} onChange={e => set("password", e.target.value)} /></F>
     </div>
     <p className="mt-2 text-xs text-gray-500">The owner confirms their email once, then signs in at dev.portal.skwydhub.com with the account number, this email and this password.</p>
     <Sub t="Subscription" />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <F l="Status"><select className={SEL} value={v.status} onChange={e => set("status", e.target.value)}><option value="trial">Trial ({st.trialDays ?? 14} Days)</option><option value="active">Active</option></select></F>
       <F l="Billing"><select className={SEL} value={v.cycle} onChange={e => set("cycle", e.target.value)}><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></F>
-      <F l="POS Devices"><Input className="h-11" type="number" min="0" value={v.posDevices} onChange={e => set("posDevices", e.target.value)} /></F>
-      <F l="Warehouses"><Input className="h-11" type="number" min="0" value={v.warehouses} onChange={e => set("warehouses", e.target.value)} /></F>
+      <F l="POS Devices"><Input className="h-9" type="number" min="0" value={v.posDevices} onChange={e => set("posDevices", e.target.value)} /></F>
+      <F l="Warehouses"><Input className="h-9" type="number" min="0" value={v.warehouses} onChange={e => set("warehouses", e.target.value)} /></F>
       <F l="Paid Until"><DateInput value={v.paidUntil} onChange={x => set("paidUntil", x)} /></F>
       <label className="mt-7 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
       <div className="sm:col-span-2"><Mods value={v.modules} set={x => set("modules", x)} /></div>
@@ -172,11 +172,11 @@ function PlanForm({ c, onSaved }: { c: any; onSaved: () => Promise<void> }) {
   return <>
     <div className={BOX + " mb-6 p-5"}><h3 className="mb-4 text-base font-medium text-gray-800 dark:text-white/90">Business & Owner</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <F l="Business Name"><Input className="h-11" value={v.name} onChange={e => set("name", e.target.value)} /></F>
-        <F l="Owner First Name"><Input className="h-11" value={v.firstName} onChange={e => set("firstName", e.target.value)} /></F>
-        <F l="Owner Last Name"><Input className="h-11" value={v.lastName} onChange={e => set("lastName", e.target.value)} /></F>
-        <F l="Owner Email"><Input className="h-11" type="email" value={v.email} onChange={e => set("email", e.target.value)} /></F>
-        <div className="sm:col-span-2"><F l="Owner Phone"><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-52 shrink-0")} value={v.dial} onChange={e => set("dial", e.target.value)}>{COUNTRIES.map(([n, d]) => <option key={n} value={n}>{n} ({d})</option>)}</select><Input className="h-11 flex-1" inputMode="tel" value={v.phone} onChange={e => set("phone", e.target.value)} /></div></F></div>
+        <F l="Business Name"><Input className="h-9" value={v.name} onChange={e => set("name", e.target.value)} /></F>
+        <F l="Owner First Name"><Input className="h-9" value={v.firstName} onChange={e => set("firstName", e.target.value)} /></F>
+        <F l="Owner Last Name"><Input className="h-9" value={v.lastName} onChange={e => set("lastName", e.target.value)} /></F>
+        <F l="Owner Email"><Input className="h-9" type="email" value={v.email} onChange={e => set("email", e.target.value)} /></F>
+        <div className="sm:col-span-2"><F l="Owner Phone"><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-52 shrink-0")} value={v.dial} onChange={e => set("dial", e.target.value)}>{COUNTRIES.map(([n, d]) => <option key={n} value={n}>{n} ({d})</option>)}</select><Input className="h-9 flex-1" inputMode="tel" value={v.phone} onChange={e => set("phone", e.target.value)} /></div></F></div>
         <F l="Country"><select className={SEL} value={v.country} onChange={e => set("country", e.target.value)}>{COUNTRIES.map(([n]) => <option key={n}>{n}</option>)}</select></F>
         <F l="Currency"><select className={SEL} value={v.currency} onChange={e => set("currency", e.target.value)}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
         <F l="Business Category"><select className={SEL} value={v.category} onChange={e => setV(o => ({ ...o, category: e.target.value, subcategory: "" }))}><option value="">Choose…</option>{CATEGORIES.map(([k]) => <option key={k}>{k}</option>)}</select></F>
@@ -186,12 +186,12 @@ function PlanForm({ c, onSaved }: { c: any; onSaved: () => Promise<void> }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <F l="Status"><select className={SEL} value={v.status} onChange={e => set("status", e.target.value)}><option value="trial">Trial</option><option value="active">Active</option><option value="cancelled">Cancelled</option></select></F>
         <F l="Billing"><select className={SEL} value={v.cycle} onChange={e => set("cycle", e.target.value)}><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></F>
-        <F l="POS Devices"><Input className="h-11" type="number" min="0" value={v.posDevices} onChange={e => set("posDevices", e.target.value)} /></F>
-        <F l="Warehouses"><Input className="h-11" type="number" min="0" value={v.warehouses} onChange={e => set("warehouses", e.target.value)} /></F>
+        <F l="POS Devices"><Input className="h-9" type="number" min="0" value={v.posDevices} onChange={e => set("posDevices", e.target.value)} /></F>
+        <F l="Warehouses"><Input className="h-9" type="number" min="0" value={v.warehouses} onChange={e => set("warehouses", e.target.value)} /></F>
         <F l="Trial Ends"><DateInput value={v.trialEndsAt} onChange={x => set("trialEndsAt", x)} /></F>
         <F l="Paid Until"><DateInput value={v.paidUntil} onChange={x => set("paidUntil", x)} /></F>
-        <F l="Grace Days"><Input className="h-11" type="number" min="0" placeholder={`Default (${data.settings?.graceDays ?? 7})`} value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
-        <F l="Discount %"><Input className="h-11" type="number" min="0" max="100" step="0.01" value={v.discountPct} onChange={e => set("discountPct", e.target.value)} /></F>
+        <F l="Grace Days"><Input className="h-9" type="number" min="0" placeholder={`Default (${data.settings?.graceDays ?? 7})`} value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
+        <F l="Discount %"><Input className="h-9" type="number" min="0" max="100" step="0.01" value={v.discountPct} onChange={e => set("discountPct", e.target.value)} /></F>
         <div className="sm:col-span-2 xl:col-span-4"><Mods value={v.modules} set={x => set("modules", x)} /></div>
         <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.locked} onChange={e => set("locked", e.target.checked)} />Locked By Hand</label>
         <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" className="size-4 accent-brand-500" checked={v.complimentary} onChange={e => set("complimentary", e.target.checked)} />Free (Never Billed)</label>
@@ -223,7 +223,7 @@ function PayDialog({ i, onClose, onDone }: { i: any; onClose: () => void; onDone
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Mark {i.number} As Paid</DialogTitle></DialogHeader>
     <p className="mt-1 text-sm text-gray-500">{money(i.total, i.currency)}{i.company ? " · " + i.company : ""}</p>
     <div className="mt-4 space-y-4"><F l="Method" req><select className={SEL} value={m} onChange={e => setM(e.target.value)}><option value="">Choose…</option>{["Bank Transfer", "Whish", "OMT", "Cash", "Card", "Other"].map(x => <option key={x}>{x}</option>)}</select></F>
-      <F l="Reference"><Input className="h-11" placeholder="Transfer or receipt number" value={ref} onChange={e => setRef(e.target.value)} /></F></div>
+      <F l="Reference"><Input className="h-9" placeholder="Transfer or receipt number" value={ref} onChange={e => setRef(e.target.value)} /></F></div>
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={!m || busy} onClick={async () => { setBusy(true);
       try { await rpc("slick_pa_mark_paid", { p_invoice: i.id, p_method: m, p_reference: ref.trim() || null }); toast("Marked as paid"); await onDone(); } catch (e: any) { toast(e.message, "error"); setBusy(false); } }}>Mark Paid</Button></div>
   </DialogContent></Dialog>;
@@ -234,11 +234,11 @@ function NewInvoice({ c, onClose, onDone }: { c: any; onClose: () => void; onDon
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">New Invoice For {c.name}</DialogTitle></DialogHeader>
     <p className="mt-1 text-sm text-gray-500">It bills the plan for the next {yearly ? "year" : "month"} ({money(c.quote?.total || 0, c.quote?.currency)}). Add one-off charges if needed.</p>
     <div className="mt-4"><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">One-Off Charges</span>
-      <div className="space-y-2">{lines.map((l, k) => <div key={k} className="flex gap-2"><Input className="h-11 flex-1" placeholder="Setup fee" value={l.name} onChange={e => setLines(o => o.map((x, j) => j === k ? { ...x, name: e.target.value } : x))} />
-        <Input className="h-11 w-32" type="number" step="0.01" placeholder="0.00" value={l.amount} onChange={e => setLines(o => o.map((x, j) => j === k ? { ...x, amount: e.target.value } : x))} />
+      <div className="space-y-2">{lines.map((l, k) => <div key={k} className="flex gap-2"><Input className="h-9 flex-1" placeholder="Setup fee" value={l.name} onChange={e => setLines(o => o.map((x, j) => j === k ? { ...x, name: e.target.value } : x))} />
+        <Input className="h-9 w-32" type="number" step="0.01" placeholder="0.00" value={l.amount} onChange={e => setLines(o => o.map((x, j) => j === k ? { ...x, amount: e.target.value } : x))} />
         <Button variant="outline" size="icon" aria-label="Remove line" onClick={() => setLines(o => o.filter((_, j) => j !== k))}><TrashBinIcon className="size-4" /></Button></div>)}</div>
       <Button size="sm" variant="outline" className="mt-2" onClick={() => setLines(o => [...o, { name: "", amount: "" }])}><PlusIcon className="size-4" />Add Charge</Button></div>
-    <div className="mt-4 grid grid-cols-3 gap-3"><F l="Due In (Days)"><Input className="h-11" type="number" min="0" value={due} onChange={e => setDue(e.target.value)} /></F><div className="col-span-2"><F l="Note On The Invoice"><Input className="h-11" placeholder="Includes setup and training" value={notes} onChange={e => setNotes(e.target.value)} /></F></div></div>
+    <div className="mt-4 grid grid-cols-3 gap-3"><F l="Due In (Days)"><Input className="h-9" type="number" min="0" value={due} onChange={e => setDue(e.target.value)} /></F><div className="col-span-2"><F l="Note On The Invoice"><Input className="h-9" placeholder="Includes setup and training" value={notes} onChange={e => setNotes(e.target.value)} /></F></div></div>
     <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={async () => {
       const extra = lines.map(l => ({ name: l.name.trim(), amount: +l.amount || 0 })).filter(x => x.name || x.amount); if (extra.some(x => !x.name || !x.amount)) return toast("Each one-off charge needs a name and an amount.", "error");
       setBusy(true); try { const x = await rpc("slick_pa_create_invoice", { p_company: c.id, p_due_days: +due || 0, p_extra: extra, p_notes: notes.trim() || null }); toast("Invoice created"); await onDone(x); } catch (e: any) { toast(e.message, "error"); setBusy(false); } }}>Create Invoice</Button></div>
@@ -257,7 +257,7 @@ export function Invoices() {
     <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4"><Kpi l="Open" v={money(sum(l.filter(i => i.status === "open")), cur)} /><Kpi l="Overdue" v={money(sum(l.filter(over)), cur)} /><Kpi l="Paid This Month" v={money(sum(month), cur)} /><Kpi l="Invoices" v={l.length} /></div>
     <div className={BOX}>
       <div className="flex flex-col gap-4 px-5 py-4 sm:px-6"><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["void", "Void"]]} />
-        <InputGroup className="h-11 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+        <InputGroup className="h-9 w-full sm:w-72"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search number or business" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
         <p className="text-xs text-gray-500">New invoices are created automatically {data.settings?.invoiceDaysBefore ?? 7} days before each period ends.</p></div>
       <div className="overflow-x-auto border-t border-gray-100 dark:border-white/5">{err ? <Empty t={err} /> : all === null ? <Empty t="Loading…" /> : !rows.length ? <Empty t="No invoices match." /> :
         <table className="w-full"><thead><tr className="border-b border-gray-100 dark:border-white/5">{["Number", "Business", "Period", "Due", "Total", "Status", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
@@ -303,21 +303,21 @@ export function AdminSettings() {
     <PageBreadcrumb pageTitle="Settings" />
     <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-800 dark:text-white/90">Trials & Payments</h3>
       <p className="mb-4 text-sm text-gray-500">After the trial or the paid period ends, the company has the grace period to pay. Then its back office, POS and online ordering lock until an invoice is paid. Its data is kept.</p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><F l="Free Trial (Days)"><Input className="h-11" type="number" min="0" value={v.trialDays} onChange={e => set("trialDays", e.target.value)} /></F>
-        <F l="Grace Period (Days)"><Input className="h-11" type="number" min="0" value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><F l="Free Trial (Days)"><Input className="h-9" type="number" min="0" value={v.trialDays} onChange={e => set("trialDays", e.target.value)} /></F>
+        <F l="Grace Period (Days)"><Input className="h-9" type="number" min="0" value={v.graceDays} onChange={e => set("graceDays", e.target.value)} /></F>
         <F l="Currency"><select className={SEL} value={v.currency} onChange={e => set("currency", e.target.value)}>{["USD", "EUR", "LBP"].map(x => <option key={x}>{x}</option>)}</select></F>
-        <F l="Support Phone"><Input className="h-11" value={v.supportPhone} onChange={e => set("supportPhone", e.target.value)} /></F>
-        <F l="Support Email"><Input className="h-11" type="email" value={v.supportEmail} onChange={e => set("supportEmail", e.target.value)} /></F></div>
+        <F l="Support Phone"><Input className="h-9" value={v.supportPhone} onChange={e => set("supportPhone", e.target.value)} /></F>
+        <F l="Support Email"><Input className="h-9" type="email" value={v.supportEmail} onChange={e => set("supportEmail", e.target.value)} /></F></div>
       <p className="mt-3 text-xs text-gray-500">Restaurants see the support phone and email on their Subscription page and lock screen.</p></div>
     <div className={BOX + " mb-6 p-5"}><h3 className="mb-1 text-base font-medium text-gray-800 dark:text-white/90">Invoices</h3>
       <p className="mb-4 text-sm text-gray-500">Every morning, each business whose trial or paid period ends within these days gets its next invoice, due the day the period ends.</p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><F l="Billing Name"><Input className="h-11" placeholder="Skwyd Hub S.A.R.L" value={v.billingName} onChange={e => set("billingName", e.target.value)} /></F>
-        <F l="Tax Number"><Input className="h-11" value={v.billingTaxNo} onChange={e => set("billingTaxNo", e.target.value)} /></F>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><F l="Billing Name"><Input className="h-9" placeholder="Skwyd Hub S.A.R.L" value={v.billingName} onChange={e => set("billingName", e.target.value)} /></F>
+        <F l="Tax Number"><Input className="h-9" value={v.billingTaxNo} onChange={e => set("billingTaxNo", e.target.value)} /></F>
         <div className="sm:col-span-2"><F l="Address"><Textarea rows={2} value={v.billingAddress} onChange={e => set("billingAddress", e.target.value)} /></F></div>
         <div className="sm:col-span-2"><F l="How To Pay"><Textarea rows={3} placeholder="Bank transfer to … · IBAN … · or Whish to …" value={v.paymentInstructions} onChange={e => set("paymentInstructions", e.target.value)} /></F></div>
-        <div className="sm:col-span-2"><F l="Invoice Footer"><Input className="h-11" placeholder="Thank you for running your business on skwyd hub." value={v.invoiceFooter} onChange={e => set("invoiceFooter", e.target.value)} /></F></div>
+        <div className="sm:col-span-2"><F l="Invoice Footer"><Input className="h-9" placeholder="Thank you for running your business on skwyd hub." value={v.invoiceFooter} onChange={e => set("invoiceFooter", e.target.value)} /></F></div>
         <F l="Create Invoices Automatically"><select className={SEL} value={v.autoInvoice ? "1" : "0"} onChange={e => set("autoInvoice", e.target.value === "1")}><option value="1">Yes</option><option value="0">No</option></select></F>
-        <F l="Days Before The Period Ends"><Input className="h-11" type="number" min="0" max="60" value={v.invoiceDaysBefore} onChange={e => set("invoiceDaysBefore", e.target.value)} /></F></div></div>
+        <F l="Days Before The Period Ends"><Input className="h-9" type="number" min="0" max="60" value={v.invoiceDaysBefore} onChange={e => set("invoiceDaysBefore", e.target.value)} /></F></div></div>
     <div className="flex justify-end"><Button disabled={busy} onClick={async () => { setBusy(true);
       try { await rpc("slick_pa_save_settings", { p: { trialDays: +v.trialDays || 0, graceDays: +v.graceDays || 0, currency: v.currency, supportPhone: v.supportPhone.trim(), supportEmail: v.supportEmail.trim(), billingName: v.billingName.trim(), billingTaxNo: v.billingTaxNo.trim(), billingAddress: v.billingAddress.trim(),
         paymentInstructions: v.paymentInstructions.trim(), invoiceFooter: v.invoiceFooter.trim(), autoInvoice: v.autoInvoice, invoiceDaysBefore: Math.max(0, +v.invoiceDaysBefore || 0) } }); toast("Saved"); await reload(); } catch (e: any) { toast(e.message, "error"); } setBusy(false); }}>{busy ? "Saving…" : "Save"}</Button></div>

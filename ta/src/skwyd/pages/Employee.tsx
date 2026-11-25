@@ -117,8 +117,8 @@ function PwDialog({ u, onClose }: { u: Row; onClose: () => void }) {
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{has ? "Change Password" : "Create Password"}</DialogTitle></DialogHeader>
     {!has && <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{u.email ? `${u.email} signs in to the back office with this password.` : "Add the employee's email first (Edit Employee): they sign in to the back office with their email and this password."}</p>}
     <form className="mt-4 space-y-4" onSubmit={e => { e.preventDefault(); save(); }}>
-      <F l={has ? "New Password" : "Password"} req><Input type="password" className="h-11" autoComplete="new-password" placeholder="At least 8 characters" value={p1} onChange={e => setP1(e.target.value)} autoFocus /></F>
-      <F l={has ? "Confirm New Password" : "Confirm Password"} req><Input type="password" className="h-11" autoComplete="new-password" value={p2} onChange={e => setP2(e.target.value)} /></F>
+      <F l={has ? "New Password" : "Password"} req><Input type="password" className="h-9" autoComplete="new-password" placeholder="At least 8 characters" value={p1} onChange={e => setP1(e.target.value)} autoFocus /></F>
+      <F l={has ? "Confirm New Password" : "Confirm Password"} req><Input type="password" className="h-9" autoComplete="new-password" value={p2} onChange={e => setP2(e.target.value)} /></F>
       {err && <p className="text-sm text-red-500">{err}</p>}
       <div className="flex justify-end gap-3"><Button type="button" variant="outline" onClick={onClose}>Close</Button><Button type="submit" disabled={busy}>{busy ? "Saving…" : "Save"}</Button></div></form>
   </DialogContent></Dialog>;

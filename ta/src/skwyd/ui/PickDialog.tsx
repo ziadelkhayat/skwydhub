@@ -16,9 +16,9 @@ export function PickDialog({ title, opts, value, onSave, onClose }: { title: str
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
         <div className="mt-5 flex gap-3">
-          <InputGroup className="h-11 flex-1"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
+          <InputGroup className="h-9 flex-1"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
             <InputGroupInput placeholder="Search" value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
-          <Button variant="outline" className="h-11" onClick={toggleAll}>Select All</Button>
+          <Button variant="outline" className="h-9" onClick={toggleAll}>Select All</Button>
         </div>
         <div className="mt-4 max-h-[50dvh] space-y-0.5 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-800">
           {!vis.length ? <p className="p-3 text-sm text-gray-500">Nothing to choose yet.</p> : vis.map(([id, t, s]) => (

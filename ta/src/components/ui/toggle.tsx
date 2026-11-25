@@ -14,17 +14,17 @@ const toggleVariants = cva(
       },
       size: {
         default:
-          "h-10 min-w-10 gap-2 rounded-[10px] px-3.5 py-2.5 in-data-[slot=toggle-group]:rounded-[10px] has-data-[icon=inline-end]:pe-3 has-data-[icon=inline-start]:ps-3 [&:has(>svg:first-child)]:ps-3 [&:has(>svg:last-child)]:pe-3",
+          "h-10 min-w-10 gap-2 rounded-md px-3.5 py-2.5 in-data-[slot=toggle-group]:rounded-md has-data-[icon=inline-end]:pe-3 has-data-[icon=inline-start]:ps-3 [&:has(>svg:first-child)]:ps-3 [&:has(>svg:last-child)]:pe-3",
         sm: "h-9 min-w-9 gap-1.5 rounded-lg px-3 py-2 in-data-[slot=toggle-group]:rounded-lg has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 [&_svg:not([class*='size-'])]:size-4 [&:has(>svg:first-child)]:ps-2.5 [&:has(>svg:last-child)]:pe-2.5",
         xs: "h-8 min-w-8 gap-1.5 rounded-lg px-2.5 py-1.5 text-xs in-data-[slot=toggle-group]:rounded-lg has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-4 [&:has(>svg:first-child)]:ps-2 [&:has(>svg:last-child)]:pe-2",
-        lg: "h-11 min-w-11 gap-2 rounded-[10px] px-4 py-3 in-data-[slot=toggle-group]:rounded-[10px] has-data-[icon=inline-end]:pe-3.5 has-data-[icon=inline-start]:ps-3.5 [&:has(>svg:first-child)]:ps-3.5 [&:has(>svg:last-child)]:pe-3.5",
-        icon: "size-10 rounded-[10px] p-0 in-data-[slot=toggle-group]:rounded-[10px]",
+        lg: "h-11 min-w-11 gap-2 rounded-md px-4 py-3 in-data-[slot=toggle-group]:rounded-md has-data-[icon=inline-end]:pe-3.5 has-data-[icon=inline-start]:ps-3.5 [&:has(>svg:first-child)]:ps-3.5 [&:has(>svg:last-child)]:pe-3.5",
+        icon: "size-10 rounded-md p-0 in-data-[slot=toggle-group]:rounded-md",
         "icon-sm":
           "size-9 rounded-lg p-0 in-data-[slot=toggle-group]:rounded-lg [&_svg:not([class*='size-'])]:size-4",
         "icon-xs":
           "size-8 rounded-lg p-0 in-data-[slot=toggle-group]:rounded-lg [&_svg:not([class*='size-'])]:size-4",
         "icon-lg":
-          "size-11 rounded-[10px] p-0 in-data-[slot=toggle-group]:rounded-[10px]",
+          "size-11 rounded-md p-0 in-data-[slot=toggle-group]:rounded-md",
       },
     },
     defaultVariants: {

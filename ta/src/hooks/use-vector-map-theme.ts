@@ -4,26 +4,26 @@ import { useMemo } from "react";
 const lightColors = {
   regionFill: "#D0D5DD",
   regionStroke: "#FFFFFF",
-  regionHover: "#465FFF",
-  markerFill: "#465FFF",
+  regionHover: "#3b82f6",
+  markerFill: "#3b82f6",
   markerHover: "#3538CD",
   markerStroke: "#FFFFFF",
   tooltipBg: "#101828",
   tooltipText: "#FFFFFF",
   // Low -> high intensity
-  heatRamp: ["#9CB9FF", "#8098F9", "#465FFF", "#3538CD"],
+  heatRamp: ["#93c5fd", "#8098F9", "#3b82f6", "#3538CD"],
 } as const;
 
 const darkColors = {
   regionFill: "#344054",
   regionStroke: "#1D2939",
-  regionHover: "#465FFF",
-  markerFill: "#465FFF",
+  regionHover: "#3b82f6",
+  markerFill: "#3b82f6",
   markerHover: "#7592FF",
   markerStroke: "#101828",
   tooltipBg: "#344054",
   tooltipText: "#FFFFFF",
-  heatRamp: ["#35459E", "#465FFF", "#7592FF", "#C2D6FF"],
+  heatRamp: ["#35459E", "#3b82f6", "#7592FF", "#C2D6FF"],
 } as const;
 
 export type VectorMapColors = typeof lightColors | typeof darkColors;

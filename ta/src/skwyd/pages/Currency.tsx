@@ -90,7 +90,7 @@ export default function CurrencyPage() {
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-4">
               <F l="Secondary currency" req><select className={SEL} disabled={!admin} value={d.currency2} onChange={e => setD((o: any) => ({ ...o, currency2: e.target.value, currencySymbol2: "" }))}><option value="">Choose…</option>{CURRENCIES.filter(([k]) => k !== d.currency).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></F>
               <F l="Secondary currency symbol" req><select className={SEL} disabled={!admin || !d.currency2} value={d.currencySymbol2} onChange={e => set("currencySymbol2", e.target.value)}><option value="">Choose…</option>{d.currency2 && syms(d.currency2, d.currencySymbol2).map(s => <option key={s}>{s}</option>)}</select></F>
-              <F l={`Exchange rate (1 ${d.currency} =)`} req><Input className="h-11" type="number" min="0" step="any" disabled={!admin} placeholder="e.g. 89500" value={d.rate2} onChange={e => set("rate2", e.target.value)} /></F>
+              <F l={`Exchange rate (1 ${d.currency} =)`} req><Input className="h-9" type="number" min="0" step="any" disabled={!admin} placeholder="e.g. 89500" value={d.rate2} onChange={e => set("rate2", e.target.value)} /></F>
               <F l="Secondary currency decimals" req><select className={SEL} disabled={!admin} value={d.decimals2} onChange={e => set("decimals2", +e.target.value)}>{[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}</select></F>
             </div>
             <p className="mt-3 text-xs text-gray-500">Shown next to totals in the POS, on receipts, in the call center and online. The cashier can take cash in either currency, or both, and the change is shown in both.</p>

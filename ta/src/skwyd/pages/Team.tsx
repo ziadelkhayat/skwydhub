@@ -128,8 +128,8 @@ function EditClock({ x, who: name, store, onClose, onSave, onDelete }: { x: any;
       <DialogContent className="w-full p-6 sm:max-w-md sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Edit Clock-In</DialogTitle></DialogHeader>
         <p className="mt-2 text-sm text-gray-500">{name} · {store}</p>
-        <div className="mt-5 space-y-5"><F l="Clock In" req><Input className="h-11" type="datetime-local" value={a} onChange={e => setA(e.target.value)} /></F>
-          <F l="Clock Out" req><Input className="h-11" type="datetime-local" value={b} onChange={e => setB(e.target.value)} /></F>{err && <p className="text-sm text-red-500">{err}</p>}</div>
+        <div className="mt-5 space-y-5"><F l="Clock In" req><Input className="h-9" type="datetime-local" value={a} onChange={e => setA(e.target.value)} /></F>
+          <F l="Clock Out" req><Input className="h-9" type="datetime-local" value={b} onChange={e => setB(e.target.value)} /></F>{err && <p className="text-sm text-red-500">{err}</p>}</div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button variant="destructive" className="sm:me-auto" onClick={async () => { if (!(await askYes("Delete this clock-in? Its hours are removed from the timesheet.", "Delete", true))) return; try { await onDelete(); toast("Clock-in deleted"); onClose(); } catch { toast("Couldn't delete.", "error"); } }}>Delete</Button>
           <Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={go}>{busy ? "Saving…" : "Save"}</Button></div>
@@ -204,7 +204,7 @@ function DeclineDialog({ name, onClose, onGo }: { r: Row; name: string; onClose:
       <DialogContent className="w-full p-6 sm:max-w-md sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Decline Request</DialogTitle></DialogHeader>
         <p className="mt-2 text-sm text-gray-500">{name}</p>
-        <div className="mt-5"><F l="Reason"><Input className="h-11" autoFocus placeholder="Shown to the employee (optional)" value={why} onChange={e => setWhy(e.target.value)} /></F></div>
+        <div className="mt-5"><F l="Reason"><Input className="h-9" autoFocus placeholder="Shown to the employee (optional)" value={why} onChange={e => setWhy(e.target.value)} /></F></div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button variant="destructive" onClick={async () => { try { await onGo(why.trim()); onClose(); } catch { toast("Couldn't save.", "error"); } }}>Decline</Button></div>
       </DialogContent>

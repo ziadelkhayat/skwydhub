@@ -19,14 +19,14 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-10 gap-2 rounded-[10px] px-4 py-2.5 [&:has(>svg:first-child)]:ps-3 [&:has(>svg:last-child)]:pe-3",
+          "h-9 gap-2 rounded-md px-3 py-2 [&:has(>svg:first-child)]:ps-3 [&:has(>svg:last-child)]:pe-3",
         xs: "h-8 gap-1.5 rounded-lg px-3 py-1.5 in-data-[slot=button-group]:rounded-lg [&:has(>svg:first-child)]:ps-2.5 [&:has(>svg:last-child)]:pe-2.5",
         sm: "h-9 gap-1.5 rounded-lg px-4 py-2 in-data-[slot=button-group]:rounded-lg [&:has(>svg:first-child)]:ps-3 [&:has(>svg:last-child)]:pe-3",
-        lg: "h-11 gap-2 rounded-[10px] px-5 py-3 [&:has(>svg:first-child)]:ps-4 [&:has(>svg:last-child)]:pe-4",
-        icon: "size-10 rounded-[10px]",
+        lg: "h-10 gap-2 rounded-md px-4 py-2.5 [&:has(>svg:first-child)]:ps-4 [&:has(>svg:last-child)]:pe-4",
+        icon: "size-9 rounded-md",
         "icon-xs": "size-8 rounded-lg in-data-[slot=button-group]:rounded-lg",
         "icon-sm": "size-9 rounded-lg in-data-[slot=button-group]:rounded-lg",
-        "icon-lg": "size-11 rounded-[10px]",
+        "icon-lg": "size-11 rounded-md",
       },
     },
     defaultVariants: {

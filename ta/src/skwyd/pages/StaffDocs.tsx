@@ -95,8 +95,8 @@ export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; ty
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit Document" : "Add Document"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Employee" req><select className={SEL} disabled={!!d} value={v.emp} onChange={e => set("emp", e.target.value)}><option value="">Choose…</option>{s.users.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name))).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></F>
-          <F l="Document" req><Input className="h-11" list="sdTypes" placeholder="e.g. Health Certificate" value={v.type} onChange={e => set("type", e.target.value)} /><datalist id="sdTypes">{types.map(t => <option key={t} value={t} />)}</datalist></F>
-          <F l="Number"><Input className="h-11" value={v.no} onChange={e => set("no", e.target.value)} /></F>
+          <F l="Document" req><Input className="h-9" list="sdTypes" placeholder="e.g. Health Certificate" value={v.type} onChange={e => set("type", e.target.value)} /><datalist id="sdTypes">{types.map(t => <option key={t} value={t} />)}</datalist></F>
+          <F l="Number"><Input className="h-9" value={v.no} onChange={e => set("no", e.target.value)} /></F>
           <F l="Issued"><DateInput value={v.iss} onChange={x => set("iss", x)} /></F>
           <F l="Expires"><DateInput value={v.exp} onChange={x => set("exp", x)} /></F>
           <F l="File" full help="PDF or photo, up to 10 MB.">
@@ -104,7 +104,7 @@ export function DocForm({ d, s, types, emp, onClose }: { d: Row | null; s: S; ty
               className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-4 text-sm text-gray-600 hover:border-brand-500 dark:border-gray-700 dark:text-gray-400">
               <span className="truncate">{file ? file.name : d?.fileName ? "Current file: " + d.fileName : "Drop a file here or browse"}</span><Button type="button" size="sm" variant="outline">{file || d?.fileName ? "Replace" : "Browse"}</Button></div>
             <input ref={inp} type="file" hidden accept="image/*,application/pdf" onChange={e => setFile(e.target.files?.[0] || null)} /></F>
-          <F l="Note" full><Input className="h-11" value={v.note} onChange={e => set("note", e.target.value)} /></F>
+          <F l="Note" full><Input className="h-9" value={v.note} onChange={e => set("note", e.target.value)} /></F>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
             {d && <Button type="button" variant="destructive" className="sm:me-auto" onClick={async () => { if (!(await askYes("Delete this document and its file?", "Delete", true))) return;
@@ -124,7 +124,7 @@ function SettingsDialog({ st, onClose }: { st: any; onClose: () => void }) {
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Documents & Onboarding Settings</DialogTitle></DialogHeader>
         <div className="mt-6 space-y-5">
           <F l="Required Documents (one per line)"><Textarea rows={4} value={req} onChange={e => setReq(e.target.value)} /></F>
-          <F l="Warn Before Expiry (Days)"><Input className="h-11" type="number" min="1" value={days} onChange={e => setDays(e.target.value)} /></F>
+          <F l="Warn Before Expiry (Days)"><Input className="h-9" type="number" min="1" value={days} onChange={e => setDays(e.target.value)} /></F>
           <F l="Onboarding Checklist (one step per line)"><Textarea rows={7} value={ck} onChange={e => setCk(e.target.value)} /></F>
         </div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button variant="outline" onClick={onClose}>Cancel</Button>

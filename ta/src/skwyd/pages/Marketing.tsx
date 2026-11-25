@@ -62,7 +62,7 @@ export function LoyaltyPage() {
     delete data.id; delete data.updatedAt; delete data.createdAt;
     if (await saveDoc("loyalty", data, "loyalty settings")) toast("Loyalty settings saved"); setBusy(false);
   }
-  const num = (k: string, l: string) => <F l={l} req><Input className="h-11" type="number" min="0" step="any" value={c[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
+  const num = (k: string, l: string) => <F l={l} req><Input className="h-9" type="number" min="0" step="any" value={c[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
   const B = ({ children }: { children: React.ReactNode }) => <b className="font-semibold text-gray-800 dark:text-white/90">({children})</b>;
   return (
     <>
@@ -147,12 +147,12 @@ function GiftForm({ g, list, cats, save, onClose }: { g: any; list: any[]; cats:
   return (
     <FormDialog title={(g ? "Edit" : "Create") + " Gift Card"} onClose={onClose} onSave={go} busy={busy} err={err}
       onDelete={g ? async () => { if (await askYes("Delete this gift card?", "Delete", true) && await save(list.map(o => o.id === g.id ? { ...o, deleted: true } : o))) { toast("Gift card deleted"); onClose(); } } : undefined}>
-      <F l="Name" req><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
-      <F l="Name Localized"><Input className="h-11" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
+      <F l="Name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
+      <F l="Name Localized"><Input className="h-9" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
       <F l="Category" req><select className={SEL} value={v.categoryId} onChange={e => set("categoryId", e.target.value)}><option value="">Choose…</option>{cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></F>
-      <F l="SKU" req><div className="flex gap-3"><Input className="h-11 flex-1" value={v.sku} onChange={e => set("sku", e.target.value)} /><Button type="button" variant="outline" className="h-11" onClick={() => set("sku", nextSku())}>Generate</Button></div></F>
+      <F l="SKU" req><div className="flex gap-3"><Input className="h-9 flex-1" value={v.sku} onChange={e => set("sku", e.target.value)} /><Button type="button" variant="outline" className="h-9" onClick={() => set("sku", nextSku())}>Generate</Button></div></F>
       <F l="Pricing Method" req><select className={SEL} value={v.pricing} onChange={e => set("pricing", e.target.value)}><option value="fixed">Fixed Price</option><option value="open">Open Price</option></select></F>
-      {v.pricing === "fixed" && <F l={`Price (${sym()})`} req><Input className="h-11" type="number" min="0" step="any" value={v.price} onChange={e => set("price", e.target.value)} /></F>}
+      {v.pricing === "fixed" && <F l={`Price (${sym()})`} req><Input className="h-9" type="number" min="0" step="any" value={v.price} onChange={e => set("price", e.target.value)} /></F>}
     </FormDialog>);
 }
 function GiftCheck({ onClose }: { onClose: () => void }) {
@@ -164,7 +164,7 @@ function GiftCheck({ onClose }: { onClose: () => void }) {
   }
   return (
     <FormDialog title="Check Balance" onClose={onClose} onSave={go} saveLbl="Check" busy={busy}>
-      <F l="Gift Card Code" req full><Input className="h-11" autoFocus autoComplete="off" value={code} onChange={e => setCode(e.target.value)} /></F>
+      <F l="Gift Card Code" req full><Input className="h-9" autoFocus autoComplete="off" value={code} onChange={e => setCode(e.target.value)} /></F>
       {res && (res.found
         ? <div className="col-span-full grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 sm:grid-cols-3 dark:bg-white/3">
           <L l="Code"><span className="font-mono">{res.code}</span></L><L l="Gift Card">{res.name || "—"}</L><L l="Balance"><b>{money(+res.balance || 0)}</b></L>
@@ -236,13 +236,13 @@ function CouponForm({ c, bulk, list, discs, save, onClose }: { c: any; bulk: boo
   return (
     <FormDialog title={bulk ? "Bulk Create Coupons" : c ? "Edit Coupon" : "Create Coupon"} saveLbl={bulk ? "Create" : "Save"} onClose={onClose} onSave={go} busy={busy} err={err}
       onDelete={c ? async () => { if (await askYes("Delete this coupon?", "Delete", true) && await save(list.map(o => o.id === c.id ? { ...o, deleted: true } : o))) { toast("Coupon deleted"); onClose(); } } : undefined}>
-      {bulk && <F l="Number Of Coupons" req help="Number of Coupons to be created."><Input className="h-11" type="number" min="1" max="500" step="1" value={v.n} onChange={e => set("n", e.target.value)} /></F>}
-      <F l="Name" req help="The name of the coupon, used for reporting."><Input className="h-11" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
+      {bulk && <F l="Number Of Coupons" req help="Number of Coupons to be created."><Input className="h-9" type="number" min="1" max="500" step="1" value={v.n} onChange={e => set("n", e.target.value)} /></F>}
+      <F l="Name" req help="The name of the coupon, used for reporting."><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
       <F l="Coupon Type" req help="Whether the coupon applies on an order level or an item level"><select className={SEL} value={v.type} onChange={e => setV(p => ({ ...p, type: e.target.value, discountId: "" }))}><option value="product">Item</option><option value="order">Order</option></select></F>
-      {!bulk && <F l="Code" req help="Customers use this code. Only numbers or letters."><div className="flex gap-3"><Input className="h-11 flex-1 uppercase" value={v.code} onChange={e => set("code", e.target.value)} />
-        <Button type="button" variant="outline" className="h-11" onClick={() => set("code", cpCode())}>Generate</Button></div></F>}
+      {!bulk && <F l="Code" req help="Customers use this code. Only numbers or letters."><div className="flex gap-3"><Input className="h-9 flex-1 uppercase" value={v.code} onChange={e => set("code", e.target.value)} />
+        <Button type="button" variant="outline" className="h-9" onClick={() => set("code", cpCode())}>Generate</Button></div></F>}
       <F l="Discount" req help="A discount from Marketing → Discounts that matches the coupon type"><select className={SEL} value={v.discountId} onChange={e => set("discountId", e.target.value)}><option value="">Choose…</option>{opts.map(d => <option key={d.id} value={d.id}>{d.name} ({dsAmt(d)})</option>)}</select></F>
-      <F l="Maximum Uses" req help="How many times this coupon can be used."><Input className="h-11" type="number" min="1" step="1" value={v.maxUses} onChange={e => set("maxUses", e.target.value)} /></F>
+      <F l="Maximum Uses" req help="How many times this coupon can be used."><Input className="h-9" type="number" min="1" step="1" value={v.maxUses} onChange={e => set("maxUses", e.target.value)} /></F>
       <F l="Start Date" req><DateInput value={v.start} onChange={x => set("start", x)} /></F>
       <F l="End Date" req><DateInput value={v.end} onChange={x => set("end", x)} /></F>
       {c && <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-800 dark:text-white/90">Active</span></label>}

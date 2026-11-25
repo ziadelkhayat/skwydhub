@@ -2,9 +2,9 @@
 import { Field, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/utils";
 
-export const SEL = "h-11 w-full rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90";
+export const SEL = "h-9 w-full rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90";
 export const TH = "px-5 py-3 text-start text-xs font-medium whitespace-nowrap text-gray-500 sm:px-6 dark:text-gray-400";
-export const TD = "px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400";
+export const TD = "px-5 py-2.5 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400";
 export const TR = "cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2";
 export const BOX = "overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3";
 export const Card = ({ title, action, children, className }: { title: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) => (

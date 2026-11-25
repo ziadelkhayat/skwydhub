@@ -80,7 +80,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={cfg.tabs.map(t => [t[0], t[1]])} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
-            <InputGroup className="h-11 flex-1 sm:w-75 sm:flex-initial">
+            <InputGroup className="h-9 flex-1 sm:w-75 sm:flex-initial">
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             </InputGroup>
@@ -181,7 +181,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
   if (f.t === "select") { const opts = f.opts ? f.opts(s) : [];
     return (<Field className={cn(full && "col-span-full")}>{label}
       <Select value={v || null} onValueChange={x => set(x ?? "")} disabled={locked} items={opts.map(([value, l]) => ({ value, label: l }))}>
-        <SelectTrigger className="h-11 w-full"><SelectValue placeholder={f.ph || "Choose..."} /></SelectTrigger>
+        <SelectTrigger className="h-9 w-full"><SelectValue placeholder={f.ph || "Choose..."} /></SelectTrigger>
         <SelectContent>{opts.map(([value, l]) => <SelectItem key={value} value={value}>{l}</SelectItem>)}</SelectContent>
       </Select>{note}</Field>); }
   if (f.t === "multi") { const opts = f.opts ? f.opts(s) : [], cur: string[] = Array.isArray(v) ? v : [];
@@ -192,19 +192,19 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
   if (f.t === "items") { const cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
       <div className="flex flex-col gap-2">{[...cur, ""].map((x, i) => (
-        <Input key={i} className="h-11" value={x} placeholder={i === cur.length ? "Add an option" : ""} onChange={e => { const n = [...cur]; if (i === cur.length) n.push(e.target.value); else n[i] = e.target.value; set(n.filter((y, j) => y !== "" || j < n.length - 1)); }} />))}</div>{note}</Field>); }
+        <Input key={i} className="h-9" value={x} placeholder={i === cur.length ? "Add an option" : ""} onChange={e => { const n = [...cur]; if (i === cur.length) n.push(e.target.value); else n[i] = e.target.value; set(n.filter((y, j) => y !== "" || j < n.length - 1)); }} />))}</div>{note}</Field>); }
   if (f.t === "phone") { const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"]; const str = String(v || ""); const cc = CCS.find(x => str.startsWith(x)) || "+961"; const num = str.startsWith(cc) ? str.slice(cc.length) : str;
     const mk = (c: string, n: string) => { const d = n.replace(/\D/g, "").replace(/^0+/, ""); return d ? c + d : ""; };
     return (<Field className={cn(full && "col-span-full")}>{label}
-      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-11 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
-        <Input className="h-11 flex-1" type="tel" inputMode="tel" placeholder={f.ph || "70 123 456"} value={num} onChange={e => set(mk(cc, e.target.value))} /></div>{note}</Field>); }
+      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-9 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+        <Input className="h-9 flex-1" type="tel" inputMode="tel" placeholder={f.ph || "70 123 456"} value={num} onChange={e => set(mk(cc, e.target.value))} /></div>{note}</Field>); }
   if (f.t === "pin") return (<Field className={cn(full && "col-span-full")}>{label}
-    <div className="flex gap-3"><Input className="h-11 flex-1 tracking-widest" inputMode="numeric" maxLength={5} placeholder={f.ph || "5 digits"} value={v || ""} onChange={e => set(e.target.value.replace(/\D/g, "").slice(0, 5))} />
-      <Button type="button" variant="outline" className="h-11" onClick={() => set(String(Math.floor(10000 + Math.random() * 90000)))}>Generate</Button></div>{note}</Field>);
+    <div className="flex gap-3"><Input className="h-9 flex-1 tracking-widest" inputMode="numeric" maxLength={5} placeholder={f.ph || "5 digits"} value={v || ""} onChange={e => set(e.target.value.replace(/\D/g, "").slice(0, 5))} />
+      <Button type="button" variant="outline" className="h-9" onClick={() => set(String(Math.floor(10000 + Math.random() * 90000)))}>Generate</Button></div>{note}</Field>);
   if (f.t === "date") return (<Field className={cn(full && "col-span-full")}>{label}<DateInput value={v || ""} onChange={set} />{note}</Field>);
   if (f.t === "textarea") return (<Field className="col-span-full">{label}<Textarea rows={4} value={v || ""} placeholder={f.ph} onChange={e => set(e.target.value)} />{note}</Field>);
   if (f.t === "image") return (<Field className="col-span-full">{label}
     <ImageField value={v || ""} onChange={set} />{note}</Field>);
   return (<Field className={cn(full && "col-span-full")}>{label}
-    <Input className="h-11" type={f.t === "number" ? "number" : "text"} inputMode={f.t === "number" ? "decimal" : undefined} value={v ?? ""} placeholder={f.ph || (f.req ? "Required" : "Optional")} disabled={locked} onChange={e => set(e.target.value)} />{note}</Field>);
+    <Input className="h-9" type={f.t === "number" ? "number" : "text"} inputMode={f.t === "number" ? "decimal" : undefined} value={v ?? ""} placeholder={f.ph || (f.req ? "Required" : "Optional")} disabled={locked} onChange={e => set(e.target.value)} />{note}</Field>);
 }

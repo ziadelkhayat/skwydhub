@@ -62,7 +62,7 @@ export default function KnowledgePage() {
       <div className={BOX}>
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={setTab} items={[["active", `Active (${act.length})`], ["archived", `Archived (${arc.length})`]]} />
-          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
+          <div className="flex flex-col gap-3 sm:flex-row"><InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
             <Button onClick={() => setEd({ a: null, step: 0 })}><PlusIcon className="size-5" />Add New</Button></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
@@ -116,9 +116,9 @@ function Detail({ s, a, uName, back, edit, assign }: { s: S; a: Row; uName: (id:
               {(node === "__root" ? !kids(items, "").length && !a.body : cur!.kind === "folder" && !kids(items, cur!.id).length) && <p className="py-10 text-center text-sm text-gray-500">This folder is empty</p>}</div></>
           : <><h4 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-white/90"><PieChartIcon className="size-5" />Overall Statistics</h4>
             <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-4 rounded-xl border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(viewed)} c="#465fff" /><span><small className="block text-gray-500">{viewed}/{aud.length} viewers</small><b className="text-brand-500">{a.ack ? "Confirmed reading" : "Viewed this"}</b></span></div>
+              <div className="flex items-center gap-4 rounded-xl border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(viewed)} c="#3b82f6" /><span><small className="block text-gray-500">{viewed}/{aud.length} viewers</small><b className="text-brand-500">{a.ack ? "Confirmed reading" : "Viewed this"}</b></span></div>
               <div className="flex items-center gap-4 rounded-xl border border-gray-200 p-4 dark:border-gray-800"><Ring p={pc(vm)} c="#f59e0b" /><span><small className="block text-gray-500">{vm}/{aud.length} viewers</small><b className="text-amber-600">Views this month</b></span></div></div>
-            <InputGroup className="mb-4 h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={dq} onChange={e => setDq(e.target.value)} /></InputGroup>
+            <InputGroup className="mb-4 h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={dq} onChange={e => setDq(e.target.value)} /></InputGroup>
             <div className="-mx-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 dark:border-white/5"><table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{["Name", "Groups", "Last Viewed"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Total Views</th></tr></thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">{aud.filter(u => !dq || String(u.name).toLowerCase().includes(dq.toLowerCase())).map(u => { const r = byU[u.id]; return <tr key={u.id}>
                 <td className={TD}><span className="flex items-center gap-2"><Av n={u.name} />{u.name}</span></td><td className={TD}>{roleIds(u).map((id: string) => s.roles.find(x => x.id === id)?.name).filter(Boolean).join(", ") || "—"}</td>
@@ -183,7 +183,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
           </div> : <>
             <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               {adm ? <span /> : <SegTabs value={mode} onChange={v => up({ mode: v })} items={[["groups", "Select By Groups"], ["users", "Select By Users"]]} />}
-              <InputGroup className="h-11 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></InputGroup></div>
+              <InputGroup className="h-9 sm:w-60"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={aq} onChange={e => setAq(e.target.value)} /></InputGroup></div>
             <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
               {mode === "groups" ? <><table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Name</th><th className={TH}>Group</th><th className={TH + " text-end"}>Members</th></tr></thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-white/5">{[...s.roles.filter(r => live(r) && (!qq || String(r.name).toLowerCase().includes(qq))).map(r => ["r", r] as const), ...s.branches.filter(b => live(b) && b.active !== false && (!qq || String(b.name).toLowerCase().includes(qq))).map(b => ["b", b] as const)].map(([k, x]) => {
@@ -220,7 +220,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
               {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><button type="button" onClick={() => setFolder(c.id)} className="hover:text-brand-500">{c.name}</button></span>)}</div>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">{[["text", "Add Text"], ["link", "Add Link"], ["file", "Add Files"], ["folder", "Add Folder"]].map(([k, t]) => <Button key={k} size="sm" variant="outline" onClick={() => k === "file" ? fileIn.current?.click() : setDlg({ kind: k })}>{ICO[k]}{t}</Button>)}</div>
-              <InputGroup className="h-11 sm:w-56"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
+              <InputGroup className="h-9 sm:w-56"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
             <input ref={fileIn} type="file" multiple hidden accept="image/*,application/pdf,video/mp4,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={e => { upload(e.target.files); e.target.value = ""; }} />
             <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 dark:divide-white/5 dark:border-gray-800">
               {!folder && E.body && <div className="flex items-center gap-3 px-4 py-3">{ICO.text}<b className="text-sm font-medium text-gray-800 dark:text-white/90">Text (from the old article)</b><span className="flex-1 truncate text-xs text-gray-500">{E.body.slice(0, 80)}</span>
@@ -273,12 +273,12 @@ function ItemDialog({ d, E, folder, up, cats, onClose }: { d: any; E: Ed; folder
         <form className="mt-6 space-y-5" onSubmit={e => { e.preventDefault(); save(); }}>
           {d.kind === "settings" ? <>
             <F l="Category"><select className={SEL} value={cat} onChange={e => setCat(e.target.value)}>{cats.map(c => <option key={c}>{c}</option>)}<option value="__other">New category…</option></select></F>
-            {cat === "__other" && <F l="New Category" req><Input className="h-11" maxLength={40} placeholder="e.g. Cleaning" value={other} onChange={e => setOther(e.target.value)} /></F>}
+            {cat === "__other" && <F l="New Category" req><Input className="h-9" maxLength={40} placeholder="e.g. Cleaning" value={other} onChange={e => setOther(e.target.value)} /></F>}
             <label className="flex cursor-pointer items-center gap-3"><Switch checked={pin} onCheckedChange={v => setPin(!!v)} /><span className="text-sm text-gray-800 dark:text-white/90">Pin to the top in the apps</span></label>
             <label className="flex cursor-pointer items-center gap-3"><Switch checked={ack} onCheckedChange={v => setAck(!!v)} /><span className="text-sm text-gray-800 dark:text-white/90">Employees must confirm they read it</span></label>
           </> : <>
-            <F l={d.kind === "link" ? "Title" : "Name"} req={d.kind === "folder" || d.kind === "name" || d.kind === "rename"}><Input className="h-11" autoFocus maxLength={160} placeholder={d.kind === "folder" ? "e.g. Opening" : d.kind === "link" ? "e.g. Training video" : d.kind === "name" ? "e.g. Kitchen Guide" : "e.g. Opening checklist"} value={name} onChange={e => setName(e.target.value)} /></F>
-            {d.kind === "link" && <F l="Link" req><Input className="h-11" placeholder="https://" value={url} onChange={e => setUrl(e.target.value)} /></F>}
+            <F l={d.kind === "link" ? "Title" : "Name"} req={d.kind === "folder" || d.kind === "name" || d.kind === "rename"}><Input className="h-9" autoFocus maxLength={160} placeholder={d.kind === "folder" ? "e.g. Opening" : d.kind === "link" ? "e.g. Training video" : d.kind === "name" ? "e.g. Kitchen Guide" : "e.g. Opening checklist"} value={name} onChange={e => setName(e.target.value)} /></F>
+            {d.kind === "link" && <F l="Link" req><Input className="h-9" placeholder="https://" value={url} onChange={e => setUrl(e.target.value)} /></F>}
             {d.kind === "text" && <F l="Text" req help="Use ## for a heading, - for a list item and **bold**."><Textarea rows={12} value={body} onChange={e => setBody(e.target.value)} /></F>}
           </>}
           {err && <p className="text-sm text-red-500">{err}</p>}

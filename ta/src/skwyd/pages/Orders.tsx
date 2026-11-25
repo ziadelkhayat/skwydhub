@@ -22,7 +22,7 @@ export const ST_COLOR: Record<string, any> = { closed: "success", active: "prima
 export const TYPE_LBL: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", fast: "In Store", other: "Other" };
 export const CHL: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace" };
 const PER = 50;
-const SEL = "h-11 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
+const SEL = "h-9 rounded-lg border border-gray-300 bg-transparent ps-3 pe-9 text-sm text-gray-700 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300";
 export const camel = (r: any) => { const o: any = {}; for (const [k, v] of Object.entries(r)) o[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] = v; if (o.tableNo != null) o.table = o.tableNo; return o; };
 export const invNo = (n: any) => n ? String(n).padStart(6, "0") : "";
 // every order, return included, has its own reference; a return gets a check number and an order number in sequence like a done order (older returns kept RET-)
@@ -102,7 +102,7 @@ export default function OrdersPage() {
           {/* every tab shown (they wrap on small screens), the filters on the line under them */}
           <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial">
+            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial">
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             </InputGroup>
@@ -115,7 +115,15 @@ export default function OrdersPage() {
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
           {err ? <p className="p-6 text-sm text-red-500">Couldn't load orders: {err}</p>
             : !rows.length ? <EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />
-            : <table className="min-w-full">
+            : <>
+            {/* phones: one row per order, Tremor list style */}
+            <ul className="divide-y divide-gray-100 md:hidden dark:divide-white/5">{rows.map(o => (
+              <li key={o.id}><button type="button" onClick={() => openWin("/order?id=" + o.id)} className="flex w-full items-start justify-between gap-3 px-4 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
+                <span className="min-w-0"><span className="flex flex-wrap items-center gap-2"><b className="font-semibold text-gray-900 dark:text-white/90">{ordRef(o)}</b><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></span>
+                  <span className="block text-xs text-gray-500">{[TYPE_LBL[o.type] || o.type, srcOf(o), o.customerName].filter(Boolean).join(" · ")}</span>
+                  <span className="block text-xs text-gray-400">{[branches.find(b => b.id === o.branchId)?.name, fmtDate(o.createdAt) + " " + new Date(o.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })].filter(Boolean).join(" · ")}</span></span>
+                <b className="shrink-0 font-medium text-gray-900 dark:text-white/90">{money(o.total)}</b></button></li>))}</ul>
+            <table className="hidden min-w-full md:table">
               <thead className="border-b border-gray-100 dark:border-white/5"><tr>
                 {["Reference", "Check Number", "Order", "Store", "Customer", "Status", "Order Type", "Order Source", "Business Date", "Opened At", "Payment Type"].map(h => <th key={h} className={th}>{h}</th>)}
                 <th className={th + " text-end"}>Total</th></tr></thead>
@@ -137,7 +145,7 @@ export default function OrdersPage() {
                       <td className={td + " text-end font-medium text-gray-800 dark:text-white/90"}>{money(o.total)}</td>
                     </tr>); })}
               </tbody>
-            </table>}
+            </table></>}
         </div>
         {count > 0 && <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/5">
           <Pager currentPage={page} totalPages={pages} onPageChange={setPage} />
@@ -152,7 +160,7 @@ export default function OrdersPage() {
 
 function FilterDialog({ F, onApply, onClose, brands, devices, sources, pays }: { F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void; brands: any[]; devices: any[]; sources: string[]; pays: string[] }) {
   const [d, setD] = useState<Record<string, string>>({ ...F });
-  const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><Input className="h-11" placeholder={ph || ""} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })} /></Field>;
+  const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><Input className="h-9" placeholder={ph || ""} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })} /></Field>;
   const sel = (k: string, l: string, opts: [string, string][]) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><select className={SEL + " w-full"} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })}><option value="">Any</option>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></Field>;
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>

@@ -453,7 +453,7 @@ export function VectorMap({
           white-space: nowrap;
           padding: 4px 8px;
           border-radius: 8px;
-          font: 500 12px/16px Outfit, sans-serif;
+          font: 500 12px/16px Inter, sans-serif;
           color: ${colors.tooltipText};
           background: ${colors.tooltipBg};
           box-shadow: 0 4px 8px -2px rgba(16, 24, 40, 0.1);

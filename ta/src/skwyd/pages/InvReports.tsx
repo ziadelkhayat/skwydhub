@@ -56,7 +56,7 @@ export function InvLevelsPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap"><BrandSel s={s} v={brand} set={setBrand} />
             <select aria-label="Store or warehouse" className={SEL + " sm:w-48"} value={loc} onChange={e => setLoc(e.target.value)}>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select>
             <select aria-label="Category" className={SEL + " sm:w-44"} value={cat} onChange={e => setCat(e.target.value)}><option value="">All categories</option>{catNames.map(n => <option key={n}>{n}</option>)}</select>
-            <InputGroup className="h-11 sm:w-52"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
+            <InputGroup className="h-9 sm:w-52"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
         </div>
         <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
           {!locs.length ? <EmptyState text="Add a store or a warehouse first." /> : !stock ? <EmptyState text="Loading stock…" /> : !rows.length ? <EmptyState text={low === "low" ? "Nothing is at a low level." : "No items."} />

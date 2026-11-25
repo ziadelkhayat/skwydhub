@@ -43,7 +43,7 @@ export default function CustomersPage() {
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
-            <InputGroup className="h-11 flex-1 sm:w-64 sm:flex-initial">
+            <InputGroup className="h-9 flex-1 sm:w-64 sm:flex-initial">
               <InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon>
               <InputGroupInput type="text" placeholder="Search..." value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
             </InputGroup>
@@ -86,17 +86,17 @@ export function CustomerDialog({ c, onClose, onSaved }: { c: any; onClose: () =>
     if (res.error) return setErr(/duplicate|unique/i.test(res.error.message) ? "A customer with this phone already exists (check the Deleted tab)." : res.error.message);
     toast(c?.id ? "Customer saved" : "Customer added"); onSaved(); onClose();
   }
-  const sel = "h-11 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90";
+  const sel = "h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90";
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
         <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{c?.id ? "Edit Customer" : "Add Customer"}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
-          <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Name <span className="text-red-500">*</span></FieldLabel><Input className="h-11" value={name} onChange={e => setName(e.target.value)} /></Field>
+          <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Name <span className="text-red-500">*</span></FieldLabel><Input className="h-9" value={name} onChange={e => setName(e.target.value)} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
             <div className="flex gap-3"><select aria-label="Country code" className={sel.replace("w-full", "w-28 shrink-0")} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
-              <Input className="h-11 flex-1" type="tel" inputMode="tel" value={num} onChange={e => setNum(e.target.value)} /></div></Field>
-          <Field><FieldLabel className="mb-1.5 block">Email</FieldLabel><Input className="h-11" type="email" value={email} onChange={e => setEmail(e.target.value)} /></Field>
+              <Input className="h-9 flex-1" type="tel" inputMode="tel" value={num} onChange={e => setNum(e.target.value)} /></div></Field>
+          <Field><FieldLabel className="mb-1.5 block">Email</FieldLabel><Input className="h-9" type="email" value={email} onChange={e => setEmail(e.target.value)} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Birth Date</FieldLabel><DateInput value={bday || ""} onChange={setBday} /></Field>
           <Field><FieldLabel className="mb-1.5 block">Gender</FieldLabel><select className={sel} value={gender} onChange={e => setGender(e.target.value)}><option value="">—</option><option value="male">Male</option><option value="female">Female</option></select></Field>
           <Field className="col-span-full"><FieldLabel className="mb-1.5 block">Customer Notes</FieldLabel><Textarea rows={3} placeholder="Allergies, preferences, gate code…" value={notes} onChange={e => setNotes(e.target.value)} />
