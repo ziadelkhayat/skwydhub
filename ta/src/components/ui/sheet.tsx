@@ -21,11 +21,10 @@ function SheetContent({ className, children, side = "right", showCloseButton = t
         data-side={side}
         className={cx(
           "fixed z-[101] flex flex-col gap-4 overflow-y-auto border-gray-200 bg-white p-6 text-sm shadow-lg outline-none dark:border-gray-900 dark:bg-[#090E1A]",
-          side === "right" && "sm:inset-y-2 sm:right-2 sm:w-[95vw] sm:max-w-lg sm:rounded-md sm:border sm:data-[state=open]:animate-drawerSlideLeftAndFade",
-          side === "left" && "sm:inset-y-2 sm:left-2 sm:w-[95vw] sm:max-w-sm sm:rounded-md sm:border",
+          side === "right" && "inset-y-0 right-0 w-full border-l data-[state=open]:animate-drawerSlideLeftAndFade sm:inset-y-2 sm:right-2 sm:w-[95vw] sm:max-w-lg sm:rounded-md sm:border",
+          side === "left" && "inset-y-0 left-0 w-full border-r data-[state=open]:animate-drawerSlideRightAndFade sm:inset-y-2 sm:left-2 sm:w-[95vw] sm:max-w-sm sm:rounded-md sm:border",
           side === "top" && "inset-x-0 top-0 max-h-[85vh] border-b",
           side === "bottom" && "inset-x-0 bottom-0 max-h-[85vh] border-t",
-          (side === "right" || side === "left") && "max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[calc(100dvh-0.75rem)] max-sm:rounded-t-xl max-sm:border-t",
           className,
         )}
         {...props}

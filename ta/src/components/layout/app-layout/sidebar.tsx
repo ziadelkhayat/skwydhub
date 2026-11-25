@@ -5,13 +5,11 @@ import { RiArrowDownSLine, RiCloseLine, RiMenuLine } from "@remixicon/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cx, focusRing } from "@/components/tremor/utils";
 import { useAccess } from "@/lib/access";
-import { useCol } from "@/lib/db";
 import { LABELS, SECTIONS, type NavItem } from "./nav-data";
 import { UserMenu } from "./user-menu";
 
 const isOn = (pathname: string, path?: string) => !!path && (path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/"));
 const groupOn = (pathname: string, it: NavItem) => it.subItems?.some(s => isOn(pathname, s.path)) ?? false;
-const ini = (s: string) => s.split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase() || "SH";
 
 function useSections() {
   const { canOpen } = useAccess();
@@ -75,22 +73,6 @@ function NavList({ onGo }: { onGo?: () => void }) {
   );
 }
 
-/** The business card at the top (Tremor's workspace switcher look). */
-function BusinessCard({ compact }: { compact?: boolean }) {
-  const settings = useCol("settings");
-  const co: any = settings?.find(r => r.id === "company") || {};
-  const name = co.name || "Skwyd Hub";
-  return (
-    <Link to="/account" className={cx("flex min-w-0 items-center gap-x-2.5 rounded-md text-sm transition", compact ? "p-1" : "w-full border border-gray-300 bg-white p-2 shadow-sm hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 hover:dark:bg-gray-900", focusRing)}>
-      <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded bg-blue-600 text-xs font-medium text-white dark:bg-blue-500" aria-hidden="true">{ini(name)}</span>
-      <span className="min-w-0 truncate">
-        <span className="block truncate font-medium text-gray-900 dark:text-gray-50">{name}</span>
-        {!compact && <span className="block truncate text-xs text-gray-500 dark:text-gray-400">{co.accountNo ? "Account " + co.accountNo : "Back office"}</span>}
-      </span>
-    </Link>
-  );
-}
-
 export function AppSidebar() {
   const [mobile, setMobile] = useState(false);
   return (
@@ -98,14 +80,13 @@ export function AppSidebar() {
       {/* sidebar (lg+) */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-          <BusinessCard />
           <NavList />
           <div className="mt-auto"><UserMenu /></div>
         </aside>
       </div>
       {/* top bar (below lg) */}
       <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-x-2 border-b border-gray-200 bg-white px-2 shadow-sm sm:px-4 lg:hidden dark:border-gray-800 dark:bg-gray-950">
-        <BusinessCard compact />
+        <span className="px-2 font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub</span>
         <div className="flex items-center gap-1 sm:gap-2">
           <UserMenu compact />
           <DialogPrimitive.Root open={mobile} onOpenChange={setMobile}>

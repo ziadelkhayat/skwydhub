@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -27,15 +27,15 @@ const unitCost = (items: Row[]) => { const of = (id: string) => items.find(i => 
   return unit; };
 function locsOf(s: S, brand: string) {
   const locBrand = (id: string) => s.branches.find(b => b.id === id)?.brandId || s.warehouses.find(w => w.id === id)?.brandId || "";
-  const has = (id: string) => !brand || !locBrand(id) || locBrand(id) === brand;
-  const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")] as [string, string])];
+  const has = (id: string) => !brand || !locBrand(id) || inSel(brand, locBrand(id));
+  const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!brand || inSel(brand, b.brandId))).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name + (w.reference ? ` (${w.reference})` : "")] as [string, string])];
   const name = (id?: string) => s.branches.find(b => b.id === id)?.name || s.warehouses.find(w => w.id === id)?.name || "—";
   return { locs, name, has };
 }
 const Head = ({ title, back, children }: { title: string; back: () => void; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={title} />
   <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Inventory Reports</Button><div className="flex flex-wrap gap-3">{children}</div></div></>;
-const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <FilterSelect title="Brand" value={v} onChange={v => set(v)} all="All Brands" options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} /> : null;
+const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <FilterSelect multiple title="Brand" value={v} onChange={v => set(v)} all="All Brands" options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} /> : null;
 
 export function InvLevelsPage() {
   const s = useS(["inv_items", "inv_categories", "branches", "warehouses", "brands"]), nav = useNavigate();
@@ -113,7 +113,7 @@ export function PurchasingReportPage() {
   const [from, setFrom] = useState(addDays(today(), -29)), [to, setTo] = useState(today()), [brand, setBrand] = useState(""), [loc, setLoc] = useState("");
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const { locs, has } = locsOf(s, brand), itemOf = (id: string) => s.inv_items.find(i => i.id === id);
-  const docs = s.inv_docs.filter(d => live(d) && d.kind === "purchase" && d.status === "closed" && (!loc || d.locationId === loc) && (!brand || (d.brandId ? d.brandId === brand : has(d.locationId))))
+  const docs = s.inv_docs.filter(d => live(d) && d.kind === "purchase" && d.status === "closed" && (!loc || d.locationId === loc) && (!brand || (d.brandId ? inSel(brand, d.brandId) : has(d.locationId))))
     .filter(d => { const day = String(d.receivedAt || d.submittedAt || d.createdAt || "").slice(0, 10); return day >= from && day <= to; });
   const m: Record<string, any> = {}; docs.forEach(d => (d.items || []).forEach((l: any) => { const k = l.itemId + "|" + (d.supplierId || ""); const r = m[k] ||= { itemId: l.itemId, sup: d.supplierId, qty: 0, total: 0 }; r.qty += +l.qty || 0; r.total += (+l.qty || 0) * (+l.cost || +(itemOf(l.itemId)?.cost) || 0); }));
   const rows = Object.values(m).sort((a: any, b: any) => b.total - a.total) as any[], total = rows.reduce((a, r) => a + r.total, 0), sup = (id: string) => s.suppliers.find(x => x.id === id)?.name || "—";

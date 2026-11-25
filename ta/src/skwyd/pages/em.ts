@@ -25,7 +25,10 @@ export const rqDays = (r: any) => r.fromDay ? Math.max(1, Math.round((+new Date(
 export const rqUsed = (reqs: Row[], empId: string, type: string, year: number | string) => reqs.filter(r => !r.deleted && r.status === "approved" && r.kind === "time_off" && r.employeeId === empId && r.leaveType === type && d10s(r.fromDay).slice(0, 4) === String(year)).reduce((s, r) => s + rqDays(r), 0);
 export const rqOffOn = (reqs: Row[], empId: string, day: string) => reqs.find(r => !r.deleted && r.status === "approved" && r.kind === "time_off" && r.employeeId === empId && d10s(r.fromDay) <= day && day <= d10s(r.toDay || r.fromDay));
 /** a store passes when no brand is chosen or it belongs to the chosen brand */
-export const inBrand = (branches: Row[], branchId: string, brand: string) => !brand || branches.find(b => b.id === branchId)?.brandId === brand;
+/** brand: "" (all) or one or more brand ids joined by commas */
+export const inBrand = (branches: Row[], branchId: string, brand: string) => !brand || brand.split(",").includes(String(branches.find(b => b.id === branchId)?.brandId));
+/** store filter: "" (all) or ids joined by commas */
+export const inStore = (sel: string, id: unknown) => !sel || sel.split(",").includes(String(id ?? ""));
 /** the stores an employee works at (none set = every store) */
 export const empStores = (u: Row | undefined, branches: Row[]) => { const ids = (u?.branchIds || []).filter((b: string) => b && b !== "-"); return ids.length ? ids : branches.map(b => b.id); };
 export const who = (staff: any) => staff?.name || staff?.email || "Back office";

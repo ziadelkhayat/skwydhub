@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -77,10 +77,10 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
     for (let i = 0; i < 3 && bid; i++) { const c = closes.find(x => x.branchId === bid && String(x.businessDate).slice(0, 10) === d); if (c && +new Date(c.closedAt) <= ms) { const x = new Date(d + "T12:00:00"); x.setDate(x.getDate() + 1); d = isoOf(x); } else break; } return d; };
   const ready = branches.length > 0 || brands.length > 0;
   async function fetchAll(table: string, sel: string, col: string, f: string, t: string) {
-    const c = cut(branch || undefined), t0 = new Date(f + "T00:00:00"), t1 = new Date(t + "T00:00:00"); t1.setDate(t1.getDate() + 1); t0.setMinutes(c); t1.setMinutes(c);
+    const c = cut(branch && !branch.includes(",") ? branch : undefined), t0 = new Date(f + "T00:00:00"), t1 = new Date(t + "T00:00:00"); t1.setDate(t1.getDate() + 1); t0.setMinutes(c); t1.setMinutes(c);
     const out: any[] = [];
     for (let p = 0; p < 50; p++) { let q: any = sb.from(table).select(sel).gte(col, t0.toISOString()).lt(col, t1.toISOString()).order(col, { ascending: true }).range(p * 1000, p * 1000 + 999);
-      if (branch) q = q.eq("branch_id", branch); else if (brand) { const ids = branches.filter(b => b.brandId === brand).map(b => b.id); q = q.in("branch_id", ids.length ? ids : ["-"]); }
+      if (branch) q = q.in("branch_id", selList(branch)); else if (brand) { const ids = branches.filter(b => inSel(brand, b.brandId)).map(b => b.id); q = q.in("branch_id", ids.length ? ids : ["-"]); }
       const { data, error } = await q; if (error) throw error; out.push(...data); if (data.length < 1000) break; }
     return out.map(camel);
   }
@@ -213,8 +213,8 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
           <Button variant="outline" size="icon-lg" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
           {rk === "sales" && <SelectNative aria-label="Report" className={SEL + " sm:w-52"} value={dim} onChange={e => { setDim(e.target.value); if (group === e.target.value) setGroup(""); }}>{DIMS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</SelectNative>}
           {rk === "sales" && <SelectNative aria-label="Group By" className={SEL + " sm:w-44"} value={group} onChange={e => setGroup(e.target.value)}>{GROUPS.filter(g => g[0] !== dim).map(([v, t]) => <option key={v} value={v}>Group By: {t}</option>)}</SelectNative>}
-          {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); if (branch && v && branches.find(b => b.id === branch)?.brandId !== v) setBranch(""); }} all="All Brands" options={brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-          <FilterSelect title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+          {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setBranch(selList(branch).filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",")); }} all="All Brands" options={brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+          <FilterSelect multiple title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={branches.filter(b => live(b) && b.active !== false && inSel(brand, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
         </div>
         <div className="flex gap-3">{loading && <span className="self-center text-sm text-gray-500">Loading…</span>}<Button variant="outline" disabled={!B} onClick={exportCsv}><DownloadIcon className="size-5" />Export</Button><Button variant="outline" disabled={!B} onClick={print}>Print</Button></div>

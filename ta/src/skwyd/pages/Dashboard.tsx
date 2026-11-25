@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { CategoryBarCard, ChartCard, ProgressBarCard, CAT_COLORS, changeBadge } from "@/components/tremor/overview/OverviewCards";
 import { BarList } from "@/components/tremor/BarList";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), laid out like the Tremor dashboard template Overview.
@@ -9,9 +9,10 @@ import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { money } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { DatePicker } from "@/components/tremor/DatePicker";
+import { PeriodPicker } from "../ui/PeriodPicker";
+import { Label } from "@/components/tremor/Label";
+import { Switch } from "@/components/ui/switch";
 import { SegTabs } from "../ui/SegTabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
@@ -23,23 +24,22 @@ export default function Dashboard() {
 
   // Day / Week (Mon–Sun) / Month of one business date, "compared to" the period before, last year, or nothing
   const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(today);
-  const [period, setPeriod] = useState<"previous-period" | "last-year" | "no-comparison">("no-comparison");
+  const [cmp, setCmp] = useState(false), [cmpAt, setCmpAt] = useState<Date | null>(null);
   const [brand, setBrand] = useState(""), [store, setStore] = useState("");
-  const cmp = period !== "no-comparison";
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
-  const myStores = stores.filter((x: Row) => !brand || x.brandId === brand);
+  const myStores = stores.filter((x: Row) => inSel(brand, x.brandId));
   const span = (k: string, d0: Date) => { const d = new Date(d0); d.setHours(12, 0, 0, 0);
     if (k === "7") { d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return { start: d, n: 7 }; }
     if (k === "30") { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12); return { start: a, n: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() }; }
     return { start: d, n: 1 }; };
   const per = span(kind, at);
-  const cmpPer = period === "last-year" ? span(kind, (() => { const x = new Date(at); x.setFullYear(x.getFullYear() - 1); return x; })())
-    : span(kind, new Date(+per.start - 86400000));
+  // compared with: the period picked on the second calendar, or the one just before
+  const cmpPer = span(kind, cmpAt || new Date(+per.start - 86400000));
   const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
-    const br = store ? [store] : brand ? myStores.map((x: Row) => x.id) : null;
-    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand || null, p_tz: tz });
+    const br = store ? selList(store) : brand ? myStores.map((x: Row) => x.id) : null;
+    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz });
     Promise.all([call(per.start, per.n), cmp ? call(cmpPer.start, cmpPer.n) : Promise.resolve(null)]).then(([a, b]: any[]) => { if (off) return; const e = a.error || b?.error; if (e) setErr(e.message); else { setD(a.data || {}); setP(b ? b.data || {} : null); } });
     return () => { off = true; }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -77,21 +77,12 @@ export default function Dashboard() {
     <>
       <PageBreadcrumb pageTitle="Summary" />
       <div className="sticky top-16 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10 lg:pt-4 dark:border-gray-800 dark:bg-gray-950">
-        {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setStore(""); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-        <FilterSelect title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
-        <SegTabs value={kind} onChange={v => setKind(v as any)} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
-        <DatePicker value={at} onChange={d => d && setAt(d)} toDate={today()} enableYearNavigation align="start" placeholder="Business Date"
-          presets={[{ label: "Today", date: today() }, { label: "Yesterday", date: new Date(+today() - 86400000) }]} className="h-[30px] w-full py-1 sm:w-44" />
-        {per.n > 1 && <span className="text-xs text-gray-500">{fmtD(per.start)} → {fmtD(new Date(+per.start + (per.n - 1) * 86400000))}</span>}
-        <span className="hidden text-sm font-medium text-gray-500 sm:block">compared to</span>
-        <Select value={period} onValueChange={v => setPeriod(v as any)}>
-          <SelectTrigger className="h-[30px] w-full py-1 sm:w-fit"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="previous-period">Previous period</SelectItem>
-            <SelectItem value="last-year">Last year</SelectItem>
-            <SelectItem value="no-comparison">No comparison</SelectItem>
-          </SelectContent>
-        </Select>
+        {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setStore(st => selList(st).filter(id => inSel(v, stores.find((x: Row) => x.id === id)?.brandId)).join(",")); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+        <FilterSelect multiple title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
+        <SegTabs value={kind} onChange={v => { setKind(v as any); setCmpAt(null); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
+        <PeriodPicker kind={kind} value={at} onChange={d => { setAt(d); setCmpAt(null); }} max={today()} />
+        <Label className="flex h-[30px] cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</Label>
+        {cmp && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}
       </div>
       {err ? <p className="mt-8 text-sm text-red-600">Couldn't load the summary: {err}</p>
         : !D ? <p className="mt-8 text-sm text-gray-500">Loading live numbers…</p>

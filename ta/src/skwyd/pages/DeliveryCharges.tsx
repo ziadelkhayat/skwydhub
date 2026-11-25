@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -42,7 +42,7 @@ export default function DeliveryChargesPage() {
   const chargeOf = (z: Row) => { const id = dmap[z.id]; return id ? s.charges.find(c => c.id === id && live(c)) : null; };
   const all = s.zones.filter(z => live(z) && z.branchId && s.branches.some(b => b.id === z.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   const qq = q.trim().toLowerCase();
-  const inB = (id: string) => !brand || s.branches.find(b => b.id === id)?.brandId === brand;
+  const inB = (id: string) => !brand || inSel(brand, s.branches.find(b => b.id === id)?.brandId);
   const list = all.filter(z => (!br || z.branchId === br) && inB(z.branchId) && (!qq || (z.name + " " + bName(z.branchId) + " " + (chargeOf(z)?.name || "")).toLowerCase().includes(qq)));
   const picked = list.filter(z => sel.has(z.id)).map(z => z.id), allOn = list.length > 0 && picked.length === list.length;
   const brs = s.branches.filter(b => all.some(z => z.branchId === b.id) && inB(b.id));
@@ -52,7 +52,7 @@ export default function DeliveryChargesPage() {
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set the charge each store adds when it delivers to a delivery zone. Call center orders get it automatically when the customer's address is in the zone and the order is made by that store; web ordering uses it as the delivery fee.</p>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); setSel(new Set()); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+          <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); setSel(new Set()); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
           <FilterSelect title="Store" value={br} onChange={v => { setBr(v); setSel(new Set()); }} all="All Stores" options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} /></div>
           <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>

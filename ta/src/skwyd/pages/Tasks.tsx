@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Label } from "@/components/tremor/Label";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -29,12 +29,12 @@ export default function TasksPage() {
   const s = useS(["tasks", "users", "branches", "brands"]), { staff } = useAuth();
   const [tab, setTab] = useState("open"), [br, setBr] = useState(""), [brand, setBrand] = useState(""), [q, setQ] = useState(""), [form, setForm] = useState<Row | null | undefined>(undefined);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
-  const all = s.tasks.filter(t => !t.deleted), stores = s.branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand));
+  const all = s.tasks.filter(t => !t.deleted), stores = s.branches.filter(b => live(b) && b.active !== false && inSel(brand, b.brandId));
   const n = (k: string) => all.filter(t => k === "all" || (k === "done") === (t.status === "done")).length;
   const whoOf = (t: Row) => (t.assigneeIds || []).length ? t.assigneeIds.map((id: string) => s.users.find(u => u.id === id)?.name || "—").join(", ") : t.branchId ? "Everyone at " + (s.branches.find(b => b.id === t.branchId)?.name || "") : "Everyone";
   const late = (t: Row) => t.status !== "done" && t.dueDay && d10s(t.dueDay) < today();
   const qq = q.trim().toLowerCase();
-  const rows = all.filter(t => (tab === "all" || (tab === "done") === (t.status === "done")) && (!brand || !t.branchId || stores.some(b => b.id === t.branchId)) && (!br || t.branchId === br || (t.assigneeIds || []).some((id: string) => (s.users.find(u => u.id === id)?.branchIds || []).includes(br))) && (!qq || (t.title + " " + (t.notes || "")).toLowerCase().includes(qq)))
+  const rows = all.filter(t => (tab === "all" || (tab === "done") === (t.status === "done")) && (!brand || !t.branchId || stores.some(b => b.id === t.branchId)) && (!br || selList(br).includes(t.branchId) || (t.assigneeIds || []).some((id: string) => (s.users.find(u => u.id === id)?.branchIds || []).includes(br))) && (!qq || (t.title + " " + (t.notes || "")).toLowerCase().includes(qq)))
     .sort((a, b) => (+(a.status === "done") - +(b.status === "done")) || String(a.dueDay || "9999").localeCompare(String(b.dueDay || "9999")) || String(b.createdAt).localeCompare(String(a.createdAt)));
   const toggle = async (t: Row) => { const done = t.status !== "done"; try { await put("tasks", t.id, { status: done ? "done" : "open", doneAt: done ? new Date().toISOString() : null, doneBy: done ? who(staff) : null }); } catch { toast("Couldn't save.", "error"); } };
   return (
@@ -45,8 +45,8 @@ export default function TasksPage() {
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
-            <FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-            <FilterSelect title="Store" value={br} onChange={v => setBr(v)} all="All Stores" options={stores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <FilterSelect multiple title="Store" value={br} onChange={v => setBr(v)} all="All Stores" options={stores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
         </div>
         <div className="relative overflow-x-auto">
