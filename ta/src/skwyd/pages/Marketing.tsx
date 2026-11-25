@@ -27,7 +27,7 @@ function FormDialog({ title, onClose, onSave, onDelete, saveLbl = "Save", busy, 
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); onSave(); }}>
           {children}
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
@@ -63,18 +63,18 @@ export function LoyaltyPage() {
     if (await saveDoc("loyalty", data, "loyalty settings")) toast("Loyalty settings saved"); setBusy(false);
   }
   const num = (k: string, l: string) => <F l={l} req><Input className="h-9" type="number" min="0" step="any" value={c[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
-  const B = ({ children }: { children: React.ReactNode }) => <b className="font-semibold text-gray-800 dark:text-white/90">({children})</b>;
+  const B = ({ children }: { children: React.ReactNode }) => <b className="font-semibold text-gray-900 dark:text-gray-50">({children})</b>;
   return (
     <>
       <PageBreadcrumb pageTitle="Loyalty Settings" />
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex cursor-pointer items-center gap-3"><Switch checked={!!c.enabled} onCheckedChange={v => set("enabled", !!v)} /><span className="text-base font-semibold text-gray-800 dark:text-white/90">Enable Loyalty</span></label>
+          <label className="flex cursor-pointer items-center gap-3"><Switch checked={!!c.enabled} onCheckedChange={v => set("enabled", !!v)} /><span className="text-base font-semibold text-gray-900 dark:text-gray-50">Enable Loyalty</span></label>
           <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save Changes"}</Button>
         </div>
         {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
         {c.enabled && <>
-          <div className="mt-6 space-y-2 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-sm leading-6 text-gray-600 dark:border-brand-500/20 dark:bg-brand-500/5 dark:text-gray-400">
+          <div className="mt-6 space-y-2 rounded-md border border-brand-100 bg-brand-50/60 p-4 text-sm leading-6 text-gray-600 dark:border-brand-500/20 dark:bg-brand-500/5 dark:text-gray-400">
             <p>{pt ? <>When your customer spends <B>{money(+c.minOrder || 0)}</B> or more on 1 order, a punch will be added to their account after <B>{(+c.delayMin || 0) + " minutes"}</B> from closing the order. They can get at most 1 punch per day.</>
               : <>When your customer spends <B>{money(+c.minOrder || 0)}</B> or more on 1 order, they will get <B>1 point</B> for each <B>{money(1)}</B> spent. The points are added after <B>{(+c.delayMin || 0) + " minutes"}</B> from closing the order.</>}</p>
             <p>Once the customer accumulates <B>{(+c.required || 0) + " " + unit(+c.required || 0)}</B> they can receive an order discount of <B>{amt ? money(+c.rewardValue || 0) : (+c.rewardValue || 0) + " %"}</B>
@@ -88,7 +88,7 @@ export function LoyaltyPage() {
             {num("required", `Reward Required ${pt ? "Punches" : "Points"}`)}{num("validityDays", "Reward Validity (Days)")}
           </div>
           <label className="mt-6 flex cursor-pointer items-start gap-3"><Switch checked={!!c.sms} onCheckedChange={v => set("sms", !!v)} />
-            <span><span className="block text-sm font-medium text-gray-800 dark:text-white/90">Send Notifications By SMS</span><span className="text-xs text-gray-500 dark:text-gray-400">Check this to send loyalty notifications to the customer by SMS</span></span></label>
+            <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">Send Notifications By SMS</span><span className="text-xs text-gray-500 dark:text-gray-400">Check this to send loyalty notifications to the customer by SMS</span></span></label>
         </>}
       </div>
     </>
@@ -113,13 +113,13 @@ export function GiftCardsPage() {
           <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setCheck(true)}><SearchIcon className="size-5" />Check Balance</Button>
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Gift Card</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted gift cards" : "Create Gift Cards which customers can buy and later use to pay for their orders. The gift card is sold as an item and the amount of selling will not be reflected in the sales reports."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               <th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH}>Category</th><th className={TH}>Pricing Method</th><th className={TH + " text-end"}>Price</th>{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(g => (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(g => (
                 <tr key={g.id} className={del ? "" : TR} onClick={() => !del && setForm(g)}>
-                  <td className={TD}><span className="font-medium text-gray-800 dark:text-white/90">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</td>
+                  <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{g.name}</span>{g.nameAr && <span className="ms-2 text-gray-500" dir="auto">{g.nameAr}</span>}</td>
                   <td className={TD}><span className="font-mono">{g.sku || "—"}</span></td><td className={TD}>{cats.find(c => c.id === g.categoryId)?.name || "—"}</td>
                   <td className={TD}>{g.pricing === "open" ? "Open Price" : "Fixed Price"}</td><td className={TD + " text-end"}>{g.pricing === "open" ? "—" : money(+g.price || 0)}</td>
                   {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await save(list.map(x => x.id === g.id ? { ...x, deleted: false } : x))) toast("Gift card restored"); }}>Restore</Button></td>}</tr>))}</tbody></table>}
@@ -166,7 +166,7 @@ function GiftCheck({ onClose }: { onClose: () => void }) {
     <FormDialog title="Check Balance" onClose={onClose} onSave={go} saveLbl="Check" busy={busy}>
       <F l="Gift Card Code" req full><Input className="h-9" autoFocus autoComplete="off" value={code} onChange={e => setCode(e.target.value)} /></F>
       {res && (res.found
-        ? <div className="col-span-full grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 sm:grid-cols-3 dark:bg-white/3">
+        ? <div className="col-span-full grid grid-cols-2 gap-4 rounded-md bg-gray-50 p-4 sm:grid-cols-3 dark:bg-[#090E1A]">
           <L l="Code"><span className="font-mono">{res.code}</span></L><L l="Gift Card">{res.name || "—"}</L><L l="Balance"><b>{money(+res.balance || 0)}</b></L>
           <L l="Initial Amount">{money(+res.initial || 0)}</L><L l="Sold On">{fmtDate(res.createdAt)}</L></div>
         : <p className="col-span-full text-sm text-gray-500">No gift card with this code.</p>)}
@@ -196,14 +196,14 @@ export function CouponsPage() {
           <div className="flex flex-col gap-3 sm:flex-row"><Button variant="outline" onClick={() => setForm({ c: null, bulk: true })}>Bulk Create</Button>
             <Button onClick={() => setForm({ c: null, bulk: false })}><PlusIcon className="size-5" />Create Coupon</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted coupons" : "Create coupons that your customers can use to get discounts on orders."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               {["Name", "Code", "Coupon Type", "Discount"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Uses</th>
               {["Start Date", "End Date", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(c => { const st = status(c); return (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(c => { const st = status(c); return (
                 <tr key={c.id} className={del ? "" : TR} onClick={() => !del && setForm({ c, bulk: false })}>
-                  <td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{c.name}</td><td className={TD}><span className="font-mono">{c.code}</span></td>
+                  <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{c.name}</td><td className={TD}><span className="font-mono">{c.code}</span></td>
                   <td className={TD}>{c.type === "product" ? "Item" : "Order"}</td><td className={TD}>{discs.find(d => d.id === c.discountId)?.name || "—"}</td>
                   <td className={TD + " text-end"}>{counts ? (counts[c.id] || 0) : "…"} / {c.maxUses ?? "—"}</td><td className={TD}>{fmtDate(c.start)}</td><td className={TD}>{fmtDate(c.end)}</td>
                   <td className={TD}><Badge variant="light" color={color(st) as any}>{st}</Badge></td>
@@ -245,6 +245,6 @@ function CouponForm({ c, bulk, list, discs, save, onClose }: { c: any; bulk: boo
       <F l="Maximum Uses" req help="How many times this coupon can be used."><Input className="h-9" type="number" min="1" step="1" value={v.maxUses} onChange={e => set("maxUses", e.target.value)} /></F>
       <F l="Start Date" req><DateInput value={v.start} onChange={x => set("start", x)} /></F>
       <F l="End Date" req><DateInput value={v.end} onChange={x => set("end", x)} /></F>
-      {c && <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-800 dark:text-white/90">Active</span></label>}
+      {c && <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Active</span></label>}
     </FormDialog>);
 }

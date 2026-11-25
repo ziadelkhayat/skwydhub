@@ -24,19 +24,19 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
     const keys = items.map(i => i.key).filter(k => k !== drag); keys.splice(keys.indexOf(target) + (items.findIndex(i => i.key === drag) < items.findIndex(i => i.key === target) ? 1 : 0), 0, drag); onMove(keys);
   };
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
       <div className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3>
         {onNew && <Button size="sm" variant="outline" onClick={onNew}><PlusIcon className="size-4.5" />Create</Button>}
       </div>
-      <ul className="divide-y divide-gray-100 border-t border-gray-100 dark:divide-white/5 dark:border-white/5">
+      <ul className="divide-y divide-gray-100 border-t border-gray-100 dark:divide-white/5 dark:border-gray-800">
         {!items.length ? <li className="px-5 py-4 text-sm text-gray-500 sm:px-6 dark:text-gray-400">{empty}</li> : items.map(it => (
           <li key={it.key} draggable={!!onMove} onDragStart={() => setDrag(it.key)} onDragEnd={() => { setDrag(null); setOver(null); }}
             onDragOver={e => { if (onMove) { e.preventDefault(); setOver(it.key); } }} onDrop={e => { e.preventDefault(); drop(it.key); setDrag(null); setOver(null); }}
             onClick={() => onOpen?.(it)}
             className={"flex items-center gap-3 px-5 py-3.5 text-sm sm:px-6 " + (onOpen ? "cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2 " : "") + (over === it.key && drag !== it.key ? "bg-brand-50 dark:bg-brand-500/10 " : "") + (drag === it.key ? "opacity-50" : "")}>
             {onMove && <span className="cursor-grab text-gray-400 select-none" title="Drag to move" aria-hidden>⋮⋮</span>}
-            <span className="font-medium text-gray-800 dark:text-white/90">{it.name}</span>
+            <span className="font-medium text-gray-900 dark:text-gray-50">{it.name}</span>
             {it.nameAr && <span className="text-gray-500 dark:text-gray-400" dir="auto">{it.nameAr}</span>}
             <span className="flex-1" />{action?.(it)}
           </li>))}
@@ -50,7 +50,7 @@ function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, 
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{title}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{title}</DialogTitle></DialogHeader>
         <form className="mt-6 space-y-5" onSubmit={e => { e.preventDefault(); if (!readOnly) go(); }}>
           <F l="Name" req={!readOnly}><Input className="h-9" autoFocus disabled={readOnly} value={n} onChange={e => setN(e.target.value)} /></F>
           <F l="Name Localized"><Input className="h-9" dir="auto" disabled={readOnly} value={ar} onChange={e => setAr(e.target.value)} /></F>
@@ -99,7 +99,7 @@ export function ReasonsPage() {
     <>
       <PageBreadcrumb pageTitle="Reasons" />
       <SegTabs className="mb-6" value={tab} onChange={setTab} items={[["general", "General"], ["deleted", "Deleted"]]} />
-      {!admin && <p className="mb-6 rounded-xl border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change reasons.</p>}
+      {!admin && <p className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change reasons.</p>}
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">{secs.length ? secs : <p className="text-sm text-gray-500">No deleted reasons.</p>}</div>
       {f && <NameDialog title={(f.i == null ? "Create " : "Edit ") + RS_KINDS.find(x => x[0] === f.k)![1]} name={cur} nameAr={ar[cur]} onClose={() => setForm(null)}
         onSave={async (n, nAr) => {
@@ -190,6 +190,6 @@ export function AllergensPage() {
 
 // Catalog → Combos: not built in the current portal either (it shows "Coming next"), so this page says the same
 export function CombosPage() {
-  return <><PageBreadcrumb pageTitle="Combos" /><div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-white/3">
-    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Coming next</h3><p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This screen is part of the plan and will be built in a later step.</p></div></>;
+  return <><PageBreadcrumb pageTitle="Combos" /><div className="rounded-lg border border-gray-200 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-[#090E1A]">
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Coming next</h3><p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This screen is part of the plan and will be built in a later step.</p></div></>;
 }

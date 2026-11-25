@@ -58,10 +58,10 @@ export function InvLevelsPage() {
             <select aria-label="Category" className={SEL + " sm:w-44"} value={cat} onChange={e => setCat(e.target.value)}><option value="">All categories</option>{catNames.map(n => <option key={n}>{n}</option>)}</select>
             <InputGroup className="h-9 sm:w-52"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!locs.length ? <EmptyState text="Add a store or a warehouse first." /> : !stock ? <EmptyState text="Loading stock…" /> : !rows.length ? <EmptyState text={low === "low" ? "Nothing is at a low level." : "No items."} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{["Name", "SKU", "Barcode", "Storage Unit"].map(h => <th key={h} className={TH}>{h}</th>)}{["Quantity", "Cost Per Unit", "Total Cost"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(r => <tr key={r.it.id}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{r.it.name}</td><td className={TD}>{r.it.sku || "—"}</td><td className={TD}>{r.it.barcode || "—"}</td><td className={TD}>{r.it.storageUnit || "—"}</td>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Name", "SKU", "Barcode", "Storage Unit"].map(h => <th key={h} className={TH}>{h}</th>)}{["Quantity", "Cost Per Unit", "Total Cost"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => <tr key={r.it.id}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r.it.name}</td><td className={TD}>{r.it.sku || "—"}</td><td className={TD}>{r.it.barcode || "—"}</td><td className={TD}>{r.it.storageUnit || "—"}</td>
                 <td className={TD + " text-end" + (r.st === "low" || r.st === "out" ? " font-semibold text-red-500" : "")}>{r.qn === undefined ? "0" : fx(r.qn)}</td><td className={TD + " text-end"}>{money(r.cost)}</td><td className={TD + " text-end"}>{money(r.value)}</td></tr>)}</tbody></table>}
         </div>
       </div>
@@ -94,11 +94,11 @@ export function InvHistoryPage() {
           <select aria-label="Item" className={SEL + " sm:w-48"} value={item} onChange={e => setItem(e.target.value)}><option value="">All items</option>{s.inv_items.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
           <select aria-label="Type" className={SEL + " sm:w-40"} value={type} onChange={e => setType(e.target.value)}><option value="">All types</option>{["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => <option key={t}>{t}</option>)}</select>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {err ? <EmptyState text={err} /> : !rows ? <EmptyState text="Loading…" /> : !list.length ? <EmptyState text="No stock movements in these dates." />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{["Date", "Location", "Item", "Type"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Change</th><th className={TH + " text-end"}>Quantity After</th>{["Reference", "Note", "By"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{list.map((r, i) => { const it = itemOf(r.item_id) || {} as any, d = +r.delta || 0; return <tr key={i}>
-                <td className={TD}>{fmtDateTime(r.counted_at)}</td><td className={TD}>{name(r.branch_id)}</td><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it.name || "(deleted item)"}</td><td className={TD}>{moveType(r)}</td>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{["Date", "Location", "Item", "Type"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Change</th><th className={TH + " text-end"}>Quantity After</th>{["Reference", "Note", "By"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{list.map((r, i) => { const it = itemOf(r.item_id) || {} as any, d = +r.delta || 0; return <tr key={i}>
+                <td className={TD}>{fmtDateTime(r.counted_at)}</td><td className={TD}>{name(r.branch_id)}</td><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</td><td className={TD}>{moveType(r)}</td>
                 <td className={TD + " text-end font-semibold " + (d < 0 ? "text-red-500" : d > 0 ? "text-green-600" : "")}>{d > 0 ? "+" : ""}{n2(d)} {it.storageUnit || ""}</td><td className={TD + " text-end"}>{n2(r.qty)}</td><td className={TD + " font-mono text-xs"}>{r.batch || ""}</td><td className={TD}>{r.note || ""}</td><td className={TD}>{r.counted_by || ""}</td></tr>; })}</tbody></table>}
         </div>
       </div>
@@ -120,15 +120,15 @@ export function PurchasingReportPage() {
         <Button variant="outline" onClick={() => csv("purchasing.csv", [["Item", "Supplier", "Quantity", "Unit", "Average cost", "Total cost"], ...rows.map(r => { const it = itemOf(r.itemId) || {} as any; return [it.name, sup(r.sup), r.qty, it.storageUnit, r.qty ? +(r.total / r.qty).toFixed(5) : 0, +r.total.toFixed(5)]; })])}><DownloadIcon className="size-5" />Export</Button></Head>
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">What was received from suppliers (closed purchasing), with quantities and cost.</p>
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">{[["Purchases received", String(docs.length)], ["Total cost", money(total)], ["Items", String(new Set(rows.map(r => r.itemId)).size)], ["Suppliers", String(new Set(docs.map(d => d.supplierId)).size)]].map(([l, v]) =>
-        <div key={l} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3"><span className="text-sm text-gray-500">{l}</span><h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">{v}</h4></div>)}</div>
+        <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]"><span className="text-sm text-gray-500">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4></div>)}</div>
       <div className={BOX}>
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:px-6"><div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
           <BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} /><select aria-label="Location" className={SEL + " sm:w-44"} value={loc} onChange={e => setLoc(e.target.value)}><option value="">All locations</option>{locs.map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select></div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
-          {!rows.length ? <EmptyState text="No purchases received in these dates." /> : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Item</th><th className={TH}>Supplier</th>{["Quantity", "Average Cost", "Total Cost"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(r => { const it = itemOf(r.itemId) || {} as any; return <tr key={r.itemId + r.sup}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it.name || "(deleted item)"}</td><td className={TD}>{sup(r.sup)}</td>
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+          {!rows.length ? <EmptyState text="No purchases received in these dates." /> : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Item</th><th className={TH}>Supplier</th>{["Quantity", "Average Cost", "Total Cost"].map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}</tr></thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => { const it = itemOf(r.itemId) || {} as any; return <tr key={r.itemId + r.sup}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</td><td className={TD}>{sup(r.sup)}</td>
               <td className={TD + " text-end"}>{n2(r.qty)} {it.storageUnit || ""}</td><td className={TD + " text-end"}>{money(r.qty ? r.total / r.qty : 0)}</td><td className={TD + " text-end"}>{money(r.total)}</td></tr>; })}</tbody>
-            <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-800 dark:text-white/90"} colSpan={4}>Total</td><td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(total)}</td></tr></tfoot></table>}
+            <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={4}>Total</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</td></tr></tfoot></table>}
         </div>
       </div>
     </>);

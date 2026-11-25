@@ -76,7 +76,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   return (
     <>
       <PageBreadcrumb pageTitle={cfg.title} />
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="flex flex-col gap-4 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={cfg.tabs.map(t => [t[0], t[1]])} />
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
@@ -87,24 +87,24 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />{cfg.addLbl || "Add " + cfg.one}</Button>
           </div>
         </div>
-        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-white/5 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
-        {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-white/5 dark:text-gray-400">{cfg.note}</p>}
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        {uf && <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:border-gray-800 dark:text-gray-400">Filtered to one {cfg.urlFilter![0] === "mod" ? "modifier" : "category"}{cfg.urlFilter![0] === "icat" ? ": " + uf : ""}.<button type="button" className="text-brand-500 hover:underline" onClick={() => setSp({})}>Show all</button></div>}
+        {cfg.note && <p className="border-t border-gray-100 px-5 py-3 text-sm text-gray-500 sm:px-6 dark:border-gray-800 dark:text-gray-400">{cfg.note}</p>}
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div>
             : !list.length ? <EmptyState text={q ? "Nothing matches." : tab === cfg.tabs[0][0] ? `No ${cfg.title.toLowerCase()} yet.` : "Nothing here."} />
             : <table className="min-w-full">
-              <thead className="border-b border-gray-100 dark:border-white/5"><tr>
-                {cfg.cols.map(c => <th key={c.h} className={cn("px-5 py-3 text-start text-xs font-medium whitespace-nowrap text-gray-500 sm:px-6 dark:text-gray-400", c.num && "text-end")}>{c.h}</th>)}
+              <thead className="border-b border-gray-200 dark:border-gray-800"><tr>
+                {cfg.cols.map(c => <th key={c.h} className={cn("border-b border-gray-200 px-4 py-3 text-start text-sm font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50", c.num && "text-end")}>{c.h}</th>)}
               </tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {shown.map(r => (
                   <tr key={r.id} onClick={() => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r)} className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/2">
-                    {cfg.cols.map(c => <td key={c.h} className={cn("px-5 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-400", c.num && "text-end")}>{c.cell(r, s)}</td>)}
+                    {cfg.cols.map(c => <td key={c.h} className={cn("px-4 py-2.5 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400", c.num && "text-end")}>{c.cell(r, s)}</td>)}
                   </tr>))}
               </tbody>
             </table>}
         </div>
-        {list.length > PER && <Pager className="border-t border-gray-100 dark:border-white/5" currentPage={cur} totalPages={pages} onPageChange={setPage} />}
+        {list.length > PER && <Pager className="border-t border-gray-200 dark:border-gray-800" currentPage={cur} totalPages={pages} onPageChange={setPage} />}
       </div>
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
@@ -146,12 +146,12 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
         <div>
           <div className="p-6 sm:p-8">
             <DialogHeader className="gap-1 sm:gap-2">
-              <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{row ? (row.name ? `Edit ${row.name}` : `Edit ${cfg.one}`) : `Add ${cfg.one}`}</DialogTitle>
+              <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{row ? (row.name ? `Edit ${row.name}` : `Edit ${cfg.one}`) : `Add ${cfg.one}`}</DialogTitle>
               {cfg.note && <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">{cfg.note}</DialogDescription>}
             </DialogHeader>
             <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }} noValidate>
               {cfg.fields.filter(vis).map((f, i) => f.t === "head"
-                ? <h4 key={"h" + i} className="col-span-full mt-2 text-base font-medium text-gray-800 dark:text-white/90">{f.l}</h4>
+                ? <h4 key={"h" + i} className="col-span-full mt-2 text-base font-medium text-gray-900 dark:text-gray-50">{f.l}</h4>
                 : <FieldBox key={f.k} f={f} v={d[f.k]} set={v => set(f.k, v)} s={s} locked={!!(row && f.lockEdit)} />)}
               {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
               <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">
@@ -186,7 +186,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
       </Select>{note}</Field>); }
   if (f.t === "multi") { const opts = f.opts ? f.opts(s) : [], cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
-      <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-theme-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);
+      <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);
         return <button type="button" key={value} onClick={() => set(on ? cur.filter(x => x !== value) : [...cur, value])}
           className={cn("rounded-lg border px-3 py-2 text-sm transition-colors", on ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5")}>{l}</button>; })}</div>{note}</Field>); }
   if (f.t === "items") { const cur: string[] = Array.isArray(v) ? v : [];
@@ -196,7 +196,7 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
   if (f.t === "phone") { const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"]; const str = String(v || ""); const cc = CCS.find(x => str.startsWith(x)) || "+961"; const num = str.startsWith(cc) ? str.slice(cc.length) : str;
     const mk = (c: string, n: string) => { const d = n.replace(/\D/g, "").replace(/^0+/, ""); return d ? c + d : ""; };
     return (<Field className={cn(full && "col-span-full")}>{label}
-      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-9 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+      <div className="flex gap-3"><select aria-label="Country code" value={cc} onChange={e => set(mk(e.target.value, num))} className="h-9 w-28 shrink-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50">{CCS.map(c => <option key={c}>{c}</option>)}</select>
         <Input className="h-9 flex-1" type="tel" inputMode="tel" placeholder={f.ph || "70 123 456"} value={num} onChange={e => set(mk(cc, e.target.value))} /></div>{note}</Field>); }
   if (f.t === "pin") return (<Field className={cn(full && "col-span-full")}>{label}
     <div className="flex gap-3"><Input className="h-9 flex-1 tracking-widest" inputMode="numeric" maxLength={5} placeholder={f.ph || "5 digits"} value={v || ""} onChange={e => set(e.target.value.replace(/\D/g, "").slice(0, 5))} />

@@ -51,11 +51,11 @@ function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })
   };
   return <Dialog open={open} onOpenChange={v => !v && close(null)}>
     <DialogContent className="flex max-h-[90dvh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
-      <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{o.name}</DialogTitle></DialogHeader>
+      <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{o.name}</DialogTitle></DialogHeader>
       <div className="custom-scrollbar min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
         {links.map((l, gi) => { const mx = +(l.max || 0), full = mx > 0 && cnt(gi) >= mx, need = +(l.min || 0) > cnt(gi);
           return <section key={l.modifierId}>
-            <div className="mb-3 flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-gray-800 dark:text-white/90">{o.groups?.[l.modifierId]?.name || "Options"}</h4>
+            <div className="mb-3 flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-gray-900 dark:text-gray-50">{o.groups?.[l.modifierId]?.name || "Options"}</h4>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", +(l.min || 0) ? (need ? "bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-400" : "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-400") : "bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400")}>{rule(l)}</span>
               {+(l.free || 0) > 0 && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">{l.free} free</span>}
               {mx > 1 && <span className="ms-auto text-xs text-gray-500">{cnt(gi)} / {mx}</span>}</div>
@@ -64,19 +64,19 @@ function ModWin({ o, links, done }: { o: PickIn; links: (Link & { opts: Opt[] })
                 className={cn("relative flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border bg-white p-3 text-center transition select-none dark:bg-gray-900",
                   on ? "border-brand-500 bg-brand-50/60 ring-1 ring-brand-500 dark:bg-brand-500/10" : "border-gray-200 hover:border-brand-300 dark:border-gray-800", dis && "cursor-not-allowed opacity-45")}>
                 {on && <span className="absolute end-2 top-2 flex size-5 items-center justify-center rounded-full bg-brand-500 text-[11px] font-semibold text-white">{l.multi && mx !== 1 ? n : "✓"}</span>}
-                <b className="line-clamp-2 text-sm font-medium text-gray-800 dark:text-white/90">{x.name}</b>
+                <b className="line-clamp-2 text-sm font-medium text-gray-900 dark:text-gray-50">{x.name}</b>
                 <span className="mt-0.5 text-xs text-gray-500">{x.oos ? <span className="text-amber-600">Out of stock</span> : +x.price ? "+" + o.money(+x.price) : "Free"}</span>
                 {l.multi && mx !== 1 && on && <span className="mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
                   <Button size="icon-xs" variant="outline" aria-label={"Less " + x.name} onClick={() => set(gi, x.id, n - 1)}><MinusIcon className="size-3.5" /></Button>
-                  <span className="w-5 text-sm font-semibold text-gray-800 dark:text-white/90">{n}</span>
+                  <span className="w-5 text-sm font-semibold text-gray-900 dark:text-gray-50">{n}</span>
                   <Button size="icon-xs" variant="outline" aria-label={"More " + x.name} disabled={full || x.oos} onClick={() => set(gi, x.id, n + 1)}><PlusIcon className="size-3.5" /></Button></span>}
               </div>; })}</div>
           </section>; })}
-        {(o.askNote || o.edit) && <section><h4 className="mb-2 text-base font-semibold text-gray-800 dark:text-white/90">Item Note</h4><Textarea rows={2} placeholder="e.g. no onions" value={note} onChange={e => setNote(e.target.value)} /></section>}
+        {(o.askNote || o.edit) && <section><h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-50">Item Note</h4><Textarea rows={2} placeholder="e.g. no onions" value={note} onChange={e => setNote(e.target.value)} /></section>}
         {o.edit && (() => { const line = price() * o.edit.qty, n = Math.max(0, +dv || 0), d = dk === "pct" ? line * Math.min(100, n) / 100 : Math.min(n, line);
-          return <section><h4 className="mb-2 text-base font-semibold text-gray-800 dark:text-white/90">Item Discount</h4>
+          return <section><h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-50">Item Discount</h4>
             <div className="flex gap-2"><div className="flex shrink-0 rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">{([["pct", "%"], ["amt", "Amount"]] as const).map(([k, t]) => <button key={k} type="button" onClick={() => setDk(k)} className={cn("h-9 rounded-md px-3 text-sm", dk === k ? "bg-brand-500 text-white" : "text-gray-600 dark:text-gray-400")}>{t}</button>)}</div>
-              <input type="number" min="0" step="any" value={dv} placeholder="0" aria-label="Item discount" onChange={e => setDv(e.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-none dark:border-gray-700 dark:text-white/90" /></div>
+              <input type="number" min="0" step="any" value={dv} placeholder="0" aria-label="Item discount" onChange={e => setDv(e.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-none dark:border-gray-700 dark:text-gray-50" /></div>
             <p className="mt-1.5 text-xs text-gray-500">{o.edit.qty} × {o.money(price())}{d > 0 ? ` − ${o.money(d)} = ${o.money(line - d)}` : ` = ${o.money(line)}`}</p></section>; })()}
       </div>
       <div className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
@@ -94,10 +94,10 @@ export function pickVariant<V extends { name: string; price: number }>(o: { name
 function VarWin<V extends { name: string; price: number }>({ o, list, done }: { o: { name: string; setName: string; money: (n: number) => string }; list: V[]; done: (v: V | null) => void }) {
   const [open, setOpen] = useState(true), close = (v: V | null) => { setOpen(false); done(v); };
   return <Dialog open={open} onOpenChange={v => !v && close(null)}><DialogContent className="w-full p-0 sm:max-w-xl">
-    <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{o.name}</DialogTitle></DialogHeader>
-    <div className="px-6 py-5"><h4 className="mb-3 text-base font-semibold text-gray-800 dark:text-white/90">{o.setName}</h4>
+    <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{o.name}</DialogTitle></DialogHeader>
+    <div className="px-6 py-5"><h4 className="mb-3 text-base font-semibold text-gray-900 dark:text-gray-50">{o.setName}</h4>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{list.map((v, i) => <button key={i} type="button" onClick={() => close(v)} className="flex min-h-24 flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 text-center transition hover:border-brand-500 hover:bg-brand-50/60 dark:border-gray-800 dark:bg-gray-900">
-        <b className="text-sm font-medium text-gray-800 dark:text-white/90">{v.name}</b><span className="mt-0.5 text-xs text-gray-500">{o.money(+v.price || 0)}</span></button>)}</div></div>
+        <b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v.name}</b><span className="mt-0.5 text-xs text-gray-500">{o.money(+v.price || 0)}</span></button>)}</div></div>
     <div className="flex justify-end border-t border-gray-200 px-6 py-4 dark:border-gray-800"><Button variant="outline" onClick={() => close(null)}>Cancel</Button></div>
   </DialogContent></Dialog>;
 }

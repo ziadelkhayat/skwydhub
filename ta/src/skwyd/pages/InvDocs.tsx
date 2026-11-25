@@ -107,7 +107,7 @@ function DocFilterDialog({ K, s, f0, onClose, onApply }: { K: K; s: S; f0: Recor
   const locs: [string, string][] = [...s.branches.filter(b => live(b) && b.active !== false && (!f.brand || b.brandId === f.brand)).map(b => [b.id, b.name] as [string, string]), ...s.warehouses.filter(w => live(w) && has(w.id)).map(w => [w.id, w.name] as [string, string])];
   const qa = (() => { const a: any = s.settings.find(x => x.id === "app") || {}; return a.qtyReasons == null ? QA_DEF : String(a.qtyReasons).split("\n").map((x: string) => x.trim()).filter((x: string) => x && !GONE.has(x)); })();
   const opts = (t: string): [string, string][] => t === "status" ? st : t === "brand" ? s.brands.filter(live).map(b => [b.id, b.name]) : t === "loc" ? locs : t === "sup" ? s.suppliers.filter(live).map(x => [x.id, x.name]) : t === "reason" ? qa.map((r: string) => [r, r]) : people(t === "by" ? "createdBy" : "submittedBy");
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Filter</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Filter</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{docFltFields(K).map(([k, l, t]) => t === "text" ? <F key={k} l={l}><Input className="h-9" value={f[k] || ""} onChange={e => set(k, e.target.value)} /></F>
       : t === "range" ? <F key={k} l={l} full><RangeInput from={f.from || ""} to={f.to || ""} onChange={(a, b) => setF(o => ({ ...o, from: a, to: b }))} /></F>
       : <F key={k} l={l}><select className={SEL} value={f[k] || ""} onChange={e => { const v = e.target.value; setF(o => { const n = { ...o, [k]: v }; if (k === "brand") ["loc", "dest"].forEach(x => { if (n[x] && v && locBrand(n[x]) && locBrand(n[x]) !== v) delete n[x]; }); return n; }); }}>
@@ -127,7 +127,7 @@ function DocExportDialog({ route, K, s, lvl, onClose }: { route: string; K: K; s
       docs.forEach(d => (d.items || []).forEach((l: any) => { const it: any = s.inv_items.find(i => i.id === l.itemId) || {}; out.push([refOf(d), d.name, locName(d.locationId), d.reason, d.direction, stTxt(d), d.businessDate ? dmy(d.businessDate) : "", it.name, it.sku, l.qty, l.cost, fmtDateTime(d.createdAt)]); }));
       csv(route + "-items.csv", out); }
     onClose(); };
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Export {lvl === "items" ? K.plural + " Items" : K.plural}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Export {lvl === "items" ? K.plural + " Items" : K.plural}</DialogTitle></DialogHeader>
     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Please ensure that the selected date range is within 31 days for exporting.</p>
     <div className="mt-4"><F l="Business Date" req><RangeInput from={from} to={to} onChange={(a, b) => { setFrom(a); setTo(b); }} /></F></div>
     {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
@@ -163,7 +163,7 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
   } else {
     tabs = K.kind === "sheet" ? [] : K.flow ? [["all", "All"], ["draft", "Draft"], ["pending", "Pending"], ["closed", "Closed"], ["rejected", "Declined"]] : [["all", "All"], ["draft", "Draft"], ["closed", "Closed"]];
     const poRef = (d: Row) => { const p = d.linkedId && s.inv_docs.find(x => x.id === d.linkedId && x.reason === "po"); return p ? refOf(p) : "—"; };
-    const cols: [string, (d: Row) => React.ReactNode][] = K.kind === "sheet" ? [["Reference", d => d.ref || "…"], ["Name", d => <b className="font-medium text-gray-800 dark:text-white/90">{d.name || "—"}</b>], ["Created At", d => fmtDateTime(d.createdAt)]]
+    const cols: [string, (d: Row) => React.ReactNode][] = K.kind === "sheet" ? [["Reference", d => d.ref || "…"], ["Name", d => <b className="font-medium text-gray-900 dark:text-gray-50">{d.name || "—"}</b>], ["Created At", d => fmtDateTime(d.createdAt)]]
       : K.flow ? [["Reference", d => d.status === "draft" || !d.ref ? "—" : refOf(d)],
         ...(K.kind === "purchase" ? [["Supplier", (d: Row) => supName(d.supplierId)], ["Destination", (d: Row) => locName(d.locationId)], ...(K.po ? [] : [["PO Reference", poRef]])] as any : K.kind === "torder" ? [["Source", (d: Row) => locName(d.destId)], ["Destination", (d: Row) => locName(d.locationId)]] : [["Source", (d: Row) => locName(d.locationId)], ["Destination", (d: Row) => locName(d.destId)]]),
         ["Status", d => <St d={d} />], ...(K.kind === "purchase" ? [["Total", (d: Row) => money((d.items || []).reduce((t: number, l: any) => t + (+l.qty || 0) * (+l.cost || 0), 0))]] as any : []),
@@ -188,10 +188,10 @@ function DocList({ route, K, s }: { route: string; K: K; s: S }) {
               <DropdownMenuContent align="end" className="w-60 p-2"><DropdownMenuItem onClick={() => setEx("docs")}>Export {K.plural}</DropdownMenuItem>{K.kind !== "sheet" && <DropdownMenuItem onClick={() => setEx("items")}>Export {K.plural} Items</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
             <Button onClick={() => K.kind === "cost" ? nav(`/${route}?id=new`) : setNw(true)}><PlusIcon className="size-5" />New {K.title}</Button></div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={all0.length ? "Nothing matches." : `No ${K.plural.toLowerCase()} yet.`} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{head.map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{head.map(h => <th key={h} className={TH + (h === "Total" ? " text-end" : "")}>{h}</th>)}</tr></thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map((r, i) => <tr key={r.d.id + (r.v || "") + i} className={TR} onClick={() => openWin(`/${route}?id=${r.d.id}${r.v ? "&view=" + r.v : ""}`)}>
                 {r.cells.map((c, j) => <td key={j} className={TD + (head[j] === "Total" ? " text-end" : "")}>{c}</td>)}</tr>)}</tbody></table>}
         </div>
       </div>
@@ -235,7 +235,7 @@ function NewDialog({ route, K, s, onClose }: { route: string; K: K; s: S; onClos
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="w-full p-6 sm:max-w-md sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">New {PUR ? "Purchase" : K.title}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">New {PUR ? "Purchase" : K.title}</DialogTitle></DialogHeader>
         <div className="mt-6 space-y-5">{fields}{err && <p className="text-sm text-red-500">{err}</p>}</div>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button variant="outline" onClick={onClose}>Close</Button><Button onClick={go}>Save</Button></div>
       </DialogContent>
@@ -438,13 +438,13 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
     return Object.entries(m).map(([i, q]) => ({ itemId: i, qty: q, cost: +(itemOf(i)?.cost || 0) })); })();
   const Usage = ({ page }: { page?: boolean }) => (
     <div className={BOX + (page ? "" : " mt-6")}>
-      <div className="flex items-center gap-2 px-5 py-4 sm:px-6"><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{page ? "Items" : ro ? "Consumption From Production" : "Ingredients That Will Be Used"}</h3><span className="text-sm text-gray-500">{page ? usage.length : ro ? "Taken out of stock when this was submitted." : "Updates as you type quantities."}</span></div>
-      {!usage.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-white/5">{ro ? "Nothing was consumed." : "Enter quantities, and make sure each produced item has ingredients (open it under Inventory → Items)."}</p>
-        : <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5"><table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Quantity</th>{!ro && <th className={TH + " text-end"}>In Stock</th>}<th className={TH + " text-end"}>Unit Cost</th><th className={TH + " text-end"}>Total Cost</th></tr></thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/5">{usage.sort((a: any, b: any) => (itemOf(a.itemId)?.name || "").localeCompare(itemOf(b.itemId)?.name || "")).map((x: any) => { const it = itemOf(x.itemId) || {} as any, cur = stockOf(loc, x.itemId), short = !ro && cur !== undefined && cur < x.qty;
-            return <tr key={x.itemId}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(x.qty)} {it.storageUnit || ""}</td>
+      <div className="flex items-center gap-2 px-5 py-4 sm:px-6"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{page ? "Items" : ro ? "Consumption From Production" : "Ingredients That Will Be Used"}</h3><span className="text-sm text-gray-500">{page ? usage.length : ro ? "Taken out of stock when this was submitted." : "Updates as you type quantities."}</span></div>
+      {!usage.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">{ro ? "Nothing was consumed." : "Enter quantities, and make sure each produced item has ingredients (open it under Inventory → Items)."}</p>
+        : <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Quantity</th>{!ro && <th className={TH + " text-end"}>In Stock</th>}<th className={TH + " text-end"}>Unit Cost</th><th className={TH + " text-end"}>Total Cost</th></tr></thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{usage.sort((a: any, b: any) => (itemOf(a.itemId)?.name || "").localeCompare(itemOf(b.itemId)?.name || "")).map((x: any) => { const it = itemOf(x.itemId) || {} as any, cur = stockOf(loc, x.itemId), short = !ro && cur !== undefined && cur < x.qty;
+            return <tr key={x.itemId}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(x.qty)} {it.storageUnit || ""}</td>
               {!ro && <td className={TD + " text-end" + (short ? " font-semibold text-red-500" : "")}>{cur === undefined ? <span className="text-gray-400">Not counted</span> : n2(cur)}</td>}<td className={TD + " text-end"}>{fmtCost(x.cost)}</td><td className={TD + " text-end"}>{fmtCost(x.qty * x.cost)}</td></tr>; })}</tbody>
-          <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-800 dark:text-white/90"} colSpan={ro ? 4 : 5}>Total</td><td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{fmtCost(usage.reduce((t: number, x: any) => t + x.qty * x.cost, 0))}</td></tr></tfoot></table></div>}
+          <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={ro ? 4 : 5}>Total</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{fmtCost(usage.reduce((t: number, x: any) => t + x.qty * x.cost, 0))}</td></tr></tfoot></table></div>}
     </div>);
   const avail = s.inv_items.filter(i => live(i) && !d.items.some((l: any) => l.itemId === i.id) && (K.kind !== "production" || (i.ingredients || []).length)).sort((a, b) => a.name.localeCompare(b.name));
   const sheets = s.inv_docs.filter(x => x.kind === "sheet" && live(x) && x.id !== d.id);
@@ -452,9 +452,9 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
   return (
     <>
       <PageBreadcrumb pageTitle={title} />
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 lg:flex-row lg:items-center dark:border-gray-800 dark:bg-white/3">
+      <div className="mb-6 flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 lg:flex-row lg:items-center dark:border-gray-800 dark:bg-[#090E1A]">
         <div className="flex flex-1 items-center gap-3"><Button variant="outline" size="icon" aria-label="Back" onClick={() => nav("/" + route)}><ArrowLeftIcon className="size-5" /></Button>
-          <div><span className="block text-xs text-gray-500">Inventory · {K.title}</span><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h3></div>{K.kind !== "sheet" && <St d={d} />}</div>
+          <div><span className="block text-xs text-gray-500">Inventory · {K.title}</span><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3></div>{K.kind !== "sheet" && <St d={d} />}</div>
         {(d.items.length > 0 || d.id) && <div className="flex flex-wrap gap-3">
           {d.id && <Button variant="outline" onClick={print}>Print</Button>}
           {d.id && !ro && <Button variant="outline" className="text-red-500" onClick={del}>Delete Permanently</Button>}
@@ -463,19 +463,19 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
           {!ro && K.kind !== "sheet" && !K.flow && <Button disabled={B || !d.items.length} onClick={submit}>{B ? "Working…" : K.count || K.kind === "spot" ? "Submit Count" : K.kind === "production" ? "Produce Items" : "Submit"}</Button>}
           {flowBtns}</div>}
       </div>
-      {err && <p className="mb-6 rounded-xl border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
-      {steps && <div className="mb-6 grid grid-cols-3 gap-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">{steps.map((x, i) => (
+      {err && <p className="mb-6 rounded-md border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
+      {steps && <div className="mb-6 grid grid-cols-3 gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">{steps.map((x, i) => (
         <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-brand-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
-          <span><b className="block text-sm font-medium text-gray-800 dark:text-white/90">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</div>}
-      <div className="mb-6 grid grid-cols-2 gap-4 rounded-2xl border border-gray-200 bg-white p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6 dark:border-gray-800 dark:bg-white/3">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</div>
-      {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className={BOX}><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-white/90">Items</h3>
-        {(() => { const w = d.items.filter((l: any) => +l.waste > 0); return !w.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-white/5">Nothing was wasted.</p>
-          : <table className="min-w-full border-t border-gray-100 dark:border-white/5"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Deducted Quantity</th></tr></thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <tr key={l.itemId}><td className={TD}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</td></tr>; })}</tbody></table>; })()}</div>
+          <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</div>}
+      <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-white p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</div>
+      {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className={BOX}><h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Items</h3>
+        {(() => { const w = d.items.filter((l: any) => +l.waste > 0); return !w.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">Nothing was wasted.</p>
+          : <table className="min-w-full border-t border-gray-200 dark:border-gray-800"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Name</th><th className={TH}>SKU</th><th className={TH + " text-end"}>Deducted Quantity</th></tr></thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <tr key={l.itemId}><td className={TD}>{it.name || "(deleted item)"}</td><td className={TD}>{it.sku || ""}</td><td className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</td></tr>; })}</tbody></table>; })()}</div>
       : <>
         <div className={BOX}>
           <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div className="flex items-center gap-2"><h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Items</h3><span className="text-sm text-gray-500">{d.items.length}</span></div>
+            <div className="flex items-center gap-2"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Items</h3><span className="text-sm text-gray-500">{d.items.length}</span></div>
             {!ro && <div className="flex flex-wrap gap-3">
               {K.kind !== "sheet" && d.items.length > 0 && <Button size="sm" variant="outline" onClick={() => setDlg({ kind: "all" })}>{K.kind === "purchase" ? "Edit Quantities & Cost" : K.kind === "cost" ? "Edit Costs" : "Edit Quantities"}</Button>}
               {K.kind === "spot" && sheets.length > 0 && <select aria-label="Load a count sheet" className={SEL + " h-9 w-48"} value="" onChange={e => { const sh = sheets.find(x => x.id === e.target.value); if (sh) { const n = addItems((sh.items || []).map((l: any) => l.itemId)); toast(`${n} item${n === 1 ? "" : "s"} added from ${sh.name || "the count sheet"}`); } }}>
@@ -483,15 +483,15 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
               {K.kind !== "sheet" && <Button size="sm" variant="outline" onClick={importCsv}><UploadIcon className="size-4" />Import Items</Button>}
               <Button size="sm" onClick={() => setDlg({ kind: "add" })}><PlusIcon className="size-4" />Add Items</Button></div>}
           </div>
-          <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+          <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
             {!d.items.length ? <EmptyState text="No items yet. Add items above." />
-              : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{head.map((h, i) => <th key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</th>)}{!ro && <th className={TH} />}</tr></thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-white/5">{d.items.map((l: any, ix: number) => { const it = itemOf(l.itemId) || { name: "(deleted item)", sku: "" } as any; return (
+              : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{head.map((h, i) => <th key={h} className={TH + (i > 1 && !/UOM/.test(h) ? " text-end" : "")}>{h}</th>)}{!ro && <th className={TH} />}</tr></thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{d.items.map((l: any, ix: number) => { const it = itemOf(l.itemId) || { name: "(deleted item)", sku: "" } as any; return (
                   <tr key={l.itemId + ix} onClick={() => openRow(ix)} className={editable && K.kind !== "sheet" ? TR : ""}>
-                    <td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it.name}</td><td className={TD}>{it.sku || ""}</td>
+                    <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it.name}</td><td className={TD}>{it.sku || ""}</td>
                     {cells(l, ix).map((c, j) => <td key={j} className={TD + (K.kind === "sheet" ? "" : " text-end")}>{c}</td>)}
                     {!ro && <td className={TD + " text-end"}><button type="button" aria-label={"Remove " + it.name} onClick={e => { e.stopPropagation(); up({ items: d.items.filter((_: any, j: number) => j !== ix) }); }} className="text-gray-400 hover:text-red-500">×</button></td>}</tr>); })}</tbody>
-                {total != null && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-800 dark:text-white/90"} colSpan={head.length - 1}>Total</td><td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(total)}</td>{!ro && <td />}</tr></tfoot>}</table>}
+                {total != null && <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={head.length - 1}>Total</td><td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</td>{!ro && <td />}</tr></tfoot>}</table>}
           </div>
         </div>
         {K.kind === "production" && d.items.length > 0 && !ro && <Usage />}
@@ -514,7 +514,7 @@ function HeadDialog({ d, K, s, locs, onClose, onSave }: { d: any; K: K; s: S; lo
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Edit {K.title}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Edit {K.title}</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {K.kind === "sheet" && <F l="Name" req><Input className="h-9" placeholder="e.g. Store Count Sheet" value={v.name} onChange={e => set("name", e.target.value)} /></F>}
           {K.kind === "purchase" && selL("supplierId", "Supplier", s.suppliers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(x => [x.id, x.name]))}
@@ -553,10 +553,10 @@ function QtyDialog({ K, rows, d, rv, itemOf, onClose, onSave, onDelete }: { K: K
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">{K.kind === "cost" ? "Update Items Costs" : "Update Items Quantities"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">{K.kind === "cost" ? "Update Items Costs" : "Update Items Quantities"}</DialogTitle></DialogHeader>
         <form className="mt-5 space-y-4" onSubmit={e => { e.preventDefault(); save(); }}>
           {rows.map((ix, k) => { const it: any = itemOf(d.items[ix].itemId) || {}, t = two(it), x = v[ix], setX = (p: any) => setV(o => ({ ...o, [ix]: { ...o[ix], ...p } }));
-            return <div key={ix} className="rounded-xl border border-gray-200 p-4 dark:border-gray-800"><b className="mb-3 block text-sm font-medium text-gray-800 dark:text-white/90">{it.name || "Item"}{it.sku && <span className="ms-1 text-gray-400">({it.sku})</span>}</b>
+            return <div key={ix} className="rounded-md border border-gray-200 p-4 dark:border-gray-800"><b className="mb-3 block text-sm font-medium text-gray-900 dark:text-gray-50">{it.name || "Item"}{it.sku && <span className="ms-1 text-gray-400">({it.sku})</span>}</b>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {q && <F l={`Quantity (${storUnit(it)})`} req><Input className="h-9" autoFocus={k === 0} type="number" min="0" step="any" inputMode="decimal" value={x.s} onChange={e => setX({ s: e.target.value })} /></F>}
                 {q && t && <F l={`Quantity (${ingUnit(it)})`} help={`1 ${storUnit(it)} = ${n2(+it.factor || 1)} ${ingUnit(it)}`}><Input className="h-9" type="number" min="0" step="any" inputMode="decimal" value={x.i} onChange={e => setX({ i: e.target.value })} /></F>}

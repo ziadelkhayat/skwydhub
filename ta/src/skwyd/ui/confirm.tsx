@@ -15,7 +15,7 @@ export function ConfirmHost() {
   return (
     <Dialog open onOpenChange={o => !o && q.done(false)}>
       <DialogContent className="w-full p-6 sm:max-w-md sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Are you sure?</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Are you sure?</DialogTitle></DialogHeader>
         <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{q.text}</p>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button variant="outline" onClick={() => q.done(false)}>Cancel</Button>

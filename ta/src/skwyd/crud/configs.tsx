@@ -12,9 +12,9 @@ import { sb } from "@/lib/supabase";
 
 const del = (r: Row) => !!r.deleted;
 const allDel: CrudCfg["tabs"] = [["all", "All", live], ["deleted", "Deleted", del]];
-const B = ({ children }: { children: React.ReactNode }) => <span className="font-medium text-gray-800 dark:text-white/90">{children}</span>;
+const B = ({ children }: { children: React.ReactNode }) => <span className="font-medium text-gray-900 dark:text-gray-50">{children}</span>;
 const Note = ({ children }: { children: React.ReactNode }) => <span className="text-gray-500 dark:text-gray-400">{children}</span>;
-const nameCell = (r: Row) => <><B>{r.name}</B>{r.nameAr ? <span className="ms-1.5 text-theme-xs text-gray-500">{r.nameAr}</span> : null}</>;
+const nameCell = (r: Row) => <><B>{r.name}</B>{r.nameAr ? <span className="ms-1.5 text-xs text-gray-500">{r.nameAr}</span> : null}</>;
 const created = { h: "Created", cell: (r: Row) => fmtDate(r.createdAt) };
 const ref = { h: "Reference", cell: (r: Row) => r.reference || "—" };
 const sku = (col: string, pre: string) => (s: S) => { let n = 0; const re = new RegExp("^" + pre + "-?(\\d+)$", "i"); s[col].forEach(r => { const m = re.exec(r.sku || ""); if (m) n = Math.max(n, +m[1]); }); return pre + "-" + String(n + 1).padStart(4, "0"); };
@@ -105,7 +105,7 @@ export const CRUD: Record<string, CrudCfg> = {
   branches: {
     col: "branches", title: "Stores", one: "Store", needs: ["brands", "tax_groups", "settings"], detail: "/store", form: p => <StoreForm {...p} />,
     tabs: [["all", "All", r => live(r) && r.active !== false], ["deleted", "Deleted", r => !!r.deleted || r.active === false]],
-    cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-theme-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
+    cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
       { h: "Reference", cell: r => r.code || "—" }, { h: "Tax Group", cell: (r, s) => s.tax_groups.find(g => g.id === r.settings?.taxGroup)?.name || "—" },
       { h: "Active", cell: r => <OnOff on={r.active !== false} /> }, created],
     fields: [{ k: "brandId", l: "Brand", t: "select", req: true, opts: s => s.brands.filter(live).map(b => [b.id, b.name]), auto: s => { const l = s.brands.filter(live); return l.length === 1 ? l[0].id : ""; } },
@@ -185,7 +185,7 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "users", title: "Employees", one: "Employee", needs: ["roles", "branches"], detail: "/employee",
     tabs: [["all", "All", r => live(r) && !isAdminRow(r)], ["deleted", "Deleted", r => del(r) && !isAdminRow(r)]],
     search: r => r.name + " " + (r.email || "") + " " + (r.phone || "") + " " + (r.employeeNo || "") + " " + (r.jobTitle || ""),
-    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-theme-xs text-gray-500">{r.employeeNo}</span> : null}</> },
+    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-xs text-gray-500">{r.employeeNo}</span> : null}</> },
       { h: "Job Title", cell: r => r.jobTitle || "—" },
       { h: "Console Access", cell: r => r.email ? <Badge variant="light" color={r.userId ? "success" : "gray"}>{r.userId ? "Active" : "Invited"}</Badge> : <Badge variant="light" color="gray">Inactive</Badge> },
       { h: "App Access", cell: r => <Badge variant="light" color={r.pinHash ? "success" : "gray"}>{r.pinHash ? "Active" : "Inactive"}</Badge> },
@@ -222,7 +222,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   roles: {
     col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]],
-    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.description ? <span className="block text-theme-xs text-gray-500">{r.description}</span> : null}</> },
+    cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.description ? <span className="block text-xs text-gray-500">{r.description}</span> : null}</> },
       { h: "Back Office", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("bo_")).length; return n ? (r.permissions.includes("bo_manage") ? <Badge variant="light" color="success">Full admin</Badge> : n + " areas") : <Note>No access</Note>; } },
       { h: "POS", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("pos_")).length; return n ? n + " permissions" : <Note>No access</Note>; } },
       { h: "Employees", cell: (r, s) => s.users.filter(u => live(u) && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length, num: true }],

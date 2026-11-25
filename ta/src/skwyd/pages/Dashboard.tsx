@@ -84,16 +84,16 @@ export default function Dashboard() {
           <DateInput value={cmpAt || iso(cmpPer.start)} onChange={v => setCmpAt(v)} /></div></div>}
       </div>
       <p className="-mt-3 mb-5 text-sm text-gray-500 dark:text-gray-400">{per.n === 1 ? fmtD(per.start) : fmtD(per.start) + " → " + fmtD(new Date(+per.start + (per.n - 1) * 86400000))}{cmp ? ` · compared with ${per.n === 1 ? fmtD(prevStart) : fmtD(prevStart) + " → " + fmtD(prevEnd)}` : ""}</p>
-      {err ? <p className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-red-500 dark:border-gray-800 dark:bg-white/3">Couldn't load the dashboard: {err}</p>
-        : !D ? <p className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-800 dark:bg-white/3">Loading live numbers…</p>
+      {err ? <p className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-red-500 dark:border-gray-800 dark:bg-[#090E1A]">Couldn't load the dashboard: {err}</p>
+        : !D ? <p className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-800 dark:bg-[#090E1A]">Loading live numbers…</p>
         : <div className="grid grid-cols-12 gap-4 md:gap-6">
           <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-5">
             {cards.map(c => <MetricCard key={c.t} icon={c.i} title={c.t} value={c.v} change={c.ch} direction={c.dir} />)}
           </div>
-          <div className="col-span-12 rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-5 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-white/3">
+          <div className="col-span-12 rounded-lg border border-gray-200 bg-white px-5 pt-5 pb-5 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-[#090E1A]">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Sales By Hour</h3>
-              <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">{P ? "Net sales through the day, this period and the one before" : "Net sales and payments through the day"}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Sales By Hour</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{P ? "Net sales through the day, this period and the one before" : "Net sales and payments through the day"}</p>
             </div>
             <div className="custom-scrollbar max-w-full overflow-x-auto">
               <div className="min-w-250 xl:min-w-full">

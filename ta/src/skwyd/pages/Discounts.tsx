@@ -59,13 +59,13 @@ export default function DiscountsPage() {
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />Create Discount</Button>
           </div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted discounts" : q ? "No discounts match." : "No discounts yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               <th className={TH}>Name</th><th className={TH}>Reference</th><th className={TH}>Qualification</th><th className={TH + " text-end"}>Discount</th>{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(d => (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(d => (
                 <tr key={d.id} className={del ? "" : TR} onClick={() => !del && openWin("/discounts?id=" + d.id)}>
-                  <td className={TD}><span className="font-medium text-gray-800 dark:text-white/90">{d.name}</span>{d.nameAr && <span className="ms-2 text-gray-500" dir="auto">{d.nameAr}</span>}</td>
+                  <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{d.name}</span>{d.nameAr && <span className="ms-2 text-gray-500" dir="auto">{d.nameAr}</span>}</td>
                   <td className={TD}>{d.reference || "—"}</td><td className={TD}>{(QUAL.find(x => x[0] === d.qualification) || QUAL[0])[1]}</td><td className={TD + " text-end"}>{amtLbl(d)}</td>
                   {del && <td className={TD + " text-end"}><Button size="xs" variant="outline" onClick={async () => { if (await patch(d.id, { deleted: false })) toast("Discount restored"); }}>Restore</Button></td>}</tr>))}</tbody></table>}
         </div>
@@ -82,10 +82,10 @@ function DiscountPage({ d, s, back, edit, patch }: { d: any; s: S; back: () => v
     <>
       <PageBreadcrumb pageTitle={d.name} />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/3">
+        <div className="rounded-lg border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-[#090E1A]">
           <div className="mb-6 flex items-center gap-4">
             <Button variant="outline" size="icon" className="shrink-0" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
-            <h4 className="flex-1 text-lg font-semibold text-gray-800 dark:text-white/90">Details</h4>
+            <h4 className="flex-1 text-lg font-semibold text-gray-900 dark:text-gray-50">Details</h4>
             <Button variant="outline" onClick={edit}><PencilIcon className="size-4.5" />Edit Discount</Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32">
@@ -99,10 +99,10 @@ function DiscountPage({ d, s, back, edit, patch }: { d: any; s: S; back: () => v
         {SECS.map(sec => {
           const all = sec.opts(s), ids: string[] = d[sec.k] || [], rows = ids.map(i => all.find(o => o[0] === i)).filter(Boolean) as PickOpt[];
           return (
-            <Card key={sec.k} title={sec.title} className="bg-white dark:bg-white/3" action={<Button size="sm" variant="outline" onClick={() => setPick(sec)}>{rows.length && sec.btn.startsWith("Add") ? sec.btn.replace("Add", "Edit") : sec.btn}</Button>}>
+            <Card key={sec.k} title={sec.title} className="bg-white dark:bg-[#090E1A]" action={<Button size="sm" variant="outline" onClick={() => setPick(sec)}>{rows.length && sec.btn.startsWith("Add") ? sec.btn.replace("Add", "Edit") : sec.btn}</Button>}>
               {!rows.length ? <p className="text-sm text-gray-500 dark:text-gray-400">{sec.hint}</p>
-                : <div className="-mx-5 -mb-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 lg:-mb-6 dark:border-white/5"><table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>{sec.head.map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(r => <tr key={r[0]}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{r[1]}</td>{sec.head.length > 1 && <td className={TD}>{r[2] || "—"}</td>}</tr>)}</tbody></table></div>}
+                : <div className="-mx-5 -mb-5 overflow-x-auto border-t border-gray-100 lg:-mx-6 lg:-mb-6 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>{sec.head.map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(r => <tr key={r[0]}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{r[1]}</td>{sec.head.length > 1 && <td className={TD}>{r[2] || "—"}</td>}</tr>)}</tbody></table></div>}
             </Card>);
         })}
       </div>
@@ -134,7 +134,7 @@ function DiscountForm({ d, list, onClose, onSave, onDelete }: { d: any; list: an
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{d ? "Edit" : "Create"} Discount</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{d ? "Edit" : "Create"} Discount</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
           <F l="Name Localized"><Input className="h-9" dir="auto" value={v.nameAr} onChange={e => set("nameAr", e.target.value)} /></F>
@@ -150,7 +150,7 @@ function DiscountForm({ d, list, onClose, onSave, onDelete }: { d: any; list: an
               <Checkbox checked={v.orderTypes.includes(k)} onCheckedChange={c => set("orderTypes", c ? [...v.orderTypes, k] : v.orderTypes.filter((y: string) => y !== k))} />{t}</label>))}</div></F>
           <F l="Reference"><Input className="h-9" value={v.reference} onChange={e => set("reference", e.target.value)} /></F>
           <label className="col-span-full flex cursor-pointer items-start gap-3"><Switch checked={v.taxable} onCheckedChange={c => set("taxable", !!c)} />
-            <span><span className="block text-sm font-medium text-gray-800 dark:text-white/90">Taxable</span>
+            <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">Taxable</span>
               <span className="text-xs text-gray-500 dark:text-gray-400">On: the customer still pays the full tax of the order before the discount. Off: the tax is reduced with the discount.</span></span></label>
           {err && <p className="col-span-full text-sm text-red-500">{err}</p>}
           <div className="col-span-full flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:justify-end">

@@ -226,8 +226,8 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
             {/* customer and order details */}
             <section className="custom-scrollbar space-y-3 lg:order-3 lg:overflow-y-auto">
               {/* the order: type, source, brand and store */}
-              <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
-              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Order</h3>
+              <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">Order</h3>
               <div className="grid grid-cols-2 gap-2">{[["pickup", "Pickup"], ["delivery", "Delivery"]].map(([k, t]) => <button key={k} type="button" disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} onClick={() => setType(k)}
                 className={cn("h-9 rounded-lg border text-sm font-medium", type === k ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10" : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400")}>{t}</button>)}</div>
               <F l="Order Source" req><select className={SEL} disabled={ro || (!!o && !["callcenter", "pos"].includes(o.channel))} value={source} onChange={e => setSource(e.target.value)}><option value="">Choose…</option>{D.sources.map(x => <option key={x}>{x}</option>)}</select></F>
@@ -235,24 +235,24 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               <F l="Store" req><select className={SEL} disabled={locked} value={branch} onChange={e => { setBranch(e.target.value); setCat(""); }}><option value="">Choose…</option>{D.branches.map(b => <option key={b.id} value={b.id}>{b.name}{brOpenNow(b) ? "" : " · closed now"}</option>)}</select></F>
               </div>
               {/* the customer: phone, name, their history, the delivery address */}
-              <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
-              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Customer</h3>
+              <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-[#090E1A]">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">Customer</h3>
               <F l="Customer Phone" req><div className="flex gap-2"><select aria-label="Country code" className={cn(SEL, "w-24 shrink-0")} disabled={locked} value={cc} onChange={e => setCc(e.target.value)}>{CCS.map(x => <option key={x}>{x}</option>)}</select>
                 <Input className="h-9 flex-1" type="tel" inputMode="tel" disabled={locked} value={num} onChange={e => setNum(e.target.value)} autoFocus={!o} /></div></F>
               {cust && <div className="space-y-1 text-xs">{cust.blacklisted && <p className="font-semibold text-red-500">⚠ Blacklisted customer.</p>}{(cust.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{cust.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</div>}{cust.notes && <p className="text-gray-500 italic">{cust.notes}</p>}</div>}
               <F l="Customer Name" req><Input className="h-9" disabled={locked} value={name} onChange={e => setName(e.target.value)} /></F>
-              {cust && <div className="grid grid-cols-2 gap-2 rounded-xl bg-gray-50 p-3 text-xs dark:bg-white/3">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB").replace(/\//g, "-") : "—"]].map(([l, v]) =>
-                <div key={l}><span className="block text-gray-500">{l}</span><b className="text-gray-800 dark:text-white/90">{v}</b></div>)}</div>}
+              {cust && <div className="grid grid-cols-2 gap-2 rounded-md bg-gray-50 p-3 text-xs dark:bg-[#090E1A]">{[["Orders", String(ok.length)], ["Total spent", money(spent)], ["Avg. order", money(ok.length ? spent / ok.length : 0)], ["Last order", ok[0] ? new Date(ok[0].created_at).toLocaleDateString("en-GB").replace(/\//g, "-") : "—"]].map(([l, v]) =>
+                <div key={l}><span className="block text-gray-500">{l}</span><b className="text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>}
               {cust && ok.length > 0 && <div>
-                <b className="mb-1.5 block text-sm font-medium text-gray-800 dark:text-white/90">Past orders</b>
-                <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 dark:divide-white/5 dark:border-gray-800">{ok.slice(0, 5).map(r => <div key={r.id} className="flex items-center gap-2 px-3 py-2 text-xs">
-                  <div className="min-w-0 flex-1"><div className="flex justify-between gap-2"><b className="text-gray-800 dark:text-white/90">{r.ref || r.no || "—"}</b><b className="text-gray-800 dark:text-white/90">{money(+r.total || 0)}</b></div>
+                <b className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Past orders</b>
+                <div className="divide-y divide-gray-100 rounded-md border border-gray-200 dark:divide-white/5 dark:border-gray-800">{ok.slice(0, 5).map(r => <div key={r.id} className="flex items-center gap-2 px-3 py-2 text-xs">
+                  <div className="min-w-0 flex-1"><div className="flex justify-between gap-2"><b className="text-gray-900 dark:text-gray-50">{r.ref || r.no || "—"}</b><b className="text-gray-900 dark:text-gray-50">{money(+r.total || 0)}</b></div>
                     <span className="block text-gray-500">{new Date(r.created_at).toLocaleDateString("en-GB").replace(/\//g, "-")} · {r.type === "delivery" ? "Delivery" : r.type === "dinein" ? "In Store" : "Pickup"}</span>
                     <span className="block truncate text-gray-400">{(r.items || []).map((i: any) => (i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ")}</span></div>
                   {!o && <button type="button" onClick={() => reorderPast(r)} className="shrink-0 rounded-lg border border-brand-300 px-2.5 py-1.5 font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-500/40 dark:hover:bg-brand-500/10">Reorder</button>}
                 </div>)}</div></div>}
-              {type === "delivery" && <div className="space-y-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
-                <b className="block text-sm font-medium text-gray-800 dark:text-white/90">Delivery Address</b>
+              {type === "delivery" && <div className="space-y-3 rounded-md border border-gray-200 p-3 dark:border-gray-800">
+                <b className="block text-sm font-medium text-gray-900 dark:text-gray-50">Delivery Address</b>
                 {!!(cust?.addresses || []).length && !(locked && o?.address) && <F l="Saved addresses"><select className={SEL} value={addrIx ?? ""} onChange={e => { const i = e.target.value === "" ? null : +e.target.value; setAddrIx(i); setAddr(i == null ? addrSplit("") : addrSplit(cust.addresses[i].address)); }}>
                   <option value="">New address…</option>{cust.addresses.map((a: any, i: number) => { const x = addrSplit(a.address); return <option key={i} value={i}>{(x.label || "Address " + (i + 1)) + (x.street ? " · " + x.street : "")}</option>; })}</select>
                   {addrIx != null && !ro && <button type="button" onClick={() => delAddr(addrIx)} className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600"><TrashBinIcon className="size-3.5" />Delete this saved address</button>}</F>}
@@ -263,17 +263,17 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
               </div>
             </section>
             {/* the cart */}
-            <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 lg:order-1">
+            <section className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A] lg:order-1">
               <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-2.5 dark:border-gray-800">
                 <Button size="sm" variant="outline" onClick={onClose}><ArrowLeftIcon className="size-4" />Call Center</Button>
-                {o && <b className="truncate text-sm font-semibold text-gray-800 dark:text-white/90">{ccLabel(o)}</b>}
+                {o && <b className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">{ccLabel(o)}</b>}
                 {o && <Badge size="sm" variant="light" color={o.status === "pending" || o.status === "review" ? "warning" : o.status === "draft" ? "light" : "primary"}>{({ review: "Waiting for call center", draft: "Draft", pending: "Sent to store", active: "Preparing" } as any)[o.status] || o.status}</Badge>}
                 {cart.length ? <span className="ml-auto text-sm text-gray-500">{cart.reduce((a, i) => a + (+i.qty || 0), 0)} items</span> : null}</div>
               
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">{!cart.length ? <p className="py-10 text-center text-sm text-gray-500">No items yet.</p> : cart.map((i, ix) => (
-                <div key={ix} className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+                <div key={ix} className="rounded-md border border-gray-200 p-3 dark:border-gray-800">
                   <button type="button" disabled={ro} title={ro ? undefined : "Add a note or a discount"} onClick={() => editLine(ix)} className="block w-full text-start">
-                    <span className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-800 dark:text-white/90">{i.name}</b><span className="text-sm text-gray-800 dark:text-white/90">{+i.disc > 0 && <s className="me-1.5 text-xs text-gray-400">{money((+i.price || 0) * (+i.qty || 1))}</s>}{money(lineNet(i))}</span></span>
+                    <span className="flex items-start justify-between gap-2"><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{i.name}</b><span className="text-sm text-gray-900 dark:text-gray-50">{+i.disc > 0 && <s className="me-1.5 text-xs text-gray-400">{money((+i.price || 0) * (+i.qty || 1))}</s>}{money(lineNet(i))}</span></span>
                     {(i.options || []).length ? <span className="mt-1 block space-y-0.5">{(i.options as any[]).reduce((r: any[], o: any) => { const x = r.find(y => y.name === o.name); if (x) { x.n++; x.price += +o.price || 0; } else r.push({ name: o.name, n: 1, price: +o.price || 0 }); return r; }, []).map((o: any, k: number) =>
                       <span key={k} className="flex justify-between gap-2 text-xs text-gray-500"><span>• {o.n > 1 ? o.n + "× " : ""}{o.name}</span>{o.price ? <span>+{money(o.price)}</span> : null}</span>)}</span>
                       : i.mods && !i.note && <span className="mt-0.5 block text-xs text-gray-500">{i.mods}</span>}
@@ -290,7 +290,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                 {calc.charges.map(c => <div key={c.id} className="flex justify-between text-gray-500"><span>{c.name}</span><span>{money(c.amount)}</span></div>)}
                 <div className="flex justify-between text-gray-500"><span>Tax</span><span>{money(calc.tax)}</span></div>
                 {calc.rounding !== 0 && <div className="flex justify-between text-gray-500"><span>Rounding</span><span>{money(calc.rounding)}</span></div>}
-                <div className="flex justify-between pt-1 text-base font-semibold text-gray-800 dark:text-white/90"><span>Total</span><span>{money(calc.total)}</span></div>
+                <div className="flex justify-between pt-1 text-base font-semibold text-gray-900 dark:text-gray-50"><span>Total</span><span>{money(calc.total)}</span></div>
                 {(notes || rnotes) && <p className="pt-1 text-xs text-gray-500">{notes && <>Kitchen: {notes}<br /></>}{rnotes && <>Receipt: {rnotes}</>}</p>}
                 {err && <p className="pt-1 text-sm text-red-500">{err}</p>}
                 <div className="flex flex-wrap gap-2 pt-2">
@@ -304,11 +304,11 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                 </div>
               </div>
             </section>
-            <section className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 p-3 lg:order-2 lg:overflow-hidden">
+            <section className="flex min-h-0 flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A] p-3 lg:order-2 lg:overflow-hidden">
               {/* the order's tools: the same soft blue squares and icons as the POS top buttons (apps/pos/src/ui/Icon.tsx) */}
               {!ro && <div className="mb-3 flex flex-wrap gap-2">{([["disc", "Discount", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, disc > 0], ["chg", "Charges", <path d="M12 5v14M5 12h14" />, !!chg?.size],
                 ["tags", "Tags", <><path d="M20 12 12 20l-8-8V4h8z" /><circle cx="8" cy="8" r="1.5" /></>, !!tags?.length], ["notes", "Notes", <><path d="M6 3h9l4 4v14H6z" /><path d="M9 11h7M9 15h7" /></>, !!(notes || rnotes)]] as const).map(([k, t, d, on]) =>
-                <button key={k} type="button" onClick={() => setDlg(k)} className={cn("flex size-[84px] flex-col items-center justify-center gap-1.5 rounded-2xl border-2 bg-brand-50 text-[13px] font-medium text-brand-600 transition hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400", on ? "border-brand-500" : "border-brand-50 dark:border-transparent")}>
+                <button key={k} type="button" onClick={() => setDlg(k)} className={cn("flex size-[84px] flex-col items-center justify-center gap-1.5 rounded-lg border-2 bg-brand-50 text-[13px] font-medium text-brand-600 transition hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400", on ? "border-brand-500" : "border-brand-50 dark:border-transparent")}>
                   <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>{t}</button>)}</div>}
               {!branch || (D.brands.length && !brand) ? <p className="m-auto text-center text-sm text-gray-500">Choose the brand and the store to see the menu.</p> : ro ? <p className="m-auto text-center text-sm text-gray-500">This order can't be changed here.</p> : <>
                 <InputGroup className="mb-2 h-10"><InputGroupAddon align="inline-start"><SearchIcon className="size-5 text-gray-400" /></InputGroupAddon><InputGroupInput placeholder="Search items..." value={q} onChange={e => setQ(e.target.value)} /></InputGroup>
@@ -317,7 +317,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
                   <MenuTile key={c.id} img={c.imageUrl} name={c.name} sub="" muted bold onClick={() => setCat(c.id)} />); })}
                   {!cats.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No categories on this menu.</p>}</TileGrid> :
                 <TileGrid>{!q.trim() && cat && <button type="button" onClick={() => setCat("")} className="flex h-full min-h-0 snap-start flex-col items-center justify-center gap-1 border border-gray-200 bg-white p-1.5 text-center transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-800 dark:bg-gray-900">
-                    <ChevronLeftIcon className="size-6 text-brand-500" /><b className="text-[15px] font-semibold text-gray-800 dark:text-white/90">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
+                    <ChevronLeftIcon className="size-6 text-brand-500" /><b className="text-[15px] font-semibold text-gray-900 dark:text-gray-50">Back</b><span className="line-clamp-2 text-xs text-gray-500">{cats.find(c => c.id === cat)?.name}</span></button>}
                   {shown.map(p => { const oos = (p.outOfStockBranchIds || []).includes(branch), inCart = cart.filter(i => i.productId === p.id || i.id === p.id).reduce((t, i) => t + (+i.qty || 0), 0);
                     return <MenuTile key={p.id} img={p.imageUrl} name={p.name} n={inCart} disabled={oos} sub={oos ? "Out" : (p.variants || []).length ? "Choose" : money(D.price(p))} onClick={() => addProduct(p)} />; })}
                   {!shown.length && <p className="col-span-full py-10 text-center text-sm text-gray-500">No items here.</p>}</TileGrid>}
@@ -345,7 +345,7 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
 function LineDlg({ it, onClose, onSave }: { it: any; onClose: () => void; onSave: (x: any) => void }) {
   const full = (+it.price || 0) * (+it.qty || 1), [note, setNote] = useState(it.note || ""), [kind, setKind] = useState(it.discPct ? "pct" : "amt"), [v, setV] = useState<string>(it.discPct ? String(+it.discPct) : +it.disc ? String(+it.disc) : "");
   const n = Math.max(0, +v || 0), d = kind === "pct" ? full * Math.min(100, n) / 100 : Math.min(n, full);
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{it.qty} × {it.name}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{it.qty} × {it.name}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       <F l="Item Note"><Textarea rows={2} value={note} placeholder="e.g. no onions" onChange={e => setNote(e.target.value)} /></F>
       <div><span className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Item Discount</span>
@@ -358,7 +358,7 @@ function LineDlg({ it, onClose, onSave }: { it: any; onClose: () => void; onSave
   </DialogContent></Dialog>;
 }
 const Small = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
-  <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</DialogTitle></DialogHeader>
+  <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">{children}</div><div className="mt-6 flex justify-end"><Button onClick={onClose}>Done</Button></div></DialogContent></Dialog>);
 function ReasonDlg({ title, reasons, onClose, onGo }: { title: string; reasons: string[]; onClose: () => void; onGo: (why: string) => void }) {
   const [pick, setPick] = useState(reasons.length ? "" : "_other"), [txt, setTxt] = useState(""), [err, setErr] = useState("");
@@ -391,7 +391,7 @@ function TileGrid({ children }: { children: React.ReactNode }) {
 function MenuTile({ img, name, sub, n, bold, disabled, onClick, muted }: { img?: string; name: string; sub: string; n?: number; bold?: boolean; disabled?: boolean; onClick: () => void; muted?: boolean }) {
   return <button type="button" disabled={disabled} onClick={onClick} className={cn("relative flex h-full min-h-0 snap-start flex-col overflow-hidden border bg-white text-start transition hover:border-brand-300 disabled:opacity-50 dark:bg-gray-900", n ? "border-brand-500" : "border-gray-200 dark:border-gray-800")}>
     <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-gray-100 dark:bg-white/5">{img ? <img src={img} alt="" className="h-full w-full object-cover" /> : <svg viewBox="0 0 24 24" className="size-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z" /><path d="M12 4v4M9 6l1 2M15 6l-1 2" /></svg>}</span>
-    <span className="flex h-[60px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 min-w-0 flex-1 text-sm leading-[17px] break-words text-gray-800 dark:text-white/90", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-sm font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-brand-500")}>{sub}</span></span>
+    <span className="flex h-[60px] w-full shrink-0 items-center gap-1.5 border-t border-gray-100 px-[7px] dark:border-gray-800"><b className={cn("line-clamp-3 min-w-0 flex-1 text-sm leading-[17px] break-words text-gray-900 dark:text-gray-50", bold ? "font-semibold" : "font-medium")}>{name}</b><span className={cn("shrink-0 text-sm font-semibold", muted ? "text-gray-500" : disabled ? "text-red-500" : "text-brand-500")}>{sub}</span></span>
     {n ? <span className="absolute top-1 right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-brand-500 px-1 text-xs font-semibold text-white">{n}</span> : null}
   </button>;
 }

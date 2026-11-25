@@ -25,11 +25,11 @@ const cost5 = (v: any) => money(+v || 0);
 const DEF_ALLERGENS = ["Celery", "Cereals containing gluten", "Crustaceans", "Eggs", "Fish", "Lupin", "Milk", "Molluscs", "Mustard", "Tree nuts", "Peanuts", "Sesame", "Soy", "Sulphites"];
 export const Head = ({ back, backTo, title, children }: { back: string; backTo: string; title: string; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={back} current={title} />
-  <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to={backTo} />}><ArrowLeftIcon className="size-5" />{back}</Button><h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{title}</h2><div className="ms-auto flex gap-3">{children}</div></div></>;
+  <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to={backTo} />}><ArrowLeftIcon className="size-5" />{back}</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h2><div className="ms-auto flex gap-3">{children}</div></div></>;
 export const Info = ({ rows }: { rows: [string, React.ReactNode][] }) => <div className={BOX + " mb-6 grid grid-cols-2 gap-5 p-5 lg:grid-cols-4"}>{rows.map(([l, v]) =>
-  <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{v}</b></div>)}</div>;
+  <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>;
 export const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => (
-  <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
+  <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
 export const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
 export const Missing = ({ back, to }: { back: string; to: string }) => { const nav = useNavigate(); return <><PageBreadcrumb pageTitle={back} /><EmptyState text="This record wasn't found."><Button variant="outline" onClick={() => nav(to)}>{back}</Button></EmptyState></>; };
 const useId = () => useSearchParams()[0].get("id") || "";
@@ -54,11 +54,11 @@ export function Ingredients({ s, col, rec }: { s: S; col: string; rec: Row }) {
   const opts = s.inv_items.filter(x => live(x) && x.id !== rec.id && !ings.some(g => g.itemId === x.id)).sort((a, b) => a.name.localeCompare(b.name));
   return <Sec title="Ingredients" act={<div className="flex gap-2"><PickMany label="Add ingredient" opts={opts.map(x => ({ id: x.id, name: x.name, sub: x.ingredientUnit || "" }))} onAdd={ids => save([...ings, ...ids.map(v => ({ itemId: v, qty: 1, net: 1, yield: 100 }))], ids.length > 1 ? `${ids.length} ingredients added` : "Ingredient added")} /></div>}>
     {!ings.length ? <None t="No ingredients yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Product", "Quantity", "Unit", "Cost", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-      {ings.map((g, i) => { const it = item(g.itemId); return <tr key={g.itemId} className={TR}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{it?.name || "(deleted item)"}</td>
+      {ings.map((g, i) => { const it = item(g.itemId); return <tr key={g.itemId} className={TR}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{it?.name || "(deleted item)"}</td>
         <td className={TD}><Input className="h-9 w-28" type="number" step="any" defaultValue={g.qty} onBlur={e => +e.target.value !== +g.qty && save(ings.map((x, j) => j === i ? { ...x, qty: +e.target.value || 0, net: +e.target.value || 0 } : x))} /></td>
         <td className={TD}>{it?.ingredientUnit || "—"}</td><td className={TD}>{cost5(lineCost(g))}</td>
         <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={() => save(ings.filter((_, j) => j !== i), "Ingredient removed")}><TrashBinIcon className="size-5 text-red-500" /></Button></td></tr>; })}
-      <tr><td colSpan={3} className={TD + " text-end font-medium"}>Total</td><td className={TD + " font-semibold text-gray-800 dark:text-white/90"}>{cost5(ings.reduce((a, g) => a + lineCost(g), 0))}</td><td /></tr></tbody></table></div>}
+      <tr><td colSpan={3} className={TD + " text-end font-medium"}>Total</td><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"}>{cost5(ings.reduce((a, g) => a + lineCost(g), 0))}</td><td /></tr></tbody></table></div>}
   </Sec>;
 }
 export function Allergens({ s, col, rec }: { s: S; col: string; rec: Row }) {
@@ -80,7 +80,7 @@ export function Nutrition({ col, rec }: { col: string; rec: Row }) {
   return <Sec title="Nutritional Values" act={<Button size="sm" variant="outline" onClick={start}>Edit</Button>}>
     {!NUTR.some(([k]) => has(k)) ? <None t="No nutritional values." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Ingredient", "Value", "Unit"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
       {NUTR.filter(([k]) => has(k)).map(([k, l, u]) => <tr key={k} className={TR}><td className={TD}>{l}</td><td className={TD}>{cur[k]}</td><td className={TD}>{u}</td></tr>)}</tbody></table></div>}
-    {open && <Dialog open onOpenChange={x => !x && setOpen(false)}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">Nutritional Values</DialogTitle></DialogHeader>
+    {open && <Dialog open onOpenChange={x => !x && setOpen(false)}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">Nutritional Values</DialogTitle></DialogHeader>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{NUTR.map(([k, l, u]) => <F key={k} l={`${l} (${u})`}><Input type="number" min="0" step="any" value={v[k]} onChange={e => setV(o => ({ ...o, [k]: e.target.value }))} /></F>)}</div>
       <div className="mt-6 flex justify-end gap-3"><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={save}>Save</Button></div></DialogContent></Dialog>}
   </Sec>;
@@ -144,7 +144,7 @@ export function InvItemPage() {
     <SupLinks s={s} side="item" id={it.id} />
     <Sec title="Inventory Levels" act={<Button size="sm" variant="outline" disabled={lvb.length >= locs.length} onClick={() => setLv("")}><PlusIcon className="size-4" />Add</Button>}>
       {!lvb.length ? <None t="Add the minimum, par and maximum level of this product for a store or warehouse." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Store / Warehouse", "Minimum Level", "Par Level", "Maximum Level", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {lvb.map(([b, v]) => <tr key={b} className={TR + " cursor-pointer"} onClick={() => setLv(b)}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{locs.find(x => x[0] === b)?.[1]}<span className="block text-xs font-normal text-gray-500">{s.brands.find(x => x.id === s.branches.find(y => y.id === b)?.brandId)?.name || (s.warehouses.some(w => w.id === b) ? "Warehouse" : "")}</span></td><td className={TD}>{v.min ?? "—"}</td><td className={TD}>{v.par ?? "—"}</td><td className={TD}>{v.max ?? "—"}</td>
+        {lvb.map(([b, v]) => <tr key={b} className={TR + " cursor-pointer"} onClick={() => setLv(b)}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{locs.find(x => x[0] === b)?.[1]}<span className="block text-xs font-normal text-gray-500">{s.brands.find(x => x.id === s.branches.find(y => y.id === b)?.brandId)?.name || (s.warehouses.some(w => w.id === b) ? "Warehouse" : "")}</span></td><td className={TD}>{v.min ?? "—"}</td><td className={TD}>{v.par ?? "—"}</td><td className={TD}>{v.max ?? "—"}</td>
           <td className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={e => { e.stopPropagation(); const o = { ...mine }; delete o[b]; const next = { ...levels }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; void setDoc("inv_levels", { levels: next }, "Level removed"); }}><TrashBinIcon className="size-5 text-red-500" /></Button></td></tr>)}</tbody></table></div>}</Sec>
     <Sec title="Stock">{stock === null ? <None t="Loading…" /> : !Object.keys(stock).length ? <None t="Not counted anywhere yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Store / Warehouse</th><th className={TH + " text-end"}>Quantity</th></tr></thead><tbody>
       {locs.filter(([k]) => stock[k] !== undefined).map(([k, n]) => <tr key={k} className={TR}><td className={TD}>{n}</td><td className={TD + " text-end"}>{n2(stock[k])} {it.storageUnit || ""}</td></tr>)}</tbody></table></div>}</Sec>
@@ -165,7 +165,7 @@ function LevelsDialog({ s, it, loc, free, cur, all, onClose }: { s: S; it: Row; 
   const save = async () => { const r: any = {}; Object.entries(v).forEach(([k, n]) => { if (n.trim() !== "") r[k] = +n; });
     const o = { ...cur }; if (loc && loc !== b) delete o[loc]; if (Object.keys(r).length) o[b] = r; else delete o[b];
     const next = { ...all }; if (Object.keys(o).length) next[it.id] = o; else delete next[it.id]; await setDoc("inv_levels", { levels: next }, "Level saved"); onClose(); };
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{loc ? "Edit Inventory Level" : "Add Inventory Level"}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{loc ? "Edit Inventory Level" : "Add Inventory Level"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4">
       <F l="Brand" req><select className={SEL} value={g} onChange={e => { setG(e.target.value); setB(""); }}><option value="">Choose…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}{whs.some(w => free(w.id) || w.id === loc) && <option value={WH}>Warehouses</option>}</select></F>
       <F l={g === WH ? "Warehouse" : "Store"} req><select className={SEL} value={b} disabled={!g} onChange={e => setB(e.target.value)}><option value="">Choose…</option>{opts.map(([k, n]) => <option key={k} value={k}>{n}</option>)}</select></F>

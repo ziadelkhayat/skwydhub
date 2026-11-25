@@ -57,7 +57,7 @@ export default function StorePage() {
   const deleted = b.active === false || b.deleted;
   const saveSt = async (patch: any, msg: string) => { try { await put("branches", b.id, { settings: { ...st, ...patch }, updatedAt: new Date().toISOString() }); toast(msg); } catch { toast("Couldn't save. You may not have edit access.", "error"); } };
   const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{head.map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>{rows.map((r, i) => <tr key={i} className={TR}>{r.map((c, j) => <td key={j} className={TD}>{c}</td>)}</tr>)}</tbody></table></div>;
-  const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">{title}</h3>{act}</div><div className="p-5">{children}</div></div>;
+  const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>;
   async function wipe(kind: "orders" | "inv") {
     const c = await count(), what = kind === "orders" ? `all ${c.orders} orders` : `all ${c.inv} inventory transactions`;
     const typed = window.prompt(`This permanently deletes ${what} of ${b!.name}. It can't be undone.${kind === "orders" ? "\n\nReference numbers keep counting. This store's check numbers start again at 100001 and returns at RET-100001." : ""}\n\nType the store name to confirm:`);
@@ -80,21 +80,21 @@ export default function StorePage() {
   return <>
     <PageBreadcrumb pageTitle="Stores" current={b.name} />
     <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/branches" />}><ArrowLeftIcon className="size-5" />Stores</Button>
-      <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{b.name}</h2>{b.code && <Badge variant="light" color="light">{b.code}</Badge>}{deleted && <Badge variant="light" color="error">Deleted</Badge>}
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name}</h2>{b.code && <Badge variant="light" color="light">{b.code}</Badge>}{deleted && <Badge variant="light" color="error">Deleted</Badge>}
       <div className="ms-auto flex gap-3">{deleted ? <Button onClick={restore}>Restore</Button> : <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Store</Button>}</div></div>
     <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">{[["Delivery zones", zones.length], ["Employees", users.length], ["Devices", devs.length], ["Tables", tl.length], ["Charges", chs.length]].map(([l, v]) =>
-      <div key={l} className={BOX + " p-4"}><span className="text-sm text-gray-500">{l}</span><b className="mt-1 block text-xl font-semibold text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
+      <div key={l} className={BOX + " p-4"}><span className="text-sm text-gray-500">{l}</span><b className="mt-1 block text-xl font-semibold text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{([["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Reference", b.code || "—"], ["Brand", s.brands.find(x => x.id === b.brandId)?.name || "—"],
       ["Opening From", t12(mon.open || b.open)], ["Opening To", t12(mon.close || b.close)], ["Business day starts", t12(st.dayStart || "00:00")], ["Inventory End of Day", t12(st.invEnd || st.dayStart || "00:00")],
       ["Tax Group", tg || "—"], ["Tax Registration Name", st.taxName || "—"], ["Tax Number", b.taxNumber || "—"], ["Phone", b.phone || "—"], ["Address", b.address || "—"],
       ["Location", b.lat && b.lng ? <a className="text-brand-500 hover:underline" target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps?q=${b.lat},${b.lng}`}>{b.lat}, {b.lng}</a> : "—"],
       ["Receive Call Center, Web & API Orders", b.callCenter ? "Yes" : "No"], ["Automatic end of day", st.autoDayEnd === false ? "No" : "Yes"]] as [string, React.ReactNode][]).map(([l, v]) =>
-      <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
+      <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     <Sec title="Delivery Zones" act={<Button size="sm" variant="outline" onClick={() => setZonesDlg(true)}>Delivery Zones</Button>}><Tbl head={["Name", "Delivery charge", "Min. order"]} rows={zones.map(z => { const c = chOf(z); return [z.name, c ? `${c.name} · ${money(+c.value || 0)}` : "—", money(+z.minOrder || 0)]; })} /></Sec>
     <Sec title="Users"><Tbl head={["Name", "Email", "Phone"]} rows={users.map(u => [<Link key="n" className="text-brand-500 hover:underline" to={"/employee?id=" + u.id}>{u.name}</Link>, u.email || "—", u.phone || "—"])} /></Sec>
     <Sec title="Sections" act={<Button size="sm" variant="outline" onClick={() => setSec(null)}><PlusIcon className="size-4" />Add Section</Button>}>
       {!secs.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Tables</th><th className={TH}>Table names</th></tr></thead><tbody>
-        {secs.map(sc => { const l = tl.filter(t => (t.section || "") === sc); return <tr key={sc || "_"} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => setSec(sc)}><td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{sc || "No section"}</td><td className={TD}>{l.length}</td><td className={TD}>{l.map(t => tblLbl(t.name)).join(", ") || "—"}</td></tr>; })}</tbody></table></div>}</Sec>
+        {secs.map(sc => { const l = tl.filter(t => (t.section || "") === sc); return <tr key={sc || "_"} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => setSec(sc)}><td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{sc || "No section"}</td><td className={TD}>{l.length}</td><td className={TD}>{l.map(t => tblLbl(t.name)).join(", ") || "—"}</td></tr>; })}</tbody></table></div>}</Sec>
     <Sec title="Assigned Devices"><Tbl head={["Name", "Reference", "Type"]} rows={devs.map(d => [d.name, d.reference || "—", String(d.type || "").toUpperCase()])} /></Sec>
     <Sec title="Assigned Charges"><Tbl head={["Name", "Value", "Applies On"]} rows={chs.map(c => [c.name, c.type === "percent" ? (+c.value || 0) + "%" : money(+c.value || 0), (c.orderTypes || []).length ? [...new Set((c.orderTypes as string[]).map(t => TYPE_LBL[t] || t))].join(", ") : "All order types"])} /></Sec>
     <Sec title="Inactive Payment Methods" act={<Button size="sm" variant="outline" onClick={() => setPays(true)}>Payment Methods</Button>}>
@@ -129,11 +129,11 @@ function SectionDialog({ s, b, sc, onClose }: { s: S; b: string; sc: string | nu
   }
   async function del() { if (!(await askYes(rows.length ? `Delete the section ${sc} and its ${rows.length} tables?` : `Delete the section ${sc}?`, "Delete", true))) return;
     try { await tblSave(b, list.filter(t => (t.section || "") !== sc), secs.filter(x => x && x !== sc)); toast("Section deleted"); onClose(); } catch { setErr("Couldn't save."); } }
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{isNew ? "Add Section" : "Edit Section"}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{isNew ? "Add Section" : "Edit Section"}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       <F l="Name" req={isNew || !!sc}><Input className="h-9" value={name} placeholder={sc === "" ? "No section" : "e.g. Family section, Terrace"} onChange={e => setName(e.target.value)} autoFocus /></F>
       {isNew ? <F l="Number of Tables" req><Input className="h-9" type="number" min="1" max="100" value={n} onChange={e => setN(e.target.value)} /></F> : <div>
-        <div className="mb-2 flex items-center"><b className="text-sm font-medium text-gray-800 dark:text-white/90">Tables</b><Button size="sm" variant="outline" className="ms-auto" onClick={() => setRows(r => [...r, { id: newId("tb"), name: String(nextNo([...list, ...r])), section: sc, seats: null }])}><PlusIcon className="size-4" />Add Table</Button></div>
+        <div className="mb-2 flex items-center"><b className="text-sm font-medium text-gray-900 dark:text-gray-50">Tables</b><Button size="sm" variant="outline" className="ms-auto" onClick={() => setRows(r => [...r, { id: newId("tb"), name: String(nextNo([...list, ...r])), section: sc, seats: null }])}><PlusIcon className="size-4" />Add Table</Button></div>
         {!rows.length ? <p className="text-sm text-gray-500">No tables yet.</p> : <table className="w-full"><thead><tr><th className={TH}>Name</th><th className={TH}>Seats</th><th /></tr></thead><tbody>{rows.map((r, i) => <tr key={r.id} className={TR}>
           <td className={TD}><Input className="h-9" aria-label="Table name" value={r.name} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} /></td>
           <td className={TD}><Input className="h-9 w-24" type="number" min="0" aria-label="Seats" placeholder="—" value={r.seats ?? ""} onChange={e => setRows(o => o.map((x, j) => j === i ? { ...x, seats: e.target.value === "" ? null : Math.max(0, +e.target.value) } : x))} /></td>
@@ -185,8 +185,8 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
       toast(row ? "Store updated" : `${name} added`); onClose(); }
     catch { setErr("Couldn't save. You may not have edit access to this page."); } finally { setBusy(false); }
   }
-  const H = ({ t }: { t: string }) => <h4 className="col-span-full mt-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">{t}</h4>;
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
+  const H = ({ t }: { t: string }) => <h4 className="col-span-full mt-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-gray-50">{t}</h4>;
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <H t="General" />
       <F l="Brand" req><select className={SEL} value={v.brandId} onChange={e => set("brandId", e.target.value)}><option value="">Choose brand…</option>{brands.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F>

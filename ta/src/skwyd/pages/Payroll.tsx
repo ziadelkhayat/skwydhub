@@ -82,41 +82,41 @@ export default function PayrollPage() {
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"><StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
           <div className="flex items-center gap-2"><Button variant="outline" size="icon-lg" aria-label="Previous month" onClick={() => step(-1)}><ChevronLeftIcon className="size-5" /></Button>
-            <b className="min-w-40 text-center text-sm font-semibold text-gray-800 dark:text-white/90">{ml}</b><Button variant="outline" size="icon-lg" aria-label="Next month" onClick={() => step(1)}><ChevronRightIcon className="size-5" /></Button></div></div>
+            <b className="min-w-40 text-center text-sm font-semibold text-gray-900 dark:text-gray-50">{ml}</b><Button variant="outline" size="icon-lg" aria-label="Next month" onClick={() => step(1)}><ChevronRightIcon className="size-5" /></Button></div></div>
         <div className="flex flex-wrap gap-3"><Button variant="outline" onClick={() => setSetOpen(true)}><GearIcon className="size-5" />Settings</Button><Button variant="outline" onClick={exportCsv}><DownloadIcon className="size-5" />Export CSV</Button>
           {closed ? <Button variant="outline" onClick={async () => { if (!(await askYes("Reopen this month? Its figures are worked out again from the timesheets.", "Reopen"))) return; try { await saveDoc({ status: "draft", snapshot: null }); toast("Month reopened"); } catch { toast("Couldn't reopen.", "error"); } }}>Reopen Month</Button>
             : <Button disabled={!lines.length} onClick={close}>Close Month</Button>}</div>
       </div>
-      {closed && <p className="mb-6 rounded-xl border border-green-500 bg-green-50 p-4 text-sm text-gray-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-white/80">Closed by {doc.closedBy || "—"} on {dmy(doc.closedAt)}. The figures are frozen; Reopen Month to change them.</p>}
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">{kpis.map(([l, v]) => <div key={l} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3">
-        <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">{v}</h4></div>)}</div>
+      {closed && <p className="mb-6 rounded-md border border-green-500 bg-green-50 p-4 text-sm text-gray-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-white/80">Closed by {doc.closedBy || "—"} on {dmy(doc.closedAt)}. The figures are frozen; Reopen Month to change them.</p>}
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">{kpis.map(([l, v]) => <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-[#090E1A]">
+        <span className="text-sm text-gray-500 dark:text-gray-400">{l}</span><h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{v}</h4></div>)}</div>
       <div className={BOX}>
-        <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-white/90">Employees</h3>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 custom-scrollbar dark:border-white/5">
+        <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Employees</h3>
+        <div className="max-w-full overflow-x-auto border-t border-gray-100 custom-scrollbar dark:border-gray-800">
           {!lines.length ? <EmptyState text="Nobody to pay this month. Set each employee's pay on Edit Employee; hours come from clock-ins on the cashier app." />
-            : <table className="min-w-[1400px] w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Employee</th><th className={TH}>Pay</th>{nums.map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}<th className={TH} /></tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{lines.map(l => <tr key={l.id}>
-                <td className={TD}><span className="font-medium text-gray-800 dark:text-white/90">{l.name}</span>{l.no && <span className="ms-1 text-xs text-gray-400">{l.no}</span>}<span className="block text-xs text-gray-500">{l.job}</span></td>
+            : <table className="min-w-[1400px] w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Employee</th><th className={TH}>Pay</th>{nums.map(h => <th key={h} className={TH + " text-end"}>{h}</th>)}<th className={TH} /></tr></thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{lines.map(l => <tr key={l.id}>
+                <td className={TD}><span className="font-medium text-gray-900 dark:text-gray-50">{l.name}</span>{l.no && <span className="ms-1 text-xs text-gray-400">{l.no}</span>}<span className="block text-xs text-gray-500">{l.job}</span></td>
                 <td className={TD}>{l.type ? money(l.rate) + " " + (TY[l.type] || "").toLowerCase() : <span className="text-gray-400">No pay rate</span>}{l.unpaid ? <span className="block text-xs text-gray-500">{l.unpaid} unpaid day{l.unpaid === 1 ? "" : "s"}</span> : null}</td>
                 <td className={TD + " text-end"}>{l.days}</td><td className={TD + " text-end"}>{(+l.hrs).toFixed(1)}</td><td className={TD + " text-end"}>{l.ot ? (+l.ot).toFixed(1) : "—"}</td><td className={TD + " text-end"}>{money(l.base)}</td>
                 <td className={TD + " text-end"}>{l.otPay ? money(l.otPay) : "—"}</td><td className={TD + " text-end"}>{l.leavePay ? money(l.leavePay) : l.paidLeave ? l.paidLeave + "d" : "—"}</td><td className={TD + " text-end"}>{l.bonus ? money(l.bonus) : "—"}</td>
                 <td className={TD + " text-end"}>{money(l.gross)}</td><td className={TD + " text-end"}>{neg(l.ssE)}</td><td className={TD + " text-end"}>{neg(l.tax)}</td><td className={TD + " text-end"}>{neg(l.deduction)}</td><td className={TD + " text-end"}>{neg(l.advance)}</td>
-                <td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(l.net)}</td>
+                <td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(l.net)}</td>
                 <td className={TD + " text-end"}><div className="flex justify-end gap-2">{!closed && <Button size="xs" variant="outline" onClick={() => setAdj(s.users.find(u => u.id === l.id) || null)}>Adjust</Button>}<Button size="xs" variant="outline" onClick={() => payslip(l, m)}>Payslip</Button></div></td></tr>)}</tbody>
-              <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-800 dark:text-white/90"}>Total</td><td /><td /><td className={TD + " text-end"}>{tot("hrs").toFixed(1)}</td><td className={TD + " text-end"}>{tot("ot").toFixed(1)}</td>
+              <tfoot className="border-t border-gray-200 dark:border-white/10"><tr><td className={TD + " font-semibold text-gray-900 dark:text-gray-50"}>Total</td><td /><td /><td className={TD + " text-end"}>{tot("hrs").toFixed(1)}</td><td className={TD + " text-end"}>{tot("ot").toFixed(1)}</td>
                 {["base", "otPay", "leavePay", "bonus", "gross"].map(k => <td key={k} className={TD + " text-end"}>{money(tot(k))}</td>)}{["ssE", "tax", "deduction", "advance"].map(k => <td key={k} className={TD + " text-end"}>{neg(tot(k))}</td>)}
-                <td className={TD + " text-end font-semibold text-gray-800 dark:text-white/90"}>{money(tot("net"))}</td><td /></tr></tfoot></table>}
+                <td className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(tot("net"))}</td><td /></tr></tfoot></table>}
         </div>
-        <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-white/5">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ {+st.workDays || 26}). Overtime is hours over {+st.otAfter || 8} a day at {+st.otRate || 1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at {+st.otAfter || 8} hours a day for hourly and daily staff.{" "}
+        <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Hourly: rate × regular hours. Daily: rate × days worked. Monthly: salary less unpaid leave days (salary ÷ {+st.workDays || 26}). Overtime is hours over {+st.otAfter || 8} a day at {+st.otRate || 1.5}× the hourly equivalent. Paid leave (annual and sick) is paid at {+st.otAfter || 8} hours a day for hourly and daily staff.{" "}
           {+st.ssEmp || +st.taxRate ? `Social security: ${+st.ssEmp || 0}% employee, ${+st.ssEr || 0}% employer${+st.ssCap ? ` on pay up to ${money(st.ssCap)}` : ""}, for employees marked as registered. Tax: ${+st.taxRate || 0}% above ${money(st.taxFree)}.` : "Social security and tax are off: set their rates in Settings."}</p>
       </div>
       <div className={BOX + " mt-6"}>
-        <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-white/90">Cost By Store</h3>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5"><table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr><th className={TH}>Store</th><th className={TH + " text-end"}>Gross Pay</th><th className={TH + " text-end"}>Share</th></tr></thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/5">{Object.entries(byBr).sort((x, z) => z[1] - x[1]).map(([b, v]) => <tr key={b}><td className={TD}>{b ? s.branches.find(x => x.id === b)?.name || "—" : <span className="text-gray-400">No clock-ins (salary only)</span>}</td>
+        <h3 className="px-5 py-4 text-lg font-semibold text-gray-800 sm:px-6 dark:text-gray-50">Cost By Store</h3>
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800"><table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr><th className={TH}>Store</th><th className={TH + " text-end"}>Gross Pay</th><th className={TH + " text-end"}>Share</th></tr></thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{Object.entries(byBr).sort((x, z) => z[1] - x[1]).map(([b, v]) => <tr key={b}><td className={TD}>{b ? s.branches.find(x => x.id === b)?.name || "—" : <span className="text-gray-400">No clock-ins (salary only)</span>}</td>
             <td className={TD + " text-end"}>{money(v)}</td><td className={TD + " text-end"}>{tot("gross") ? (v / tot("gross") * 100).toFixed(1) + "%" : "—"}</td></tr>)}
             {!Object.keys(byBr).length && <tr><td className={TD} colSpan={3}>—</td></tr>}</tbody></table></div>
-        <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-white/5">Each employee's gross pay is split across stores by the hours they clocked at each.</p>
+        <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 sm:px-6 dark:border-gray-800">Each employee's gross pay is split across stores by the hours they clocked at each.</p>
       </div>
       {adj && <AdjustDialog u={adj} j={(doc?.lines || {})[adj.id] || {}} onClose={() => setAdj(null)} onSave={async j => { await saveDoc({ lines: { ...(doc?.lines || {}), [adj.id]: j } }); }} />}
       {setOpen && <PaySettings st={st} onClose={() => setSetOpen(false)} />}
@@ -130,7 +130,7 @@ function AdjustDialog({ u, j, onClose, onSave }: { u: Row; j: any; onClose: () =
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="w-full p-6 sm:max-w-lg sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 dark:text-white/90">Adjust · {u.name}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">Adjust · {u.name}</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <F l="Bonus"><Input className="h-9" type="number" min="0" step="any" value={v.b} onChange={e => set("b", e.target.value)} /></F><F l="Deductions"><Input className="h-9" type="number" min="0" step="any" value={v.d} onChange={e => set("d", e.target.value)} /></F>
           <F l="Advance Paid"><Input className="h-9" type="number" min="0" step="any" value={v.a} onChange={e => set("a", e.target.value)} /></F><F l="Note"><Input className="h-9" placeholder="Shown on the payslip" value={v.n} onChange={e => set("n", e.target.value)} /></F></div>
@@ -145,14 +145,14 @@ function PaySettings({ st, onClose }: { st: any; onClose: () => void }) {
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">Payroll Settings</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Payroll Settings</DialogTitle></DialogHeader>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {num("otAfter", "Overtime After (Hours A Day)", "8")}{num("otRate", "Overtime Rate (×)", "1.5")}
           <F l="Working Days A Month" help="Used to turn a monthly salary into a day's pay (unpaid leave) and an hour's pay (overtime)."><Input className="h-9" type="number" min="1" max="31" placeholder="26" value={v.workDays ?? ""} onChange={e => set("workDays", e.target.value)} /></F><div />
-          <h4 className="col-span-full mt-2 text-base font-semibold text-gray-800 dark:text-white/90">Social Security</h4>
+          <h4 className="col-span-full mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">Social Security</h4>
           {num("ssEmp", "Employee Share (%)", "0")}{num("ssEr", "Employer Share (%)", "0")}
           <F l="Monthly Pay Cap" help={'Only for employees ticked "Registered for social security" on Edit Employee.'}><Input className="h-9" type="number" min="0" step="any" placeholder="No cap" value={v.ssCap ?? ""} onChange={e => set("ssCap", e.target.value)} /></F><div />
-          <h4 className="col-span-full mt-2 text-base font-semibold text-gray-800 dark:text-white/90">Income Tax</h4>
+          <h4 className="col-span-full mt-2 text-base font-semibold text-gray-900 dark:text-gray-50">Income Tax</h4>
           {num("taxRate", "Tax Rate (%)", "0")}{num("taxFree", "Tax-Free Amount A Month", "0")}
           <p className="col-span-full text-xs text-gray-500">Rates change by law; check them with your accountant. Leave at 0 to turn a deduction off.</p>
         </div>

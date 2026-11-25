@@ -44,13 +44,13 @@ export default function DeliveryZonesPage() {
             <Button onClick={() => setEdit(null)}><PlusIcon className="size-5" />Add Delivery Zone</Button>
           </div>
         </div>
-        <div className="max-w-full overflow-x-auto border-t border-gray-100 dark:border-white/5">
+        <div className="max-w-full overflow-x-auto border-t border-gray-200 dark:border-gray-800">
           {!rows.length ? <EmptyState text={del ? "No deleted zones" : q ? "No zones match." : "No delivery zones yet"} />
-            : <table className="min-w-full"><thead className="border-b border-gray-100 dark:border-white/5"><tr>
+            : <table className="min-w-full"><thead className="border-b border-gray-200 dark:border-gray-800"><tr>
               {["Zone", "Store", "Delivery Charge"].map(h => <th key={h} className={TH}>{h}</th>)}<th className={TH + " text-end"}>Min. Order</th>{["Est. Time", "Map Area", "Status"].map(h => <th key={h} className={TH}>{h}</th>)}{del && <th className={TH} />}</tr></thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">{rows.map(z => { const c = chargeOf(z); return (
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">{rows.map(z => { const c = chargeOf(z); return (
                 <tr key={z.id} className={del ? "" : TR} onClick={() => !del && setEdit(z)}>
-                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-800 dark:text-white/90"><span className="size-2.5 rounded-full" style={{ background: color(z.branchId) }} />{z.name}</span></td>
+                  <td className={TD}><span className="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><span className="size-2.5 rounded-full" style={{ background: color(z.branchId) }} />{z.name}</span></td>
                   <td className={TD}>{bName(z.branchId) || "—"}</td><td className={TD}>{c ? <>{c.name} <span className="text-gray-400">{money(+c.value || 0)}</span></> : "—"}</td>
                   <td className={TD + " text-end"}>{z.minOrder != null && z.minOrder !== "" ? money(z.minOrder) : "—"}</td><td className={TD}>{z.eta ? z.eta + " min" : "—"}</td>
                   <td className={TD}>{drawn(z) ? <Badge variant="light" color="success">Drawn · {z.polygon.length} points</Badge> : <Badge variant="light" color="light">Not drawn</Badge>}</td>
@@ -76,7 +76,7 @@ function Overview({ zones, bName, color, onOpen }: { zones: Row[]; bName: (id?: 
     return () => { off = true; m?.remove(); }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const legend = [...new Set(zones.map(z => z.branchId))];
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
       {err ? <p className="p-6 text-sm text-gray-500">{err}</p> : <div ref={el} className="relative z-0 h-80 isolate sm:h-96" />}
       <div className="flex flex-wrap gap-4 px-5 py-3 text-sm text-gray-600 sm:px-6 dark:text-gray-400">{legend.length ? legend.map(id => <span key={id} className="flex items-center gap-2"><i className="size-3 rounded-full" style={{ background: color(id) }} />{bName(id)}</span>)
         : <span className="text-gray-500">No zones drawn yet. Add a zone and draw it on the map.</span>}</div>
@@ -97,13 +97,13 @@ function ZoneForm({ z, s, color, onClose }: { z: Row | null; s: S; color: (id?: 
   return (
     <Dialog open onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-h-[94dvh] w-full overflow-y-auto p-6 sm:max-w-4xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-white/90">{z ? "Edit" : "Add"} Delivery Zone</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">{z ? "Edit" : "Add"} Delivery Zone</DialogTitle></DialogHeader>
         <form className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); save(); }}>
           <F l="Zone / area name" req><Input className="h-9" autoFocus value={v.name} onChange={e => set("name", e.target.value)} /></F>
           <F l="Delivering store" req><select className={SEL} value={v.branchId} onChange={e => set("branchId", e.target.value)}><option value="">Choose…</option>{s.branches.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></F>
           <F l={`Minimum order (${sym()})`}><Input className="h-9" type="number" min="0" step="any" value={v.minOrder} onChange={e => set("minOrder", e.target.value)} /></F>
           <F l="Estimated time (min)"><Input className="h-9" type="number" min="0" value={v.eta} onChange={e => set("eta", e.target.value)} /></F>
-          <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-800 dark:text-white/90">Accept orders for this zone</span></label>
+          <label className="col-span-full flex cursor-pointer items-center gap-3"><Switch checked={v.active} onCheckedChange={x => set("active", !!x)} /><span className="text-sm font-medium text-gray-900 dark:text-gray-50">Accept orders for this zone</span></label>
           <F l="Zone area on the map" req full help="Click the map to add corners around the area this store delivers to. Drag a corner to adjust it.">
             <ZoneMap pts={pts} setPts={setPts} others={s.zones.filter(o => live(o) && o.id !== z?.id && drawn(o))} color={color} />
             <div className="mt-3 flex flex-wrap items-center gap-3"><Button type="button" size="sm" variant="outline" onClick={() => setPts(p => p.slice(0, -1))}>Undo last point</Button>
@@ -137,5 +137,5 @@ function ZoneMap({ pts, setPts, others, color }: { pts: [number, number][]; setP
       .on("drag", (e: any) => { const ll = e.target.getLatLng(), n = pts.slice(); n[i] = [ll.lat, ll.lng]; poly.setLatLngs(n); })
       .on("dragend", (e: any) => { const ll = e.target.getLatLng(); setPts(p => p.map((x, j) => j === i ? [ll.lat, ll.lng] : x)); }));
   }, [pts, err]);
-  return err ? <p className="text-sm text-gray-500">{err}</p> : <div ref={el} className="relative z-0 h-80 overflow-hidden rounded-xl border border-gray-200 isolate dark:border-gray-800" />;
+  return err ? <p className="text-sm text-gray-500">{err}</p> : <div ref={el} className="relative z-0 h-80 overflow-hidden rounded-md border border-gray-200 isolate dark:border-gray-800" />;
 }

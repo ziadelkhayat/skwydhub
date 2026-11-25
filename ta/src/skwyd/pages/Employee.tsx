@@ -25,8 +25,8 @@ import { DEF, DOC_TYPES, DocForm } from "./StaffDocs";
 const ET: Record<string, string> = { full: "Full Time", part: "Part Time", temp: "Temporary", intern: "Intern" }, PT: Record<string, string> = { monthly: "/ month", hourly: "/ hour", daily: "/ day" };
 const roleIds = (u: Row): string[] => u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : [];
 const Sec = ({ title, act, children }: { title: React.ReactNode; act?: React.ReactNode; children: React.ReactNode }) => (
-  <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
-const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-800 dark:text-white/90">{v}</b></div>;
+  <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
+const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>;
 const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
 
 export default function EmployeePage() {
@@ -52,7 +52,7 @@ export default function EmployeePage() {
       <PageBreadcrumb pageTitle="Employees" current={u.name} />
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Button variant="outline" render={<Link to="/users" />}><ArrowLeftIcon className="size-5" />Employees</Button>
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">{u.name}</h2>{u.deleted && <Badge variant="light" color="error">Deleted</Badge>}
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{u.name}</h2>{u.deleted && <Badge variant="light" color="error">Deleted</Badge>}
         <div className="ms-auto flex gap-3">{canPw && <Button variant="outline" onClick={() => setPw(true)}>{u.userId ? "Change Password" : "Create Password"}</Button>}<Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Employee</Button></div>
       </div>
       <div className={BOX + " mb-6 grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>
@@ -114,7 +114,7 @@ function PwDialog({ u, onClose }: { u: Row; onClose: () => void }) {
       toast("Password changed"); onClose();
     } catch { setErr("Couldn't save. Check the connection and try again."); } finally { setBusy(false); }
   }
-  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{has ? "Change Password" : "Create Password"}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-md"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{has ? "Change Password" : "Create Password"}</DialogTitle></DialogHeader>
     {!has && <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{u.email ? `${u.email} signs in to the back office with this password.` : "Add the employee's email first (Edit Employee): they sign in to the back office with their email and this password."}</p>}
     <form className="mt-4 space-y-4" onSubmit={e => { e.preventDefault(); save(); }}>
       <F l={has ? "New Password" : "Password"} req><Input type="password" className="h-9" autoComplete="new-password" placeholder="At least 8 characters" value={p1} onChange={e => setP1(e.target.value)} autoFocus /></F>

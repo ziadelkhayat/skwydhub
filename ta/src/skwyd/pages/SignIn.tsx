@@ -52,7 +52,7 @@ export default function SignInPage({ message }: { message: string }) {
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
             <div className="mb-8 lg:hidden"><SkwydLogo /></div>
             <div className="mb-5 sm:mb-8">
-              <h1 className="sm:text-title-md mb-2 text-title-sm font-semibold text-gray-800 dark:text-white/90">Sign In</h1>
+              <h1 className="sm:text-3xl mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-50">Sign In</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to the back office with your account number.</p>
             </div>
             <form onSubmit={submit} className="space-y-5" noValidate>
@@ -66,7 +66,7 @@ export default function SignInPage({ message }: { message: string }) {
               </> : <>
                 <Field><FieldLabel className="mb-1.5 block">Phone Number <span className="text-red-500">*</span></FieldLabel>
                   <div className="flex gap-3">
-                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className="h-9 w-28 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{CCS.map(c => <option key={c}>{c}</option>)}</select>
+                    <select aria-label="Country code" value={cc} onChange={e => { setCc(e.target.value); setSentTo(""); }} className="h-9 w-28 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-xs focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50">{CCS.map(c => <option key={c}>{c}</option>)}</select>
                     <Input className="h-9 flex-1" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="70 123 456" value={num} onChange={e => { setNum(e.target.value); setSentTo(""); }} />
                   </div></Field>
                 {sentTo && <Field><FieldLabel className="mb-1.5 block">Code Sent On WhatsApp <span className="text-red-500">*</span></FieldLabel>

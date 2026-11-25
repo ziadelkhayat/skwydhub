@@ -56,7 +56,6 @@ function PaginationLink({
         disabled && "pointer-events-none cursor-not-allowed opacity-50",
         className,
       )}
-      nativeButton={false}
       render={
         <a
           aria-current={isActive ? "page" : undefined}
@@ -137,7 +136,7 @@ function PaginationEllipsis({
       aria-hidden
       data-slot="pagination-ellipsis"
       className={cn(
-        "flex size-8 items-center justify-center dark:text-white/90 [&_svg:not([class*='size-'])]:size-4",
+        "flex size-8 items-center justify-center dark:text-gray-50 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}

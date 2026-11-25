@@ -95,6 +95,26 @@ layer(base);
   --z-index-99999: 99999;
   --z-index-999999: 999999;
 
+  /* Tremor Raw animations (tailwind.config keyframes moved to v4 @theme) */
+  --animate-hide: hide 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slideDownAndFade: slideDownAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slideLeftAndFade: slideLeftAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slideUpAndFade: slideUpAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slideRightAndFade: slideRightAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-drawerSlideLeftAndFade: drawerSlideLeftAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-drawerSlideRightAndFade: drawerSlideRightAndFade 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-dialogOverlayShow: dialogOverlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-dialogContentShow: dialogContentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  @keyframes hide { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes slideDownAndFade { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideLeftAndFade { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideUpAndFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideRightAndFade { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes drawerSlideLeftAndFade { from { opacity: 0; transform: translateX(50%); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes drawerSlideRightAndFade { from { opacity: 0; transform: translateX(-50%); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes dialogOverlayShow { from { opacity: 0; } to { opacity: 1; } }
+  /* our dialog positions with the translate property, so the animation only scales */
+  @keyframes dialogContentShow { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
 
   @keyframes caret-blink {

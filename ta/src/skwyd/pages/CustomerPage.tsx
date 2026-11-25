@@ -62,10 +62,10 @@ export default function CustomerPage() {
       <Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Customer</Button></Head>
 
     <div className={BOX + " mb-6 p-5"}>
-      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-base font-medium text-gray-800 dark:text-white/90">Customer Insights</h3>
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">Customer Insights</h3>
         <span className="text-sm text-gray-500 dark:text-gray-400">Customer since {since ? fmtDate(since) : "—"}</span></div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="rounded-xl bg-gray-50 p-4 dark:bg-white/3">
-        <span className="block text-xs text-gray-500 dark:text-gray-400">{l}</span><b className="mt-1 block text-base font-semibold break-words text-gray-800 dark:text-white/90">{v}</b></div>)}</div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="rounded-md bg-gray-50 p-4 dark:bg-[#090E1A]">
+        <span className="block text-xs text-gray-500 dark:text-gray-400">{l}</span><b className="mt-1 block text-base font-semibold break-words text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     </div>
 
     <Info rows={[["Name", c.name || "—"], ["Phone", c.phone ? <a className="text-brand-500" href={"tel:" + c.phone}>{tel(c.phone)}</a> : "—"], ["Email", c.email || "—"], ["Birth Date", c.birthday ? fmtDate(c.birthday + "T12:00:00") : "—"],
@@ -74,7 +74,7 @@ export default function CustomerPage() {
 
     <Sec title="Addresses" act={<Button size="sm" onClick={() => setAed({ ix: null, v: "" })}><PlusIcon className="size-4" />Add Address</Button>}>
       {!addrs.length && !used.length ? <None t="No addresses yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Address", "Delivery Zone", "Added", ""].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
-        {addrs.map((a, i) => <tr key={"s" + i} className={TR}><td className={TD + " whitespace-normal text-gray-800 dark:text-white/90"}>{a.address}</td><td className={TD}>{zones.find(z => z.id === a.zoneId)?.name || "—"}</td><td className={TD}>{a.createdAt ? fmtDate(a.createdAt) : "—"}</td>
+        {addrs.map((a, i) => <tr key={"s" + i} className={TR}><td className={TD + " whitespace-normal text-gray-900 dark:text-gray-50"}>{a.address}</td><td className={TD}>{zones.find(z => z.id === a.zoneId)?.name || "—"}</td><td className={TD}>{a.createdAt ? fmtDate(a.createdAt) : "—"}</td>
           <td className={TD + " text-end whitespace-nowrap"}><Button size="icon-sm" variant="ghost" aria-label="Edit address" onClick={() => setAed({ ix: i, v: a.address, zoneId: a.zoneId })}><PencilIcon className="size-4" /></Button>
             <Button size="icon-sm" variant="ghost" aria-label="Delete address" onClick={async () => { if (await askYes("Delete this address?", "Delete", true)) upd({ addresses: addrs.filter((_, j) => j !== i) }, "Address deleted"); }}><TrashBinIcon className="size-4 text-error-500" /></Button></td></tr>)}
         {used.map((v, i) => <tr key={"u" + i} className={TR}><td className={TD + " whitespace-normal"}>{v} <Badge variant="light" color="light">From orders</Badge></td><td className={TD}>—</td><td className={TD}>—</td>
@@ -99,7 +99,7 @@ export default function CustomerPage() {
     <Sec title={`Orders (${orders.length})`}>
       {!orders.length ? <None t="No orders yet." /> : <div className="overflow-x-auto"><table className="w-full"><thead><tr>{["Reference", "Check Number", "Order", "Business Date", "Store", "Order Type", "Order Source", "Payment Type", "Status", "Total"].map(h => <th key={h} className={TH}>{h}</th>)}</tr></thead><tbody>
         {orders.map(o => <tr key={o.id} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/2"} onClick={() => openWin("/order?id=" + o.id)}>
-          <td className={TD + " font-medium text-gray-800 dark:text-white/90"}>{ordRef(o)}</td><td className={TD}>{chkNo(o)}</td><td className={TD}>{o.no || "—"}</td><td className={TD}>{fmtDate(o.createdAt)}</td>
+          <td className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{ordRef(o)}</td><td className={TD}>{chkNo(o)}</td><td className={TD}>{o.no || "—"}</td><td className={TD}>{fmtDate(o.createdAt)}</td>
           <td className={TD}>{bName(o.branchId)}</td><td className={TD}>{TYPE_LBL[o.type] || o.type || "—"}</td><td className={TD}>{srcOf(o) || "—"}</td><td className={TD}>{o.payment?.method || "—"}</td>
           <td className={TD}><Badge variant="light" color={ST_COLOR[o.status] || "gray"}>{ORD_ST[o.status] || o.status}</Badge></td><td className={TD}>{money(o.total)}</td></tr>)}
       </tbody></table></div>}
@@ -112,7 +112,7 @@ export default function CustomerPage() {
 function AddrDialog({ init, zones, onClose, onSave }: { init: { ix: number | null; v: string; zoneId?: string }; zones: any[]; onClose: () => void; onSave: (v: string, zoneId: string) => void }) {
   const [a, setA] = useState<Addr>(addrSplit(init.v)), [z, setZ] = useState(init.zoneId || ""), [err, setErr] = useState("");
   const L: [keyof Addr, string, boolean][] = [["label", "Address Type (Home, Work…)", false], ["street", "Area / Street", true], ["building", "Building Name / No.", true], ["floor", "Floor / Apartment No.", true], ["door", "Door Details / Name on Intercom", false], ["extra", "Instructions", false]];
-  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white/90">{init.ix == null ? "Add Address" : "Edit Address"}</DialogTitle></DialogHeader>
+  return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{init.ix == null ? "Add Address" : "Edit Address"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{L.map(([k, l, req]) => <div key={k} className={k === "street" || k === "extra" ? "sm:col-span-2" : ""}><F l={l} req={req}><Input className="h-9" value={a[k]} onChange={e => setA({ ...a, [k]: e.target.value })} /></F></div>)}
       {zones.length > 0 && <div className="sm:col-span-2"><F l="Delivery Zone"><select className={SEL} value={z} onChange={e => setZ(e.target.value)}><option value="">None</option>{zones.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></F></div>}</div>
     {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
