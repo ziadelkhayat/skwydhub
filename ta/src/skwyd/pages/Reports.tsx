@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -212,8 +213,8 @@ function Report({ hubKey, rk, back }: { hubKey: string; rk: string; back: () => 
           <Button variant="outline" size="icon-lg" aria-label="Back" onClick={back}><ArrowLeftIcon className="size-5" /></Button>
           {rk === "sales" && <SelectNative aria-label="Report" className={SEL + " sm:w-52"} value={dim} onChange={e => { setDim(e.target.value); if (group === e.target.value) setGroup(""); }}>{DIMS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</SelectNative>}
           {rk === "sales" && <SelectNative aria-label="Group By" className={SEL + " sm:w-44"} value={group} onChange={e => setGroup(e.target.value)}>{GROUPS.filter(g => g[0] !== dim).map(([v, t]) => <option key={v} value={v}>Group By: {t}</option>)}</SelectNative>}
-          {<SelectNative aria-label="Brand" className={SEL + " sm:w-40"} value={brand} onChange={e => { setBrand(e.target.value); if (branch && e.target.value && branches.find(b => b.id === branch)?.brandId !== e.target.value) setBranch(""); }}><option value="">All Brands</option>{brands.filter(live).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-          <SelectNative aria-label="Store" className={SEL + " sm:w-40"} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All Stores</option>{branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+          {<FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); if (branch && v && branches.find(b => b.id === branch)?.brandId !== v) setBranch(""); }} all="All Brands" options={brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+          <FilterSelect title="Store" value={branch} onChange={v => setBranch(v)} all="All Stores" options={branches.filter(b => live(b) && b.active !== false && (!brand || b.brandId === brand)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div>
         </div>
         <div className="flex gap-3">{loading && <span className="self-center text-sm text-gray-500">Loading…</span>}<Button variant="outline" disabled={!B} onClick={exportCsv}><DownloadIcon className="size-5" />Export</Button><Button variant="outline" disabled={!B} onClick={print}>Print</Button></div>

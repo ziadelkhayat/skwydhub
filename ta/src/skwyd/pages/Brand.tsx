@@ -1,3 +1,4 @@
+import { PageHead } from "../ui/Record";
 import { LineTabs, Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { ChoiceButton } from "../ui/Choice";
@@ -39,8 +40,7 @@ export default function BrandPage() {
   if (settingsOpen) return <Settings s={s} b={b} admin={!staff?.role || ["owner", "admin"].includes(staff.role)} back={() => { const n = new URLSearchParams(sp); n.delete("settings"); setSp(n); }} />;
   return <>
     <PageBreadcrumb pageTitle="Brands" current={b.name} />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" render={<Link to="/brands" />}><ArrowLeftIcon className="size-5" />Brands</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name}</h2>
-      <div className="ms-auto flex gap-3"><Button variant="outline" onClick={() => { const n = new URLSearchParams(sp); n.set("settings", "1"); setSp(n); scrollTo(0, 0); }}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Brand</Button></div></div>
+    <PageHead back={<><Button variant="outline" size="sm" render={<Link to="/brands" />}><ArrowLeftIcon className="size-4" />Brands</Button></>} title={<>{b.name}</>} actions={<><Button variant="outline" onClick={() => { const n = new URLSearchParams(sp); n.set("settings", "1"); setSp(n); scrollTo(0, 0); }}><GearIcon className="size-5" />Settings</Button><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Brand</Button></>} />
     <div className={BOX + " grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4"}>{[["Name", b.name], ["Name Localized", b.nameAr || "—"], ["Stores", String(brs.length)], ["Created", fmtDate(b.createdAt)]].map(([l, v]) =>
       <div key={l}><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v}</b></div>)}</div>
     {edit && <EditDialog cfg={CRUD.brands} s={s} row={b} onClose={() => setEdit(false)} />}
@@ -89,7 +89,7 @@ function Settings({ s, b, admin, back }: { s: Record<string, any[]>; b: any; adm
   };
   return <>
     <PageBreadcrumb pageTitle="Brands" current={b.name + " · Settings"} />
-    <div className="mb-6 flex flex-wrap items-center gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />{b.name}</Button><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{b.name} · Settings</h2></div>
+    <PageHead back={<><Button variant="outline" size="sm" onClick={back}><ArrowLeftIcon className="size-4" />{b.name}</Button></>} title={<>{b.name} · Settings</>} />
     <LineTabs className="mb-8" value={tab} onChange={k => { setTab(k); setSeen(o => new Set(o).add(k)); }} items={tabs.map(([k, t]) => [k, t])} />
     {!admin && <p className="mb-6 rounded-md bg-yellow-50 px-4 py-3 text-sm text-yellow-800 ring-1 ring-inset ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500">Only the owner or an admin can change settings.</p>}
     <Section title={T[2]} desc={b.name}>

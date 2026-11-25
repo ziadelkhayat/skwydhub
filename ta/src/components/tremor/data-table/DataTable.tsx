@@ -16,7 +16,7 @@ import { cx } from "../utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../Dropdown";
 import { CommandBar, CommandBarBar, CommandBarCommand, CommandBarSeperator, CommandBarValue } from "../CommandBar";
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
-import { DataTableFilter } from "./DataTableFilter";
+import { FilterMulti, FilterSelect } from "./FilterSelect";
 import { DataTablePagination } from "./DataTablePagination";
 import { ViewOptions } from "./DataTableViewOptions";
 import { sortValue, textOf } from "./textOf";
@@ -129,9 +129,11 @@ export function DataTable<T>({
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
         <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
           {toolbar}
-          {filters.map(f => table.getColumn(f.column)?.getIsVisible() && (
-            <DataTableFilter key={f.column} column={table.getColumn(f.column)} title={f.title} options={f.options} type={f.type || "checkbox"} />
-          ))}
+          {filters.map(f => { const col = table.getColumn(f.column); if (!col?.getIsVisible()) return null;
+            const v = col.getFilterValue() as any;
+            return f.type === "select"
+              ? <FilterSelect key={f.column} title={f.title} options={f.options} value={(v as string) || ""} onChange={x => col.setFilterValue(x || undefined)} />
+              : <FilterMulti key={f.column} title={f.title} options={f.options} value={(v as string[]) || []} onChange={x => col.setFilterValue(x.length ? x : undefined)} />; })}
           {searchPlaceholder !== false && (
             <Searchbar type="search" placeholder={searchPlaceholder} value={term}
               onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}

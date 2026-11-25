@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { ChoiceButton } from "../ui/Choice";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -111,8 +112,8 @@ export default function SchedulePage() {
       <PageBreadcrumb pageTitle="Schedule" />
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          {<SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => setBrand(e.target.value)}><option value="">All Brands</option>{s.brands.filter(b => live(b) && b.active !== false).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>}
-          <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}>{brs.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+          {<FilterSelect title="Brand" value={brand} onChange={v => setBrand(v)} all="All Brands" options={s.brands.filter(b => live(b) && b.active !== false).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
+          <FilterSelect title="Store" value={br} onChange={v => setBr(v)} required options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} />
           <SegTabs value={view} onChange={setView} items={[["day", "Day"], ["week", "Week"], ["month", "Month"]]} />
           <div className="flex items-center gap-2"><Button variant="outline" size="icon-lg" aria-label="Previous" onClick={() => step(-1)}><ChevronLeftIcon className="size-5" /></Button>
             <span className="min-w-44 text-center text-sm font-medium text-gray-900 dark:text-gray-50">{label}</span>

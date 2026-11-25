@@ -1,3 +1,4 @@
+import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
 import { Searchbar } from "@/components/tremor/Searchbar";
 import { Label } from "@/components/tremor/Label";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -44,8 +45,8 @@ export default function TasksPage() {
           <SegTabs value={tab} onChange={setTab} items={[["open", `Open (${n("open")})`], ["done", `Done (${n("done")})`], ["all", `All (${n("all")})`]]} />
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
-            <SelectNative aria-label="Brand" className={SEL + " sm:w-44"} value={brand} onChange={e => { setBrand(e.target.value); setBr(""); }}><option value="">All Brands</option>{s.brands.filter(b => !b.deleted).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
-            <SelectNative aria-label="Store" className={SEL + " sm:w-44"} value={br} onChange={e => setBr(e.target.value)}><option value="">All Stores</option>{stores.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</SelectNative>
+            <FilterSelect title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <FilterSelect title="Store" value={br} onChange={v => setBr(v)} all="All Stores" options={stores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <Button onClick={() => setForm(null)}><PlusIcon className="size-5" />New Task</Button></div>
         </div>
         <div className="relative overflow-x-auto">
