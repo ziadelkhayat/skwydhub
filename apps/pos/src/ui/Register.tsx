@@ -420,7 +420,7 @@ export function Register() {
 
       {more && (
         <Pressable accessibilityLabel="Close menu" style={{ position: "absolute", inset: 0 } as any} onPress={() => setMore(false)}>
-          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 94, width: 250, padding: 6, borderRadius: R.lg, shadowColor: "#101828", shadowOpacity: 0.14, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 }}>
+          <Card style={{ position: "absolute", left: W - menuW + PADX, bottom: 94, width: 250, padding: 6, borderRadius: R.lg, shadowColor: "#000000", shadowOpacity: 0.14, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 }}>
             <FnItem icon="till" label={openShift(x) ? "Close Till" : "Open Till"} onPress={() => { setMore(false); if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
             <FnItem icon="dayend" label="End of day" onPress={() => { setMore(false); if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={m => { setDlg(null); if (m) say(m); }} />); }} />
             <FnItem icon="chart" label="Reports" onPress={() => { setMore(false); if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
@@ -431,8 +431,8 @@ export function Register() {
             <FnItem icon="logout" label="Log out" onPress={() => { setMore(false); reset(); setCashier(null); }} />
           </Card>
         </Pressable>)}
-      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 400, backgroundColor: "#fff", borderRadius: 14, borderWidth: 1, borderColor: C.line, padding: 16, flexDirection: "row", gap: 14,
-          shadowColor: "#101828", shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 }}>
+      {incoming && !dlg ? <View style={{ position: "absolute", top: 16, right: 16, width: 400, backgroundColor: "#fff", borderRadius: 8, borderWidth: 1, borderColor: C.line, padding: 16, flexDirection: "row", gap: 14,
+          shadowColor: "#000000", shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 }}>
         <View style={{ width: 44, height: 44, borderRadius: R.lg, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}>
           <Icon name={incoming.__edit ? "note" : incoming.type === "delivery" ? "scooter" : "bag"} size={22} color={C.brand600} /></View>
         <View style={{ flex: 1 }}>
@@ -471,8 +471,8 @@ export function fitTiles(W: number, H: number, gap = TG) {
 // F: the photo fills the top edge to edge; one caption line under it: the name on the left (2 lines at most), the price on the right in blue
 function TileBody({ size, w, img, name, sub, subColor, bold }: { size: number; w: number; img?: string; name: string; sub?: string; subColor?: string; bold?: boolean }) {
   return <>
-    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: "#F2F4F7" }}>
-      {img ? <Image source={{ uri: img }} style={{ width: w - 2, height: size - CAP - 2 }} resizeMode="cover" /> : <Icon name="bowl" size={30} color="#98A2B3" />}</View>
+    <View style={{ height: size - CAP - 2, alignItems: "center", justifyContent: "center", backgroundColor: "#F3F4F6" }}>
+      {img ? <Image source={{ uri: img }} style={{ width: w - 2, height: size - CAP - 2 }} resizeMode="cover" /> : <Icon name="bowl" size={30} color="#9CA3AF" />}</View>
     <View style={{ height: CAP, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 7, borderTopWidth: 1, borderColor: C.line2 }}>
       <T w={bold ? "s" : "m"} size={14} numberOfLines={3} style={{ flex: 1, lineHeight: 17 }}>{name}</T>
       {sub ? <T w="s" size={14} numberOfLines={1} color={subColor || C.brand} style={{ flexShrink: 0 }}>{sub}</T> : null}</View>

@@ -16,7 +16,7 @@ export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
 
 // a table's colour shows how long it has been open
-const AGE = [{ l: "Free", bg: "#fff", bd: "#E4E7EC", tx: "#344054" }, { l: "Under 15 min", bg: "#ECFDF3", bd: "#32D583", tx: "#027A48" }, { l: "15 – 30 min", bg: "#FFFAEB", bd: "#FDB022", tx: "#B54708" },
+const AGE = [{ l: "Free", bg: "#fff", bd: "#E5E7EB", tx: "#374151" }, { l: "Under 15 min", bg: "#ECFDF3", bd: "#32D583", tx: "#027A48" }, { l: "15 – 30 min", bg: "#FFFAEB", bd: "#FDB022", tx: "#B54708" },
   { l: "30 min – 1 hour", bg: "#FFF6ED", bd: "#FB6514", tx: "#C4320A" }, { l: "Over 1 hour", bg: "#FEF3F2", bd: "#F04438", tx: "#B42318" }], MERGED = { l: "Merged", bg: "#F4F3FF", bd: "#7A5AF8", tx: "#5925DC" };
 export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void }) {
   const { write } = useStore(), [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);

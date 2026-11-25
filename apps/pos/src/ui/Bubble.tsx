@@ -24,6 +24,6 @@ export function Bubble({ win }: { win?: boolean }) {
   return <View pointerEvents="none" style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 100 }}>
     {m.tap ? <View style={{ position: "absolute", left: ax, ...(below ? { top: y + 14 } : { top: y - 26 }), width: 12, height: 12, backgroundColor: C.ink, transform: [{ rotate: "45deg" }] }} /> : null}
     <View style={{ position: "absolute", left, width: bw, ...(below ? { top: m.tap ? y + 19 : 16 } : { bottom: H - y + 19 }), alignItems: "center" }}>
-      <View style={{ backgroundColor: C.ink, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, maxWidth: bw }}><T color="#fff" size={14} style={{ textAlign: "center" }}>{m.text}</T></View></View>
+      <View style={{ backgroundColor: C.ink, borderRadius: 6, paddingHorizontal: 14, paddingVertical: 10, maxWidth: bw }}><T color="#fff" size={14} style={{ textAlign: "center" }}>{m.text}</T></View></View>
   </View>;
 }

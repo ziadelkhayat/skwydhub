@@ -1,11 +1,11 @@
-// TailAdmin look (the same as the React back office): Outfit, brand blue #465FFF, gray scale, 16px cards.
+// Tremor look (the same as the React back office): Tremor blue #3B82F6, Tailwind grays, 6px controls and 8px cards.
 export const C = {
-  brand: "#465FFF", brand600: "#3641F5", brand50: "#ECF3FF", brand100: "#DDE9FF",
+  brand: "#3B82F6", brand600: "#2563EB", brand50: "#EFF6FF", brand100: "#DBEAFE",
   bg: "#F9FAFB", card: "#FFFFFF",
-  ink: "#1D2939", ink2: "#344054", mut: "#667085", mut2: "#98A2B3",
-  line: "#E4E7EC", line2: "#F2F4F7", field: "#D0D5DD",
-  ok: "#027A48", okBg: "#ECFDF3", warn: "#B54708", warnBg: "#FFFAEB", bad: "#D92D20", badBg: "#FEF3F2",
+  ink: "#111827", ink2: "#374151", mut: "#6B7280", mut2: "#9CA3AF",
+  line: "#E5E7EB", line2: "#F3F4F6", field: "#D1D5DB",
+  ok: "#047857", okBg: "#ECFDF5", warn: "#B45309", warnBg: "#FFFBEB", bad: "#DC2626", badBg: "#FEF2F2",
 };
 export const F = { r: "Outfit_400Regular", m: "Outfit_500Medium", s: "Outfit_600SemiBold", b: "Outfit_700Bold" };
-export const R = { sm: 8, md: 12, lg: 16 };
-export const shadowXs = { shadowColor: "#101828", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 };
+export const R = { sm: 6, md: 6, lg: 8 };
+export const shadowXs = { shadowColor: "#000000", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 };
