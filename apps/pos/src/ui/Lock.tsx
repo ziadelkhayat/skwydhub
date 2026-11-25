@@ -23,7 +23,7 @@ export function Lock() {
   const devName = (device as any)?.name as string | undefined;
   return (
     <View style={{ flex: 1, backgroundColor: C.bg, alignItems: "center", justifyContent: "center", gap: 16 }}>
-      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 16 }} />
+      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 0 }} />
       <T w="s" size={21}>Enter Your PIN</T>
       <Dots n={pin.length} />
       <T size={14} color={C.bad} style={{ minHeight: 20 }}>{err}</T>

@@ -80,7 +80,7 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
                   {tblParts(own[0].table).length > 1 ? <T size={11} color="#5925DC">With {tblParts(own[0].table).filter(y => y !== t.name).map(y => tblLbl(y)).join(", ")}</T> : null}</>}
               </Pressable>); })}</ScrollView>}
           <View style={{ flexDirection: "row", gap: 16, paddingTop: 8, flexWrap: "wrap" }}>{[...AGE, MERGED].map(a =>
-            <View key={a.l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}><View style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: a.bg, borderWidth: 1.5, borderColor: a.bd }} /><T size={12} color={C.ink2}>{a.l}</T></View>)}
+            <View key={a.l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}><View style={{ width: 14, height: 14, borderRadius: 0, backgroundColor: a.bg, borderWidth: 1.5, borderColor: a.bd }} /><T size={12} color={C.ink2}>{a.l}</T></View>)}
             <T size={12} color={C.mut}>Hold an occupied table to move it.</T></View>
         </View>
       </View>
