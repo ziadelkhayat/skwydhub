@@ -174,11 +174,57 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
 }
 
 // long press on a cart line: its note (printed on the kitchen ticket) and its discount, as a % (follows the quantity) or an amount
-export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
-  onDone: (r: { note: string; disc?: number; discPct?: number } | null) => void }) {
+// area: the cart's place on the register (option G): the cart column turns into the line editor and the menu stays as it is; without it, a window
+export type LineEdit = { note: string; disc?: number; discPct?: number; qty?: number; remove?: boolean };
+export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone, area, minQty = 0 }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
+  onDone: (r: LineEdit | null) => void; area?: { top: number; width: number }; minQty?: number }) {
   const [n, setN] = useState(note || ""), [kind, setKind] = useState<"pct" | "amt">(disc && !discPct && canAmt ? "amt" : canPct ? "pct" : "amt"), [v, setV] = useState(discPct ? String(discPct) : disc ? String(disc) : "");
-  const full = unit * qty, x = Math.max(0, +v.replace(",", ".") || 0), d = kind === "pct" ? full * Math.min(100, x) / 100 : Math.min(x, full), allowed = kind === "pct" ? canPct : canAmt;
-  const save = () => { if (x > 0 && !allowed) return; onDone(x > 0 ? (kind === "pct" ? { note: n.trim(), discPct: Math.min(100, x), disc: +d.toFixed(2) } : { note: n.trim(), disc: +d.toFixed(2) }) : { note: n.trim() }); };
+  const [q, setQ] = useState(qty), kbH = useKbHeight();
+  const full = unit * (area ? q : qty), x = Math.max(0, +v.replace(",", ".") || 0), d = kind === "pct" ? full * Math.min(100, x) / 100 : Math.min(x, full), allowed = kind === "pct" ? canPct : canAmt;
+  const save = () => { if (x > 0 && !allowed) return; const base: LineEdit = { note: n.trim(), ...(area && q !== qty ? { qty: q } : {}) };
+    onDone(x > 0 ? (kind === "pct" ? { ...base, discPct: Math.min(100, x), disc: +d.toFixed(2) } : { ...base, disc: +d.toFixed(2) }) : base); };
+  if (area) {
+    const key = (k: string) => setV(s => k === "b" ? s.slice(0, -1) : k === "c" ? "" : k === "." ? (s.includes(".") ? s : (s || "0") + ".") : s.length > 7 ? s : s === "0" ? k : s + k);
+    const K = ({ k, l }: { k: string; l?: string }) => <Pressable accessibilityRole="button" accessibilityLabel={l || k} onPress={() => key(k)}
+      style={({ pressed }) => ({ flex: 1, height: 48, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.brand50 : "#fff", alignItems: "center", justifyContent: "center" })}>
+      <T w="m" size={k === "c" || k === "b" ? 14 : 19} color={k === "c" || k === "b" ? C.mut : C.ink}>{k === "c" ? "Clear" : k === "b" ? "⌫" : k}</T></Pressable>;
+    const keys = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], [kind === "amt" ? "." : "c", "0", "b"]];
+    return (
+      <View style={{ position: "absolute", left: 0, top: area.top, width: area.width, bottom: kbH, backgroundColor: "#fff", borderRightWidth: 1, borderColor: C.line, zIndex: 30 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderColor: C.line }}>
+          <View style={{ flex: 1 }}><T w="s" size={16} numberOfLines={1}>{q + " × " + name}</T><T size={13} color={C.mut}>{money(unit)} each</T></View>
+          <Pressable accessibilityLabel="Back to the cart" onPress={() => onDone(null)} style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 6, borderWidth: 1, borderColor: C.line, backgroundColor: pressed ? C.bg2 : "#fff", alignItems: "center", justifyContent: "center" })}><Icon name="x" size={20} /></Pressable>
+        </View>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", height: 46, borderWidth: 1, borderColor: C.field, borderRadius: 6 }}>
+              <Pressable accessibilityLabel="One less" disabled={q <= Math.max(1, minQty)} onPress={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} style={{ width: 46, height: 44, alignItems: "center", justifyContent: "center", opacity: q <= Math.max(1, minQty) ? 0.35 : 1 }}><Icon name="minus" size={20} color={C.brand} /></Pressable>
+              <T w="s" size={16} style={{ minWidth: 30, textAlign: "center" }}>{q}</T>
+              <Pressable accessibilityLabel="One more" onPress={() => setQ(z => Math.min(999, z + 1))} style={{ width: 46, height: 44, alignItems: "center", justifyContent: "center" }}><Icon name="plus" size={20} color={C.brand} /></Pressable>
+            </View>
+            <View style={{ flex: 1 }} />
+            {!minQty ? <Pressable accessibilityRole="button" onPress={() => onDone({ note: n.trim(), remove: true })} style={({ pressed }) => ({ height: 46, paddingHorizontal: 14, borderRadius: 6, borderWidth: 1, borderColor: "#FECACA", backgroundColor: pressed ? C.badBg : "#fff", flexDirection: "row", alignItems: "center", gap: 6 })}>
+              <Icon name="trash" size={16} color={C.bad} /><T w="s" size={14} color={C.bad}>Remove</T></Pressable> : null}
+          </View>
+          <TextInput value={n} onChangeText={setN} multiline placeholder="Item note: no onions, extra spicy…" placeholderTextColor={C.mut2} accessibilityLabel="Item note"
+            style={{ minHeight: 60, borderWidth: 1, borderColor: C.field, borderRadius: 6, padding: 10, fontFamily: F.r, fontSize: 14, color: C.ink, textAlignVertical: "top" }} />
+          {!canPct && !canAmt ? <T color={C.mut}>Your role doesn't allow discounts.</T> : <>
+            <View style={{ flexDirection: "row", borderWidth: 1, borderColor: C.field, borderRadius: 6, overflow: "hidden" }}>
+              {([["pct", "%", canPct], ["amt", "Amount", canAmt]] as const).filter(z => z[2]).map(([k, l]) => <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: kind === k }} onPress={() => { setKind(k); setV(""); }}
+                style={{ flex: 1, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: kind === k ? C.brand : "#fff" }}><T w="m" size={14} color={kind === k ? "#fff" : C.ink2}>{l}</T></Pressable>)}
+            </View>
+            <View style={{ height: 46, borderWidth: 1, borderColor: C.field, borderRadius: 6, paddingHorizontal: 12, flexDirection: "row", alignItems: "center" }}>
+              <T size={13} color={C.mut} style={{ flex: 1 }}>Item discount</T><T w="s" size={18}>{v || "0"}{kind === "pct" ? " %" : ""}</T></View>
+            <View style={{ gap: 8 }}>{keys.map((r, i) => <View key={i} style={{ flexDirection: "row", gap: 8 }}>{r.map(k => <K key={k} k={k} />)}</View>)}</View>
+          </>}
+        </ScrollView>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderColor: C.line }}>
+          <View style={{ flex: 1 }}><T size={13} color={C.mut}>Line total</T><T w="s" size={16}>{money(full - d)}{d > 0 ? <T size={13} color={C.mut}>{"  " + money(full)}</T> : null}</T></View>
+          <Pressable accessibilityRole="button" onPress={save} style={({ pressed }) => ({ height: 52, paddingHorizontal: 30, borderRadius: 6, backgroundColor: pressed ? C.brand800 : C.brand, alignItems: "center", justifyContent: "center" })}><T w="s" size={16} color="#fff">Save</T></Pressable>
+        </View>
+      </View>
+    );
+  }
   return (
     <Sheet title={qty + " × " + name} onClose={() => onDone(null)} footer={<><View style={{ flex: 1 }} /><Btn label="Cancel" height={48} onPress={() => onDone(null)} /><Btn kind="primary" height={48} label="Save" onPress={save} /></>}>
       <T w="s" size={15} style={{ marginBottom: 8 }}>Item note</T>

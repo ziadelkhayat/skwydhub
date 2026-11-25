@@ -7,7 +7,7 @@ import { Image, Pressable, ScrollView, View } from "react-native";
 import { TextInput } from "./Keyboard";
 import { useScreen } from "../lib/screen";
 import { can, type Disc, addrJoin, custMissing, posSources, type Cust, allowedTypes, newId, nextOrderNo, openShift, orderFields, saleBlock, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, prodOos, prodPrice, tilePrice, totals, type Ctx, type Line, type OType } from "../lib/pos";
-import { LineExtras, ModPicker, NumberAsk, VariantPicker, type Picked } from "./Pickers";
+import { LineExtras, ModPicker, NumberAsk, VariantPicker, type LineEdit, type Picked } from "./Pickers";
 import { ChangeShown, PayDialog, type Paid } from "./Pay";
 import { TillDialog } from "./Till";
 import { EndDayDialog, endDayBlock } from "./EndDay";
@@ -298,9 +298,11 @@ export function Register() {
   // a long press: the line's note and discount
   const lineExtras = async (i: number) => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     const canPct = can(S, cashier, "pos_disc_pct") || can(S, cashier, "pos_discount"), canAmt = can(S, cashier, "pos_disc_amount") || can(S, cashier, "pos_discount");
-    const r = await ask<{ note: string; disc?: number; discPct?: number } | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={canPct} canAmt={canAmt} onDone={done} />); if (!r) return;
-    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct;
-      if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return z; })); };
+    // option G: the cart column turns into this line's editor (quantity, remove, note, discount); an item already sent keeps at least what was sent
+    const r = await ask<LineEdit | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={canPct} canAmt={canAmt} area={{ top: insTop, width: CART_W }} minQty={l.saved || 0} onDone={done} />); if (!r) return;
+    if (r.remove) return setCart(c => c.filter((_, j) => j !== i));
+    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; if (r.qty) z.qty = r.qty;
+      if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return reDisc(z); })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
   const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
@@ -343,13 +345,6 @@ export function Register() {
             {cust.name && !live_eo && otype === "dinein" ? <Pressable accessibilityLabel="Remove customer" hitSlop={8} onPress={() => setCust({ name: "", phone: "", source: "", addr: {} })}><Icon name="x" size={16} color={C.bad} /></Pressable> : null}</Pressable>
         </View>
         {c.addr ? <T size={12.5} color={C.mut} numberOfLines={2} style={{ paddingHorizontal: 16, paddingTop: 8 }}>{c.addr}</T> : null}
-        {/* the order's tags and notes, under the order details */}
-        {(() => { const tn = (tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean) as string[];
-          return tn.length || notes.kitchen || notes.receipt ? <View style={{ paddingHorizontal: 16, paddingTop: 8, gap: 4 }}>
-            {tn.length ? <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, alignItems: "center" }}><Icon name="tag" size={15} color={C.mut} />{tn.map(n => <Pill key={n} text={n} tone="brand" />)}</View> : null}
-            {notes.kitchen ? <View style={{ flexDirection: "row", gap: 6 }}><Icon name="chef" size={15} color={C.mut} /><T size={12.5} color={C.ink2} numberOfLines={2} style={{ flex: 1 }}>{notes.kitchen}</T></View> : null}
-            {notes.receipt ? <View style={{ flexDirection: "row", gap: 6 }}><Icon name="note" size={15} color={C.mut} /><T size={12.5} color={C.ink2} numberOfLines={2} style={{ flex: 1 }}>{notes.receipt}</T></View> : null}
-          </View> : null; })()}
         {erPending(live_eo) ? <View style={{ marginHorizontal: 16, marginTop: 8, padding: 10, borderRadius: R.md, backgroundColor: C.warnBg, gap: 2 }}>
           <T w="s" size={14} color={C.warn}>The call center asked to change this order</T>
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
@@ -377,6 +372,8 @@ export function Register() {
         <View style={{ paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: C.line, gap: 4 }}>
           {t.disc ? <Row l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} muted /> : null}
           {t.charges.map(ch => <Row key={ch.id} l={ch.name} r={money(S, ch.amount)} muted />)}
+          {(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).length ? <T size={12.5} color={C.mut}>Tag: {(tags ?? tagDoc(S).on?.order?.[live_eo!.id] ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean).join(", ")}</T> : null}
+          {notes.kitchen || notes.receipt ? <T size={12.5} color={C.mut} numberOfLines={2}>{[notes.kitchen && "Kitchen: " + notes.kitchen, notes.receipt && "Note: " + notes.receipt].filter(Boolean).join(" · ")}</T> : null}
           <Row l="Subtotal" r={money(S, t.net)} muted />
           <Row l="Tax" r={money(S, t.tax)} muted />
           {t.rnd ? <Row l="Rounding" r={money(S, t.rnd)} muted /> : null}
