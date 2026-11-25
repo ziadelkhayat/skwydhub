@@ -36,7 +36,7 @@ const P: Record<string, (c: string) => React.ReactNode> = {
   cal: () => <><Rect x={3} y={5} width={18} height={16} rx={2} /><Path d="M3 10h18M8 3v4M16 3v4" /></>,
   bowl: () => <><Path d="M3 11h18a9 9 0 0 1-18 0Z" /><Path d="M12 4v4M9 6l1 2M15 6l-1 2" /></>,
 };
-export function Icon({ name, size = 22, color = "#667085", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {
+export function Icon({ name, size = 22, color = "#6B7280", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {
   const draw = P[name] || P.bowl;
   return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{draw(color)}</Svg>;
 }

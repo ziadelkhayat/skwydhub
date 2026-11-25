@@ -13,7 +13,7 @@ export function Screen({ children }: { children: ReactNode }) {
   // the biggest 16:10 box that fits the window (a phone held upright gets the full window)
   const tall = H > W, w = tall ? W : Math.min(W, Math.round(H * 1.6)), h = tall ? H : Math.round(w / 1.6);
   return (
-    <View style={{ flex: 1, backgroundColor: "#1D2939", alignItems: "center", justifyContent: "center" }}>
+    <View style={{ flex: 1, backgroundColor: "#111827", alignItems: "center", justifyContent: "center" }}>
       <View style={{ width: w, height: h, overflow: "hidden", borderRadius: w < W || h < H ? 14 : 0 }}>
         <Ctx.Provider value={{ width: w, height: h, ox: Math.round((W - w) / 2), oy: Math.round((H - h) / 2) }}>{children}</Ctx.Provider>
       </View>

@@ -8,7 +8,7 @@ import { Sheet } from "./Pickers";
 
 export const tagDoc = (S: Data) => (S.settings.find(x => x.id === "tags") || {}) as any;
 export const orderTags = (S: Data) => (tagDoc(S).list || []).filter((t: any) => t.type === "order" && !t.deleted) as { id: string; name: string }[];
-const DOT = ["#F79009", "#EE46BC", "#F04438", "#465FFF", "#12B76A", "#7A5AF8", "#667085", "#0BA5EC"];
+const DOT = ["#F79009", "#EE46BC", "#F04438", "#3B82F6", "#12B76A", "#7A5AF8", "#6B7280", "#0BA5EC"];
 export function TagsDialog({ S, init, onDone }: { S: Data; init: string[]; onDone: (ids: string[] | null) => void }) {
   const l = orderTags(S), [sel, setSel] = useState(init), [q, setQ] = useState(""), shown = l.filter(t => !q.trim() || t.name.toLowerCase().includes(q.trim().toLowerCase()));
   return (

@@ -40,7 +40,7 @@ function Tile({ o, x, onOpen }: { o: Row; x: Ctx; onOpen: () => void }) {
   const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <View style={{ flexDirection: "row", gap: 10 }} accessibilityLabel={l}>
     <View style={{ width: 18, alignItems: "center", paddingTop: 1 }}><Icon name={ic as any} size={16} color={C.mut2} /></View>
     <View style={{ flex: 1 }}><T size={14} numberOfLines={1}>{v}</T>{sub ? <T size={12} color={C.mut2} numberOfLines={1}>{sub}</T> : null}</View></View>;
-  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: "#fff", borderRadius: 12, borderWidth: 1, borderColor: pressed ? "#9CB9FF" : C.line, padding: 12, gap: 8, shadowColor: "#101828", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } })}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={"Order " + (o.ref || ordRef(o))} onPress={onOpen} style={({ pressed }) => ({ backgroundColor: "#fff", borderRadius: 8, borderWidth: 1, borderColor: pressed ? "#93C5FD" : C.line, padding: 12, gap: 8, shadowColor: "#000000", shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } })}>
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><T w="s" size={16}>{o.ref || ordRef(o)}</T><Pill text={st.label} tone={st.tone} /></View>
     <Ln ic={TYPE_IC[o.type] || "bag"} l="Order type" v={TYPE[o.type] || o.type} />
     <Ln ic="user" l="Customer" v={o.customerName || "Guest"} sub={o.phone || undefined} />
@@ -59,10 +59,10 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
   return <Full><Head title="Pickup & Delivery" onClose={onClose}>
     {onDrivers ? <Btn height={44} label="Drivers" onPress={onDrivers} /> : null}{onNew ? <Btn kind="primary" height={44} label="+ New Order" onPress={onNew} /> : null}</Head>
     <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, padding: 12, gap: 10 }}>
-      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F9FAFB", borderRadius: 16, borderWidth: 1, borderColor: C.line, padding: 12 }}>
+      {COLS.map(([k, t, f]) => { const col = l.filter(f); return <View key={k} style={{ flex: 1, minWidth: 190, backgroundColor: "#F9FAFB", borderRadius: 8, borderWidth: 1, borderColor: C.line, padding: 12 }}>
         {/* as on the call center board: the column name, its count (blue only for Active), "You don't have … orders" when empty */}
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, marginBottom: 12 }}><T w="s" size={14}>{t}</T>
-          <View style={{ minWidth: 24, height: 22, borderRadius: 11, backgroundColor: col.length && k === "active" ? C.brand : "#EAECF0", alignItems: "center", justifyContent: "center", paddingHorizontal: 8 }}><T w="m" size={12} color={col.length && k === "active" ? "#fff" : "#475467"}>{col.length}</T></View></View>
+          <View style={{ minWidth: 24, height: 22, borderRadius: 11, backgroundColor: col.length && k === "active" ? C.brand : "#E5E7EB", alignItems: "center", justifyContent: "center", paddingHorizontal: 8 }}><T w="m" size={12} color={col.length && k === "active" ? "#fff" : "#475467"}>{col.length}</T></View></View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 12, paddingBottom: 6 }} showsVerticalScrollIndicator={false}>
           {col.length ? col.map(o => <Tile key={o.id} o={o} x={x} onOpen={() => onOpen(o)} />) : <T size={12} color={C.mut2} style={{ textAlign: "center", paddingVertical: 24 }}>You don't have {t.toLowerCase()} orders</T>}
         </ScrollView></View>; })}
@@ -115,7 +115,7 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
           {one ? navBtn("›", 1, rng!.to >= todayD) : null}</View>
       </View>
       {/* the tabs, as on the back office Orders page, right above the orders */}
-      <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2, margin: 14 }}>{TABS.map(([k, t]) => { const n = all.filter(TABS.find(z => z[0] === k)![2]).length;
+      <View style={{ flexDirection: "row", backgroundColor: "#F3F4F6", borderRadius: R.md, padding: 4, gap: 2, margin: 14 }}>{TABS.map(([k, t]) => { const n = all.filter(TABS.find(z => z[0] === k)![2]).length;
         return <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)} style={{ flex: 1, height: 40, flexDirection: "row", gap: 6, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: tab === k ? "#fff" : "transparent", borderWidth: tab === k ? 1 : 0, borderColor: C.line }}>
           <T w="m" size={15} color={tab === k ? C.ink : C.mut}>{t}</T>{n ? <T size={12} color={tab === k ? C.brand600 : C.mut2}>{n}</T> : null}</Pressable>; })}</View>
       <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
@@ -145,7 +145,7 @@ function DateFilter({ rng, today, count, onPick, onClose }: { rng: { from: strin
   const dmy = (d: string) => d.split("-").reverse().join("-"), W = 50;
   return <Sheet title="Date filter" width={7 * W + 40} onClose={onClose} footer={<><Btn height={44} label="All dates" onPress={() => onPick(null)} /><Btn height={44} label="Today" onPress={() => onPick({ from: today, to: today })} /><View style={{ flex: 1 }} />
       {mode === "range" ? <Btn kind="primary" height={44} label="Apply" disabled={!a} onPress={() => onPick({ from: a!, to: b || a! })} /> : <Btn height={44} label="Close" onPress={onClose} />}</>}>
-    <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 2, marginBottom: 10 }}>{([["day", "Business date"], ["range", "From – To"]] as const).map(([k, t]) =>
+    <View style={{ flexDirection: "row", backgroundColor: "#F3F4F6", borderRadius: R.md, padding: 4, gap: 2, marginBottom: 10 }}>{([["day", "Business date"], ["range", "From – To"]] as const).map(([k, t]) =>
       <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: mode === k }} onPress={() => setMode(k)} style={{ flex: 1, height: 38, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: mode === k ? "#fff" : "transparent", borderWidth: mode === k ? 1 : 0, borderColor: C.line }}>
         <T w="m" size={14} color={mode === k ? C.ink : C.mut}>{t}</T></Pressable>)}</View>
     {mode === "range" ? <T size={13} color={C.mut} style={{ marginBottom: 8, textAlign: "center" }}>{!a ? "Tap the first day" : !b ? "From " + dmy(a) + " · tap the last day" : dmy(a) + " → " + dmy(b)}</T> : null}

@@ -8,13 +8,13 @@ import { Sheet } from "./Pickers";
 
 // Style 1 windows: Discount (saved discounts as cards + typed % or amount on a pad), Charges (a switch per charge), Tags (coloured chips), Notes (two notes + quick notes)
 const Seg = ({ items, value, onChange }: { items: [string, string][]; value: string; onChange: (k: string) => void }) => (
-  <View style={{ flexDirection: "row", backgroundColor: "#F2F4F7", borderRadius: R.md, padding: 4, gap: 4 }}>{items.map(([k, l]) =>
+  <View style={{ flexDirection: "row", backgroundColor: "#F3F4F6", borderRadius: R.md, padding: 4, gap: 4 }}>{items.map(([k, l]) =>
     <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: value === k }} onPress={() => onChange(k)} style={{ flex: 1, height: 40, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: value === k ? "#fff" : "transparent", borderWidth: value === k ? 1 : 0, borderColor: C.line }}>
       <T w="m" size={15} color={value === k ? C.ink : C.mut}>{l}</T></Pressable>)}</View>);
 const NumPad = ({ onKey }: { onKey: (k: string) => void }) => (
   <View style={{ width: 252, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "b"].map(k =>
     <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === "b" ? "Delete" : k === "." ? "Decimal point" : k} onPress={() => onKey(k)} onLongPress={() => k === "b" && onKey("c")}
-      style={({ pressed }) => ({ width: 78, height: 58, borderRadius: R.md, borderWidth: 1, borderColor: "#EAECF0", backgroundColor: pressed ? C.brand50 : "#F9FAFB", alignItems: "center", justifyContent: "center" })}>
+      style={({ pressed }) => ({ width: 78, height: 58, borderRadius: R.md, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: pressed ? C.brand50 : "#F9FAFB", alignItems: "center", justifyContent: "center" })}>
       <T w="m" size={20}>{k === "b" ? "⌫" : k}</T></Pressable>)}</View>);
 const typed = (k: string, s: string) => k === "c" ? "" : k === "b" ? s.slice(0, -1) : k === "." ? (s.includes(".") ? s : (s || "0") + ".") : s.length > 8 ? s : s === "0" ? k : s + k;
 
@@ -88,11 +88,11 @@ export function ChargesDialog({ x, cur, picked, open, onDone }: { x: Ctx; cur: (
         <View>{list.map((c, i) => { const on = p.includes(c.id), amt = c.type === "percent" ? c.value + "%" : c.type === "open" ? (o[c.id] ? cur(o[c.id]) : "—") : cur(+c.value || 0);
           return (
           <Pressable key={c.id} accessibilityRole="switch" accessibilityState={{ checked: on }} onPress={() => on ? setP(l => l.filter(y => y !== c.id)) : c.type === "open" ? (setAsk(c.id), setV("")) : setP(l => [...l, c.id])}
-            style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderColor: "#F2F4F7" }}>
+            style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderColor: "#F3F4F6" }}>
             <View style={{ width: 40, height: 40, borderRadius: R.sm, backgroundColor: C.brand50, alignItems: "center", justifyContent: "center" }}><T w="s" size={16} color={C.brand600}>{c.type === "percent" ? "%" : c.type === "open" ? "✎" : "$"}</T></View>
             <View style={{ flex: 1 }}><T w="s">{c.name}</T><T size={13} color={C.mut}>{c.type === "percent" ? c.value + "% of the order" : c.type === "open" ? "You type the amount" : "Fixed"}</T></View>
             <T w="s">{amt}</T>
-            <View style={{ width: 44, height: 24, borderRadius: 12, backgroundColor: on ? C.brand : "#D0D5DD", padding: 2, alignItems: on ? "flex-end" : "flex-start" }}><View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: "#fff" }} /></View>
+            <View style={{ width: 44, height: 24, borderRadius: 12, backgroundColor: on ? C.brand : "#D1D5DB", padding: 2, alignItems: on ? "flex-end" : "flex-start" }}><View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: "#fff" }} /></View>
           </Pressable>); })}
           <T size={13} color={C.mut} style={{ marginTop: 8 }}>{p.length ? p.length + (p.length === 1 ? " charge on" : " charges on") : "No charges on this order"}</T></View>)}
     </Sheet>
