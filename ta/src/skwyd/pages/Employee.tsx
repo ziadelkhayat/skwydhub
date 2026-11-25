@@ -1,3 +1,4 @@
+import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -27,8 +28,7 @@ import { DEF, DOC_TYPES, DocForm } from "./StaffDocs";
 
 const ET: Record<string, string> = { full: "Full Time", part: "Part Time", temp: "Temporary", intern: "Intern" }, PT: Record<string, string> = { monthly: "/ month", hourly: "/ hour", daily: "/ day" };
 const roleIds = (u: Row): string[] => u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : [];
-const Sec = ({ title, act, children }: { title: React.ReactNode; act?: React.ReactNode; children: React.ReactNode }) => (
-  <div className={BOX + " mb-6"}><div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 className="text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3>{act}</div><div className="p-5">{children}</div></div>);
+const Sec = ({ title, act, children }: { title: React.ReactNode; act?: React.ReactNode; children: React.ReactNode }) => <Section title={title} act={act}>{children}</Section>;
 const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div><span className="block text-sm text-gray-500 dark:text-gray-400">{l}</span><b className="text-sm font-medium break-words text-gray-900 dark:text-gray-50">{v}</b></div>;
 const None = ({ t }: { t: string }) => <p className="text-sm text-gray-500 dark:text-gray-400">{t}</p>;
 

@@ -1,6 +1,7 @@
+import { LineTabs } from "../ui/Section";
+import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
 import { Card as TremorCard } from "@/components/tremor/Card";
-import { cx } from "@/components/tremor/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -20,7 +21,6 @@ import { live, useS } from "../crud/CrudPage";
 import { pinHash } from "../crud/configs";
 import { EmptyState } from "../ui/EmptyState";
 import { BOX, F, SEL, TD, TH, TR } from "../ui/kit";
-import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
 const ROLE_LBL: Record<string, string> = { owner: "Account Owner", admin: "Admin", agent: "Staff", cashier: "Cashier" };
@@ -29,7 +29,7 @@ const ls = { get: (k: string) => { try { return localStorage.getItem(k) || ""; }
 const dialSorted = DIALS.map(d => d[0]).filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => b.length - a.length);
 const ccSplit = (v: string, def = "+961") => { const t = String(v || "").trim(); if (t.startsWith("+")) { const d = t.replace(/[^\d+]/g, ""), m = dialSorted.find(c => d.startsWith(c)); if (m) return { cc: m, num: d.slice(m.length) }; } return { cc: def, num: t }; };
 const fullPhone = (v: string, cc: string) => { let d = String(v || "").replace(/[^\d+]/g, ""); if (!d) return ""; if (d.startsWith("00")) d = "+" + d.slice(2); if (d.startsWith("+")) return d.replace(/(?!^)\+/g, ""); const n = d.replace(/\+/g, "").replace(/^0+/, ""); return n.length < 6 ? "" : cc + n; };
-const Card = ({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) => title == null ? <TremorCard className={className}>{children}</TremorCard> : <><h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-50">{title}</h3><TremorCard className={cx("mb-6", className)}>{children}</TremorCard></>;
+const Card = ({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) => title == null ? <TremorCard className={className}>{children}</TremorCard> : <Section title={title} className={className}>{children}</Section>;
 const PhoneIn = ({ cc, num, setCc, setNum, dis }: { cc: string; num: string; setCc: (v: string) => void; setNum: (v: string) => void; dis?: boolean }) => (
   <div className="flex gap-2"><SelectNative aria-label="Country code" className={cn(SEL, "w-44 shrink-0")} disabled={dis} value={cc} onChange={e => setCc(e.target.value)}>{DIALS.map(([d, n]) => <option key={n} value={d}>{n} ({d})</option>)}</SelectNative>
     <Input className="h-9 flex-1" type="tel" inputMode="tel" disabled={dis} value={num} onChange={e => setNum(e.target.value)} placeholder="71123456" /></div>);
@@ -42,7 +42,7 @@ export function AccountPage() {
     <PageBreadcrumb pageTitle="Account" />
     <div className="mb-6 flex flex-wrap items-center gap-3"><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{staff?.name || "Account"}</h2><Badge variant="light" color="primary">{owner ? "Account Owner" : ROLE_LBL[staff?.role || ""] || staff?.role || "User"}</Badge>
       <Button variant="outline" className="ms-auto" onClick={() => setPw(true)}>Change Password</Button></div>
-    <div className="mb-6"><SegTabs value={tab} onChange={setTab} items={[["profile", "My Profile"], ["business", "Business Details"]]} /></div>
+    <LineTabs className="mb-8" value={tab} onChange={setTab} items={[["profile", "My Profile"], ["business", "Business Details"]]} />
     {tab === "profile" ? <Profile s={s} reload={reload} /> : <Business s={s} />}
     {pw && <MyPw owner={owner} email={staff?.email || ""} onClose={() => setPw(false)} />}
   </>;

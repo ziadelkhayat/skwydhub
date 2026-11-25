@@ -1,3 +1,5 @@
+import { Section as TSection } from "../ui/Section";
+import { LineTabs } from "../ui/Section";
 import { Card } from "@/components/tremor/Card";
 // Manage → Reasons and Manage → Tags: lists kept in settings documents ("app" and "tags"), same sections, rules and
 // General / Deleted tabs as the current portal. Rows can be dragged to change their order.
@@ -12,7 +14,6 @@ import { put, useCol } from "@/lib/db";
 import { useState } from "react";
 import { askYes } from "../ui/confirm";
 import { F } from "../ui/kit";
-import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
 
 type Item = { key: string; name: string; nameAr?: string };
@@ -25,12 +26,8 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
     const keys = items.map(i => i.key).filter(k => k !== drag); keys.splice(keys.indexOf(target) + (items.findIndex(i => i.key === drag) < items.findIndex(i => i.key === target) ? 1 : 0), 0, drag); onMove(keys);
   };
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h3>
-        {onNew && <Button size="sm" variant="outline" onClick={onNew}><PlusIcon className="size-4.5" />Create</Button>}
-      </div>
-      <ul className="divide-y divide-gray-100 border-t border-gray-100 dark:divide-white/5 dark:border-gray-800">
+    <TSection title={title} act={onNew && <Button size="sm" variant="outline" onClick={onNew}><PlusIcon className="size-4" />Create</Button>}>
+      <ul className="-m-6 divide-y divide-gray-200 dark:divide-gray-800">
         {!items.length ? <li className="px-5 py-4 text-sm text-gray-500 sm:px-6 dark:text-gray-400">{empty}</li> : items.map(it => (
           <li key={it.key} draggable={!!onMove} onDragStart={() => setDrag(it.key)} onDragEnd={() => { setDrag(null); setOver(null); }}
             onDragOver={e => { if (onMove) { e.preventDefault(); setOver(it.key); } }} onDrop={e => { e.preventDefault(); drop(it.key); setDrag(null); setOver(null); }}
@@ -42,7 +39,7 @@ function Section({ title, items, empty, onNew, onOpen, onMove, action }: { title
             <span className="flex-1" />{action?.(it)}
           </li>))}
       </ul>
-    </div>);
+    </TSection>);
 }
 
 function NameDialog({ title, name, nameAr, onSave, onDelete, onClose, readOnly, onRestore }: { title: string; name: string; nameAr?: string; onSave?: (n: string, ar: string) => Promise<string | null>; onDelete?: () => Promise<boolean>; onClose: () => void; readOnly?: boolean; onRestore?: () => void }) {
@@ -99,9 +96,9 @@ export function ReasonsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Reasons" />
-      <SegTabs className="mb-6" value={tab} onChange={setTab} items={[["general", "General"], ["deleted", "Deleted"]]} />
+      <LineTabs className="mb-8" value={tab} onChange={setTab} items={[["general", "General"], ["deleted", "Deleted"]]} />
       {!admin && <p className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change reasons.</p>}
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">{secs.length ? secs : <p className="text-sm text-gray-500">No deleted reasons.</p>}</div>
+      <div>{secs.length ? secs : <p className="text-sm text-gray-500">No deleted reasons.</p>}</div>
       {f && <NameDialog title={(f.i == null ? "Create " : "Edit ") + RS_KINDS.find(x => x[0] === f.k)![1]} name={cur} nameAr={ar[cur]} onClose={() => setForm(null)}
         onSave={async (n, nAr) => {
           if (fl.some((x, j) => j !== f.i && x.toLowerCase() === n.toLowerCase())) return "That reason is already on the list.";
@@ -139,8 +136,8 @@ export function TagsPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Tags" />
-      <SegTabs className="mb-6" value={tab} onChange={setTab} items={[["general", "General"], ["deleted", "Deleted"]]} />
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">{secs.length ? secs : <p className="text-sm text-gray-500">No deleted tags.</p>}</div>
+      <LineTabs className="mb-8" value={tab} onChange={setTab} items={[["general", "General"], ["deleted", "Deleted"]]} />
+      <div>{secs.length ? secs : <p className="text-sm text-gray-500">No deleted tags.</p>}</div>
       {f && (f.t?.deleted
         ? <NameDialog title={f.t.name} name={f.t.name} nameAr={f.t.nameAr} readOnly onClose={() => setForm(null)}
             onRestore={async () => { if (await save(all.map(x => x.id === f.t.id ? { ...x, deleted: false } : x))) toast("Tag restored"); }} />

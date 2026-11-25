@@ -1,5 +1,6 @@
+import { LineTabs } from "../ui/Section";
+import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
-import { Card as TremorCard } from "@/components/tremor/Card";
 import { ChoiceButton } from "../ui/Choice";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Web Ordering → Settings: each brand's ordering page (settings "online_<brand>" and the brand's web address), with the same
@@ -35,10 +36,7 @@ const Tg = ({ on, set, l, note }: { on: boolean; set: (v: boolean) => void; l: s
   <Label className="flex cursor-pointer items-start justify-between gap-4 py-3">
     <span><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">{l}</span>{note && <span className="text-xs text-gray-500 dark:text-gray-400">{note}</span>}</span>
     <Switch checked={on} onCheckedChange={v => set(!!v)} /></Label>);
-const Card = ({ title, note, children, right }: { title: string; note?: string; children: React.ReactNode; right?: React.ReactNode }) => (
-  <TremorCard>
-    <div className="mb-3 flex items-start justify-between gap-3"><div><h3 className="font-semibold text-gray-900 dark:text-gray-50">{title}</h3>{note && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{note}</p>}</div>{right}</div>
-    {children}</TremorCard>);
+const Card = ({ title, note, children, right }: { title: string; note?: string; children: React.ReactNode; right?: React.ReactNode }) => <Section title={title} desc={note} act={right}><div className="space-y-4">{children}</div></Section>;
 function Radios({ value, set, opts }: { value: string; set: (v: string) => void; opts: [string, string, string?][] }) {
   return <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{opts.map(([v, t, s]) => (
     <ChoiceButton on={value === v} key={v} onClick={() => set(v)} aria-pressed={value === v}
@@ -108,10 +106,10 @@ export default function WebOrderingPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400">Each brand has its own ordering page named after the brand, with its own look, checkout and store settings.</p>
         <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>
       </div>
-      {bl.length > 1 && <SegTabs className="mb-6" value={bid} onChange={b => { setBrand(b); setC(null); }} items={bl.map(b => [b.id, b.name + ((sets.find(x => x.id === "online_" + b.id) as any)?.enabled ? " · Live" : "")])} />}
+      {bl.length > 1 && <LineTabs className="mb-6" value={bid} onChange={b => { setBrand(b); setC(null); }} items={bl.map(b => [b.id, b.name + ((sets.find(x => x.id === "online_" + b.id) as any)?.enabled ? " · Live" : "")])} />}
       <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1fr_440px]">
         <div className="min-w-0 space-y-6">
-          <SegTabs value={tab} onChange={setTab} items={[["store", "Storefront"], ["look", "Appearance"], ["checkout", "Checkout"], ["branches", "Stores"]]} />
+          <LineTabs value={tab} onChange={setTab} items={[["store", "Storefront"], ["look", "Appearance"], ["checkout", "Checkout"], ["branches", "Stores"]]} />
           {tab === "store" && <>
             <Card title={br?.name || ""} right={<Badge variant="light" color={c.enabled ? "success" : "light"}>{c.enabled ? "Live" : "Off"}</Badge>}>
               <Tg on={!!c.enabled} set={v => up("enabled", v)} l="Accept web orders" note="Turn off to show a “closed” page." />
