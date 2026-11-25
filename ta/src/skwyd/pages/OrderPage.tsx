@@ -66,7 +66,7 @@ export default function OrderPage() {
       </TableBody></Table></div>}
     </Sec>
 
-    {(pay.method || (pay.split || []).length) && <Sec title="Payment">
+    {(pay.method || (pay.split || []).length > 0) && <Sec title="Payment">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div><span className="block text-sm text-gray-500">Method</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{pay.method || "—"}</b></div>
         {pay.tendered != null && <div><span className="block text-sm text-gray-500">Tendered</span><b className="text-sm font-medium text-gray-900 dark:text-gray-50">{money(pay.tendered)}</b></div>}
