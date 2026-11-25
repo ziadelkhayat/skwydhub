@@ -367,7 +367,7 @@ export function Register() {
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? [<T key="v" size={13}>Void whole order{sm.reason ? ": " + sm.reason : ""}</T>] : [...(sm.added || []).map((i: any, k: number) => <T key={"a" + k} size={13}>+ {i.qty} × {i.name}</T>), ...(sm.voided || []).map((i: any, k: number) => <T key={"v" + k} size={13}>Void {i.qty} × {i.name}</T>)]; })()}
         </View> : null}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-          {!cart.length ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}><Icon name="bowl" size={36} color={C.mut2} /><T color={C.mut}>Tap an item to start the order.</T></View>
+          {!cart.length ? null
             : cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", C.bad] : st === "returned" || st === "refund" ? ["Returned", C.bad] : sent && ["active", "pending"].includes(st) ? ["Sent", C.ok] : null) : null;
               // swipe an unsent line left to delete it; − stops at 1
               return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -(l.qty - (l.saved || 0)))} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderBottomWidth: 1, borderColor: C.line2, backgroundColor: live_eo && !l.saved && !ro ? C.brand50 : "#fff" }}>
