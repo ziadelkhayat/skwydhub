@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // An item's page (Catalog → Items → an item), laid out and behaving like an inventory product's page:
 // back button, details tiles, then Tags, Variants, Modifiers, Ingredients, Nutritional Values and Allergens (as in the current portal). Store prices, active and out of stock are set in Sales Channels.
@@ -9,7 +10,7 @@ import { PencilIcon, TrashBinIcon } from "@/icons";
 import { put, type Row } from "@/lib/db";
 import { money } from "@/lib/util";
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { EditDialog, live, useS } from "../crud/CrudPage";
 import { CRUD } from "../crud/configs";
 import { TD, TH, TR } from "../ui/kit";
@@ -40,9 +41,9 @@ export default function ItemPage() {
       ["Selling Method", p.sellingMethod === "weight" ? "Weight" : "Unit"], ["Preparation Time", p.prepTime ? p.prepTime + " min" : "—"], ["Barcode", p.barcode || "—"],
       ["Description", p.description || "—"], ["Description Localized", p.descriptionAr || "—"]]} />
     <Tags s={s} type="product" id={p.id} />
-    {par && <Sec title="Variant"><p className="text-sm text-gray-700 dark:text-gray-300">{vset(par)} {par.variants.find((v: any) => v.productId === p.id)?.name} of <Link className="text-blue-500 hover:underline" to={"/item?id=" + par.id}>{par.name}</Link>. The POS, call center and web ordering show {par.name} and ask which {vset(par).toLowerCase()}.</p></Sec>}
+    {par && <Sec title="Variant"><p className="text-sm text-gray-700 dark:text-gray-300">{vset(par)} {par.variants.find((v: any) => v.productId === p.id)?.name} of <XLink className="text-blue-500 hover:underline" to={"/item?id=" + par.id}>{par.name}</XLink>. The POS, call center and web ordering show {par.name} and ask which {vset(par).toLowerCase()}.</p></Sec>}
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Name", "Item", "SKU", "Price"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
-      {kids.map(({ v, k }: any) => <TableRow key={k.id} className={TR}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{v.name}</TableCell><TableCell className={TD}><Link className="text-blue-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</Link></TableCell><TableCell className={TD}>{k.sku || "—"}</TableCell><TableCell className={TD}>{money(k.price)}</TableCell></TableRow>)}</TableBody></Table></div></Sec>}
+      {kids.map(({ v, k }: any) => <TableRow key={k.id} className={TR}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{v.name}</TableCell><TableCell className={TD}><XLink className="text-blue-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</XLink></TableCell><TableCell className={TD}>{k.sku || "—"}</TableCell><TableCell className={TD}>{money(k.price)}</TableCell></TableRow>)}</TableBody></Table></div></Sec>}
     {!kids.length && <>
     <Sec title="Modifiers" act={<div className="flex gap-2"><PickMany label="Add modifier" opts={mods.map(m => ({ id: m.id, name: m.name }))} onAdd={ids => save({ modifiers: [...links, ...ids.map(v => ({ modifierId: v, min: 1, max: 1, free: 0 }))] }, ids.length > 1 ? `${ids.length} modifiers added` : "Modifier added")} /></div>}>
       {!links.length ? <None t="No modifiers on this item." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Modifier", "Options", "Minimum", "Maximum", "Free", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>

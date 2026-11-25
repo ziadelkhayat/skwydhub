@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Card } from "@/components/tremor/Card";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
@@ -13,7 +14,7 @@ import { money } from "@/lib/util";
 import { cn } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { AreaChart } from "@/components/tremor/AreaChart";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { live } from "../crud/CrudPage";
 import { RangeInput } from "../ui/DateInput";
 import { EmptyState } from "../ui/EmptyState";
@@ -57,9 +58,9 @@ export default function ReportsPage() {
     <>
       <PageBreadcrumb pageTitle={hub[0]} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{hub[1].map(([k, t, d]) => (
-        <Link key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-[#090E1A]">
+        <XLink key={k} to={k.startsWith("#") ? k.slice(1) : `/${hubKey}?r=${k}`} className="group flex gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-[#090E1A]">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-500/15"><BarChartIcon className="size-6" /></span>
-          <span><b className="block font-semibold text-gray-800 group-hover:text-blue-500 dark:text-gray-50">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></Link>))}</div>
+          <span><b className="block font-semibold text-gray-800 group-hover:text-blue-500 dark:text-gray-50">{t}</b><span className="text-sm text-gray-500 dark:text-gray-400">{d}</span></span></XLink>))}</div>
     </>);
   return <Report key={hubKey + r} hubKey={hubKey} rk={r} back={() => nav("/" + hubKey)} />;
 }

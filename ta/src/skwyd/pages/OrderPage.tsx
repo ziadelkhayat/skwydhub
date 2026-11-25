@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 // An order opened from Orders, Call Center or a customer: its own page, laid out like the other detail pages
 // (back button, details tiles, then customer, items with totals, payment, and links to its return or original order).
@@ -7,7 +8,7 @@ import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDate, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { TD, TR } from "../ui/kit";
 import { Head, Info, None, Sec } from "./Details";
 // the item list is kept compact: short rows, small type
@@ -76,7 +77,7 @@ export default function OrderPage() {
 
     {rel.length > 0 && <Sec title={ret ? "Original Order" : "Returns"}>
       <Table className="w-full"><TableBody>{rel.map(r => <TableRow key={r.id} className={TR}>
-        <TableCell className={TD}><Link className="font-medium text-blue-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</Link></TableCell><TableCell className={TD}>Check {chkNo(r)}</TableCell>
+        <TableCell className={TD}><XLink className="font-medium text-blue-500 hover:underline" to={"/order?id=" + r.id}>{ordRef(r)}</XLink></TableCell><TableCell className={TD}>Check {chkNo(r)}</TableCell>
         <TableCell className={TD}>{fmtDate(r.createdAt)}</TableCell><TableCell className={TD + " text-end"}>{money(r.total)}</TableCell></TableRow>)}</TableBody></Table></Sec>}
   </>;
 }

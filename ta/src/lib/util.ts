@@ -17,4 +17,13 @@ export const sym = () => { const c = coSet(); return String(c.currencySymbol || 
 
 // open a page of the portal in its own browser tab / window (detail pages: orders, customers, items…)
 // opens a page of the portal in this same window (detail pages used to open a new window)
-export const openWin = (path: string) => { location.hash = path.startsWith("/") ? path : "/" + path; };
+// A list and its record page count as one page (Orders ↔ an order, Items ↔ an item…).
+const FAMILY: string[][] = [["/orders", "/order"], ["/customers", "/customer"], ["/products", "/item"], ["/branches", "/store"], ["/users", "/employee"], ["/brands", "/brand"],
+  ["/modifiers", "/modifier"], ["/modifier-options", "/option"], ["/suppliers", "/supplier"], ["/inv-items", "/inv-item"], ["/warehouses", "/warehouse"], ["/call-center", "/call-center-order"],
+  ["/inventory-reports", "/inv-levels", "/inv-history", "/purchasing"], ["/companies", "/company"]];
+const familyOf = (path: string) => { const base = (path.split("?")[0] || "/").replace(/\/$/, "") || "/"; return (FAMILY.find(f => f.includes(base)) || [base])[0]; };
+/** is `path` part of the page that is open now? */
+export const samePage = (path: string) => familyOf(path.startsWith("/") ? path : "/" + path) === familyOf(location.hash.replace(/^#/, "") || "/");
+/** go to a page: in this window when it belongs to the page that is open, otherwise in a new window (the page you are on stays open) */
+export const openWin = (path: string) => { const p = path.startsWith("/") ? path : "/" + path;
+  if (samePage(p)) location.hash = p; else window.open(location.pathname + location.search + "#" + p, "_blank", "noopener"); };

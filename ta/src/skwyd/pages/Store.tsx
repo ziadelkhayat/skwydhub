@@ -1,3 +1,4 @@
+import { XLink } from "@/components/shared/xlink";
 import { InfoList, Kpis, PageHead } from "../ui/Record";
 import { Section } from "../ui/Section";
 import { Label } from "@/components/tremor/Label";
@@ -93,7 +94,7 @@ export default function StorePage() {
       ["Location", b.lat && b.lng ? <a className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps?q=${b.lat},${b.lng}`}>{b.lat}, {b.lng}</a> : "—"],
       ["Receive Call Center, Web & API Orders", b.callCenter ? "Yes" : "No"], ["Automatic end of day", st.autoDayEnd === false ? "No" : "Yes"]] as [string, React.ReactNode][]} />
     <Sec title="Delivery Zones" act={<Button size="sm" variant="outline" onClick={() => setZonesDlg(true)}>Delivery Zones</Button>}><Tbl head={["Name", "Delivery charge", "Min. order"]} rows={zones.map(z => { const c = chOf(z); return [z.name, c ? `${c.name} · ${money(+c.value || 0)}` : "—", money(+z.minOrder || 0)]; })} /></Sec>
-    <Sec title="Users"><Tbl head={["Name", "Email", "Phone"]} rows={users.map(u => [<Link key="n" className="text-blue-500 hover:underline" to={"/employee?id=" + u.id}>{u.name}</Link>, u.email || "—", u.phone || "—"])} /></Sec>
+    <Sec title="Users"><Tbl head={["Name", "Email", "Phone"]} rows={users.map(u => [<XLink key="n" className="text-blue-500 hover:underline" to={"/employee?id=" + u.id}>{u.name}</XLink>, u.email || "—", u.phone || "—"])} /></Sec>
     <Sec title="Sections" act={<Button size="sm" variant="outline" onClick={() => setSec(null)}><PlusIcon className="size-4" />Add Section</Button>}>
       {!secs.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>Tables</TableHeaderCell><TableHeaderCell className={TH}>Table names</TableHeaderCell></TableRow></TableHead><TableBody>
         {secs.map(sc => { const l = tl.filter(t => (t.section || "") === sc); return <TableRow key={sc || "_"} className={TR + " cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3"} onClick={() => setSec(sc)}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{sc || "No section"}</TableCell><TableCell className={TD}>{l.length}</TableCell><TableCell className={TD}>{l.map(t => tblLbl(t.name)).join(", ") || "—"}</TableCell></TableRow>; })}</TableBody></Table></div>}</Sec>
