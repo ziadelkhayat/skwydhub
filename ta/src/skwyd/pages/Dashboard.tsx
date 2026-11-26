@@ -6,7 +6,10 @@ import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { PeriodPicker } from "../ui/PeriodPicker";
-import { Switch, Tab, TabGroup, TabList } from "@tremor/react";
+import { Label } from "@/components/tremor/Label";
+import { Switch } from "@/components/tremor/Switch";
+import { TabNavigation, TabNavigationLink } from "@/components/tremor/TabNavigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
 import { SummaryGeneral } from "./SummaryGeneral";
 import { BrandsTab, CallCenterTab, InventoryTab, StoresTab, useStoreLive } from "./SummaryTabs";
 import { useSearchParams } from "react-router";
@@ -74,16 +77,16 @@ export default function Dashboard() {
   // sticky filter bar, a report card per number (value + chart + View Report), then the breakdowns
   return (
     <>
-      <TabGroup className="mb-4" index={Math.max(0, TABS.findIndex(t => t[0] === tab))} onIndexChange={i => setSp(i === 0 ? {} : { tab: TABS[i][0] })}>
-        <TabList variant="line">{TABS.map(([k, l]) => <Tab key={k}>{l}</Tab>)}</TabList>
-      </TabGroup>
+      <TabNavigation className="mb-4">
+        {TABS.map(([k, l]) => <TabNavigationLink key={k} asChild active={tab === k}><button type="button" onClick={() => setSp(k === "general" ? {} : { tab: k })}>{l}</button></TabNavigationLink>)}
+      </TabNavigation>
       <div className="sticky top-16 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10 lg:pt-4 dark:border-gray-800 dark:bg-gray-950">
         {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setStore(st => selList(st).filter(id => inSel(v, stores.find((x: Row) => x.id === id)?.brandId)).join(",")); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
         <FilterSelect multiple title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
-        {tab !== "stores" && <><TabGroup className="w-auto" index={["1", "7", "30"].indexOf(kind)} onIndexChange={i => { setKind((["1", "7", "30"] as const)[i]); setCmpAt(null); }}>
-          <TabList variant="solid">{["Day", "Week", "Month"].map(l => <Tab key={l}>{l}</Tab>)}</TabList></TabGroup>
+        {tab !== "stores" && <><Tabs value={kind} onValueChange={v => { setKind(v as any); setCmpAt(null); }}>
+          <TabsList variant="solid">{([["1", "Day"], ["7", "Week"], ["30", "Month"]] as const).map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}</TabsList></Tabs>
         <PeriodPicker kind={kind} value={at} onChange={d => { setAt(d); setCmpAt(null); }} max={today()} />
-        {tab === "general" && <label className="flex cursor-pointer items-center gap-2 text-tremor-default text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis"><Switch checked={cmp} onChange={setCmp} aria-label="Compare" />Compare</label>}
+        {tab === "general" && <div className="flex items-center gap-2"><Switch id="cmp" checked={cmp} onCheckedChange={setCmp} /><Label htmlFor="cmp">Compare</Label></div>}
         {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}</>}
       </div>
       {tab === "stores" ? <div className="mt-8"><StoresTab L={L} stores={myStores.filter((x: Row) => !store || inSel(store, x.id))} /></div>

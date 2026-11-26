@@ -1,13 +1,29 @@
-// Summary › General, built from @tremor/react only: KPI cards with spark charts and delta badges, a callout with a marker bar,
-// an area / bar chart with metric tabs, bar and line charts, a tracker, progress circles, donut charts with legends and lists,
-// a category bar, bar lists, delta bars, a scatter chart, the Foodics-style report cards and an accordion.
+// Summary › General, built only from Tremor (the copy-paste Tremor Raw components in components/tremor):
+// a callout with a progress bar, KPI cards with spark charts and badges, an area / bar chart with metric tabs and a chart-type toggle,
+// a combo chart, a tracker, progress circles, donut charts, a category bar, bar lists, the Foodics-style report cards and an accordion.
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/tremor/Accordion";
+import { AreaChart } from "@/components/tremor/AreaChart";
+import { Badge } from "@/components/tremor/Badge";
+import { BarChart } from "@/components/tremor/BarChart";
+import { BarList } from "@/components/tremor/BarList";
+import { Callout } from "@/components/tremor/Callout";
+import { Card } from "@/components/tremor/Card";
+import { CategoryBar } from "@/components/tremor/CategoryBar";
+import { ComboChart } from "@/components/tremor/ComboChart";
+import { Divider } from "@/components/tremor/Divider";
+import { DonutChart } from "@/components/tremor/DonutChart";
+import { LineChart } from "@/components/tremor/LineChart";
+import { ProgressBar } from "@/components/tremor/ProgressBar";
+import { ProgressCircle } from "@/components/tremor/ProgressCircle";
+import { SparkAreaChart } from "@/components/tremor/SparkChart";
+import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/tremor/Toggle";
+import { Tooltip } from "@/components/tremor/Tooltip";
+import { Tracker } from "@/components/tremor/Tracker";
+import { getColorClassName, type AvailableChartColorsKeys } from "@/components/tremor/lib/chartUtils";
 import type { Row } from "@/lib/db";
 import { money } from "@/lib/util";
-import { RiBarChart2Line, RiInformationLine, RiLineChartLine } from "@remixicon/react";
-import {
-  Accordion, AccordionBody, AccordionHeader, AreaChart, BadgeDelta, BarChart, BarList, Callout, Card, CategoryBar, Col, DeltaBar, Divider, DonutChart, Flex, Grid, Icon,
-  Legend, LineChart, List, ListItem, MarkerBar, Metric, ProgressCircle, ScatterChart, SparkAreaChart, Tab, TabGroup, TabList, Text, Title, Tracker, type Color, type DeltaType,
-} from "@tremor/react";
+import { RiArrowDownLine, RiArrowRightLine, RiArrowUpLine, RiBarChart2Line, RiInformationLine, RiLineChartLine } from "@remixicon/react";
 import { useState } from "react";
 
 type Pt = { label: string; value: number | null; previousValue?: number | null };
@@ -20,18 +36,26 @@ export type GeneralProps = {
 const fmtN = (v: number) => Math.round(+v || 0).toLocaleString();
 const short = (v: number) => Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(+v || 0);   // chart axes
 const pct = (v: number) => (v * 100).toFixed(1) + "%";
-const COLORS: Color[] = ["blue", "emerald", "violet", "amber", "cyan", "pink", "lime", "gray"];
+const COLORS: AvailableChartColorsKeys[] = ["blue", "emerald", "violet", "amber", "cyan", "pink", "lime", "gray"];
 const TYPE: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", other: "Other" };
 const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", web: "Web", api: "API", other: "Other" };
+const H3 = "font-semibold text-gray-900 dark:text-gray-50", SUB = "text-sm text-gray-500 dark:text-gray-500";
 
-const deltaOf = (v: number): DeltaType => v === 0 ? "unchanged" : v > .1 ? "increase" : v > 0 ? "moderateIncrease" : v < -.1 ? "decrease" : "moderateDecrease";
-/** change against the compared period */
+/** change against the compared period: a Tremor badge with an arrow */
 function Change({ v, invert }: { v: number | null; invert?: boolean }) {
   if (v == null || !isFinite(v)) return null;
-  return <BadgeDelta deltaType={deltaOf(v)} isIncreasePositive={!invert} size="xs">{v > 0 ? "+" : ""}{(v * 100).toFixed(1)}%</BadgeDelta>;
+  const good = invert ? v <= 0 : v >= 0, Icon = v > 0 ? RiArrowUpLine : v < 0 ? RiArrowDownLine : RiArrowRightLine;
+  return <Badge variant={v === 0 ? "neutral" : good ? "success" : "error"} className="gap-0.5 px-1.5"><Icon className="size-3.5" aria-hidden="true" />{(Math.abs(v) * 100).toFixed(1)}%</Badge>;
 }
 /** a label with an info icon that explains it */
-const Info = ({ t, tip }: { t: string; tip: string }) => <Flex justifyContent="start" className="gap-0.5"><Text>{t}</Text><Icon icon={RiInformationLine} size="xs" color="gray" tooltip={tip} /></Flex>;
+const Info = ({ t, tip }: { t: string; tip: string }) => (
+  <span className="flex items-center gap-1">{t}<Tooltip content={tip}><RiInformationLine className="size-4 shrink-0 text-gray-400" aria-label={tip} /></Tooltip></span>);
+/** a coloured dot + name + value list (the charts' legend) */
+const Legend = ({ l, f }: { l: { name: string; value: number }[]; f: (v: number) => string }) => (
+  <ul className="mt-4 divide-y divide-gray-200 text-sm dark:divide-gray-800">{l.map((x, i) => (
+    <li key={x.name} className="flex items-center justify-between gap-2 py-2">
+      <span className="flex min-w-0 items-center gap-2 text-gray-700 dark:text-gray-300"><span className={"size-2.5 shrink-0 rounded-xs " + getColorClassName(COLORS[i % COLORS.length], "bg")} aria-hidden="true" /><span className="truncate">{x.name}</span></span>
+      <span className="font-medium tabular-nums text-gray-900 dark:text-gray-50">{f(x.value)}</span></li>))}</ul>);
 
 /** merge a list into name → value, biggest first */
 const groupBy = (list: any[], k: string, label: (x: any) => string) => {
@@ -40,154 +64,163 @@ const groupBy = (list: any[], k: string, label: (x: any) => string) => {
 };
 
 export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel, byHour, stores, rpt }: GeneralProps) {
-  const [mi, setMi] = useState(0), [look, setLook] = useState(0), [itemBy, setItemBy] = useState(0);
+  const [metric, setMetric] = useState("net"), [look, setLook] = useState("area"), [itemBy, setItemBy] = useState("v");
   const cmp = !!P;
-  const M: { k: string; t: string; j: number; f: (v: number) => string; avg?: boolean; tip: string }[] = [
-    { k: "net", t: "Net Sales", j: 1, f: money, tip: "Sales after discounts, without tax" },
-    { k: "n", t: "Orders", j: 0, f: fmtN, tip: "Closed orders" },
-    { k: "avg", t: "Average Ticket", j: 3, f: money, avg: true, tip: "Net sales ÷ orders" },
-    { k: "pay", t: "Net Payments", j: 2, f: money, tip: "Money collected, tax included, returns taken off" }];
-  const m = M[mi];
-  const main = series(m.k, !!m.avg).map(p => ({ date: p.label, [perLabel]: p.value, ...(cmp ? { [cmpLabel]: p.previousValue } : {}) }));
-  const cats = cmp ? [perLabel, cmpLabel] : [perLabel], axis = m.j === 0 ? fmtN : short;
+  const M: Record<string, { t: string; j: number; f: (v: number) => string; avg?: boolean; tip: string }> = {
+    net: { t: "Net Sales", j: 1, f: money, tip: "Sales after discounts, without tax" },
+    n: { t: "Orders", j: 0, f: fmtN, tip: "Closed orders" },
+    avg: { t: "Average Ticket", j: 3, f: money, avg: true, tip: "Net sales ÷ orders" },
+    pay: { t: "Net Payments", j: 2, f: money, tip: "Money collected, tax included, returns taken off" },
+  };
+  const kpis = ["net", "n", "avg", "pay"], m = M[metric], axis = m.j === 0 ? fmtN : short;
+  const main = series(metric, !!m.avg).map(p => ({ date: p.label, [perLabel]: p.value, ...(cmp ? { [cmpLabel]: p.previousValue } : {}) }));
+  const cats = cmp ? [perLabel, cmpLabel] : [perLabel];
+  const nets = series("net");
+  const combo = series("n").map((p, i) => ({ date: p.label, Orders: p.value || 0, "Net Sales": nets[i]?.value || 0 }));
   const types = groupBy(D.types, "n", x => TYPE[x.k] || x.k), pays = groupBy(D.payMethods, "v", x => String(x.k).replace(/^./, c => c.toUpperCase()));
   const chans = groupBy(D.channels, "n", x => CH[x.k] || x.k), chanT = chans.reduce((a, b) => a + b.value, 0) || 1;
   const nameOf = (id: string) => String(stores.find(s => s.id === id)?.name || "Other");
   const byStore = groupBy(D.branches, "net", x => nameOf(x.id));
-  const items = (D.products || []).map((p: any) => ({ name: String(p.name), value: +(itemBy === 0 ? p.v : p.qty) || 0 })).filter((x: any) => x.value).sort((a: any, b: any) => b.value - a.value).slice(0, 8);
+  const items = (D.products || []).map((p: any) => ({ name: String(p.name), value: +(itemBy === "v" ? p.v : p.qty) || 0 })).filter((x: any) => x.value).sort((a: any, b: any) => b.value - a.value).slice(0, 8);
   // activity: one block per hour (a day) or per day; the darker the blue, the more orders
   const act = series("n"), peak = Math.max(1, ...act.map(a => a.value || 0));
-  const shade = (v: number): Color => !v ? "gray" : v / peak > .75 ? "indigo" : v / peak > .5 ? "blue" : v / peak > .25 ? "sky" : "cyan";
+  const shade = (v: number) => !v ? "bg-gray-200 dark:bg-gray-800" : v / peak > .75 ? "bg-blue-700" : v / peak > .5 ? "bg-blue-500" : v / peak > .25 ? "bg-blue-400" : "bg-blue-300";
   const gross = cur[1] + cur[6], rate = (a: number, b: number) => (b ? a / b : 0);
-  const circles: [string, number, string, Color][] = [
-    ["Discount rate", rate(cur[6], gross), "Discounts ÷ sales before discounts", "blue"],
-    ["Return rate", rate(cur[8], cur[1] || 1), "Returns ÷ net sales", "amber"],
-    ["Void rate", rate(cur[9], (cur[1] + cur[9]) || 1), "Voided amount ÷ sales and voids", "rose"]];
+  const circles: [string, number, string, "default" | "warning" | "error"][] = [
+    ["Discount rate", rate(cur[6], gross), "Discounts ÷ sales before discounts", "default"],
+    ["Return rate", rate(cur[8], cur[1] || 1), "Returns ÷ net sales", "warning"],
+    ["Void rate", rate(cur[9], (cur[1] + cur[9]) || 1), "Voided amount ÷ sales and voids", "error"]];
   const up = cmp ? ch(1) : null;
   const cards = [{ t: "Orders", j: 0, k: "n", f: fmtN, r: "sales" }, { t: "Net Sales", j: 1, k: "net", f: money, r: "sales" }, { t: "Net Payments", j: 2, k: "pay", f: money, r: "payments" },
     { t: "Return Amount", j: 8, k: "ret", f: money, r: "voids" }, { t: "Discount Amount", j: 6, k: "disc", f: money, r: "sales" }, { t: "Average Ticket", j: 3, k: "avg", f: money, r: "sales" }];
-  const empty = !cur[0] && !cur[1];
-  const big = Math.max(cur[1], old?.[1] || 0) || 1;
+  const empty = !cur[0] && !cur[1], big = Math.max(cur[1], old?.[1] || 0) || 1;
 
   return (
     <div className="space-y-6">
-      {empty ? <Callout title="No sales in this period yet" color="gray">Pick another day, week or month, or check the Brand and Store filters.</Callout>
-        : up != null && old ? <Callout title={`Net sales ${up >= 0 ? "up" : "down"} ${Math.abs(up * 100).toFixed(1)}% against ${cmpLabel}`} color={up >= 0 ? "emerald" : "amber"}>
+      {empty ? <Callout title="No sales in this period yet" variant="neutral">Pick another day, week or month, or check the Brand and Store filters.</Callout>
+        : up != null && old ? <Callout title={`Net sales ${up >= 0 ? "up" : "down"} ${Math.abs(up * 100).toFixed(1)}% against ${cmpLabel}`} variant={up >= 0 ? "success" : "warning"}>
             {money(cur[1])} this period against {money(old[1])}; {fmtN(cur[0])} orders against {fmtN(old[0])}.
-            <MarkerBar className="mt-3" value={cur[1] / big * 100} minValue={0} maxValue={old[1] / big * 100} color={up >= 0 ? "emerald" : "amber"} markerTooltip="This period" rangeTooltip={cmpLabel} /></Callout> : null}
+            <div className="mt-3 space-y-1.5 text-xs">
+              <div className="flex items-center gap-3"><span className="w-24 shrink-0">This period</span><ProgressBar value={cur[1] / big * 100} variant={up >= 0 ? "success" : "warning"} /></div>
+              <div className="flex items-center gap-3"><span className="w-24 shrink-0 truncate">{cmpLabel}</span><ProgressBar value={old[1] / big * 100} variant="neutral" /></div>
+            </div></Callout> : null}
 
       {/* KPI cards: tap one to show it in the big chart */}
-      <Grid numItemsSm={2} numItemsLg={4} className="gap-5">
-        {M.map((x, i) => { const s = series(x.k, !!x.avg).map(p => ({ date: p.label, v: p.value || 0 }));
+      <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map(k => { const x = M[k], s = series(k, !!x.avg).map(p => ({ date: p.label, v: p.value || 0 }));
           return (
-            <Card key={x.k} className="cursor-pointer" decoration="top" decorationColor={mi === i ? "blue" : "gray"} onClick={() => setMi(i)}>
-              <Flex alignItems="start"><Info t={x.t} tip={x.tip} />{cmp && <Change v={ch(x.j)} />}</Flex>
-              <Flex alignItems="end" className="mt-1 gap-4">
-                <Metric className="whitespace-nowrap text-xl">{x.f(cur[x.j])}</Metric>
-                <SparkAreaChart data={s} index="date" categories={["v"]} colors={[mi === i ? "blue" : "gray"]} className="h-10 w-20 shrink-0" />
-              </Flex>
-              {cmp && old && <Text className="mt-1 truncate">from {x.f(old[x.j])}</Text>}
+            <Card key={k} asChild className={"cursor-pointer p-5 text-left " + (metric === k ? "ring-2 ring-blue-500 dark:ring-blue-500" : "")}>
+              <button type="button" onClick={() => setMetric(k)} aria-pressed={metric === k}>
+                <dt className="flex items-center justify-between gap-2 text-sm font-medium text-gray-500"><Info t={x.t} tip={x.tip} />{cmp && <Change v={ch(x.j)} />}</dt>
+                <dd className="mt-1 flex items-end justify-between gap-3">
+                  <span className="whitespace-nowrap text-xl font-semibold text-gray-900 dark:text-gray-50">{x.f(cur[x.j])}</span>
+                  <SparkAreaChart data={s} index="date" categories={["v"]} colors={[metric === k ? "blue" : "gray"]} fill="gradient" className="h-10 w-20 shrink-0" />
+                </dd>
+                {cmp && old && <p className="mt-1 truncate text-xs text-gray-500">from {x.f(old[x.j])}</p>}
+              </button>
             </Card>); })}
-      </Grid>
+      </dl>
 
-      {/* the big chart: the number in tabs, area or bars in icon tabs */}
+      {/* the big chart: the number in tabs, area or bars in a toggle */}
       <Card>
-        <Flex className="flex-wrap gap-3">
-          <div><Title>{m.t} {byHour ? "by hour" : "by day"}</Title><Text>{perLabel}{cmp ? ` against ${cmpLabel}` : ""}</Text></div>
-          <Flex justifyContent="end" className="w-auto gap-2">
-            <TabGroup index={mi} onIndexChange={setMi}><TabList variant="solid">{M.map(x => <Tab key={x.k}>{x.t}</Tab>)}</TabList></TabGroup>
-            <TabGroup index={look} onIndexChange={setLook}><TabList variant="solid"><Tab icon={RiLineChartLine} aria-label="Area chart" /><Tab icon={RiBarChart2Line} aria-label="Bar chart" /></TabList></TabGroup>
-          </Flex>
-        </Flex>
-        {look === 0
-          ? <AreaChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={["blue", "gray"]} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} connectNulls curveType="monotone" />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h3 className={H3}>{m.t} {byHour ? "by hour" : "by day"}</h3><p className={SUB}>{perLabel}{cmp ? ` against ${cmpLabel}` : ""}</p></div>
+          <div className="flex items-center gap-2">
+            <Tabs value={metric} onValueChange={setMetric}><TabsList variant="solid">{kpis.map(k => <TabsTrigger key={k} value={k}>{M[k].t}</TabsTrigger>)}</TabsList></Tabs>
+            <ToggleGroup type="single" value={look} onValueChange={v => v && setLook(v)} aria-label="Chart type">
+              <ToggleGroupItem value="area" aria-label="Area chart"><RiLineChartLine className="size-4" /></ToggleGroupItem>
+              <ToggleGroupItem value="bar" aria-label="Bar chart"><RiBarChart2Line className="size-4" /></ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </div>
+        {look === "area"
+          ? <AreaChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={["blue", "gray"]} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} connectNulls />
           : <BarChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={["blue", "gray"]} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} />}
       </Card>
 
-      <Grid numItemsLg={3} className="gap-5">
-        <Col numColSpanLg={2}><Card className="h-full">
-          <Title>Orders {byHour ? "by hour" : "by day"}</Title><Text>Closed orders</Text>
-          <BarChart className="mt-6 h-64" data={series("n").map(p => ({ date: p.label, Orders: p.value || 0 }))} index="date" categories={["Orders"]} colors={["blue"]} valueFormatter={fmtN} showLegend={false} yAxisWidth={40} allowDecimals={false} />
-        </Card></Col>
-        <Card>
-          <Title>Busiest {byHour ? "hours" : "days"}</Title><Text>Darker blue = more orders</Text>
-          <Tracker className="mt-6" data={act.map(a => ({ color: shade(a.value || 0), tooltip: `${a.label} · ${fmtN(a.value || 0)} orders` }))} />
-          <Flex className="mt-2"><Text>{act[0]?.label}</Text><Text>{act[act.length - 1]?.label}</Text></Flex>
-          <Divider />
-          <Grid numItems={3} className="gap-2">
-            {circles.map(([t, v, tip, c]) => (
-              <Flex key={t} flexDirection="col" className="gap-2">
-                <ProgressCircle value={Math.min(100, v * 100)} radius={30} strokeWidth={6} color={c} tooltip={tip}><span className="text-xs font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">{pct(v)}</span></ProgressCircle>
-                <Text className="text-center text-xs">{t}</Text>
-              </Flex>))}
-          </Grid>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <h3 className={H3}>Orders and net sales</h3><p className={SUB}>Bars: orders · line: net sales</p>
+          <ComboChart className="mt-6 h-64" data={combo} index="date" enableBiaxial
+            barSeries={{ categories: ["Orders"], colors: ["blue"], valueFormatter: fmtN, yAxisWidth: 40, allowDecimals: false }}
+            lineSeries={{ categories: ["Net Sales"], colors: ["emerald"], valueFormatter: short, yAxisWidth: 48, showYAxis: true }} />
         </Card>
-      </Grid>
+        <Card>
+          <h3 className={H3}>Busiest {byHour ? "hours" : "days"}</h3><p className={SUB}>Darker = more orders</p>
+          <Tracker className="mt-6" hoverEffect data={act.map(a => ({ key: a.label, color: shade(a.value || 0), tooltip: `${a.label} · ${fmtN(a.value || 0)} orders` }))} />
+          <div className="mt-2 flex justify-between text-xs text-gray-500"><span>{act[0]?.label}</span><span>{act[act.length - 1]?.label}</span></div>
+          <Divider />
+          <div className="grid grid-cols-3 gap-2">
+            {circles.map(([t, v, tip, c]) => (
+              <div key={t} className="flex flex-col items-center gap-2 text-center">
+                <ProgressCircle value={Math.min(100, v * 100)} radius={28} strokeWidth={6} variant={c}><span className="text-xs font-medium text-gray-900 dark:text-gray-50">{pct(v)}</span></ProgressCircle>
+                <span className="text-xs text-gray-500"><Info t={t} tip={tip} /></span>
+              </div>))}
+          </div>
+        </Card>
+      </div>
 
       {/* how people ordered and paid */}
-      <Grid numItemsMd={2} numItemsLg={3} className="gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {([["Order types", types, fmtN, "orders"], ["Payment methods", pays, money, "payments"]] as const).map(([t, l, f, u]) => (
           <Card key={t}>
-            <Title>{t}</Title>
+            <h3 className={H3}>{t}</h3>
             {l.length ? <>
-              <DonutChart className="mt-6 h-36" data={[...l]} index="name" category="value" colors={COLORS} valueFormatter={f} label={f(l.reduce((a, b) => a + b.value, 0))} showAnimation />
-              <Legend className="mt-4" categories={l.map(x => x.name)} colors={COLORS.slice(0, l.length)} />
-              <List className="mt-2">{l.map(x => <ListItem key={x.name}><span className="truncate">{x.name}</span><span className="tabular-nums">{f(x.value)}</span></ListItem>)}</List>
-            </> : <Text className="mt-4">No {u} yet.</Text>}
+              <DonutChart className="mx-auto mt-6 h-36" data={[...l]} category="name" value="value" colors={COLORS} valueFormatter={f} showLabel label={f(l.reduce((a, b) => a + b.value, 0))} />
+              <Legend l={[...l]} f={f} />
+            </> : <p className={"mt-4 " + SUB}>No {u} yet.</p>}
           </Card>))}
         <Card>
-          <Title>Channels</Title><Text>Share of orders</Text>
+          <h3 className={H3}>Channels</h3><p className={SUB}>Share of orders</p>
           {chans.length ? <>
             <CategoryBar className="mt-6" values={chans.map(c => Math.round(c.value / chanT * 1000) / 10)} colors={COLORS.slice(0, chans.length)} showLabels={false} />
-            <Legend className="mt-4" categories={chans.map(c => c.name)} colors={COLORS.slice(0, chans.length)} />
-            <List className="mt-2">{chans.map(c => <ListItem key={c.name}><span>{c.name}</span><span className="tabular-nums">{fmtN(c.value)} · {pct(c.value / chanT)}</span></ListItem>)}</List>
-          </> : <Text className="mt-4">No orders yet.</Text>}
+            <Legend l={chans} f={v => `${fmtN(v)} · ${pct(v / chanT)}`} />
+          </> : <p className={"mt-4 " + SUB}>No orders yet.</p>}
         </Card>
-      </Grid>
+      </div>
 
       {/* stores and items */}
-      <Grid numItemsLg={2} className="gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <Title>Net sales by store</Title>
-          {byStore.length ? <BarList className="mt-6" data={byStore} valueFormatter={money} /> : <Text className="mt-4">No sales yet.</Text>}
-          {cmp && byStore.length > 0 && <List className="mt-6">{(D.branches || []).filter((b: any) => +b.net).map((b: any) => {
-            const was = +((P.branches || []).find((x: any) => x.id === b.id)?.net || 0), c = was ? (+b.net - was) / was : 0;
-            return <ListItem key={b.id} className="gap-4"><span className="w-28 shrink-0 truncate">{nameOf(b.id)}</span>
-              <DeltaBar className="flex-1" value={Math.max(-100, Math.min(100, Math.round(c * 100)))} tooltip={(c * 100).toFixed(1) + "%"} /><span className="w-14 shrink-0 text-right tabular-nums">{(c * 100).toFixed(0)}%</span></ListItem>; })}</List>}
+          <h3 className={H3}>Net sales by store</h3>
+          {byStore.length ? <BarList className="mt-6" data={byStore} valueFormatter={money} /> : <p className={"mt-4 " + SUB}>No sales yet.</p>}
+          {cmp && byStore.length > 0 && <ul className="mt-6 divide-y divide-gray-200 text-sm dark:divide-gray-800">{(D.branches || []).filter((b: any) => +b.net).map((b: any) => {
+            const was = +((P.branches || []).find((x: any) => x.id === b.id)?.net || 0);
+            return <li key={b.id} className="flex items-center justify-between gap-3 py-2"><span className="truncate text-gray-700 dark:text-gray-300">{nameOf(b.id)}</span>
+              <span className="flex items-center gap-2 tabular-nums text-gray-500">from {money(was)} <Change v={was ? (+b.net - was) / was : null} /></span></li>; })}</ul>}
         </Card>
         <Card>
-          <Flex><Title>Top items</Title>
-            <TabGroup index={itemBy} onIndexChange={setItemBy} className="w-auto"><TabList variant="solid"><Tab>Sales</Tab><Tab>Quantity</Tab></TabList></TabGroup></Flex>
-          {items.length ? <BarList className="mt-6" data={items} valueFormatter={itemBy === 0 ? money : fmtN} /> : <Text className="mt-4">No items sold yet.</Text>}
+          <div className="flex items-center justify-between gap-2"><h3 className={H3}>Top items</h3>
+            <Tabs value={itemBy} onValueChange={setItemBy}><TabsList variant="solid"><TabsTrigger value="v">Sales</TabsTrigger><TabsTrigger value="q">Quantity</TabsTrigger></TabsList></Tabs></div>
+          {items.length ? <BarList className="mt-6" data={items} valueFormatter={itemBy === "v" ? money : fmtN} /> : <p className={"mt-4 " + SUB}>No items sold yet.</p>}
         </Card>
-        {byStore.length > 1 && <Col numColSpanLg={2}><Card>
-          <Title>Stores: orders and average ticket</Title><Text>Bubble size = net sales</Text>
-          <ScatterChart className="mt-6 h-72" data={(D.branches || []).filter((b: any) => +b.n).map((b: any) => ({ store: nameOf(b.id), Orders: +b.n, "Average Ticket": +b.net / +b.n, "Net Sales": +b.net }))}
-            category="store" x="Orders" y="Average Ticket" size="Net Sales" colors={COLORS} showLegend valueFormatter={{ x: fmtN, y: money, size: money }} />
-        </Card></Col>}
-      </Grid>
+      </div>
 
       <Divider>Reports</Divider>
-      <Grid numItemsMd={2} numItemsLg={3} className="gap-5">
+      <dl className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {cards.map(c => {
           const s = series(c.k, c.k === "avg").map(p => ({ date: p.label, [c.t]: p.value, ...(cmp ? { Before: p.previousValue } : {}) }));
           return (
             <Card key={c.t}>
-              <Flex><Flex justifyContent="start" className="gap-2"><Title className="text-sm">{c.t}</Title>{cmp && <Change v={ch(c.j)} invert={c.j === 8 || c.j === 6} />}</Flex>
-                <a href={location.pathname + location.search + "#" + rpt(c.r)} target="_blank" rel="noopener" className="whitespace-nowrap text-tremor-default font-medium text-tremor-brand hover:underline">View Report</a></Flex>
-              <Flex alignItems="baseline" className="mt-2"><Metric className="text-2xl">{c.f(cur[c.j])}</Metric>{cmp && old && <Text>from {c.f(old[c.j])}</Text>}</Flex>
-              <LineChart className="mt-4 h-40" data={s} index="date" categories={cmp ? [c.t, "Before"] : [c.t]} colors={["blue", "gray"]} valueFormatter={c.j === 0 ? fmtN : short} showLegend={false} showYAxis={false} showGridLines={false} connectNulls />
+              <div className="flex items-center justify-between gap-2">
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50">{c.t}{cmp && <Change v={ch(c.j)} invert={c.j === 8 || c.j === 6} />}</dt>
+                <a href={location.pathname + location.search + "#" + rpt(c.r)} target="_blank" rel="noopener" className="whitespace-nowrap text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">View Report</a>
+              </div>
+              <dd className="mt-2 flex items-baseline justify-between gap-2"><span className="whitespace-nowrap text-2xl font-medium text-gray-900 dark:text-gray-50">{c.f(cur[c.j])}</span>{cmp && old && <span className={SUB}>from {c.f(old[c.j])}</span>}</dd>
+              <LineChart className="mt-4 h-40" data={s} index="date" categories={cmp ? [c.t, "Before"] : [c.t]} colors={["blue", "gray"]} valueFormatter={c.j === 0 ? fmtN : short} showLegend={false} showYAxis={false} showGridLines={false} tickGap={24} connectNulls />
             </Card>); })}
-      </Grid>
+      </dl>
 
-      <Accordion>
-        <AccordionHeader>More numbers</AccordionHeader>
-        <AccordionBody>
-          <Grid numItems={2} numItemsSm={3} numItemsLg={6} className="gap-6">
-            {([["Active orders", fmtN(cur[4]), 4], ["Declined", fmtN(cur[5]), 5], ["Taxes", money(cur[7]), 7], ["Voids", money(cur[9]), 9], ["Delivery fees", money(+D.deliveryFees || 0), -1], ["Returns", money(cur[8]), 8]] as [string, string, number][]).map(([t, v, j]) => (
-              <div key={t}><Flex justifyContent="start" className="gap-2"><Text>{t}</Text>{cmp && j >= 0 && <Change v={ch(j)} invert={j === 5 || j === 8 || j === 9} />}</Flex><Metric className="mt-1 text-lg">{v}</Metric></div>))}
-          </Grid>
-        </AccordionBody>
+      <Accordion type="single" collapsible className="rounded-lg border border-gray-200 px-4 dark:border-gray-800">
+        <AccordionItem value="more" className="border-b-0">
+          <AccordionTrigger>More numbers</AccordionTrigger>
+          <AccordionContent>
+            <dl className="grid grid-cols-2 gap-6 pb-2 sm:grid-cols-3 lg:grid-cols-6">
+              {([["Active orders", fmtN(cur[4]), 4], ["Declined", fmtN(cur[5]), 5], ["Taxes", money(cur[7]), 7], ["Voids", money(cur[9]), 9], ["Delivery fees", money(+D.deliveryFees || 0), -1], ["Returns", money(cur[8]), 8]] as [string, string, number][]).map(([t, v, j]) => (
+                <div key={t}><dt className="flex items-center gap-2 text-sm text-gray-500">{t}{cmp && j >= 0 && <Change v={ch(j)} invert={j === 5 || j === 8 || j === 9} />}</dt><dd className="mt-1 text-lg font-medium text-gray-900 dark:text-gray-50">{v}</dd></div>))}
+            </dl>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
     </div>
   );

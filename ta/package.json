@@ -43,7 +43,6 @@
     "@remixicon/react": "^4.9.0",
     "@supabase/supabase-js": "^2.119.0",
     "@tanstack/react-table": "^8.21.3",
-    "@tremor/react": "^3.18.7",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "i18next": "^26.4.2",
