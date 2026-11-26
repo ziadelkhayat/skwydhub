@@ -1,3 +1,4 @@
+import { Button } from "@/components/tremor/Button";
 // Business date / week / month pickers (Tremor Popover + the Tremor date picker trigger look). Picking applies at once.
 import * as React from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCalendar2Fill } from "@remixicon/react";
@@ -14,8 +15,6 @@ const addD = (d: Date, n: number) => new Date(+d + n * 86400000);
 const short = (d: Date) => String(d.getDate()).padStart(2, "0") + " " + MON[d.getMonth()];
 
 const trigger = cx("flex h-[30px] w-full items-center gap-x-2 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm outline-none transition sm:w-fit dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-950/50", focusInput);
-const cell = (on: boolean) => cx("rounded-md px-2 py-1.5 text-sm transition", on ? "bg-blue-600 font-medium text-white dark:bg-blue-500" : "text-gray-900 hover:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-900");
-const nav = "rounded-md p-1 text-gray-600 hover:bg-gray-100 dark:text-gray-400 hover:dark:bg-gray-900";
 
 function Trigger({ label }: { label: string }) {
   return <PopoverTrigger asChild><button type="button" className={trigger}><RiCalendar2Fill className="size-5 shrink-0 text-gray-400 dark:text-gray-600" /><span className="whitespace-nowrap tabular-nums">{label}</span></button></PopoverTrigger>;
@@ -30,10 +29,10 @@ function WeekPicker({ value, onChange }: { value: Date; onChange: (d: Date) => v
     <Popover open={open} onOpenChange={setOpen}>
       <Trigger label={dmy(sel) + " → " + dmy(addD(sel, 6))} />
       <PopoverContent align="start" className="z-[110] w-80 p-3">
-        <div className="mb-2 flex items-center justify-between"><button type="button" aria-label="Previous month" className={nav} onClick={() => setM(new Date(m.getFullYear(), m.getMonth() - 1, 1, 12))}><RiArrowLeftSLine className="size-4" /></button>
+        <div className="mb-2 flex items-center justify-between"><Button variant="ghost" className="p-1" aria-label="Previous month" onClick={() => setM(new Date(m.getFullYear(), m.getMonth() - 1, 1, 12))}><RiArrowLeftSLine className="size-4" /></Button>
           <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{MON[m.getMonth()]} {m.getFullYear()}</span>
-          <button type="button" aria-label="Next month" className={nav} onClick={() => setM(new Date(m.getFullYear(), m.getMonth() + 1, 1, 12))}><RiArrowRightSLine className="size-4" /></button></div>
-        <div className="grid grid-cols-2 gap-1">{weeks.map(w => <button key={+w} type="button" className={cell(+w === +sel)} onClick={() => { onChange(w); setOpen(false); }}>{short(w)} – {short(addD(w, 6))}</button>)}</div>
+          <Button variant="ghost" className="p-1" aria-label="Next month" onClick={() => setM(new Date(m.getFullYear(), m.getMonth() + 1, 1, 12))}><RiArrowRightSLine className="size-4" /></Button></div>
+        <div className="grid grid-cols-2 gap-1">{weeks.map(w => <Button key={+w} variant={+w === +sel ? "primary" : "ghost"} className="px-2 py-1.5 font-normal" onClick={() => { onChange(w); setOpen(false); }}>{short(w)} – {short(addD(w, 6))}</Button>)}</div>
       </PopoverContent>
     </Popover>
   );
@@ -47,10 +46,10 @@ function MonthPicker({ value, onChange }: { value: Date; onChange: (d: Date) => 
     <Popover open={open} onOpenChange={setOpen}>
       <Trigger label={dmy(first) + " → " + dmy(last)} />
       <PopoverContent align="start" className="z-[110] w-72 p-3">
-        <div className="mb-2 flex items-center justify-between"><button type="button" aria-label="Previous year" className={nav} onClick={() => setY(y - 1)}><RiArrowLeftSLine className="size-4" /></button>
+        <div className="mb-2 flex items-center justify-between"><Button variant="ghost" className="p-1" aria-label="Previous year" onClick={() => setY(y - 1)}><RiArrowLeftSLine className="size-4" /></Button>
           <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{y}</span>
-          <button type="button" aria-label="Next year" className={nav} onClick={() => setY(y + 1)}><RiArrowRightSLine className="size-4" /></button></div>
-        <div className="grid grid-cols-3 gap-1">{MON.map((n, i) => <button key={n} type="button" className={cell(y === value.getFullYear() && i === value.getMonth())} onClick={() => { onChange(new Date(y, i, 1, 12)); setOpen(false); }}>{n}</button>)}</div>
+          <Button variant="ghost" className="p-1" aria-label="Next year" onClick={() => setY(y + 1)}><RiArrowRightSLine className="size-4" /></Button></div>
+        <div className="grid grid-cols-3 gap-1">{MON.map((n, i) => <Button key={n} variant={y === value.getFullYear() && i === value.getMonth() ? "primary" : "ghost"} className="px-2 py-1.5 font-normal" onClick={() => { onChange(new Date(y, i, 1, 12)); setOpen(false); }}>{n}</Button>)}</div>
       </PopoverContent>
     </Popover>
   );

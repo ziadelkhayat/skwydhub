@@ -161,7 +161,7 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
     if (await askYes(it.kind === "folder" ? `Delete the folder ${it.name} and everything in it?` : `Delete ${it.name || "this item"}?`, "Delete", true)) up({ items: E.items.filter(x => !gone.has(x.id)) }); };
   const tree = (p: string, d: number): React.ReactNode => kids(E.items, p).filter(x => x.kind === "folder").map(f => <div key={f.id}>
     <div onClick={() => setFolder(f.id)} style={{ paddingInlineStart: 14 + d * 18 }} className={cn("group flex cursor-pointer items-center gap-2 rounded-lg py-2 pe-2 text-sm", folder === f.id ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/3")}>
-      {ICO.folder}<span className="flex-1 truncate">{f.name}</span><button type="button" title="Rename" onClick={e => { e.stopPropagation(); setDlg({ kind: "folder", it: f }); }} className="opacity-0 group-hover:opacity-100"><PencilIcon className="size-4" /></button></div>{tree(f.id, d + 1)}</div>);
+      {ICO.folder}<span className="flex-1 truncate">{f.name}</span><Button variant="ghost" title="Rename" aria-label="Rename" onClick={e => { e.stopPropagation(); setDlg({ kind: "folder", it: f }); }} className="p-1 opacity-0 group-hover:opacity-100"><PencilIcon className="size-4" /></Button></div>{tree(f.id, d + 1)}</div>);
   const crumbs: Item[] = []; for (let f = E.items.find(x => x.id === folder); f; f = E.items.find(x => x.id === f!.parent)) crumbs.unshift(f);
   const list = q.trim() ? E.items.filter(x => ((x.name || "") + " " + (x.url || "") + " " + (x.body || "")).toLowerCase().includes(q.trim().toLowerCase())) : kids(E.items, folder);
   const size = E.items.reduce((t, x) => t + (+(x.size || 0)), 0);
@@ -221,8 +221,8 @@ function Editor({ s, a, step0, by, me, onDone }: { s: S; a: Row | null; step0: n
             <Button variant="outline" className="mt-3 w-full" onClick={() => setDlg({ kind: "folder" })}><PlusIcon className="size-4.5" />Add Folder</Button>
           </aside>
           <section className="min-w-0 p-5 lg:p-6">
-            <div className="mb-4 flex flex-wrap items-center gap-1 text-sm"><button type="button" className="font-semibold text-gray-900 dark:text-gray-50" onClick={() => setFolder("")}>{E.title || "Untitled"}</button>
-              {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><button type="button" onClick={() => setFolder(c.id)} className="hover:text-blue-500">{c.name}</button></span>)}</div>
+            <div className="mb-4 flex flex-wrap items-center gap-1 text-sm"><Button variant="light" className="px-1.5 py-0.5 font-semibold" onClick={() => setFolder("")}>{E.title || "Untitled"}</Button>
+              {crumbs.map(c => <span key={c.id} className="flex items-center gap-1 text-gray-500"><span>›</span><Button variant="light" className="px-1.5 py-0.5 font-normal" onClick={() => setFolder(c.id)}>{c.name}</Button></span>)}</div>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">{[["text", "Add Text"], ["link", "Add Link"], ["file", "Add Files"], ["folder", "Add Folder"]].map(([k, t]) => <Button key={k} size="sm" variant="outline" onClick={() => k === "file" ? fileIn.current?.click() : setDlg({ kind: k })}>{ICO[k]}{t}</Button>)}</div>
               <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
