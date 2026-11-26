@@ -2,6 +2,64 @@
 layer(base);
 
 @import "tailwindcss";
+@import "./tremor-v3-compat.css";
+
+/* ── @tremor/react (Tremor v3 npm package) on Tailwind v4: scan its classes, its theme tokens and the chart colours it builds at runtime ── */
+@source "../node_modules/@tremor/react/dist";
+@source inline("{,hover:,data-[selected]:,ui-selected:}{bg,text,fill,stroke,border,ring}-{blue,emerald,violet,amber,gray,cyan,pink,lime,red,indigo,rose,fuchsia,teal,sky,orange,yellow,green,purple,slate,zinc,neutral,stone}-{50,100,200,300,400,500,600,700,800,900,950}");
+@theme {
+  --color-tremor-brand-faint: var(--color-blue-50);
+  --color-tremor-brand-muted: var(--color-blue-200);
+  --color-tremor-brand-subtle: var(--color-blue-400);
+  --color-tremor-brand: var(--color-blue-500);
+  --color-tremor-brand-emphasis: var(--color-blue-700);
+  --color-tremor-brand-inverted: var(--color-white);
+  --color-tremor-background-muted: var(--color-gray-50);
+  --color-tremor-background-subtle: var(--color-gray-100);
+  --color-tremor-background: var(--color-white);
+  --color-tremor-background-emphasis: var(--color-gray-700);
+  --color-tremor-border: var(--color-gray-200);
+  --color-tremor-ring: var(--color-gray-200);
+  --color-tremor-content-subtle: var(--color-gray-400);
+  --color-tremor-content: var(--color-gray-500);
+  --color-tremor-content-emphasis: var(--color-gray-700);
+  --color-tremor-content-strong: var(--color-gray-900);
+  --color-tremor-content-inverted: var(--color-white);
+  --color-dark-tremor-brand-faint: #0b1229;
+  --color-dark-tremor-brand-muted: var(--color-blue-950);
+  --color-dark-tremor-brand-subtle: var(--color-blue-800);
+  --color-dark-tremor-brand: var(--color-blue-500);
+  --color-dark-tremor-brand-emphasis: var(--color-blue-400);
+  --color-dark-tremor-brand-inverted: var(--color-blue-950);
+  --color-dark-tremor-background-muted: #131a2b;
+  --color-dark-tremor-background-subtle: var(--color-gray-800);
+  --color-dark-tremor-background: var(--color-gray-900);
+  --color-dark-tremor-background-emphasis: var(--color-gray-300);
+  --color-dark-tremor-border: var(--color-gray-800);
+  --color-dark-tremor-ring: var(--color-gray-800);
+  --color-dark-tremor-content-subtle: var(--color-gray-600);
+  --color-dark-tremor-content: var(--color-gray-500);
+  --color-dark-tremor-content-emphasis: var(--color-gray-200);
+  --color-dark-tremor-content-strong: var(--color-gray-50);
+  --color-dark-tremor-content-inverted: var(--color-gray-950);
+  --shadow-tremor-input: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-tremor-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-tremor-dropdown: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-dark-tremor-input: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-dark-tremor-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-dark-tremor-dropdown: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius-tremor-small: 0.375rem;
+  --radius-tremor-default: 0.5rem;
+  --radius-tremor-full: 9999px;
+  --text-tremor-label: 0.75rem;
+  --text-tremor-label--line-height: 1rem;
+  --text-tremor-default: 0.875rem;
+  --text-tremor-default--line-height: 1.25rem;
+  --text-tremor-title: 1.125rem;
+  --text-tremor-title--line-height: 1.75rem;
+  --text-tremor-metric: 1.875rem;
+  --text-tremor-metric--line-height: 2.25rem;
+}
 @plugin "@tailwindcss/forms";
 
 @custom-variant dark (&:is(.dark *));

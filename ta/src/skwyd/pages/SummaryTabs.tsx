@@ -1,14 +1,12 @@
 // Summary tabs besides General: Brands, Stores, Inventory and Call Center (like the Foodics dashboard tabs).
 // They follow the Summary's Brand / Store filters, and the period (Day / Week / Month) where a period makes sense.
-import { BarList } from "@/components/tremor/BarList";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRoot, TableRow } from "@/components/tremor/Table";
+import { Badge, BarChart, BarList, Callout, Card, DonutChart, FunnelChart, Grid, Metric, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text, Title, Tracker } from "@tremor/react";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDateTime, money, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { live } from "../crud/CrudPage";
 import { EmptyState } from "../ui/EmptyState";
-import { TD, TH } from "../ui/kit";
 import { moveType, unitCost } from "./InvReports";
 
 const n0 = (v: number) => Math.round(+v || 0).toLocaleString();
@@ -17,13 +15,9 @@ const dt = (v: any) => (v ? fmtDateTime(v) : "—");
 /** KPI tiles (title + big number), as in the Foodics dashboard tabs */
 function Tiles({ items }: { items: [string, React.ReactNode][] }) {
   return (
-    <dl className={"grid grid-cols-1 gap-5 sm:grid-cols-2 " + (items.length > 3 ? "xl:grid-cols-4" : "lg:grid-cols-3")}>
-      {items.map(([l, v]) => (
-        <div key={l} className="rounded-lg border border-gray-200 bg-white p-5 shadow-xs dark:border-gray-900 dark:bg-[#090E1A]">
-          <dt className="text-sm font-medium text-gray-500">{l}</dt>
-          <dd className="mt-2 text-2xl font-medium text-gray-900 dark:text-gray-50">{v}</dd>
-        </div>))}
-    </dl>
+    <Grid numItemsSm={2} numItemsLg={items.length > 3 ? 4 : 3} className="gap-5">
+      {items.map(([l, v]) => <Card key={l} decoration="top" decorationColor="blue"><Text>{l}</Text><Metric className="mt-2">{v}</Metric></Card>)}
+    </Grid>
   );
 }
 
@@ -31,17 +25,17 @@ function Tiles({ items }: { items: [string, React.ReactNode][] }) {
 function StatTable({ title, cols, rows, empty, onRow }: { title: string; cols: [string, boolean?][]; rows: React.ReactNode[][]; empty: string; onRow?: (i: number) => void }) {
   return (
     <section className="mt-12">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h2>
+      <Title>{title}</Title>
       {!rows.length ? <div className="mt-4"><EmptyState text={empty} /></div> : (
-        <TableRoot className="mt-4 rounded-lg border border-gray-200 bg-white dark:border-gray-900 dark:bg-[#090E1A]">
+        <Card className="mt-4 p-0">
           <Table>
-            <TableHead><TableRow>{cols.map(([c, num]) => <TableHeaderCell key={c} className={TH + " py-3" + (num ? " text-end" : "")}>{c}</TableHeaderCell>)}</TableRow></TableHead>
-            <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">
-              {rows.map((r, i) => <TableRow key={i} className={onRow ? "cursor-pointer hover:bg-gray-50 hover:dark:bg-gray-900" : ""} onClick={onRow ? () => onRow(i) : undefined}>
-                {r.map((c, j) => <TableCell key={j} className={TD + (cols[j]?.[1] ? " text-end tabular-nums" : "") + (j === 0 ? " font-medium text-gray-900 dark:text-gray-50" : "")}>{c}</TableCell>)}</TableRow>)}
+            <TableHead><TableRow>{cols.map(([c, num]) => <TableHeaderCell key={c} className={num ? "text-right" : ""}>{c}</TableHeaderCell>)}</TableRow></TableHead>
+            <TableBody>
+              {rows.map((r, i) => <TableRow key={i} className={onRow ? "cursor-pointer hover:bg-tremor-background-muted dark:hover:bg-dark-tremor-background-muted" : ""} onClick={onRow ? () => onRow(i) : undefined}>
+                {r.map((c, j) => <TableCell key={j} className={(cols[j]?.[1] ? "text-right tabular-nums" : "") + (j === 0 ? " font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong" : "")}>{c}</TableCell>)}</TableRow>)}
             </TableBody>
           </Table>
-        </TableRoot>)}
+        </Card>)}
     </section>
   );
 }
@@ -68,8 +62,12 @@ export function BrandsTab({ D, L, stores, brands, brand }: { D: any; L: any[] | 
   const N = sum(list, "n"), NET = sum(list, "net");
   return (<>
     <Tiles items={[["Brands", n0(list.length)], ["Orders", n0(N)], ["Net Sales", money(NET)], ["Average Ticket", money(N ? NET / N : 0)]]} />
-    {list.some(x => x.net) && <section className="mt-12"><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Net Sales by Brand</h2>
-      <BarList className="mt-4" data={list.filter(x => x.net).map(x => ({ name: String(x.b.name), value: x.net }))} valueFormatter={(v: number) => money(v)} /></section>}
+    {list.some(x => x.net) && <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <Card><Title>Share of net sales</Title>
+        <DonutChart className="mx-auto mt-6 h-44" data={list.filter(x => x.net).map(x => ({ name: String(x.b.name), value: x.net }))} index="name" category="value" valueFormatter={money} showLabel label={money(NET)} /></Card>
+      <Card className="lg:col-span-2"><Title>Orders and average ticket by brand</Title>
+        <BarChart className="mt-6 h-52" data={list.map(x => ({ brand: String(x.b.name), Orders: x.n, "Active Orders": L ? x.act : 0 }))} index="brand" categories={["Orders", "Active Orders"]} colors={["blue", "amber"]} valueFormatter={n0} allowDecimals={false} /></Card>
+    </div>}
     <StatTable title="Brands Statistics" empty="No brands yet."
       cols={[["Brand"], ["Stores", true], ["Orders", true], ["Net Sales", true], ["Average Ticket", true], ["Discounts", true], ["Active Orders", true], ["Active Orders Amount", true]]}
       rows={list.map(x => [x.b.name, n0(x.stores), n0(x.n), money(x.net), money(x.avg), money(x.disc), L ? n0(x.act) : "…", L ? money(x.amt) : "…"])}
@@ -84,6 +82,13 @@ export function StoresTab({ L, stores }: { L: any[] | null; stores: Row[] }) {
   const ls = rows.map(r => r.x);
   return (<>
     <Tiles items={[["Active Orders Count", n0(sum(ls, "active"))], ["Active Orders Amount", money(sum(ls, "amount"))], ["Occupied Tables", n0(sum(ls, "tables"))], ["Offline Cashiers", n0(sum(ls, "offline"))]]} />
+    <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <Card><Title>Cashiers online</Title><Text>One block per store</Text>
+        <Tracker className="mt-6" data={rows.map(({ x, s }) => ({ key: String(s!.id), color: !x.cashiers ? "gray" : x.offline ? (x.offline >= x.cashiers ? "red" : "amber") : "emerald", tooltip: `${s!.name}: ${x.cashiers - x.offline}/${x.cashiers} online` }))} />
+        <div className="mt-3 flex flex-wrap gap-2"><Badge color="emerald">All online</Badge><Badge color="amber">Some offline</Badge><Badge color="red">All offline</Badge></div></Card>
+      <Card className="lg:col-span-2"><Title>Active orders by store</Title>
+        <BarChart className="mt-6 h-52" data={rows.map(({ x, s }) => ({ store: String(s!.name), "Active Orders": +x.active, Tables: +x.tables }))} index="store" categories={["Active Orders", "Tables"]} colors={["blue", "violet"]} valueFormatter={n0} allowDecimals={false} /></Card>
+    </div>
     <StatTable title="Stores Statistics" empty="No stores yet."
       cols={[["Store"], ["Active Orders", true], ["Active Orders Amount", true], ["Occupied Tables", true], ["Offline Cashiers", true], ["Open Tills", true], ["Last Sync"], ["Last Order"]]}
       rows={rows.map(({ x, s }) => [<>{s!.name}{s!.reference ? <span className="ms-1 text-gray-500">({s!.reference})</span> : null}</>, n0(x.active), money(x.amount), n0(x.tables), `${n0(x.offline)}/${n0(x.cashiers)}`, n0(x.tills), dt(x.sync), dt(x.last)])}
@@ -114,6 +119,7 @@ export function InventoryTab({ locIds, from, to }: { locIds: string[] | null; fr
     <Tiles items={[["Pending Purchase Orders", n0(mine.filter(d => d.kind === "purchase" && d.reason === "po" && d.status === "pending").length)],
       ["Completed Transfers", n0(mine.filter(d => d.kind === "transfer" && d.status === "closed" && inPer(d)).length)],
       ["Purchasing", n0(mine.filter(d => d.kind === "purchase" && d.reason !== "po" && d.status === "closed" && inPer(d)).length)]]} />
+    {pending.length > 0 && <Callout className="mt-8" title={`${pending.length} transaction${pending.length > 1 ? "s are" : " is"} waiting`} color="amber">Open one below to review and submit or receive it.</Callout>}
     <StatTable title="Pending Transactions" empty="No transactions are waiting." cols={[["Location"], ["Reference"], ["Type"], ["Date"]]}
       rows={pending.slice(0, 50).map(d => [locName(d.locationId), d.ref || "—", KIND[docRoute(d)] || "", dt(d.submittedAt || d.createdAt)])}
       onRow={i => openWin(`/${docRoute(pending[i])}?id=${pending[i].id}`)} />
@@ -124,7 +130,7 @@ export function InventoryTab({ locIds, from, to }: { locIds: string[] | null; fr
     <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
       {([["Top Wasted Items by Cost", wasted, "Your most wasted items will appear here."], ["Top Consumed Items by Cost", used, "Your most consumed items will appear here."]] as const).map(([t, l, e]) => (
         <section key={t}><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t}</h2>
-          <div className="mt-4">{!hist ? <p className="text-sm text-gray-500">Loading…</p> : l.length ? <BarList data={[...l]} valueFormatter={(v: number) => money(v)} /> : <EmptyState text={e} />}</div></section>))}
+          <Card className="mt-4">{!hist ? <p className="text-sm text-gray-500">Loading…</p> : l.length ? <BarList data={[...l]} valueFormatter={(v: number) => money(v)} /> : <EmptyState text={e} />}</Card></section>))}
     </div>
   </>);
 }
@@ -137,6 +143,15 @@ export function CallCenterTab({ D, L, stores }: { D: any; L: any[] | null; store
   const net = sum(agents, "net");
   return (<>
     <Tiles items={[["Active Orders", L ? n0(sum(L, "cc")) : "…"], ["Done Orders", n0(sum(agents, "n"))], ["Net Sales", money(net)], ["Declined Orders", n0(+st.declined || 0)]]} />
+    {Object.keys(st).length > 0 && <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <Card><Title>Orders by status</Title>
+        <DonutChart className="mx-auto mt-6 h-40" variant="pie" data={Object.entries(st).map(([k, v]) => ({ name: ({ closed: "Done", declined: "Declined", active: "Active", pending: "Pending", void: "Void", refund: "Returned" } as any)[k] || k, value: +(v as any) }))} index="name" category="value" valueFormatter={n0} colors={["emerald", "red", "blue", "amber", "gray", "violet"]} /></Card>
+      <Card><Title>From call to done</Title>
+        {(() => { const all = Object.values(st).reduce((a: number, b: any) => a + +b, 0) as number, dec = +st.declined || 0, pend = +st.pending || 0, done = +st.closed || 0;
+          return <FunnelChart className="mt-6 h-52" data={[{ name: "Taken", value: all }, { name: "Accepted", value: all - pend - dec }, { name: "Done", value: done }]} valueFormatter={n0} calculateFrom="first" evolutionGradient />; })()}</Card>
+      <Card className="lg:col-span-2"><Title>Net sales by agent</Title>
+        {agents.length ? <BarList className="mt-6" data={agents.map(a => ({ name: a.k === "-" ? "—" : String(a.k), value: +a.net || 0 }))} valueFormatter={money} /> : <EmptyState text="No agents yet." />}</Card>
+    </div>}
     <StatTable title="Agents Performance" empty="No call center orders in this period." cols={[["Agent"], ["Orders", true], ["Net Sales", true], ["Average Order Price", true]]}
       rows={agents.map(a => [a.k === "-" ? "—" : a.k, n0(a.n), money(a.net), money(+a.n ? a.net / a.n : 0)])} />
     <StatTable title="Stores Statistics" empty="No call center orders in this period." cols={[["Store"], ["Active Orders", true], ["Done Orders", true], ["Net Sales", true]]}
