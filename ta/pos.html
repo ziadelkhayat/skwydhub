@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/pos-files/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>skwyd POS</title>
+    <!-- the POS has no animations: windows and menus open and close at once -->
+    <style>*, *::before, *::after { animation: none !important; transition: none !important; }</style>
+  </head>
+  <body class="h-dvh overflow-hidden bg-gray-50 antialiased dark:bg-gray-950">
+    <div id="root" class="isolate h-full"></div>
+    <script type="module" src="/src/pos/main.tsx"></script>
+  </body>
+</html>

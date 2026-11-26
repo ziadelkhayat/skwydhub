@@ -10,7 +10,7 @@ cp order.html signup.html track.html orderv3.js modpick.js ioskit.js ioskit.css 
 cp skwyd-icon-32.png skwyd-icon-180.png skwyd-icon-512.png web/
 cp cloudflare/_redirects cloudflare/_headers web/
 echo "Built web/: $(ls web | tr '\n' ' ')"
-# the back office (React, Tremor look) is the site's home page; the old /v2/ address redirects here
+# the back office (React, Tremor) is the site's home page; the old /v2/ address redirects here. The same build makes the POS web app (Tremor) at /pos.html
 (cd ta && npm ci --no-audit --no-fund && SKWYD_BASE=/ npx vite build) && cp -r ta/dist/. web/ && echo "Built the back office (React) at /"
 # the new POS (React Native, apps/pos) as a web app at /pos-app/ (dev.pos.skwydhub.com opens it); if it can't build, the rest of the site still publishes.
 # Cloudflare Pages doesn't publish folders named node_modules, so the fonts Expo puts in assets/node_modules move to assets/nm.
