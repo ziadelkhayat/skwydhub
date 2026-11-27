@@ -168,7 +168,6 @@ export function Register() {
     else say("Sale complete · " + money(S, total));
     if (device!.settings?.lockAfterSale && pinsOn(S)) setTimeout(() => setCashier(null), p.type === "cash" ? 0 : 1500);   // Device settings: log out after each sale
   };
-  const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
 
   // Hold: the cart is put aside on this register (H1, H2…) and retrieved later
   const HK = "skwyd_held_" + device!.id;
@@ -325,7 +324,7 @@ export function Register() {
             <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>
             {/* the table: tap to change it, ✕ to take the order off the table */}
             {otype === "dinein" && table ? <span className="-my-1.5 flex items-center rounded-xl bg-blue-50 dark:bg-blue-500/10">
-              <button type="button" disabled={!!live_eo} onClick={askTable} className="h-11 rounded-s-xl ps-3 pe-1 font-semibold text-blue-700 dark:text-blue-400" aria-label="Change table">{tblLbl(table)}{guests ? <span className="ms-1.5 text-sm font-normal text-gray-500">{guests} guests</span> : null}</button>
+              <button type="button" disabled={!!live_eo} onClick={tablesPage} className="h-11 rounded-s-xl ps-3 pe-1 font-semibold text-blue-700 dark:text-blue-400" aria-label="Change table">{tblLbl(table)}{guests ? <span className="ms-1.5 text-sm font-normal text-gray-500">{guests} guests</span> : null}</button>
               {!ro ? <button type="button" aria-label="Remove table" className="flex size-11 items-center justify-center rounded-e-xl text-red-600 active:bg-red-50" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-5" /></button> : <span className="w-3" />}</span> : null}
           </div>
           {!online || pending ? <Badge variant="warning">{!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`}</Badge> : null}
@@ -423,7 +422,7 @@ export function Register() {
               : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * rows) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
           </div>
         </div>
-        <nav className="mb-4 flex shrink-0 gap-1.5 rounded-[18px] border border-gray-200 bg-white p-1.5 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
+        <nav className="mb-4 box-border flex h-[72px] shrink-0 gap-1.5 rounded-2xl border border-gray-200 bg-white p-1 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
           <NavB icon="grid" label="Functions" onClick={fnPage} />
           <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
           <NavB icon="table" label="Tables" onClick={tablesPage} />
@@ -451,7 +450,7 @@ export function Register() {
 const Sum = ({ l, r }: { l: string; r: string }) => <div className="flex justify-between"><span>{l}</span><span className="tabular-nums">{r}</span></div>;
 // a button of the bottom bar: the icon over its label, 68px high
 const NavB = ({ icon, label, onClick, n }: { icon: string; label: string; onClick: () => void; n?: number }) => (
-  <button type="button" onClick={onClick} className="relative flex h-[68px] flex-1 flex-col items-center justify-center gap-1 rounded-[14px] text-[15px] font-medium text-gray-700 active:bg-blue-50 dark:text-gray-300 dark:active:bg-blue-500/10">
+  <button type="button" onClick={onClick} className="relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[15px] font-medium text-gray-700 active:bg-blue-50 dark:text-gray-300 dark:active:bg-blue-500/10">
     <Icon name={icon} className="size-7 text-blue-600 dark:text-blue-500" />{label}
     {n ? <span className="absolute right-3 top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold text-white dark:border-gray-950">{n}</span> : null}</button>);
 
