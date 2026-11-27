@@ -402,7 +402,7 @@ export function Register() {
         </div>
         {/* search: a tap opens the keyboard under it; Close hides it */}
         <div className="flex gap-2.5">
-          <Input type="search" inputMode="none" value={q} onFocus={() => setKb(true)} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="flex-1 [&>input]:h-[52px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
+          <Input type="search" inputMode="none" value={q} onFocus={() => setKb(true)} onClick={() => setKb(true)} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="flex-1 [&>input]:h-[52px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
           {kb || q ? <Button variant="secondary" className="h-[52px] gap-1.5 rounded-[14px] px-5 text-[17px]" onClick={() => { setKb(false); setQ(""); }}><Icon name="x" className="size-5" />Close</Button> : null}
         </div>
         {kb ? <Keyboard onKey={k => setQ(v => k === "\b" ? v.slice(0, -1) : k === "\n" ? v : v + k)} /> : null}
