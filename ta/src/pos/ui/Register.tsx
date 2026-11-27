@@ -231,8 +231,7 @@ export function Register() {
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
-  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway", pdBoard); }}
-    onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => pdBoard()} />)} />);
+  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway", pdBoard); }} />);
   // Tables; a free table asks its guests (Back returns to Tables)
   const tablesPage = () => setDlg(<TablesDialog x={x} area={area} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null);
     const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} back="Back" onDone={done} />); if (g == null) return tablesPage();
@@ -244,7 +243,7 @@ export function Register() {
     const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); };
     const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); };
     setDlg(<FnPage area={area} title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
-      { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }] },
+      { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }, ...(types.includes("delivery") ? [{ icon: "scooter", label: "Drivers", onClick: go(() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={fnPage} />)) }] : [])] },
       { title: "Device", items: [{ icon: "chart", label: "Reports", onClick: go(reports) }, { icon: "device", label: "Printers & Devices", onClick: go(printers) },
         { icon: sound ? "sound" : "mute", label: sound ? "Sound On" : "Sound Off", onClick: () => { const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); close(); say(v ? "Sound on" : "Sound off"); } },
         { icon: "sync", label: "Sync Now", onClick: () => { reload(); close(); say(online ? "Syncing…" : "No connection"); } }] },
