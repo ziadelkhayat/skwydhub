@@ -97,7 +97,9 @@ export function OptionPage() {
     <Head back="Modifier Options" backTo="/modifier-options" title={o.name}><Button onClick={() => setEdit(true)}><PencilIcon className="size-5" />Edit Option</Button></Head>
     <Info rows={[["Name", o.name], ["Name Localized", o.nameAr || "—"], ["Modifier", s.modifiers.find(m => m.id === o.modifierId)?.name || "—"], ["SKU", o.sku || "—"], ["Price", price ? money(price) : "Free"], ["Tax Group", s.tax_groups.find(g => g.id === o.taxGroup)?.name || "—"],
       ["Costing Method", fixed ? "Fixed Cost" : "From Ingredients"], [fixed ? "Fixed Cost" : "Ingredients Cost", cost5(cost)], ["Cost %", price ? (cost / price * 100).toFixed(1) + " %" : "—"]]} />
+    <Tags s={s} type="option" id={o.id} />
     {!fixed && <Ingredients s={s} col="modifier_options" rec={o} />}
+    <Nutrition col="modifier_options" rec={o} />
     <Allergens s={s} col="modifier_options" rec={o} />
     {edit && <EditDialog cfg={CRUD["modifier-options"]} s={s} row={o} onClose={() => setEdit(false)} />}
   </>;
