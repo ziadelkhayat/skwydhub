@@ -10,6 +10,8 @@ import { lazy, Suspense } from "react";
 // every page loads only when it is opened (smaller first download, faster on phones)
 const CrudPage = lazy(() => import("@/skwyd/crud/CrudPage"));
 const TaxesGroups = lazy(() => import("@/skwyd/pages/TaxesGroups"));
+const ModifiersPage = lazy(() => import("@/skwyd/pages/ModifiersPage"));
+const ToOptions = lazy(() => import("@/skwyd/pages/ModifiersPage").then(m => ({ default: m.ToOptions })));
 const Dashboard = lazy(() => import("@/skwyd/pages/Dashboard"));
 const OrdersPage = lazy(() => import("@/skwyd/pages/Orders"));
 const CustomersPage = lazy(() => import("@/skwyd/pages/Customers"));
@@ -127,7 +129,7 @@ function Gate() {
           <Route path="/purchasing" element={<PurchasingReportPage />} />
           {RPT_ROUTES.map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
           {DOC_ROUTES.map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
-          {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={k === "taxes" ? <TaxesGroups /> : k === "tax-groups" ? <Navigate to="/taxes" replace /> : <CrudPage key={k} cfg={cfg} />} />)}
+          {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={k === "taxes" ? <TaxesGroups /> : k === "modifiers" ? <ModifiersPage /> : k === "modifier-options" ? <ToOptions /> : k === "tax-groups" ? <Navigate to="/taxes" replace /> : <CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
         {/* full-screen pages: no sidebar or header, the same permissions */}
