@@ -41,11 +41,13 @@ export function Approve({ title, perm, S, onDone }: { title: string; perm: strin
 
 // Void an open order (or some of its items) or return a done one: the reason, where the food goes, then a manager's PIN.
 // A return is a new refund ticket today, so an ended day never changes. Needs the connection (stock is moved on the server).
-export function VoidReturnDialog({ x, o, onDone, area }: { x: Ctx; o: Row; onDone: (msg?: string) => void; area?: { cartW: string } }) {
+// on the register (sel given): the whole check by default; tapping items in the cart picks them (their quantities are changed here)
+export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; o: Row; onDone: (msg?: string) => void; area?: { cartW: string }; sel?: number[]; setSel?: (f: (q: number[]) => number[]) => void }) {
   const { S, write, sb, cashier, device, branch, online } = useStore();
   const kind: "void" | "return" = o.status === "closed" ? "return" : "void", a = appSet(S, branch?.brandId), reasons = vrReasons(a);
   const max: number[] = (o.items || []).map((i: any, ix: number) => (kind === "return" ? retLeft(o, ix) : +i.qty));
-  const [mode, setMode] = useState<"all" | "items">("all"), [qs, setQs] = useState<number[]>(max.map(() => 0));
+  const [mode0, setMode] = useState<"all" | "items">("all"), [qs0, setQs0] = useState<number[]>(max.map(() => 0));
+  const qs = sel ? max.map((_, i) => Math.min(max[i], sel[i] || 0)) : qs0, setQs = setSel || setQs0, mode = sel ? (qs.some(q => q > 0) ? "items" : "all") : mode0;
   const [reason, setReason] = useState(""), [other, setOther] = useState(""), [stock, setStock] = useState<"stock" | "waste">(a.stockAction === "waste" ? "waste" : "stock"), [err, setErr] = useState(""), [appr, setAppr] = useState(false);
   const picked = mode === "all" ? max : qs, why = reason === "_other" ? other.trim() : reason;
   const go = () => {
@@ -85,9 +87,10 @@ export function VoidReturnDialog({ x, o, onDone, area }: { x: Ctx; o: Row; onDon
     <>
       <div className="space-y-5 text-[16px]">
         {err && area ? <p className="rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
-        <Seg value={mode} onChange={setMode} items={[["all", "Whole order"], ["items", "Choose items"]]} />
+        {sel ? <p className="rounded-2xl bg-blue-50 px-5 py-4 text-lg text-blue-900 dark:bg-blue-500/10 dark:text-blue-200">{mode === "all" ? <><b>The whole check.</b> To {kind} some items only, tap them in the cart.</> : <><b>{qs.filter(q => q > 0).length} {qs.filter(q => q > 0).length === 1 ? "item" : "items"} picked.</b> Tap an item in the cart again to take it off.</>}</p>
+          : <Seg value={mode} onChange={setMode} items={[["all", "Whole order"], ["items", "Choose items"]]} />}
         {mode === "all" ? <p className="text-sm text-gray-700 dark:text-gray-300">{kind === "void" ? "The whole order will be voided and removed from sales." : `The whole order will be returned and ${money(S, refundOf(o, max))} refunded.`}</p> :
-          <div><Table><TableBody>{(o.items || []).map((i: any, ix: number) => (
+          <div><Table><TableBody>{(o.items || []).map((i: any, ix: number) => sel && !qs[ix] ? null : (
             <TableRow key={ix}><TableCell><p className="font-medium text-gray-900 dark:text-gray-50">{i.name}</p>{i.mods ? <p className="text-xs">{i.mods}</p> : null}</TableCell>
               <TableCell className="text-right"><div className="inline-flex"><Stepper n={qs[ix]} lessOff={!qs[ix]} onLess={() => setQs(q => q.map((v, j) => (j === ix ? Math.max(0, v - 1) : v)))} onMore={() => setQs(q => q.map((v, j) => (j === ix ? Math.min(max[ix], v + 1) : v)))} /></div></TableCell></TableRow>))}</TableBody></Table>
             {kind === "return" ? <div className="flex justify-between pt-3"><span className="font-medium text-gray-900 dark:text-gray-50">Refund</span><span className="font-bold text-gray-900 dark:text-gray-50">{money(S, refundOf(o, qs))}</span></div> : null}</div>}
@@ -101,7 +104,7 @@ export function VoidReturnDialog({ x, o, onDone, area }: { x: Ctx; o: Row; onDon
       </div>
     </>);
   return area
-    ? <Panel area={area} title={title} sub={kind === "void" ? "Pick what to void and why" : "Pick what to return and why"} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
+    ? <Panel area={area} cartOpen={!!sel} title={title} sub={kind === "void" ? "Pick what to void and why" : "Pick what to return and why"} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
     : <Sheet title={title} width={660} onClose={() => onDone()} footer={<><span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Button></>}>{body}</Sheet>;
 }
 

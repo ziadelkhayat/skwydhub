@@ -15,11 +15,11 @@ import { Icon } from "./Icon";
 import { AreaCtx, Keyboard, Panel } from "./Touch";
 
 /** a Tremor dialog that answers once */
-export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode }) {
+export function Sheet({ title, onClose, width = 680, children, footer, back }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode; back?: string }) {
   // on the register: in the menu's place, in the same rounded window as Discount
   const area = useContext(AreaCtx);
   if (area) return (
-    <Panel area={area} title={title} onClose={onClose} className="flex flex-col">
+    <Panel area={area} title={title} onClose={onClose} back={back} className="flex flex-col">
       <div className="mx-auto w-full" style={{ maxWidth: Math.max(width, 420) }}>{children}</div>
       {footer ? <div className="mx-auto mt-auto flex w-full items-center justify-end gap-3 pt-6 [&>button]:h-14 [&>button]:min-w-36 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]" style={{ maxWidth: Math.max(width, 420) }}>{footer}</div> : null}
     </Panel>);
@@ -139,11 +139,11 @@ export function NumPad({ onKey, dot }: { onKey: (k: string) => void; dot?: boole
 }
 
 // a number typed on the pad: open price, table, guests, opening cash…
-export function NumberAsk({ title, initial = "", money, onDone }: { title: string; initial?: string; money?: (n: number) => string; onDone: (v: number | null) => void }) {
+export function NumberAsk({ title, initial = "", money, onDone, back }: { title: string; initial?: string; money?: (n: number) => string; onDone: (v: number | null) => void; back?: string }) {
   const [v, setV] = useState(initial);
   const key = (k: string) => setV(s => k === "c" ? "" : k === "b" ? s.slice(0, -1) : k === "." ? (s.includes(".") ? s : (s || "0") + ".") : s.length > 9 ? s : s === "0" ? k : s + k);
   return (
-    <Sheet title={title} onClose={() => onDone(null)} width={380} footer={<>
+    <Sheet title={title} back={back} onClose={() => onDone(null)} width={380} footer={<>
       <Button variant="secondary" className="flex-1" onClick={() => onDone(null)}>Cancel</Button>
       <Button className="flex-1" disabled={v === "" || isNaN(+v)} onClick={() => onDone(+v)}>OK</Button></>}>
       <div className="mb-4 flex h-20 items-center justify-center rounded-2xl border-2 border-blue-500 text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? " " : money && !v.endsWith(".") ? money(+v) : v}</div>

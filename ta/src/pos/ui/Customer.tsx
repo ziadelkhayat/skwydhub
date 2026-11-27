@@ -2,7 +2,6 @@
 // Pickup and delivery: the customer (looked up by phone), the order source, and the delivery address (saved ones or a new one). From Tremor.
 import { Button } from "@/components/tremor/Button";
 import { Input } from "@/components/tremor/Input";
-import { Label } from "@/components/tremor/Label";
 import { cx } from "@/components/tremor/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 import { useEffect, useId, useState } from "react";
@@ -14,7 +13,8 @@ import { Sheet } from "./Pickers";
 import { Main, Panel, Seg } from "./Touch";
 
 const Field = ({ label, value, onChange, tel }: { label: string; value: string; onChange: (v: string) => void; tel?: boolean }) => { const id = useId();
-  return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label><Input id={id} value={value} onChange={e => onChange(e.target.value)} type={tel ? "tel" : "text"} /></div>; };
+  // the label is the placeholder inside the field
+  return <Input id={id} aria-label={label} placeholder={label} value={value} onChange={e => onChange(e.target.value)} type={tel ? "tel" : "text"} />; };
 
 const fmtD = (t: string) => { const d = new Date(t); return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`; };
 // country codes for the phone (Lebanon first); the phone is saved with its code, e.g. +96171123456
@@ -24,13 +24,13 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
   const [cc, setCc] = useState(splitPhone(value).cc), n = splitPhone(value).n;
   const local = (v: string) => { const d = v.replace(/[^\d+]/g, ""); if (d.startsWith("+")) return onChange(d); onChange(d ? cc + d.replace(/^0+/, "") : ""); };
   return (
-    <div className="space-y-1.5"><Label htmlFor="cust-phone">Phone number *</Label>
+    <div>
       <div className="flex gap-2">
         <Select value={cc} onValueChange={k => { setCc(k); if (n) onChange(k + n.replace(/^0+/, "")); }}>
-          <SelectTrigger className="w-44 shrink-0" aria-label="Country code"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-48 shrink-0 !text-[17px]" aria-label="Country code"><SelectValue /></SelectTrigger>
           <SelectContent>{CC.map(([k, name]) => <SelectItem key={k} value={k}>{k} {name}</SelectItem>)}</SelectContent>
         </Select>
-        <Input id="cust-phone" type="tel" value={n} onChange={e => local(e.target.value)} placeholder="71 123 456" className="flex-1" />
+        <Input id="cust-phone" type="tel" value={n} onChange={e => local(e.target.value)} placeholder="Phone number *" aria-label="Phone number" className="flex-1" />
       </div>
     </div>);
 }
@@ -71,42 +71,26 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
     <>
       {err && area ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
       <div className={del || area ? "grid grid-cols-2 gap-6" : ""}>
-        <div className="space-y-4">
-          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
-          {src.length > 0 && t !== "dinein" && <div className="space-y-1.5"><Label>Order source *</Label>
-            <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger><SelectValue placeholder="Choose the order source" /></SelectTrigger>
+        <div className="space-y-3">
+          {src.length > 0 && t !== "dinein" && <div>
+            <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger><SelectValue placeholder="Order source *" /></SelectTrigger>
               <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
           <PhoneField value={c.phone} onChange={v => set("phone", v)} />
           <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
-        </div>
-        {/* the right side: what we know about the customer, then the delivery addresses under it */}
-        <div className="space-y-5">
-          {who ? <div className={cx("rounded-2xl p-4", who.black ? "bg-red-50 dark:bg-red-500/10" : who.isNew ? "bg-gray-50 dark:bg-gray-900" : "bg-blue-50 dark:bg-blue-500/10")}>
-            <div className="flex items-center gap-3"><span className={cx("flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white", who.black ? "bg-red-600" : "bg-blue-600")}>{((c.name || who.name || "?").trim()[0] || "?").toUpperCase()}</span>
-              <div className="min-w-0"><p className="truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{who.isNew ? "New customer" : c.name || who.name || "Customer"}</p>
-                <p className={cx("text-[15px]", who.black ? "font-semibold text-red-700 dark:text-red-400" : "text-gray-600 dark:text-gray-400")}>{who.isNew ? "Enter their name" + (del ? " and address" : "") : who.black ? "Blacklisted customer" : "Returning customer"}</p></div></div>
-            {who.notes ? <p className="mt-3 rounded-xl bg-white/70 px-3 py-2 text-[15px] text-gray-800 dark:bg-gray-950/50 dark:text-gray-200">{who.notes}</p> : null}
-            {ins && !who.isNew ? <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-              {[["Orders", String(ins.n)], ["Spent", money(S, ins.spent)], ["Average", ins.n ? money(S, ins.spent / ins.n) : "—"]].map(([l, v]) => <div key={l} className="rounded-xl bg-white/70 py-2.5 dark:bg-gray-950/50"><p className="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v}</p><p className="text-sm text-gray-500">{l}</p></div>)}</div> : null}
-            {ins && !who.isNew ? <div className="mt-3 space-y-1 text-[15px] text-gray-700 dark:text-gray-300">
-              {ins.last ? <p>Last order: {fmtD(ins.last)}</p> : null}
-              {ins.fav.length ? <p>Usually orders: {ins.fav.join(", ")}</p> : null}
-              {ins.voids ? <p className="text-red-700 dark:text-red-400">{ins.voids} void or declined {ins.voids === 1 ? "order" : "orders"}</p> : null}</div> : null}
-          </div> : null}
-        {del ? <div className="space-y-3">
+          {del ? <div className="space-y-2">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Delivery address</h3>
           {/* the customer's saved addresses: tap to use one; Edit changes it, the bin deletes it (a second tap confirms) */}
           {saved.map((a, i) => { const p = addrParts(a), on = !newAddr && addrVal === String(i);
-            return <div key={i} className={cx("flex items-stretch gap-2 rounded-2xl p-1.5", on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}>
-              <button type="button" className="min-w-0 flex-1 rounded-xl px-3 py-2 text-left" onClick={() => { setNewAddr(false); setEditIdx(-1); set("addr", addrParts(saved[i])); }}>
-                <span className="block text-[17px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span>
-                <span className="line-clamp-2 text-[15px] text-gray-600 dark:text-gray-400">{addrJoin({ ...p, label: "" } as Addr)}</span></button>
-              <Button variant="secondary" className="h-auto min-h-14 rounded-xl px-4 text-[16px]" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); }}>Edit</Button>
-              <Button variant="secondary" aria-label={sureDel === i ? "Tap again to delete this address" : "Delete address"} className={cx("h-auto min-h-14 rounded-xl text-red-600 dark:text-red-500", sureDel === i ? "px-4 text-[16px] font-semibold" : "w-14 p-0")}
+            return <div key={i} className={cx("flex items-center gap-1.5 rounded-2xl p-1", on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}>
+              <button type="button" className="min-w-0 flex-1 rounded-xl px-3 py-1 text-left" onClick={() => { setNewAddr(false); setEditIdx(-1); set("addr", addrParts(saved[i])); }}>
+                <span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span>
+                <span className="line-clamp-1 text-[15px] text-gray-600 dark:text-gray-400">{addrJoin({ ...p, label: "" } as Addr)}</span></button>
+              <Button variant="secondary" className="h-12 rounded-xl px-4 text-[16px]" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); }}>Edit</Button>
+              <Button variant="secondary" aria-label={sureDel === i ? "Tap again to delete this address" : "Delete address"} className={cx("h-12 rounded-xl text-red-600 dark:text-red-500", sureDel === i ? "px-4 text-[16px] font-semibold" : "w-12 p-0")}
                 onClick={() => { if (sureDel === i) { setSureDel(-1); saveAddrs(raw.filter((_, j) => j !== i), "Address deleted"); } else { setSureDel(i); setTimeout(() => setSureDel(-1), 3000); } }}>{sureDel === i ? "Delete?" : <Icon name="trash" className="size-5" />}</Button>
             </div>; })}
-          <button type="button" onClick={() => { setNewAddr(true); setEditIdx(-1); set("addr", {}); }} className={cx("flex h-14 w-full items-center gap-2 rounded-2xl px-4 text-[17px] font-medium text-blue-600 dark:text-blue-500", newAddr && editIdx < 0 ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}><Icon name="plus" className="size-5" />New address</button>
-          {newAddr || !saved.length ? <div className="grid grid-cols-2 gap-3">
+          <button type="button" onClick={() => { setNewAddr(true); setEditIdx(-1); set("addr", {}); }} className={cx("flex h-12 w-full items-center gap-2 rounded-2xl px-4 text-[17px] font-medium text-blue-600 dark:text-blue-500", newAddr && editIdx < 0 ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}><Icon name="plus" className="size-5" />New address</button>
+          {newAddr || !saved.length ? <div className="grid grid-cols-2 gap-2.5">
             <Field label="Address type" value={c.addr.label || ""} onChange={v => setA("label", v)} />
             <Field label="Area / street *" value={c.addr.street || ""} onChange={v => setA("street", v)} />
             <Field label="Building name / no. *" value={c.addr.building || ""} onChange={v => setA("building", v)} />
@@ -119,11 +103,27 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
           </div> : null}
         </div> : null}
         </div>
+        {/* the right side: what we know about the customer, then the delivery addresses under it */}
+        <div className="space-y-5">
+          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
+          {who ? <div className={cx("rounded-2xl p-4", who.black ? "bg-red-50 dark:bg-red-500/10" : who.isNew ? "bg-gray-50 dark:bg-gray-900" : "bg-blue-50 dark:bg-blue-500/10")}>
+            <div className="flex items-center gap-3"><span className={cx("flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white", who.black ? "bg-red-600" : "bg-blue-600")}>{((c.name || who.name || "?").trim()[0] || "?").toUpperCase()}</span>
+              <div className="min-w-0"><p className="truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{who.isNew ? "New customer" : c.name || who.name || "Customer"}</p>
+                <p className={cx("text-[15px]", who.black ? "font-semibold text-red-700 dark:text-red-400" : "text-gray-600 dark:text-gray-400")}>{who.isNew ? "Enter their name" + (del ? " and address" : "") : who.black ? "Blacklisted customer" : "Returning customer"}</p></div></div>
+            {who.notes ? <p className="mt-3 rounded-xl bg-white/70 px-3 py-2 text-[15px] text-gray-800 dark:bg-gray-950/50 dark:text-gray-200">{who.notes}</p> : null}
+            {ins && !who.isNew ? <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              {[["Orders", String(ins.n)], ["Spent", money(S, ins.spent)], ["Average", ins.n ? money(S, ins.spent / ins.n) : "—"]].map(([l, v]) => <div key={l} className="rounded-xl bg-white/70 py-2.5 dark:bg-gray-950/50"><p className="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v}</p><p className="text-sm text-gray-500">{l}</p></div>)}</div> : null}
+            {ins && !who.isNew ? <div className="mt-3 space-y-1 text-[15px] text-gray-700 dark:text-gray-300">
+              {ins.last ? <p>Last order: {fmtD(ins.last)}</p> : null}
+              {ins.fav.length ? <p>Usually orders: {ins.fav.join(", ")}</p> : null}
+              {ins.voids ? <p className="text-red-700 dark:text-red-400">{ins.voids} void or declined {ins.voids === 1 ? "order" : "orders"}</p> : null}</div> : null}
+          </div> : null}
+        </div>
       </div>
     </>);
   // on the register it opens in the menu's place like Discount (the cart stays on the left)
   return area
-    ? <Panel area={area} back={back} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
+    ? <Panel area={area} back={back} title="Customer Details" onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
     : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
       <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;

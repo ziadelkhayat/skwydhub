@@ -29,9 +29,10 @@ const today = (x: Ctx) => { const d = bizDate(x); return x.S.orders.filter(o => 
 
 // the header of a full screen: back, title, and the screen's own buttons
 // the header of a full screen (touch size): a big back button, the title, and the screen's own buttons
-export function Head({ title, onClose, children, back = "Register" }: { title: string; onClose: () => void; children?: ReactNode; back?: string }) {
+export function Head({ title, onClose, children, back = "Back" }: { title: string; onClose: () => void; children?: ReactNode; back?: string }) {
   return <header className="flex h-[84px] shrink-0 items-center gap-3 bg-white px-4 shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)] dark:bg-gray-950 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:px-5 [&>button]:text-[17px]">
-    <Button variant="secondary" className="gap-1.5" onClick={onClose}><Icon name="back" className="size-5" />{back}</Button>
+    {back ? <Button variant="secondary" className="gap-1.5" onClick={onClose}><Icon name="back" className="size-5" />{back}</Button>
+      : <Button variant="secondary" aria-label="Close" className="w-14 !px-0" onClick={onClose}><Icon name="x" className="size-6" /></Button>}
     <h1 className="flex-1 truncate ps-1 text-2xl font-semibold text-gray-900 dark:text-gray-50">{title}</h1>{children}</header>;
 }
 export const Full = ({ children }: { children: ReactNode }) => <div className="fixed inset-0 z-20 flex flex-col bg-gray-50 portal:bg-[var(--portal-canvas)] dark:bg-gray-950 dark:portal:bg-gray-950">{children}</div>;
@@ -116,7 +117,7 @@ export function OrdersList({ x: x0, onOpen, onClose, area }: { x: Ctx; onOpen: (
   const [srch, setSrch] = useState(false);
   const n = (k: string) => all.filter(TABS.find(z => z[0] === k)![2]).length;
   const DOT: Record<string, string> = { default: "bg-blue-600", success: "bg-emerald-500", error: "bg-red-500", warning: "bg-amber-500", neutral: "bg-gray-400" };
-  return <Box area={area}><Head title="Orders" back={area ? "Back" : "Register"} onClose={onClose}>
+  return <Box area={area}><Head title="Orders" back="" onClose={onClose}>
       <DateRangePicker className="w-64 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:text-[16px]" placeholder="All dates" toDate={new Date()} value={rng ? { from: toD(rng.from), to: toD(rng.to) } : undefined}
         onChange={r => setRng(r?.from ? { from: isoD(r.from), to: isoD(r.to || r.from) } : null)} />
       {rng ? <Button variant="ghost" onClick={() => setRng(null)}>All dates</Button> : null}</Head>

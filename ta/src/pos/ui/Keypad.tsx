@@ -7,12 +7,13 @@ import { RiDeleteBack2Line } from "@remixicon/react";
 export function Keypad({ onKey, disabled, round }: { onKey: (k: string) => void; disabled?: boolean; round?: boolean }) {
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "c", "0", "b"];
   // round: the sign-in and activation screens (option J) — big round navy-outline keys with navy numbers; Clear and ⌫ are grey text
+  // the sign-in and activation screens: the same keys as every POS keypad (soft tinted, rounded, finger size)
   if (round) return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-2.5">
       {keys.map(k => { const fn = k === "c" || k === "b"; return (
         <button key={k} type="button" disabled={disabled} onClick={() => onKey(k)} aria-label={k === "c" ? "Clear" : k === "b" ? "Delete" : k}
-          className={cx("flex size-[min(5.5rem,10.5dvh)] items-center justify-center rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-[#24409A]/50 active:scale-95 disabled:opacity-50",
-            fn ? "text-base font-medium text-gray-500 hover:bg-[#24409A]/5 active:bg-[#24409A]/10 dark:text-gray-400 dark:hover:bg-white/10" : "border-[1.5px] border-[#24409A]/35 text-3xl font-medium text-[#24409A] hover:bg-[#24409A]/5 active:bg-[#24409A]/10 dark:border-white/30 dark:text-white dark:hover:bg-white/10")}>
+          className={cx("flex h-[min(76px,9.5dvh)] w-32 items-center justify-center rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50",
+            fn ? "text-base font-medium text-gray-700 active:bg-gray-100 dark:text-gray-300 dark:active:bg-gray-900" : "bg-blue-50 text-[28px] font-semibold text-blue-700 active:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400")}>
           {k === "b" ? <RiDeleteBack2Line className="size-7" /> : k === "c" ? "Clear" : k}
         </button>); })}
     </div>);

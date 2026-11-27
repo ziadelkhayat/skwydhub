@@ -21,8 +21,8 @@ const same = (a: string[], b: string[]) => a.length === b.length && a.every(x =>
 
 // Discount: the whole order (saved discounts or a % / amount), or one item: tap a cart line while this is open to discount that item
 export type DiscLine = { name: string; qty: number; price: number; disc?: number; discPct?: number };
-export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone, line, onWhole, onLineDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string };
-  onDone: (d: Disc | undefined) => void; line?: DiscLine | null; onWhole: () => void; onLineDone: (r: { disc?: number; discPct?: number }) => void }) {
+export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone, line, onLineDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string };
+  onDone: (d: Disc | undefined) => void; line?: DiscLine | null; onWhole?: () => void; onLineDone: (r: { disc?: number; discPct?: number }) => void }) {
   const sets = dsHere(x), [setSel, setSetSel] = useState<any>(() => init?.setId ? sets.find(d => d.id === init.setId) || null : null);
   const [type, setType] = useState<"pct" | "amt">(init?.type === "amt" && !init.setId ? "amt" : allowPct ? "pct" : "amt"), [v, setV] = useState(init && !init.setId && init.value ? String(init.value) : init?.setVal ? String(init.setVal) : "");
   const [lt, setLt] = useState<"pct" | "amt">(allowPct ? "pct" : "amt"), [lv, setLv] = useState("");
@@ -44,8 +44,6 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
       action={<>{line.disc ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onLineDone({})}>Remove</Main> : null}<Main disabled={!lok || !(lx > 0)} onClick={() => onLineDone(lt === "pct" ? { discPct: Math.min(100, lx), disc: +ld.toFixed(2) } : { disc: +ld.toFixed(2) })}>Apply</Main></>}>
       <div className="flex h-full gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <p className="rounded-2xl bg-blue-50 px-5 py-4 text-lg text-blue-900 dark:bg-blue-500/10 dark:text-blue-200">Discounting one item: <b>{line.name}</b>. Tap another item in the cart to switch.</p>
-          <Main variant="secondary" onClick={onWhole}>Discount the whole order instead</Main>
           {ld > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">Item total</span>
             <b className="tabular-nums text-gray-900 dark:text-gray-50">{cur(full - ld)} <span className="font-medium text-emerald-600">(−{cur(ld)})</span></b></div> : null}
         </div>

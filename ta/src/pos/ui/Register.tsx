@@ -8,7 +8,7 @@ import { cx } from "@/components/tremor/utils";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Row } from "../lib/db";
 import kv from "../lib/kv";
-import { addrJoin, allowedTypes, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, pinsOn, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
+import { addrJoin, allowedTypes, retLeft, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, pinsOn, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
 import { appSet, kitchenText, printerHas, printJob, receiptText } from "../lib/print";
 import { useStore } from "../lib/store";
 import { onAlertOpen, pendingCount } from "./Alert";
@@ -41,7 +41,7 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
-  const [kb, setKb] = useState(false);
+  const [kb, setKb] = useState(false), [vrSel, setVrSel] = useState<number[]>([]);
   const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLine, setDiscLine] = useState<number | null>(null);
   const say = (s: string) => notify(s);
 
@@ -195,7 +195,7 @@ export function Register() {
       if (a === "Return" && live_eo.status !== "closed") return say("Only done orders can be returned");
       if (live_eo.status === "closed" && fullyBack(live_eo)) return say("Nothing left to return on this order");
       if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
-      return setDlg(<VoidReturnDialog x={x} o={live_eo} area={area} onDone={msg => { setDlg(null); if (msg) { say(msg); reset(); } }} />); }
+      setVrSel([]); return setPop("VR"); }
     if (ro && a !== "Print" && a !== "Tags") return say("This order is done");
     if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); setDiscLine(null); return setPop(a); }
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges."); return setPop(a); }
@@ -221,6 +221,10 @@ export function Register() {
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
   const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway", pdBoard); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => pdBoard()} />)} />);
+  // Tables; a free table asks its guests (Back returns to Tables)
+  const tablesPage = () => setDlg(<TablesDialog x={x} area={area} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null);
+    const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} back="Back" onDone={done} />); if (g == null) return tablesPage();
+    if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein"); setGuests(Math.max(0, Math.round(g))); }} />);
   // Functions: a full page of big tiles in groups (Shift, Orders, Device)
   const fnPage = () => { const close = () => setDlg(null), go = (f: () => void) => () => f();
     const till = () => { if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); };
@@ -258,6 +262,9 @@ export function Register() {
   // with Discount open, a tap on a cart line discounts that item
   // a second tap on the same item goes back to the whole order; items of an open (active) order can be discounted too
   const pickDiscLine = (i: number) => setDiscLine(d => (d === i ? null : i));
+  // with Void / Return open, a tap on an item picks it (all of it) or takes it off; none picked = the whole check
+  const pickVr = (i: number) => { const o = live_eo; if (!o || i >= (o.items || []).length) return; const mx = o.status === "closed" ? retLeft(o, i) : +o.items[i].qty || 0; if (!mx) return say("Nothing left to return on this item");
+    setVrSel(q => { const n = [...q]; n[i] = n[i] ? 0 : mx; return n; }); };
   const qty = (i: number, d: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (d < 0 && l?.saved && l.qty - 1 < l.saved) return action("Void");   // an item already sent is voided, with a manager's approval
@@ -348,10 +355,10 @@ export function Register() {
           {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
-            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", pop === "Discount" && discLine === i ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
+            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} onTap={() => (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLine === i) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
               {/* the quantity before the item (3×); tap the item to change it */}
               <span className="min-w-9 text-[17px] font-semibold tabular-nums text-blue-700 dark:text-blue-400">{l.qty}×</span>
-              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" onClick={() => (pop === "Discount" ? pickDiscLine(i) : editLine(i))}>
+              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left">
                 <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
                 {/* the modifiers one under the other, each with its price on the right */}
                 {(l.options || []).length ? optRows(l.options!).map((o, k) => <span key={k} className="flex gap-2 ps-3 text-xs text-gray-500"><span className="flex-1 truncate">{(o.n > 1 ? o.n + "× " : "") + o.name}</span>{o.price ? <span>+{money(S, o.price)}</span> : null}</span>)
@@ -419,8 +426,7 @@ export function Register() {
         <nav className="mb-4 flex shrink-0 gap-1.5 rounded-[18px] border border-gray-200 bg-white p-1.5 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
           <NavB icon="grid" label="Functions" onClick={fnPage} />
           <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
-          <NavB icon="table" label="Tables" onClick={() => setDlg(<TablesDialog x={x} area={area} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
-            const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />)} />
+          <NavB icon="table" label="Tables" onClick={tablesPage} />
           <NavB icon="scooter" label="Pickup & Delivery" onClick={pdBoard} n={pdN} />
           <NavB icon="plus" label="New" onClick={reset} />
         </nav>
@@ -428,6 +434,7 @@ export function Register() {
       {pop === "Tags" ? <TagsPop S={S} init={tagInit} area={area} onDone={tagsDone} />
         : pop === "Retrieve" || pop === "Hold" ? <HeldPop held={held} cur={cur} label={heldLabel} area={area} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)}
           {...(pop === "Hold" ? { onHold: (nm: string) => hold(nm), defName: table ? tblLbl(table) : cust.name || "" } : {})} />
+        : pop === "VR" && live_eo ? <VoidReturnDialog x={x} o={live_eo} area={area} sel={vrSel} setSel={f => setVrSel(q => f(q))} onDone={msg => { setPop(null); setVrSel([]); if (msg) { say(msg); reset(); } }} />
         : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area}
           line={discLine != null && cart[discLine] ? { name: cart[discLine].name, qty: cart[discLine].qty, price: cart[discLine].price, disc: cart[discLine].disc, discPct: cart[discLine].discPct } : null}
           onWhole={() => setDiscLine(null)} onLineDone={r => { const i = discLine!, nm = cart[i]?.name; setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; return reDisc(z); }));
@@ -465,13 +472,14 @@ const optRows = (opts: { name: string; price?: number }[]) => { const r: { name:
 
 // a cart line that can be swiped left to show a red Delete button (no animation: the line follows the finger, then sits open or closed)
 const SW = 88, FAR = 170;   // a short swipe shows Delete; a long swipe removes the item at once
-function SwipeRow({ enabled, onDelete, className, children }: { enabled: boolean; onDelete: () => void; className?: string; children: ReactNode }) {
+// the whole row is one tap target
+function SwipeRow({ enabled, onDelete, onTap, className, children }: { enabled: boolean; onDelete: () => void; onTap: () => void; className?: string; children: ReactNode }) {
   const [dx, setDx] = useState(0), st = useRef<{ x: number; y: number; base: number; on: boolean } | null>(null), open = useRef(false), dragged = useRef(false);
   if (!enabled && dx) { open.current = false; setDx(0); }
   return (
     <div className="relative overflow-hidden">
       {dx < 0 ? <button type="button" onClick={() => { open.current = false; setDx(0); onDelete(); }} className="absolute inset-y-0 right-0 flex items-center justify-center gap-1.5 bg-red-600 text-[16px] font-semibold text-white" style={{ width: Math.max(SW, -dx) }}><Icon name="trash" className="size-5" />{-dx >= FAR ? "Remove" : "Delete"}</button> : null}
-      <div className={className} style={{ transform: `translateX(${dx}px)`, touchAction: "pan-y" }}
+      <div className={cx(className, "cursor-pointer")} onClick={onTap} style={{ transform: `translateX(${dx}px)`, touchAction: "pan-y" }}
         onPointerDown={e => { if (enabled) st.current = { x: e.clientX, y: e.clientY, base: open.current ? -SW : 0, on: false }; }}
         onPointerMove={e => { const s = st.current; if (!s) return; const mx = e.clientX - s.x, my = e.clientY - s.y;
           if (!s.on) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.5) { s.on = true; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } else return; }
