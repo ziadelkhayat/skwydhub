@@ -421,8 +421,13 @@ export function Register() {
             {/* Clear: empties a new order's cart (a second tap confirms) */}
             {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[60px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[60px] p-0")}
               onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-6" />}</Button> : null}
-            {live_eo || !noTable ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
-            <Button className="h-[60px] flex-[2] justify-between rounded-2xl px-6 text-lg shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+            {/* an open order with new items: only Save; a delivery is paid (TOTAL) once it's dispatched */}
+            {(() => { const dirty = !!live_eo && cart.some(l => l.qty > (l.saved || 0)), payOk = !dirty && !(live_eo && otype === "delivery" && !live_eo.dispatchedAt);
+              return <>
+                {live_eo ? (dirty || !payOk ? <Button variant={payOk ? "secondary" : "primary"} className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!dirty} onClick={() => saveOrder()}>{dirty ? "Save" : "Not dispatched yet"}</Button> : null)
+                  : !noTable ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
+                {payOk ? <Button className="h-[60px] flex-[2] justify-between rounded-2xl px-6 text-lg shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button> : null}
+              </>; })()}
           </>}
         </div>
       </aside>
