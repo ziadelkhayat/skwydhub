@@ -27,12 +27,13 @@ export function GroupTabs() {
   if (!g) return null;
   const isOn = (x: { path: string }) => pathname === x.path || pathname.startsWith(x.path + "/");
   const tab = (x: { key: string; path: string }) => { const Icon = ICONS[x.key]; return <>{Icon && <Icon className="size-4 shrink-0" aria-hidden="true" />}{LABELS[x.key]}</>; };
-  const shown = subs.slice(0, fit), extra = subs.slice(fit), extraOn = extra.find(isOn);
+  // every tab shows; the ones that don't fit go on a second line (no "More" menu)
+  const shown = subs, extra: typeof subs = [], extraOn = extra.find(isOn);
   return (
     <div ref={box} className="relative mb-6">
       {/* measuring row (invisible) */}
       <div ref={meas} aria-hidden="true" className="pointer-events-none invisible absolute flex">{subs.map(x => <span key={x.path} className={TAB}>{tab(x)}</span>)}</div>
-      <nav aria-label={LABELS[g.key]} className="flex items-center gap-1">
+      <nav aria-label={LABELS[g.key]} className="flex flex-wrap items-center gap-1">
         {shown.map(x => <Link key={x.path} to={x.path} aria-current={isOn(x) ? "page" : undefined} className={tabCls(isOn(x))}>{tab(x)}</Link>)}
         {extra.length > 0 && (
           <DropdownMenu>
