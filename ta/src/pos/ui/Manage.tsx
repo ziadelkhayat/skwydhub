@@ -1,6 +1,7 @@
 "use no memo"; // the POS code relies on checks the React Compiler would skip (it treats x! as never null), so it runs without the compiler
 // Manager approval (PIN), Void / Return, Reports and Devices (printers), from Tremor.
 import { Badge } from "@/components/tremor/Badge";
+import { cx } from "@/components/tremor/utils";
 import { Button } from "@/components/tremor/Button";
 import { Callout } from "@/components/tremor/Callout";
 import { Card } from "@/components/tremor/Card";
@@ -84,7 +85,8 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
   if (appr) return <Approve title={kind === "void" ? "Approve void" : "Approve return"} perm={kind === "void" ? "pos_void" : "pos_return"} S={S} onDone={u => (u ? void save(u) : setAppr(false))} />;
   const title = (kind === "void" ? "Void " : "Return ") + (mode === "items" ? "items" : "order");
   // on the register the title says what goes: the whole order, or each picked item with its quantity
-  const what = mode === "all" ? "Whole order" : (o.items || []).map((i: any, ix: number) => (qs[ix] ? qs[ix] + " × " + i.name : "")).filter(Boolean).join(", ");
+  const pickedIx = qs.map((q, i) => (q > 0 ? i : -1)).filter(i => i >= 0);
+  const what = mode === "all" ? "Whole order" : pickedIx.length === 1 ? o.items[pickedIx[0]].name : pickedIx.length + " items";
   const head = <span className="flex min-w-0 items-center gap-2">{kind === "void" ? "Void" : "Return"} · <span className="truncate text-blue-700 dark:text-blue-400">{what}</span></span>;
   const body = (
     <>
@@ -106,8 +108,33 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
           : <p className="text-sm text-gray-500">Items go {a.stockAction === "waste" ? "to waste" : "back to stock"}.</p>}
       </div>
     </>);
+  const lineAmt = (ix: number, q: number) => { const i = o.items[ix]; return (+i.price || 0) * q - (+i.disc || 0) * (q / (+i.qty || 1)); };
+  const shown = mode === "all" ? max.map((m, i) => (m > 0 ? i : -1)).filter(i => i >= 0) : pickedIx;
+  const amt = kind === "return" ? refundOf(o, picked) : shown.reduce((a2, ix) => a2 + lineAmt(ix, picked[ix]), 0);
+  const regBody = (
+    <div className="flex h-full gap-6">
+      <div className="flex min-w-0 flex-1 flex-col">
+        {err ? <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{shown.map(ix => { const i = o.items[ix];
+          return <div key={ix} className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
+            {mode === "all" ? <span className="min-w-8 text-[17px] font-semibold text-blue-700 dark:text-blue-400">{max[ix]}×</span> : null}
+            <span className="min-w-0 flex-1"><span className="block truncate text-[17px] font-medium text-gray-900 dark:text-gray-50">{i.name}</span>{i.mods ? <span className="block truncate text-sm text-gray-500">{i.mods}</span> : null}</span>
+            {mode === "items" ? <Stepper n={qs[ix]} lessOff={qs[ix] <= 1} onLess={() => setQs(q => q.map((v, j) => (j === ix ? Math.max(1, v - 1) : v)))} onMore={() => setQs(q => q.map((v, j) => (j === ix ? Math.min(max[ix], v + 1) : v)))} /> : null}
+            <span className="w-20 text-right text-[17px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineAmt(ix, picked[ix]))}</span>
+          </div>; })}</div>
+        <div className="mt-3 flex items-center justify-between rounded-2xl bg-red-50 px-5 py-4 text-lg dark:bg-red-500/10"><span className="text-gray-700 dark:text-gray-300">{kind === "return" ? "Refund" : "Voided"}</span>
+          <b className="tabular-nums text-red-700 dark:text-red-400">{money(S, amt)}</b></div>
+      </div>
+      <div className="w-[330px] shrink-0 space-y-3 overflow-y-auto">
+        <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">Reason{a.reasonRequired !== false ? " *" : ""}</p>
+        <div className="space-y-2">{[...reasons, "_other"].map(r => <button key={r} type="button" onClick={() => setReason(r)} aria-pressed={reason === r}
+          className={cx("flex min-h-14 w-full items-center rounded-2xl px-4 text-left text-[17px] font-medium", reason === r ? "bg-blue-50 text-blue-800 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10 dark:text-blue-300" : "bg-gray-50 text-gray-900 ring-[1.5px] ring-inset ring-gray-200 dark:bg-gray-900 dark:text-gray-50 dark:ring-gray-800")}>{r === "_other" ? "Other…" : r}</button>)}</div>
+        {reason === "_other" ? <Input autoFocus value={other} onChange={e => setOther(e.target.value)} placeholder="Write the reason" aria-label="Reason" /> : null}
+        {a.stockAction === "ask" || !a.stockAction ? <Seg value={stock} onChange={setStock} items={[["stock", "To stock"], ["waste", "Waste"]]} /> : <p className="text-sm text-gray-500">Items go {a.stockAction === "waste" ? "to waste" : "back to stock"}.</p>}
+      </div>
+    </div>);
   return area
-    ? <Panel area={area} cartOpen={!!sel} title={sel ? head : title} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
+    ? <Panel area={area} cartOpen={!!sel} className={sel ? "flex flex-col" : undefined} title={sel ? head : title} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{sel ? regBody : body}</Panel>
     : <Sheet title={title} width={660} onClose={() => onDone()} footer={<><span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Button></>}>{body}</Sheet>;
 }
 
