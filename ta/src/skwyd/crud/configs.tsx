@@ -151,7 +151,7 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "order_sources", title: "Order Sources", one: "Order Source",
     tabs: [["all", "All", r => live(r) && !SYS_SRC(r.name)], ["deleted", "Deleted", r => del(r) && !SYS_SRC(r.name)]],
     prep: data => SYS_SRC(data.name) ? `"${data.name}" is set automatically on web and API orders. Choose another name.` : "",
-    sort: bySort, sortable: true, search: r => r.name + " " + (r.reference || ""),
+    sort: bySort, sortable: true, noSearch: true, search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
