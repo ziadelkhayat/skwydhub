@@ -1,6 +1,9 @@
 // Tremor dashboard template DataTable, made generic for Skwyd lists:
 // filter bar (search, column filters, export, column view options), sortable headers, row selection with a
 // command bar for bulk actions, a ••• menu per row, and "Showing x–y of z" pagination.
+import { ViewOptions } from "./DataTableViewOptions";
+import { groupOf } from "@/components/layout/app-layout/nav-data";
+import { useLocation } from "react-router";
 import * as React from "react";
 import {
   type ColumnDef, type ColumnFiltersState, type FilterFn, type Row, type RowSelectionState, type SortingState, type VisibilityState,
@@ -18,7 +21,6 @@ import { CommandBar, CommandBarBar, CommandBarCommand, CommandBarSeperator, Comm
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { FilterMulti, FilterSelect } from "./FilterSelect";
 import { DataTablePagination } from "./DataTablePagination";
-import { ViewOptions } from "./DataTableViewOptions";
 import { sortValue, textOf } from "./textOf";
 
 export type DTColumn<T> = {
@@ -66,6 +68,7 @@ export function DataTable<T>({
   /** rows paged and searched on the server: data is one page */
   server?: { page: number; total: number; onPage: (page: number) => void; search: string; onSearch: (q: string) => void };
 }) {
+  const { pathname } = useLocation();
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [sorting, setSorting] = React.useState<SortingState>(initialSort || []);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -152,7 +155,8 @@ export function DataTable<T>({
               <RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export
             </Button>
           )}
-          <ViewOptions table={table} />
+          {/* View (column options): not on the Catalog and Inventory pages */}
+          {!["skCatalog", "skInventory"].includes(groupOf(pathname)?.key || "") && <ViewOptions table={table} />}
           {actions}
         </div>
       </div>
