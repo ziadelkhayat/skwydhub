@@ -2,6 +2,7 @@
 // Pickup and delivery: the customer (looked up by phone), the order source, and the delivery address (saved ones or a new one). From Tremor.
 import { Button } from "@/components/tremor/Button";
 import { Input } from "@/components/tremor/Input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
 import { cx } from "@/components/tremor/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 import { useEffect, useId, useState } from "react";
@@ -39,7 +40,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
-  const [newAddr, setNewAddr] = useState(false), [custId, setCustId] = useState(""), [raw, setRaw] = useState<any[]>([]), [editIdx, setEditIdx] = useState(-1), [sureDel, setSureDel] = useState(-1), [ins, setIns] = useState<null | { n: number; spent: number; last: string; fav: string[]; voids: number }>(null);
+  const [newAddr, setNewAddr] = useState(false), [custId, setCustId] = useState(""), [raw, setRaw] = useState<any[]>([]), [editIdx, setEditIdx] = useState(-1), [sureDel, setSureDel] = useState(-1), [addrOpen, setAddrOpen] = useState(false), [ins, setIns] = useState<null | { n: number; spent: number; last: string; fav: string[]; voids: number }>(null);
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
   // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
@@ -79,17 +80,28 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
           <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
           {del ? <div className="space-y-2">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Delivery address</h3>
-          {/* the customer's saved addresses: tap to use one; Edit changes it, the bin deletes it (a second tap confirms) */}
-          {saved.map((a, i) => { const p = addrParts(a), on = !newAddr && addrVal === String(i);
-            return <div key={i} className={cx("flex items-center gap-1.5 rounded-2xl p-1", on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}>
-              <button type="button" className="min-w-0 flex-1 rounded-xl px-3 py-1 text-left" onClick={() => { setNewAddr(false); setEditIdx(-1); set("addr", addrParts(saved[i])); }}>
-                <span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span>
-                <span className="line-clamp-1 text-[15px] text-gray-600 dark:text-gray-400">{addrJoin({ ...p, label: "" } as Addr)}</span></button>
-              <Button variant="secondary" className="h-12 rounded-xl px-4 text-[16px]" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); }}>Edit</Button>
-              <Button variant="secondary" aria-label={sureDel === i ? "Tap again to delete this address" : "Delete address"} className={cx("h-12 rounded-xl text-red-600 dark:text-red-500", sureDel === i ? "px-4 text-[16px] font-semibold" : "w-12 p-0")}
-                onClick={() => { if (sureDel === i) { setSureDel(-1); saveAddrs(raw.filter((_, j) => j !== i), "Address deleted"); } else { setSureDel(i); setTimeout(() => setSureDel(-1), 3000); } }}>{sureDel === i ? "Delete?" : <Icon name="trash" className="size-5" />}</Button>
-            </div>; })}
-          <button type="button" onClick={() => { setNewAddr(true); setEditIdx(-1); set("addr", {}); }} className={cx("flex h-12 w-full items-center gap-2 rounded-2xl px-4 text-[17px] font-medium text-blue-600 dark:text-blue-500", newAddr && editIdx < 0 ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "ring-[1.5px] ring-inset ring-gray-200 dark:ring-gray-800")}><Icon name="plus" className="size-5" />New address</button>
+          {/* the customer's saved addresses in a dropdown: tap one to use it; Edit changes it, the bin deletes it (a second tap confirms); or a new address */}
+          {saved.length ? <Popover open={addrOpen} onOpenChange={setAddrOpen}>
+            <PopoverTrigger asChild>
+              <button type="button" className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-2 text-left dark:border-gray-800 dark:bg-gray-950">
+                {newAddr ? <span className="flex flex-1 items-center gap-2 text-[17px] font-medium text-blue-600 dark:text-blue-500"><Icon name="plus" className="size-5" />{editIdx >= 0 ? "Editing: " + (addrParts(saved[editIdx]).label || "Address " + (editIdx + 1)) : "New address"}</span>
+                  : (() => { const i = +addrVal, p = addrParts(saved[i] || ""); return <span className="min-w-0 flex-1"><span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span><span className="block truncate text-[14px] text-gray-500">{addrJoin({ ...p, label: "" } as Addr)}</span></span>; })()}
+                <Icon name="down" className="size-5 shrink-0 text-gray-500" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] space-y-1.5 p-2">
+              {saved.map((a, i) => { const p = addrParts(a), on = !newAddr && addrVal === String(i);
+                return <div key={i} className={cx("flex items-center gap-1.5 rounded-xl p-1", on ? "bg-blue-50 dark:bg-blue-500/10" : "")}>
+                  <button type="button" className="min-w-0 flex-1 rounded-lg px-2 py-1 text-left" onClick={() => { setNewAddr(false); setEditIdx(-1); set("addr", addrParts(saved[i])); setAddrOpen(false); }}>
+                    <span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span>
+                    <span className="block truncate text-[14px] text-gray-500">{addrJoin({ ...p, label: "" } as Addr)}</span></button>
+                  <Button variant="secondary" className="h-12 rounded-xl px-4 text-[16px]" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); setAddrOpen(false); }}>Edit</Button>
+                  <Button variant="secondary" aria-label={sureDel === i ? "Tap again to delete this address" : "Delete address"} className={cx("h-12 rounded-xl text-red-600 dark:text-red-500", sureDel === i ? "px-4 text-[16px] font-semibold" : "w-12 p-0")}
+                    onClick={() => { if (sureDel === i) { setSureDel(-1); saveAddrs(raw.filter((_, j) => j !== i), "Address deleted"); } else { setSureDel(i); setTimeout(() => setSureDel(-1), 3000); } }}>{sureDel === i ? "Delete?" : <Icon name="trash" className="size-5" />}</Button>
+                </div>; })}
+              <button type="button" onClick={() => { setNewAddr(true); setEditIdx(-1); set("addr", {}); setAddrOpen(false); }} className="flex h-12 w-full items-center gap-2 rounded-xl px-3 text-[17px] font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-500"><Icon name="plus" className="size-5" />New address</button>
+            </PopoverContent>
+          </Popover> : null}
           {newAddr || !saved.length ? <div className="grid grid-cols-2 gap-2.5">
             <Field label="Address type" value={c.addr.label || ""} onChange={v => setA("label", v)} />
             <Field label="Area / street *" value={c.addr.street || ""} onChange={v => setA("street", v)} />

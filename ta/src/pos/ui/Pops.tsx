@@ -20,36 +20,45 @@ const same = (a: string[], b: string[]) => a.length === b.length && a.every(x =>
 // The windows of the register's top buttons open over the menu (the cart stays in view): big tiles, a big keypad, one main button at the top right.
 
 // Discount: the whole order (saved discounts or a % / amount), or one item: tap a cart line while this is open to discount that item
-export type DiscLine = { name: string; qty: number; price: number; disc?: number; discPct?: number };
-export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone, line, onLineDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string };
-  onDone: (d: Disc | undefined) => void; line?: DiscLine | null; onWhole?: () => void; onLineDone: (r: { disc?: number; discPct?: number }) => void }) {
+export type DiscLine = { idx: number; name: string; qty: number; price: number; disc?: number; discPct?: number };
+export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone, lines, onLineDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string };
+  onDone: (d: Disc | undefined) => void; lines: DiscLine[]; onWhole?: () => void; onLineDone: (r: { idx: number; disc?: number; discPct?: number }[]) => void }) {
   const sets = dsHere(x), [setSel, setSetSel] = useState<any>(() => init?.setId ? sets.find(d => d.id === init.setId) || null : null);
   const [type, setType] = useState<"pct" | "amt">(init?.type === "amt" && !init.setId ? "amt" : allowPct ? "pct" : "amt"), [v, setV] = useState(init && !init.setId && init.value ? String(init.value) : init?.setVal ? String(init.setVal) : "");
   const [lt, setLt] = useState<"pct" | "amt">(allowPct ? "pct" : "amt"), [lv, setLv] = useState("");
-  const [lastLine, setLastLine] = useState<DiscLine | null | undefined>(line);
-  if (line !== lastLine) { setLastLine(line); setLt(line?.disc && !line.discPct && allowAmt ? "amt" : allowPct ? "pct" : "amt"); setLv(line?.discPct ? String(line.discPct) : line?.disc ? String(line.disc) : ""); }
+  const one = lines.length === 1 ? lines[0] : null, key = lines.map(l => l.idx).join(","), [lastKey, setLastKey] = useState(key);
+  if (key !== lastKey) { setLastKey(key); setLt(one?.disc && !one.discPct && allowAmt ? "amt" : allowPct ? "pct" : "amt"); setLv(one?.discPct ? String(one.discPct) : one?.disc ? String(one.disc) : ""); }
   const sub = cart.reduce((a, l) => a + (+l.price || 0) * (+l.qty || 0) - (+(l.disc ?? 0) || 0), 0);
   const open = setSel?.open, typing = !setSel || open, pct = setSel ? setSel.type !== "fixed" : type === "pct";
   const save = setSel && !open ? dsCalc(x, cart, setSel, 0).amt : !(+v > 0) ? 0 : pct ? sub * Math.min(100, +v) / 100 : Math.min(sub, +v);
   const ok = setSel ? (!open || +v > 0) : +v > 0 && !(pct && +v > 100);
   const apply = () => onDone(setSel ? { type: "amt", value: 0, name: setSel.name, setId: setSel.id, ...(open ? { setVal: +v } : {}) } : { type, value: +v });
-  // one item: its line total, and what the discount takes off it
-  const full = line ? line.price * line.qty : 0, lx = +lv || 0, ld = lt === "pct" ? full * Math.min(100, lx) / 100 : Math.min(lx, full), lok = lx > 0 ? !(lt === "pct" && lx > 100) : !!(line?.disc);
+  // picked items: a % comes off each of them; an amount is shared between them by their totals
+  const full = lines.reduce((a, l) => a + l.price * l.qty, 0), lx = +lv || 0, ld = lt === "pct" ? full * Math.min(100, lx) / 100 : Math.min(lx, full), lok = lx > 0 && !(lt === "pct" && lx > 100);
+  const each = lines.map(l => { const f = l.price * l.qty, d = lt === "pct" ? f * Math.min(100, lx) / 100 : full ? ld * f / full : 0; return { ...l, f, d: +d.toFixed(2) }; });
   const pad = (val: string, isPct: boolean, setter: (f: (s: string) => string) => void, label: string) => <>
     <div className="flex h-20 items-center justify-between rounded-2xl border-2 border-blue-600 px-5 dark:border-blue-500"><span className="text-gray-500">{label}</span>
       <span className="text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{val === "" ? (isPct ? "0%" : sym + "0") : isPct ? val + "%" : sym + val}</span></div>
     <NumPad onKey={k => setter(s => typed(k, s))} dot /></>;
-  if (line) return (
-    <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">{line.name}</span></span>} sub={`${line.qty} × ${cur(line.price)} = ${cur(full)}`} onClose={() => onDone(undefined)}
-      action={<>{line.disc ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onLineDone({})}>Remove</Main> : null}<Main disabled={!lok || !(lx > 0)} onClick={() => onLineDone(lt === "pct" ? { discPct: Math.min(100, lx), disc: +ld.toFixed(2) } : { disc: +ld.toFixed(2) })}>Apply</Main></>}>
+  if (lines.length) return (
+    <Panel area={area} cartOpen title={<span className="flex min-w-0 items-center gap-2">Discount · <span className="truncate text-blue-700 dark:text-blue-400">{one ? one.name : lines.length + " items"}</span></span>} onClose={() => onDone(undefined)}
+      action={<>{lines.some(l => l.disc) ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onLineDone(lines.map(l => ({ idx: l.idx })))}>Remove</Main> : null}
+        <Main disabled={!lok} onClick={() => onLineDone(each.map(e => lt === "pct" ? { idx: e.idx, discPct: Math.min(100, lx), disc: e.d } : { idx: e.idx, disc: e.d }))}>Apply</Main></>}>
       <div className="flex h-full gap-6">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
-          {ld > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">Item total</span>
-            <b className="tabular-nums text-gray-900 dark:text-gray-50">{cur(full - ld)} <span className="font-medium text-emerald-600">(−{cur(ld)})</span></b></div> : null}
+        {/* the picked items: each with its total and what comes off it */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{each.map(e => <div key={e.idx} className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
+            <span className="min-w-8 text-[17px] font-semibold text-blue-700 dark:text-blue-400">{e.qty}×</span>
+            <span className="min-w-0 flex-1"><span className="block truncate text-[17px] font-medium text-gray-900 dark:text-gray-50">{e.name}</span>
+              {e.disc && !(lx > 0) ? <span className="block text-sm text-emerald-600">Now −{cur(e.disc)}{e.discPct ? " (" + e.discPct + "%)" : ""}</span> : null}</span>
+            <span className="text-right tabular-nums">{e.d > 0 ? <><span className="block text-sm text-gray-400 line-through">{cur(e.f)}</span><span className="block text-[17px] font-semibold text-gray-900 dark:text-gray-50">{cur(e.f - e.d)}</span></> : <span className="text-[17px] font-semibold text-gray-900 dark:text-gray-50">{cur(e.f)}</span>}</span>
+          </div>)}</div>
+          <div className="mt-3 flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">{one ? "Item total" : "Items total"}</span>
+            <b className="tabular-nums text-gray-900 dark:text-gray-50">{cur(full - ld)}{ld > 0 ? <span className="ms-1.5 font-medium text-emerald-600">(−{cur(ld)})</span> : null}</b></div>
         </div>
         <div className="w-[330px] shrink-0 space-y-2.5">
           {allowPct && allowAmt ? <Seg value={lt} onChange={k => { setLt(k); setLv(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
-          {pad(lv, lt === "pct", setLv, "This item")}
+          {pad(lv, lt === "pct", setLv, one ? "This item" : lt === "pct" ? "Each item" : "Shared")}
         </div>
       </div>
     </Panel>);

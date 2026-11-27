@@ -42,7 +42,7 @@ export function Register() {
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
   const [kb, setKb] = useState(false), [vrSel, setVrSel] = useState<number[]>([]);
-  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLine, setDiscLine] = useState<number | null>(null);
+  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLines, setDiscLines] = useState<number[]>([]);
   const say = (s: string) => notify(s);
 
   // a window over the sale (variant, modifiers, open price…) that answers once
@@ -196,7 +196,7 @@ export function Register() {
       if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
       setVrSel([]); return setPop("VR"); }
     if (ro && a !== "Print" && a !== "Tags") return say("This order is done");
-    if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); setDiscLine(null); return setPop(a); }
+    if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); setDiscLines([]); return setPop(a); }
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges."); return setPop(a); }
     if (a === "Notes") return setPop(a);
     if (a === "Print") return doPrint("receipt");
@@ -260,7 +260,7 @@ export function Register() {
 
   // with Discount open, a tap on a cart line discounts that item
   // a second tap on the same item goes back to the whole order; items of an open (active) order can be discounted too
-  const pickDiscLine = (i: number) => setDiscLine(d => (d === i ? null : i));
+  const pickDiscLine = (i: number) => setDiscLines(d => (d.includes(i) ? d.filter(y => y !== i) : [...d, i]));   // several items can be picked; none = the whole order
   // with Void / Return open, a tap on an item picks it (all of it) or takes it off; none picked = the whole check
   const pickVr = (i: number) => { const o = live_eo; if (!o || i >= (o.items || []).length) return; const mx = o.status === "closed" ? retLeft(o, i) : +o.items[i].qty || 0; if (!mx) return say("Nothing left to return on this item");
     setVrSel(q => { const n = [...q]; n[i] = n[i] ? 0 : mx; return n; }); };
@@ -354,7 +354,7 @@ export function Register() {
           {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
-            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} onTap={() => (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLine === i) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
+            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} onTap={() => (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLines.includes(i)) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
               {/* the quantity before the item (3×); tap the item to change it */}
               <span className="min-w-9 text-[17px] font-semibold tabular-nums text-blue-700 dark:text-blue-400">{l.qty}×</span>
               <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left">
@@ -435,10 +435,11 @@ export function Register() {
           {...(pop === "Hold" ? { onHold: (nm: string) => hold(nm), defName: table ? tblLbl(table) : cust.name || "" } : {})} />
         : pop === "VR" && live_eo ? <VoidReturnDialog x={x} o={live_eo} area={area} sel={vrSel} setSel={f => setVrSel(q => f(q))} onDone={msg => { setPop(null); setVrSel([]); if (msg) { say(msg); reset(); } }} />
         : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area}
-          line={discLine != null && cart[discLine] ? { name: cart[discLine].name, qty: cart[discLine].qty, price: cart[discLine].price, disc: cart[discLine].disc, discPct: cart[discLine].discPct } : null}
-          onWhole={() => setDiscLine(null)} onLineDone={r => { const i = discLine!, nm = cart[i]?.name; setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; return reDisc(z); }));
-            setPop(null); setDiscLine(null); say(r.disc ? `Discount on ${nm}: −${money(S, r.disc)}` : `Discount removed from ${nm}`); }}
-          onDone={d => { setPop(null); setDiscLine(null); if (d !== undefined) { setDisc(d); say(d ? "Discount on the whole order" + (d.name ? ": " + d.name : d.type === "pct" ? ": " + d.value + "%" : ": −" + money(S, d.value)) : "Order discount removed"); } }} />
+          lines={discLines.filter(i => cart[i]).map(i => ({ idx: i, name: cart[i].name, qty: cart[i].qty, price: cart[i].price, disc: cart[i].disc, discPct: cart[i].discPct }))}
+          onLineDone={rs => { setCart(c => c.map((y, j) => { const r = rs.find(z => z.idx === j); if (!r) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; return reDisc(z); }));
+            const names = rs.map(r => cart[r.idx]?.name).filter(Boolean).join(", "), off = rs.reduce((a, r) => a + (r.disc || 0), 0);
+            setPop(null); setDiscLines([]); say(off ? `Discount on ${names}: −${money(S, off)}` : `Discount removed from ${names}`); }}
+          onDone={d => { setPop(null); setDiscLines([]); if (d !== undefined) { setDisc(d); say(d ? "Discount on the whole order" + (d.name ? ": " + d.name : d.type === "pct" ? ": " + d.value + "%" : ": −" + money(S, d.value)) : "Order discount removed"); } }} />
         : pop === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} area={area} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
         : pop === "Notes" ? <NotesPop init={notes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
       {dlg}
