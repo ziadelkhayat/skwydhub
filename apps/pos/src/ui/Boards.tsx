@@ -104,7 +104,13 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
     ["active", "Active", o => o.status === "active"], ["dispatched", "Dispatched", o => o.status === "active" && !!(o as any).dispatchedAt], ["ahead", "Ahead", sched], ["api", "API", o => API.includes(o.channel)]];
   // as before: orders waiting to be accepted come first
   const [tab, setTab] = useState(() => mineAll.some(o => o.status === "pending" || o.editRequest?.status === "pending") ? "pending" : "all"), [q, setQ] = useState(""), s = q.trim().toLowerCase();
-  const list = all.filter(TABS.find(t => t[0] === tab)![2]).filter(o => !s || [ordRef(o), o.ref, o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
+  // the Filters button (option B + D): status, order type and channel in a side panel; the date stays beside the search
+  const [types, setTypes] = useState<string[]>([]), [chans, setChans] = useState<string[]>([]), [fOpen, setFOpen] = useState(false);
+  const TYP: [string, string, (o: Row) => boolean][] = [["dinein", "In Store", o => o.type === "dinein"], ["pickup", "Pickup", o => o.type === "pickup" || o.type === "takeaway"], ["delivery", "Delivery", o => o.type === "delivery"]];
+  const CHN: [string, string, (o: Row) => boolean][] = [["pos", "POS", o => !o.channel || o.channel === "pos"], ["callcenter", "Call Center", o => o.channel === "callcenter"], ["api", "API", o => API.includes(o.channel)]];
+  const pass = (o: Row, tb: string, ty: string[], ch: string[]) => TABS.find(t => t[0] === tb)![2](o) && (!ty.length || TYP.some(t => ty.includes(t[0]) && t[2](o))) && (!ch.length || CHN.some(c => ch.includes(c[0]) && c[2](o)));
+  const nOn = (tab !== "all" ? 1 : 0) + types.length + chans.length;
+  const list = all.filter(o => pass(o, tab, types, chans)).filter(o => !s || [ordRef(o), o.ref, o.customerName, o.phone, o.table, o.invoiceNo].some(v => String(v || "").toLowerCase().includes(s)));
   // the whole screen is the list; tapping an order opens it in the cart
   const COLS: [string, number, "left" | "right"][] = [["Reference", 1.1, "left"], ["Order", 0.8, "left"], ["Check", 1, "left"], ["Type", 1.2, "left"], ["Customer / Table", 2, "left"], ["Items", 0.8, "left"], ["Opened", 0.9, "left"], ["Status", 1.2, "left"], ["Total", 1, "right"]];
   const one = !!rng && rng.from === rng.to;
@@ -123,11 +129,12 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
           <Pressable accessibilityRole="button" accessibilityLabel="Date filter" onPress={() => setPick(true)} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 44, paddingHorizontal: 14, borderLeftWidth: one ? 1 : 0, borderRightWidth: one ? 1 : 0, borderColor: C.line, backgroundColor: pressed ? C.bg : "#fff" })}>
             <Icon name="cal" size={18} color={C.brand600} /><T w="m" size={15}>{dayLbl}</T></Pressable>
           {one ? navBtn("›", 1, rng!.to >= todayD) : null}</View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Filters" onPress={() => setFOpen(true)}
+          style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 16, borderRadius: R.sm, borderWidth: 1, borderColor: nOn ? C.brand : C.field, backgroundColor: pressed || nOn ? C.brand50 : "#fff" })}>
+          <Icon name="filter" size={18} color={nOn ? C.brand : C.ink2} /><T w="s" size={15} color={nOn ? C.brand : C.ink}>Filters</T>
+          {nOn ? <View style={{ minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.brand, alignItems: "center", justifyContent: "center", paddingHorizontal: 6 }}><T w="s" size={12} color="#fff">{nOn}</T></View> : null}</Pressable>
       </View>
-      {/* the tabs, as on the back office Orders page, right above the orders */}
-      <View style={{ flexDirection: "row", backgroundColor: "#F3F4F6", borderRadius: R.md, padding: 4, gap: 2, margin: 14 }}>{TABS.map(([k, t]) => { const n = all.filter(TABS.find(z => z[0] === k)![2]).length;
-        return <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)} style={{ flex: 1, height: 40, flexDirection: "row", gap: 6, borderRadius: R.sm, alignItems: "center", justifyContent: "center", backgroundColor: tab === k ? "#fff" : "transparent", borderWidth: tab === k ? 1 : 0, borderColor: C.line }}>
-          <T w="m" size={15} color={tab === k ? C.ink : C.mut}>{t}</T>{n ? <T size={12} color={tab === k ? C.brand600 : C.mut2}>{n}</T> : null}</Pressable>; })}</View>
+      <View style={{ height: 14 }} />
       <View style={{ flexDirection: "row", paddingHorizontal: 18, paddingVertical: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, backgroundColor: C.bg }}>
         {COLS.map(([h, f, al]) => <T key={h} size={12} w="m" color={C.mut} style={{ flex: f, textAlign: al }}>{h}</T>)}</View>
       <ScrollView showsVerticalScrollIndicator={false}>{list.length ? list.map(y => { const st = stOf(y);
@@ -141,7 +148,41 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
           <T w="s" style={{ flex: 1, textAlign: "right" }}>{money(x.S, y.total)}</T></Pressable>; })
         : <T color={C.mut} style={{ textAlign: "center", padding: 40 }}>{loading ? "Loading orders…" : !all.length ? "No orders for these dates." : "No orders here."}</T>}
         {more ? <View style={{ alignItems: "center", padding: 16 }}><Btn height={44} label={loading ? "Loading…" : "Load older orders"} disabled={loading} onPress={() => load(far.length)} /></View> : null}</ScrollView>
-    </View></Full>;
+    </View>
+    {fOpen ? <FilterPanel all={all} tabs={TABS} typ={TYP} chn={CHN} init={{ tab, types, chans }} count={(tb, ty, ch) => all.filter(o => pass(o, tb, ty, ch)).length}
+      onApply={r => { setTab(r.tab); setTypes(r.types); setChans(r.chans); setFOpen(false); }} onClose={() => setFOpen(false)} /> : null}</Full>;
+}
+
+// the Filters side panel: status (with counts), order type, channel; Clear all · Show N orders
+type F3 = [string, string, (o: Row) => boolean][];
+function FilterPanel({ all, tabs, typ, chn, init, count, onApply, onClose }: { all: Row[]; tabs: F3; typ: F3; chn: F3; init: { tab: string; types: string[]; chans: string[] };
+  count: (tb: string, ty: string[], ch: string[]) => number; onApply: (r: { tab: string; types: string[]; chans: string[] }) => void; onClose: () => void }) {
+  const [tb, setTb] = useState(init.tab), [ty, setTy] = useState(init.types), [ch, setCh] = useState(init.chans), n = count(tb, ty, ch);
+  const tog = (l: string[], k: string) => (l.includes(k) ? l.filter(y => y !== k) : [...l, k]);
+  const Chip = ({ on, label, sub, onPress }: { on: boolean; label: string; sub?: number; onPress: () => void }) =>
+    <Pressable accessibilityRole="button" accessibilityState={{ selected: on }} onPress={onPress} style={{ height: 42, paddingHorizontal: 14, borderRadius: R.sm, borderWidth: on ? 2 : 1, borderColor: on ? C.brand500 : C.field, backgroundColor: on ? C.brand50 : "#fff", flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <T w="m" size={14} color={on ? C.brand : C.ink}>{label}</T>{sub != null ? <T size={12} color={on ? C.brand500 : C.mut2}>{sub}</T> : null}</Pressable>;
+  const Sec = ({ t, children }: { t: string; children: React.ReactNode }) => <View style={{ paddingHorizontal: 18, paddingVertical: 14, gap: 10, borderBottomWidth: 1, borderColor: C.line2 }}>
+    <T w="s" size={12} color={C.mut} style={{ letterSpacing: 0.5 }}>{t.toUpperCase()}</T><View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{children}</View></View>;
+  return (
+    <Pressable accessibilityLabel="Close filters" onPress={onClose} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(16,24,40,0.35)", zIndex: 30 }}>
+      <Pressable onPress={() => {}} style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 440, backgroundColor: "#fff", shadowColor: "#000", shadowOpacity: 0.18, shadowRadius: 30, elevation: 20 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 18, height: 68, borderBottomWidth: 1, borderColor: C.line }}>
+          <T w="s" size={19} style={{ flex: 1 }}>Filters</T>
+          <Pressable accessibilityLabel="Close" onPress={onClose} style={({ pressed }) => ({ width: 44, height: 44, borderRadius: R.sm, borderWidth: 1, borderColor: C.line, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? C.bg : "#fff" })}><Icon name="x" size={20} /></Pressable>
+        </View>
+        <ScrollView style={{ flex: 1 }}>
+          <Sec t="Status">{tabs.map(([k, l, f]) => <Chip key={k} on={tb === k} label={l} sub={all.filter(f).length} onPress={() => setTb(k)} />)}</Sec>
+          <Sec t="Order type">{typ.map(([k, l]) => <Chip key={k} on={ty.includes(k)} label={l} onPress={() => setTy(v => tog(v, k))} />)}</Sec>
+          <Sec t="Channel">{chn.map(([k, l]) => <Chip key={k} on={ch.includes(k)} label={l} onPress={() => setCh(v => tog(v, k))} />)}</Sec>
+        </ScrollView>
+        <View style={{ flexDirection: "row", gap: 10, padding: 16, borderTopWidth: 1, borderColor: C.line }}>
+          <Btn height={52} style={{ flex: 1 }} label="Clear all" onPress={() => { setTb("all"); setTy([]); setCh([]); }} />
+          <Btn kind="primary" height={52} style={{ flex: 2 }} label={"Show " + n + (n === 1 ? " order" : " orders")} onPress={() => onApply({ tab: tb, types: ty, chans: ch })} />
+        </View>
+      </Pressable>
+    </Pressable>
+  );
 }
 
 // the date filter: all dates, one business day, or a from–to range on a month calendar; days with orders on the tablet show their count
