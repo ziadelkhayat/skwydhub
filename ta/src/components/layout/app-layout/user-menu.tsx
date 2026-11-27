@@ -21,7 +21,6 @@ export function UserMenu({ compact, top }: { compact?: boolean; top?: boolean })
         </>}
       </DropdownMenuTrigger>
       <DropdownMenuContent align={compact || top ? "end" : "start"} className="sm:!min-w-[calc(var(--radix-dropdown-menu-trigger-width))]">
-        <DropdownMenuLabel className="truncate">{staff?.email || staff?.phone || name}</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
