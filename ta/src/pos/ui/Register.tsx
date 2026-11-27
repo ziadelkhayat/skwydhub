@@ -347,7 +347,7 @@ export function Register() {
               {!ro && !live_eo ? <button type="button" aria-label="Remove table" className="flex size-11 items-center justify-center rounded-e-xl text-red-600 active:bg-red-50" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-5" /></button> : <span className="w-3" />}</span> : null}
           </div>
           {!online || pending ? <Badge variant="warning">{!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`}</Badge> : null}
-          <div className="text-right"><p className="text-[11px] text-gray-500">Order</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo?.no || "New"}</p></div>
+          <div className="text-right"><p className="text-[11px] text-gray-500">Order</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo ? live_eo.no || "—" : "New"}</p></div>
           {live_eo?.ref ? <div className="ms-2 text-right"><p className="text-[11px] text-gray-500">Reference</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo.ref}</p></div> : null}
         </div>
         <div className="flex gap-2 border-b border-gray-200 px-4 py-2.5 dark:border-gray-800">
@@ -412,8 +412,8 @@ export function Register() {
             <Button variant="destructive" className="h-[60px] flex-1 rounded-2xl text-[17px]" onClick={decline}>Decline</Button>
             <Button className="h-[60px] flex-[2] rounded-2xl text-[17px]" onClick={accept}>Accept</Button>
           </> : ro ? <div className={cx("flex h-[60px] flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
-              <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
-              <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
+              <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : [st === "declined" ? "Declined" : "Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
+              <span className={cx("text-lg font-semibold tabular-nums", (st === "void" || st === "declined") && "line-through")}>{(st === "closed" || st === "void" || st === "declined" ? "" : "−") + money(S, t.total)}</span></div>
           : preview ? <>
             <Button variant="secondary" aria-label="Clear cart" className="h-[60px] w-[60px] shrink-0 rounded-2xl p-0 text-red-600 dark:text-red-500" onClick={unpreview}><Icon name="trash" className="size-6" /></Button>
             <Button className="h-[60px] flex-1 justify-between rounded-2xl px-6 text-lg" onClick={() => goRef.current?.()}><span>Reorder</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
