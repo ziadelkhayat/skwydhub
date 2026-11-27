@@ -96,7 +96,7 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area, on
     </section>));
   if (area) return (
     // the options open in the menu's place, in the same rounded window as Discount; the cart stays in view
-    <Panel area={area} title={name} sub={money(basePrice)} onClose={() => onDone(null)} className="flex flex-col p-0"
+    <Panel area={area} title={name} onClose={() => onDone(null)} className="flex flex-col p-0"
       action={<>{onRemove ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={onRemove}><Icon name="trash" className="size-5" />Remove item</Button> : null}
         <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button></>}>
       <div className="min-h-0 flex-1 overflow-y-auto p-5">{groups}</div>
@@ -170,9 +170,9 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
     <NumPad onKey={key} dot={kind === "amt"} /></>;
   if (area) return (
     // in the menu's place like Discount: the quantity, the item's note on the keyboard, and Remove
-    <Panel area={area} title={name} sub={money(unit) + " each · line total " + money(full - d)} onClose={() => onDone(null)} className="flex flex-col gap-4"
+    <Panel area={area} title={name} onClose={() => onDone(null)} className="flex flex-col gap-4"
       action={<>{!part && !minQty ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-5" />Remove item</Button> : null}
-        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save</Button></>}>
+        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save · {money(full - d)}</Button></>}>
       {!part && <div className="flex items-center gap-3">
         <div className="flex items-center rounded-2xl bg-gray-100 dark:bg-gray-900">
           <Button variant="ghost" aria-label="One less" disabled={q <= Math.max(1, minQty)} onClick={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="minus" className="size-7" /></Button>
