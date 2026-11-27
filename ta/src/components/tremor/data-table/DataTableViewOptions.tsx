@@ -268,9 +268,11 @@ type ListState = {
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
+  /** a small icon button (in the table header) instead of the "View" button */
+  icon?: boolean
 }
 
-function ViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+function ViewOptions<TData>({ table, icon }: DataTableViewOptionsProps<TData>) {
   const tableColumns: Item[] = table.getAllColumns().map((column) => ({
     id: column.id,
     label: column.columnDef.meta?.displayName as string,
@@ -409,12 +411,14 @@ function ViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
           <PopoverTrigger asChild>
             <Button
               variant="secondary"
+              aria-label="Columns"
+              title="Columns"
               className={cx(
-                "ml-auto hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex",
+                icon ? "ml-auto flex size-7 items-center justify-center p-0" : "ml-auto hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex",
               )}
             >
               <RiEqualizer2Line className="size-4" aria-hidden="true" />
-              View
+              {icon ? null : "View"}
             </Button>
           </PopoverTrigger>
           <PopoverContent

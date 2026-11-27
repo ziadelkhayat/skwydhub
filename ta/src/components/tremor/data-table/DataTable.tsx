@@ -160,7 +160,6 @@ export function DataTable<T>({
             </Button>
           )}
           {/* View (column options): not on the Catalog and Inventory pages */}
-          {!hideView && pathname === "/orders" && <ViewOptions table={table} />}
           {actions}
         </div>
       </div>
@@ -176,6 +175,8 @@ export function DataTable<T>({
                     {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                   </TableHeaderCell>
                 ))}
+                {/* View (column options): an icon at the end of the column titles, only on Orders */}
+                {!hideView && pathname === "/orders" && <TableHeaderCell className="sticky top-0 right-0 z-20 w-10 py-1 text-end"><ViewOptions table={table} icon /></TableHeaderCell>}
               </TableRow>
             ))}
           </TableHead>
