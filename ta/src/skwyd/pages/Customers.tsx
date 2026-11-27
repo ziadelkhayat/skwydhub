@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { FilterIcon, PlusIcon } from "@/icons";
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
-import { ChoiceButton } from "../ui/Choice";
+import { MultiField } from "@/components/tremor/data-table/FilterSelect";
 import { sb } from "@/lib/supabase";
 import { fmtDate, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
@@ -33,8 +33,7 @@ function CustFilters({ open, F, onApply, onClose }: { open: boolean; F: Record<s
   const [d, setD] = useState<Record<string, string>>({ ...F });
   useEffect(() => { if (open) setD({ ...F }); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: string, v: string) => setD(x => { const n = { ...x }; if (v) n[k] = v; else delete n[k]; return n; });
-  const yn = (k: string) => <div key={k} className="space-y-2"><p className="text-sm font-medium text-gray-900 dark:text-gray-50">{CF_LBL[k]}</p>
-    <div className="flex flex-wrap gap-1.5">{Object.entries(YN).map(([v, t]) => <ChoiceButton key={v} on={d[k] === v} onClick={() => set(k, d[k] === v ? "" : v)} className="min-h-8 py-1 text-sm">{t}</ChoiceButton>)}</div></div>;
+  const yn = (k: string) => <MultiField key={k} label={CF_LBL[k]} value={d[k] || ""} onChange={v => set(k, v)} options={Object.entries(YN).map(([value, label]) => ({ value, label }))} />;
   const txt = (k: string, ph?: string) => <Field key={k}><FieldLabel>{CF_LBL[k]}</FieldLabel><Input placeholder={ph || ""} value={d[k] || ""} onChange={e => set(k, e.target.value)} /></Field>;
   const H = ({ t }: { t: string }) => <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t}</h3>;
   return (
@@ -43,7 +42,7 @@ function CustFilters({ open, F, onApply, onClose }: { open: boolean; F: Record<s
         <DrawerHeader><DrawerTitle>Filters</DrawerTitle></DrawerHeader>
         <DrawerBody className="-mx-6 space-y-7 overflow-y-auto px-6">
           <section className="space-y-3"><H t="Find" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{txt("name")}{txt("phone", "e.g. 70123456")}{txt("email")}{txt("tag", "e.g. VIP")}</div></section>
-          <section className="space-y-4"><H t="Customer" />{yn("orders")}{yn("black")}{yn("loyalty")}{yn("house")}</section>
+          <section className="space-y-3"><H t="Customer" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{yn("orders")}{yn("black")}{yn("loyalty")}{yn("house")}</div></section>
         </DrawerBody>
         <DrawerFooter className="-mx-6 -mb-2 gap-2 border-t border-gray-200 px-6 pt-4 dark:border-gray-800">
           <Button variant="ghost" className="sm:me-auto" onClick={() => setD(x => (x.updated ? { updated: x.updated } : {}) as Record<string, string>)}>Reset all</Button>
@@ -60,11 +59,11 @@ export default function CustomersPage() {
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState(""), [tick, setTick] = useState(0);
   const [edit, setEdit] = useState<any>(undefined);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
-  const chips = Object.entries(F).filter(([k, v]) => k !== "updated" && String(v || "").trim()).map(([k, v]) => ({ k, l: CF_LBL[k] || k, v: YN[v] || v }));
+  const chips = Object.entries(F).filter(([k, v]) => k !== "updated" && String(v || "").trim()).map(([k, v]) => ({ k, l: CF_LBL[k] || k, v: v.split(",").map(x => YN[x] || x).join(", ") }));
   const nF = chips.length;
   useEffect(() => { let off = false; setLoading(true);
     const t = setTimeout(async () => {
-      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER, p_f: F });
+      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER, p_f: Object.fromEntries(Object.entries(F).filter(([k, v]) => !(["orders", "black", "loyalty", "house"].includes(k) && v.includes(","))) ) });
       if (off) return; setLoading(false);
       if (error) setErr(error.message); else { setErr(""); setRows((data as any)?.rows || []); setCount((data as any)?.count || 0); } }, q ? 250 : 0);
     return () => { off = true; clearTimeout(t); }; }, [tab, q, page, tick, F]);
@@ -93,7 +92,7 @@ export default function CustomersPage() {
         <DataTable<any>
           data={rows} columns={cols} getRowId={c => c.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
-          searchPlaceholder="Search name or phone..."
+          searchPlaceholder={false}
           toolbar={<>
             <div className="w-44"><DateInput placeholder="Updated after" value={F.updated || ""} onChange={v => { setF(f => { const n = { ...f }; if (v) n.updated = v; else delete n.updated; return n; }); setPage(1); }} /></div>
             <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>

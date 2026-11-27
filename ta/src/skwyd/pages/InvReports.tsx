@@ -44,7 +44,7 @@ export function InvLevelsPage() {
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const { locs } = locsOf(s, brand), loc = locs.some(([id]) => id === loc0) ? loc0 : locs[0]?.[0] || "", uc = unitCost(s.inv_items), qq = q.trim().toLowerCase();
   const catNames = (() => { const m = s.inv_categories.filter(live).map(c => c.name); s.inv_items.forEach(i => { if (i.category && !m.includes(i.category)) m.push(i.category); }); return m.sort((a, b) => a.localeCompare(b)); })();
-  const rows = s.inv_items.filter(live).filter(i => (!cat || i.category === cat) && (!qq || (i.name + " " + (i.sku || "") + " " + (i.barcode || "")).toLowerCase().includes(qq)))
+  const rows = s.inv_items.filter(live).filter(i => inSel(cat, i.category) && (!qq || (i.name + " " + (i.sku || "") + " " + (i.barcode || "")).toLowerCase().includes(qq)))
     .sort((a, b) => (a.sku || "").localeCompare(b.sku || "", undefined, { numeric: true }) || a.name.localeCompare(b.name))
     .map(it => { const qn = loc ? stock?.[loc]?.[it.id] : undefined, cost = +uc(it) || 0, min = +it.minLevel || 0, st = qn === undefined ? "none" : qn <= 0 ? "out" : min > 0 && qn < min ? "low" : "ok"; return { it, qn, cost, value: (+(qn ?? 0) || 0) * cost, st }; })
     .filter(r => low === "all" || r.st === "low" || r.st === "out");
@@ -58,7 +58,7 @@ export function InvLevelsPage() {
           <SegTabs value={low} onChange={setLow} items={[["all", "All"], ["low", "Low Level"]]} />
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><BrandSel s={s} v={brand} set={setBrand} />
             <FilterSelect title="Store" value={loc} onChange={v => setLoc(v)} required options={locs.map(([id, n]) => ({ value: String(id), label: String(n) }))} />
-            <FilterSelect title="Category" value={cat} onChange={v => setCat(v)} all="All categories" options={catNames.map(n => ({ value: String(n), label: String(n) }))} />
+            <FilterSelect multiple title="Category" value={cat} onChange={v => setCat(v)} all="All categories" options={catNames.map(n => ({ value: String(n), label: String(n) }))} />
             <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} /></div>
         </div>
         <div className="relative overflow-x-auto">
@@ -84,7 +84,7 @@ export function InvHistoryPage() {
     return () => { off = true; }; }, [from, to, loc, item]);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const { locs, name, has } = locsOf(s, brand), itemOf = (id: string) => s.inv_items.find(i => i.id === id);
-  const list = (rows || []).filter(r => (!type || moveType(r) === type) && has(r.branch_id));
+  const list = (rows || []).filter(r => inSel(type, moveType(r)) && has(r.branch_id));
   return (
     <>
       <Head title="Inventory History" back={() => nav("/inventory-reports")}>
@@ -95,7 +95,7 @@ export function InvHistoryPage() {
           <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { if (a) { setFrom(a); setTo(b || a); } }} /></div><BrandSel s={s} v={brand} set={x => { setBrand(x); setLoc(""); }} />
           <FilterSelect title="Location" value={loc} onChange={v => setLoc(v)} all="All locations" options={locs.map(([id, n]) => ({ value: String(id), label: String(n) }))} />
           <SelectNative aria-label="Item" className={SEL + " sm:w-48"} value={item} onChange={e => setItem(e.target.value)}><option value="">All items</option>{s.inv_items.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</SelectNative>
-          <FilterSelect title="Type" value={type} onChange={v => setType(v)} all="All types" options={["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => ({ value: String(t), label: String(t) }))} />
+          <FilterSelect multiple title="Type" value={type} onChange={v => setType(v)} all="All types" options={["Sale", "Return", "Waste", "Purchase", "Transfer", "Production", "Adjustment", "Count"].map(t => ({ value: String(t), label: String(t) }))} />
         </div>
         <div className="relative overflow-x-auto">
           {err ? <EmptyState text={err} /> : !rows ? <EmptyState text="Loading…" /> : !list.length ? <EmptyState text="No stock movements in these dates." />

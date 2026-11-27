@@ -1,4 +1,4 @@
-import { FilterSelect } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, inSel } from "@/components/tremor/data-table/FilterSelect";
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from "@/components/tremor/Table";
 import { SelectNative } from "@/components/tremor/SelectNative";
 // Employee Management → Time Clock and Requests: same data (settings "timeclock", table staff_requests), tabs, filters, rules and actions
@@ -47,7 +47,7 @@ export function TimeClockPage() {
     try { await save({ open: op, log: [...log, { userId: o.userId, name: u?.name || o.name, branchId: o.branchId, deviceId: o.deviceId, in: o.at, out: new Date().toISOString(), editedBy: who(staff) }].slice(-2000) }); toast("Clocked out"); }
     catch { toast("Couldn't clock out. Check your connection.", "error"); }
   };
-  const rows = log.map((x, i) => ({ ...x, i })).filter(x => x && x.in && (() => { const d = dayOf(x.in); return d >= from && d <= to; })() && inStore(branch, x.branchId) && inBrand(s.branches, x.branchId, brand) && (!emp || x.userId === emp)).sort((a, b) => String(b.in).localeCompare(String(a.in)));
+  const rows = log.map((x, i) => ({ ...x, i })).filter(x => x && x.in && (() => { const d = dayOf(x.in); return d >= from && d <= to; })() && inStore(branch, x.branchId) && inBrand(s.branches, x.branchId, brand) && inSel(emp, x.userId)).sort((a, b) => String(b.in).localeCompare(String(a.in)));
   // totals per employee: hours, overtime over 8 h a day, estimated pay for hourly / daily rates
   const tot: Record<string, { hrs: number; days: Record<string, number>; late: number }> = {};
   rows.forEach(x => { const t = tot[x.userId] ||= { hrs: 0, days: {}, late: 0 }; if (x.late) t.late++; const h = tcHrs(x); t.hrs += h; const d = dayOf(x.in); t.days[d] = (t.days[d] || 0) + h; });
@@ -58,7 +58,7 @@ export function TimeClockPage() {
   const used: Record<string, number> = {}, otOf = new Map<any, number>();
   rows.slice().sort((a, b) => String(a.in).localeCompare(String(b.in))).forEach(x => { const k = x.userId + "|" + dayOf(x.in), h = tcHrs(x), b0 = used[k] || 0; used[k] = b0 + h; otOf.set(x, Math.max(0, b0 + h - 8) - Math.max(0, b0 - 8)); });
   const leave: { at: string; r: Row; day: string }[] = [];
-  s.work_requests.filter(r => !r.deleted && r.status === "approved" && r.kind === "time_off" && (r.leaveType === "annual" || r.leaveType === "sick") && (!emp || r.employeeId === emp)
+  s.work_requests.filter(r => !r.deleted && r.status === "approved" && r.kind === "time_off" && (r.leaveType === "annual" || r.leaveType === "sick") && inSel(emp, r.employeeId)
     && empStores(byId[r.employeeId], s.branches).some((b: string) => inStore(branch, b) && inBrand(s.branches, b, brand))).forEach(r => {
     for (let d = d10s(r.fromDay); d <= d10s(r.toDay || r.fromDay); d = addDays(d, 1)) if (d >= from && d <= to) leave.push({ at: d + "T00:00:00", r, day: d }); });
   const items = [...rows.map(x => ({ at: x.in, x })), ...leave].sort((a, b) => String(b.at).localeCompare(String(a.at)));
@@ -75,7 +75,7 @@ export function TimeClockPage() {
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <StoreFilter s={s} brand={brand} setBrand={setBrand} branch={branch} setBranch={setBranch} />
             {tab === "sheet" && <>
-              <FilterSelect title="Employee" value={emp} onChange={v => setEmp(v)} all="All Employees" options={emps.map(u => ({ value: String(u.id), label: String(u.name) }))} />
+              <FilterSelect multiple title="Employee" value={emp} onChange={v => setEmp(v)} all="All Employees" options={emps.map(u => ({ value: String(u.id), label: String(u.name) }))} />
               <div className="sm:w-60"><RangeInput from={from} to={to} onChange={(a, b) => { setFrom(a || monOf(today())); setTo(b || today()); }} /></div>
               <Button variant="outline" onClick={exportCsv}><DownloadIcon className="size-5" />Export CSV</Button></>}
           </div>

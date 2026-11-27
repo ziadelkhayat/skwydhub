@@ -1,12 +1,11 @@
 import { RiDownloadLine } from "@remixicon/react";
-import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
+import { FilterSelect, MultiField, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { FilterIcon } from "@/icons";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
-import { ChoiceButton } from "../ui/Choice";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RangeInput } from "../ui/DateInput";
@@ -41,14 +40,15 @@ function applyF(q: any, F: Record<string, string>) {
   const cl = (v?: string) => String(v || "").trim().replace(/[,()*%\\]/g, " ").trim();
   if (F.from) { const a = new Date(F.from + "T00:00:00"), b = new Date((F.to || F.from) + "T00:00:00"); b.setDate(b.getDate() + 1); q = q.gte("created_at", a.toISOString()).lt("created_at", b.toISOString()); }
   if (F.branch) q = q.in("branch_id", F.branch.split(",")); if (F.brand) q = q.in("brand_id", F.brand.split(","));
-  if (F.source) q = q.eq("source", F.source); if (F.channel) q = q.eq("channel", F.channel);
-  if (F.type) q = F.type === "pickup" ? q.in("type", ["pickup", "takeaway"]) : q.eq("type", F.type);
-  if (F.pay) q = q.ilike("payment->>method", F.pay);
+  const L = (k: string) => (F[k] ? F[k].split(",") : []);
+  if (F.source) q = q.in("source", L("source")); if (F.channel) q = q.in("channel", L("channel"));
+  if (F.type) q = q.in("type", L("type").flatMap(t => t === "pickup" ? ["pickup", "takeaway"] : [t]));
+  if (F.pay) q = q.or(L("pay").map(p => `payment->>method.ilike.${cl(p)}`).join(","));
   if (cl(F.ref)) q = q.ilike("ref", `%${cl(F.ref)}%`); if (/^\d+$/.test(cl(F.num))) q = q.eq("no", +cl(F.num));
   if (cl(F.cust)) q = q.or(`customer_name.ilike.*${cl(F.cust)}*,phone.ilike.*${cl(F.cust)}*`);
-  if (F.ahead) q = F.ahead === "yes" ? q.not("scheduled_at", "is", null) : q.is("scheduled_at", null);
+  if (L("ahead").length === 1) q = F.ahead === "yes" ? q.not("scheduled_at", "is", null) : q.is("scheduled_at", null);
   if (cl(F.rnotes)) q = q.ilike("receipt_notes", `%${cl(F.rnotes)}%`); if (cl(F.knotes)) q = q.ilike("notes", `%${cl(F.knotes)}%`);
-  if (F.device) q = q.eq("device_id", F.device); if (F.status && SGRP[F.status]) q = q.in("status", SGRP[F.status]);
+  if (F.device) q = q.in("device_id", L("device")); if (F.status) q = q.in("status", L("status").flatMap(x => SGRP[x] || []));
   return q;
 }
 function tabQ(q: any, tab: string) {
@@ -69,7 +69,7 @@ export default function OrdersPage() {
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
   const opts = useOrderOpts();
   const chips: { k: string; l: string; v: string; keys: string[] }[] = [
-    ...Object.entries(opts).filter(([k]) => F[k]).map(([k, [l, o]]) => ({ k, l, v: o.find(x => x[0] === F[k])?.[1] || F[k], keys: [k] })),
+    ...Object.entries(opts).filter(([k]) => F[k]).map(([k, [l, o]]) => ({ k, l, v: F[k].split(",").map(v => o.find(x => x[0] === v)?.[1] || v).join(", "), keys: [k] })),
     ...([["ref", "Reference"], ["num", "Number"], ["cust", "Customer"], ["rnotes", "Receipt notes"], ["knotes", "Kitchen notes"]] as const).filter(([k]) => String(F[k] || "").trim()).map(([k, l]) => ({ k, l, v: F[k], keys: [k] })),
   ];
   const nF = chips.length;
@@ -132,7 +132,7 @@ export default function OrdersPage() {
           columns={cols}
           getRowId={o => o.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
-          searchPlaceholder="Search reference, customer, phone..."
+          searchPlaceholder={false}
           toolbar={<>
             <FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
             <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
@@ -170,12 +170,12 @@ const SGRP_ST = SGRP;
 // the same filters, checked on orders already loaded (Call Center board)
 export function matchF(o: any, F: Record<string, string>) {
   const has = (v: any, t?: string) => !String(t || "").trim() || String(v || "").toLowerCase().includes(String(t).trim().toLowerCase());
-  if (F.source && o.source !== F.source) return false; if (F.channel && o.channel !== F.channel) return false;
-  if (F.type && !(F.type === "pickup" ? ["pickup", "takeaway"].includes(o.type) : o.type === F.type)) return false;
-  if (F.pay && String(o.payment?.method || "").toLowerCase() !== F.pay.toLowerCase()) return false;
-  if (F.ahead && (F.ahead === "yes") !== !!o.scheduledAt) return false;
-  if (F.device && o.deviceId !== F.device) return false;
-  if (F.status && SGRP_ST[F.status] && !SGRP_ST[F.status].includes(o.status)) return false;
+  const L = (k: string) => (F[k] ? F[k].split(",") : []), inL = (k: string, v: any) => !F[k] || L(k).includes(String(v ?? ""));
+  if (!inL("source", o.source) || !inL("channel", o.channel) || !inL("device", o.deviceId)) return false;
+  if (F.type && !L("type").includes(o.type === "takeaway" ? "pickup" : o.type)) return false;
+  if (F.pay && !L("pay").some(p => p.toLowerCase() === String(o.payment?.method || "").toLowerCase())) return false;
+  if (L("ahead").length === 1 && (F.ahead === "yes") !== !!o.scheduledAt) return false;
+  if (F.status && !L("status").some(x => (SGRP_ST[x] || []).includes(o.status))) return false;
   if (String(F.num || "").trim() && String(o.no) !== String(F.num).trim()) return false;
   return has(o.ref, F.ref) && (has(o.customerName, F.cust) || has(o.phone, F.cust)) && has(o.receiptNotes, F.rnotes) && has(o.notes, F.knotes);
 }
@@ -192,8 +192,7 @@ export function FilterPanel({ open, F, opts, onApply, onClose, noDate }: { open:
   useEffect(() => { if (open) setD({ ...F }); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: string, v: string) => setD(x => { const n = { ...x }; if (v) n[k] = v; else delete n[k]; return n; });
   const chooser = (k: string) => { const [l, o] = opts[k]; if (!o.length) return null;
-    return <div key={k} className="space-y-2"><p className="text-sm font-medium text-gray-900 dark:text-gray-50">{l}</p>
-      <div className="flex flex-wrap gap-1.5">{o.map(([v, t]) => <ChoiceButton key={v} on={d[k] === v} onClick={() => set(k, d[k] === v ? "" : v)} className="min-h-8 py-1 text-sm">{t}</ChoiceButton>)}</div></div>; };
+    return <MultiField key={k} label={l} value={d[k] || ""} onChange={v => set(k, v)} options={o.map(([value, label]) => ({ value, label }))} />; };
   const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel>{l}</FieldLabel><Input placeholder={ph || ""} value={d[k] || ""} onChange={e => set(k, e.target.value)} /></Field>;
   return (
     <Drawer open={open} onOpenChange={o => !o && onClose()}>
@@ -202,8 +201,8 @@ export function FilterPanel({ open, F, opts, onApply, onClose, noDate }: { open:
         <DrawerBody className="-mx-6 space-y-7 overflow-y-auto px-6">
           {!noDate && <section className="space-y-3"><H t="When" /><div><p className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">Business date</p><RangeInput from={d.from || ""} to={d.to || ""} onChange={(a, b) => setD(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; })} /></div></section>}
           <section className="space-y-3"><H t="Device" />{chooser("device")}</section>
-          <section className="space-y-4"><H t="Order" />{chooser("status")}{chooser("type")}{chooser("ahead")}</section>
-          <section className="space-y-4"><H t="Source and payment" />{chooser("source")}{chooser("channel")}{chooser("pay")}</section>
+          <section className="space-y-3"><H t="Order" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{chooser("status")}{chooser("type")}{chooser("ahead")}</div></section>
+          <section className="space-y-3"><H t="Source and payment" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{chooser("source")}{chooser("channel")}{chooser("pay")}</div></section>
           <section className="space-y-3"><H t="Find" />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{txt("ref", "Reference", "e.g. 100045")}{txt("num", "Number", "Order number")}{txt("cust", "Customer", "Name or phone")}{txt("rnotes", "Receipt notes")}{txt("knotes", "Kitchen notes")}</div></section>
         </DrawerBody>
