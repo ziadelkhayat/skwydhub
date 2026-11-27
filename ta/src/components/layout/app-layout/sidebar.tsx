@@ -55,7 +55,7 @@ export function AppSidebar() {
       {/* sidebar (lg+) */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col">
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto bg-(--portal-canvas) p-4">
-          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo markClass="h-9 w-8" wordClass="h-10 w-auto" /></Link>
+          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo stacked markClass="h-12 w-10" wordClass="h-9 w-auto" /></Link>
           <NavList />
         </aside>
       </div>
@@ -72,7 +72,7 @@ export function AppSidebar() {
               <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/30 data-[state=open]:animate-dialogOverlayShow" />
               <DialogPrimitive.Content aria-describedby={undefined} onOpenAutoFocus={e => e.preventDefault()} className="fixed inset-y-2 right-2 z-[101] flex w-[min(20rem,calc(100vw-1rem))] flex-col overflow-y-auto rounded-md border border-gray-200 bg-white p-4 shadow-lg data-[state=open]:animate-drawerSlideLeftAndFade dark:border-gray-900 dark:bg-gray-950">
                 <div className="mb-4 flex items-center justify-between gap-2">
-                  <DialogPrimitive.Title><span className="sr-only">Skwyd Hub</span><SkwydLogo markClass="h-8 w-7" wordClass="h-9 w-auto" /></DialogPrimitive.Title>
+                  <DialogPrimitive.Title><span className="sr-only">Skwyd Hub</span><SkwydLogo stacked markClass="h-11 w-9" wordClass="h-8 w-auto" /></DialogPrimitive.Title>
                   <DialogPrimitive.Close aria-label="Close menu" className={cx("rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900", focusRing)}><RiCloseLine className="size-5" /></DialogPrimitive.Close>
                 </div>
                 <NavList onGo={() => setMobile(false)} />
