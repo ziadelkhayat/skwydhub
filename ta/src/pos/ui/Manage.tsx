@@ -18,6 +18,7 @@ import { appSet, printers, printJob, type Printer } from "../lib/print";
 import { useStore } from "../lib/store";
 import { Dots, Keypad } from "./Keypad";
 import { Sheet, Stepper } from "./Pickers";
+import { Main, Panel, Seg } from "./Touch";
 
 // a manager whose role allows this, or an owner/admin, types their PIN
 export function Approve({ title, perm, S, onDone }: { title: string; perm: string; S: any; onDone: (u: Row | null) => void }) {
@@ -40,7 +41,7 @@ export function Approve({ title, perm, S, onDone }: { title: string; perm: strin
 
 // Void an open order (or some of its items) or return a done one: the reason, where the food goes, then a manager's PIN.
 // A return is a new refund ticket today, so an ended day never changes. Needs the connection (stock is moved on the server).
-export function VoidReturnDialog({ x, o, onDone }: { x: Ctx; o: Row; onDone: (msg?: string) => void }) {
+export function VoidReturnDialog({ x, o, onDone, area }: { x: Ctx; o: Row; onDone: (msg?: string) => void; area?: { cartW: string } }) {
   const { S, write, sb, cashier, device, branch, online } = useStore();
   const kind: "void" | "return" = o.status === "closed" ? "return" : "void", a = appSet(S, branch?.brandId), reasons = vrReasons(a);
   const max: number[] = (o.items || []).map((i: any, ix: number) => (kind === "return" ? retLeft(o, ix) : +i.qty));
@@ -79,26 +80,29 @@ export function VoidReturnDialog({ x, o, onDone }: { x: Ctx; o: Row; onDone: (ms
     onDone(kind === "void" ? `Voided · approved by ${ok.name}` : `Refund ticket created · ${money(S, refundOf(o, picked))} · approved by ${ok.name}`);
   };
   if (appr) return <Approve title={kind === "void" ? "Approve void" : "Approve return"} perm={kind === "void" ? "pos_void" : "pos_return"} S={S} onDone={u => (u ? void save(u) : setAppr(false))} />;
-  return (
-    <Sheet title={(kind === "void" ? "Void " : "Return ") + (mode === "items" ? "items" : "order")} width={660} onClose={() => onDone()} footer={<>
-      <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
-      <Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Button></>}>
-      <div className="space-y-4">
-        <Tabs value={mode} onValueChange={v => setMode(v as any)}><TabsList variant="solid" className="w-full"><TabsTrigger value="all" className="flex-1">Whole order</TabsTrigger><TabsTrigger value="items" className="flex-1">Choose items</TabsTrigger></TabsList></Tabs>
+  const title = (kind === "void" ? "Void " : "Return ") + (mode === "items" ? "items" : "order");
+  const body = (
+    <>
+      <div className="space-y-5 text-[16px]">
+        {err && area ? <p className="rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
+        <Seg value={mode} onChange={setMode} items={[["all", "Whole order"], ["items", "Choose items"]]} />
         {mode === "all" ? <p className="text-sm text-gray-700 dark:text-gray-300">{kind === "void" ? "The whole order will be voided and removed from sales." : `The whole order will be returned and ${money(S, refundOf(o, max))} refunded.`}</p> :
           <div><Table><TableBody>{(o.items || []).map((i: any, ix: number) => (
             <TableRow key={ix}><TableCell><p className="font-medium text-gray-900 dark:text-gray-50">{i.name}</p>{i.mods ? <p className="text-xs">{i.mods}</p> : null}</TableCell>
               <TableCell className="text-right"><div className="inline-flex"><Stepper n={qs[ix]} lessOff={!qs[ix]} onLess={() => setQs(q => q.map((v, j) => (j === ix ? Math.max(0, v - 1) : v)))} onMore={() => setQs(q => q.map((v, j) => (j === ix ? Math.min(max[ix], v + 1) : v)))} /></div></TableCell></TableRow>))}</TableBody></Table>
             {kind === "return" ? <div className="flex justify-between pt-3"><span className="font-medium text-gray-900 dark:text-gray-50">Refund</span><span className="font-bold text-gray-900 dark:text-gray-50">{money(S, refundOf(o, qs))}</span></div> : null}</div>}
         <div className="space-y-2"><Label>Reason{a.reasonRequired !== false ? " *" : ""}</Label>
-          <RadioCardGroup value={reason} onValueChange={setReason} className="grid-cols-3">{[...reasons, "_other"].map(r => <RadioCardItem key={r} value={r} className="py-2.5 text-sm font-medium">{r === "_other" ? "Other…" : r}</RadioCardItem>)}</RadioCardGroup>
+          <RadioCardGroup value={reason} onValueChange={setReason} className="grid-cols-3">{[...reasons, "_other"].map(r => <RadioCardItem key={r} value={r} className="py-4 text-[16px] font-medium">{r === "_other" ? "Other…" : r}</RadioCardItem>)}</RadioCardGroup>
           {reason === "_other" ? <Input autoFocus value={other} onChange={e => setOther(e.target.value)} placeholder="Write the reason" aria-label="Reason" /> : null}
         </div>
         {a.stockAction === "ask" || !a.stockAction ? <RadioCardGroup value={stock} onValueChange={v => setStock(v as any)} className="grid-cols-2">
-          <RadioCardItem value="stock" className="py-2.5 text-sm font-medium">Return to stock</RadioCardItem><RadioCardItem value="waste" className="py-2.5 text-sm font-medium">Waste</RadioCardItem></RadioCardGroup>
+          <RadioCardItem value="stock" className="py-4 text-[16px] font-medium">Return to stock</RadioCardItem><RadioCardItem value="waste" className="py-4 text-[16px] font-medium">Waste</RadioCardItem></RadioCardGroup>
           : <p className="text-sm text-gray-500">Items go {a.stockAction === "waste" ? "to waste" : "back to stock"}.</p>}
       </div>
-    </Sheet>);
+    </>);
+  return area
+    ? <Panel area={area} title={title} sub={kind === "void" ? "Pick what to void and why" : "Pick what to return and why"} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
+    : <Sheet title={title} width={660} onClose={() => onDone()} footer={<><span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Button></>}>{body}</Sheet>;
 }
 
 // Functions → Reports: this shift, today on this register, or today at the whole store. Shown like an 80 mm receipt, and printed on the receipt printer.

@@ -89,7 +89,10 @@ export function PDBoard({ x, onOpen, onClose, onNew, onDrivers }: { x: Ctx; onOp
 
 const isoD = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const toD = (s: string) => new Date(s + "T12:00:00");
-export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void }) {
+// a full screen, or the menu's place on the register when area is given
+const Box = ({ area, children }: { area?: { cartW: string }; children: ReactNode }) => area ? <div className="fixed inset-y-0 right-0 z-20 flex flex-col bg-gray-50 portal:bg-[var(--portal-canvas)] dark:bg-gray-950 dark:portal:bg-gray-950" style={{ left: area.cartW }}>{children}</div> : <Full>{children}</Full>;
+// area: opens in the menu's place on the register (the cart stays on the left), with a Back button
+export function OrdersList({ x, onOpen, onClose, area }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void; area?: { cartW: string } }) {
   const mineAll = x.S.orders.filter(o => o.branchId === x.device.branchId && !o.deleted), todayD = bizDate(x);
   // every order by default; the date range picker picks one business day or a from–to range. The tablet keeps the last week, older orders come from the server 200 at a time
   const { sb } = useStore();
@@ -112,8 +115,8 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
   const [sel, setSel] = useState<string | null>(null), [srch, setSrch] = useState(false), cur = list.find(o => o.id === sel) || list[0] || null;
   const n = (k: string) => all.filter(TABS.find(z => z[0] === k)![2]).length;
   const DOT: Record<string, string> = { default: "bg-blue-600", success: "bg-emerald-500", error: "bg-red-500", warning: "bg-amber-500", neutral: "bg-gray-400" };
-  return <Full><Head title="Orders" onClose={onClose}>
-      <DateRangePicker className="w-72 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:text-[16px]" placeholder="All dates" toDate={new Date()} value={rng ? { from: toD(rng.from), to: toD(rng.to) } : undefined}
+  return <Box area={area}><Head title="Orders" back={area ? "Back" : "Register"} onClose={onClose}>
+      <DateRangePicker className="w-64 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:text-[16px]" placeholder="All dates" toDate={new Date()} value={rng ? { from: toD(rng.from), to: toD(rng.to) } : undefined}
         onChange={r => setRng(r?.from ? { from: isoD(r.from), to: isoD(r.to || r.from) } : null)} />
       {rng ? <Button variant="ghost" onClick={() => setRng(null)}>All dates</Button> : null}</Head>
     {/* the status buttons, or the search in their place */}
@@ -125,7 +128,7 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
     </div>
     <div className="flex min-h-0 flex-1 gap-4 p-4">
       {/* the orders as big rows; a tap shows the order on the right */}
-      <div className="w-[46%] shrink-0 space-y-2.5 overflow-y-auto pb-2">
+      <div className={cx("shrink-0 space-y-2.5 overflow-y-auto pb-2", area ? "w-[52%]" : "w-[46%]")}>
         {list.length ? list.map(y => { const st = stOf(y), on = cur?.id === y.id;
           return <button key={y.id} type="button" onClick={() => setSel(y.id)} aria-label={"Order " + ordRef(y)} aria-pressed={on}
             className={cx("flex min-h-[84px] w-full items-center gap-4 rounded-2xl px-5 py-3 text-left shadow-[0_1px_2px_rgb(16_24_40/0.05),0_4px_12px_rgb(16_24_40/0.05)]", on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10" : "bg-white dark:bg-gray-900")}>
@@ -152,5 +155,5 @@ export function OrdersList({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =>
             <Button className="h-[72px] w-full rounded-2xl text-xl" onClick={() => onOpen(cur)}>Open order<span className="ms-2 text-base font-normal opacity-80">pay · print · void · return</span></Button>
           </>; })() : <p className="m-auto text-gray-500">Pick an order</p>}
       </section>
-    </div></Full>;
+    </div></Box>;
 }

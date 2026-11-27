@@ -21,7 +21,7 @@ import { PrintersDialog, ReportsDialog, VoidReturnDialog } from "./Manage";
 import { notify } from "./notify";
 import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDialog, type Paid } from "./Pay";
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
-import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, QUICK_NOTES, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
+import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
 import { TablesDialog, tblLbl } from "./Tables";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
@@ -194,7 +194,7 @@ export function Register() {
       if (a === "Return" && live_eo.status !== "closed") return say("Only done orders can be returned");
       if (live_eo.status === "closed" && fullyBack(live_eo)) return say("Nothing left to return on this order");
       if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
-      return setDlg(<VoidReturnDialog x={x} o={live_eo} onDone={msg => { setDlg(null); if (msg) { say(msg); reset(); } }} />); }
+      return setDlg(<VoidReturnDialog x={x} o={live_eo} area={area} onDone={msg => { setDlg(null); if (msg) { say(msg); reset(); } }} />); }
     if (ro && a !== "Print" && a !== "Tags") return say("This order is done");
     if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); return setPop(a); }
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges."); return setPop(a); }
@@ -228,7 +228,7 @@ export function Register() {
     const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={fnPage} />); };
     setDlg(<FnPage title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
       { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }] },
-      { title: "Orders", items: [{ icon: "list", label: "Orders", onClick: () => setDlg(<OrdersList x={x} onOpen={openOrder} onClose={fnPage} />) }, { icon: "ret", label: "Orders on hold", onClick: async () => { close(); if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); setPop("Retrieve"); } }] },
+      { title: "Orders", items: [{ icon: "list", label: "Orders", onClick: () => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />) }, { icon: "ret", label: "Orders on hold", onClick: async () => { close(); if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); setPop("Retrieve"); } }] },
       { title: "Device", items: [{ icon: "chart", label: "Reports", onClick: go(reports) }, { icon: "device", label: "Printers & Devices", onClick: go(printers) },
         { icon: sound ? "sound" : "mute", label: sound ? "Sound On" : "Sound Off", onClick: () => { const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); close(); say(v ? "Sound on" : "Sound off"); } },
         { icon: "sync", label: "Sync Now", onClick: () => { reload(); close(); say(online ? "Syncing…" : "No connection"); } }] },
@@ -295,7 +295,6 @@ export function Register() {
   const c = live_eo ? { name: live_eo.customerName, phone: live_eo.phone, addr: live_eo.address } : { name: cust.name, phone: cust.phone, addr: otype === "delivery" ? addrJoin(cust.addr) : "" };
   const STL: Record<string, [string, "success" | "error" | "warning"]> = { closed: ["Done", "success"], void: ["Void", "error"], returned: ["Returned", "error"], refund: ["Returned", "error"], declined: ["Declined", "error"], pending: ["Waiting for you", "warning"] };
   const tg = (tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean) as string[];
-  const quickNotes = lines(appSetOf().quickNotes, QUICK_NOTES.join("\n"));
 
   return (
     <div className="flex h-full bg-gray-200 portal:bg-[var(--portal-canvas)] dark:bg-gray-900 dark:portal:bg-gray-900" onPointerDownCapture={() => { lastTouch.current = Date.now(); }}>
@@ -306,10 +305,10 @@ export function Register() {
           <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="size-5 text-blue-600 dark:text-blue-500" />
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
             <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>
-            {otype === "dinein" && table ? <span className="flex items-center gap-1">
-              <button type="button" disabled={!!live_eo} onClick={askTable} className="-my-2 rounded-lg px-2 py-2 font-semibold text-blue-600 dark:text-blue-500" aria-label="Change table">· {tblLbl(table)}</button>
-              {guests ? <span className="text-sm text-gray-500">{guests} guests</span> : null}
-              {!live_eo ? <Button variant="ghost" className="-my-2 size-10 p-0" aria-label="Remove table" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-4 text-red-600" /></Button> : null}</span> : null}
+            {/* the table: tap to change it, ✕ to take the order off the table */}
+            {otype === "dinein" && table ? <span className="-my-1.5 flex items-center rounded-xl bg-blue-50 dark:bg-blue-500/10">
+              <button type="button" disabled={!!live_eo} onClick={askTable} className="h-11 rounded-s-xl ps-3 pe-1 font-semibold text-blue-700 dark:text-blue-400" aria-label="Change table">{tblLbl(table)}{guests ? <span className="ms-1.5 text-sm font-normal text-gray-500">{guests} guests</span> : null}</button>
+              {!ro ? <button type="button" aria-label="Remove table" className="flex size-11 items-center justify-center rounded-e-xl text-red-600 active:bg-red-50" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-5" /></button> : <span className="w-3" />}</span> : null}
           </div>
           {!online || pending ? <Badge variant="warning">{!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`}</Badge> : null}
           <div className="text-right"><p className="text-[11px] text-gray-500">Order</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo?.no || "New"}</p></div>
@@ -402,8 +401,8 @@ export function Register() {
         </div>
         <nav className="mb-4 flex shrink-0 gap-1.5 rounded-[18px] border border-gray-200 bg-white p-1.5 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
           <NavB icon="grid" label="Functions" onClick={fnPage} />
-          <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
-          <NavB icon="table" label="Tables" onClick={() => setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
+          <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
+          <NavB icon="table" label="Tables" onClick={() => setDlg(<TablesDialog x={x} area={area} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
             const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />)} />
           <NavB icon="scooter" label="Pickup & Delivery" onClick={pdBoard} n={pdN} />
           <NavB icon="plus" label="New" onClick={reset} />
@@ -414,7 +413,7 @@ export function Register() {
           {...(pop === "Hold" ? { onHold: (nm: string) => hold(nm), defName: table ? tblLbl(table) : cust.name || "" } : {})} />
         : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
         : pop === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} area={area} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
-        : pop === "Notes" ? <NotesPop init={notes} quick={quickNotes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
+        : pop === "Notes" ? <NotesPop init={notes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
       {dlg}
     </div>
   );

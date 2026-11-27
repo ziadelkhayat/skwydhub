@@ -4,7 +4,7 @@
 // Chip: a big choice button (categories, filters, quick notes). Pick: a big tile that toggles, with a tick when on.
 import { Button } from "@/components/tremor/Button";
 import { cx } from "@/components/tremor/utils";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 
 export function Panel({ area, title, sub, onClose, action, children, className }: { area: { cartW: string }; title: string; sub?: string; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string }) {
@@ -54,3 +54,20 @@ export const Seg = <T extends string>({ value, onChange, items }: { value: T; on
 
 /** the section label inside a window */
 export const Label = ({ children }: { children: ReactNode }) => <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{children}</p>;
+
+/** an on-screen keyboard for notes (the tablet's own keyboard stays closed): letters, numbers, Shift, space, delete */
+export function Keyboard({ onKey }: { onKey: (k: string) => void }) {
+  const [up, setUp] = useState(false);
+  const rows = ["1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm"];
+  const K = ({ k, label, wide, dark }: { k: string; label?: ReactNode; wide?: string; dark?: boolean }) =>
+    <button type="button" onPointerDown={e => e.preventDefault()} onClick={() => { onKey(k); if (up && k.length === 1) setUp(false); }} aria-label={k === "\b" ? "Delete" : k === " " ? "Space" : k === "\n" ? "New line" : k}
+      className={cx("flex h-14 items-center justify-center rounded-xl text-[20px] font-medium", wide || "flex-1", dark ? "bg-gray-200 text-gray-800 active:bg-gray-300 dark:bg-gray-800 dark:text-gray-200" : "bg-white text-gray-900 shadow-[0_1px_0_rgb(16_24_40/0.15)] active:bg-blue-50 dark:bg-gray-900 dark:text-gray-50")}>{label ?? k}</button>;
+  return (
+    <div className="space-y-2 rounded-2xl bg-gray-100 p-2.5 dark:bg-gray-950">
+      {rows.map((r, i) => <div key={r} className={cx("flex gap-2", i === 2 && "px-6")}>
+        {i === 3 ? <button type="button" onClick={() => setUp(v => !v)} aria-pressed={up} aria-label="Shift" className={cx("flex h-14 w-20 items-center justify-center rounded-xl text-[20px]", up ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200")}>⇧</button> : null}
+        {r.split("").map(c => { const ch = up ? c.toUpperCase() : c; return <K key={c} k={ch} />; })}
+        {i === 3 ? <K k={"\b"} label={<Icon name="del" className="size-6" />} wide="w-20" dark /> : null}</div>)}
+      <div className="flex gap-2"><K k="," dark wide="w-20" /><K k="-" dark wide="w-20" /><K k=" " label="space" /><K k="." dark wide="w-20" /><K k={"\n"} label="return" dark wide="w-28" /></div>
+    </div>);
+}

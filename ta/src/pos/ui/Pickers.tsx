@@ -12,6 +12,7 @@ import { cx } from "@/components/tremor/utils";
 import { useState, type ReactNode } from "react";
 import { modRule, type ModData, type ModOpt } from "../lib/pos";
 import { Icon } from "./Icon";
+import { Panel } from "./Touch";
 
 /** a Tremor dialog that answers once */
 export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode }) {
@@ -87,23 +88,16 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
       </div>
     </section>));
   if (area) return (
-    // the options open in the menu's place; the cart stays in view but can't be changed while they're open
-    <>
-      <button type="button" aria-label="Close options" className="fixed inset-y-0 left-0 z-30 cursor-default" style={{ width: area.cartW }} onClick={() => onDone(null)} />
-      <div className="fixed inset-y-0 right-0 z-30 flex flex-col bg-gray-100 dark:bg-gray-900" style={{ left: area.cartW }}>
-        <div className="flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-3.5 dark:border-gray-800 dark:bg-gray-950">
-          <Button variant="secondary" aria-label="Close" className="size-14 shrink-0 rounded-[14px] p-0" onClick={() => onDone(null)}><Icon name="x" className="size-6" /></Button>
-          <div className="min-w-0 flex-1"><p className="truncate text-2xl font-semibold text-gray-900 dark:text-gray-50">{name}</p><p className="text-[15px] text-gray-500">{money(basePrice)}</p></div>
-          <Button className="h-14 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-5">{groups}</div>
-        {err ? <p className="px-5 pb-2 text-sm text-red-600 dark:text-red-500">{err}</p> : null}
-        <div className="flex items-center gap-3 border-t border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-gray-950">
-          <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1" />
-          <Stepper n={qty} big onLess={() => setQty(q => Math.max(1, q - 1))} onMore={() => setQty(q => Math.min(99, q + 1))} lessOff={qty <= 1} />
-        </div>
+    // the options open in the menu's place, in the same rounded window as Discount; the cart stays in view
+    <Panel area={area} title={name} sub={money(basePrice)} onClose={() => onDone(null)} className="flex flex-col p-0"
+      action={<Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button>}>
+      <div className="min-h-0 flex-1 overflow-y-auto p-5">{groups}</div>
+      {err ? <p className="px-5 pb-2 text-[15px] text-red-600 dark:text-red-500">{err}</p> : null}
+      <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3.5 dark:border-gray-800">
+        <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1" />
+        <Stepper n={qty} big onLess={() => setQty(q => Math.max(1, q - 1))} onMore={() => setQty(q => Math.min(99, q + 1))} lessOff={qty <= 1} />
       </div>
-    </>);
+    </Panel>);
   return (
     <Sheet title={name} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>

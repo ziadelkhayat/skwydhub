@@ -11,7 +11,7 @@ import type { Data } from "../lib/db";
 import { chargeList, dsCalc, dsHere, type Ctx, type Disc, type Line } from "../lib/pos";
 import { Icon } from "./Icon";
 import { NumPad, Sheet } from "./Pickers";
-import { Chip, Label, Main, Panel, Pick, Seg } from "./Touch";
+import { Chip, Keyboard, Label, Main, Panel, Pick, Seg } from "./Touch";
 
 const typed = (k: string, s: string) => k === "c" ? "" : k === "b" ? s.slice(0, -1) : k === "." ? (s.includes(".") ? s : (s || "0") + ".") : s.length > 8 ? s : s === "0" ? k : s + k;
 // The windows of the register's top buttons open over the menu (the cart stays in view): big tiles, a big keypad, one main button at the top right.
@@ -74,20 +74,19 @@ export function ChargesPop({ x, cur, picked, open, area, onDone }: { x: Ctx; cur
     </Panel>);
 }
 
-// Notes: the kitchen note or the receipt note, typed or built from quick notes (Manage → Reasons → quick notes, or the defaults)
-export const QUICK_NOTES = ["No onions", "Extra spicy", "Not spicy", "No MSG", "Sauce on the side", "Extra sauce", "Cutlery", "No cutlery", "Takeaway bags", "Birthday", "Allergy: ask the cashier", "Rush"];
-export function NotesPop({ init, quick = QUICK_NOTES, area, onDone }: { init: { receipt: string; kitchen: string }; quick?: string[]; area: { cartW: string }; onDone: (v: { receipt: string; kitchen: string } | null) => void }) {
-  const [which, setWhich] = useState<"kitchen" | "receipt">("kitchen"), [n, setN] = useState(init);
-  const t = n[which], parts = t.split(" · ").map(z => z.trim()).filter(Boolean);
-  const toggle = (q: string) => setN(m => ({ ...m, [which]: (parts.includes(q) ? parts.filter(z => z !== q) : [...parts, q]).join(" · ") }));
+// Notes: the kitchen note or the receipt note, typed on the keyboard under it
+export function NotesPop({ init, area, onDone }: { init: { receipt: string; kitchen: string }; area: { cartW: string }; onDone: (v: { receipt: string; kitchen: string } | null) => void }) {
+  const [which, setWhich] = useState<"kitchen" | "receipt">("kitchen"), [n, setN] = useState(init), t = n[which];
+  const key = (k: string) => setN(m => ({ ...m, [which]: k === "\b" ? m[which].slice(0, -1) : (m[which] + k).slice(0, 300) }));
   return (
     <Panel area={area} title="Notes" sub={which === "kitchen" ? "Printed on the kitchen ticket" : "Printed on the customer's receipt"} onClose={() => onDone(null)}
-      action={<Main onClick={() => onDone({ kitchen: n.kitchen.trim(), receipt: n.receipt.trim() })}>Save</Main>} className="space-y-5">
+      action={<Main onClick={() => onDone({ kitchen: n.kitchen.trim(), receipt: n.receipt.trim() })}>Save</Main>} className="flex flex-col gap-4">
       <Seg value={which} onChange={setWhich} items={[["kitchen", "Kitchen note"], ["receipt", "Receipt note"]]} />
-      <Textarea value={t} onChange={e => setN(m => ({ ...m, [which]: e.target.value }))} placeholder="Tap quick notes below, or type" aria-label={which === "kitchen" ? "Kitchen note" : "Receipt note"} className="min-h-28 text-lg" />
-      <div><Label>Quick notes · tap to add or remove</Label>
-        <div className="flex flex-wrap gap-2.5">{quick.map(q => <Chip key={q} on={parts.includes(q)} onClick={() => toggle(q)}>{q}</Chip>)}</div></div>
-      {t ? <Main variant="secondary" onClick={() => setN(m => ({ ...m, [which]: "" }))}>Clear this note</Main> : null}
+      <div className="relative">
+        <Textarea value={t} inputMode="none" onChange={e => setN(m => ({ ...m, [which]: e.target.value }))} placeholder="Type the note" aria-label={which === "kitchen" ? "Kitchen note" : "Receipt note"} className="min-h-24 text-lg" />
+        {t ? <button type="button" onClick={() => setN(m => ({ ...m, [which]: "" }))} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}
+      </div>
+      <div className="mt-auto"><Keyboard onKey={key} /></div>
     </Panel>);
 }
 

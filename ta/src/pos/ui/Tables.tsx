@@ -9,10 +9,9 @@ import { useEffect, useState } from "react";
 import type { Row } from "../lib/db";
 import { money, orderFields, totals, type Ctx } from "../lib/pos";
 import { useStore } from "../lib/store";
-import { Full, Head } from "./Boards";
 import { useHold } from "./hold";
 import { Icon } from "./Icon";
-import { Chip } from "./Touch";
+import { Chip, Main, Panel } from "./Touch";
 
 export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()).filter(Boolean);   // merged tables are saved as "3+4"
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
@@ -21,7 +20,7 @@ export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return
 const AGE = [{ l: "Free", c: "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950", t: "text-emerald-600" }, { l: "Under 15 min", c: "border-emerald-400 portal:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10", t: "text-emerald-700 dark:text-emerald-400" },
   { l: "15 – 30 min", c: "border-amber-400 portal:border-amber-400 bg-amber-50 dark:bg-amber-500/10", t: "text-amber-700 dark:text-amber-400" }, { l: "30 min – 1 hour", c: "border-orange-500 portal:border-orange-500 bg-orange-50 dark:bg-orange-500/10", t: "text-orange-700 dark:text-orange-400" },
   { l: "Over 1 hour", c: "border-red-500 portal:border-red-500 bg-red-50 dark:bg-red-500/10", t: "text-red-700 dark:text-red-400" }], MERGED = { l: "Merged", c: "border-violet-500 portal:border-violet-500 bg-violet-50 dark:bg-violet-500/10", t: "text-violet-700 dark:text-violet-400" };
-export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void }) {
+export function TablesDialog({ x, onFree, onOpen, onClose, area }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void; area: { cartW: string } }) {
   const { write } = useStore(), [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);
   const press = useHold();
   const cfg = ((x.S.settings.find(s => s.id === "tables") || {}) as any)[x.device.branchId] || [];
@@ -57,8 +56,12 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
   const hold = (k: string) => { if (tm) return; if (orders(k).length) { setMsg(""); setTm({ mode: "move", from: k }); } };
   const shown = all.filter(t => !sec || (t.section || "") === sec);
   return (
-    <Full><Head title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} onClose={onClose}>
-      <span className="text-[15px] text-gray-500">{busyN} of {all.length} occupied</span></Head>
+    // opens in the menu's place like Discount: the cart stays on the left
+    <Panel area={area} onClose={onClose} className="flex flex-col p-0" title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another table` : "Pick the first table to merge")}
+      sub={`${busyN} of ${all.length} occupied`}
+      action={<>
+        <Main variant={tm?.mode === "move" ? "primary" : "secondary"} onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "move" ? null : { mode: "move" }); }}>{tm?.mode === "move" ? "Cancel" : "Change table"}</Main>
+        <Main variant={tm?.mode === "merge" ? "primary" : "secondary"} onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }}>{tm?.mode === "merge" ? "Cancel" : "Merge"}</Main></>}>
       {msg || confirm ? <Callout className="mx-4 mt-3 text-[16px]" variant={confirm ? "default" : "neutral"} title={confirm ? (tm!.mode === "move" ? `Move ${tblLbl(tm!.from)} to ${tblLbl(confirm)}?` : `Merge ${tblLbl(tm!.from)} into ${tblLbl(confirm)}?`) : msg}>
         {confirm ? <>{tm!.mode === "merge" ? <p>Its items move to {tblLbl(confirm)} and {tblLbl(tm!.from)} becomes free.</p> : null}
           <div className="mt-3 flex gap-2.5 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]"><Button variant="secondary" onClick={() => setConfirm(null)}>Cancel</Button><Button onClick={() => run(confirm)}>{tm!.mode === "move" ? "Move" : "Merge"}</Button></div></> : null}</Callout> : null}
@@ -66,7 +69,7 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
         {secs.length > 1 ? <div className="mb-4 flex gap-2.5 overflow-x-auto [scrollbar-width:none]">{["", ...secs].map(k => { const l = all.filter(t => !k || (t.section || "") === k);
           return <Chip key={k || "all"} on={sec === k} onClick={() => setSec(k)}>{`${k || "All"} ${l.filter(t => orders(t.name).length).length}/${l.length}`}</Chip>; })}</div> : null}
         {!all.length ? <p className="text-sm text-gray-500">No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</p> :
-          <div className="grid flex-1 grid-cols-6 content-start gap-3.5 overflow-y-auto pb-3">{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
+          <div className="grid flex-1 grid-cols-4 content-start gap-3.5 overflow-y-auto pb-3">{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
             const busy = os.length > 0, merged = busy && !own.length, on = tm?.from === t.name;
             const age = !busy ? AGE[0] : merged ? MERGED : AGE[m < 15 ? 1 : m < 30 ? 2 : m < 60 ? 3 : 4];
             return <Card key={t.name} asChild className={cx("flex h-[140px] select-none flex-col justify-between rounded-[18px] border-[2.5px] p-4 text-left", age.c, on && "ring-4 ring-blue-500")}>
@@ -80,11 +83,6 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
               </button></Card>; })}</div>}
         <div className="flex flex-wrap items-center gap-4 pb-3 pt-2">{[...AGE, MERGED].map(a => <span key={a.l} className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"><span className={cx("size-4 rounded border-2", a.c)} />{a.l}</span>)}
           <span className="text-sm text-gray-500">Hold an occupied table to move it.</span></div>
-        {/* the table actions, big at the bottom */}
-        <div className="flex gap-3">
-          <Button variant={tm?.mode === "move" ? "primary" : "secondary"} className="h-16 flex-1 gap-2 rounded-2xl text-[17px]" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "move" ? null : { mode: "move" }); }}><Icon name="ret" className="size-6" />{tm?.mode === "move" ? "Cancel move" : "Change table"}</Button>
-          <Button variant={tm?.mode === "merge" ? "primary" : "secondary"} className="h-16 flex-1 gap-2 rounded-2xl text-[17px]" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }}><Icon name="table" className="size-6" />{tm?.mode === "merge" ? "Cancel merge" : "Merge tables"}</Button>
-        </div>
       </div>
-    </Full>);
+    </Panel>);
 }
