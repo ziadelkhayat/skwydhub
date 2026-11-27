@@ -31,6 +31,8 @@ import { Checkbox } from "@/components/tremor/Checkbox";
 import { RiArrowDownSLine } from "@remixicon/react";
 import { SEL_LOOK } from "../ui/kit";
 import { FiltersButton, ListFilters, applyF, type FDef, type FVals } from "../ui/ListFilters";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/tremor/Dropdown";
+import { RiUploadCloud2Line } from "@remixicon/react";
 
 export type Opt = [string, string];
 export type S = Record<string, Row[]>;
@@ -40,7 +42,12 @@ export type CField = {
   opts?: (s: S) => Opt[]; auto?: (s: S) => any; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
 };
 export type CCol = { h: string; cell: (r: Row, s: S) => ReactNode; num?: boolean };
+/** Import / Export: each set is one CSV layout (e.g. items, items ingredients); import builds a plan of rows to add or change */
+export type IoOp = { name: string; col: string; id?: string; data: Record<string, any> };
+export type IoSet = { name: string; head: string[]; exp: (s: S) => unknown[][]; imp: (recs: Record<string, string>[], s: S) => { ops: IoOp[]; errs: string[] };
+  before?: (d: Record<string, any>, cache: Record<string, string>) => Promise<void> };
 export type CrudCfg = {
+  io?: IoSet[];   // Import / Export menu
   col: string; title: string; one: string; needs?: string[]; addLbl?: string;
   tabs: [string, string, (r: Row) => boolean][];
   sort?: (a: Row, b: Row) => number; search?: (r: Row, s: S) => string;
@@ -71,7 +78,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
   const [sorting, setSorting] = useState(false);
-  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false);
+  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false), [imp, setImp] = useState<IoSet | null>(null);
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
@@ -111,7 +118,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           toolbar={cfg.tabs.length > 1 || cfg.scope || cfg.filters ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
             {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
             {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}{cfg.filters && <FiltersButton F={F} onClick={() => setFOpen(true)} />}</> : undefined}
-          actions={<>{cfg.sortable && <Button variant="secondary" onClick={() => setSorting(true)} className="h-[30px] py-1">Sort</Button>}<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button></>}
+          actions={<>{cfg.io && s && <IoMenu sets={cfg.io} s={s} title={cfg.title} onImport={setImp} />}{cfg.sortable && <Button variant="secondary" onClick={() => setSorting(true)} className="h-[30px] py-1">Sort</Button>}<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button></>}
           onRowClick={open}
           rowActions={[
             { label: cfg.detail ? "Open" : "Edit", onSelect: open },
@@ -123,6 +130,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           pageSize={PER}
         />
       )}
+      {imp && s && <ImportDialog set={imp} s={s} onClose={() => setImp(null)} />}
       {cfg.filters && s && <ListFilters open={fOpen} defs={cfg.filters(s)} F={F} onApply={f => { setF(f); setFOpen(false); }} onClose={() => setFOpen(false)} />}
       {sorting && s && <SortDialog cfg={cfg} rows={s[cfg.col].filter(cfg.tabs[0][2]).sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))))} onClose={() => setSorting(false)} />}
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
@@ -247,6 +255,75 @@ function MultiDrop({ label, opts, cur, set, ph }: { label: ReactNode; opts: Opt[
         </div>
       </PopoverContent>
     </Popover>);
+}
+
+/** CSV text to rows (quotes, commas and new lines inside quotes) */
+function parseCsv(t: string): string[][] {
+  const out: string[][] = []; let row: string[] = [], cur = "", q = false; t = t.replace(/^\uFEFF/, "");
+  for (let i = 0; i < t.length; i++) { const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ",") { row.push(cur); cur = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && t[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(x => x.trim())) out.push(row); row = []; }
+    else cur += c; }
+  row.push(cur); if (row.some(x => x.trim())) out.push(row); return out;
+}
+
+function IoMenu({ sets, s, title, onImport }: { sets: IoSet[]; s: S; title: string; onImport: (x: IoSet) => void }) {
+  const cap = (x: string) => x[0].toUpperCase() + x.slice(1);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild><Button variant="secondary" className="h-[30px] py-1"><RiUploadCloud2Line className="size-4" aria-hidden="true" />Import / Export</Button></DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-56">
+        {sets.map(x => <DropdownMenuItem key={"i" + x.name} onSelect={() => onImport(x)}>Import {x.name}</DropdownMenuItem>)}
+        <DropdownMenuSeparator />
+        {sets.map(x => <DropdownMenuItem key={"e" + x.name} onSelect={() => downloadCsv(title === cap(x.name) ? title : cap(x.name), x.head, x.exp(s).map(r => r.map(v => v == null ? "" : String(v))))}>Export {x.name}</DropdownMenuItem>)}
+      </DropdownMenuContent>
+    </DropdownMenu>);
+}
+
+function ImportDialog({ set, s, onClose }: { set: IoSet; s: S; onClose: () => void }) {
+  const [plan, setPlan] = useState<{ ops: IoOp[]; errs: string[] } | null>(null), [busy, setBusy] = useState(false), [done, setDone] = useState(0), [file, setFile] = useState("");
+  async function pick(f?: File) {
+    if (!f) return; setFile(f.name);
+    const rows = parseCsv(await f.text()); if (rows.length < 2) return setPlan({ ops: [], errs: ["The file has no rows under the header."] });
+    const head = rows[0].map(h => h.trim().toLowerCase());
+    setPlan(set.imp(rows.slice(1).map(r => Object.fromEntries(head.map((h, j) => [h, String(r[j] ?? "").trim()]))), s));
+  }
+  async function run() {
+    if (!plan) return; setBusy(true); const cache: Record<string, string> = {}; let k = 0;
+    try {
+      for (const o of plan.ops) { const d = { ...o.data }; if (set.before) await set.before(d, cache);
+        if (o.id) await put(o.col, o.id, d); else await put(o.col, newId(o.col.slice(0, 3)), { ...d, deleted: false }); setDone(++k); }
+      toast(`${k} row${k === 1 ? "" : "s"} imported`); onClose();
+    } catch (e: any) { toast((e?.message || "Couldn't import") + ` (stopped after ${k} rows)`, "error"); } finally { setBusy(false); }
+  }
+  const nNew = plan?.ops.filter(o => !o.id).length || 0, nUpd = (plan?.ops.length || 0) - nNew;
+  return (
+    <Dialog open onOpenChange={o => !o && !busy && onClose()}>
+      <DialogContent className="w-full p-0 sm:max-w-xl">
+        <div className="p-6 sm:p-8">
+          <DialogHeader className="gap-1 sm:gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Import {set.name}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">A CSV file with these columns: {set.head.join(", ")}. Rows that match an existing one (by SKU) change it; the others are added.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-50 dark:hover:bg-gray-900">
+              <RiUploadCloud2Line className="size-4" aria-hidden="true" />{file || "Choose a CSV file"}
+              <input type="file" accept=".csv,text/csv" className="sr-only" onChange={e => pick(e.target.files?.[0])} /></label>
+            <Button type="button" variant="ghost" onClick={() => downloadCsv(set.name + " template", set.head, [])}>Download template</Button>
+          </div>
+          {plan && <div className="mt-5 space-y-3 text-sm">
+            <p className="text-gray-900 dark:text-gray-50"><b>{nNew}</b> to add · <b>{nUpd}</b> to change{plan.errs.length ? <> · <b className="text-red-500">{plan.errs.length}</b> with problems (skipped)</> : null}</p>
+            {plan.errs.length > 0 && <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+              {plan.errs.slice(0, 100).map((e, i) => <li key={i}>{e}</li>)}{plan.errs.length > 100 && <li>…and {plan.errs.length - 100} more</li>}</ul>}
+          </div>}
+          <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            <Button type="button" disabled={busy || !plan?.ops.length} onClick={run}>{busy ? `Importing ${done}/${plan?.ops.length}…` : `Import ${plan?.ops.length || ""} rows`}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>);
 }
 
 function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) => void; s: S; locked: boolean }) {

@@ -5,8 +5,8 @@ import { lazy } from "react";
 const StoreForm = lazy(() => import("../pages/Store").then(m => ({ default: m.StoreForm })));
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, money } from "@/lib/util";
-import type { Row } from "@/lib/db";
-import { live, type CrudCfg, type S } from "./CrudPage";
+import { newId, put, type Row } from "@/lib/db";
+import { live, type CrudCfg, type IoOp, type IoSet, type S } from "./CrudPage";
 import { PERMS } from "./perms";
 import { sb } from "@/lib/supabase";
 
@@ -20,6 +20,81 @@ const ref = { h: "Reference", cell: (r: Row) => r.reference || "—" };
 const sku = (col: string, pre: string) => (s: S) => { let n = 0; const re = new RegExp("^" + pre + "-?(\\d+)$", "i"); s[col].forEach(r => { const m = re.exec(r.sku || ""); if (m) n = Math.max(n, +m[1]); }); return pre + "-" + String(n + 1).padStart(4, "0"); };
 const taxGroupOpts = (s: S) => s.tax_groups.filter(live).map(g => [g.id, g.name] as [string, string]);
 const tgName = (s: S, id: string) => s.tax_groups.find(g => g.id === id)?.name || "—";
+
+/* ---------- Import / Export (CSV) for items and modifier options ---------- */
+const low = (x: unknown) => String(x ?? "").trim().toLowerCase();
+const yes = (v: string) => !/^(no|false|0|inactive|n)$/i.test(v.trim());
+/** one plan entry per CSV row (row numbers count the header as row 1) */
+function perRow(recs: Record<string, string>[], f: (v: Record<string, string>, nNew: number) => IoOp | string): { ops: IoOp[]; errs: string[] } {
+  const ops: IoOp[] = [], errs: string[] = []; let n = 0;
+  recs.forEach((v, i) => { const r = f(v, n); if (typeof r === "string") errs.push(`Row ${i + 2}: ${r}`); else { ops.push(r); if (!r.id) n++; } });
+  return { ops, errs };
+}
+const nextSku = (s: S, col: string, pre: string, n: number) => { const b = sku(col, pre)(s); return pre + "-" + String(+b.split("-")[1] + n).padStart(4, "0"); };
+const findTg = (s: S, v: string) => s.tax_groups.find(g => live(g) && low(g.name) === low(v));
+/** shared money / tax / cost columns of an item or a modifier option */
+function readSale(v: Record<string, string>, s: S, d: Record<string, any>, isNew: boolean): string | void {
+  if (v.price) { if (isNaN(+v.price)) return `Price "${v.price}" isn't a number.`; d.price = +v.price; }
+  if (v["tax group"]) { const g = findTg(s, v["tax group"]); if (!g) return `Tax group "${v["tax group"]}" not found.`; d.taxGroup = g.id; }
+  else if (isNew) d.taxGroup = s.tax_groups.some(g => g.id === "tg_vat") ? "tg_vat" : "";
+  if (v["costing method"]) d.costingMethod = /fix/i.test(v["costing method"]) ? "fixed" : "ingredients"; else if (isNew) d.costingMethod = "ingredients";
+  if (v.cost) { if (isNaN(+v.cost)) return `Cost "${v.cost}" isn't a number.`; d.cost = +v.cost; }
+  if (v.active) d.active = yes(v.active); else if (isNew) d.active = true;
+}
+/** ingredients file: one row per ingredient; every item in the file gets exactly the ingredients listed for it */
+function ingSet(name: string, col: string, what: string, list: (s: S) => Row[]): IoSet {
+  const W = what[0].toUpperCase() + what.slice(1);
+  return { name, head: [W + " SKU", W + " Name", "Ingredient SKU", "Ingredient Name", "Quantity"],
+    exp: s => list(s).flatMap(r => (r.ingredients || []).map((g: any) => { const it = s.inv_items.find(x => x.id === g.itemId); return [r.sku, r.name, it?.sku || "", it?.name || "", g.qty]; })),
+    imp: (recs, s) => {
+      const errs: string[] = [], by = new Map<string, { r: Row; l: any[] }>();
+      recs.forEach((v, i) => { const at = `Row ${i + 2}: `, key = v[what + " sku"], nm = v[what + " name"];
+        const r = list(s).find(x => key ? low(x.sku) === low(key) : low(x.name) === low(nm)); if (!r) return errs.push(at + `${W} "${key || nm}" not found.`);
+        const it = s.inv_items.find(x => live(x) && (v["ingredient sku"] ? low(x.sku) === low(v["ingredient sku"]) : low(x.name) === low(v["ingredient name"])));
+        if (!it) return errs.push(at + `Ingredient "${v["ingredient sku"] || v["ingredient name"]}" not found.`);
+        const q = +v.quantity; if (!(q > 0)) return errs.push(at + `Quantity "${v.quantity}" isn't a number above 0.`);
+        const e = by.get(r.id) || { r, l: [] }; const old = (r.ingredients || []).find((g: any) => g.itemId === it.id);
+        e.l.push({ ...(old || { net: 1, yield: 100 }), itemId: it.id, qty: q }); by.set(r.id, e); });
+      return { ops: [...by.values()].map(({ r, l }) => ({ name: r.name, col, id: r.id, data: { ingredients: l } })), errs };
+    } };
+}
+const ITEM_IO: IoSet[] = [
+  { name: "items", head: ["Name", "Name Localized", "SKU", "Category", "Price", "Pricing Method", "Tax Group", "Costing Method", "Cost", "Barcode", "Active"],
+    exp: s => s.products.filter(live).map(p => [p.name, p.nameAr, p.sku, s.categories.find(c => c.id === p.categoryId)?.name, p.price, p.pricingMethod === "open" ? "Open" : "Fixed",
+      s.tax_groups.find(g => g.id === p.taxGroup)?.name, p.costingMethod === "fixed" ? "Fixed" : "Ingredients", p.cost, p.barcode, p.active === false ? "No" : "Yes"]),
+    imp: (recs, s) => perRow(recs, (v, n) => {
+      const old = v.sku ? s.products.find(p => live(p) && low(p.sku) === low(v.sku)) : s.products.find(p => live(p) && low(p.name) === low(v.name)), isNew = !old, d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (isNew) return "Name is missing.";
+      if (v["name localized"]) d.nameAr = v["name localized"];
+      if (v.category) { const c = s.categories.find(c => live(c) && !c.channel && (low(c.name) === low(v.category) || low(c.reference) === low(v.category))); if (!c) return `Category "${v.category}" not found.`; d.categoryId = c.id; }
+      else if (isNew) return "Category is missing.";
+      if (v["pricing method"]) d.pricingMethod = /open/i.test(v["pricing method"]) ? "open" : "fixed"; else if (isNew) d.pricingMethod = "fixed";
+      const e = readSale(v, s, d, isNew); if (e) return e;
+      if (isNew && d.pricingMethod === "fixed" && d.price == null) return "Price is missing.";
+      if (v.barcode) d.barcode = v.barcode;
+      if (isNew) { d.sku = v.sku || nextSku(s, "products", "PR", n); d.sellingMethod = "unit"; }
+      return { name: d.name || old!.name, col: "products", id: old?.id, data: d };
+    }) },
+  ingSet("items ingredients", "products", "item", s => s.products.filter(live))];
+const OPTION_IO: IoSet[] = [
+  { name: "options", head: ["Modifier", "Name", "Name Localized", "SKU", "Price", "Tax Group", "Costing Method", "Cost", "Active"],
+    exp: s => s.modifier_options.filter(live).map(o => [s.modifiers.find(m => m.id === o.modifierId)?.name, o.name, o.nameAr, o.sku, o.price ?? 0,
+      s.tax_groups.find(g => g.id === o.taxGroup)?.name, o.costingMethod === "fixed" ? "Fixed" : "Ingredients", o.cost, o.active === false ? "No" : "Yes"]),
+    imp: (recs, s) => perRow(recs, (v, n) => {
+      const mod = v.modifier ? s.modifiers.find(m => live(m) && low(m.name) === low(v.modifier)) : undefined;
+      const old = v.sku ? s.modifier_options.find(o => live(o) && low(o.sku) === low(v.sku)) : s.modifier_options.find(o => live(o) && low(o.name) === low(v.name) && (!mod || o.modifierId === mod.id));
+      const isNew = !old, d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (isNew) return "Name is missing.";
+      if (v["name localized"]) d.nameAr = v["name localized"];
+      if (mod) d.modifierId = mod.id; else if (v.modifier) d.modifierId = "new:" + v.modifier; else if (isNew) return "Modifier is missing.";
+      const e = readSale(v, s, d, isNew); if (e) return e;
+      if (isNew) { d.sku = v.sku || nextSku(s, "modifier_options", "MD", n); if (d.price == null) d.price = 0; }
+      return { name: d.name || old!.name, col: "modifier_options", id: old?.id, data: d };
+    }),
+    // a modifier named in the file that doesn't exist yet is created once
+    before: async (d, cache) => { const m = /^new:(.*)$/.exec(String(d.modifierId || "")); if (!m) return; const k = low(m[1]);
+      if (!cache[k]) { cache[k] = newId("mod"); await put("modifiers", cache[k], { name: m[1].trim(), deleted: false }); } d.modifierId = cache[k]; } },
+  ingSet("options ingredients", "modifier_options", "option", s => s.modifier_options.filter(live))];
 const bySort = (a: Row, b: Row) => (a.sort ?? 999) - (b.sort ?? 999) || String(a.name).localeCompare(String(b.name));
 const TYPE_LBL: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", delivery: "Delivery" };
 const PM_TYPES: [string, string][] = [["cash", "Cash"], ["card", "Card"], ["other", "Other"]];
@@ -39,7 +114,7 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
   },
   products: {
-    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups", "modifiers", "settings"], detail: "/item", urlFilter: ["cat", "categoryId"],
+    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups", "modifiers", "settings", "inv_items"], detail: "/item", urlFilter: ["cat", "categoryId"], io: ITEM_IO,
     filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).product || {}, al: any = s.settings.find(x => x.id === "allergens") || {};
       const alls: string[] = Array.isArray(al.list) ? al.list : [...new Set(s.products.flatMap(p => p.allergens || []))] as string[];
       return [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "sku", l: "SKU", get: r => r.sku }, { k: "barcode", l: "Barcode", get: r => r.barcode },
@@ -77,13 +152,13 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier",
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref,
-      { h: "Options", cell: (r, s) => <XLink className="text-blue-500 hover:underline" to={"/modifier-options?mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</XLink> },
+      { h: "Options", cell: (r, s) => <XLink className="text-blue-500 hover:underline" to={"/modifiers?view=options&mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</XLink> },
       { h: "Linked Products", cell: (r, s) => `Products (${s.products.filter(p => live(p) && (p.modifiers || []).some((l: any) => l.modifierId === r.id)).length})` }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
   },
   "modifier-options": {
-    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel, urlFilter: ["mod", "modifierId"], detail: "/option",
+    col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups", "inv_items"], tabs: allDel, urlFilter: ["mod", "modifierId"], detail: "/option", io: OPTION_IO,
     sort: (a, b) => String(a.modifierId).localeCompare(String(b.modifierId)) || bySort(a, b),
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.modifiers.find(m => m.id === r.modifierId)?.name || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "SKU", cell: r => r.sku || "" },
