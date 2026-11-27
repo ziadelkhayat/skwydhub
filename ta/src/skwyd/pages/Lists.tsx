@@ -171,7 +171,7 @@ export function AllergensPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Allergens" />
-      <div className="max-w-3xl"><Section title="Allergens" empty="Add the allergens your items can contain. They show on the item page and to customers."
+      <div className="mx-auto max-w-3xl"><Section title="Allergens" empty="Add the allergens your items can contain. They show on the item page and to customers."
         items={list.map(x => ({ key: x, name: x, nameAr: ar[x] }))} onNew={() => setForm({})} onOpen={it => setForm({ a: it.key })}
         onMove={keys => save(keys).then(ok => ok && toast("Order saved"))}
         action={it => { const n = used(it.key); return <span className="text-xs text-gray-500">{n} item{n === 1 ? "" : "s"}</span>; }} /></div>
