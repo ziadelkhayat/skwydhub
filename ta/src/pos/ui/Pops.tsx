@@ -71,7 +71,7 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
           {!sets.length ? <p className="text-gray-500">No saved discounts.</p> : null}
           <div className="grid grid-cols-2 gap-3">
             {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
-              return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={<span className="flex items-center gap-2.5"><Icon name="pct" className="size-5 text-gray-400" />{d.name}</span>}
+              return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={<span className="flex items-center gap-2.5"><Icon name="pct" className="size-6 text-blue-600 dark:text-blue-500" />{d.name}</span>}
                 sub={d.open ? (d.type === "fixed" ? "You type the amount" : "You type the %") : off ? c.why || "Not for this order" : "−" + cur(c.amt)} />; })}
           </div>
           {save > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">New total</span>
@@ -95,7 +95,7 @@ export function ChargesPop({ x, cur, picked, open, area, onDone }: { x: Ctx; cur
       <div className="flex h-full gap-6">
         <div className="min-w-0 flex-1">
           {!list.length ? <p className="text-gray-500">No charges for this order type. Add them in the back office under Manage → Charges.</p> : <>
-            <div className={cx("grid gap-3", ask ? "grid-cols-2" : "grid-cols-3")}>{list.map(c => <Pick key={c.id} on={p.includes(c.id) || ask === c.id} onClick={() => tap(c)} title={<span className="flex items-center gap-2.5"><Icon name="dollar" className="size-5 text-gray-400" />{c.name}</span>} sub={amt(c)} />)}</div></>}
+            <div className={cx("grid gap-3", ask ? "grid-cols-2" : "grid-cols-3")}>{list.map(c => <Pick key={c.id} on={p.includes(c.id) || ask === c.id} onClick={() => tap(c)} title={<span className="flex items-center gap-2.5"><Icon name="dollar" className="size-6 text-blue-600 dark:text-blue-500" />{c.name}</span>} sub={amt(c)} />)}</div></>}
         </div>
         {ask ? <div className="w-[330px] shrink-0 space-y-2.5">
           <p className="py-3 text-lg font-semibold text-gray-900 dark:text-gray-50">{list.find(c => c.id === ask)?.name}</p>
@@ -161,7 +161,7 @@ export function TagsPop({ S, init, area, onDone }: { S: Data; init: string[]; ar
     <Panel area={area} title="Tags" onClose={() => onDone(null)} action={<Main disabled={same(sel, init)} onClick={() => onDone(sel)}>Save</Main>}>
       {!l.length ? <p className="text-gray-500">No order tags yet. Add them in the back office under Manage → Tags.</p> :
         <div className="grid grid-cols-3 gap-3">{l.map(t => { const on = sel.includes(t.id);
-          return <Pick key={t.id} on={on} onClick={() => setSel(v => (on ? v.filter(y => y !== t.id) : [...v, t.id]))} title={<span className="flex items-center gap-2.5"><Icon name="tag" className="size-5 text-gray-400" />{t.name}</span>} />; })}</div>}
+          return <Pick key={t.id} on={on} onClick={() => setSel(v => (on ? v.filter(y => y !== t.id) : [...v, t.id]))} title={<span className="flex items-center gap-2.5"><Icon name="tag" className="size-6 text-blue-600 dark:text-blue-500" />{t.name}</span>} />; })}</div>}
     </Panel>);
 }
 

@@ -42,7 +42,7 @@ export function Pick({ on, onClick, title, sub, disabled, right, className }: { 
   return (
     <button type="button" disabled={disabled} onClick={onClick} aria-pressed={on}
       className={cx("relative flex min-h-[92px] w-full flex-col items-start justify-center gap-1 rounded-2xl px-5 py-3 text-left disabled:opacity-45",
-        on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10 dark:ring-blue-500" : "bg-gray-50 ring-[1.5px] ring-inset ring-gray-200 dark:bg-gray-900 dark:ring-gray-800", className)}>
+        on ? "bg-blue-50 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10 dark:ring-blue-500" : "bg-white ring-[1.5px] ring-inset ring-blue-100 shadow-[0_1px_2px_rgb(16_24_40/0.05)] dark:bg-gray-900 dark:ring-gray-800", className)}>
       <span className="pe-9 text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</span>
       {sub ? <span className="pe-9 text-sm text-gray-500">{sub}</span> : null}
       {right ? <span className="absolute bottom-3 right-4">{right}</span> : null}
@@ -54,7 +54,7 @@ export function Pick({ on, onClick, title, sub, disabled, right, className }: { 
 export const Seg = <T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: [T, ReactNode][] }) => (
   <div className="flex rounded-[14px] bg-gray-100 p-1 dark:bg-gray-900">{items.map(([k, l]) =>
     <button key={k} type="button" aria-pressed={value === k} onClick={() => onChange(k)} className={cx("flex h-14 flex-1 items-center justify-center gap-2 rounded-[11px] px-4 text-[17px] font-semibold",
-      value === k ? "bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50" : "text-gray-500")}>{l}</button>)}</div>);
+      value === k ? "bg-blue-600 text-white shadow-[0_2px_8px_rgb(79_70_229/0.3)] dark:bg-blue-500" : "text-gray-600 dark:text-gray-400")}>{l}</button>)}</div>);
 
 /** the section label inside a window */
 export const Label = ({ children }: { children: ReactNode }) => <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{children}</p>;

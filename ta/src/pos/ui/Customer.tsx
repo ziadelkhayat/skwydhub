@@ -5,7 +5,7 @@ import { Input } from "@/components/tremor/Input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
 import { cx } from "@/components/tremor/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { addrJoin, addrParts, custMissing, money, normPhone, phoneVariants, posSources, type Addr, type Cust, type OType } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { Icon } from "./Icon";
@@ -44,6 +44,8 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
   // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
+  const filled = useRef("");   // the name a found phone number filled in: it goes when the number changes
+  useEffect(() => { if (filled.current && c.name === filled.current) { filled.current = ""; setC(o => ({ ...o, name: "" })); } }, [c.phone]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setWho(null); setSaved([]); setIns(null); return; }
     let off = false; const tm = setTimeout(async () => {
       const { data } = await sb.from("customers").select("id,name,phone,addresses,blacklisted,notes,tags").in("phone", phoneVariants(ph)).limit(1); if (off) return;
@@ -57,7 +59,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
       const done = (os || []).filter((o: any) => o.status === "closed"), cnt: Record<string, number> = {};
       done.forEach((o: any) => (o.items || []).forEach((i: any) => { cnt[i.name] = (cnt[i.name] || 0) + (+i.qty || 1); }));
       setIns({ n: done.length, spent: done.reduce((a: number, o: any) => a + (+o.total || 0), 0), last: (os || [])[0]?.created_at || "", fav: Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k), voids: (os || []).filter((o: any) => ["void", "declined"].includes(o.status)).length });
-      setC(o => ({ ...o, name: d.name || o.name,   // a saved customer: their saved name replaces what was typed
+      filled.current = d.name || ""; setC(o => ({ ...o, name: d.name || o.name,   // a saved customer: their saved name replaces what was typed
         addr: addrJoin(o.addr) || !sv.length ? o.addr : addrParts(sv[0]) }));
     }, 400); return () => { off = true; clearTimeout(tm); }; }, [c.phone, sb]);
   // the customer's saved addresses changed (edit / delete): saved on the customer at once
