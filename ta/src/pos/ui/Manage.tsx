@@ -1,7 +1,6 @@
 "use no memo"; // the POS code relies on checks the React Compiler would skip (it treats x! as never null), so it runs without the compiler
 // Manager approval (PIN), Void / Return, Reports and Devices (printers), from Tremor.
 import { Badge } from "@/components/tremor/Badge";
-import { cx } from "@/components/tremor/utils";
 import { Button } from "@/components/tremor/Button";
 import { Callout } from "@/components/tremor/Callout";
 import { Card } from "@/components/tremor/Card";
@@ -9,6 +8,7 @@ import { Checkbox } from "@/components/tremor/Checkbox";
 import { Input } from "@/components/tremor/Input";
 import { Label } from "@/components/tremor/Label";
 import { RadioCardGroup, RadioCardItem } from "@/components/tremor/RadioCardGroup";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 import { Switch } from "@/components/tremor/Switch";
 import { Table, TableBody, TableCell, TableRow } from "@/components/tremor/Table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
@@ -126,9 +126,8 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
           <b className="tabular-nums text-red-700 dark:text-red-400">{money(S, amt)}</b></div>
       </div>
       <div className="w-[330px] shrink-0 space-y-3 overflow-y-auto">
-        <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">Reason{a.reasonRequired !== false ? " *" : ""}</p>
-        <div className="space-y-2">{[...reasons, "_other"].map(r => <button key={r} type="button" onClick={() => setReason(r)} aria-pressed={reason === r}
-          className={cx("flex min-h-14 w-full items-center rounded-2xl px-4 text-left text-[17px] font-medium", reason === r ? "bg-blue-50 text-blue-800 ring-[2.5px] ring-inset ring-blue-600 dark:bg-blue-500/10 dark:text-blue-300" : "bg-gray-50 text-gray-900 ring-[1.5px] ring-inset ring-gray-200 dark:bg-gray-900 dark:text-gray-50 dark:ring-gray-800")}>{r === "_other" ? "Other…" : r}</button>)}</div>
+        <Select value={reason} onValueChange={setReason}><SelectTrigger aria-label="Reason"><SelectValue placeholder={"Reason" + (a.reasonRequired !== false ? " *" : "")} /></SelectTrigger>
+          <SelectContent>{[...reasons, "_other"].map(r => <SelectItem key={r} value={r} className="py-3 text-[17px]">{r === "_other" ? "Other…" : r}</SelectItem>)}</SelectContent></Select>
         {reason === "_other" ? <Input autoFocus value={other} onChange={e => setOther(e.target.value)} placeholder="Write the reason" aria-label="Reason" /> : null}
       </div>
     </div>);

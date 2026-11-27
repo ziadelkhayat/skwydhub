@@ -357,14 +357,17 @@ export function Register() {
           {(() => { const sm = live_eo!.editRequest?.summary || {}; return sm.voidAll ? <p>Void whole order{sm.reason ? ": " + sm.reason : ""}</p> : <>{(sm.added || []).map((i: any, k: number) => <p key={"a" + k}>+ {i.qty} × {i.name}</p>)}{(sm.voided || []).map((i: any, k: number) => <p key={"v" + k}>Void {i.qty} × {i.name}</p>)}</>; })()}
         </div> : null}
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
+          {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), back = live_eo ? (live_eo.returnedItems || []).filter((r: any) => r.ix === i).reduce((a: number, r: any) => a + (+r.qty || 0), 0) : 0;
+            const allBack = back > 0 && back >= l.qty, gone = st === "void" || allBack || st === "returned" || st === "refund";   // a voided or returned line is struck out
+            const tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : allBack || st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
             return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} onTap={() => (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLines.includes(i)) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
               {/* the quantity before the item (3×); tap the item to change it */}
-              <span className="min-w-9 text-[17px] font-semibold tabular-nums text-blue-700 dark:text-blue-400">{l.qty}×</span>
+              <span className={cx("min-w-9 text-[17px] font-semibold tabular-nums", gone ? "text-gray-400 line-through" : "text-blue-700 dark:text-blue-400")}>{l.qty}×</span>
               <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left">
-                <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
+                <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50"><span className={gone ? "text-gray-400 line-through" : ""}>{l.name}</span>{tag ? <Tag t={tag} /> : null}</span>
+                {back > 0 && !allBack ? <span className="block text-xs font-medium text-red-600"><span className="line-through">{back}× returned</span> <Tag t={["Returned", "text-red-600"]} /></span> : null}
                 {/* the modifiers one under the other, each with its price on the right */}
                 {(l.options || []).length ? optRows(l.options!).map((o, k) => <span key={k} className="flex gap-2 ps-3 text-xs text-gray-500"><span className="flex-1 truncate">{(o.n > 1 ? o.n + "× " : "") + o.name}</span>{o.price ? <span>+{money(S, o.price)}</span> : null}</span>)
                   : l.mods && !l.note ? <span className="block ps-3 text-xs text-gray-500">{l.mods}</span> : null}
@@ -372,8 +375,13 @@ export function Register() {
                 {/* the item's note is the last line under the item */}
                 {l.note ? <span className="block text-xs italic text-gray-500">Note: {l.note}</span> : null}
               </button>
-              <span className="w-20 text-right text-[16px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineNet(l))}</span>
+              <span className={cx("w-20 text-right text-[16px] font-semibold tabular-nums", gone ? "text-gray-400 line-through" : "text-gray-900 dark:text-gray-50")}>{money(S, lineNet(l))}</span>
             </SwipeRow>; })}
+          {/* items voided from this order: struck out under the others */}
+          {live_eo && st !== "void" ? (live_eo.voidedItems || []).map((l: any, k: number) => <div key={"v" + k} className="flex min-h-[60px] items-center gap-3 border-b border-gray-100 bg-white px-4 py-2.5 dark:border-gray-900 dark:bg-gray-950">
+            <span className="min-w-9 text-[17px] font-semibold tabular-nums text-gray-400 line-through">{l.qty}×</span>
+            <span className="min-w-0 flex-1 text-[16px] font-medium"><span className="text-gray-400 line-through">{l.name}</span><Tag t={["Void", "text-red-600"]} /></span>
+            <span className="w-20 text-right text-[16px] font-semibold tabular-nums text-gray-400 line-through">{money(S, lineNet(l))}</span></div>) : null}
         </div>
         <div className="space-y-1 border-t border-gray-200 px-4 py-2.5 text-[15px] text-gray-500 dark:border-gray-800">
           {t.disc ? <Sum l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
@@ -479,6 +487,8 @@ const optRows = (opts: { name: string; price?: number }[]) => { const r: { name:
 // a cart line that can be swiped left to show a red Delete button (no animation: the line follows the finger, then sits open or closed)
 const SW = 88, FAR = 170;   // a short swipe shows Delete; a long swipe removes the item at once
 // the whole row is one tap target
+// the red or green label after an item's name (Void, Returned, Sent)
+const Tag = ({ t }: { t: string[] | null }) => t ? <span className={cx("ms-2 rounded-md px-1.5 py-0.5 text-[11px] font-semibold no-underline", t[1], t[1].includes("red") ? "bg-red-50 dark:bg-red-500/10" : "bg-emerald-50 dark:bg-emerald-500/10")}>{t[0]}</span> : null;
 function SwipeRow({ enabled, onDelete, onTap, className, children }: { enabled: boolean; onDelete: () => void; onTap: () => void; className?: string; children: ReactNode }) {
   const [dx, setDx] = useState(0), st = useRef<{ x: number; y: number; base: number; on: boolean } | null>(null), open = useRef(false), dragged = useRef(false);
   if (!enabled && dx) { open.current = false; setDx(0); }
