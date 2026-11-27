@@ -9,6 +9,8 @@ import { AuthProvider } from "@/lib/auth";
 import App from "./App.tsx";
 import { lazy, Suspense } from "react";
 // admin.skwydhub.com (and dev.admin) opens the Skwyd Hub admin instead of a business's back office
+// ?admin=1 opens the admin on any address (e.g. a test copy of the site), ?admin=0 goes back to the portal
+(() => { const p = new URLSearchParams(location.search).get("admin"); try { if (p === "1") localStorage.setItem("skwydAdmin", "1"); else if (p === "0") localStorage.removeItem("skwydAdmin"); } catch { /* private mode */ } })();
 const ADMIN = /^(dev\.)?admin\./.test(location.hostname) || localStorage.getItem("skwydAdmin") === "1";
 const AdminApp = lazy(() => import("./skwyd/admin/AdminApp"));
 import "./index.css";
