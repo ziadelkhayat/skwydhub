@@ -134,7 +134,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
             ...(deletedTab ? [{ label: "Restore", onSelect: (r: Row) => del([r], false) }] : [{ label: "Delete", danger: true, onSelect: (r: Row) => del([r], true) }]),
           ]}
           bulk={deletedTab ? [{ label: "Restore", action: (rows: Row[]) => del(rows, false) }] : [{ label: "Delete", action: (rows: Row[]) => del(rows, true) }]}
-          onExport={rows => downloadCsv(cfg.title, cfg.cols.map(c => c.h), rows.map(r => cfg.cols.map(c => textOf(c.cell(r, s)))))}
+          onExport={cfg.io ? undefined : rows => downloadCsv(cfg.title, cfg.cols.map(c => c.h), rows.map(r => cfg.cols.map(c => textOf(c.cell(r, s)))))}
           empty={<EmptyState text={tab === cfg.tabs[0][0] ? `No ${cfg.title.toLowerCase()} yet.` : "Nothing here."} />}
           pageSize={PER}
         />
