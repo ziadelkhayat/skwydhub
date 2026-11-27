@@ -15,7 +15,7 @@ export const TH = "";
 export const TD = "";
 export const TR = "group cursor-pointer select-none hover:bg-gray-50 hover:dark:bg-gray-900";
 /** Tremor Card (no padding) for lists and tables */
-export const BOX = "overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-900 dark:bg-[#090E1A]";
+export const BOX = "overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-900 dark:bg-[#090E1A] portal:rounded-[14px] portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:portal:border-gray-800 dark:portal:shadow-none";
 /** Tremor Card; with a title it is a template settings section (title on the left, the card on the right) */
 export const Card = ({ title, action, desc, children, className }: { title?: string; action?: React.ReactNode; desc?: React.ReactNode; children: React.ReactNode; className?: string }) =>
   title == null ? <TremorCard className={className}>{children}</TremorCard> : <Section title={title} desc={desc} act={action} className={className}>{children}</Section>;

@@ -4,7 +4,8 @@ import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { FilterIcon } from "@/icons";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
+import { ChoiceButton } from "../ui/Choice";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RangeInput } from "../ui/DateInput";
@@ -66,7 +67,25 @@ export default function OrdersPage() {
   const [tick, setTick] = useState(0);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
   const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
-  const nT = Object.entries(F).filter(([k, v]) => v && TXT.includes(k)).length;
+  // every filter, its label and its choices (the side panel and the chips use the same list)
+  const opts: Record<string, [string, [string, string][]]> = {
+    status: ["Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]]],
+    type: ["Order type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]]],
+    ahead: ["Ahead", [["yes", "Yes"], ["no", "No"]]],
+    source: ["Source", sources.filter(x => !x.deleted).map(x => [String(x.name), String(x.name)])],
+    channel: ["Sales channel", Object.entries(CHL).filter(([k]) => k !== "web")],
+    pay: ["Payment type", [...new Set([...pms.filter(x => !x.deleted).map(x => String(x.name)), "Cash", "Card", "Other"])].map(x => [x, x])],
+    device: ["Device", devices.filter(x => !x.deleted).map(x => [String(x.id), String(x.name)])],
+  };
+  const nameIn = (list: any[], ids: string) => selList(ids).map(id => list.find(x => x.id === id)?.name || "—").join(", ");
+  const chips: { k: string; l: string; v: string; keys: string[] }[] = [
+    ...(F.from ? [{ k: "date", l: "Business date", v: fmtDate(F.from) + (F.to && F.to !== F.from ? " – " + fmtDate(F.to) : ""), keys: ["from", "to"] }] : []),
+    ...(F.brand ? [{ k: "brand", l: "Brand", v: nameIn(brands, F.brand), keys: ["brand"] }] : []),
+    ...(F.branch ? [{ k: "branch", l: "Store", v: nameIn(branches, F.branch), keys: ["branch"] }] : []),
+    ...Object.entries(opts).filter(([k]) => F[k]).map(([k, [l, o]]) => ({ k, l, v: o.find(x => x[0] === F[k])?.[1] || F[k], keys: [k] })),
+    ...([["ref", "Reference"], ["num", "Number"], ["cust", "Customer"], ["rnotes", "Receipt notes"], ["knotes", "Kitchen notes"]] as const).filter(([k]) => String(F[k] || "").trim()).map(([k, l]) => ({ k, l, v: F[k], keys: [k] })),
+  ];
+  const nF = chips.length;
 
   useEffect(() => {
     let off = false; setLoading(true); setErr("");
@@ -111,6 +130,12 @@ export default function OrdersPage() {
     <>
       <PageBreadcrumb pageTitle="Orders" />
       <SegTabs className="mb-4 flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
+      {/* the filters in use, each removable; all of them are set in the Filters side panel */}
+      {chips.length > 0 && <div className="mb-3 flex flex-wrap items-center gap-1.5">
+        {chips.map(c => <span key={c.k} className="flex items-center gap-1 rounded-md bg-gray-100 py-1 ps-2.5 pe-1 text-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">{c.l}: <b className="font-semibold">{c.v}</b>
+          <button type="button" aria-label={"Remove " + c.l + " filter"} className="rounded px-1 text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800" onClick={() => { setF(f => { const n = { ...f }; c.keys.forEach(k => delete n[k]); return n; }); setPage(1); }}>×</button></span>)}
+        <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => { setF({}); setPage(1); }}>Clear all</Button>
+      </div>}
       {err ? <p className="py-6 text-sm text-red-600">Couldn't load orders: {err}</p> : (
         <DataTable<any>
           data={rows}
@@ -118,18 +143,7 @@ export default function OrdersPage() {
           getRowId={o => o.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder="Search reference, customer, phone..."
-          toolbar={<>
-            {<FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-            <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-            <div className="sm:w-56 [&_button]:h-[30px] [&_button]:py-1"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF({ ...F, from: a, to: b }); setPage(1); }} /></div>
-            {([["status", "Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]]],
-              ["type", "Type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]]],
-              ["source", "Source", sources.filter(x => !x.deleted).map(x => [x.name, x.name])], ["channel", "Sales Channel", Object.entries(CHL)],
-              ["pay", "Payment Type", [...new Set([...pms.filter(x => !x.deleted).map(x => x.name), "Cash", "Card", "Other"])].map(x => [x, x])],
-              ["device", "Device", devices.filter(x => !x.deleted).map(x => [x.id, x.name])], ["ahead", "Ahead", [["yes", "Yes"], ["no", "No"]]]] as [string, string, [string, string][]][]).map(([k, l, o]) =>
-              <FilterSelect key={k} title={l} value={F[k] || ""} onChange={v => { setF({ ...F, [k]: v }); setPage(1); }} options={o.map(([v, t]) => ({ value: String(v), label: String(t) }))} />)}
-            <Button variant="outline" className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />More Filters{nT ? <Badge variant="solid" color="primary" className="ms-1">{nT}</Badge> : null}</Button>
-          </>}
+          toolbar={<Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
           onRowClick={o => openWin("/order?id=" + o.id)}
           rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
           onExport={list => downloadCsv("Orders", cols.map(c => c.title), list.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}
@@ -137,28 +151,43 @@ export default function OrdersPage() {
           pageSize={PER}
         />
       )}
-      {fOpen && <FilterDialog F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />}
+      <FilterPanel open={fOpen} F={F} opts={opts} brands={brands} branches={branches} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />
     </>
   );
 }
 
-const TXT = ["ref", "num", "rnotes", "knotes", "cust"];
-function FilterDialog({ F, onApply, onClose }: { F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void }) {
+const H = ({ t }: { t: string }) => <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t}</h3>;
+// Filters: a Tremor side panel with every filter, grouped (When, Where, Order, Source and payment, Find); "Show orders" applies them.
+function FilterPanel({ open, F, opts, brands, branches, onApply, onClose }: { open: boolean; F: Record<string, string>; opts: Record<string, [string, [string, string][]]>; brands: any[]; branches: any[];
+  onApply: (f: Record<string, string>) => void; onClose: () => void }) {
   const [d, setD] = useState<Record<string, string>>({ ...F });
-  const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel className="mb-1.5 block">{l}</FieldLabel><Input className="h-9" placeholder={ph || ""} value={d[k] || ""} onChange={e => setD({ ...d, [k]: e.target.value })} /></Field>;
+  useEffect(() => { if (open) setD({ ...F }); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const set = (k: string, v: string) => setD(x => { const n = { ...x }; if (v) n[k] = v; else delete n[k]; return n; });
+  const chooser = (k: string) => { const [l, o] = opts[k]; if (!o.length) return null;
+    return <div key={k} className="space-y-2"><p className="text-sm font-medium text-gray-900 dark:text-gray-50">{l}</p>
+      <div className="flex flex-wrap gap-1.5">{o.map(([v, t]) => <ChoiceButton key={v} on={d[k] === v} onClick={() => set(k, d[k] === v ? "" : v)} className="min-h-8 py-1 text-sm">{t}</ChoiceButton>)}</div></div>; };
+  const txt = (k: string, l: string, ph?: string) => <Field key={k}><FieldLabel>{l}</FieldLabel><Input placeholder={ph || ""} value={d[k] || ""} onChange={e => set(k, e.target.value)} /></Field>;
   return (
-    <Dialog open onOpenChange={o => !o && onClose()}>
-      <DialogContent className="max-h-[90dvh] w-full overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
-        <DialogHeader><DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">More Filters</DialogTitle></DialogHeader>
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-          {txt("ref", "Reference")}{txt("num", "Number")}
-          {txt("rnotes", "Receipt Notes")}{txt("knotes", "Kitchen Notes")}{txt("cust", "Customer", "Name or phone")}
-        </div>
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="outline" className="sm:me-auto" onClick={() => onApply(Object.fromEntries(Object.entries(F).filter(([k]) => !TXT.includes(k))))}>Reset</Button>
-          <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply(d)}>Apply</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <Drawer open={open} onOpenChange={o => !o && onClose()}>
+      <DrawerContent className="sm:max-w-md">
+        <DrawerHeader><DrawerTitle>Filters</DrawerTitle></DrawerHeader>
+        <DrawerBody className="-mx-6 space-y-7 overflow-y-auto px-6">
+          <section className="space-y-3"><H t="When" /><div><p className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">Business date</p><RangeInput from={d.from || ""} to={d.to || ""} onChange={(a, b) => setD(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; })} /></div></section>
+          <section className="space-y-3"><H t="Where" />
+            <div className="flex flex-wrap gap-2">
+              <FilterSelect multiple title="Brand" value={d.brand || ""} onChange={v => setD(x => { const n = { ...x }; if (v) n.brand = v; else delete n.brand; const st = selList(n.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(","); if (st) n.branch = st; else delete n.branch; return n; })} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+              <FilterSelect multiple title="Store" value={d.branch || ""} onChange={v => set("branch", v)} all="All Stores" options={branches.filter(b => !b.deleted && inSel(d.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            </div>{chooser("device")}</section>
+          <section className="space-y-4"><H t="Order" />{chooser("status")}{chooser("type")}{chooser("ahead")}</section>
+          <section className="space-y-4"><H t="Source and payment" />{chooser("source")}{chooser("channel")}{chooser("pay")}</section>
+          <section className="space-y-3"><H t="Find" />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{txt("ref", "Reference", "e.g. 100045")}{txt("num", "Number", "Order number")}{txt("cust", "Customer", "Name or phone")}{txt("rnotes", "Receipt notes")}{txt("knotes", "Kitchen notes")}</div></section>
+        </DrawerBody>
+        <DrawerFooter className="-mx-6 -mb-2 gap-2 border-t border-gray-200 px-6 pt-4 dark:border-gray-800">
+          <Button variant="ghost" className="sm:me-auto" onClick={() => setD({})}>Reset all</Button>
+          <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply(d)}>Show orders</Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

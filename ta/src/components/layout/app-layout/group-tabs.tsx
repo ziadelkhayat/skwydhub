@@ -10,8 +10,8 @@ import { LABELS, groupOf } from "./nav-data";
 /** an icon for each tab */
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = { skSalesReports: RiLineChartLine, skInventoryReports: RiArchiveLine, skBusinessReports: RiBriefcaseLine, skAnalysisReports: RiPieChartLine, skEmployeeReports: RiUserStarLine, skDiscounts: RiDiscountPercentLine, skLoyalty: RiMedalLine, skGiftCards: RiGift2Line, skPromotions: RiMegaphoneLine, skCoupons: RiCoupon3Line, skItems: RiRestaurantLine, skCategories: RiFolderLine, skModifiers: RiListCheck3, skModifierOptions: RiListUnordered, skVariants: RiShapesLine, skCombos: RiStackLine, skAllergens: RiLeafLine, skInvItems: RiBox3Line, skInvCategories: RiFolderLine, skWarehouses: RiBuilding2Line, skSuppliers: RiTruckLine, skPurchaseOrders: RiFileList3Line, skPurchasing: RiShoppingCart2Line, skTransferOrders: RiFileTransferLine, skTransfers: RiArrowLeftRightLine, skProduction: RiToolsLine, skInventoryCount: RiCalculatorLine, skQtyAdj: RiIncreaseDecreaseLine, skCostAdj: RiExchangeDollarLine, skSpotCheck: RiSearchEyeLine, skOrderTx: RiReceiptLine, skCountSheets: RiClipboardLine, skWebSettings: RiSettings3Line, skDeliveryZones: RiMapPin2Line, skDeliveryCharges: RiMoneyDollarCircleLine, skEmployeeList: RiTeamLine, skRoles: RiShieldUserLine, skSchedule: RiCalendarScheduleLine, skTimeClock: RiTimeLine, skRequests: RiInboxLine, skPayroll: RiHandCoinLine, skDocuments: RiFileTextLine, skChats: RiChat3Line, skTasks: RiTaskLine, skKnowledge: RiBookLine, skApplications: RiUserAddLine, skBrands: RiPriceTagLine, skStores: RiStore2Line, skDevices: RiDeviceLine, skTaxes: RiGovernmentLine, skTaxGroups: RiFoldersLine, skCurrency: RiCoinsLine, skPaymentMethods: RiBankCardLine, skOrderSources: RiGitBranchLine, skCharges: RiAddBoxLine, skKitchenFlows: RiFlowChart, skReasons: RiQuestionAnswerLine, skTags: RiPriceTag3Line };
 
-const TAB = "-mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 pb-3 pt-1 text-sm font-medium transition-all";
-const tabCls = (on: boolean) => cx(TAB, focusRing, on ? "border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-500 hover:dark:border-gray-400 hover:dark:text-gray-400");
+const TAB = "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all";
+const tabCls = (on: boolean) => cx(TAB, focusRing, on ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-500 hover:dark:bg-gray-900 hover:dark:text-gray-300");
 
 export function GroupTabs() {
   const { pathname } = useLocation(), { canOpen } = useAccess(), nav = useNavigate();
@@ -29,10 +29,10 @@ export function GroupTabs() {
   const tab = (x: { key: string; path: string }) => { const Icon = ICONS[x.key]; return <>{Icon && <Icon className="size-4 shrink-0" aria-hidden="true" />}{LABELS[x.key]}</>; };
   const shown = subs.slice(0, fit), extra = subs.slice(fit), extraOn = extra.find(isOn);
   return (
-    <div ref={box} className="relative mb-6 border-b border-gray-200 dark:border-gray-800">
+    <div ref={box} className="relative mb-6">
       {/* measuring row (invisible) */}
       <div ref={meas} aria-hidden="true" className="pointer-events-none invisible absolute flex">{subs.map(x => <span key={x.path} className={TAB}>{tab(x)}</span>)}</div>
-      <nav aria-label={LABELS[g.key]} className="flex items-center">
+      <nav aria-label={LABELS[g.key]} className="flex items-center gap-1">
         {shown.map(x => <Link key={x.path} to={x.path} aria-current={isOn(x) ? "page" : undefined} className={tabCls(isOn(x))}>{tab(x)}</Link>)}
         {extra.length > 0 && (
           <DropdownMenu>

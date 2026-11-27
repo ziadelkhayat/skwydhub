@@ -40,6 +40,8 @@ const TabNavigation = React.forwardRef<
       className={cx(
         // base
         "flex items-center justify-start whitespace-nowrap border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        // portal look: pill tabs, no line under them
+        "portal:gap-1 portal:border-b-0",
         // border color
         "border-gray-200 dark:border-gray-800",
         className,
@@ -85,6 +87,8 @@ const TabNavigationLink = React.forwardRef<
             // selected
             "group-data-active:border-blue-500 group-data-active:text-blue-500",
             "dark:group-data-active:border-blue-500 dark:group-data-active:text-blue-500",
+            // portal look: pills (the open one tinted)
+            "portal:mb-0 portal:rounded-full portal:border-b-0 portal:px-3.5 portal:py-1.5 portal:group-hover:bg-gray-100 portal:group-data-active:bg-blue-50 portal:group-data-active:text-blue-700 dark:portal:group-hover:bg-gray-900 dark:portal:group-data-active:bg-blue-500/10 dark:portal:group-data-active:text-blue-300",
             // disabled
             disabled
               ? "pointer-events-none text-gray-300 dark:text-gray-700"
