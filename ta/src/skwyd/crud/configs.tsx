@@ -151,6 +151,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   modifiers: {
     col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier",
+    filters: () => [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "ref", l: "Reference", get: r => r.reference }, { k: "created", l: "Created After", t: "date", get: r => r.createdAt }],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref,
       { h: "Options", cell: (r, s) => <XLink className="text-blue-500 hover:underline" to={"/modifiers?view=options&mod=" + r.id} onClick={e => e.stopPropagation()}>Options ({s.modifier_options.filter(o => live(o) && o.modifierId === r.id).length})</XLink> },
