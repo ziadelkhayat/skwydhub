@@ -82,7 +82,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
       {err && area ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
       <div className={del || area ? "grid grid-cols-2 gap-6" : ""}>
         <div className="space-y-3">
-          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
+          {types.length > 1 && <Seg value={t} onChange={k => setT(k)} items={types.map(k => [k, k === "delivery" ? "Delivery" : k === "dinein" ? "In Store" : "Pickup"] as [OType, string])} />}
           {src.length > 0 && t !== "dinein" && <div>
             <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger><SelectValue placeholder="Order source *" /></SelectTrigger>
               <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
@@ -140,7 +140,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
             <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">Previous orders</h3>
             <div className="max-h-[300px] space-y-2 overflow-y-auto">
               {prev.map(o => { const bad = ["void", "declined"].includes(o.status), its = (o.items || []).map((i: any) => (+i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ");
-                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => { if (tBefore.current === null) tBefore.current = t; { const k = (o.type === "pickup" ? "takeaway" : o.type) as OType; if (k !== "dinein" && types.includes(k)) setT(k); } onReorder?.(o.items || []); }} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
+                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => { if (tBefore.current === null) tBefore.current = t; { const k = (o.type === "pickup" ? "takeaway" : o.type) as OType; if (types.includes(k)) setT(k); } onReorder?.(o.items || []); }} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
                   <div className="flex items-center gap-2 text-[15px]"><span className="font-semibold text-gray-900 dark:text-gray-50">{fmtD(o.created_at)}</span>
                     <span className="text-gray-500">{o.type === "delivery" ? "Delivery" : o.type === "pickup" ? "Pickup" : "In Store"}</span>
                     {bad ? <span className="rounded-md bg-red-50 px-1.5 text-[13px] font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{o.status === "void" ? "Void" : "Declined"}</span> : null}
