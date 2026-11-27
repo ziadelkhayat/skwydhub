@@ -12,8 +12,8 @@ export function PosApp() {
   const { phase, S, device, cashier, restart } = useStore();
   if (phase === "activate") return <><Activate onDone={restart} /><Toaster /></>;
   if (phase === "boot" || !device) return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-full flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-950">
       <span className="size-6 rounded-full border-2 border-blue-600 border-t-transparent" aria-hidden /><p className="text-sm text-gray-500">Loading the register…</p>
     </div>);
-  return <div className="h-dvh select-none overflow-hidden bg-gray-50 dark:bg-gray-950">{pinsOn(S) && !cashier ? <Lock /> : <Register />}<AlertBanner /><Toaster /></div>;
+  return <div className="h-full select-none overflow-hidden bg-gray-50 dark:bg-gray-950">{pinsOn(S) && !cashier ? <Lock /> : <Register />}<AlertBanner /><Toaster /></div>;
 }

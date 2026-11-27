@@ -27,7 +27,7 @@ import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDo
 import { TablesDialog, tblLbl } from "./Tables";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
-const CART_W = "33vw", COLS = 6, ROWS = 3, TG = 10;
+const CART_W = "33%", COLS = 6, ROWS = 3, TG = 10;
 const CART0: Cust = { name: "", phone: "", source: "", addr: {} };
 
 export function Register() {
