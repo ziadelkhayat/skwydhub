@@ -76,6 +76,16 @@ const ITEM_IO: IoSet[] = [
       return { name: d.name || old!.name, col: "products", id: old?.id, data: d };
     }) },
   ingSet("items ingredients", "products", "item", s => s.products.filter(live))];
+const MOD_IO: IoSet[] = [
+  { name: "modifiers", head: ["Name", "Name Localized", "Reference"],
+    exp: s => s.modifiers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(m => [m.name, m.nameAr, m.reference]),
+    imp: (recs, s) => { const seen = new Set<string>(); return perRow(recs, v => {
+      const old = v.reference ? s.modifiers.find(m => live(m) && low(m.reference) === low(v.reference)) : s.modifiers.find(m => live(m) && low(m.name) === low(v.name)), d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (!old) return "Name is missing.";
+      const k = low(d.name || old!.name); if (seen.has(k)) return `"${d.name || old!.name}" is already earlier in the file.`; seen.add(k);
+      if (!old && s.modifiers.some(m => live(m) && low(m.name) === k)) return `Another modifier is already called "${d.name}".`;
+      if (v["name localized"]) d.nameAr = v["name localized"]; if (v.reference) d.reference = v.reference;
+      return { name: d.name || old!.name, col: "modifiers", id: old?.id, data: d }; }); } }];
 const OPTION_IO: IoSet[] = [
   { name: "options", head: ["Modifier", "Name", "Name Localized", "SKU", "Price", "Tax Group", "Costing Method", "Cost", "Active"],
     exp: s => s.modifier_options.filter(live).map(o => [s.modifiers.find(m => m.id === o.modifierId)?.name, o.name, o.nameAr, o.sku, o.price ?? 0,
@@ -150,7 +160,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "description", l: "Description", t: "textarea" }, { k: "descriptionAr", l: "Description Localized", t: "textarea" }],
   },
   modifiers: {
-    col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier",
+    col: "modifiers", title: "Modifiers", one: "Modifier", needs: ["modifier_options", "products"], tabs: allDel, detail: "/modifier", io: MOD_IO,
     filters: () => [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "ref", l: "Reference", get: r => r.reference }, { k: "created", l: "Created After", t: "date", get: r => r.createdAt }],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref,
