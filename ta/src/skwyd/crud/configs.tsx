@@ -372,7 +372,7 @@ export const CRUD: Record<string, CrudCfg> = {
       if (!old) await call({ employeeId: "", all: true }); else if (old.phone !== data.phone) await call({ employeeId: old.id }); },
   },
   roles: {
-    col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]],
+    col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]], noSearch: true,
     cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.description ? <span className="block text-xs text-gray-500">{r.description}</span> : null}</> },
       { h: "Back Office", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("bo_")).length; return n ? (r.permissions.includes("bo_manage") ? <Badge variant="light" color="success">Full admin</Badge> : n + " areas") : <Note>No access</Note>; } },
       { h: "POS", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("pos_")).length; return n ? n + " permissions" : <Note>No access</Note>; } },
