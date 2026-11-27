@@ -18,7 +18,7 @@ export const salesItems: NavItem[] = [
   { icon: RiPriceTag3Line, key: "skMarketing", subItems: [s("skDiscounts", "/discounts"), s("skLoyalty", "/loyalty"), s("skGiftCards", "/gift-cards"), s("skPromotions", "/promotions"), s("skCoupons", "/coupons")] },
 ];
 export const stockItems: NavItem[] = [
-  { icon: RiBookOpenLine, key: "skCatalog", subItems: [s("skItems", "/products"), s("skCategories", "/categories"), s("skModifiers", "/modifiers"), s("skModifierOptions", "/modifier-options"), s("skVariants", "/variants"), s("skCombos", "/combos"), s("skAllergens", "/allergens")] },
+  { icon: RiBookOpenLine, key: "skCatalog", subItems: [s("skItems", "/products"), s("skCategories", "/categories"), s("skModifiers", "/modifiers"), s("skVariants", "/variants"), s("skCombos", "/combos"), s("skAllergens", "/allergens")] },
   { icon: RiStore2Line, key: "skSalesChannels", path: "/branch-menu" },
   { icon: RiArchive2Line, key: "skInventory", subItems: [s("skInvItems", "/inv-items"), s("skInvCategories", "/inv-categories"), s("skWarehouses", "/warehouses"), s("skSuppliers", "/suppliers"), s("skPurchaseOrders", "/po"), s("skPurchasing", "/purchase-orders"), s("skTransferOrders", "/transfer-orders"), s("skTransfers", "/transfers"), s("skProduction", "/production"), s("skInventoryCount", "/inventory-count"), s("skQtyAdj", "/quantity-adjustments"), s("skCostAdj", "/cost-adjustments"), s("skSpotCheck", "/spot-check"), s("skOrderTx", "/order-transactions"), s("skCountSheets", "/count-sheets")] },
   { icon: RiGlobalLine, key: "skWebOrdering", subItems: [s("skWebSettings", "/online-ordering"), s("skDeliveryZones", "/delivery-zones"), s("skDeliveryCharges", "/delivery-charges")] },
