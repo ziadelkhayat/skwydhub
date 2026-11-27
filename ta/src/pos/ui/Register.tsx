@@ -278,7 +278,7 @@ export function Register() {
     if (p && md && md.links.length) return editMods(i, p, md);
     return lineExtras(i); };
   const editMods = async (i: number, p: any, md: ReturnType<typeof modData>) => { const l = cart[i], base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
-    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={area} edit={{ options: l.options || [], note: l.note, qty: l.qty }} onDone={done} />); if (!r) return;
+    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={area} edit={{ options: l.options || [], note: l.note, qty: l.qty }} onRemove={() => { done(null); setCart(c => c.filter((_, j) => j !== i)); }} onDone={done} />); if (!r) return;
     setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, qty: r.qty || y.qty }; delete z.options; delete z.note; delete z.mods;
       if (r.options.length) z.options = r.options; if (r.note) z.note = r.note; if (r.options.length || r.note) z.mods = modLabel(r.mods, r.note); return reDisc(z); })); };
   const lineExtras = async (i: number, part?: "note" | "disc") => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");

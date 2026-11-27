@@ -45,7 +45,7 @@ export const Stepper = ({ n, onLess, onMore, lessOff }: { n: number; onLess: () 
 export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string; qty?: number };
 // edit: a cart line being changed (its options start picked, its note filled in, the button says Save)
 // area: the options open in the menu's place on the register, big for touch, the cart stays in view
-export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void;
+export function ModPicker({ name, basePrice, data, money, onDone, edit, area, onRemove }: { name: string; basePrice: number; data: ModData; money: (n: number) => string; onDone: (r: Picked | null) => void; onRemove?: () => void;
   edit?: { options: { id: string; modifierId?: string }[]; note?: string; qty?: number }; area?: { cartW: string } }) {
   const links = data.links.map(l => ({ ...l, opts: data.options.filter(o => o.modifierId === l.modifierId) }));
   const [sel, setSel] = useState<Record<string, number>[]>(() => links.map(l => { const m: Record<string, number> = {};
@@ -97,7 +97,8 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
   if (area) return (
     // the options open in the menu's place, in the same rounded window as Discount; the cart stays in view
     <Panel area={area} title={name} sub={money(basePrice)} onClose={() => onDone(null)} className="flex flex-col p-0"
-      action={<Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button>}>
+      action={<>{onRemove ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={onRemove}><Icon name="trash" className="size-5" />Remove item</Button> : null}
+        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button></>}>
       <div className="min-h-0 flex-1 overflow-y-auto p-5">{groups}</div>
       {err ? <p className="px-5 pb-2 text-[15px] text-red-600 dark:text-red-500">{err}</p> : null}
       <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3.5 dark:border-gray-800">
@@ -170,14 +171,13 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
   if (area) return (
     // in the menu's place like Discount: the quantity, the item's note on the keyboard, and Remove
     <Panel area={area} title={name} sub={money(unit) + " each · line total " + money(full - d)} onClose={() => onDone(null)} className="flex flex-col gap-4"
-      action={<Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save</Button>}>
+      action={<>{!part && !minQty ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-5" />Remove item</Button> : null}
+        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save</Button></>}>
       {!part && <div className="flex items-center gap-3">
         <div className="flex items-center rounded-2xl bg-gray-100 dark:bg-gray-900">
           <Button variant="ghost" aria-label="One less" disabled={q <= Math.max(1, minQty)} onClick={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="minus" className="size-7" /></Button>
           <span className="min-w-14 text-center text-3xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{q}</span>
           <Button variant="ghost" aria-label="One more" onClick={() => setQ(z => Math.min(999, z + 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="plus" className="size-7" /></Button></div>
-        <span className="flex-1" />
-        {!minQty ? <Button variant="secondary" className="h-16 gap-2 rounded-2xl px-6 text-[17px] text-red-600 dark:text-red-500" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-6" />Remove item</Button> : null}
       </div>}
       {part !== "disc" && <div className="relative"><Textarea value={n} inputMode="none" onChange={e => setN(e.target.value)} placeholder="Item note: no onions, extra spicy…" aria-label="Item note" className="min-h-20 text-lg" />
         {n ? <button type="button" onClick={() => setN("")} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}</div>}
