@@ -25,7 +25,7 @@ export const stockItems: NavItem[] = [
 ];
 export const businessItems: NavItem[] = [
   { icon: RiUserSettingsLine, key: "skEmployees", subItems: [s("skEmployeeList", "/users"), s("skRoles", "/roles"), s("skSchedule", "/schedule"), s("skTimeClock", "/time-clock"), s("skRequests", "/requests"), s("skPayroll", "/payroll"), s("skDocuments", "/documents"), s("skChats", "/team-chat"), s("skTasks", "/tasks"), s("skKnowledge", "/knowledge")] },
-  { icon: RiSettings5Line, key: "skManage", subItems: [s("skBrands", "/brands"), s("skStores", "/branches"), s("skDevices", "/devices"), s("skTaxes", "/taxes"), s("skTaxGroups", "/tax-groups"), s("skCurrency", "/currency"), s("skPaymentMethods", "/payment-methods"), s("skOrderSources", "/order-sources"), s("skCharges", "/charges"), s("skKitchenFlows", "/kitchen-flows"), s("skReasons", "/reasons"), s("skTags", "/tags"), s("skApplications", "/applications")] },
+  { icon: RiSettings5Line, key: "skManage", subItems: [s("skBrands", "/brands"), s("skStores", "/branches"), s("skDevices", "/devices"), s("skTaxes", "/taxes"), s("skCurrency", "/currency"), s("skPaymentMethods", "/payment-methods"), s("skOrderSources", "/order-sources"), s("skCharges", "/charges"), s("skKitchenFlows", "/kitchen-flows"), s("skReasons", "/reasons"), s("skTags", "/tags"), s("skApplications", "/applications")] },
   { icon: RiApps2Line, key: "skMarketplace", path: "/marketplace" },
 ];
 
@@ -37,7 +37,7 @@ export const LABELS: Record<string, string> = {
   skInventory: "Inventory", skInvItems: "Products", skInvCategories: "Categories", skWarehouses: "Warehouses", skSuppliers: "Suppliers", skPurchasing: "Purchasing", skTransfers: "Transfers", skProduction: "Production", skInventoryCount: "Inventory Count", skPurchaseOrders: "Purchase Orders", skTransferOrders: "Transfer Orders", skQtyAdj: "Quantity Adjustment", skCostAdj: "Cost Adjustment", skSpotCheck: "Inventory Spot Check", skOrderTx: "Order Transactions", skCountSheets: "Count Sheet",
   skWebOrdering: "Web Ordering", skWebSettings: "Settings", skDeliveryZones: "Delivery Zones", skDeliveryCharges: "Delivery Charges",
   skEmployees: "Employee Management", skEmployeeList: "Employees", skRoles: "Roles", skSchedule: "Schedule", skTimeClock: "Time Clock", skRequests: "Requests", skPayroll: "Payroll", skDocuments: "Documents", skChats: "Chats", skApplications: "Applications", skTasks: "Tasks", skKnowledge: "Knowledge Base",
-  skManage: "Manage", skBrands: "Brands", skStores: "Stores", skDevices: "Devices", skTaxes: "Taxes", skTaxGroups: "Tax Groups", skCurrency: "Currency", skPaymentMethods: "Payment Methods", skOrderSources: "Order Sources", skCharges: "Charges", skKitchenFlows: "Kitchen Flows", skReasons: "Reasons", skTags: "Tags",
+  skManage: "Manage", skBrands: "Brands", skStores: "Stores", skDevices: "Devices", skTaxes: "Taxes & Groups", skTaxGroups: "Tax Groups", skCurrency: "Currency", skPaymentMethods: "Payment Methods", skOrderSources: "Order Sources", skCharges: "Charges", skKitchenFlows: "Kitchen Flows", skReasons: "Reasons", skTags: "Tags",
   skMarketplace: "Marketplace", skSubscription: "Subscription",
 };
 export const ALL_ITEMS = [...mainItems, ...salesItems, ...stockItems, ...businessItems];
