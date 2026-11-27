@@ -33,7 +33,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAudioPlayer } from "expo-audio";
 import { useStore } from "../lib/store";
 import { C, F, R, shadowXs } from "../lib/theme";
-import { Icon } from "./Icon";
+import { DuoIcon, Icon, NAVY } from "./Icon";
 import { ChargesPop, DiscountPop, HeldPop, NotesPop, Popover } from "./Pops";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { onAlertOpen, pendingCount } from "./Alert";
@@ -423,9 +423,9 @@ export function Register() {
         <View style={{ flexDirection: "row", gap: AG }}>
           {acts.map((a, i) => (
             <Pressable key={a} accessibilityRole="button" onPress={() => action(a, CART_W + PADX + i * (ab + AG) + ab / 2)}
-              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: 6, backgroundColor: pressed ? C.brand500 : C.brand600, alignItems: "center", justifyContent: "center", gap: 7,
+              style={({ pressed }) => ({ width: ab, height: ab, borderRadius: 6, backgroundColor: pressed ? "#1E40AF" : NAVY, alignItems: "center", justifyContent: "center", gap: 7,
                 borderWidth: pop?.k === a ? 3 : 0, borderColor: "#93C5FD" })}>
-              <Icon name={BTN[a]} size={24} color="#fff" /><T w="m" size={13} color="#fff">{a}</T>
+              <DuoIcon name={BTN[a]} size={26} color="#fff" /><T w="m" size={13} color="#fff">{a}</T>
               {a === "Retrieve" && heldN ? <View style={{ position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: C.bg2, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{heldN}</T></View> : null}
             </Pressable>))}
         </View>
@@ -456,7 +456,7 @@ export function Register() {
                 : l === "Tables" ? setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
                   const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />) : pdBoard())}
               style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, height: 46, paddingHorizontal: 10, borderRadius: R.sm, backgroundColor: pressed ? C.brand50 : "transparent" })}>
-              <Icon name={ic} size={20} color={C.ink} /><T w="m" size={14.5} color={C.ink} numberOfLines={1}>{l}</T>
+              <DuoIcon name={ic} size={22} /><T w="m" size={14.5} color={C.ink} numberOfLines={1}>{l}</T>
               {l === "Pickup & Delivery" && pdN ? <View style={{ position: "absolute", top: -2, right: -8, minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.bad, borderWidth: 2, borderColor: "#fff", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}><T w="b" size={11} color="#fff">{pdN}</T></View> : null}
             </Pressable>))}
         </View>
