@@ -294,7 +294,18 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   users: {
-    col: "users", title: "Employees", one: "Employee", scope: { store: r => r.branchIds || [] }, needs: ["roles", "branches"], detail: "/employee",
+    col: "users", title: "Employees", one: "Employee", scope: { store: r => r.branchIds || [] }, needs: ["roles", "branches", "settings"], detail: "/employee",
+    filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).user || {}, YN: [string, string][] = [["yes", "Yes"], ["no", "No"]];
+      const rolesOf = (r: Row) => r.roleIds?.length ? r.roleIds : r.roleId ? [r.roleId] : [], brOf = (r: Row) => (r.branchIds || []).filter((b: string) => b && b !== "-");
+      return [{ k: "name", l: "Name", get: r => r.name }, { k: "no", l: "Employee Number", get: r => r.employeeNo }, { k: "email", l: "Email", get: r => r.email }, { k: "phone", l: "Phone", get: r => String(r.phone || "").replace(/\s/g, "") },
+        { k: "role", l: "Role", t: "multi", opts: s.roles.filter(live).map(x => [x.id, x.name]), get: r => rolesOf(r) },
+        { k: "tag", l: "Tag", t: "multi", opts: (tg.list || []).filter((t: any) => t.type === "user" && !t.deleted).map((t: any) => [t.id, t.name]), get: r => on[r.id] || [] },
+        { k: "verified", l: "Email Verified", t: "multi", opts: YN, get: r => r.email && r.userId ? "yes" : "no" },
+        { k: "hasBr", l: "Has Stores", t: "multi", opts: YN, get: r => brOf(r).length ? "yes" : "no" },
+        { k: "hasRoles", l: "Has Roles", t: "multi", opts: YN, get: r => rolesOf(r).length ? "yes" : "no" },
+        { k: "console", l: "Has Console Access", t: "multi", opts: YN, get: r => r.email ? "yes" : "no" },
+        { k: "app", l: "Has App Access", t: "multi", opts: YN, get: r => r.pinHash ? "yes" : "no" },
+        { k: "created", l: "Created After", t: "date", get: r => r.createdAt }]; },
     tabs: [["all", "All", r => live(r) && !isAdminRow(r)], ["deleted", "Deleted", r => del(r) && !isAdminRow(r)]],
     search: r => r.name + " " + (r.email || "") + " " + (r.phone || "") + " " + (r.employeeNo || "") + " " + (r.jobTitle || ""),
     cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.employeeNo ? <span className="ms-1.5 text-xs text-gray-500">{r.employeeNo}</span> : null}</> },
