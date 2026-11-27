@@ -45,8 +45,8 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
     <Panel area={area} cartOpen title={<span className="flex min-w-0 items-center gap-2">Discount · <span className="truncate text-blue-700 dark:text-blue-400">{one ? one.name : lines.length + " items"}</span></span>} onClose={() => onDone(undefined)}
       action={<>{lines.some(l => l.disc) ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onLineDone(lines.map(l => ({ idx: l.idx })))}>Remove</Main> : null}
         <Main disabled={!lok} onClick={() => onLineDone(each.map(e => lt === "pct" ? { idx: e.idx, discPct: Math.min(100, lx), disc: e.d } : { idx: e.idx, disc: e.d }))}>Apply</Main></>}>
-      <div className="flex h-full gap-6">
-        {/* the picked items: each with its total and what comes off it */}
+      <div className="flex h-full flex-row-reverse gap-6">
+        {/* the keypad on the left; the picked items on the right, each with its total and what comes off it */}
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{each.map(e => <div key={e.idx} className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
             <span className="min-w-8 text-[17px] font-semibold text-blue-700 dark:text-blue-400">{e.qty}×</span>
@@ -69,11 +69,12 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
       <div className="flex h-full gap-6">
         <div className="w-[330px] shrink-0 space-y-2.5">
           {/* saved discounts in a dropdown on top; Custom = type a % or an amount */}
-          {sets.length ? <Select value={setSel?.id || "_custom"} onValueChange={id => { setSetSel(id === "_custom" ? null : sets.find(d => d.id === id) || null); setV(""); }}>
+          {<Select value={setSel?.id || "_custom"} onValueChange={id => { setSetSel(id === "_custom" ? null : sets.find(d => d.id === id) || null); setV(""); }}>
             <SelectTrigger aria-label="Saved discount"><SelectValue /></SelectTrigger>
             <SelectContent><SelectItem value="_custom" className="py-3 text-[17px]">Custom discount</SelectItem>
+              {!sets.length ? <SelectItem value="_none" disabled className="py-3 text-[15px]">No saved discounts</SelectItem> : null}
               {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
-                return <SelectItem key={d.id} value={d.id} disabled={off} className="py-3 text-[17px]">{d.name}{d.open ? "" : off ? " · " + (c.why || "Not for this order") : " · −" + cur(c.amt)}</SelectItem>; })}</SelectContent></Select> : null}
+                return <SelectItem key={d.id} value={d.id} disabled={off} className="py-3 text-[17px]">{d.name}{d.open ? "" : off ? " · " + (c.why || "Not for this order") : " · −" + cur(c.amt)}</SelectItem>; })}</SelectContent></Select>}
           {typing ? <>
             {!setSel && allowPct && allowAmt ? <Seg value={type} onChange={k => { setType(k); setV(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
             {pad(v, pct, setV, setSel ? setSel.name : "Custom")}
@@ -112,17 +113,17 @@ export function ChargesPop({ x, cur, picked, open, area, onDone }: { x: Ctx; cur
 
 // Notes: the kitchen note or the receipt note, typed on the keyboard under it
 export function NotesPop({ init, area, onDone }: { init: { receipt: string; kitchen: string }; area: { cartW: string }; onDone: (v: { receipt: string; kitchen: string } | null) => void }) {
-  const [which, setWhich] = useState<"kitchen" | "receipt">("kitchen"), [n, setN] = useState(init), t = n[which];
+  const [which, setWhich] = useState<"kitchen" | "receipt">("kitchen"), [n, setN] = useState(init), t = n[which], [kb, setKb] = useState(false);   // the keyboard opens when the note is touched
   const key = (k: string) => setN(m => ({ ...m, [which]: k === "\b" ? m[which].slice(0, -1) : (m[which] + k).slice(0, 300) }));
   return (
     <Panel area={area} title="Notes" onClose={() => onDone(null)}
       action={<Main disabled={n.kitchen.trim() === (init.kitchen || "").trim() && n.receipt.trim() === (init.receipt || "").trim()} onClick={() => onDone({ kitchen: n.kitchen.trim(), receipt: n.receipt.trim() })}>Save</Main>} className="flex flex-col gap-4">
       <Seg value={which} onChange={setWhich} items={[["kitchen", <><Icon name="chef" className="size-5" />Kitchen note</>], ["receipt", <><Icon name="note" className="size-5" />Receipt note</>]]} />
       <div className="relative">
-        <Textarea value={t} inputMode="none" onChange={e => setN(m => ({ ...m, [which]: e.target.value }))} placeholder="Type the note" aria-label={which === "kitchen" ? "Kitchen note" : "Receipt note"} className="min-h-24 text-lg" />
+        <Textarea value={t} inputMode="none" onFocus={() => setKb(true)} onClick={() => setKb(true)} onChange={e => setN(m => ({ ...m, [which]: e.target.value }))} placeholder="Type the note" aria-label={which === "kitchen" ? "Kitchen note" : "Receipt note"} className="min-h-24 text-lg" />
         {t ? <button type="button" onClick={() => setN(m => ({ ...m, [which]: "" }))} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}
       </div>
-      <div className="mt-auto"><Keyboard onKey={key} /></div>
+      {kb ? <Keyboard onKey={k => (k === "\n" ? setKb(false) : key(k))} /> : null}
     </Panel>);
 }
 

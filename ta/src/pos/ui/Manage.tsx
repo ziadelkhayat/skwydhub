@@ -112,10 +112,9 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
   const shown = mode === "all" ? max.map((m, i) => (m > 0 ? i : -1)).filter(i => i >= 0) : pickedIx;
   const amt = kind === "return" ? refundOf(o, picked) : shown.reduce((a2, ix) => a2 + lineAmt(ix, picked[ix]), 0);
   const regBody = (
-    <div className="flex h-full gap-6">
+    <div className="flex h-full flex-row-reverse gap-6">
       <div className="flex min-w-0 flex-1 flex-col">
         {err ? <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
-          {a.stockAction === "ask" || !a.stockAction ? <div className="mb-3"><Seg value={stock} onChange={setStock} items={[["stock", "To stock"], ["waste", "Waste"]]} /></div> : <p className="mb-3 text-sm text-gray-500">Items go {a.stockAction === "waste" ? "to waste" : "back to stock"}.</p>}
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{mode === "all" ? null : shown.map(ix => { const i = o.items[ix];
           return <div key={ix} className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
             <span className="min-w-0 flex-1"><span className="block truncate text-[17px] font-medium text-gray-900 dark:text-gray-50">{i.name}</span>{i.mods ? <span className="block truncate text-sm text-gray-500">{i.mods}</span> : null}</span>
@@ -126,6 +125,7 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
           <b className="tabular-nums text-red-700 dark:text-red-400">{money(S, amt)}</b></div>
       </div>
       <div className="w-[330px] shrink-0 space-y-3 overflow-y-auto">
+        {a.stockAction === "ask" || !a.stockAction ? <Seg value={stock} onChange={setStock} items={[["stock", "To stock"], ["waste", "Waste"]]} /> : <p className="text-sm text-gray-500">Items go {a.stockAction === "waste" ? "to waste" : "back to stock"}.</p>}
         <Select value={reason} onValueChange={setReason}><SelectTrigger aria-label="Reason"><SelectValue placeholder={"Reason" + (a.reasonRequired !== false ? " *" : "")} /></SelectTrigger>
           <SelectContent>{[...reasons, "_other"].map(r => <SelectItem key={r} value={r} className="py-3 text-[17px]">{r === "_other" ? "Other…" : r}</SelectItem>)}</SelectContent></Select>
         {reason === "_other" ? <Input autoFocus value={other} onChange={e => setOther(e.target.value)} placeholder="Write the reason" aria-label="Reason" /> : null}
