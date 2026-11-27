@@ -22,6 +22,7 @@ import { Card, F, L, SEL, TD, TH } from "../ui/kit";
 import { PickDialog, type PickOpt } from "../ui/PickDialog";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
+import { ReorderDialog } from "../ui/ReorderDialog";
 
 const QUAL: [string, string][] = [["order", "Order"], ["product", "Product"], ["both", "Order & Product"]];
 const OT: [string, string][] = [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]];
@@ -39,7 +40,7 @@ const SECS: Sec[] = [
 export default function DiscountsPage() {
   const s = useS(["settings", "branches", "categories", "products"]);
   const [sp] = useSearchParams(), nav = useNavigate(), id = sp.get("id");
-  const [tab, setTab] = useState("all"), [form, setForm] = useState<any>(undefined);
+  const [tab, setTab] = useState("all"), [form, setForm] = useState<any>(undefined), [sorting, setSorting] = useState(false);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const list: any[] = (s.settings.find(x => x.id === "discounts") as any)?.list || [];
   const saveList = async (l: any[]) => { try { await put("settings", "discounts", { list: l }); return true; } catch { toast("Couldn't save. Only the owner or an admin can change discounts.", "error"); return false; } };
@@ -49,7 +50,7 @@ export default function DiscountsPage() {
     onDelete={async () => { if (await patch(form.id, { deleted: true })) { toast("Discount deleted"); setForm(undefined); nav("/discounts"); } }} />;
   if (open) return <><DiscountPage d={open} s={s} back={() => nav("/discounts")} edit={() => setForm(open)} patch={p => patch(open.id, p)} />{dlg}</>;
   const del = tab === "deleted";
-  const rows = list.filter(d => !!d.deleted === del).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const rows = list.filter(d => !!d.deleted === del);   // in the saved order (Sort), which the POS uses too
   return (
     <>
       <PageBreadcrumb pageTitle="Discounts" />
@@ -62,13 +63,15 @@ export default function DiscountsPage() {
           { id: "amt", title: "Discount", num: true, value: d => amtLbl(d) },
         ]}
         toolbar={<SegTabs value={tab} onChange={setTab} items={[["all", "All"], ["deleted", "Deleted"]]} />}
-        actions={<Button className="h-[30px] py-1" onClick={() => setForm(null)}><PlusIcon className="size-4" />Create Discount</Button>}
+        actions={<>{!del && <Button variant="secondary" className="h-[30px] py-1" onClick={() => setSorting(true)}>Sort</Button>}<Button className="h-[30px] py-1" onClick={() => setForm(null)}><PlusIcon className="size-4" />Create Discount</Button></>}
         onRowClick={del ? undefined : d => openWin("/discounts?id=" + d.id)}
         rowActions={del ? [{ label: "Restore", onSelect: async d => { if (await patch(d.id, { deleted: false })) toast("Discount restored"); } }]
           : [{ label: "Open", onSelect: d => openWin("/discounts?id=" + d.id) }, { label: "Edit", onSelect: d => setForm(d) }, { label: "Delete", danger: true, onSelect: async d => { if (await askYes("Delete " + d.name + "?", "Delete", true) && await patch(d.id, { deleted: true })) toast("Discount deleted"); } }]}
         empty={<EmptyState text={del ? "No deleted discounts" : "No discounts yet"} />}
       />
       {dlg}
+      {sorting && <ReorderDialog title="Sort Discounts" items={list.filter(d => !d.deleted).map(d => ({ id: d.id, name: d.name }))} onClose={() => setSorting(false)}
+        onSave={async ids => { const ok = await saveList([...ids.map(i => list.find(d => d.id === i)), ...list.filter(d => d.deleted)]); if (ok) toast("Order saved"); return ok; }} />}
     </>
   );
 }
