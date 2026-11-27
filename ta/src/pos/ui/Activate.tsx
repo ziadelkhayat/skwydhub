@@ -15,7 +15,7 @@ export function Activate({ onDone }: { onDone: () => void }) {
     if (next.length === 6) { setBusy(true); const r = await activate(next); setBusy(false); if (r.error) { setErr(r.error); setCode(""); } else onDone(); }
   };
   return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-3 overflow-auto bg-[#24409A] p-6 text-white">
+    <div className="flex h-full flex-col items-center justify-center gap-3 overflow-auto bg-[#24409A] p-6 text-white">
       <SkwydLogo stacked white label="pos" markClass="h-11 w-9" wordClass="h-10 w-auto" />
       <h1 className="mt-1 text-xl font-semibold">Activate This Device</h1>
       <p className="max-w-xs text-center text-sm text-white/75">Type the 6-digit code shown for this device in Manage → Devices.</p>
