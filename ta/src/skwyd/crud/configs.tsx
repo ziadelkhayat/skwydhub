@@ -139,7 +139,7 @@ export const CRUD: Record<string, CrudCfg> = {
   "payment-methods": {
     col: "payment_methods", title: "Payment Methods", one: "Payment Method",
     tabs: [["all", "All", live], ["active", "Active", r => live(r) && r.active !== false], ["inactive", "Inactive", r => live(r) && r.active === false], ["deleted", "Deleted", del]],
-    sort: bySort, search: r => r.name + " " + (r.code || ""),
+    sort: bySort, sortable: true, search: r => r.name + " " + (r.code || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => PM_TYPES.find(t => t[0] === r.type)?.[1] || "Other" }, { h: "Code", cell: r => r.code || "—" },
       { h: "Auto Open Cash Drawer", cell: r => r.openDrawer ? "Yes" : "No" }, { h: "Active", cell: r => <OnOff on={r.active !== false} /> }],
     fields: [{ k: "name", l: "Name", req: true, ph: "e.g. Cash, Visa, OMT" }, { k: "nameAr", l: "Name Localized" },
@@ -151,7 +151,7 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "order_sources", title: "Order Sources", one: "Order Source",
     tabs: [["all", "All", r => live(r) && !SYS_SRC(r.name)], ["deleted", "Deleted", r => del(r) && !SYS_SRC(r.name)]],
     prep: data => SYS_SRC(data.name) ? `"${data.name}" is set automatically on web and API orders. Choose another name.` : "",
-    sort: bySort, search: r => r.name + " " + (r.reference || ""),
+    sort: bySort, sortable: true, search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",

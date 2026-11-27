@@ -39,7 +39,7 @@ export type CrudCfg = {
   col: string; title: string; one: string; needs?: string[]; addLbl?: string;
   tabs: [string, string, (r: Row) => boolean][];
   sort?: (a: Row, b: Row) => number; search?: (r: Row, s: S) => string;
-  cols: CCol[]; fields: CField[]; unique?: string; note?: string;
+  cols: CCol[]; fields: CField[]; unique?: string; note?: string; sortable?: boolean;
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
   detail?: string;   // open rows on their own page (path?id=)
@@ -64,6 +64,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [fb, setFb] = useState(""), [fs, setFs] = useState("");
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
+  const [sorting, setSorting] = useState(false);
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
@@ -102,7 +103,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           toolbar={cfg.tabs.length > 1 || cfg.scope ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
             {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
             {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}</> : undefined}
-          actions={<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button>}
+          actions={<>{cfg.sortable && <Button variant="secondary" onClick={() => setSorting(true)} className="h-[30px] py-1">Sort</Button>}<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button></>}
           onRowClick={open}
           rowActions={[
             { label: cfg.detail ? "Open" : "Edit", onSelect: open },
@@ -114,8 +115,48 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           pageSize={PER}
         />
       )}
+      {sorting && s && <SortDialog cfg={cfg} rows={s[cfg.col].filter(cfg.tabs[0][2]).sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))))} onClose={() => setSorting(false)} />}
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
+  );
+}
+
+/** Sort: put the rows in the order they show (e.g. the POS payment buttons). Drag a row, or use the arrows; Save writes each row's sort number. */
+function SortDialog({ cfg, rows, onClose }: { cfg: CrudCfg; rows: Row[]; onClose: () => void }) {
+  const [l, setL] = useState<Row[]>(rows), [busy, setBusy] = useState(false), [drag, setDrag] = useState<number | null>(null);
+  const move = (from: number, to: number) => setL(x => { if (to < 0 || to >= x.length || from === to) return x; const n = [...x]; const [r] = n.splice(from, 1); n.splice(to, 0, r); return n; });
+  async function save() {
+    setBusy(true);
+    try { for (let i = 0; i < l.length; i++) if (l[i].sort !== i) await put(cfg.col, l[i].id, { sort: i }); toast("Order saved"); onClose(); }
+    catch (e: any) { toast(e?.message || "Couldn't save.", "error"); setBusy(false); }
+  }
+  const arrow = "flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:hover:bg-gray-800";
+  return (
+    <Dialog open onOpenChange={o => !o && onClose()}>
+      <DialogContent className="w-full p-0 sm:max-w-lg">
+        <div className="p-6 sm:p-8">
+          <DialogHeader className="gap-1 sm:gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Sort {cfg.title}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">Drag a row, or use the arrows. The POS shows them in this order.</DialogDescription>
+          </DialogHeader>
+          <ul className="mt-6 max-h-[60vh] space-y-2 overflow-y-auto">
+            {l.map((r, i) => (
+              <li key={r.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => { e.preventDefault(); if (drag !== null && drag !== i) { move(drag, i); setDrag(i); } }} onDragEnd={() => setDrag(null)}
+                className={cn("flex cursor-grab items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-950", drag === i && "opacity-50")}>
+                <span className="w-6 text-center text-sm text-gray-400">{i + 1}</span>
+                <span aria-hidden="true" className="text-gray-400">⋮⋮</span>
+                <span className="flex-1 truncate text-sm font-medium text-gray-900 dark:text-gray-50">{r.name}</span>
+                <button type="button" aria-label={`Move ${r.name} up`} className={arrow} disabled={i === 0} onClick={() => move(i, i - 1)}>↑</button>
+                <button type="button" aria-label={`Move ${r.name} down`} className={arrow} disabled={i === l.length - 1} onClick={() => move(i, i + 1)}>↓</button>
+              </li>))}
+          </ul>
+          <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
