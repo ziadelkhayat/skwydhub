@@ -1,7 +1,8 @@
 // The PIN sign-in: a light-blue screen, the skwyd logo, PIN dots, white keys with navy numbers, Sync Users, and the store and register under it.
 // Users of this branch (and owners/admins) sign in with their 4–5 digit PIN.
 import { useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { SkwydLogo } from "./Logo";
 import { pinUser, posUsers } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { C } from "../lib/theme";
@@ -23,7 +24,7 @@ export function Lock() {
   const devName = (device as any)?.name as string | undefined;
   return (
     <View style={{ flex: 1, backgroundColor: "#EFF5FE", alignItems: "center", justifyContent: "center", gap: 16 }}>
-      <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 12 }} />
+      <SkwydLogo label="pos" />
       <T w="s" size={21}>Enter Your PIN</T>
       <Dots n={pin.length} />
       <T size={14} color={C.bad} style={{ minHeight: 18, marginTop: -6 }}>{err}</T>

@@ -1,6 +1,7 @@
 // A new tablet (option A): type the 6-digit code from Manage → Devices in a centred card. There is no sign-in.
 import { useState } from "react";
-import { Image, View } from "react-native";
+import { View } from "react-native";
+import { SkwydLogo } from "./Logo";
 import { activate } from "../lib/db";
 import { C } from "../lib/theme";
 import { Card, Pad, T } from "./kit";
@@ -16,7 +17,7 @@ export function Activate({ onDone }: { onDone: () => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: C.bg, alignItems: "center", justifyContent: "center" }}>
       <Card style={{ paddingVertical: 32, paddingHorizontal: 40, alignItems: "center", gap: 16, borderRadius: 6 }}>
-        <Image source={require("../../assets/logo.png")} style={{ width: 64, height: 64, borderRadius: 6 }} />
+        <SkwydLogo label="pos" />
         <T w="s" size={22}>Activate This Device</T>
         <T color={C.mut} style={{ textAlign: "center", maxWidth: 320 }}>Type the 6-digit code shown for this device in Manage → Devices.</T>
         <View style={{ flexDirection: "row", gap: 8 }}>

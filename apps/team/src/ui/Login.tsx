@@ -5,6 +5,7 @@ import { LS, sb } from "../lib/sb";
 import { useTeam } from "../lib/team";
 import { C, F, R } from "../lib/theme";
 import { Btn, T } from "./kit";
+import { SkwydLogo } from "./Logo";
 
 const CCS: [string, string][] = [["+961", "Lebanon"], ["+971", "UAE"], ["+966", "Saudi Arabia"], ["+974", "Qatar"], ["+965", "Kuwait"], ["+973", "Bahrain"], ["+968", "Oman"], ["+962", "Jordan"], ["+20", "Egypt"], ["+90", "Turkey"], ["+33", "France"], ["+44", "UK"], ["+1", "USA / Canada"]];
 const inp = { height: 50, borderWidth: 1, borderColor: C.field, borderRadius: R.sm, paddingHorizontal: 14, fontFamily: F.r, fontSize: 17, color: C.ink, backgroundColor: "#fff" } as const;
@@ -30,8 +31,7 @@ export function Login() {
   return (
     <View style={{ flex: 1, backgroundColor: C.bg, justifyContent: "center", padding: 24 }}>
       <View style={{ alignItems: "center", marginBottom: 28, gap: 10 }}>
-        <View style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><T w="b" size={28} color="#fff">S</T></View>
-        <T w="s" size={22}>SKWYD Team</T>
+        <SkwydLogo label={process.env.EXPO_PUBLIC_SKWYD_APP === "driver" ? "driver" : "team"} />
       </View>
       {!phone ? <View style={{ gap: 12 }}>
         <T size={14} color={C.ink2}>Phone Number *</T>

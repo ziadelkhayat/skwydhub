@@ -42,7 +42,7 @@ function SignIn({ msg, onIn }: { msg: string; onIn: () => void }) {
   return <div className="flex min-h-dvh items-center justify-center bg-white p-6 dark:bg-gray-950">
     <form className="w-full max-w-sm" onSubmit={async e => { e.preventDefault(); setBusy(true); setErr("");
       const { error } = await sb.auth.signInWithPassword({ email: em.trim(), password: pw }); setBusy(false); if (error) return setErr("Wrong email or password."); onIn(); }}>
-      <div className="mb-6"><img src="/images/logo/logo.svg" alt="skwyd" className="mb-6 h-9 dark:hidden" onError={e => (e.currentTarget.style.display = "none")} />
+      <div className="mb-6"><div className="mb-6"><SkwydLogo label="admin" /></div>
         <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub Admin</h1><p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Sign in with your admin email and password.</p></div>
       <div className="space-y-4">
         <div><Label htmlFor="ae" className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50">Email <span className="text-red-500">*</span></Label><Input id="ae" className="h-9" type="email" autoComplete="username" required value={em} onChange={e => setEm(e.target.value)} /></div>
