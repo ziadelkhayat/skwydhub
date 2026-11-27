@@ -115,6 +115,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   products: {
     col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups", "modifiers", "settings", "inv_items"], detail: "/item", urlFilter: ["cat", "categoryId"], io: ITEM_IO,
+    kids: (r, s) => (r.variants || []).map((v: any) => s.products.find(x => x.id === v.productId && live(x))).filter(Boolean) as Row[],
     filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).product || {}, al: any = s.settings.find(x => x.id === "allergens") || {};
       const alls: string[] = Array.isArray(al.list) ? al.list : [...new Set(s.products.flatMap(p => p.allergens || []))] as string[];
       return [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "sku", l: "SKU", get: r => r.sku }, { k: "barcode", l: "Barcode", get: r => r.barcode },

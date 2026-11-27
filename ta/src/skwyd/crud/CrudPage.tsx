@@ -48,6 +48,7 @@ export type IoSet = { name: string; head: string[]; exp: (s: S) => unknown[][]; 
   before?: (d: Record<string, any>, cache: Record<string, string>) => Promise<void> };
 export type CrudCfg = {
   io?: IoSet[];   // Import / Export menu
+  kids?: (r: Row, s: S) => Row[];   // rows shown under a row (an item's variants): hidden from the list, opened with the arrow
   col: string; title: string; one: string; needs?: string[]; addLbl?: string;
   tabs: [string, string, (r: Row) => boolean][];
   sort?: (a: Row, b: Row) => number; search?: (r: Row, s: S) => string;
@@ -78,7 +79,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
   const [sorting, setSorting] = useState(false);
-  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false), [imp, setImp] = useState<IoSet | null>(null);
+  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false), [imp, setImp] = useState<IoSet | null>(null), [openK, setOpenK] = useState<Set<string>>(new Set());
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
@@ -91,6 +92,9 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
       .filter(r => !cfg.scope || (hit(fb, brandsOf(r)) && (!cfg.scope.store || hit(fs, cfg.scope.store(r, s).filter(Boolean)))))
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
   }, [s, tab, cfg, uf, fb, fs, F]);
+  // variants: hide them from the list and show them under their item when it is opened (the arrow)
+  const kidIds = useMemo(() => !s || !cfg.kids ? new Set<string>() : new Set(s[cfg.col].flatMap(r => cfg.kids!(r, s).map(k => k.id))), [s, cfg]);
+  const rows = useMemo(() => !s || !cfg.kids ? list : list.filter(r => !kidIds.has(r.id)).flatMap(r => openK.has(r.id) ? [r, ...cfg.kids!(r, s).map(k => ({ ...k, __kid: true }))] : [r]), [s, cfg, list, kidIds, openK]);
   const open = (r: Row) => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r);
   const del = async (rows: Row[], on: boolean) => {
     if (!s) return;
@@ -99,7 +103,12 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
     try { for (const r of rows) await softDelete(cfg.col, r.id, on); toast(on ? `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} deleted` : `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} restored`, on ? "error" : "success"); }
     catch (e: any) { toast(e?.message || "Couldn't save.", "error"); } };
   const deletedTab = /deleted/i.test(cfg.tabs.find(t => t[0] === tab)?.[1] || "");
-  const columns = useMemo<DTColumn<Row>[]>(() => !s ? [] : cfg.cols.map(c => ({ id: c.h, title: c.h, num: c.num, value: r => sortValue(c.cell(r, s)), cell: r => c.cell(r, s) })), [s, cfg]);
+  const columns = useMemo<DTColumn<Row>[]>(() => !s ? [] : cfg.cols.map((c, i) => ({ id: c.h, title: c.h, num: c.num, value: r => sortValue(c.cell(r, s)),
+    cell: r => { if (i || !cfg.kids) return c.cell(r, s); const n = r.__kid ? 0 : cfg.kids(r, s).length, on = openK.has(r.id);
+      return <span className="flex items-center gap-1">{n ? <button type="button" aria-label={(on ? "Hide" : "Show") + " variants of " + r.name} aria-expanded={on}
+        onClick={e => { e.stopPropagation(); setOpenK(x => { const y = new Set(x); if (on) y.delete(r.id); else y.add(r.id); return y; }); }}
+        className="flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><RiArrowDownSLine className={cn("size-5 transition-transform", !on && "-rotate-90")} aria-hidden="true" /></button>
+        : <span className={cn("shrink-0", r.__kid ? "w-12 ps-4 text-gray-400" : "w-7")} aria-hidden="true">{r.__kid ? "↳" : ""}</span>}{c.cell(r, s)}</span>; } })), [s, cfg, openK]);
 
   // Tremor dashboard template "Details" page: title, then the data table (filter bar, sortable columns, row menu, pagination)
   return (
@@ -110,7 +119,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
       {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div> : (
         <DataTable<Row>
           key={tab}
-          data={list}
+          data={rows}
           columns={columns}
           getRowId={r => r.id}
           searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
