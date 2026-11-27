@@ -154,7 +154,7 @@ export function DataTable<T>({
         </div>
         <div className="flex items-center gap-2">
           {searchEnd && search}
-          {onExport && (
+          {onExport && groupOf(pathname)?.key !== "skManage" && (
             <Button variant="secondary" className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex" onClick={() => onExport(table.getFilteredRowModel().rows.map(r => r.original))}>
               <RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export
             </Button>
