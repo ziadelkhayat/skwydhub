@@ -134,7 +134,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { h: "Products", cell: (r, s) => s.products.filter(p => live(p) && p.taxGroup === r.id).length, num: true }],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" },
       { k: "taxIds", l: "Taxes in this group", t: "multi", opts: s => s.taxes.filter(live).map(t => [t.id, t.name]) }],
-    unique: "name", note: "Give each product a tax group (Menu → Products). Its taxes add up.",
+    unique: "name",
   },
   "payment-methods": {
     col: "payment_methods", title: "Payment Methods", one: "Payment Method",
@@ -145,7 +145,7 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true, ph: "e.g. Cash, Visa, OMT" }, { k: "nameAr", l: "Name Localized" },
       { k: "type", l: "Type", t: "select", req: true, opts: () => PM_TYPES, def: "cash", lockEdit: true }, { k: "code", l: "Code" },
       { k: "openDrawer", l: "Auto Open Cash Drawer", t: "chk", def: false }, { k: "active", l: "Active", t: "chk", def: true }],
-    unique: "name", note: "These are the buttons the cashier sees on the POS payment screen, in the order you sort them. Cash lets the cashier enter the amount received and gives change.",
+    unique: "name",
   },
   "order-sources": {
     col: "order_sources", title: "Order Sources", one: "Order Source",
@@ -154,7 +154,7 @@ export const CRUD: Record<string, CrudCfg> = {
     sort: bySort, search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
-    unique: "name", note: "These are the choices in the call center's and the POS's Source list. Deleted sources are hidden from new orders but kept on old ones.",
+    unique: "name",
   },
   "inv-categories": {
     col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel,
@@ -246,7 +246,6 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   charges: {
     col: "charges", title: "Charges", one: "Charge", scope: { brand: r => r.brandIds || [], store: r => r.branchIds || [] }, needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort,
-    note: "Charges are added on top of the items, e.g. a service charge. The cashier or call center agent adds them to an order.",
     search: r => r.name + " " + (r.nameAr || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => r.type === "percent" ? "Percentage" : r.type === "open" ? "Open amount" : "Amount" },
       { h: "Value", cell: r => r.type === "percent" ? (+r.value || 0) + " %" : r.type === "open" ? "Open" : money(r.value), num: true },
