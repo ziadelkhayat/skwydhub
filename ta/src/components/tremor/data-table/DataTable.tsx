@@ -165,13 +165,14 @@ export function DataTable<T>({
         </div>
       </div>
 
-      <div className="relative overflow-hidden overflow-x-auto">
+      {/* the list scrolls inside its box so the column titles stay on top (sticky header) */}
+      <div className="relative max-h-[calc(100dvh-13rem)] min-h-40 overflow-auto">
         <Table>
           <TableHead>
             {table.getHeaderGroups().map(hg => (
               <TableRow key={hg.id} className="border-y border-gray-200 dark:border-gray-800">
                 {hg.headers.map(h => (
-                  <TableHeaderCell key={h.id} className={cx("whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
+                  <TableHeaderCell key={h.id} className={cx("sticky top-0 z-10 whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
                     {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                   </TableHeaderCell>
                 ))}
