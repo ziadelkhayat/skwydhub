@@ -65,7 +65,7 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
   return (
     <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">Whole order</span></span>} onClose={() => onDone(undefined)}
       action={<>{init ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onDone(null)}>Remove</Main> : null}<Main disabled={!ok} onClick={apply}>Apply</Main></>}>
-      <div className="flex h-full gap-6">
+      <div className="flex h-full flex-row-reverse gap-6">
         <div className="flex min-w-0 flex-1 flex-col">
           <Label>Saved discounts</Label>
           {!sets.length ? <p className="text-gray-500">No saved discounts.</p> : null}
