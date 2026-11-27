@@ -115,14 +115,13 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
     <div className="flex h-full gap-6">
       <div className="flex min-w-0 flex-1 flex-col">
         {err ? <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{shown.map(ix => { const i = o.items[ix];
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{mode === "all" ? null : shown.map(ix => { const i = o.items[ix];
           return <div key={ix} className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
-            {mode === "all" ? <span className="min-w-8 text-[17px] font-semibold text-blue-700 dark:text-blue-400">{max[ix]}×</span> : null}
             <span className="min-w-0 flex-1"><span className="block truncate text-[17px] font-medium text-gray-900 dark:text-gray-50">{i.name}</span>{i.mods ? <span className="block truncate text-sm text-gray-500">{i.mods}</span> : null}</span>
             {mode === "items" ? <Stepper n={qs[ix]} lessOff={qs[ix] <= 1} onLess={() => setQs(q => q.map((v, j) => (j === ix ? Math.max(1, v - 1) : v)))} onMore={() => setQs(q => q.map((v, j) => (j === ix ? Math.min(max[ix], v + 1) : v)))} /> : null}
             <span className="w-20 text-right text-[17px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineAmt(ix, picked[ix]))}</span>
           </div>; })}</div>
-        <div className="mt-3 flex items-center justify-between rounded-2xl bg-red-50 px-5 py-4 text-lg dark:bg-red-500/10"><span className="text-gray-700 dark:text-gray-300">{kind === "return" ? "Refund" : "Voided"}</span>
+        <div className="mt-3 flex items-center justify-between rounded-2xl bg-red-50 px-5 py-4 text-lg dark:bg-red-500/10"><span className="text-gray-700 dark:text-gray-300">{kind === "return" ? "Return" : "Void"}</span>
           <b className="tabular-nums text-red-700 dark:text-red-400">{money(S, amt)}</b></div>
       </div>
       <div className="w-[330px] shrink-0 space-y-3 overflow-y-auto">
