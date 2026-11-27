@@ -42,8 +42,19 @@ export const Card = ({ style, ...p }: { style?: StyleProp<ViewStyle>; children?:
   <View {...p} style={[{ backgroundColor: C.card, borderRadius: R.lg, borderWidth: 1, borderColor: C.line }, shadowXs, style]} />;
 
 // the 0–9 pad used for the activation code and PINs
-export function Pad({ onKey, size = 72, flatFn, c = "Clear", navy }: { onKey: (k: string) => void; size?: number; flatFn?: boolean; c?: string; navy?: boolean }) {   // flatFn: Clear and ⌫ without a box; navy: white keys without a border, navy numbers (sign-in)
+export function Pad({ onKey, size = 72, flatFn, c = "Clear", navy, round }: { onKey: (k: string) => void; size?: number; flatFn?: boolean; c?: string; navy?: boolean; round?: boolean }) {   // flatFn: Clear and ⌫ without a box; navy: white keys without a border, navy numbers (sign-in)
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "c", "0", "b"];
+  // round: the navy sign-in and activation screens — big round white keys with navy numbers; Clear and ⌫ are white text
+  if (round) return (
+    <View style={{ width: size * 3 + 32, flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
+      {keys.map(k => { const fn = k === "c" || k === "b"; return (
+        <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === "c" ? "Clear" : k === "b" ? "Delete" : k} onPress={() => onKey(k)}
+          style={({ pressed }) => [{ width: size, height: size, borderRadius: size / 2, alignItems: "center", justifyContent: "center", transform: [{ scale: pressed ? 0.95 : 1 }] },
+            fn ? { backgroundColor: pressed ? "rgba(255,255,255,0.15)" : "transparent" } : { backgroundColor: pressed ? "#DBEAFE" : "#fff", shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 2 }]}>
+          <T w={fn ? "m" : "s"} size={fn ? 16 : 30} color={fn ? "rgba(255,255,255,0.85)" : "#24409A"}>{k === "c" ? c : k === "b" ? "⌫" : k}</T>
+        </Pressable>); })}
+    </View>
+  );
   return (
     <View style={{ width: size * 3 + 24, flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
       {keys.map(k => (
@@ -58,8 +69,8 @@ export function Pad({ onKey, size = 72, flatFn, c = "Clear", navy }: { onKey: (k
   );
 }
 
-export const Dots = ({ n, of = 5 }: { n: number; of?: number }) => (
+export const Dots = ({ n, of = 5, onDark }: { n: number; of?: number; onDark?: boolean }) => (
   <View style={{ flexDirection: "row", gap: 14 }}>
-    {Array.from({ length: of }, (_, i) => <View key={i} style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: i < n ? C.brand : "#fff", borderWidth: 1.5, borderColor: i < n ? C.brand : C.field }} />)}
+    {Array.from({ length: of }, (_, i) => <View key={i} style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: i < n ? (onDark ? "#9CC70F" : C.brand) : onDark ? "transparent" : "#fff", borderWidth: onDark ? 2 : 1.5, borderColor: i < n ? (onDark ? "#9CC70F" : C.brand) : onDark ? "rgba(255,255,255,0.5)" : C.field }} />)}
   </View>
 );
