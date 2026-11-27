@@ -22,7 +22,6 @@ import { notify } from "./notify";
 import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDialog, type Paid } from "./Pay";
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
 import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, QUICK_NOTES, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
-import { Chip } from "./Touch";
 import { TablesDialog, tblLbl } from "./Tables";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
@@ -39,7 +38,7 @@ export function Register() {
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]); // eslint-disable-line react-hooks/exhaustive-deps
-  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the first top category
+  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = { cartW: CART_W };
   const [pop, setPop] = useState<string | null>(null);
@@ -273,11 +272,10 @@ export function Register() {
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return reDisc(z); })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
-  // the category buttons are the top categories; the grid shows the picked one's sub-categories and items (Back goes up from a sub-category)
-  const [srch, setSrch] = useState(false);
-  const cur0 = top || m.tops[0]?.id || "", rootOf = (id: string): string => { const p0 = m.parentOf(id); return p0 ? rootOf(p0) : id; }, root = cur0 ? rootOf(cur0) : "";
-  const items = q.trim() ? m.search(q) : cur0 ? [...m.subsOf(cur0).map(c => ({ sub: c })), ...m.itemsOf(cur0)] : [];
-  const tiles: any[] = [...(cur0 && cur0 !== root && !q.trim() ? [{ back: true }] : []), ...items];
+  // the categories as tiles; a tile opens its sub-categories and items, the Back tile goes up
+  const cur0 = top;
+  const items = q.trim() ? m.search(q) : cur0 ? [...m.subsOf(cur0).map(c => ({ sub: c })), ...m.itemsOf(cur0)] : m.tops.map(c => ({ sub: c }));
+  const tiles: any[] = [...(cur0 && !q.trim() ? [{ back: true }] : []), ...items];
   // the menu grid: 6 across, 3 down, filling the space exactly; more tiles scroll a page (3 rows) at a time
   const gridRef = useRef<HTMLDivElement>(null), [gh, setGh] = useState(0);
   useEffect(() => { const el = gridRef.current; if (!el) return; const ro2 = new ResizeObserver(() => setGh(el.clientHeight)); ro2.observe(el); return () => ro2.disconnect(); }, []);
@@ -391,15 +389,7 @@ export function Register() {
             <Icon name={BTN[a]} className="size-7" />{a}
             {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
-        <div className="flex gap-2.5">
-          {srch ? <>
-            <Input type="search" autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="flex-1 [&>input]:h-[52px] [&>input]:text-[17px]" />
-            <Chip onClick={() => { setQ(""); setSrch(false); }}><Icon name="x" className="size-5" />Close</Chip>
-          </> : <>
-            <Chip onClick={() => setSrch(true)} className="w-[52px] justify-center px-0"><span className="sr-only">Search items</span><Icon name="search" className="size-6" /></Chip>
-            <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto [scrollbar-width:none]">{m.tops.map(c => <Chip key={c.id} on={root === c.id} onClick={() => { setQ(""); setCat(c.id); }}>{c.name}</Chip>)}</div>
-          </>}
-        </div>
+        <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-[52px] [&>input]:text-[17px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
         <div ref={gridRef} className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto">
           {!m.tops.length ? <p className="p-5 text-gray-500">No POS menu at this store.</p> : null}
           {q.trim() && !items.length ? <p className="p-5 text-gray-500">No items match.</p> : null}
