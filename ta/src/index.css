@@ -215,3 +215,19 @@ layer(base);
 /* lines between rows: the very light ones (gray-100) are a step darker in the portal so every list shows its rows */
 .portal :where(.divide-gray-100) > :not(:last-child) { border-color: var(--color-gray-200); }
 .portal :where(.border-gray-100) { border-color: var(--color-gray-200); }
+
+/* ───────────── Dark mode: the browser's own parts follow the theme ─────────────
+   Dropdown lists of select boxes, date and time pickers, scrollbars and autofilled fields are drawn by the browser;
+   without this they stay white (light text on a white list) when the portal is dark. */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+.dark select option, .dark select optgroup { background-color: var(--color-gray-950); color: var(--color-gray-50); }
+.dark select option:disabled { color: var(--color-gray-500); }
+.dark input:-webkit-autofill, .dark textarea:-webkit-autofill, .dark select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-gray-50); caret-color: var(--color-gray-50);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-gray-950) inset; transition: background-color 9999s;
+}
+/* row lines and loading spinners that only had a light colour */
+:is(.dark .portal, .portal.dark) :where(.divide-gray-100, .divide-gray-200) > :not(:last-child),
+:is(.dark .portal, .portal.dark) :where(.border-gray-100) { border-color: var(--color-gray-800); }
+.dark .animate-spin.border-gray-200 { border-color: var(--color-gray-800); border-top-color: var(--color-blue-500); }
