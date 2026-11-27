@@ -36,7 +36,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </div>);
 }
 
-export function CustomerDialog({ type, types, init, onDone, area, back }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string }) {
+export function CustomerDialog({ type, types, init, onDone, area, back, onReorder }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string; onReorder?: (items: any[]) => void }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
@@ -135,13 +135,13 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
             <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">Previous orders</h3>
             <div className="max-h-[300px] space-y-2 overflow-y-auto">
               {prev.map(o => { const bad = ["void", "declined"].includes(o.status), its = (o.items || []).map((i: any) => (+i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ");
-                return <div key={o.id} className="rounded-xl border border-gray-200 px-4 py-2.5 dark:border-gray-800">
+                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => onReorder?.(o.items || [])} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
                   <div className="flex items-center gap-2 text-[15px]"><span className="font-semibold text-gray-900 dark:text-gray-50">{fmtD(o.created_at)}</span>
                     <span className="text-gray-500">{o.type === "delivery" ? "Delivery" : o.type === "pickup" ? "Pickup" : "In Store"}</span>
                     {bad ? <span className="rounded-md bg-red-50 px-1.5 text-[13px] font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{o.status === "void" ? "Void" : "Declined"}</span> : null}
                     <span className={cx("ms-auto font-semibold tabular-nums", bad ? "text-gray-400 line-through" : "text-gray-900 dark:text-gray-50")}>{money(S, +o.total || 0)}</span></div>
                   {its ? <p className="truncate text-[14px] text-gray-600 dark:text-gray-400">{its}</p> : null}
-                </div>; })}
+                </button>; })}
             </div></div> : null}
         </div>
       </div>

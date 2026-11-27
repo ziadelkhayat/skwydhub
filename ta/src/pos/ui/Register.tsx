@@ -86,7 +86,13 @@ export function Register() {
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
   // back: opened from Pickup & Delivery, its Back button returns there
-  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } else back?.(); };
+  // a past order tapped in the customer window: its items (still on the menu) go into the cart
+  const reorder = (items: any[]) => { if (ro) return say("This order is done");
+    const ok = (items || []).filter((i: any) => { const p = S.products.find((q: any) => q.id === i.productId); return p && !p.deleted && !prodOos(x, p); });
+    if (!ok.length) return say("These items aren't on the menu now");
+    setCart(c => [...c, ...ok.map((i: any): Line => ({ productId: i.productId, name: i.name, price: +i.price || 0, qty: +i.qty || 1, ...(i.options?.length ? { options: i.options } : {}), ...(i.note ? { note: i.note } : {}), ...(i.mods ? { mods: i.mods } : {}) }))]);
+    say(ok.length < items.length ? "Added to the cart (some items aren't on the menu now)" : "Added to the cart"); };
+  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} />); if (r) { setCust(r.cust); switchType(r.type); } else back?.(); };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
