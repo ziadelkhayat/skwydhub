@@ -1,5 +1,5 @@
 // Line icons (the same drawings as the current POS), drawn with react-native-svg.
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 
 const P: Record<string, (c: string) => React.ReactNode> = {
   search: () => <><Circle cx={11} cy={11} r={7} /><Path d="m20 20-3.5-3.5" /></>,
@@ -46,4 +46,30 @@ const P: Record<string, (c: string) => React.ReactNode> = {
 export function Icon({ name, size = 22, color = "#6B7280", sw = 1.8 }: { name: keyof typeof P | string; size?: number; color?: string; sw?: number }) {
   const draw = P[name] || P.bowl;
   return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{draw(color)}</Svg>;
+}
+
+// Duo-line icons (the chosen modern look): the main shape in one colour, the key detail in the accent colour (lime).
+const D: Record<string, [React.ReactNode, React.ReactNode]> = {
+  print: [<><Path d="M7 9V3.5h10V9" /><Rect x={3} y={9} width={18} height={8.5} rx={3} /></>, <Path d="M7.5 14h9v6.5h-9z" />],
+  chef: [<Path d="M6.5 15a4.3 4.3 0 1 1 2.1-8 4.4 4.4 0 0 1 6.8 0 4.3 4.3 0 1 1 2.1 8v5.5h-11z" />, <Path d="M7 17.5h10" />],
+  pause: [<Circle cx={12} cy={12} r={9.5} />, <Path d="M10 9v6M14 9v6" />],
+  ret: [<Path d="M3 13h5l1.8 2.5h4.4L16 13h5v5a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" />, <Path d="M12 3v8.5M8.5 8l3.5 3.5L15.5 8" />],
+  pct: [<Path d="M12 2.2l2.5 2.1 3.3-.3.9 3.2 2.9 1.6-1.2 3.2 1.2 3.2-2.9 1.6-.9 3.2-3.3-.3L12 21.8l-2.5-2.1-3.3.3-.9-3.2-2.9-1.6 1.2-3.2L2.4 8.8l2.9-1.6.9-3.2 3.3.3z" />, <><Path d="M9 15l6-6" /><Circle cx={9.5} cy={9.5} r={0.6} /><Circle cx={14.5} cy={14.5} r={0.6} /></>],
+  dollar: [<Circle cx={12} cy={12} r={9.5} />, <Path d="M14.8 9.3c-.4-.9-1.5-1.5-2.8-1.5-1.6 0-2.8.8-2.8 2 0 2.8 5.6 1.4 5.6 4.3 0 1.2-1.2 2.1-2.8 2.1-1.4 0-2.5-.6-2.9-1.6M12 6v1.8M12 16.2V18" />],
+  note: [<Rect x={4} y={2.5} width={16} height={19} rx={4} />, <Path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4" />],
+  tag: [<Path d="M3 4.8A1.8 1.8 0 0 1 4.8 3h7a1.8 1.8 0 0 1 1.3.5l7.6 7.6a1.8 1.8 0 0 1 0 2.6l-6.9 6.9a1.8 1.8 0 0 1-2.6 0l-7.6-7.6A1.8 1.8 0 0 1 3 11.7z" />, <Circle cx={8.3} cy={8.3} r={1.6} />],
+  void: [<Circle cx={12} cy={12} r={9.5} />, <Path d="M8 8l8 8M16 8l-8 8" />],
+  grid: [<><Rect x={3.5} y={3.5} width={7} height={7} rx={2.5} /><Rect x={13.5} y={13.5} width={7} height={7} rx={2.5} /></>, <><Rect x={13.5} y={3.5} width={7} height={7} rx={2.5} /><Rect x={3.5} y={13.5} width={7} height={7} rx={2.5} /></>],
+  list: [<><Rect x={4.5} y={4} width={15} height={17.5} rx={3.5} /><Path d="M9 2.5h6v3H9z" /></>, <Path d="M8.5 11h7M8.5 15h4.5" />],
+  table: [<Path d="M5 10v10M19 10v10M8 4.5h8" />, <Rect x={2.5} y={7} width={19} height={3.5} rx={1.7} />],
+  scooter: [<Path d="M3.5 14.5c0-2.6 2-4.5 4.5-4.5h5l2.2-4.5H18M13 10l3.5 4.5" />, <><Circle cx={6.5} cy={17.5} r={2.8} /><Circle cx={17.5} cy={17.5} r={2.8} /></>],
+  plus: [<Rect x={3} y={3} width={18} height={18} rx={6} />, <Path d="M12 8v8M8 12h8" />],
+};
+export const LIME = "#A3E635";
+export const NAVY = "#1E3A8A";
+export function DuoIcon({ name, size = 24, color = NAVY, accent = LIME, sw = 1.9 }: { name: string; size?: number; color?: string; accent?: string; sw?: number }) {
+  const d = D[name];
+  if (!d) return <Icon name={name} size={size} color={color} sw={sw} />;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <G stroke={color} strokeWidth={sw}>{d[0]}</G><G stroke={accent} strokeWidth={sw + 0.3}>{d[1]}</G></Svg>;
 }
