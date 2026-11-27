@@ -425,9 +425,9 @@ export function Register() {
             {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[60px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[60px] p-0")}
               onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-6" />}</Button> : null}
             {/* an open order with new items: only Save; a delivery is paid (TOTAL) once it's dispatched */}
-            {(() => { const dirty = !!live_eo && cart.some(l => l.qty > (l.saved || 0)), payOk = !dirty && !(live_eo && otype === "delivery" && !live_eo.dispatchedAt);
+            {(() => { const dirty = !!live_eo && cart.some(l => l.qty > (l.saved || 0)), payOk = dirty || !(live_eo && otype === "delivery" && !live_eo.dispatchedAt);
               return <>
-                {live_eo ? (dirty ? <Button className="h-[60px] flex-1 justify-between rounded-2xl px-6 text-lg" onClick={() => saveOrder()}><span>Save</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+                {live_eo ? (dirty ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" onClick={() => saveOrder()}>Save</Button>
                   : !payOk ? <>{/* a delivery not dispatched yet: pick its driver, then send it out */}
                     <Button variant="secondary" className="h-[60px] min-w-0 flex-1 truncate rounded-2xl text-[17px]" onClick={() => setDlg(<DriverPick x={x} o={live_eo} onDone={m => { setDlg(null); if (m) say(m); }} />)}>{live_eo.driverName ? "Driver: " + live_eo.driverName : "Assign Driver"}</Button>
                     <Button className="h-[60px] flex-1 rounded-2xl text-[17px]" onClick={() => { const now = new Date().toISOString(); write("orders", live_eo.id, { dispatchedAt: now, updatedAt: now }); say("Order dispatched" + (live_eo.driverName ? " with " + live_eo.driverName : "")); }}>Dispatch</Button></> : null)
