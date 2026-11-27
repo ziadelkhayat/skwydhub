@@ -67,7 +67,7 @@ export default function CurrencyPage() {
     <>
       <PageBreadcrumb pageTitle="Currency" />
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">The currency your menu prices are in, how many decimals they show, and an optional second currency.</p>
+        <span />
         {admin && <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>}
       </div>
       {!admin && <p className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change the currency.</p>}
