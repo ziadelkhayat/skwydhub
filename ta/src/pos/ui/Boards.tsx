@@ -74,11 +74,12 @@ export function PDBoard({ x: x0, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) =
   const dispatch = (o: Row) => { const now = new Date().toISOString(); write("orders", o.id, { dispatchedAt: now, updatedAt: now }); notify("Order " + ordRef(o) + " dispatched" + (o.driverName ? " with " + o.driverName : ""), "success"); };
   const l = today(x).filter(o => ["pickup", "takeaway", "delivery"].includes(o.type)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const COLS: [string, string, (o: Row) => boolean][] = [["pending", "Pending", o => o.status === "pending" || o.editRequest?.status === "pending"],
-    ["active", "Active", o => o.status === "active" && o.editRequest?.status !== "pending"], ["declined", "Declined", o => o.status === "declined"], ["closed", "Done", o => o.status === "closed"]];
+    ["active", "Preparing", o => o.status === "active" && o.editRequest?.status !== "pending" && !o.dispatchedAt],
+    ["dispatched", "Dispatched", o => o.status === "active" && o.editRequest?.status !== "pending" && !!o.dispatchedAt], ["closed", "Done", o => o.status === "closed"], ["declined", "Declined", o => o.status === "declined"]];
   return <Full><Head title="Pickup & Delivery" onClose={onClose}></Head>
-    <div className="grid flex-1 grid-cols-4 gap-3 overflow-hidden p-3">
+    <div className="grid flex-1 grid-cols-5 gap-3 overflow-hidden p-3">
       {COLS.map(([k, t, f]) => { const col = l.filter(f); return <section key={k} className="flex min-h-0 flex-col rounded-[20px] bg-gray-100 p-3 dark:bg-gray-900">
-        <div className="mb-3 flex items-center justify-between px-1"><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t}</h2><Badge variant={col.length && k === "active" ? "default" : "neutral"}>{col.length}</Badge></div>
+        <div className="mb-3 flex items-center justify-between px-1"><h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t}</h2><Badge variant={col.length && (k === "active" || k === "dispatched") ? "default" : "neutral"}>{col.length}</Badge></div>
         <div className="flex-1 space-y-3 overflow-y-auto">
           {col.length ? col.map(o => { const d = o.type === "delivery" && o.status === "active" && !o.dispatchedAt;
             return <Tile key={o.id} o={o} onOpen={() => onOpen(o)} onDriver={d ? () => setPick(o) : undefined} onDispatch={d ? () => dispatch(o) : undefined} />; })
