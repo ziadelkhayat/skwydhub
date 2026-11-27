@@ -316,7 +316,6 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "socialSecurity", l: "Registered for social security (payroll deducts it)", t: "chk", def: false },
       { k: "@c", l: "Emergency Contact", t: "head" }, { k: "emergencyName", l: "Contact Name" }, { k: "emergencyPhone", l: "Contact Phone", t: "phone" },
       { k: "notes", l: "Notes", t: "textarea" }],
-    note: "POS users sign in on the tablet with their PIN. Back-office passwords are set on the employee's page (Create Password).",
     prep: async (data, id, s) => {
       const pin = data.pin; delete data.pin;
       const pn = (v: any) => String(v || "").replace(/\D/g, "");
