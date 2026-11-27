@@ -58,9 +58,9 @@ export default function ItemPage() {
             <TableCell className={TD + " text-end"}><Button size="icon-sm" variant="ghost" aria-label="Remove" onClick={() => save({ modifiers: links.filter((_, j) => j !== i) }, "Modifier removed")}><TrashBinIcon className="size-5 text-red-500" /></Button></TableCell></TableRow>; })}
       </TableBody></Table></div>}
     </Sec>
-    <Ingredients s={s} col="products" rec={p as Row} /></>}
+    <Ingredients s={s} col="products" rec={p as Row} />
     <Nutrition col="products" rec={p as Row} />
-    <Allergens s={s} col="products" rec={p as Row} />
+    <Allergens s={s} col="products" rec={p as Row} /></>}
     {addV && <AddVariants p={p as Row} s={s} onClose={() => setAddV(false)} />}
     {edit && <EditDialog cfg={CRUD.products} s={s} row={p as Row} onClose={() => setEdit(false)} />}
   </>;
