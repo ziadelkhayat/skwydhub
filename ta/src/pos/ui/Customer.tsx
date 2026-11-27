@@ -106,7 +106,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
               <button type="button" onClick={() => { setNewAddr(true); setEditIdx(-1); set("addr", {}); setAddrOpen(false); }} className="flex h-12 w-full items-center gap-2 rounded-xl px-3 text-[17px] font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-500"><Icon name="plus" className="size-5" />New address</button>
             </PopoverContent>
           </Popover> : null}
-          {newAddr || !saved.length ? <div className="grid grid-cols-2 gap-2.5">
+          {newAddr || !saved.length ? <div className="space-y-2.5">
             <Field label="Address type" value={c.addr.label || ""} onChange={v => setA("label", v)} />
             <Field label="Area / street *" value={c.addr.street || ""} onChange={v => setA("street", v)} />
             <Field label="Building name / no. *" value={c.addr.building || ""} onChange={v => setA("building", v)} />
