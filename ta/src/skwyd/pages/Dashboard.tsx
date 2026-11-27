@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
 import { SummaryGeneral } from "./SummaryGeneral";
 import { BrandsTab, CallCenterTab, InventoryTab, StoresTab, useStoreLive } from "./SummaryTabs";
 import { useSearchParams } from "react-router";
+import { useAuth } from "@/lib/auth";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const myStores = stores.filter((x: Row) => inSel(brand, x.brandId));
   // tabs: General, Brands, Stores, Inventory, Call Center (?tab= in the address)
   const [sp, setSp] = useSearchParams(), tab = sp.get("tab") || "general";
+  const { staff } = useAuth();
   const TABS: [string, string][] = [["general", "General"], ["brands", "Brands"], ["stores", "Stores"], ["inventory", "Inventory"], ["callcenter", "Call Center"]];
   const brIds = store ? selList(store) : brand ? myStores.map((x: Row) => String(x.id)) : null;
   // the day end of the stores shown (the most common one when they differ)
@@ -87,6 +89,7 @@ export default function Dashboard() {
   // sticky filter bar, a report card per number (value + chart + View Report), then the breakdowns
   return (
     <>
+      <h1 className="mb-6 text-lg font-semibold break-words text-gray-900 sm:text-xl dark:text-gray-50">Welcome {staff?.name || "User"}</h1>
       <TabNavigation className="mb-4">
         {TABS.map(([k, l]) => <TabNavigationLink key={k} asChild active={tab === k}><button type="button" onClick={() => setSp(k === "general" ? {} : { tab: k })}>{l}</button></TabNavigationLink>)}
       </TabNavigation>
