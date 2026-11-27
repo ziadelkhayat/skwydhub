@@ -15,7 +15,7 @@ import { useStore } from "../lib/store";
 import { DriverPick } from "./Drivers";
 import { Icon } from "./Icon";
 import { notify } from "./notify";
-import { Chip, Panel } from "./Touch";
+import { Chip, Keyboard, Panel } from "./Touch";
 
 export const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 export const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "API", web: "API", marketplace: "API" };
@@ -122,11 +122,12 @@ export function OrdersList({ x: x0, onOpen, onClose, area }: { x: Ctx; onOpen: (
       {rng ? <Button variant="ghost" onClick={() => setRng(null)}>All dates</Button> : null}</Head>
     {/* the status buttons, or the search in their place */}
     <div className="flex shrink-0 gap-2.5 px-4 pt-4">
-      {srch ? <><Input type="search" autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search reference, number, check, customer, table" aria-label="Search orders" className="flex-1 [&>input]:h-[52px] [&>input]:text-[17px]" />
+      {srch ? <><Input type="search" autoFocus inputMode="none" value={q} onChange={e => setQ(e.target.value)} placeholder="Search reference, number, check, customer, table" aria-label="Search orders" className="flex-1 [&>input]:h-[52px] [&>input]:text-[17px]" />
         <Chip onClick={() => { setQ(""); setSrch(false); }}><Icon name="x" className="size-5" />Close</Chip></>
       : <><Chip onClick={() => setSrch(true)} className="w-[52px] justify-center px-0"><span className="sr-only">Search orders</span><Icon name="search" className="size-6" /></Chip>
-        <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">{TABS.map(([k, t]) => <Chip key={k} on={tab === k} n={n(k) || undefined} onClick={() => setTab(k)} className="h-12 px-4">{t}</Chip>)}</div></>}
+        <div className="flex min-w-0 flex-1 gap-1.5">{TABS.map(([k, t]) => <Chip key={k} on={tab === k} n={n(k) || undefined} onClick={() => setTab(k)} className="h-[52px] min-w-0 flex-1 justify-center gap-1 px-1 text-[15px]">{t}</Chip>)}</div></>}
     </div>
+    {srch ? <div className="shrink-0 px-4 pt-3"><Keyboard onKey={k => setQ(v => k === "\b" ? v.slice(0, -1) : k === "\n" ? v : v + k)} /></div> : null}
     <div className="flex min-h-0 flex-1 gap-4 p-4">
       {/* the orders as big rows; a tap opens the order in the cart */}
       <div className={cx("grid min-h-0 flex-1 content-start gap-2.5 overflow-y-auto pb-2", area ? "grid-cols-1" : "grid-cols-2")}>

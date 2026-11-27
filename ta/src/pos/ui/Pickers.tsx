@@ -12,7 +12,7 @@ import { cx } from "@/components/tremor/utils";
 import { useContext, useState, type ReactNode } from "react";
 import { modRule, type ModData, type ModOpt } from "../lib/pos";
 import { Icon } from "./Icon";
-import { AreaCtx, Panel } from "./Touch";
+import { AreaCtx, Keyboard, Panel } from "./Touch";
 
 /** a Tremor dialog that answers once */
 export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode }) {
@@ -154,8 +154,8 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
 // a cart line's note (printed on the kitchen ticket) and its discount, as a % (follows the quantity) or an amount
 // area: the cart's place on the register: the cart column turns into this line's editor; part: "note" or "disc" only
 export type LineEdit = { note: string; disc?: number; discPct?: number; qty?: number; remove?: boolean };
-export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone, area, minQty = 0, part }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
-  onDone: (r: LineEdit | null) => void; area?: { cartW: string }; minQty?: number; part?: "note" | "disc" }) {
+export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct, canAmt, onDone, area, minQty = 0, part, noDisc }: { name: string; unit: number; qty: number; note?: string; disc?: number; discPct?: number; money: (n: number) => string; canPct: boolean; canAmt: boolean;
+  onDone: (r: LineEdit | null) => void; area?: { cartW: string }; minQty?: number; part?: "note" | "disc"; noDisc?: boolean }) {
   const [n, setN] = useState(note || ""), [kind, setKind] = useState<"pct" | "amt">(disc && !discPct && canAmt ? "amt" : canPct ? "pct" : "amt"), [v, setV] = useState(discPct ? String(discPct) : disc ? String(disc) : "");
   const [q, setQ] = useState(qty);
   const full = unit * (area ? q : qty), x = Math.max(0, +v.replace(",", ".") || 0), d = kind === "pct" ? full * Math.min(100, x) / 100 : Math.min(x, full), allowed = kind === "pct" ? canPct : canAmt;
@@ -168,24 +168,22 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
     <div className="flex h-12 items-center justify-between rounded-md border border-gray-300 px-3 dark:border-gray-800"><span className="text-sm text-gray-500">Item discount</span><span className="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v || "0"}{kind === "pct" ? " %" : ""}</span></div>
     <NumPad onKey={key} dot={kind === "amt"} /></>;
   if (area) return (
-    <div className="fixed inset-y-0 left-0 z-30 flex flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950" style={{ width: area.cartW }}>
-      <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-        <div className="min-w-0 flex-1"><p className="truncate font-semibold text-gray-900 dark:text-gray-50">{part === "note" ? "Note · " + name : part === "disc" ? "Discount · " + name : q + " × " + name}</p><p className="text-sm text-gray-500">{money(unit)} each</p></div>
-        <Button variant="secondary" aria-label="Back to the cart" className="size-14 rounded-[14px] p-0" onClick={() => onDone(null)}><Icon name="x" className="size-6" /></Button>
-      </div>
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
-        {!part && <div className="flex items-center justify-between gap-3">
-          <Stepper n={q} big onLess={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} onMore={() => setQ(z => Math.min(999, z + 1))} lessOff={q <= Math.max(1, minQty)} />
-          {!minQty ? <Button variant="destructive" className="gap-1.5" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-4" />Remove</Button> : null}
-        </div>}
-        {part !== "disc" && <Textarea value={n} onChange={e => setN(e.target.value)} autoFocus={part === "note"} placeholder="Item note: no onions, extra spicy…" aria-label="Item note" className={part === "note" ? "min-h-32" : "min-h-16"} />}
-        {part === "note" ? null : discount}
-      </div>
-      <div className="flex items-center gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800">
-        <div className="flex-1"><p className="text-sm text-gray-500">Line total</p><p className="font-semibold text-gray-900 dark:text-gray-50">{money(full - d)}{d > 0 ? <span className="ms-2 text-sm font-normal text-gray-500 line-through">{money(full)}</span> : null}</p></div>
-        <Button className="h-14 rounded-[14px] px-8 text-[17px]" onClick={save}>Save</Button>
-      </div>
-    </div>);
+    // in the menu's place like Discount: the quantity, the item's note on the keyboard, and Remove
+    <Panel area={area} title={name} sub={money(unit) + " each · line total " + money(full - d)} onClose={() => onDone(null)} className="flex flex-col gap-4"
+      action={<Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save</Button>}>
+      {!part && <div className="flex items-center gap-3">
+        <div className="flex items-center rounded-2xl bg-gray-100 dark:bg-gray-900">
+          <Button variant="ghost" aria-label="One less" disabled={q <= Math.max(1, minQty)} onClick={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="minus" className="size-7" /></Button>
+          <span className="min-w-14 text-center text-3xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{q}</span>
+          <Button variant="ghost" aria-label="One more" onClick={() => setQ(z => Math.min(999, z + 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="plus" className="size-7" /></Button></div>
+        <span className="flex-1" />
+        {!minQty ? <Button variant="secondary" className="h-16 gap-2 rounded-2xl px-6 text-[17px] text-red-600 dark:text-red-500" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-6" />Remove item</Button> : null}
+      </div>}
+      {part !== "disc" && <div className="relative"><Textarea value={n} inputMode="none" onChange={e => setN(e.target.value)} placeholder="Item note: no onions, extra spicy…" aria-label="Item note" className="min-h-20 text-lg" />
+        {n ? <button type="button" onClick={() => setN("")} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}</div>}
+      {part === "note" || noDisc ? null : discount}
+      {part !== "disc" && <div className="mt-auto"><Keyboard onKey={k => setN(m => k === "\b" ? m.slice(0, -1) : (m + k).slice(0, 200))} /></div>}
+    </Panel>);
   return (
     <Sheet title={qty + " × " + name} onClose={() => onDone(null)} footer={<><Button variant="secondary" onClick={() => onDone(null)}>Cancel</Button><Button onClick={save}>Save</Button></>}>
       <div className="space-y-3">

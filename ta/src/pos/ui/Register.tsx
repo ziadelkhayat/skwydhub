@@ -15,7 +15,6 @@ import { onAlertOpen, pendingCount } from "./Alert";
 import { FnPage, OrdersList, ordRef, PDBoard } from "./Boards";
 import { CustomerDialog } from "./Customer";
 import { DriversDialog } from "./Drivers";
-import { useHold } from "./hold";
 import { Icon } from "./Icon";
 import { PrintersDialog, ReportsDialog, VoidReturnDialog } from "./Manage";
 import { notify } from "./notify";
@@ -23,7 +22,7 @@ import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDia
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
 import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
 import { TablesDialog, tblLbl } from "./Tables";
-import { AreaCtx } from "./Touch";
+import { AreaCtx, Keyboard } from "./Touch";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
 const CART_W = "33%", COLS = 6, ROWS = 3, TG = 10;
@@ -42,9 +41,9 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
+  const [kb, setKb] = useState(false);
   const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLine, setDiscLine] = useState<number | null>(null);
   const say = (s: string) => notify(s);
-  const press = useHold();
 
   // a window over the sale (variant, modifiers, open price…) that answers once
   const [dlg, setDlg] = useState<ReactNode>(null);
@@ -266,9 +265,16 @@ export function Register() {
   const editLine = (i: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (l.saved) return say("This item was sent to the kitchen. Void it to change it.");
-    return lineExtras(i, "note"); };
+    // an item with options: one tap opens its options again (with its note and quantity) to change them
+    const p = S.products.find(z => z.id === l.productId), md = p ? modData(x, p) : null;
+    if (p && md && md.links.length) return editMods(i, p, md);
+    return lineExtras(i); };
+  const editMods = async (i: number, p: any, md: ReturnType<typeof modData>) => { const l = cart[i], base = p.pricingMethod === "open" ? +(l.price - (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) : prodPrice(x, p);
+    const r = await ask<Picked | null>(done => <ModPicker name={l.name} basePrice={base} data={md} money={cur} area={area} edit={{ options: l.options || [], note: l.note, qty: l.qty }} onDone={done} />); if (!r) return;
+    setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y, price: r.unitPrice, qty: r.qty || y.qty }; delete z.options; delete z.note; delete z.mods;
+      if (r.options.length) z.options = r.options; if (r.note) z.note = r.note; if (r.options.length || r.note) z.mods = modLabel(r.mods, r.note); return reDisc(z); })); };
   const lineExtras = async (i: number, part?: "note" | "disc") => { const l = cart[i]; if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
-    const r = await ask<LineEdit | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={allowPct} canAmt={allowAmt} area={area} minQty={l.saved || 0} part={part} onDone={done} />); if (!r) return;
+    const r = await ask<LineEdit | null>(done => <LineExtras name={l.name} unit={l.price} qty={l.qty} note={l.note} disc={l.disc} discPct={l.discPct} money={cur} canPct={allowPct} canAmt={allowAmt} area={area} minQty={l.saved || 0} part={part} noDisc={!part} onDone={done} />); if (!r) return;
     if (r.remove) return setCart(c => c.filter((_, j) => j !== i));
     setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; if (r.qty) z.qty = r.qty;
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return reDisc(z); })); };
@@ -281,7 +287,7 @@ export function Register() {
   // the menu grid: 6 across, 3 down, filling the space exactly; more tiles scroll a page (3 rows) at a time
   const gridRef = useRef<HTMLDivElement>(null), [gh, setGh] = useState(0);
   useEffect(() => { const el = gridRef.current; if (!el) return; const ro2 = new ResizeObserver(() => setGh(el.clientHeight)); ro2.observe(el); return () => ro2.disconnect(); }, []);
-  const tileH = gh ? (gh - TG * (ROWS - 1)) / ROWS : 160;
+  const rows = kb ? 1 : ROWS, tileH = gh ? (gh - TG * (rows - 1)) / rows : 160;   // with the keyboard open, one row of results shows
   useEffect(() => { gridRef.current?.scrollTo({ top: 0 }); }, [cur0, q]);
 
   // the top buttons follow the order: new, saved (open), done, or returned / voided
@@ -341,8 +347,9 @@ export function Register() {
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
             return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", pop === "Discount" && discLine === i ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
-              {ro || sent ? <span className="min-w-7 text-[16px] text-gray-500">{l.qty}×</span> : null}
-              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" {...press(() => (pop === "Discount" ? pickDiscLine(i) : editLine(i)), () => lineExtras(i, "disc"))}>
+              {/* the quantity before the item (3×); tap the item to change it */}
+              <span className="min-w-9 text-[17px] font-semibold tabular-nums text-blue-700 dark:text-blue-400">{l.qty}×</span>
+              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" onClick={() => (pop === "Discount" ? pickDiscLine(i) : editLine(i))}>
                 <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
                 {/* the modifiers one under the other, each with its price on the right */}
                 {(l.options || []).length ? optRows(l.options!).map((o, k) => <span key={k} className="flex gap-2 ps-3 text-xs text-gray-500"><span className="flex-1 truncate">{(o.n > 1 ? o.n + "× " : "") + o.name}</span>{o.price ? <span>+{money(S, o.price)}</span> : null}</span>)
@@ -351,11 +358,6 @@ export function Register() {
                 {/* the item's note is the last line under the item */}
                 {l.note ? <span className="block text-xs italic text-gray-500">Note: {l.note}</span> : null}
               </button>
-              {ro || sent ? null : <div className="flex items-center rounded-xl bg-gray-100 dark:bg-gray-900">
-                {/* at 1 the − becomes a bin that takes the item off the cart */}
-                <Button variant="ghost" className={cx("size-12 p-0", left <= 1 ? "text-red-600 dark:text-red-500" : "text-blue-700 dark:text-blue-400")} aria-label={(left <= 1 ? "Remove " : "Less ") + l.name} onClick={() => qty(i, -1)}><Icon name={left <= 1 ? "trash" : "minus"} className="size-5" /></Button>
-                <span className="min-w-7 text-center text-[17px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{left}</span>
-                <Button variant="ghost" className="size-12 p-0 text-blue-700 dark:text-blue-400" aria-label={"More " + l.name} onClick={() => qty(i, 1)}><Icon name="plus" className="size-5" /></Button></div>}
               <span className="w-20 text-right text-[16px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineNet(l))}</span>
             </SwipeRow>; })}
         </div>
@@ -396,15 +398,20 @@ export function Register() {
             <Icon name={BTN[a]} className="size-7" />{a}
             {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
-        <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-[52px] [&>input]:text-[17px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
+        {/* search: a tap opens the keyboard under it; Close hides it */}
+        <div className="flex gap-2.5">
+          <Input type="search" inputMode="none" value={q} onFocus={() => setKb(true)} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="flex-1 [&>input]:h-[52px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
+          {kb || q ? <Button variant="secondary" className="h-[52px] gap-1.5 rounded-[14px] px-5 text-[17px]" onClick={() => { setKb(false); setQ(""); }}><Icon name="x" className="size-5" />Close</Button> : null}
+        </div>
+        {kb ? <Keyboard onKey={k => setQ(v => k === "\b" ? v.slice(0, -1) : k === "\n" ? v : v + k)} /> : null}
         <div ref={gridRef} className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto">
           {!m.tops.length ? <p className="p-5 text-gray-500">No POS menu at this store.</p> : null}
           {q.trim() && !items.length ? <p className="p-5 text-gray-500">No items match.</p> : null}
           <div className="grid" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`, gap: TG, gridAutoRows: tileH }}>
             {tiles.map((it: any, k: number) => it.back
               ? <Button key="back" variant="secondary" className="h-full snap-start flex-col gap-1.5 rounded-[14px] text-[16px]" onClick={() => setCat(m.parentOf(cur0))}><Icon name="back" className="size-7" />Back</Button>
-              : it.sub ? <Tile key={it.sub.id} name={it.sub.name} img={it.sub.imageUrl} snap={k % (COLS * ROWS) < COLS} onClick={() => { setQ(""); setCat(it.sub.id); }} />
-              : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * ROWS) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
+              : it.sub ? <Tile key={it.sub.id} name={it.sub.name} img={it.sub.imageUrl} snap={k % (COLS * rows) < COLS} onClick={() => { setQ(""); setCat(it.sub.id); }} />
+              : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * rows) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
           </div>
         </div>
         <nav className="mb-4 flex shrink-0 gap-1.5 rounded-[18px] border border-gray-200 bg-white p-1.5 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
@@ -455,20 +462,20 @@ const optRows = (opts: { name: string; price?: number }[]) => { const r: { name:
   opts.forEach(o => { const z = r.find(y => y.name === o.name); if (z) { z.n++; z.price += +(o.price || 0); } else r.push({ name: o.name, n: 1, price: +(o.price || 0) }); }); return r; };
 
 // a cart line that can be swiped left to show a red Delete button (no animation: the line follows the finger, then sits open or closed)
-const SW = 88;
+const SW = 88, FAR = 170;   // a short swipe shows Delete; a long swipe removes the item at once
 function SwipeRow({ enabled, onDelete, className, children }: { enabled: boolean; onDelete: () => void; className?: string; children: ReactNode }) {
-  const [dx, setDx] = useState(0), st = useRef<{ x: number; y: number; base: number; on: boolean } | null>(null), open = useRef(false);
+  const [dx, setDx] = useState(0), st = useRef<{ x: number; y: number; base: number; on: boolean } | null>(null), open = useRef(false), dragged = useRef(false);
   if (!enabled && dx) { open.current = false; setDx(0); }
   return (
     <div className="relative overflow-hidden">
-      {dx < 0 ? <button type="button" onClick={() => { open.current = false; setDx(0); onDelete(); }} className="absolute inset-y-0 right-0 flex items-center justify-center bg-red-600 text-sm font-semibold text-white" style={{ width: SW }}>Delete</button> : null}
+      {dx < 0 ? <button type="button" onClick={() => { open.current = false; setDx(0); onDelete(); }} className="absolute inset-y-0 right-0 flex items-center justify-center gap-1.5 bg-red-600 text-[16px] font-semibold text-white" style={{ width: Math.max(SW, -dx) }}><Icon name="trash" className="size-5" />{-dx >= FAR ? "Remove" : "Delete"}</button> : null}
       <div className={className} style={{ transform: `translateX(${dx}px)`, touchAction: "pan-y" }}
         onPointerDown={e => { if (enabled) st.current = { x: e.clientX, y: e.clientY, base: open.current ? -SW : 0, on: false }; }}
         onPointerMove={e => { const s = st.current; if (!s) return; const mx = e.clientX - s.x, my = e.clientY - s.y;
           if (!s.on) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.5) { s.on = true; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } else return; }
-          setDx(Math.max(-SW, Math.min(0, s.base + mx))); }}
-        onPointerUp={() => { const s = st.current; st.current = null; if (!s?.on) return; open.current = dx < -SW / 2; setDx(open.current ? -SW : 0); }}
+          setDx(Math.max(-FAR - 40, Math.min(0, s.base + mx))); }}
+        onPointerUp={() => { const s = st.current; st.current = null; if (!s?.on) return; dragged.current = true; setTimeout(() => { dragged.current = false; }, 400); if (dx <= -FAR) { open.current = false; setDx(0); return onDelete(); } open.current = dx < -SW / 2; setDx(open.current ? -SW : 0); }}
         onPointerCancel={() => { st.current = null; setDx(open.current ? -SW : 0); }}
-        onClickCapture={e => { if (dx) { e.stopPropagation(); e.preventDefault(); open.current = false; setDx(0); } }}>{children}</div>
+        onClickCapture={e => { if (dragged.current) { dragged.current = false; e.stopPropagation(); e.preventDefault(); return; } if (dx) { e.stopPropagation(); e.preventDefault(); open.current = false; setDx(0); } }}>{children}</div>
     </div>);
 }

@@ -63,6 +63,8 @@ export function CustomerDialog({ type, types, init, onDone, area }: { type: OTyp
     if (error) return notify("Couldn't save the address: " + error.message); setRaw(list); setSaved(list.map(a => a.address)); notify(msg); };
   const src = posSources(S), del = t === "delivery";
   const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
+  // Save stays greyed until the required fields are filled
+  const need = t === "dinein" ? !(c.phone.replace(/\D/g, "").length >= 6 && c.name.trim()) : !!custMissing(t, c, src.length > 0);
   const addrVal = newAddr ? "_new" : String(saved.findIndex(a => addrJoin(addrParts(a)) === addrJoin(c.addr)));
   const body = (
     <>
@@ -120,7 +122,7 @@ export function CustomerDialog({ type, types, init, onDone, area }: { type: OTyp
     </>);
   // on the register it opens in the menu's place like Discount (the cart stays on the left)
   return area
-    ? <Panel area={area} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main onClick={go}>Continue</Main>}>{body}</Panel>
+    ? <Panel area={area} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
     : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
       <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;
