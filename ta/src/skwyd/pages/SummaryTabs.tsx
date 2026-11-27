@@ -8,6 +8,7 @@ import { Card } from "@/components/tremor/Card";
 import { DonutChart } from "@/components/tremor/DonutChart";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRoot, TableRow } from "@/components/tremor/Table";
 import { Tracker } from "@/components/tremor/Tracker";
+import { getColorClassName, type AvailableChartColorsKeys } from "@/components/tremor/lib/chartUtils";
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
 import { fmtDateTime, money, openWin } from "@/lib/util";
@@ -72,7 +73,7 @@ export function BrandsTab({ D, L, stores, brands, brand }: { D: any; L: any[] | 
     {list.some(x => x.net) && <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
       <Card><h3 className="font-semibold text-gray-900 dark:text-gray-50">Share of net sales</h3>
         <DonutChart className="mx-auto mt-6 h-44" data={list.filter(x => x.net).map(x => ({ name: String(x.b.name), value: x.net }))} category="name" value="value" valueFormatter={money} showLabel label={money(NET)} /></Card>
-      <Card className="lg:col-span-2"><h3 className="font-semibold text-gray-900 dark:text-gray-50">Orders and average ticket by brand</h3>
+      <Card className="lg:col-span-2"><h3 className="font-semibold text-gray-900 dark:text-gray-50">Orders and active orders by brand</h3>
         <BarChart className="mt-6 h-52" data={list.map(x => ({ brand: String(x.b.name), Orders: x.n, "Active Orders": L ? x.act : 0 }))} index="brand" categories={["Orders", "Active Orders"]} colors={["blue", "amber"]} valueFormatter={n0} allowDecimals={false} /></Card>
     </div>}
     <StatTable title="Brands Statistics" empty="No brands yet."
@@ -152,7 +153,15 @@ export function CallCenterTab({ D, L, stores }: { D: any; L: any[] | null; store
     <Tiles items={[["Active Orders", L ? n0(sum(L, "cc")) : "…"], ["Done Orders", n0(sum(agents, "n"))], ["Net Sales", money(net)], ["Declined Orders", n0(+st.declined || 0)]]} />
     {Object.keys(st).length > 0 && <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
       <Card><h3 className="font-semibold text-gray-900 dark:text-gray-50">Orders by status</h3>
-        <DonutChart className="mx-auto mt-6 h-40" variant="pie" data={Object.entries(st).map(([k, v]) => ({ name: ({ closed: "Done", declined: "Declined", active: "Active", pending: "Pending", void: "Void", refund: "Returned" } as any)[k] || k, value: +(v as any) }))} category="name" value="value" valueFormatter={n0} colors={["emerald", "red", "blue", "amber", "gray", "violet"]} /></Card>
+        {/* each status keeps its colour (Done green, Declined red…), with a legend */}
+        {(() => { const ST: [string, string, AvailableChartColorsKeys][] = [["closed", "Done", "emerald"], ["active", "Active", "blue"], ["pending", "Pending", "amber"], ["declined", "Declined", "red"], ["void", "Void", "gray"], ["refund", "Returned", "violet"]];
+          const l = ST.filter(([k]) => +st[k]).map(([k, name, c]) => ({ name, value: +st[k], c }));
+          return l.length ? <div className="mt-6 flex items-center gap-6">
+            <DonutChart className="h-40 w-40 shrink-0" variant="pie" data={l} category="name" value="value" valueFormatter={n0} colors={l.map(x => x.c)} />
+            <ul className="flex-1 divide-y divide-gray-200 text-sm dark:divide-gray-800">{l.map(x => <li key={x.name} className="flex items-center justify-between gap-2 py-1.5">
+              <span className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><span className={"size-2.5 rounded-xs " + getColorClassName(x.c, "bg")} aria-hidden="true" />{x.name}</span>
+              <span className="font-medium tabular-nums text-gray-900 dark:text-gray-50">{n0(x.value)}</span></li>)}</ul>
+          </div> : <p className="mt-4 text-sm text-gray-500">No call center orders yet.</p>; })()}</Card>
       <Card><h3 className="font-semibold text-gray-900 dark:text-gray-50">From call to done</h3><p className="text-sm text-gray-500">Taken, accepted and done</p>
         {(() => { const all = Object.values(st).reduce((a: number, b: any) => a + +b, 0) as number, dec = +st.declined || 0, pend = +st.pending || 0, done = +st.closed || 0;
           return <BarList className="mt-6" data={[{ name: "Taken", value: all }, { name: "Accepted", value: all - pend - dec }, { name: "Done", value: done }]} valueFormatter={(v: number) => `${n0(v)} · ${all ? Math.round(v / all * 100) : 0}%`} sortOrder="none" />; })()}</Card>

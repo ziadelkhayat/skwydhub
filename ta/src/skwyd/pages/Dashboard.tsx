@@ -16,14 +16,19 @@ import { useSearchParams } from "react-router";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
-const today = () => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; };
+// the business day ends at the store's day start (or the company's day end), e.g. 04:00: sales before it count on the day before
+const cutOf = (v?: string) => { const m = /^(\d{1,2}):(\d{2})/.exec(v || ""); return m ? Math.min(719, (+m[1]) * 60 + (+m[2])) : 0; };
+const today = (cut = 0, tz?: string) => { const now = new Date(Date.now() - cut * 60000);
+  const p = tz ? new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now) : iso(now);
+  return new Date(p + "T12:00:00"); };
 
 export default function Dashboard() {
-  useCol("settings");
+  const sets = useCol("settings") || [], co = (sets.find((x: Row) => x.id === "company") || {}) as any;
+  const tz = co.timeZone || "Asia/Beirut";
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
 
   // Day / Week (Mon–Sun) / Month of one business date, "compared to" the period before, last year, or nothing
-  const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(today);
+  const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(() => today());
   const [cmp, setCmp] = useState(false), [cmpAt, setCmpAt] = useState<Date | null>(null);
   const [brand, setBrand] = useState(""), [store, setStore] = useState("");
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
@@ -32,6 +37,12 @@ export default function Dashboard() {
   const [sp, setSp] = useSearchParams(), tab = sp.get("tab") || "general";
   const TABS: [string, string][] = [["general", "General"], ["brands", "Brands"], ["stores", "Stores"], ["inventory", "Inventory"], ["callcenter", "Call Center"]];
   const brIds = store ? selList(store) : brand ? myStores.map((x: Row) => String(x.id)) : null;
+  // the day end of the stores shown (the most common one when they differ)
+  const cut = (() => { const c: Record<number, number> = {}; (brIds ? stores.filter((x: Row) => brIds.includes(String(x.id))) : stores).forEach((b: Row) => { const k = cutOf(b.settings?.dayStart || co.dayEnd); c[k] = (c[k] || 0) + 1; });
+    const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? +top[0] : cutOf(co.dayEnd); })();
+  // until the user picks a date, "today" is today's business day (before the day end it is still yesterday)
+  const [picked, setPicked] = useState(false);
+  useEffect(() => { if (!picked) setAt(today(cut, tz)); }, [cut, tz, picked]);
   const L = useStoreLive(brIds, brand, tab === "brands" || tab === "stores" || tab === "callcenter");
   const whs = useCol("warehouses") || [];
   const locIds = store ? selList(store) : brand ? [...myStores.map((x: Row) => String(x.id)), ...whs.filter((w: Row) => !w.brandId || inSel(brand, w.brandId)).map((w: Row) => String(w.id))] : null;
@@ -42,11 +53,10 @@ export default function Dashboard() {
   const per = span(kind, at);
   // compared with: the period picked on the second calendar, or the one just before
   const cmpPer = span(kind, cmpAt || new Date(+per.start - 86400000));
-  const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
+  const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n, cut, tz]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
     const br = brIds;
-    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz });
+    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz, p_cut: cut });
     Promise.all([call(per.start, per.n), cmp ? call(cmpPer.start, cmpPer.n) : Promise.resolve(null)]).then(([a, b]: any[]) => { if (off) return; const e = a.error || b?.error; if (e) setErr(e.message); else { setD(a.data || {}); setP(b ? b.data || {} : null); } });
     return () => { off = true; }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -55,7 +65,7 @@ export default function Dashboard() {
   const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
   // the numbers of one period, as values (for the comparison) and as text
   const nums = (X: any) => { const k = +X.orders || sum(hrsOf(X, "n")), ns = +X.net || sum(hrsOf(X, "net")), ps = +X.payments || sum(hrsOf(X, "pay"));
-    return [k, ns, ps, k ? ns / k : 0, +(X.active?.n ?? X.open ?? 0), +(X.declined?.n ?? 0), +X.discount || 0, +X.tax || 0, +(X.returns?.v || X.refunds?.v || 0), +(X.voids?.v || 0)]; };
+    return [k, ns, ps, k ? ns / k : 0, +(X.active?.n ?? X.open ?? 0), +(X.declined?.n ?? 0), +X.discount || 0, +X.tax || 0, +(X.returns?.v || X.refunds?.v || 0), (+X.voids?.v || 0) + (+X.voidItems || 0)]; };
   const cur = D ? nums(D) : [], old = P ? nums(P) : null;
   const fmtD = (d: Date) => iso(d).split("-").reverse().join("-");
 
@@ -85,9 +95,9 @@ export default function Dashboard() {
         <FilterSelect multiple title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
         {tab !== "stores" && <><Tabs value={kind} onValueChange={v => { setKind(v as any); setCmpAt(null); }}>
           <TabsList variant="solid">{([["1", "Day"], ["7", "Week"], ["30", "Month"]] as const).map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}</TabsList></Tabs>
-        <PeriodPicker kind={kind} value={at} onChange={d => { setAt(d); setCmpAt(null); }} max={today()} />
+        <PeriodPicker kind={kind} value={at} onChange={d => { setPicked(true); setAt(d); setCmpAt(null); }} max={today(cut, tz)} />
         {tab === "general" && <div className="flex items-center gap-2"><Switch id="cmp" checked={cmp} onCheckedChange={setCmp} /><Label htmlFor="cmp">Compare</Label></div>}
-        {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}</>}
+        {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today(cut, tz)} />}</>}
       </div>
       {tab === "stores" ? <div className="mt-8"><StoresTab L={L} stores={myStores.filter((x: Row) => !store || inSel(store, x.id))} /></div>
         : tab === "inventory" ? <div className="mt-8"><InventoryTab locIds={locIds} from={iso(per.start)} to={iso(new Date(+per.start + (per.n - 1) * 86400000))} /></div>

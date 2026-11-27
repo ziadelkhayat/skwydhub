@@ -38,7 +38,7 @@ const short = (v: number) => Intl.NumberFormat("en", { notation: "compact", maxi
 const pct = (v: number) => (v * 100).toFixed(1) + "%";
 const COLORS: AvailableChartColorsKeys[] = ["blue", "emerald", "violet", "amber", "cyan", "pink", "lime", "gray"];
 const TYPE: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", other: "Other" };
-const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", web: "Web", api: "API", other: "Other" };
+const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "Web Ordering", web: "Web Ordering", marketplace: "Marketplace", api: "API", other: "Other" };
 const H3 = "font-semibold text-gray-900 dark:text-gray-50", SUB = "text-sm text-gray-500 dark:text-gray-500";
 
 /** change against the compared period: a Tremor badge with an arrow */
@@ -74,7 +74,7 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
   };
   const kpis = ["net", "n", "avg", "pay"], m = M[metric], axis = m.j === 0 ? fmtN : short;
   const main = series(metric, !!m.avg).map(p => ({ date: p.label, [perLabel]: p.value, ...(cmp ? { [cmpLabel]: p.previousValue } : {}) }));
-  const cats = cmp ? [perLabel, cmpLabel] : [perLabel];
+  const cats = cmp ? [cmpLabel, perLabel] : [perLabel], catColors: AvailableChartColorsKeys[] = cmp ? ["gray", "blue"] : ["blue"];
   const nets = series("net");
   const combo = series("n").map((p, i) => ({ date: p.label, Orders: p.value || 0, "Net Sales": nets[i]?.value || 0 }));
   const types = groupBy(D.types, "n", x => TYPE[x.k] || x.k), pays = groupBy(D.payMethods, "v", x => String(x.k).replace(/^./, c => c.toUpperCase()));
@@ -88,8 +88,8 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
   const gross = cur[1] + cur[6], rate = (a: number, b: number) => (b ? a / b : 0);
   const circles: [string, number, string, "default" | "warning" | "error"][] = [
     ["Discount rate", rate(cur[6], gross), "Discounts ÷ sales before discounts", "default"],
-    ["Return rate", rate(cur[8], cur[1] || 1), "Returns ÷ net sales", "warning"],
-    ["Void rate", rate(cur[9], (cur[1] + cur[9]) || 1), "Voided amount ÷ sales and voids", "error"]];
+    ["Return rate", rate(cur[8], cur[2] + cur[8]), "Returns ÷ payments before returns", "warning"],
+    ["Void rate", rate(cur[9], cur[2] + cur[8] + cur[9]), "Voided amount ÷ payments and voids", "error"]];
   const up = cmp ? ch(1) : null;
   const cards = [{ t: "Orders", j: 0, k: "n", f: fmtN, r: "sales" }, { t: "Net Sales", j: 1, k: "net", f: money, r: "sales" }, { t: "Net Payments", j: 2, k: "pay", f: money, r: "payments" },
     { t: "Return Amount", j: 8, k: "ret", f: money, r: "voids" }, { t: "Discount Amount", j: 6, k: "disc", f: money, r: "sales" }, { t: "Average Ticket", j: 3, k: "avg", f: money, r: "sales" }];
@@ -98,7 +98,7 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
   return (
     <div className="space-y-6">
       {empty ? <Callout title="No sales in this period yet" variant="neutral">Pick another day, week or month, or check the Brand and Store filters.</Callout>
-        : up != null && old ? <Callout title={`Net sales ${up >= 0 ? "up" : "down"} ${Math.abs(up * 100).toFixed(1)}% against ${cmpLabel}`} variant={up >= 0 ? "success" : "warning"}>
+        : up != null && old ? <Callout title={Math.abs(up) < 0.0005 ? `Net sales unchanged against ${cmpLabel}` : `Net sales ${up > 0 ? "up" : "down"} ${Math.abs(up * 100).toFixed(1)}% against ${cmpLabel}`} variant={up >= 0 ? "success" : "warning"}>
             {money(cur[1])} this period against {money(old[1])}; {fmtN(cur[0])} orders against {fmtN(old[0])}.
             <div className="mt-3 space-y-1.5 text-xs">
               <div className="flex items-center gap-3"><span className="w-24 shrink-0">This period</span><ProgressBar value={cur[1] / big * 100} variant={up >= 0 ? "success" : "warning"} /></div>
@@ -134,8 +134,8 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
           </div>
         </div>
         {look === "area"
-          ? <AreaChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={["blue", "gray"]} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} connectNulls />
-          : <BarChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={["blue", "gray"]} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} />}
+          ? <AreaChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={catColors} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} connectNulls />
+          : <BarChart className="mt-6 h-72" data={main} index="date" categories={cats} colors={catColors} valueFormatter={axis} showLegend={cmp} yAxisWidth={48} />}
       </Card>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -154,7 +154,7 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
             {circles.map(([t, v, tip, c]) => (
               <div key={t} className="flex flex-col items-center gap-2 text-center">
                 <ProgressCircle value={Math.min(100, v * 100)} radius={28} strokeWidth={6} variant={c}><span className="text-xs font-medium text-gray-900 dark:text-gray-50">{pct(v)}</span></ProgressCircle>
-                <span className="text-xs text-gray-500"><Info t={t} tip={tip} /></span>
+                <span className="whitespace-nowrap text-xs text-gray-500"><Info t={t} tip={tip} /></span>
               </div>))}
           </div>
         </Card>
@@ -166,7 +166,7 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
           <Card key={t}>
             <h3 className={H3}>{t}</h3>
             {l.length ? <>
-              <DonutChart className="mx-auto mt-6 h-36" data={[...l]} category="name" value="value" colors={COLORS} valueFormatter={f} showLabel label={f(l.reduce((a, b) => a + b.value, 0))} />
+              <DonutChart className="mx-auto mt-6 h-36" data={[...l]} category="name" value="value" colors={COLORS} valueFormatter={f} showLabel label={f === money ? money(l.reduce((a, b) => a + b.value, 0)).replace(/[\d,]+(\.\d+)?/, short(l.reduce((a, b) => a + b.value, 0))) : f(l.reduce((a, b) => a + b.value, 0))} />
               <Legend l={[...l]} f={f} />
             </> : <p className={"mt-4 " + SUB}>No {u} yet.</p>}
           </Card>))}
@@ -183,11 +183,16 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
           <h3 className={H3}>Net sales by store</h3>
-          {byStore.length ? <BarList className="mt-6" data={byStore} valueFormatter={money} /> : <p className={"mt-4 " + SUB}>No sales yet.</p>}
-          {cmp && byStore.length > 0 && <ul className="mt-6 divide-y divide-gray-200 text-sm dark:divide-gray-800">{(D.branches || []).filter((b: any) => +b.net).map((b: any) => {
-            const was = +((P.branches || []).find((x: any) => x.id === b.id)?.net || 0);
-            return <li key={b.id} className="flex items-center justify-between gap-3 py-2"><span className="truncate text-gray-700 dark:text-gray-300">{nameOf(b.id)}</span>
-              <span className="flex items-center gap-2 tabular-nums text-gray-500">from {money(was)} <Change v={was ? (+b.net - was) / was : null} /></span></li>; })}</ul>}
+          {/* comparing: one list with this period's amount, the compared one and the change */}
+          {!byStore.length && !(cmp && (P.branches || []).length) ? <p className={"mt-4 " + SUB}>No sales yet.</p>
+            : !cmp ? <BarList className="mt-6" data={byStore} valueFormatter={money} />
+            : <ul className="mt-4 divide-y divide-gray-200 text-sm dark:divide-gray-800">{[...new Set([...(D.branches || []), ...(P.branches || [])].map((b: any) => String(b.id)))].map(id => {
+                const now = +((D.branches || []).find((x: any) => String(x.id) === id)?.net || 0), was = +((P.branches || []).find((x: any) => String(x.id) === id)?.net || 0);
+                return { id, now, was }; }).sort((a, b) => b.now - a.now).map(({ id, now, was }) => (
+                <li key={id} className="flex items-center justify-between gap-3 py-2.5">
+                  <span className="truncate font-medium text-gray-900 dark:text-gray-50">{nameOf(id)}</span>
+                  <span className="flex items-center gap-3 tabular-nums"><span className="text-gray-500">from {money(was)}</span><span className="font-medium text-gray-900 dark:text-gray-50">{money(now)}</span><Change v={was ? (now - was) / was : null} /></span>
+                </li>))}</ul>}
         </Card>
         <Card>
           <div className="flex items-center justify-between gap-2"><h3 className={H3}>Top items</h3>
@@ -199,15 +204,15 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
       <Divider>Reports</Divider>
       <dl className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {cards.map(c => {
-          const s = series(c.k, c.k === "avg").map(p => ({ date: p.label, [c.t]: p.value, ...(cmp ? { Before: p.previousValue } : {}) }));
+          const s = series(c.k, c.k === "avg").map(p => ({ date: p.label, [c.t]: p.value, ...(cmp ? { [cmpLabel]: p.previousValue } : {}) }));
           return (
             <Card key={c.t}>
               <div className="flex items-center justify-between gap-2">
                 <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50">{c.t}{cmp && <Change v={ch(c.j)} invert={c.j === 8 || c.j === 6} />}</dt>
                 <a href={location.pathname + location.search + "#" + rpt(c.r)} target="_blank" rel="noopener" className="whitespace-nowrap text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">View Report</a>
               </div>
-              <dd className="mt-2 flex items-baseline justify-between gap-2"><span className="whitespace-nowrap text-2xl font-medium text-gray-900 dark:text-gray-50">{c.f(cur[c.j])}</span>{cmp && old && <span className={SUB}>from {c.f(old[c.j])}</span>}</dd>
-              <LineChart className="mt-4 h-40" data={s} index="date" categories={cmp ? [c.t, "Before"] : [c.t]} colors={["blue", "gray"]} valueFormatter={c.j === 0 ? fmtN : short} showLegend={false} showYAxis={false} showGridLines={false} tickGap={24} connectNulls />
+              <dd className="mt-2"><span className="whitespace-nowrap text-2xl font-medium text-gray-900 dark:text-gray-50">{c.f(cur[c.j])}</span>{cmp && old && <p className={"truncate " + SUB}>from {c.f(old[c.j])} on {cmpLabel}</p>}</dd>
+              <LineChart className="mt-4 h-40" data={s} index="date" categories={cmp ? [cmpLabel, c.t] : [c.t]} colors={cmp ? ["gray", "blue"] : ["blue"]} valueFormatter={c.j === 0 ? fmtN : short} showLegend={false} showYAxis={false} showGridLines={false} tickGap={24} connectNulls />
             </Card>); })}
       </dl>
 
