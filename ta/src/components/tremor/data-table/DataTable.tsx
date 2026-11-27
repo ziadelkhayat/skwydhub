@@ -160,7 +160,7 @@ export function DataTable<T>({
             </Button>
           )}
           {/* View (column options): not on the Catalog and Inventory pages */}
-          {!hideView && !["skCatalog", "skInventory", "skManage", "skMarketing"].includes(groupOf(pathname)?.key || "") && <ViewOptions table={table} />}
+          {!hideView && pathname === "/orders" && <ViewOptions table={table} />}
           {actions}
         </div>
       </div>
