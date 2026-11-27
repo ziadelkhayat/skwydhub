@@ -155,6 +155,26 @@ const SUP_IO: IoSet[] = [
         if (isNew && !d.code) d.code = "SUP-" + String(max + n + 1).padStart(3, "0");
         return { name: d.name || old!.name, col: "suppliers", id: old?.id, data: d };
       }); } }];
+const CAT_IO: IoSet[] = [
+  { name: "categories", head: ["Name", "Name Localized", "Reference"],
+    exp: s => s.categories.filter(live).map(r => [r.name, r.nameAr, r.reference]),
+    imp: (recs, s) => { const seen = new Set<string>(); return perRow(recs, v => {
+      const old = v.reference ? s.categories.find(r => live(r) && low(r.reference) === low(v.reference)) : s.categories.find(r => live(r) && low(r.name) === low(v.name)), d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (!old) return "Name is missing.";
+      const k = low(d.name || old!.name); if (seen.has(k)) return `"${d.name || old!.name}" is already earlier in the file.`; seen.add(k);
+      if (!old && s.categories.some(r => live(r) && low(r.name) === k)) return `Another category is already called "${d.name}".`;
+      if (v["name localized"]) d.nameAr = v["name localized"]; if (v.reference) d.reference = v.reference;
+      return { name: d.name || old!.name, col: "categories", id: old?.id, data: d }; }); } }];
+const INVCAT_IO: IoSet[] = [
+  { name: "categories", head: ["Name", "Name Localized", "Reference"],
+    exp: s => s.inv_categories.filter(live).map(r => [r.name, r.nameAr, r.reference]),
+    imp: (recs, s) => { const seen = new Set<string>(); return perRow(recs, v => {
+      const old = v.reference ? s.inv_categories.find(r => live(r) && low(r.reference) === low(v.reference)) : s.inv_categories.find(r => live(r) && low(r.name) === low(v.name)), d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (!old) return "Name is missing.";
+      const k = low(d.name || old!.name); if (seen.has(k)) return `"${d.name || old!.name}" is already earlier in the file.`; seen.add(k);
+      if (!old && s.inv_categories.some(r => live(r) && low(r.name) === k)) return `Another category is already called "${d.name}".`;
+      if (v["name localized"]) d.nameAr = v["name localized"]; if (v.reference) d.reference = v.reference;
+      return { name: d.name || old!.name, col: "inv_categories", id: old?.id, data: d }; }); } }];
 const OPTION_IO: IoSet[] = [
   { name: "options", head: ["Modifier", "Name", "Name Localized", "SKU", "Price", "Tax Group", "Costing Method", "Cost", "Active"],
     exp: s => s.modifier_options.filter(live).map(o => [s.modifiers.find(m => m.id === o.modifierId)?.name, o.name, o.nameAr, o.sku, o.price ?? 0,
@@ -184,7 +204,7 @@ const OnOff = ({ on }: { on: boolean }) => <Badge variant="light" color={on ? "s
 
 export const CRUD: Record<string, CrudCfg> = {
   categories: {
-    col: "categories", title: "Categories", one: "Category", needs: ["products"],
+    col: "categories", title: "Categories", one: "Category", needs: ["products"], io: CAT_IO,
     filters: () => [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "ref", l: "Reference", get: r => r.reference }, { k: "created", l: "Created After", t: "date", get: r => r.createdAt }],
     tabs: [["all", "All", r => live(r) && !r.channel], ["deleted", "Deleted", r => del(r) && !r.channel]],
     search: r => r.name + " " + (r.reference || ""),
@@ -346,7 +366,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   "inv-categories": {
-    col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel,
+    col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel, io: INVCAT_IO,
     filters: () => [fName, fRef(), fCreated],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref, { h: "Products", cell: (r, s) => <XLink className="text-blue-500 hover:underline" to={"/inv-items?icat=" + encodeURIComponent(r.name)} onClick={e => e.stopPropagation()}>Products ({s.inv_items.filter(i => live(i) && i.category === r.name).length})</XLink> }, created],
