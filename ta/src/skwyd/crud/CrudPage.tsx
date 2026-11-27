@@ -26,12 +26,16 @@ import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTab
 import { downloadCsv, sortValue, textOf } from "@/components/tremor/data-table/textOf";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
+import { Checkbox } from "@/components/tremor/Checkbox";
+import { RiArrowDownSLine } from "@remixicon/react";
+import { SEL_LOOK } from "../ui/kit";
 
 export type Opt = [string, string];
 export type S = Record<string, Row[]>;
 export type CField = {
   k: string; l: string; t?: "text" | "number" | "select" | "textarea" | "chk" | "multi" | "items" | "image" | "head" | "date" | "phone" | "pin";
-  req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any;
+  req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any; drop?: boolean;
   opts?: (s: S) => Opt[]; auto?: (s: S) => any; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
 };
 export type CCol = { h: string; cell: (r: Row, s: S) => ReactNode; num?: boolean };
@@ -219,8 +223,30 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
   );
 }
 
+/** several choices as a dropdown with tick boxes (a field with drop: true); shows the picked names, or "All" when every one is picked */
+function MultiDrop({ label, opts, cur, set, ph }: { label: ReactNode; opts: Opt[]; cur: string[]; set: (v: string[]) => void; ph?: string }) {
+  const picked = opts.filter(([v]) => cur.includes(v)).map(o => o[1]), all = opts.length > 0 && picked.length === opts.length;
+  return (
+    <Popover>{label}
+      <PopoverTrigger asChild>
+        <button type="button" className={cn(SEL_LOOK, "flex w-full items-center justify-between gap-2 text-left")}>
+          <span className={cn("truncate", !picked.length && "text-gray-400 dark:text-gray-500")}>{!picked.length ? ph || "Choose..." : all && opts.length > 1 ? "All" : picked.join(", ")}</span>
+          <RiArrowDownSLine className="size-4 shrink-0 text-gray-500" aria-hidden="true" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="z-[110] w-[var(--radix-popover-trigger-width)] p-2">
+        <div className="max-h-64 overflow-y-auto">
+          {opts.length > 1 && <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-900">
+            <Checkbox checked={all} onCheckedChange={c => set(c ? opts.map(o => o[0]) : [])} />All</label>}
+          {opts.map(([v, l]) => <label key={v} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-900">
+            <Checkbox checked={cur.includes(v)} onCheckedChange={c => set(c ? [...cur, v] : cur.filter(x => x !== v))} />{l}</label>)}
+        </div>
+      </PopoverContent>
+    </Popover>);
+}
+
 function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) => void; s: S; locked: boolean }) {
-  const full = f.full || f.t === "textarea" || f.t === "multi" || f.t === "items" || f.t === "image";
+  const full = f.full || f.t === "textarea" || (f.t === "multi" && !f.drop) || f.t === "items" || f.t === "image";
   const label = <FieldLabel className="mb-1.5 block">{f.l}{f.req && <span className="text-red-500"> *</span>}</FieldLabel>;
   const note = f.note && <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{f.note}</p>;
   if (f.t === "chk") return (
@@ -234,6 +260,8 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
         <SelectTrigger className="h-9 w-full"><SelectValue placeholder={f.ph || "Choose..."} /></SelectTrigger>
         <SelectContent>{opts.map(([value, l]) => <SelectItem key={value} value={value}>{l}</SelectItem>)}</SelectContent>
       </Select>{note}</Field>); }
+  if (f.t === "multi" && f.drop) { const cur: string[] = Array.isArray(v) ? v : [];
+    return (<Field className={cn(full && "col-span-full")}><MultiDrop label={label} opts={(f.opts ? f.opts(s) : []).filter(o => !o[0].startsWith("@"))} cur={cur} set={set} ph={f.ph} />{note}</Field>); }
   if (f.t === "multi") { const opts = f.opts ? f.opts(s) : [], cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
       <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);
