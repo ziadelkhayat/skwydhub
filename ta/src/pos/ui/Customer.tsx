@@ -51,7 +51,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
       const d = data?.[0]; if (!d) { setWho({ name: "", notes: "", black: false, isNew: true }); setSaved([]); setNewAddr(true); return; }
       const all = (d.addresses || []).filter((a: any) => a?.address); setCustId(d.id); setRaw(all);
       const sv = all.map((a: any) => a.address) as string[];
-      setWho({ name: d.name || "", notes: d.notes || "", black: !!d.blacklisted }); setSaved(sv); setNewAddr(!sv.length);
+      setWho({ name: d.name || "", notes: d.notes || "", black: !!d.blacklisted }); setSaved(sv); setNewAddr(true); setEditIdx(sv.length && !addrJoin(c.addr) ? 0 : -1);   // the first saved address shows in the fields
       // insights: their orders (done ones count), what they spend and order most
       const { data: os } = await sb.from("orders").select("id,total,status,created_at,items,type").in("phone", phoneVariants(ph)).order("created_at", { ascending: false }).limit(200); if (off) return;
       const done = (os || []).filter((o: any) => o.status === "closed"), cnt: Record<string, number> = {};
@@ -64,7 +64,9 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
   const saveAddrs = async (list: any[], msg: string) => { if (!sb || !custId) return; const { error } = await sb.from("customers").update({ addresses: list }).eq("id", custId);
     if (error) return notify("Couldn't save the address: " + error.message); setRaw(list); setSaved(list.map(a => a.address)); notify(msg); };
   const src = posSources(S), del = t === "delivery";
-  const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
+  const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m);
+    if (editIdx >= 0 && addrJoin(c.addr) !== saved[editIdx]) saveAddrs(raw.map((r, j) => (j === editIdx ? { ...r, address: addrJoin(c.addr) } : r)), "Address saved");
+    onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
   // Save stays greyed until the required fields are filled
   const need = t === "dinein" ? !(c.phone.replace(/\D/g, "").length >= 6 && c.name.trim()) : !!custMissing(t, c, src.length > 0);
   const addrVal = newAddr ? "_new" : String(saved.findIndex(a => addrJoin(addrParts(a)) === addrJoin(c.addr)));
@@ -84,18 +86,17 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
           {saved.length ? <Popover open={addrOpen} onOpenChange={setAddrOpen}>
             <PopoverTrigger asChild>
               <button type="button" className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-2 text-left dark:border-gray-800 dark:bg-gray-950">
-                {newAddr ? <span className="flex flex-1 items-center gap-2 text-[17px] font-medium text-blue-600 dark:text-blue-500"><Icon name="plus" className="size-5" />{editIdx >= 0 ? "Editing: " + (addrParts(saved[editIdx]).label || "Address " + (editIdx + 1)) : "New address"}</span>
-                  : (() => { const i = +addrVal, p = addrParts(saved[i] || ""); return <span className="min-w-0 flex-1"><span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span><span className="block truncate text-[14px] text-gray-500">{addrJoin({ ...p, label: "" } as Addr)}</span></span>; })()}
+                {newAddr && editIdx < 0 ? <span className="flex flex-1 items-center gap-2 text-[17px] font-medium text-blue-600 dark:text-blue-500"><Icon name="plus" className="size-5" />New address</span>
+                  : (() => { const i = editIdx >= 0 ? editIdx : +addrVal, p = addrParts(saved[i] || ""); return <span className="min-w-0 flex-1"><span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span><span className="block truncate text-[14px] text-gray-500">{addrJoin({ ...p, label: "" } as Addr)}</span></span>; })()}
                 <Icon name="down" className="size-5 shrink-0 text-gray-500" />
               </button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] space-y-1.5 p-2">
-              {saved.map((a, i) => { const p = addrParts(a), on = !newAddr && addrVal === String(i);
+              {saved.map((a, i) => { const p = addrParts(a), on = editIdx === i || (!newAddr && addrVal === String(i));
                 return <div key={i} className={cx("flex items-center gap-1.5 rounded-xl p-1", on ? "bg-blue-50 dark:bg-blue-500/10" : "")}>
-                  <button type="button" className="min-w-0 flex-1 rounded-lg px-2 py-1 text-left" onClick={() => { setNewAddr(false); setEditIdx(-1); set("addr", addrParts(saved[i])); setAddrOpen(false); }}>
+                  <button type="button" className="min-w-0 flex-1 rounded-lg px-2 py-1 text-left" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); setAddrOpen(false); }}>
                     <span className="block text-[16px] font-semibold text-gray-900 dark:text-gray-50">{p.label || "Address " + (i + 1)}</span>
                     <span className="block truncate text-[14px] text-gray-500">{addrJoin({ ...p, label: "" } as Addr)}</span></button>
-                  <Button variant="secondary" className="h-12 rounded-xl px-4 text-[16px]" onClick={() => { setNewAddr(true); setEditIdx(i); set("addr", addrParts(saved[i])); setAddrOpen(false); }}>Edit</Button>
                   <Button variant="secondary" aria-label={sureDel === i ? "Tap again to delete this address" : "Delete address"} className={cx("h-12 rounded-xl text-red-600 dark:text-red-500", sureDel === i ? "px-4 text-[16px] font-semibold" : "w-12 p-0")}
                     onClick={() => { if (sureDel === i) { setSureDel(-1); saveAddrs(raw.filter((_, j) => j !== i), "Address deleted"); } else { setSureDel(i); setTimeout(() => setSureDel(-1), 3000); } }}>{sureDel === i ? "Delete?" : <Icon name="trash" className="size-5" />}</Button>
                 </div>; })}
@@ -109,9 +110,6 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
             <Field label="Floor / Apartment *" value={c.addr.floor || ""} onChange={v => setA("floor", v)} />
             <Field label="Door / name on intercom" value={c.addr.door || ""} onChange={v => setA("door", v)} />
             <Field label="Instructions" value={c.addr.extra || ""} onChange={v => setA("extra", v)} />
-            {editIdx >= 0 ? <div className="col-span-2 flex justify-end gap-2.5">
-              <Button variant="secondary" className="h-14 rounded-[14px] px-6 text-[17px]" onClick={() => { setNewAddr(false); set("addr", addrParts(saved[editIdx])); setEditIdx(-1); }}>Cancel</Button>
-              <Button className="h-14 rounded-[14px] px-6 text-[17px]" onClick={() => { const nx = raw.map((r, j) => (j === editIdx ? { ...r, address: addrJoin(c.addr) } : r)); setNewAddr(false); setEditIdx(-1); saveAddrs(nx, "Address saved"); }}>Save address</Button></div> : null}
           </div> : null}
         </div> : null}
         </div>
