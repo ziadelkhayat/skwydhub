@@ -15,7 +15,7 @@ import { useStore } from "../lib/store";
 import { onAlertOpen, pendingCount } from "./Alert";
 import { FnPage, OrdersList, ordRef, PDBoard } from "./Boards";
 import { CustomerDialog } from "./Customer";
-import { DriversDialog } from "./Drivers";
+import { DriverPick, DriversDialog } from "./Drivers";
 import { Icon } from "./Icon";
 import { PrintersDialog, ReportsDialog, VoidReturnDialog } from "./Manage";
 import { notify } from "./notify";
@@ -427,7 +427,10 @@ export function Register() {
             {/* an open order with new items: only Save; a delivery is paid (TOTAL) once it's dispatched */}
             {(() => { const dirty = !!live_eo && cart.some(l => l.qty > (l.saved || 0)), payOk = !dirty && !(live_eo && otype === "delivery" && !live_eo.dispatchedAt);
               return <>
-                {live_eo ? (dirty || !payOk ? <Button variant={payOk ? "secondary" : "primary"} className={cx("h-[60px] flex-1 rounded-2xl text-[17px]", dirty && "justify-between px-6 text-lg")} disabled={!dirty} onClick={() => saveOrder()}>{dirty ? <><span>Save</span><span className="tabular-nums">{money(S, t.total)}</span></> : "Not dispatched yet"}</Button> : null)
+                {live_eo ? (dirty ? <Button className="h-[60px] flex-1 justify-between rounded-2xl px-6 text-lg" onClick={() => saveOrder()}><span>Save</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+                  : !payOk ? <>{/* a delivery not dispatched yet: pick its driver, then send it out */}
+                    <Button variant="secondary" className="h-[60px] min-w-0 flex-1 truncate rounded-2xl text-[17px]" onClick={() => setDlg(<DriverPick x={x} o={live_eo} onDone={m => { setDlg(null); if (m) say(m); }} />)}>{live_eo.driverName ? "Driver: " + live_eo.driverName : "Assign Driver"}</Button>
+                    <Button className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!live_eo.driverName} onClick={() => { const now = new Date().toISOString(); write("orders", live_eo.id, { dispatchedAt: now, updatedAt: now }); say("Order dispatched with " + live_eo.driverName); }}>Dispatch</Button></> : null)
                   : !noTable ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
                 {payOk ? <Button className="h-[60px] flex-[2] justify-between rounded-2xl px-6 text-lg shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button> : null}
               </>; })()}
