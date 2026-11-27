@@ -37,7 +37,9 @@ export function DriverPick({ x, o, onDone }: { x: Ctx; o: Row; onDone: (msg?: st
     </Sheet>);
 }
 
-export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void }) {
+// in the menu's place on the register (the cart stays on the left), or full screen
+const Wrap = ({ area, children }: { area?: { cartW: string }; children: React.ReactNode }) => area ? <div className="fixed inset-y-0 right-0 z-20 flex flex-col overflow-hidden rounded-s-[22px] bg-gray-50 dark:bg-gray-950" style={{ left: area.cartW }}>{children}</div> : <Full>{children}</Full>;
+export function DriversDialog({ x, onOpen, onClose, area }: { x: Ctx; onOpen: (o: Row) => void; onClose: () => void; area?: { cartW: string } }) {
   const { write, cashier, device } = useStore(), [ask, setAsk] = useState<string | null>(null);
   const day = bizDate(x), mine = x.S.orders.filter(o => o.branchId === x.device.branchId && o.type === "delivery" && bizDate(x, o.createdAt) === day && !["void", "declined"].includes(o.status));
   const by: Record<string, { name: string; l: Row[] }> = {}; mine.filter(o => o.driverId).forEach(o => { (by[o.driverId] ||= { name: o.driverName, l: [] }).l.push(o); });
@@ -51,7 +53,7 @@ export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row)
       <TableCell><Badge variant={o.status === "closed" ? "success" : "default"}>{o.status === "closed" ? (o.driverSettledAt ? "Cash received" : "Delivered") : DRV_ST[o.driverStatus] || (o.dispatchedAt ? "Dispatched" : "Preparing")}</Badge></TableCell>
       <TableCell className="text-right font-medium text-gray-900 dark:text-gray-50">{money(x.S, o.total)}</TableCell></TableRow>)}</TableBody></Table>;
   return (
-    <Full><Head title="Drivers · Today" back="Back" onClose={onClose} />
+    <Wrap area={area}><Head title="Drivers · Today" back="Back" onClose={onClose} />
       <div className="grid grid-cols-4 gap-3 px-4 pt-4">
         {[["Delivery orders", String(mine.length)], ["Total", money(x.S, tot(mine))], ["Without a driver", String(none.length)], ["Drivers", String(Object.keys(by).length)]].map(([l, v]) =>
           <Card key={l} className="p-4"><p className="text-sm text-gray-500">{l}</p><p className="text-xl font-semibold text-gray-900 dark:text-gray-50">{v}</p></Card>)}
@@ -68,5 +70,5 @@ export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row)
           </Card>; })}
         {none.length ? <Card className="border-amber-300 p-4 dark:border-amber-700"><p className="font-semibold text-gray-900 dark:text-gray-50">Waiting for a driver</p>{lines(none)}</Card> : null}
       </div>
-    </Full>);
+    </Wrap>);
 }

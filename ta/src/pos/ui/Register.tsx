@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Pop
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Row } from "../lib/db";
 import kv from "../lib/kv";
-import { addrJoin, allowedTypes, retLeft, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, pinsOn, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
+import { addrJoin, addrParts, allowedTypes, retLeft, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, pinsOn, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
 import { appSet, kitchenText, printerHas, printJob, receiptText } from "../lib/print";
 import { useStore } from "../lib/store";
 import { onAlertOpen, pendingCount } from "./Alert";
@@ -97,6 +97,8 @@ export function Register() {
     setCart([...before.current, ...ok.map((i: any): Line => ({ productId: i.productId, name: i.name, price: +i.price || 0, qty: +i.qty || 1, ...(i.options?.length ? { options: i.options } : {}), ...(i.note ? { note: i.note } : {}), ...(i.mods ? { mods: i.mods } : {}) }))]);
     setPreview(true); if (ok.length < items.length) say("Some items aren't on the menu now"); };
   const unpreview = () => { if (before.current !== null) setCart(before.current); before.current = null; setPreview(false); undoRef.current?.(); };
+  // a saved order's customer: their details, address and history, to look at only
+  const viewCust = () => { const o = live_eo!; setDlg(<CustomerDialog view type={o.type === "pickup" ? "takeaway" : (o.type as OType)} types={types} init={{ name: o.customerName || "", phone: o.phone || "", source: o.source || "", addr: addrParts(o.address || "") }} area={area} onDone={() => setDlg(null)} />); };
   // the cart shows the type picked in the customer window at once; leaving the window puts the old type back
   const askCust = async (tp: OType, back?: () => void) => { const was = otype; const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} onType={switchType} />);
     goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); switchType(was); back?.(); } };
@@ -243,7 +245,7 @@ export function Register() {
     const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); };
     const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); };
     setDlg(<FnPage area={area} title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
-      { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }, ...(types.includes("delivery") ? [{ icon: "scooter", label: "Drivers", onClick: go(() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={fnPage} />)) }] : [])] },
+      { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }, ...(types.includes("delivery") ? [{ icon: "scooter", label: "Drivers", onClick: go(() => setDlg(<DriversDialog x={x} area={area} onOpen={openOrder} onClose={fnPage} />)) }] : [])] },
       { title: "Device", items: [{ icon: "chart", label: "Reports", onClick: go(reports) }, { icon: "device", label: "Printers & Devices", onClick: go(printers) },
         { icon: sound ? "sound" : "mute", label: sound ? "Sound On" : "Sound Off", onClick: () => { const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); close(); say(v ? "Sound on" : "Sound off"); } },
         { icon: "sync", label: "Sync Now", onClick: () => { reload(); close(); say(online ? "Syncing…" : "No connection"); } }] },
@@ -350,7 +352,7 @@ export function Register() {
           {live_eo?.ref ? <div className="ms-2 text-right"><p className="text-[11px] text-gray-500">Reference</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo.ref}</p></div> : null}
         </div>
         <div className="flex gap-2 border-b border-gray-200 px-4 py-2.5 dark:border-gray-800">
-          <Button variant="secondary" disabled={!!live_eo} onClick={() => askCust(otype)} className="h-14 flex-1 justify-start gap-2.5 rounded-[14px] px-4 text-left">
+          <Button variant="secondary" disabled={!!live_eo && !(c.name || c.phone)} onClick={() => (live_eo ? viewCust() : askCust(otype))} className="h-14 flex-1 justify-start gap-2.5 rounded-[14px] px-4 text-left">
             <Icon name="user" className="size-5 shrink-0 text-gray-600 dark:text-gray-400" />
             <span className="min-w-0 flex-1">{c.name || c.phone ? <><span className="block truncate text-[16px] font-semibold">{c.name || c.phone}</span>{c.name && c.phone ? <span className="block truncate text-xs font-normal text-gray-500">{c.phone}</span> : null}</> : <span className="text-[16px] font-normal text-gray-500">Add customer</span>}</span>
           </Button>
