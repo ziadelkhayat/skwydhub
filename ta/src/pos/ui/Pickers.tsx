@@ -34,6 +34,20 @@ export function Sheet({ title, onClose, width = 680, children, footer, back }: {
   );
 }
 
+/** the item's note and quantity, fixed at the top of an item window; a tap on the note opens the keyboard under it */
+export function NoteQtyBar({ note, setNote, qty, setQty, minQty = 1, noQty }: { note: string; setNote: (f: (s: string) => string) => void; qty: number; setQty: (f: (n: number) => number) => void; minQty?: number; noQty?: boolean }) {
+  const [kb, setKb] = useState(false);
+  return (
+    <div className="shrink-0 border-b border-gray-100 px-5 py-3.5 dark:border-gray-800">
+      <div className="flex items-center gap-3">
+        <Input value={note} inputMode="none" readOnly={false} onFocus={() => setKb(true)} onClick={() => setKb(true)} onChange={e => setNote(() => e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1" />
+        {kb ? <Button variant="secondary" className="h-14 rounded-[14px] px-5 text-[17px]" onClick={() => setKb(false)}>Done</Button> : null}
+        {noQty ? null : <Stepper n={qty} big onLess={() => setQty(q => Math.max(minQty, q - 1))} onMore={() => setQty(q => Math.min(999, q + 1))} lessOff={qty <= minQty} />}
+      </div>
+      {kb ? <div className="pt-3"><Keyboard onKey={k => setNote(m => k === "\b" ? m.slice(0, -1) : k === "\n" ? m : (m + k).slice(0, 200))} /></div> : null}
+    </div>);
+}
+
 /** a − n + stepper from Tremor buttons */
 export const Stepper = ({ n, onLess, onMore, lessOff }: { n: number; onLess: () => void; onMore: () => void; lessOff?: boolean; big?: boolean }) => (
   <div className="flex items-center rounded-xl bg-gray-100 text-blue-700 dark:bg-gray-900 dark:text-blue-400">
@@ -52,6 +66,8 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area, on
     if (edit) { edit.options.forEach(o => { if (l.opts.some(y => y.id === o.id) && (!o.modifierId || o.modifierId === l.modifierId)) m[o.id] = (m[o.id] || 0) + 1; }); return m; }
     (l.defaults || []).forEach(id => { if (l.opts.some(o => o.id === id)) m[id] = 1; }); return m; }));
   const [note, setNote] = useState(edit?.note || ""), [err, setErr] = useState(""), [qty, setQty] = useState(edit?.qty || 1);
+  // editing a cart line: Save stays greyed until something changes
+  const [start] = useState(() => JSON.stringify({ sel, note: edit?.note || "", qty: edit?.qty || 1 })), same = !!edit && JSON.stringify({ sel, note, qty }) === start;
   const cnt = (gi: number) => Object.values(sel[gi]).reduce((a, n) => a + n, 0);
   const units = (gi: number) => links[gi].opts.flatMap(o => Array(sel[gi][o.id] || 0).fill(o) as ModOpt[]);
   const price = () => { let t = basePrice; links.forEach((l, gi) => { let free = +(l.free || 0); units(gi).forEach(o => { if (free > 0) free--; else t += o.price; }); }); return t; };
@@ -98,13 +114,10 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area, on
     // the options open in the menu's place, in the same rounded window as Discount; the cart stays in view
     <Panel area={area} title={name} onClose={() => onDone(null)} className="flex flex-col p-0"
       action={<>{onRemove ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={onRemove}><Icon name="trash" className="size-5" />Remove item</Button> : null}
-        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button></>}>
+        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" disabled={same} onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button></>}>
+      <NoteQtyBar note={note} setNote={f => setNote(f)} qty={qty} setQty={f => setQty(f)} />
+      {err ? <p className="px-5 pt-3 text-[15px] text-red-600 dark:text-red-500">{err}</p> : null}
       <div className="min-h-0 flex-1 overflow-y-auto p-5">{groups}</div>
-      {err ? <p className="px-5 pb-2 text-[15px] text-red-600 dark:text-red-500">{err}</p> : null}
-      <div className="flex items-center gap-3 border-t border-gray-100 px-5 py-3.5 dark:border-gray-800">
-        <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1" />
-        <Stepper n={qty} big onLess={() => setQty(q => Math.max(1, q - 1))} onMore={() => setQty(q => Math.min(99, q + 1))} lessOff={qty <= 1} />
-      </div>
     </Panel>);
   return (
     <Sheet title={name} onClose={() => onDone(null)} footer={<>
@@ -170,19 +183,11 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
     <NumPad onKey={key} dot={kind === "amt"} /></>;
   if (area) return (
     // in the menu's place like Discount: the quantity, the item's note on the keyboard, and Remove
-    <Panel area={area} title={name} onClose={() => onDone(null)} className="flex flex-col gap-4"
+    <Panel area={area} title={name} onClose={() => onDone(null)} className="flex flex-col p-0"
       action={<>{!part && !minQty ? <Button variant="secondary" className="h-14 shrink-0 gap-2 rounded-[14px] px-5 text-[17px] text-red-600 dark:text-red-500" onClick={() => onDone({ note: n.trim(), remove: true })}><Icon name="trash" className="size-5" />Remove item</Button> : null}
-        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" onClick={save}>Save · {money(full - d)}</Button></>}>
-      {!part && <div className="flex items-center gap-3">
-        <div className="flex items-center rounded-2xl bg-gray-100 dark:bg-gray-900">
-          <Button variant="ghost" aria-label="One less" disabled={q <= Math.max(1, minQty)} onClick={() => setQ(z => Math.max(Math.max(1, minQty), z - 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="minus" className="size-7" /></Button>
-          <span className="min-w-14 text-center text-3xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{q}</span>
-          <Button variant="ghost" aria-label="One more" onClick={() => setQ(z => Math.min(999, z + 1))} className="size-16 rounded-2xl text-blue-700 dark:text-blue-400"><Icon name="plus" className="size-7" /></Button></div>
-      </div>}
-      {part !== "disc" && <div className="relative"><Textarea value={n} inputMode="none" onChange={e => setN(e.target.value)} placeholder="Item note: no onions, extra spicy…" aria-label="Item note" className="min-h-20 text-lg" />
-        {n ? <button type="button" onClick={() => setN("")} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}</div>}
-      {part === "note" || noDisc ? null : discount}
-      {part !== "disc" && <div className="mt-auto"><Keyboard onKey={k => setN(m => k === "\b" ? m.slice(0, -1) : (m + k).slice(0, 200))} /></div>}
+        <Button className="h-14 shrink-0 rounded-[14px] px-7 text-[17px]" disabled={q === qty && n.trim() === (note || "").trim() && (noDisc || part === "note" || (+v || 0) === (discPct || disc || 0))} onClick={save}>Save · {money(full - d)}</Button></>}>
+      {part !== "disc" ? <NoteQtyBar note={n} setNote={f => setN(f)} qty={q} setQty={f => setQ(f)} minQty={Math.max(1, minQty)} noQty={!!part} /> : null}
+      {part === "note" || noDisc ? null : <div className="space-y-3 p-5">{discount}</div>}
     </Panel>);
   return (
     <Sheet title={qty + " × " + name} onClose={() => onDone(null)} footer={<><Button variant="secondary" onClick={() => onDone(null)}>Cancel</Button><Button onClick={save}>Save</Button></>}>
