@@ -141,7 +141,6 @@ export default function OrdersPage() {
           onRowClick={o => openWin("/order?id=" + o.id)}
           rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
           searchEnd
-          hideView
           empty={<EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />}
           pageSize={PER}
         />
