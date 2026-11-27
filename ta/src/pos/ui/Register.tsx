@@ -204,7 +204,7 @@ export function Register() {
     // Kitchen sends what wasn't sent yet and saves the order at the same time
     if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(true); }
     if (a === "Tags") { setTagInit(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : [])); return setPop(a); }
-    if (a === "Hold") { if (!cart.length || live_eo) return say(live_eo ? "Save the open order instead" : "Nothing to hold"); setHeld(await heldList()); return setPop(a); }
+    if (a === "Hold") return hold(table ? tblLbl(table) : cust.name || "");   // holds at once (named by its table or customer)
     if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop(a); }
   };
   // Print: the bill of this order (or its receipt when done); Kitchen: the ticket of what wasn't sent yet (all of it on a new order)
@@ -391,7 +391,7 @@ export function Register() {
         {/* the top buttons and, beside them, the category buttons; search opens in their place */}
         <div className="flex gap-2.5">
           {acts.map(a => <Button key={a} className={cx("relative h-[72px] w-[88px] shrink-0 flex-col gap-1 rounded-[14px] p-0 text-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
-            <Icon name={BTN[a]} className="size-7" />{a === "Retrieve" ? "On hold" : a}
+            <Icon name={BTN[a]} className="size-7" />{a}
             {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
         <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-[52px] [&>input]:text-[17px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
