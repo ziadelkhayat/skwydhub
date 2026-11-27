@@ -61,7 +61,8 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
         <div className="space-y-4">
           {t !== "dinein" && <Tabs value={t} onValueChange={k => setT(k as OType)}><TabsList variant="solid" className="w-full">{types.filter(k => k !== "dinein").map(k => <TabsTrigger key={k} value={k} className="flex-1">{k === "delivery" ? "Delivery" : "Pickup"}</TabsTrigger>)}</TabsList></Tabs>}
           {src.length > 0 && t !== "dinein" && <div className="space-y-1.5"><Label>Order source *</Label>
-            <RadioCardGroup value={c.source || ""} onValueChange={s => set("source", s)} className="grid-cols-3">{src.map(s => <RadioCardItem key={s} value={s} className="py-2.5 text-sm font-medium">{s}</RadioCardItem>)}</RadioCardGroup></div>}
+            <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger className="h-11"><SelectValue placeholder="Choose the order source" /></SelectTrigger>
+              <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
           <PhoneField value={c.phone} onChange={v => set("phone", v)} />
           <Field label="Customer name *" value={c.name} onChange={v => set("name", v)} />
           {who ? <Callout variant={who.black ? "error" : who.isNew ? "neutral" : "success"} title={who.isNew ? "New customer" : c.name || who.name}>
