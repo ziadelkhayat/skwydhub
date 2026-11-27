@@ -26,7 +26,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     <div className="space-y-1.5"><Label htmlFor="cust-phone">Phone number *</Label>
       <div className="flex gap-2">
         <Select value={cc} onValueChange={k => { setCc(k); if (n) onChange(k + n.replace(/^0+/, "")); }}>
-          <SelectTrigger className="w-32" aria-label="Country code"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-56 shrink-0" aria-label="Country code"><SelectValue /></SelectTrigger>
           <SelectContent>{CC.map(([k, name]) => <SelectItem key={k} value={k}>{k} {name}</SelectItem>)}</SelectContent>
         </Select>
         <Input id="cust-phone" type="tel" value={n} onChange={e => local(e.target.value)} placeholder="71 123 456" className="flex-1" />

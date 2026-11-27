@@ -20,8 +20,9 @@ export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return
 const AGE = [{ l: "Free", c: "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950", t: "text-emerald-600" }, { l: "Under 15 min", c: "border-emerald-400 portal:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10", t: "text-emerald-700 dark:text-emerald-400" },
   { l: "15 – 30 min", c: "border-amber-400 portal:border-amber-400 bg-amber-50 dark:bg-amber-500/10", t: "text-amber-700 dark:text-amber-400" }, { l: "30 min – 1 hour", c: "border-orange-500 portal:border-orange-500 bg-orange-50 dark:bg-orange-500/10", t: "text-orange-700 dark:text-orange-400" },
   { l: "Over 1 hour", c: "border-red-500 portal:border-red-500 bg-red-50 dark:bg-red-500/10", t: "text-red-700 dark:text-red-400" }], MERGED = { l: "Merged", c: "border-violet-500 portal:border-violet-500 bg-violet-50 dark:bg-violet-500/10", t: "text-violet-700 dark:text-violet-400" };
-export function TablesDialog({ x, onFree, onOpen, onClose, area }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void; area: { cartW: string } }) {
-  const { write } = useStore(), [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);
+export function TablesDialog({ x: x0, onFree, onOpen, onClose, area }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void; area: { cartW: string } }) {
+  // the live data (the window was opened with a snapshot): a move or merge shows at once
+  const { write, S } = useStore(), x: Ctx = { ...x0, S }, [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);
   const press = useHold();
   const cfg = ((x.S.settings.find(s => s.id === "tables") || {}) as any)[x.device.branchId] || [];
   const open = x.S.orders.filter(o => o.branchId === x.device.branchId && ["active", "pending"].includes(o.status) && o.type === "dinein" && String(o.table || "").trim());
@@ -68,6 +69,8 @@ export function TablesDialog({ x, onFree, onOpen, onClose, area }: { x: Ctx; onF
       <div className="flex min-h-0 flex-1 flex-col p-4">
         {secs.length > 1 ? <div className="mb-4 flex gap-2.5 overflow-x-auto [scrollbar-width:none]">{["", ...secs].map(k => { const l = all.filter(t => !k || (t.section || "") === k);
           return <Chip key={k || "all"} on={sec === k} onClick={() => setSec(k)}>{`${k || "All"} ${l.filter(t => orders(t.name).length).length}/${l.length}`}</Chip>; })}</div> : null}
+        {/* the colours: how long a table has been occupied */}
+        <div className="mb-3 flex flex-wrap items-center gap-4">{[...AGE, MERGED].map(a => <span key={a.l} className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"><span className={cx("size-4 rounded border-2", a.c)} />{a.l}</span>)}</div>
         {!all.length ? <p className="text-sm text-gray-500">No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</p> :
           <div className="grid flex-1 grid-cols-4 content-start gap-3.5 overflow-y-auto pb-3">{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
             const busy = os.length > 0, merged = busy && !own.length, on = tm?.from === t.name;
@@ -81,8 +84,6 @@ export function TablesDialog({ x, onFree, onOpen, onClose, area }: { x: Ctx; onF
                   <span className={cx("block text-sm font-semibold", age.t)}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</span>
                   {tblParts(own[0].table).length > 1 ? <span className="block text-xs text-violet-700 dark:text-violet-400">With {tblParts(own[0].table).filter(y => y !== t.name).map(y => tblLbl(y)).join(", ")}</span> : null}</span>}
               </button></Card>; })}</div>}
-        <div className="flex flex-wrap items-center gap-4 pb-3 pt-2">{[...AGE, MERGED].map(a => <span key={a.l} className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"><span className={cx("size-4 rounded border-2", a.c)} />{a.l}</span>)}
-          <span className="text-sm text-gray-500">Hold an occupied table to move it.</span></div>
       </div>
     </Panel>);
 }
