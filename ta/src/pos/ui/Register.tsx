@@ -256,7 +256,8 @@ export function Register() {
     const h = setInterval(() => { if (Date.now() - lastTouch.current > mins * 60000 && !cart.length) setCashier(null); }, 15000); return () => clearInterval(h); }, [cart.length, S.users]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // with Discount open, a tap on a cart line discounts that item
-  const pickDiscLine = (i: number) => { const l = cart[i]; if (l.saved) return say("This item was sent to the kitchen. Void it to change it."); setDiscLine(i); };
+  // a second tap on the same item goes back to the whole order; items of an open (active) order can be discounted too
+  const pickDiscLine = (i: number) => setDiscLine(d => (d === i ? null : i));
   const qty = (i: number, d: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (d < 0 && l?.saved && l.qty - 1 < l.saved) return action("Void");   // an item already sent is voided, with a manager's approval
@@ -386,7 +387,7 @@ export function Register() {
             {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[72px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[72px] p-0")}
               onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-7" />}</Button> : null}
             {live_eo || !noTable ? <Button variant="secondary" className="h-[72px] flex-1 rounded-2xl text-lg" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
-            <Button className="h-[72px] flex-[2] justify-between rounded-2xl px-6 text-xl shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>Pay</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+            <Button className="h-[72px] flex-[2] justify-between rounded-2xl px-6 text-xl shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
           </>}
         </div>
       </aside>
