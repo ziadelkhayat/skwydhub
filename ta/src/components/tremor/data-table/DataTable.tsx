@@ -127,7 +127,7 @@ export function DataTable<T>({
     getCoreRowModel: getCoreRowModel(), getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(),
   });
-  const search = searchPlaceholder !== false ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
+  const search = searchPlaceholder !== false && groupOf(pathname)?.key !== "skManage" ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
               onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
               className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" /> : null;
   const selected = table.getSelectedRowModel().rows.map(r => r.original);
