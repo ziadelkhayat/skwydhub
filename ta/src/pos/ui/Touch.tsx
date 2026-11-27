@@ -4,13 +4,16 @@
 // Chip: a big choice button (categories, filters, quick notes). Pick: a big tile that toggles, with a tick when on.
 import { Button } from "@/components/tremor/Button";
 import { cx } from "@/components/tremor/utils";
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 
 /** the register's menu area: every window opened from the register (Sheet) shows there, the cart stays on the left */
 export const AreaCtx = createContext<{ cartW: string } | null>(null);
+// a page opened from Functions: its ✕ becomes Back, to Functions
+export const FnBack = createContext<(() => void) | null>(null);
 
-export function Panel({ area, title, sub, onClose, action, children, className, cartOpen, back }: { area: { cartW: string }; title: ReactNode; sub?: ReactNode; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string; cartOpen?: boolean; back?: string }) {
+export function Panel({ area, title, sub, onClose: close0, action, children, className, cartOpen, back: back0 }: { area: { cartW: string }; title: ReactNode; sub?: ReactNode; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string; cartOpen?: boolean; back?: string }) {
+  const fb = useContext(FnBack), back = back0 || (fb ? "Back" : undefined), onClose = !back0 && fb ? fb : close0;
   return (
     <>
       {/* the cart stays visible; a tap on it closes the window */}

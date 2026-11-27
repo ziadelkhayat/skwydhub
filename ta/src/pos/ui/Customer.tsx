@@ -153,7 +153,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
     </>);
   // on the register it opens in the menu's place like Discount (the cart stays on the left)
   return area
-    ? <Panel area={area} cartOpen={!!goRef} back={back} title="Customer Details" onClose={() => onDone(null)} action={view ? undefined : <Main disabled={need} onClick={go}>Save</Main>}>{view ? <div className="[&_.space-y-3>*]:pointer-events-none">{body}</div> : body}</Panel>
+    ? <Panel area={area} cartOpen={!!goRef} back={back} title="Customer Details" onClose={() => onDone(null)} action={view ? undefined : <Main disabled={need} onClick={go}>Save</Main>}>{view ? <div className="[&>div>div:first-child]:pointer-events-none [&>div>div:first-child]:opacity-50 [&>div>div:first-child]:grayscale">{body}</div> : body}</Panel>
     : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
       <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;

@@ -13,8 +13,8 @@ layer(base);
 
 /* the POS on a touch tablet: fields and pickers are at least 56px high, typed text 20px (unlayered, so it wins over Tremor's text-sm) */
 .pos :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, button[role="combobox"]) {
-  min-height: 56px;
-  font-size: 20px;
+  min-height: 48px;
+  font-size: 18px;
   border-radius: 12px;
 }
 .pos [role="dialog"] label { font-size: 15px; }

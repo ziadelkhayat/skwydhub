@@ -23,7 +23,7 @@ import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDia
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
 import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
 import { TablesDialog, tblLbl } from "./Tables";
-import { AreaCtx, Keyboard } from "./Touch";
+import { AreaCtx, FnBack, Keyboard } from "./Touch";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
 const CART_W = "33%", COLS = 6, ROWS = 3, TG = 10;
@@ -42,6 +42,7 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
+  const [fromFn, setFromFn] = useState(false);   // the window open came from Functions: Back goes there
   const [kb, setKb] = useState(false), [vrSel, setVrSel] = useState<number[]>([]);
   const [typeOpen, setTypeOpen] = useState(false), [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLines, setDiscLines] = useState<number[]>([]);
   const say = (s: string) => notify(s);
@@ -239,7 +240,7 @@ export function Register() {
     const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} back="Back" onDone={done} />); if (g == null) return tablesPage();
     if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein"); setGuests(Math.max(0, Math.round(g))); }} />);
   // Functions: a full page of big tiles in groups (Shift, Orders, Device)
-  const fnPage = () => { const close = () => setDlg(null), go = (f: () => void) => () => f();
+  const fnPage = () => { setFromFn(false); const close = () => setDlg(null), go = (f: () => void) => () => { setFromFn(true); f(); };
     const till = () => { if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); };
     const endDay = () => { if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={msg => { setDlg(null); if (msg) say(msg); }} />); };
     const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); };
@@ -426,7 +427,7 @@ export function Register() {
             {/* an open order with new items: only Save; a delivery is paid (TOTAL) once it's dispatched */}
             {(() => { const dirty = !!live_eo && cart.some(l => l.qty > (l.saved || 0)), payOk = !dirty && !(live_eo && otype === "delivery" && !live_eo.dispatchedAt);
               return <>
-                {live_eo ? (dirty || !payOk ? <Button variant={payOk ? "secondary" : "primary"} className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!dirty} onClick={() => saveOrder()}>{dirty ? "Save" : "Not dispatched yet"}</Button> : null)
+                {live_eo ? (dirty || !payOk ? <Button variant={payOk ? "secondary" : "primary"} className={cx("h-[60px] flex-1 rounded-2xl text-[17px]", dirty && "justify-between px-6 text-lg")} disabled={!dirty} onClick={() => saveOrder()}>{dirty ? <><span>Save</span><span className="tabular-nums">{money(S, t.total)}</span></> : "Not dispatched yet"}</Button> : null)
                   : !noTable ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
                 {payOk ? <Button className="h-[60px] flex-[2] justify-between rounded-2xl px-6 text-lg shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button> : null}
               </>; })()}
@@ -478,7 +479,7 @@ export function Register() {
           onDone={d => { setPop(null); setDiscLines([]); if (d !== undefined) { setDisc(d); say(d ? "Discount on the whole order" + (d.name ? ": " + d.name : d.type === "pct" ? ": " + d.value + "%" : ": −" + money(S, d.value)) : "Order discount removed"); } }} />
         : pop === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} area={area} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
         : pop === "Notes" ? <NotesPop init={notes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
-      {dlg}
+      <FnBack.Provider value={fromFn ? fnPage : null}>{dlg}</FnBack.Provider>
     </div>
     </AreaCtx.Provider>
   );
