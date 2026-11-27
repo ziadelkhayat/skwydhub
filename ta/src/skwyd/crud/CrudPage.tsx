@@ -43,9 +43,9 @@ export type CField = {
 };
 export type CCol = { h: string; cell: (r: Row, s: S) => ReactNode; num?: boolean };
 /** Import / Export: each set is one CSV layout (e.g. items, items ingredients); import builds a plan of rows to add or change */
-export type IoOp = { name: string; col: string; id?: string; data: Record<string, any> };
+export type IoOp = { name: string; col: string; id?: string; newId?: string; data: Record<string, any> };
 export type IoSet = { name: string; head: string[]; exp: (s: S) => unknown[][]; imp: (recs: Record<string, string>[], s: S) => { ops: IoOp[]; errs: string[] };
-  before?: (d: Record<string, any>, cache: Record<string, string>) => Promise<void> };
+  before?: (d: Record<string, any>, cache: Record<string, string>) => Promise<void>; after?: () => Promise<void> };
 export type CrudCfg = {
   io?: IoSet[];   // Import / Export menu
   kids?: (r: Row, s: S) => Row[];   // rows shown under a row (an item's variants): hidden from the list, opened with the arrow
@@ -302,7 +302,8 @@ function ImportDialog({ set, s, onClose }: { set: IoSet; s: S; onClose: () => vo
     if (!plan) return; setBusy(true); const cache: Record<string, string> = {}; let k = 0;
     try {
       for (const o of plan.ops) { const d = { ...o.data }; if (set.before) await set.before(d, cache);
-        if (o.id) await put(o.col, o.id, d); else await put(o.col, newId(o.col.slice(0, 3)), { ...d, deleted: false }); setDone(++k); }
+        if (o.id) await put(o.col, o.id, d); else await put(o.col, o.newId || newId(o.col.slice(0, 3)), { ...d, deleted: false }); setDone(++k); }
+      if (set.after) await set.after();
       toast(`${k} row${k === 1 ? "" : "s"} imported`); onClose();
     } catch (e: any) { toast((e?.message || "Couldn't import") + ` (stopped after ${k} rows)`, "error"); } finally { setBusy(false); }
   }

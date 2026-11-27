@@ -86,6 +86,35 @@ const MOD_IO: IoSet[] = [
       if (!old && s.modifiers.some(m => live(m) && low(m.name) === k)) return `Another modifier is already called "${d.name}".`;
       if (v["name localized"]) d.nameAr = v["name localized"]; if (v.reference) d.reference = v.reference;
       return { name: d.name || old!.name, col: "modifiers", id: old?.id, data: d }; }); } }];
+const EMP_IO: IoSet[] = [
+  { name: "employees", head: ["Name", "Phone", "Email", "Employee Number", "Job Title", "Hire Date", "Birth Date", "Employment Type", "Pay Type", "Pay Rate", "Leave Days", "Roles", "Stores"],
+    exp: s => s.users.filter(u => live(u) && !isAdminRow(u)).map(u => [u.name, u.phone, u.email, u.employeeNo, u.jobTitle, u.hireDate, u.birthDate,
+      ({ full: "Full Time", part: "Part Time", temp: "Temporary", intern: "Intern" } as any)[u.employmentType] || "", ({ monthly: "Monthly", hourly: "Hourly", daily: "Daily" } as any)[u.payType] || "",
+      u.payRate, u.leaveDays, (u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : []).map((id: string) => s.roles.find(r => r.id === id)?.name).filter(Boolean).join("; "),
+      (u.branchIds || []).map((id: string) => s.branches.find(b => b.id === id)?.name).filter(Boolean).join("; ")]),
+    imp: (recs, s) => { const seen = new Set<string>(), mails = new Set<string>();
+      const ph = (v: string) => { const t = v.trim(); if (!t) return ""; if (t.startsWith("+")) return "+" + t.slice(1).replace(/\D/g, ""); const d = t.replace(/\D/g, ""); if (d.startsWith("00")) return "+" + d.slice(2); if (d.startsWith("961") && d.length >= 10) return "+" + d; return "+961" + d.replace(/^0+/, ""); };
+      const dig = (v: unknown) => String(v || "").replace(/\D/g, ""), dt = (v: string) => { const m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(v) || /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(v); return !m ? null : m[1].length === 4 ? `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}` : `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; };
+      const list = (v: string, all: Row[], what: string): string[] | string => { const out: string[] = []; for (const n of v.split(/[;|]/).map(x => x.trim()).filter(Boolean)) { const r = all.find(x => live(x) && low(x.name) === low(n)); if (!r) return `${what} "${n}" not found.`; out.push(r.id); } return out; };
+      return perRow(recs, v => {
+        const phone = v.phone ? ph(v.phone) : "", old = phone ? s.users.find(u => live(u) && dig(u.phone) === dig(phone)) : v["employee number"] ? s.users.find(u => live(u) && low(u.employeeNo) === low(v["employee number"])) : undefined;
+        if (old && isAdminRow(old)) return "The owner and admins can't be changed by import.";
+        const isNew = !old, d: Record<string, any> = {};
+        if (v.name) d.name = v.name; else if (isNew) return "Name is missing.";
+        if (phone) { if (dig(phone).length < 7) return `Phone "${v.phone}" isn't valid.`; if (seen.has(dig(phone))) return `${phone} is already earlier in the file.`; seen.add(dig(phone)); d.phone = phone; } else if (isNew) return "Phone is missing (employees sign in with it).";
+        if (v.email) { const e = low(v.email); if (mails.has(e) || s.users.some(u => live(u) && u.id !== old?.id && low(u.email) === e)) return `Another employee has the email ${e}.`; mails.add(e); d.email = e; }
+        if (v["employee number"]) d.employeeNo = v["employee number"]; if (v["job title"]) d.jobTitle = v["job title"];
+        for (const [k, f] of [["hire date", "hireDate"], ["birth date", "birthDate"]]) if (v[k]) { const x = dt(v[k]); if (!x) return `${k[0].toUpperCase() + k.slice(1)} "${v[k]}" isn't a date (use 2026-01-31 or 31/01/2026).`; d[f] = x; }
+        if (v["employment type"]) d.employmentType = /part/i.test(v["employment type"]) ? "part" : /temp/i.test(v["employment type"]) ? "temp" : /intern/i.test(v["employment type"]) ? "intern" : "full"; else if (isNew) d.employmentType = "full";
+        if (v["pay type"]) d.payType = /hour/i.test(v["pay type"]) ? "hourly" : /da/i.test(v["pay type"]) ? "daily" : "monthly"; else if (isNew) d.payType = "monthly";
+        for (const [k, f] of [["pay rate", "payRate"], ["leave days", "leaveDays"]]) if (v[k]) { if (isNaN(+v[k])) return `${k[0].toUpperCase() + k.slice(1)} "${v[k]}" isn't a number.`; d[f] = +v[k]; }
+        if (v.roles) { const l = list(v.roles, s.roles, "Role"); if (typeof l === "string") return l; d.roleIds = l; d.roleId = l[0] || null; } else if (isNew) { d.roleIds = []; d.roleId = null; }
+        if (v.stores) { const l = list(v.stores, s.branches, "Store"); if (typeof l === "string") return l; d.branchIds = l.length ? l : ["-"]; } else if (isNew) d.branchIds = ["-"];
+        if (isNew) { d.active = true; d.language = "en"; }
+        return { name: d.name || old!.name, col: "users", id: old?.id, newId: isNew ? "usr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) : undefined, data: d };
+      }); },
+    // new employees and changed phones get their app login, as when one is added by hand
+    after: async () => { const { data: d, error } = await sb.functions.invoke("team-account", { body: { employeeId: "", all: true } }); if (error || d?.error) throw new Error(d?.error || "Imported, but the app logins couldn't be updated. Open an employee and save to retry."); } }];
 const OPTION_IO: IoSet[] = [
   { name: "options", head: ["Modifier", "Name", "Name Localized", "SKU", "Price", "Tax Group", "Costing Method", "Cost", "Active"],
     exp: s => s.modifier_options.filter(live).map(o => [s.modifiers.find(m => m.id === o.modifierId)?.name, o.name, o.nameAr, o.sku, o.price ?? 0,
@@ -294,7 +323,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   users: {
-    col: "users", title: "Employees", one: "Employee", scope: { store: r => r.branchIds || [] }, needs: ["roles", "branches", "settings"], detail: "/employee",
+    col: "users", title: "Employees", one: "Employee", scope: { store: r => r.branchIds || [] }, needs: ["roles", "branches", "settings"], detail: "/employee", io: EMP_IO,
     filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).user || {}, YN: [string, string][] = [["yes", "Yes"], ["no", "No"]];
       const rolesOf = (r: Row) => r.roleIds?.length ? r.roleIds : r.roleId ? [r.roleId] : [], brOf = (r: Row) => (r.branchIds || []).filter((b: string) => b && b !== "-");
       return [{ k: "name", l: "Name", get: r => r.name }, { k: "no", l: "Employee Number", get: r => r.employeeNo }, { k: "email", l: "Email", get: r => r.email }, { k: "phone", l: "Phone", get: r => String(r.phone || "").replace(/\s/g, "") },
