@@ -103,7 +103,14 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.branches.filter(b => b.brandId === r.id).length; return n ? `Delete this brand's ${n} store${n === 1 ? "" : "s"} first (Manage → Stores).` : ""; },
   },
   branches: {
-    col: "branches", title: "Stores", one: "Store", scope: { brand: r => [r.brandId] }, needs: ["brands", "tax_groups", "settings"], detail: "/store", form: p => <StoreForm {...p} />,
+    col: "branches", title: "Stores", one: "Store", scope: { brand: r => [r.brandId] }, needs: ["brands", "tax_groups", "settings", "users", "zones"], detail: "/store", form: p => <StoreForm {...p} />,
+    filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).branch || {};
+      return [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "code", l: "Reference", get: r => r.code },
+        { k: "tag", l: "Tag", t: "multi", opts: (tg.list || []).filter((t: any) => t.type === "branch" && !t.deleted).map((t: any) => [t.id, t.name]), get: r => on[r.id] || [] },
+        { k: "taxGroup", l: "Tax Group", t: "multi", opts: s.tax_groups.filter(live).map(g => [g.id, g.name]), get: r => r.settings?.taxGroup },
+        { k: "user", l: "User", t: "multi", opts: s.users.filter(live).map(u => [u.id, u.name]), get: r => s.users.filter(u => (u.branchIds || []).includes(r.id)).map(u => u.id) },
+        { k: "zone", l: "Delivery Zone", t: "multi", opts: s.zones.filter(live).map(z => [z.id, z.name]), get: r => s.zones.filter(z => z.branchId === r.id).map(z => z.id) },
+        { k: "created", l: "Created After", t: "date", get: r => r.createdAt }]; },
     tabs: [["all", "All", r => live(r) && r.active !== false], ["deleted", "Deleted", r => !!r.deleted || r.active === false]],
     cols: [{ h: "Name", cell: (r, s) => <><B>{r.name}</B>{s.brands.filter(live).length > 1 ? <span className="ms-1.5 text-xs text-gray-500">{s.brands.find(b => b.id === r.brandId)?.name}</span> : null}</> },
       { h: "Reference", cell: r => r.code || "—" }, { h: "Tax Group", cell: (r, s) => s.tax_groups.find(g => g.id === r.settings?.taxGroup)?.name || "—" },

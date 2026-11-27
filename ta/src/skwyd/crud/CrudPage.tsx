@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Pop
 import { Checkbox } from "@/components/tremor/Checkbox";
 import { RiArrowDownSLine } from "@remixicon/react";
 import { SEL_LOOK } from "../ui/kit";
+import { FiltersButton, ListFilters, applyF, type FDef, type FVals } from "../ui/ListFilters";
 
 export type Opt = [string, string];
 export type S = Record<string, Row[]>;
@@ -46,6 +47,7 @@ export type CrudCfg = {
   cols: CCol[]; fields: CField[]; unique?: string; note?: string; sortable?: boolean; noSearch?: boolean;
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
+  filters?: (s: S) => FDef<Row>[];   // a Filters button with a side panel
   detail?: string;   // open rows on their own page (path?id=)
   form?: (p: { s: S; row: Row | null; onClose: () => void }) => ReactNode;   // a page of its own form instead of the generic one
   urlFilter?: [string, string];
@@ -69,6 +71,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
   const [sorting, setSorting] = useState(false);
+  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false);
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
@@ -77,10 +80,10 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
     const f = cfg.tabs.find(t => t[0] === tab)?.[2] || live;
     const hit = (sel: string, l: string[]) => !sel || !l.length || l.some(x => inSel(sel, x));
     const brandsOf = (r: Row) => cfg.scope?.brand ? cfg.scope.brand(r, s).filter(Boolean) : (cfg.scope?.store?.(r, s) || []).map(id => s.branches.find(b => b.id === id)?.brandId).filter(Boolean);
-    return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
+    return applyF(s[cfg.col], cfg.filters ? cfg.filters(s) : [], F).filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
       .filter(r => !cfg.scope || (hit(fb, brandsOf(r)) && (!cfg.scope.store || hit(fs, cfg.scope.store(r, s).filter(Boolean)))))
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
-  }, [s, tab, cfg, uf, fb, fs]);
+  }, [s, tab, cfg, uf, fb, fs, F]);
   const open = (r: Row) => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r);
   const del = async (rows: Row[], on: boolean) => {
     if (!s) return;
@@ -105,9 +108,9 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           getRowId={r => r.id}
           searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
           searchPlaceholder={cfg.noSearch ? false : undefined}
-          toolbar={cfg.tabs.length > 1 || cfg.scope ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
+          toolbar={cfg.tabs.length > 1 || cfg.scope || cfg.filters ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
             {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-            {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}</> : undefined}
+            {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}{cfg.filters && <FiltersButton F={F} onClick={() => setFOpen(true)} />}</> : undefined}
           actions={<>{cfg.sortable && <Button variant="secondary" onClick={() => setSorting(true)} className="h-[30px] py-1">Sort</Button>}<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button></>}
           onRowClick={open}
           rowActions={[
@@ -120,6 +123,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           pageSize={PER}
         />
       )}
+      {cfg.filters && s && <ListFilters open={fOpen} defs={cfg.filters(s)} F={F} onApply={f => { setF(f); setFOpen(false); }} onClose={() => setFOpen(false)} />}
       {sorting && s && <SortDialog cfg={cfg} rows={s[cfg.col].filter(cfg.tabs[0][2]).sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))))} onClose={() => setSorting(false)} />}
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
