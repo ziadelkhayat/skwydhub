@@ -31,7 +31,7 @@ const OnOff = ({ on }: { on: boolean }) => <Badge variant="light" color={on ? "s
 export const CRUD: Record<string, CrudCfg> = {
   categories: {
     col: "categories", title: "Categories", one: "Category", needs: ["products"],
-    note: "Menu categories group your products for reports and inventory. What the POS, call center and web ordering show is built per channel in Sales Channels.",
+    filters: () => [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "ref", l: "Reference", get: r => r.reference }, { k: "created", l: "Created After", t: "date", get: r => r.createdAt }],
     tabs: [["all", "All", r => live(r) && !r.channel], ["deleted", "Deleted", r => del(r) && !r.channel]],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref,
@@ -39,7 +39,20 @@ export const CRUD: Record<string, CrudCfg> = {
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
   },
   products: {
-    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups"], detail: "/item", urlFilter: ["cat", "categoryId"],
+    col: "products", title: "Items", one: "Item", needs: ["categories", "tax_groups", "modifiers", "settings"], detail: "/item", urlFilter: ["cat", "categoryId"],
+    filters: s => { const tg: any = s.settings.find(x => x.id === "tags") || {}, on = (tg.on || {}).product || {}, al: any = s.settings.find(x => x.id === "allergens") || {};
+      const alls: string[] = Array.isArray(al.list) ? al.list : [...new Set(s.products.flatMap(p => p.allergens || []))] as string[];
+      return [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "sku", l: "SKU", get: r => r.sku }, { k: "barcode", l: "Barcode", get: r => r.barcode },
+        { k: "cat", l: "Categories", t: "multi", opts: s.categories.filter(c => live(c) && !c.channel).sort(bySort).map(c => [c.id, c.name]), get: r => r.categoryId },
+        { k: "mod", l: "Modifiers", t: "multi", opts: s.modifiers.filter(live).map(m => [m.id, m.name]), get: r => (r.modifiers || []).map((l: any) => l.modifierId) },
+        { k: "ingr", l: "Have Ingredients", t: "multi", opts: [["yes", "Yes"], ["no", "No"]], get: r => (r.ingredients || []).length ? "yes" : "no" },
+        { k: "hasTags", l: "Has Tags", t: "multi", opts: [["yes", "Yes"], ["no", "No"]], get: r => (on[r.id] || []).length ? "yes" : "no" },
+        { k: "tags", l: "Tags", t: "multi", opts: (tg.list || []).filter((t: any) => t.type === "product" && !t.deleted).map((t: any) => [t.id, t.name]), get: r => on[r.id] || [] },
+        { k: "tax", l: "Tax Groups", t: "multi", opts: s.tax_groups.filter(live).map(g => [g.id, g.name]), get: r => r.taxGroup },
+        { k: "costing", l: "Costing Method", t: "multi", opts: [["ingredients", "From Ingredients"], ["fixed", "Fixed Cost"]], get: r => r.costingMethod || "ingredients" },
+        { k: "active", l: "Active", t: "multi", opts: [["yes", "Yes"], ["no", "No"]], get: r => r.active !== false ? "yes" : "no" },
+        { k: "allergens", l: "Allergens", t: "multi", opts: alls.map(a => [a, a]), get: r => r.allergens || [] },
+        { k: "created", l: "Created After", t: "date", get: r => r.createdAt }]; },
     tabs: allDel,
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.categories.find(c => c.id === r.categoryId)?.name || ""),
     cols: [
@@ -68,7 +81,6 @@ export const CRUD: Record<string, CrudCfg> = {
       { h: "Linked Products", cell: (r, s) => `Products (${s.products.filter(p => live(p) && (p.modifiers || []).some((l: any) => l.modifierId === r.id)).length})` }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
     unique: "name",
-    note: "A modifier is a group of choices, like Sauce or Add Toppings. Add its options, then link it to products (open a product → Modifiers).",
   },
   "modifier-options": {
     col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups"], tabs: allDel, urlFilter: ["mod", "modifierId"], detail: "/option",
