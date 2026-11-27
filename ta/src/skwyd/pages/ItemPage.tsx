@@ -7,11 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PencilIcon, TrashBinIcon } from "@/icons";
-import { put, type Row } from "@/lib/db";
+import { newId, put, type Row } from "@/lib/db";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { SelectNative } from "@/components/tremor/SelectNative";
 import { money } from "@/lib/util";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
-import { EditDialog, live, useS } from "../crud/CrudPage";
+import { EditDialog, live, useS, type S } from "../crud/CrudPage";
 import { CRUD } from "../crud/configs";
 import { TD, TH, TR } from "../ui/kit";
 import { toast } from "../ui/toast";
@@ -20,7 +23,7 @@ import { Allergens, Head, Info, Ingredients, Missing, None, Nutrition, Sec, Tags
 export default function ItemPage() {
   const [sp] = useSearchParams(); const id = sp.get("id") || "";
   const s = useS(["products", "categories", "tax_groups", "modifiers", "modifier_options", "inv_items", "settings", "variant_sets"]);
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState(false), [addV, setAddV] = useState(false);
   if (!s) return null;
   const p = s.products.find(x => x.id === id);
   if (!p) return <Missing back="Items" to="/products" />;
@@ -44,6 +47,7 @@ export default function ItemPage() {
     {par && <Sec title="Variant"><p className="text-sm text-gray-700 dark:text-gray-300">{vset(par)} {par.variants.find((v: any) => v.productId === p.id)?.name} of <XLink className="text-blue-500 hover:underline" to={"/item?id=" + par.id}>{par.name}</XLink>. The POS, call center and web ordering show {par.name} and ask which {vset(par).toLowerCase()}.</p></Sec>}
     {!par && kids.length > 0 && <Sec title={"Variants · " + vset(p)}><div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Name", "Item", "SKU", "Price"].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
       {kids.map(({ v, k }: any) => <TableRow key={k.id} className={TR}><TableCell className={TD + " font-medium text-gray-900 dark:text-gray-50"}>{v.name}</TableCell><TableCell className={TD}><XLink className="text-blue-500 hover:underline" to={"/item?id=" + k.id}>{k.name}</XLink></TableCell><TableCell className={TD}>{k.sku || "—"}</TableCell><TableCell className={TD}>{money(k.price)}</TableCell></TableRow>)}</TableBody></Table></div></Sec>}
+    {!par && !kids.length && <Sec title="Variants" act={<Button size="sm" variant="outline" onClick={() => setAddV(true)}>Add Variants</Button>}><None t="No variants. Add variants (e.g. Small, Medium, Large) to sell this item in several versions, each with its own price, modifiers and ingredients." /></Sec>}
     {!kids.length && <>
     <Sec title="Modifiers" act={<div className="flex gap-2"><PickMany label="Add modifier" opts={mods.map(m => ({ id: m.id, name: m.name }))} onAdd={ids => save({ modifiers: [...links, ...ids.map(v => ({ modifierId: v, min: 1, max: 1, free: 0 }))] }, ids.length > 1 ? `${ids.length} modifiers added` : "Modifier added")} /></div>}>
       {!links.length ? <None t="No modifiers on this item." /> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{["Modifier", "Options", "Minimum", "Maximum", "Free", ""].map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>
@@ -57,6 +61,54 @@ export default function ItemPage() {
     <Ingredients s={s} col="products" rec={p as Row} /></>}
     <Nutrition col="products" rec={p as Row} />
     <Allergens s={s} col="products" rec={p as Row} />
+    {addV && <AddVariants p={p as Row} s={s} onClose={() => setAddV(false)} />}
     {edit && <EditDialog cfg={CRUD.products} s={s} row={p as Row} onClose={() => setEdit(false)} />}
   </>;
+}
+
+/** Add Variants: pick a variant set; each option becomes its own item (price, SKU). The item's modifiers and ingredients move to the variants. */
+function AddVariants({ p, s, onClose }: { p: Row; s: S; onClose: () => void }) {
+  const sets = s.variant_sets.filter(live), [vs, setVs] = useState(sets[0]?.id || ""), set = sets.find(x => x.id === vs);
+  const [rows, setRows] = useState<Record<string, { name: string; price: string }>>({}), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const opts: string[] = set?.options || [];
+  const val = (o: string) => rows[vs + "|" + o] || { name: p.name + " " + o, price: String(p.price ?? "") };
+  const setV = (o: string, k: "name" | "price", v: string) => setRows(x => ({ ...x, [vs + "|" + o]: { ...val(o), [k]: v } }));
+  async function save() {
+    if (!set) return setErr("Choose a variant set (Catalog → Variants).");
+    for (const o of opts) { const v = val(o); if (!v.name.trim()) return setErr(`Name the ${o} variant.`); if (v.price === "" || isNaN(+v.price)) return setErr(`Enter the ${o} price.`); }
+    setErr(""); setBusy(true);
+    try {
+      let n = 0; s.products.forEach(r => { const m = /^PR-?(\d+)$/i.exec(r.sku || ""); if (m) n = Math.max(n, +m[1]); });
+      const kids: { name: string; productId: string }[] = [];
+      for (const o of opts) { const v = val(o), id = newId("pro"); n++;
+        await put("products", id, { name: v.name.trim(), categoryId: p.categoryId, price: +v.price, pricingMethod: "fixed", taxGroup: p.taxGroup, costingMethod: p.costingMethod || "ingredients", cost: p.cost ?? null,
+          sellingMethod: p.sellingMethod || "unit", sku: "PR-" + String(n).padStart(4, "0"), modifiers: p.modifiers || [], ingredients: p.ingredients || [], allergens: p.allergens || [], active: true, deleted: false });
+        kids.push({ name: o, productId: id }); }
+      await put("products", p.id, { variantSetId: set.id, variants: kids, modifiers: [], ingredients: [] });
+      toast(`${kids.length} variants added`); onClose();
+    } catch (e: any) { setErr(e?.message || "Couldn't save."); } finally { setBusy(false); }
+  }
+  return (
+    <Dialog open onOpenChange={o => !o && !busy && onClose()}>
+      <DialogContent className="w-full p-0 sm:max-w-xl">
+        <div className="p-6 sm:p-8">
+          <DialogHeader className="gap-1 sm:gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Add Variants</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">Each option becomes its own item with its own price. {p.name}'s modifiers and ingredients move to the variants; {p.name} keeps none.</DialogDescription>
+          </DialogHeader>
+          {!sets.length ? <p className="mt-6 text-sm text-gray-500">No variant sets yet. Create one in Catalog → Variants (e.g. Size: Small, Medium, Large).</p> : <div className="mt-6 space-y-4">
+            <Field><FieldLabel>Variant set</FieldLabel><SelectNative value={vs} onChange={e => setVs(e.target.value)}>{sets.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</SelectNative></Field>
+            <div className="space-y-2">{opts.map(o => <div key={o} className="grid grid-cols-[6rem_1fr_7rem] items-center gap-3">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{o}</span>
+              <Input aria-label={o + " name"} value={val(o).name} onChange={e => setV(o, "name", e.target.value)} />
+              <Input aria-label={o + " price"} type="number" min="0" step="any" placeholder="Price" value={val(o).price} onChange={e => setV(o, "price", e.target.value)} /></div>)}</div>
+          </div>}
+          {err && <p className="mt-4 text-sm text-red-500">{err}</p>}
+          <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            <Button type="button" disabled={busy || !set} onClick={save}>{busy ? "Saving…" : `Add ${opts.length || ""} variants`}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>);
 }
