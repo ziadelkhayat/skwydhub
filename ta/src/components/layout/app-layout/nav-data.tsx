@@ -1,4 +1,4 @@
-import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiStore2Line, RiUserSettingsLine } from "@remixicon/react";
+import { RiApps2Line, RiArchive2Line, RiBarChartBoxLine, RiBookOpenLine, RiCustomerService2Line, RiDashboardLine, RiGlobalLine, RiGroupLine, RiHome2Line, RiPriceTag3Line, RiSettings5Line, RiShoppingBag3Line, RiStore2Line, RiUserSettingsLine } from "@remixicon/react";
 import type { ComponentType } from "react";
 
 export type SubItem = { key: string; path: string };
@@ -8,7 +8,7 @@ export type NavItem = { key: string; icon: ComponentType<{ className?: string }>
 const s = (key: string, path: string) => ({ key, path });
 
 export const mainItems: NavItem[] = [
-  { icon: RiHome2Line, key: "skSummary", path: "/" },
+  { icon: RiDashboardLine, key: "skSummary", path: "/" },
   { icon: RiShoppingBag3Line, key: "skOrders", path: "/orders" },
   { icon: RiCustomerService2Line, key: "skCallCenter", path: "/call-center" },
 ];
@@ -30,7 +30,7 @@ export const businessItems: NavItem[] = [
 ];
 
 export const LABELS: Record<string, string> = {
-  skSummary: "Summary", skOrders: "Orders", skCallCenter: "Call Center", skCustomers: "Customers", skReports: "Reports",
+  skSummary: "Dashboard", skOrders: "Orders", skCallCenter: "Call Center", skCustomers: "Customers", skReports: "Reports",
   skSalesReports: "Sales Reports", skInventoryReports: "Inventory Reports", skBusinessReports: "Business Reports", skAnalysisReports: "Analysis Reports", skEmployeeReports: "Employee Reports",
   skMarketing: "Marketing", skDiscounts: "Discounts", skLoyalty: "Loyalty", skGiftCards: "Gift Cards", skPromotions: "Promotions", skCoupons: "Coupons",
   skCatalog: "Catalog", skItems: "Items", skCategories: "Categories", skModifiers: "Modifiers", skModifierOptions: "Modifier Options", skVariants: "Variants", skCombos: "Combos", skAllergens: "Allergens", skSalesChannels: "Sales Channels",
