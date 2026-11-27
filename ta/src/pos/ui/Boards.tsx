@@ -65,7 +65,7 @@ function Tile({ o, onOpen, onDriver, onDispatch }: { o: Row; onOpen: () => void;
       <Ln ic="clock" l="Created" v={tm(o.createdAt)} sub={mod} />
     </button>
     {/* a delivery being prepared: pick its driver, then dispatch it */}
-    {onDriver ? <div className="flex gap-2 pt-1"><Button variant="secondary" className="h-14 flex-1 truncate rounded-[14px] text-[16px]" onClick={onDriver}>{o.driverName || "Assign Driver"}</Button><Button className="h-14 flex-1 rounded-[14px] text-[16px]" onClick={onDispatch}>Dispatch</Button></div> : null}
+    {onDriver ? <div className="space-y-2 pt-1"><Button variant="secondary" className="h-14 w-full truncate rounded-[14px] text-[16px]" onClick={onDriver}>{o.driverName ? "Driver: " + o.driverName : "Assign Driver"}</Button><Button className="h-14 w-full rounded-[14px] text-[16px]" disabled={!o.driverName} onClick={onDispatch}>Dispatch</Button></div> : null}
   </Card>;
 }
 
