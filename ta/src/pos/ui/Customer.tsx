@@ -6,12 +6,12 @@ import { Input } from "@/components/tremor/Input";
 import { Label } from "@/components/tremor/Label";
 import { RadioCardGroup, RadioCardItem } from "@/components/tremor/RadioCardGroup";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
 import { useEffect, useId, useState } from "react";
 import { addrJoin, addrParts, custMissing, normPhone, phoneVariants, posSources, type Addr, type Cust, type OType } from "../lib/pos";
 import { useStore } from "../lib/store";
 import { Icon } from "./Icon";
 import { Sheet } from "./Pickers";
+import { Main, Panel, Seg } from "./Touch";
 
 const Field = ({ label, value, onChange, tel }: { label: string; value: string; onChange: (v: string) => void; tel?: boolean }) => { const id = useId();
   return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label><Input id={id} value={value} onChange={e => onChange(e.target.value)} type={tel ? "tel" : "text"} /></div>; };
@@ -34,7 +34,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </div>);
 }
 
-export function CustomerDialog({ type, types, init, onDone }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void }) {
+export function CustomerDialog({ type, types, init, onDone, area }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string } }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
@@ -53,13 +53,12 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
   const src = posSources(S), del = t === "delivery";
   const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m); onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
   const addrVal = newAddr ? "_new" : String(saved.findIndex(a => addrJoin(addrParts(a)) === addrJoin(c.addr)));
-  return (
-    <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
-      <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
-      <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>
+  const body = (
+    <>
+      {err && area ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
       <div className={del ? "grid grid-cols-2 gap-6" : ""}>
         <div className="space-y-4">
-          {t !== "dinein" && <Tabs value={t} onValueChange={k => setT(k as OType)}><TabsList variant="solid" className="w-full">{types.filter(k => k !== "dinein").map(k => <TabsTrigger key={k} value={k} className="flex-1">{k === "delivery" ? "Delivery" : "Pickup"}</TabsTrigger>)}</TabsList></Tabs>}
+          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
           {src.length > 0 && t !== "dinein" && <div className="space-y-1.5"><Label>Order source *</Label>
             <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger className="h-11"><SelectValue placeholder="Choose the order source" /></SelectTrigger>
               <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
@@ -85,5 +84,11 @@ export function CustomerDialog({ type, types, init, onDone }: { type: OType; typ
           </div> : null}
         </div> : null}
       </div>
-    </Sheet>);
+    </>);
+  // on the register it opens in the menu's place like Discount (the cart stays on the left)
+  return area
+    ? <Panel area={area} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main onClick={go}>Continue</Main>}>{body}</Panel>
+    : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
+      <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
+      <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;
 }

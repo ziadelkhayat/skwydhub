@@ -23,6 +23,7 @@ import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDia
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
 import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
 import { TablesDialog, tblLbl } from "./Tables";
+import { AreaCtx } from "./Touch";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
 const CART_W = "33%", COLS = 6, ROWS = 3, TG = 10;
@@ -40,8 +41,8 @@ export function Register() {
   const m = useMemo(() => menu(x), [S, otype, device]); // eslint-disable-line react-hooks/exhaustive-deps
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
-  const area = { cartW: CART_W };
-  const [pop, setPop] = useState<string | null>(null);
+  const area = useMemo(() => ({ cartW: CART_W }), []);
+  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false);
   const say = (s: string) => notify(s);
   const press = useHold();
 
@@ -85,7 +86,7 @@ export function Register() {
   const fields = () => { const f: any = orderFields(x, cart, t, { table, guests, customerName: cust.name, phone: cust.phone, disc, receiptNotes: notes.receipt, notes: notes.kitchen });
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
-  const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
+  const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
@@ -224,11 +225,10 @@ export function Register() {
   const fnPage = () => { const close = () => setDlg(null), go = (f: () => void) => () => f();
     const till = () => { if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); };
     const endDay = () => { if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={msg => { setDlg(null); if (msg) say(msg); }} />); };
-    const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={fnPage} />); };
-    const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={fnPage} />); };
-    setDlg(<FnPage title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
+    const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); };
+    const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); };
+    setDlg(<FnPage area={area} title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
       { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }] },
-      { title: "Orders", items: [{ icon: "list", label: "Orders", onClick: () => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />) }, { icon: "ret", label: "Orders on hold", onClick: async () => { close(); if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); setPop("Retrieve"); } }] },
       { title: "Device", items: [{ icon: "chart", label: "Reports", onClick: go(reports) }, { icon: "device", label: "Printers & Devices", onClick: go(printers) },
         { icon: sound ? "sound" : "mute", label: sound ? "Sound On" : "Sound Off", onClick: () => { const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); close(); say(v ? "Sound on" : "Sound off"); } },
         { icon: "sync", label: "Sync Now", onClick: () => { reload(); close(); say(online ? "Syncing…" : "No connection"); } }] },
@@ -297,6 +297,7 @@ export function Register() {
   const tg = (tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean) as string[];
 
   return (
+    <AreaCtx.Provider value={area}>
     <div className="flex h-full bg-gray-200 portal:bg-[var(--portal-canvas)] dark:bg-gray-900 dark:portal:bg-gray-900" onPointerDownCapture={() => { lastTouch.current = Date.now(); }}>
       {/* ---------- cart: the full height on the left ---------- */}
       <aside className="relative z-[1] flex h-full flex-col border-r border-gray-200 bg-white portal:border-r-0 portal:shadow-[4px_0_18px_rgb(16_24_40/0.06)] dark:border-gray-800 dark:bg-gray-950 dark:portal:border-r" style={{ width: CART_W }}>
@@ -348,7 +349,8 @@ export function Register() {
                 {l.note ? <span className="block text-xs italic text-gray-500">Note: {l.note}</span> : null}
               </button>
               {ro || sent ? null : <div className="flex items-center rounded-xl bg-gray-100 dark:bg-gray-900">
-                <Button variant="ghost" className="size-12 p-0 text-blue-700 dark:text-blue-400" aria-label={"Less " + l.name} disabled={left <= 1} onClick={() => qty(i, -1)}><Icon name="minus" className="size-5" /></Button>
+                {/* at 1 the − becomes a bin that takes the item off the cart */}
+                <Button variant="ghost" className={cx("size-12 p-0", left <= 1 ? "text-red-600 dark:text-red-500" : "text-blue-700 dark:text-blue-400")} aria-label={(left <= 1 ? "Remove " : "Less ") + l.name} onClick={() => qty(i, -1)}><Icon name={left <= 1 ? "trash" : "minus"} className="size-5" /></Button>
                 <span className="min-w-7 text-center text-[17px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{left}</span>
                 <Button variant="ghost" className="size-12 p-0 text-blue-700 dark:text-blue-400" aria-label={"More " + l.name} onClick={() => qty(i, 1)}><Icon name="plus" className="size-5" /></Button></div>}
               <span className="w-20 text-right text-[16px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineNet(l))}</span>
@@ -374,6 +376,9 @@ export function Register() {
               <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
           : <>
             {/* Save: keeps the order open and starts a new one (an In Store order needs a table); Kitchen saves too but leaves the order in the cart */}
+            {/* Clear: empties a new order's cart (a second tap confirms) */}
+            {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[72px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[72px] p-0")}
+              onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-7" />}</Button> : null}
             {live_eo || !noTable ? <Button variant="secondary" className="h-[72px] flex-1 rounded-2xl text-lg" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
             <Button className="h-[72px] flex-[2] justify-between rounded-2xl px-6 text-xl shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>Pay</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
           </>}
@@ -385,7 +390,7 @@ export function Register() {
         {/* the top buttons and, beside them, the category buttons; search opens in their place */}
         <div className="flex gap-2.5">
           {acts.map(a => <Button key={a} className={cx("relative h-[72px] w-[88px] shrink-0 flex-col gap-1 rounded-[14px] p-0 text-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
-            <Icon name={BTN[a]} className="size-7" />{a}
+            <Icon name={BTN[a]} className="size-7" />{a === "Retrieve" ? "On hold" : a}
             {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
         <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-[52px] [&>input]:text-[17px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
@@ -416,6 +421,7 @@ export function Register() {
         : pop === "Notes" ? <NotesPop init={notes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
       {dlg}
     </div>
+    </AreaCtx.Provider>
   );
 }
 

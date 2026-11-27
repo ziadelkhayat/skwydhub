@@ -9,13 +9,20 @@ import { Input } from "@/components/tremor/Input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
 import { Textarea } from "@/components/tremor/Textarea";
 import { cx } from "@/components/tremor/utils";
-import { useState, type ReactNode } from "react";
+import { useContext, useState, type ReactNode } from "react";
 import { modRule, type ModData, type ModOpt } from "../lib/pos";
 import { Icon } from "./Icon";
-import { Panel } from "./Touch";
+import { AreaCtx, Panel } from "./Touch";
 
 /** a Tremor dialog that answers once */
 export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode }) {
+  // on the register: in the menu's place, in the same rounded window as Discount
+  const area = useContext(AreaCtx);
+  if (area) return (
+    <Panel area={area} title={title} onClose={onClose} className="flex flex-col">
+      <div className="mx-auto w-full" style={{ maxWidth: Math.max(width, 420) }}>{children}</div>
+      {footer ? <div className="mx-auto mt-auto flex w-full items-center justify-end gap-3 pt-6 [&>button]:h-14 [&>button]:min-w-36 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]" style={{ maxWidth: Math.max(width, 420) }}>{footer}</div> : null}
+    </Panel>);
   return (
     <Dialog open onOpenChange={o => { if (!o) onClose(); }}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto" style={{ maxWidth: width, ["--pos-w" as any]: width + 64 + "px" }}>

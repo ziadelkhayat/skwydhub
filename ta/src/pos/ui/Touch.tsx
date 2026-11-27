@@ -4,8 +4,11 @@
 // Chip: a big choice button (categories, filters, quick notes). Pick: a big tile that toggles, with a tick when on.
 import { Button } from "@/components/tremor/Button";
 import { cx } from "@/components/tremor/utils";
-import { useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
+
+/** the register's menu area: every window opened from the register (Sheet) shows there, the cart stays on the left */
+export const AreaCtx = createContext<{ cartW: string } | null>(null);
 
 export function Panel({ area, title, sub, onClose, action, children, className }: { area: { cartW: string }; title: string; sub?: string; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string }) {
   return (

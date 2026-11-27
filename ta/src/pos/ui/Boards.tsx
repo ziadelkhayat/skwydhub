@@ -15,7 +15,7 @@ import { useStore } from "../lib/store";
 import { DriverPick } from "./Drivers";
 import { Icon } from "./Icon";
 import { notify } from "./notify";
-import { Chip } from "./Touch";
+import { Chip, Panel } from "./Touch";
 
 export const TYPE: Record<string, string> = { dinein: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery" };
 export const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", online: "API", web: "API", marketplace: "API" };
@@ -38,14 +38,14 @@ export const Full = ({ children }: { children: ReactNode }) => <div className="f
 
 // Functions: a page of big tiles in groups
 export type FnItem = { icon: string; label: string; onClick: () => void; bad?: boolean };
-export function FnPage({ title, who, groups, onClose }: { title: string; who: string; groups: { title: string; items: FnItem[] }[]; onClose: () => void }) {
-  return <Full><Head title={title} onClose={onClose}><span className="truncate text-[15px] text-gray-500">{who}</span></Head>
-    <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">{groups.map((g, i) => <section key={i}>
+export function FnPage({ title, who, groups, onClose, area }: { title: string; who: string; groups: { title: string; items: FnItem[] }[]; onClose: () => void; area: { cartW: string } }) {
+  // opens in the menu's place like Discount: the cart stays on the left
+  return <Panel area={area} title={title} sub={who} onClose={onClose} className="space-y-6">{groups.map((g, i) => <section key={i}>
       {g.title ? <h2 className="mb-3 ps-1 text-sm font-semibold uppercase tracking-wide text-gray-500">{g.title}</h2> : null}
-      <div className="grid grid-cols-4 gap-3">{g.items.map(it => <button key={it.label} type="button" onClick={it.onClick}
-        className="flex h-[128px] flex-col items-center justify-center gap-3 rounded-[18px] bg-white text-[17px] font-medium text-gray-900 shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.07)] active:bg-blue-50 dark:bg-gray-900 dark:text-gray-50">
+      <div className="grid grid-cols-3 gap-3">{g.items.map(it => <button key={it.label} type="button" onClick={it.onClick}
+        className="flex h-[120px] flex-col items-center justify-center gap-3 rounded-[18px] bg-gray-50 text-[17px] font-medium text-gray-900 ring-[1.5px] ring-inset ring-gray-200 active:bg-blue-50 dark:bg-gray-900 dark:text-gray-50 dark:ring-gray-800">
         <span className={it.bad ? "flex size-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 dark:bg-red-500/10" : "flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"}><Icon name={it.icon} className="size-7" /></span>
-        <span className={it.bad ? "text-red-600 dark:text-red-500" : ""}>{it.label}</span></button>)}</div></section>)}</div></Full>;
+        <span className={it.bad ? "text-red-600 dark:text-red-500" : ""}>{it.label}</span></button>)}</div></section>)}</Panel>;
 }
 
 const TYPE_IC: Record<string, string> = { dinein: "table", pickup: "bag", takeaway: "bag", delivery: "scooter" };
