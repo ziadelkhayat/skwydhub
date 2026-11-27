@@ -1,6 +1,7 @@
 "use no memo"; // the POS code relies on checks the React Compiler would skip (it treats x! as never null), so it runs without the compiler
 // The PIN sign-in: the logo, PIN dots, the keypad, Sync Users, and the store and register under it.
 // Users of this store (and owners/admins) sign in with their 4–5 digit PIN.
+import { SkwydLogo } from "@/components/shared/skwyd-logo";
 import { Button } from "@/components/tremor/Button";
 import { useState } from "react";
 import { pinUser, posUsers } from "../lib/pos";
@@ -22,7 +23,7 @@ export function Lock() {
   };
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 bg-blue-50 p-6 dark:bg-gray-950">
-      <img src={import.meta.env.BASE_URL + "pos-files/logo.png"} alt="" className="size-16 rounded-xl" />
+      <span role="img" aria-label="skwyd pos" className="mb-1"><SkwydLogo stacked label="pos" markClass="h-14 w-12" wordClass="h-10 w-auto" /></span>
       <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Enter Your PIN</h1>
       <Dots n={pin.length} />
       <p className="-mt-2 min-h-5 text-sm text-red-600 dark:text-red-500">{err}</p>

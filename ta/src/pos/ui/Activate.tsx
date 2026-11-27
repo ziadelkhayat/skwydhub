@@ -1,5 +1,6 @@
 "use no memo"; // the POS code relies on checks the React Compiler would skip (it treats x! as never null), so it runs without the compiler
 // A new tablet: type the 6-digit code from Manage → Devices. There is no sign-in.
+import { SkwydLogo } from "@/components/shared/skwyd-logo";
 import { Card } from "@/components/tremor/Card";
 import { cx } from "@/components/tremor/utils";
 import { useState } from "react";
@@ -17,7 +18,7 @@ export function Activate({ onDone }: { onDone: () => void }) {
   return (
     <div className="flex h-full items-center justify-center p-6">
       <Card className="flex w-auto flex-col items-center gap-4 px-10 py-8">
-        <img src={import.meta.env.BASE_URL + "pos-files/logo.png"} alt="" className="size-16 rounded-md" />
+        <span role="img" aria-label="skwyd pos" className="mb-1"><SkwydLogo stacked label="pos" markClass="h-14 w-12" wordClass="h-10 w-auto" /></span>
         <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Activate This Device</h1>
         <p className="max-w-xs text-center text-sm text-gray-500">Type the 6-digit code shown for this device in Manage → Devices.</p>
         <div className="flex gap-2">
