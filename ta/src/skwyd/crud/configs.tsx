@@ -173,7 +173,9 @@ export const CRUD: Record<string, CrudCfg> = {
     col: "modifier_options", title: "Modifier Options", one: "Modifier Option", needs: ["modifiers", "tax_groups", "inv_items", "settings"], tabs: allDel, urlFilter: ["mod", "modifierId"], detail: "/option", io: OPTION_IO,
     filters: s => { const al: any = s.settings.find(x => x.id === "allergens") || {}, alls: string[] = Array.isArray(al.list) ? al.list : [...new Set(s.modifier_options.flatMap(o => o.allergens || []))] as string[];
       return [{ k: "name", l: "Name", get: r => r.name + " " + (r.nameAr || "") }, { k: "mod", l: "Modifiers", t: "multi", opts: s.modifiers.filter(live).sort((a, b) => a.name.localeCompare(b.name)).map(m => [m.id, m.name]), get: r => r.modifierId },
-        { k: "sku", l: "SKU", get: r => r.sku }, { k: "created", l: "Created After", t: "date", get: r => r.createdAt },
+        { k: "sku", l: "SKU", get: r => r.sku },
+        { k: "tags", l: "Tags", t: "multi", opts: ((s.settings.find(x => x.id === "tags") as any)?.list || []).filter((t: any) => t.type === "option" && !t.deleted).map((t: any) => [t.id, t.name]), get: r => (((s.settings.find(x => x.id === "tags") as any)?.on || {}).option || {})[r.id] || [] },
+        { k: "created", l: "Created After", t: "date", get: r => r.createdAt },
         { k: "allergens", l: "Allergens", t: "multi", opts: alls.map(a => [a, a]), get: r => r.allergens || [] }]; },
     sort: (a, b) => String(a.modifierId).localeCompare(String(b.modifierId)) || bySort(a, b),
     search: (r, s) => r.name + " " + (r.sku || "") + " " + (s.modifiers.find(m => m.id === r.modifierId)?.name || ""),
