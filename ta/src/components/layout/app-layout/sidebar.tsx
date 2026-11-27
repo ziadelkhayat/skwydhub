@@ -56,7 +56,6 @@ export function AppSidebar() {
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
           <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo markClass="h-9 w-8" wordClass="h-10 w-auto" /></Link>
           <NavList />
-          <div className="mt-auto"><UserMenu /></div>
         </aside>
       </div>
       {/* top bar (below lg) */}
