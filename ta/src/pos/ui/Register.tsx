@@ -5,6 +5,7 @@ import { Badge } from "@/components/tremor/Badge";
 import { Button } from "@/components/tremor/Button";
 import { Input } from "@/components/tremor/Input";
 import { cx } from "@/components/tremor/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Row } from "../lib/db";
 import kv from "../lib/kv";
@@ -42,7 +43,7 @@ export function Register() {
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
   const [kb, setKb] = useState(false), [vrSel, setVrSel] = useState<number[]>([]);
-  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLines, setDiscLines] = useState<number[]>([]);
+  const [typeOpen, setTypeOpen] = useState(false), [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLines, setDiscLines] = useState<number[]>([]);
   const say = (s: string) => notify(s);
 
   // a window over the sale (variant, modifiers, open price…) that answers once
@@ -96,8 +97,9 @@ export function Register() {
     setCart([...before.current, ...ok.map((i: any): Line => ({ productId: i.productId, name: i.name, price: +i.price || 0, qty: +i.qty || 1, ...(i.options?.length ? { options: i.options } : {}), ...(i.note ? { note: i.note } : {}), ...(i.mods ? { mods: i.mods } : {}) }))]);
     setPreview(true); if (ok.length < items.length) say("Some items aren't on the menu now"); };
   const unpreview = () => { if (before.current !== null) setCart(before.current); before.current = null; setPreview(false); undoRef.current?.(); };
-  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} />);
-    goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); back?.(); } };
+  // the cart shows the type picked in the customer window at once; leaving the window puts the old type back
+  const askCust = async (tp: OType, back?: () => void) => { const was = otype; const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} onType={switchType} />);
+    goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); switchType(was); back?.(); } };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
@@ -332,7 +334,13 @@ export function Register() {
           {live_eo && STL[st] ? <Badge variant={STL[st][1]}>{STL[st][0]}</Badge> : null}
           <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="size-5 text-blue-600 dark:text-blue-500" />
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-            <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>
+            {/* the order type: a dropdown on a new order (Pickup / Delivery open the customer window) */}
+            {!live_eo && types.length > 1 ? <Popover open={typeOpen} onOpenChange={setTypeOpen}>
+              <PopoverTrigger asChild><button type="button" className="-my-1.5 flex h-10 items-center gap-1.5 rounded-xl px-2 font-semibold text-gray-900 active:bg-gray-100 dark:text-gray-50">{TYPE_LBL[otype] || otype}<Icon name="down" className="size-4 text-gray-500" /></button></PopoverTrigger>
+              <PopoverContent align="start" sideOffset={6} className="w-56 space-y-1 p-2">{types.map(k => <button key={k} type="button" onClick={() => { setTypeOpen(false); if (k === otype) return; if (k === "dinein") switchType("dinein"); else askCust(k); }}
+                className={cx("flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-[17px] font-medium", k === otype ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400" : "text-gray-900 active:bg-gray-100 dark:text-gray-50")}>
+                <Icon name={k === "delivery" ? "scooter" : k === "dinein" ? "store" : "bag"} className="size-5" />{TYPE_LBL[k]}</button>)}</PopoverContent></Popover>
+              : <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>}
             {/* the table: tap to change it, ✕ to take the order off the table */}
             {otype === "dinein" && table ? <span className="-my-1.5 flex items-center rounded-xl bg-blue-50 dark:bg-blue-500/10">
               <button type="button" disabled={!!live_eo} onClick={tablesPage} className="h-11 rounded-s-xl ps-3 pe-1 font-semibold text-blue-700 dark:text-blue-400" aria-label="Change table">{tblLbl(table)}{guests ? <span className="ms-1.5 text-sm font-normal text-gray-500">{guests} guests</span> : null}</button>

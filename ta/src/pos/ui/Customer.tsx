@@ -36,7 +36,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </div>);
 }
 
-export function CustomerDialog({ type, types, init, onDone, area, back, onReorder, goRef, undoRef }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string; onReorder?: (items: any[]) => void; goRef?: { current: (() => void) | null }; undoRef?: { current: (() => void) | null } }) {
+export function CustomerDialog({ type, types, init, onDone, area, back, onReorder, goRef, undoRef, onType }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string; onReorder?: (items: any[]) => void; goRef?: { current: (() => void) | null }; undoRef?: { current: (() => void) | null }; onType?: (t: OType) => void }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
@@ -44,6 +44,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
   // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
+  useEffect(() => { onType?.(t); }, [t]); // eslint-disable-line react-hooks/exhaustive-deps
   const filled = useRef("");   // the name a found phone number filled in: it goes when the number changes
   useEffect(() => { if (filled.current && c.name === filled.current) { filled.current = ""; setC(o => ({ ...o, name: "" })); } }, [c.phone]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setWho(null); setSaved([]); setIns(null); setPrev([]); return; }
@@ -139,7 +140,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
             <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">Previous orders</h3>
             <div className="max-h-[300px] space-y-2 overflow-y-auto">
               {prev.map(o => { const bad = ["void", "declined"].includes(o.status), its = (o.items || []).map((i: any) => (+i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ");
-                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => { if (tBefore.current === null) tBefore.current = t; if (o.type !== "dinein" && types.includes(o.type)) setT(o.type); onReorder?.(o.items || []); }} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
+                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => { if (tBefore.current === null) tBefore.current = t; { const k = (o.type === "pickup" ? "takeaway" : o.type) as OType; if (k !== "dinein" && types.includes(k)) setT(k); } onReorder?.(o.items || []); }} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
                   <div className="flex items-center gap-2 text-[15px]"><span className="font-semibold text-gray-900 dark:text-gray-50">{fmtD(o.created_at)}</span>
                     <span className="text-gray-500">{o.type === "delivery" ? "Delivery" : o.type === "pickup" ? "Pickup" : "In Store"}</span>
                     {bad ? <span className="rounded-md bg-red-50 px-1.5 text-[13px] font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{o.status === "void" ? "Void" : "Declined"}</span> : null}
