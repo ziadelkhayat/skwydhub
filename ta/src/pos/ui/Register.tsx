@@ -320,7 +320,8 @@ export function Register() {
             <Icon name="user" className="size-5 shrink-0 text-gray-600 dark:text-gray-400" />
             <span className="min-w-0 flex-1">{c.name || c.phone ? <><span className="block truncate text-[16px] font-semibold">{c.name || c.phone}</span>{c.name && c.phone ? <span className="block truncate text-xs font-normal text-gray-500">{c.phone}</span> : null}</> : <span className="text-[16px] font-normal text-gray-500">Add customer</span>}</span>
           </Button>
-          {cust.name && !live_eo && otype === "dinein" ? <Button variant="ghost" aria-label="Remove customer" className="size-14" onClick={() => setCust(CART0)}><Icon name="x" className="size-4 text-red-600" /></Button> : null}
+          {/* ✕ takes the customer off the order; a pickup or delivery order becomes In Store */}
+          {(cust.name || cust.phone) && !live_eo ? <Button variant="secondary" aria-label="Remove customer" className="size-14 shrink-0 rounded-[14px] p-0" onClick={() => { setCust(CART0); if (otype !== "dinein") switchType("dinein"); }}><Icon name="x" className="size-6 text-red-600" /></Button> : null}
         </div>
         {c.addr ? <p className="line-clamp-2 px-4 pt-2 text-xs text-gray-500">{c.addr}</p> : null}
         {/* the order's tags and notes, at the top of the cart under the customer */}
