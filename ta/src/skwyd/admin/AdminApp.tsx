@@ -12,7 +12,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from 
 import { Suspense, lazy, useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router";
 import { Toaster } from "../ui/toast";
-import { SkwydMark } from "@/components/shared/skwyd-logo";
+import { SkwydLogo } from "@/components/shared/skwyd-logo";
 import { ConfirmHost } from "../ui/confirm";
 import { AdminCtx, initials, rpc, useAdmin, type Admin, type Overview } from "./data";
 
@@ -59,7 +59,7 @@ function Shell() {
   const itemCls = (on: boolean) => cx(on ? "bg-blue-100/70 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" : "text-gray-700 hover:bg-white/80 hover:text-gray-900 dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50",
     "flex w-full items-center gap-x-2.5 rounded-[10px] px-2.5 py-2 text-sm font-medium transition", focusRing);
   const nav = <nav aria-label="Main" className="flex flex-1 flex-col"><ul role="list" className="space-y-0.5">{NAV.map(([to, t, I]) => <li key={to}><NavLink to={to} end={to === "/"} className={({ isActive }) => itemCls(isActive || (to === "/companies" && pathname === "/company"))}><I className="size-4 shrink-0" aria-hidden="true" />{t}</NavLink></li>)}</ul></nav>;
-  const brand = <div className="flex items-center gap-2.5 px-2 pt-1"><SkwydMark markClass="h-9 w-8" /><span className="leading-tight"><span className="block text-lg font-bold tracking-tight text-gray-900 dark:text-gray-50">skwyd</span><span className="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase">Admin</span></span></div>;
+  const brand = <div className="flex justify-center px-2 pt-1"><SkwydLogo stacked label="admin" markClass="h-12 w-10" wordClass="h-9 w-auto" /></div>;
   const user = (top?: boolean) => <DropdownMenu><DropdownMenuTrigger aria-label="User settings" className={cx("group flex items-center rounded-md text-sm font-medium text-gray-900 hover:bg-gray-100 data-[state=open]:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-400/10 data-[state=open]:dark:bg-gray-400/10", top ? "gap-3 p-1.5 pr-2" : "w-full justify-between p-2", focusRing)}>
       <span className="flex min-w-0 items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300" aria-hidden="true">{initials(me.email)}</span><span className="truncate">{me.email}</span></span>
       <RiMore2Fill className="size-4 shrink-0 text-gray-500" aria-hidden="true" /></DropdownMenuTrigger>
