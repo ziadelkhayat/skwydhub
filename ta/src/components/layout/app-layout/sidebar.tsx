@@ -55,7 +55,7 @@ export function AppSidebar() {
       {/* sidebar (lg+) */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col">
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto bg-(--portal-canvas) p-4">
-          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo stacked markClass="h-12 w-10" wordClass="h-9 w-auto" /></Link>
+          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center justify-center px-2 pt-1", focusRing)}><SkwydLogo stacked markClass="h-12 w-10" wordClass="h-9 w-auto" /></Link>
           <NavList />
         </aside>
       </div>
