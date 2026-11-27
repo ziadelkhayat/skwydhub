@@ -11,7 +11,7 @@ type Store = {
   cashier: Row | null; setCashier: (u: Row | null) => void;
   sb: SupabaseClient | null; reload: () => void; restart: () => void;
   // a change made on the register: on screen at once, sent to the server in order (now, or when back online)
-  write: (col: Col, id: string, data: Record<string, any>, op?: "set" | "update") => void;
+  write: (col: Col, id: string, data: Record<string, any>, op?: "set" | "update" | "delete") => void;
   pending: number; failed: number;
 };
 const Ctx = createContext<Store>(null as any);
@@ -68,7 +68,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       touched.forEach(load);
     } finally { busy.current = false; }
   };
-  const write = (col: Col, id: string, data: Record<string, any>, op: "set" | "update" = "update") => {
+  const write = (col: Col, id: string, data: Record<string, any>, op: "set" | "update" | "delete" = "update") => {
     const nb = { outbox: [...boxRef.current.outbox, { col, op, id, data }], failed: boxRef.current.failed };
     boxRef.current = nb; setBox(nb); saveOutbox(nb.outbox, nb.failed); setTimeout(flush, 0);
   };

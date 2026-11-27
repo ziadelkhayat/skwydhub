@@ -129,7 +129,7 @@ export function toRow(col: string, id: string | null, data: Record<string, any>)
   if (t === "orders" && row.no != null) row.no = +row.no;
   return row;
 }
-export type Op = { col: Col; op: "set" | "update"; id: string; data: Record<string, any>; tries?: number; lastError?: string };
+export type Op = { col: Col; op: "set" | "update" | "delete"; id: string; data: Record<string, any>; tries?: number; lastError?: string };
 const OUTBOX = "skwyd_outbox", FAILED = "skwyd_failed";
 export async function readOutbox(): Promise<{ outbox: Op[]; failed: Op[] }> {
   const [[, a], [, b]] = await AsyncStorage.multiGet([OUTBOX, FAILED]);
@@ -138,6 +138,7 @@ export async function readOutbox(): Promise<{ outbox: Op[]; failed: Op[] }> {
 export const saveOutbox = (outbox: Op[], failed: Op[]) => AsyncStorage.multiSet([[OUTBOX, JSON.stringify(outbox)], [FAILED, JSON.stringify(failed)]]).catch(() => {});
 export async function send(sb: SupabaseClient, op: Op) {
   const t = tableOf(op.col);
+  if (op.op === "delete") { const { error } = await sb.from(t).delete().eq("id", op.id); if (error) throw error; return; }
   if (op.op === "set") { const { error } = await sb.from(t).upsert(toRow(op.col, op.id, op.data)); if (error) throw error; }
   else { const row: any = toRow(op.col, null, op.data); delete row.id;
     if (t === "settings") { const cur = await sb.from(t).select("data").eq("id", op.id).maybeSingle(); if (cur.error) throw cur.error; row.data = { ...(cur.data?.data || {}), ...row.data }; }   // a settings document is merged, never replaced
@@ -145,6 +146,7 @@ export async function send(sb: SupabaseClient, op: Op) {
 }
 // a change shows on screen at once: the list as the server sent it, with the writes still waiting laid over it
 export function applyOp(rows: Row[], op: Op): Row[] {
+  if (op.op === "delete") return rows.filter(r => r.id !== op.id);
   const i = rows.findIndex(r => r.id === op.id), out = rows.slice();
   if (op.op === "set") { const r = { ...op.data, id: op.id } as Row; if (i < 0) out.unshift(r); else out[i] = r; }
   else if (i >= 0) out[i] = { ...out[i], ...op.data, id: op.id };

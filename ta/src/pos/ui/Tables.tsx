@@ -47,7 +47,7 @@ export function TablesDialog({ x: x0, onFree, onOpen, onClose, area }: { x: Ctx;
       const y: Ctx = { ...x, otype: "dinein" }, t = totals(y, items, +dst.discount ? (dst.discountType === "amt" ? { type: "amt", value: +dst.discount } : { type: "pct", value: +dst.discountPct || 0 }) : null, (dst.charges || []).map((c: any) => c.id), Object.fromEntries((dst.charges || []).filter((c: any) => c.type === "open").map((c: any) => [c.id, +c.amount])));
       const f: any = orderFields(y, items, t, { table: String(dst.table || k), guests: [dst, ...srcs].reduce((a, o) => a + (+o.guests || 0), 0), receiptNotes: dst.receiptNotes, notes: dst.notes }); delete f.customerName; delete f.phone; delete f.address;
       write("orders", dst.id, { ...f, updatedAt: now });
-      srcs.forEach(o => write("orders", o.id, { status: "declined", voidReason: "Merged into " + (dst.no || dst.ref), doneAt: now, updatedAt: now })); }
+      srcs.forEach(o => write("orders", o.id, {}, "delete")); }   // simply merged: the other order is gone, its items are on this one
     setMsg(tm!.mode === "move" ? `${tblLbl(from)} moved to ${tblLbl(k)}` : `${tblLbl(from)} merged into ${tblLbl(k)}`); setTm(null); setConfirm(null); };
   const mins = (t: string) => Math.max(0, Math.round((Date.now() - +new Date(t)) / 60000)), dur = (m: number) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
   const [sec, setSec] = useState("");
