@@ -29,7 +29,7 @@ const today = (x: Ctx) => { const d = bizDate(x); return x.S.orders.filter(o => 
 
 // the header of a full screen: back, title, and the screen's own buttons
 // the header of a full screen (touch size): a big back button, the title, and the screen's own buttons
-export function Head({ title, onClose, children, back = "Back" }: { title: string; onClose: () => void; children?: ReactNode; back?: string }) {
+export function Head({ title, onClose, children, back = "" }: { title: string; onClose: () => void; children?: ReactNode; back?: string }) {
   return <header className="flex h-[84px] shrink-0 items-center gap-3 bg-white px-4 shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)] dark:bg-gray-950 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:px-5 [&>button]:text-[17px]">
     {back ? <Button variant="secondary" className="gap-1.5" onClick={onClose}><Icon name="back" className="size-5" />{back}</Button>
       : <Button variant="secondary" aria-label="Close" className="w-14 !px-0" onClick={onClose}><Icon name="x" className="size-6" /></Button>}

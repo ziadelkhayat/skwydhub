@@ -51,7 +51,7 @@ export function DriversDialog({ x, onOpen, onClose }: { x: Ctx; onOpen: (o: Row)
       <TableCell><Badge variant={o.status === "closed" ? "success" : "default"}>{o.status === "closed" ? (o.driverSettledAt ? "Cash received" : "Delivered") : DRV_ST[o.driverStatus] || (o.dispatchedAt ? "Dispatched" : "Preparing")}</Badge></TableCell>
       <TableCell className="text-right font-medium text-gray-900 dark:text-gray-50">{money(x.S, o.total)}</TableCell></TableRow>)}</TableBody></Table>;
   return (
-    <Full><Head title="Drivers · Today" back="Pickup & Delivery" onClose={onClose} />
+    <Full><Head title="Drivers · Today" back="Back" onClose={onClose} />
       <div className="grid grid-cols-4 gap-3 px-4 pt-4">
         {[["Delivery orders", String(mine.length)], ["Total", money(x.S, tot(mine))], ["Without a driver", String(none.length)], ["Drivers", String(Object.keys(by).length)]].map(([l, v]) =>
           <Card key={l} className="p-4"><p className="text-sm text-gray-500">{l}</p><p className="text-xl font-semibold text-gray-900 dark:text-gray-50">{v}</p></Card>)}
