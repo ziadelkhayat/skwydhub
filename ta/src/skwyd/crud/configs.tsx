@@ -16,6 +16,15 @@ const B = ({ children }: { children: React.ReactNode }) => <span className="font
 const Note = ({ children }: { children: React.ReactNode }) => <span className="text-gray-500 dark:text-gray-400">{children}</span>;
 const nameCell = (r: Row) => <><B>{r.name}</B>{r.nameAr ? <span className="ms-1.5 text-xs text-gray-500">{r.nameAr}</span> : null}</>;
 const created = { h: "Created", cell: (r: Row) => fmtDate(r.createdAt) };
+/* filter panel pieces used by many lists */
+const fName = { k: "name", l: "Name", get: (r: Row) => r.name + " " + (r.nameAr || "") };
+const fRef = (k = "reference", l = "Reference") => ({ k: "f_" + k, l, get: (r: Row) => r[k] });
+const fCreated = { k: "created", l: "Created After", t: "date" as const, get: (r: Row) => r.createdAt };
+const fYN = (k: string, l: string, get: (r: Row) => boolean) => ({ k, l, t: "multi" as const, opts: [["yes", "Yes"], ["no", "No"]] as [string, string][], get: (r: Row) => get(r) ? "yes" : "no" });
+const fTag = (s: S, type: string) => { const tg: any = s.settings?.find(x => x.id === "tags") || {}, on = (tg.on || {})[type] || {};
+  return { k: "tag", l: "Tag", t: "multi" as const, opts: (tg.list || []).filter((t: any) => t.type === type && !t.deleted).map((t: any) => [t.id, t.name]) as [string, string][], get: (r: Row) => on[r.id] || [] }; };
+const OT_OPTS: [string, string][] = [["dinein", "In Store"], ["pickup", "Pickup"], ["delivery", "Delivery"]];
+const otOf = (r: Row) => [...new Set((r.orderTypes || []).map((t: string) => t === "fast" ? "dinein" : t))];
 const ref = { h: "Reference", cell: (r: Row) => r.reference || "—" };
 const sku = (col: string, pre: string) => (s: S) => { let n = 0; const re = new RegExp("^" + pre + "-?(\\d+)$", "i"); s[col].forEach(r => { const m = re.exec(r.sku || ""); if (m) n = Math.max(n, +m[1]); }); return pre + "-" + String(n + 1).padStart(4, "0"); };
 const taxGroupOpts = (s: S) => s.tax_groups.filter(live).map(g => [g.id, g.name] as [string, string]);
@@ -251,6 +260,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   variants: {
     col: "variant_sets", title: "Variants", one: "Variant", needs: ["products"], tabs: allDel,
+    filters: () => [fName, { k: "opt", l: "Option", get: r => (r.options || []).join(" ") }, fCreated],
     search: r => r.name + " " + (r.options || []).join(" "),
     cols: [{ h: "Name", cell: nameCell }, { h: "Options", cell: r => <span className="flex flex-wrap gap-1.5">{(r.options || []).map((o: string) => <Badge key={o} variant="light" color="gray">{o}</Badge>)}</span> },
       { h: "Products", cell: (r, s) => s.products.filter(p => live(p) && p.variantSetId === r.id).length, num: true }],
@@ -263,6 +273,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   brands: {
     col: "brands", title: "Brands", one: "Brand", needs: ["branches"], tabs: allDel, detail: "/brand",
+    filters: () => [fName, fCreated],
     cols: [{ h: "Brand", cell: nameCell }, { h: "Stores", cell: (r, s) => s.branches.filter(b => b.brandId === r.id).length, num: true }],
     fields: [{ k: "name", l: "Brand Name", req: true }, { k: "nameAr", l: "Name Localized" }],
     canDelete: (r, s) => { const n = s.branches.filter(b => b.brandId === r.id).length; return n ? `Delete this brand's ${n} store${n === 1 ? "" : "s"} first (Manage → Stores).` : ""; },
@@ -291,6 +302,9 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   taxes: {
     col: "taxes", title: "Taxes", one: "Tax", needs: ["tax_groups"], tabs: allDel,
+    filters: s => [fName, { k: "ot", l: "Order Types", t: "multi", opts: OT_OPTS, get: r => otOf(r).length ? otOf(r) : OT_OPTS.map(o => o[0]) },
+      { k: "incl", l: "Pricing", t: "multi", opts: [["in", "Inclusive"], ["top", "Added on top"]], get: r => r.inclusive === false ? "top" : "in" },
+      { k: "grp", l: "Tax Groups", t: "multi", opts: s.tax_groups.filter(live).map(g => [g.id, g.name]), get: r => s.tax_groups.filter(g => live(g) && (g.taxIds || []).includes(r.id)).map(g => g.id) }, fCreated],
     cols: [{ h: "Name", cell: nameCell }, { h: "Rate", cell: r => (+r.rate || 0) + " %", num: true }, { h: "Pricing", cell: r => r.inclusive === false ? "Added on top" : "Inclusive" },
       { h: "Order Types", cell: r => { const l = r.orderTypes || []; return l.length ? [...new Set(l.map((t: string) => t === "fast" ? "dinein" : t))].map((t: any) => TYPE_LBL[t] || t).join(", ") : "All"; } },
       { h: "Used In Groups", cell: (r, s) => s.tax_groups.filter(g => live(g) && (g.taxIds || []).includes(r.id)).map(g => g.name).join(", ") || "—" }, created],
@@ -301,6 +315,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   "tax-groups": {
     col: "tax_groups", title: "Tax Groups", one: "Tax Group", needs: ["taxes", "products"], tabs: allDel,
+    filters: s => [fName, fRef(), { k: "tax", l: "Taxes", t: "multi", opts: s.taxes.filter(live).map(t => [t.id, t.name]), get: r => r.taxIds || [] }, fCreated],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref, { h: "Taxes", cell: (r, s) => (r.taxIds || []).map((id: string) => s.taxes.find(t => t.id === id)?.name || "?").join(" + ") || "None" },
       { h: "Products", cell: (r, s) => s.products.filter(p => live(p) && p.taxGroup === r.id).length, num: true }],
@@ -310,6 +325,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   "payment-methods": {
     col: "payment_methods", title: "Payment Methods", one: "Payment Method",
+    filters: () => [fName, fRef("code", "Code"), { k: "type", l: "Type", t: "multi", opts: PM_TYPES, get: r => r.type || "other" }, fYN("drawer", "Auto Open Cash Drawer", r => !!r.openDrawer), fYN("active", "Active", r => r.active !== false), fCreated],
     tabs: [["all", "All", live], ["active", "Active", r => live(r) && r.active !== false], ["inactive", "Inactive", r => live(r) && r.active === false], ["deleted", "Deleted", del]],
     sort: bySort, sortable: true, search: r => r.name + " " + (r.code || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => PM_TYPES.find(t => t[0] === r.type)?.[1] || "Other" }, { h: "Code", cell: r => r.code || "—" },
@@ -321,6 +337,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   "order-sources": {
     col: "order_sources", title: "Order Sources", one: "Order Source",
+    filters: () => [fName, fRef(), fCreated],
     tabs: [["all", "All", r => live(r) && !SYS_SRC(r.name)], ["deleted", "Deleted", r => del(r) && !SYS_SRC(r.name)]],
     prep: data => SYS_SRC(data.name) ? `"${data.name}" is set automatically on web and API orders. Choose another name.` : "",
     sort: bySort, sortable: true, noSearch: true, search: r => r.name + " " + (r.reference || ""),
@@ -330,6 +347,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   "inv-categories": {
     col: "inv_categories", title: "Inventory Categories", one: "Category", needs: ["inv_items"], tabs: allDel,
+    filters: () => [fName, fRef(), fCreated],
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: nameCell }, ref, { h: "Products", cell: (r, s) => <XLink className="text-blue-500 hover:underline" to={"/inv-items?icat=" + encodeURIComponent(r.name)} onClick={e => e.stopPropagation()}>Products ({s.inv_items.filter(i => live(i) && i.category === r.name).length})</XLink> }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "nameAr", l: "Name Localized" }, { k: "reference", l: "Reference" }],
@@ -337,6 +355,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   warehouses: {
     col: "warehouses", title: "Warehouses", one: "Warehouse", scope: { brand: r => [r.brandId] }, needs: ["brands"], tabs: allDel, detail: "/warehouse",
+    filters: () => [fName, fRef(), fCreated],
     sort: (a, b) => String(a.reference || "").localeCompare(String(b.reference || ""), undefined, { numeric: true }) || String(a.name).localeCompare(String(b.name)),
     search: r => r.name + " " + (r.reference || ""),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, ref, { h: "Brand", cell: (r, s) => s.brands.find(b => b.id === r.brandId)?.name || "—" }, created],
@@ -347,6 +366,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   suppliers: {
     col: "suppliers", title: "Suppliers", one: "Supplier", tabs: allDel, detail: "/supplier", io: SUP_IO,
+    needs: ["settings"], filters: s => [fName, fRef("code", "Code"), fRef("contactName", "Contact Name"), fRef("phone", "Phone"), fRef("email", "Email"), fTag(s, "supplier"), fCreated],
     search: r => [r.name, r.code, r.contactName, r.phone, r.email].join(" "),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "Code", cell: r => r.code || "" }, { h: "Contact", cell: r => r.contactName || "—" }, { h: "Phone", cell: r => r.phone || "—" }, { h: "Email", cell: r => r.email || "—" }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "code", l: "Code", auto: s => "SUP-" + String(s.suppliers.length + 1).padStart(3, "0") }, { k: "contactName", l: "Contact Name" }, { k: "phone", l: "Phone" }, { k: "email", l: "Email" },
@@ -404,6 +424,7 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   roles: {
     col: "roles", title: "Roles", one: "Role", needs: ["users"], tabs: [["all", "All", live]], noSearch: true,
+    filters: s => [fName, { k: "emp", l: "Employees", t: "multi", opts: s.users.filter(u => live(u) && !isAdminRow(u)).map(u => [u.id, u.name]), get: r => s.users.filter(u => live(u) && (u.roleIds?.length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id)).map(u => u.id) }],
     cols: [{ h: "Name", cell: r => <><B>{r.name}</B>{r.description ? <span className="block text-xs text-gray-500">{r.description}</span> : null}</> },
       { h: "Back Office", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("bo_")).length; return n ? (r.permissions.includes("bo_manage") ? <Badge variant="light" color="success">Full admin</Badge> : n + " areas") : <Note>No access</Note>; } },
       { h: "POS", cell: r => { const n = (r.permissions || []).filter((p: string) => p.startsWith("pos_")).length; return n ? n + " permissions" : <Note>No access</Note>; } },
@@ -414,7 +435,11 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.users.filter(u => !u.deleted && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length; return n ? `This role is used by ${n} employee${n === 1 ? "" : "s"}. Remove it from ${n === 1 ? "that employee" : "those employees"} first.` : ""; },
   },
   "inv-items": {
-    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item", urlFilter: ["icat", "category"], io: INV_IO,
+    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories", "suppliers", "settings"], detail: "/inv-item", urlFilter: ["icat", "category"], io: INV_IO,
+    filters: s => { const links: any[] = ((s.settings.find(x => x.id === "supplier_items") as any)?.links) || [];
+      return [fName, fRef("sku", "SKU"), fRef("barcode", "Barcode"), { k: "cat", l: "Category", t: "multi", opts: s.inv_categories.filter(live).map(c => [c.name, c.name]), get: r => r.category },
+        { k: "sup", l: "Supplier", t: "multi", opts: s.suppliers.filter(live).map(x => [x.id, x.name]), get: r => links.filter(l => l.itemId === r.id).map(l => l.supplierId) }, fTag(s, "inventory"),
+        { k: "cost", l: "Costing Method", t: "multi", opts: [["transactions", "From Transactions"], ["fixed", "Fixed"]], get: r => r.costingMethod === "fixed" ? "fixed" : "transactions" }, fCreated]; },
     tabs: [["all", "All", live], ["items", "Products", r => live(r) && !(r.ingredients || []).length && !r.menuItem], ["produced", "Production Products", r => live(r) && (r.ingredients || []).length > 0], ["menu", "Product Items", r => live(r) && !!r.menuItem], ["deleted", "Deleted", del]],
     sort: (a, b) => String(b.sku || "").localeCompare(String(a.sku || ""), undefined, { numeric: true }),
     search: r => r.name + " " + (r.sku || "") + " " + (r.category || ""),
@@ -428,6 +453,9 @@ export const CRUD: Record<string, CrudCfg> = {
   },
   charges: {
     col: "charges", title: "Charges", one: "Charge", needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort, sortable: true, noSearch: true,
+    filters: s => [fName, { k: "type", l: "Type", t: "multi", opts: [["fixed", "Amount"], ["percent", "Percentage"], ["open", "Open amount"]], get: r => r.type || "fixed" },
+      { k: "ot", l: "Order Types", t: "multi", opts: OT_OPTS, get: r => otOf(r).length ? otOf(r) : OT_OPTS.map(o => o[0]) },
+      { k: "store", l: "Stores", t: "multi", opts: s.branches.filter(b => live(b) && b.active !== false).map(b => [b.id, b.name]), get: r => r.branchIds || [] }, fCreated],
     search: r => r.name + " " + (r.nameAr || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => r.type === "percent" ? "Percentage" : r.type === "open" ? "Open amount" : "Amount" },
       { h: "Value", cell: r => r.type === "percent" ? (+r.value || 0) + " %" : r.type === "open" ? "Open" : money(r.value), num: true },
