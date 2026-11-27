@@ -336,7 +336,7 @@ export function Register() {
             {/* the table: tap to change it, ✕ to take the order off the table */}
             {otype === "dinein" && table ? <span className="-my-1.5 flex items-center rounded-xl bg-blue-50 dark:bg-blue-500/10">
               <button type="button" disabled={!!live_eo} onClick={tablesPage} className="h-11 rounded-s-xl ps-3 pe-1 font-semibold text-blue-700 dark:text-blue-400" aria-label="Change table">{tblLbl(table)}{guests ? <span className="ms-1.5 text-sm font-normal text-gray-500">{guests} guests</span> : null}</button>
-              {!ro ? <button type="button" aria-label="Remove table" className="flex size-11 items-center justify-center rounded-e-xl text-red-600 active:bg-red-50" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-5" /></button> : <span className="w-3" />}</span> : null}
+              {!ro && !live_eo ? <button type="button" aria-label="Remove table" className="flex size-11 items-center justify-center rounded-e-xl text-red-600 active:bg-red-50" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-5" /></button> : <span className="w-3" />}</span> : null}
           </div>
           {!online || pending ? <Badge variant="warning">{!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`}</Badge> : null}
           <div className="text-right"><p className="text-[11px] text-gray-500">Order</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo?.no || "New"}</p></div>
