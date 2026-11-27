@@ -334,11 +334,11 @@ export function Register() {
       <aside className="relative z-[1] flex h-full flex-col border-r border-gray-200 bg-white portal:border-r-0 portal:shadow-[4px_0_18px_rgb(16_24_40/0.06)] dark:border-gray-800 dark:bg-gray-950 dark:portal:border-r" style={{ width: CART_W }}>
         <div className="flex items-start gap-2 px-4 pt-3.5 text-[16px]">
           {live_eo && STL[st] ? <Badge variant={STL[st][1]}>{STL[st][0]}</Badge> : null}
-          <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="size-5 text-blue-600 dark:text-blue-500" />
+          <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="mt-0.5 size-6 text-blue-600 dark:text-blue-500" />
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
             {/* the order type: a dropdown on a new order (Pickup / Delivery open the customer window) */}
             {!live_eo && types.length > 1 ? <Popover open={typeOpen} onOpenChange={setTypeOpen}>
-              <PopoverTrigger asChild><button type="button" className="-my-1.5 flex h-10 items-center gap-1.5 rounded-xl px-2 font-semibold text-gray-900 active:bg-gray-100 dark:text-gray-50">{TYPE_LBL[otype] || otype}<Icon name="down" className="size-4 text-gray-500" /></button></PopoverTrigger>
+              <PopoverTrigger asChild><button type="button" className="-my-2 flex h-11 items-center gap-1.5 rounded-xl px-2 text-[19px] font-semibold text-gray-900 active:bg-gray-100 dark:text-gray-50">{TYPE_LBL[otype] || otype}<Icon name="down" className="size-5 text-gray-500" /></button></PopoverTrigger>
               <PopoverContent align="start" sideOffset={6} className="w-56 space-y-1 p-2">{types.map(k => <button key={k} type="button" onClick={() => { setTypeOpen(false); if (k === otype) return; if (k === "dinein") switchType("dinein"); else askCust(k); }}
                 className={cx("flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-[17px] font-medium", k === otype ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400" : "text-gray-900 active:bg-gray-100 dark:text-gray-50")}>
                 <Icon name={k === "delivery" ? "scooter" : k === "dinein" ? "store" : "bag"} className="size-5" />{TYPE_LBL[k]}</button>)}</PopoverContent></Popover>
