@@ -115,6 +115,37 @@ const EMP_IO: IoSet[] = [
       }); },
     // new employees and changed phones get their app login, as when one is added by hand
     after: async () => { const { data: d, error } = await sb.functions.invoke("team-account", { body: { employeeId: "", all: true } }); if (error || d?.error) throw new Error(d?.error || "Imported, but the app logins couldn't be updated. Open an employee and save to retry."); } }];
+const INV_IO: IoSet[] = [
+  { name: "products", head: ["Name", "Name Localized", "SKU", "Category", "Storage Unit", "Ingredient Unit", "Storage To Ingredient", "Costing Method", "Cost", "Barcode"],
+    exp: s => s.inv_items.filter(live).map(r => [r.name, r.nameAr, r.sku, r.category, r.storageUnit, r.ingredientUnit, r.factor, r.costingMethod === "fixed" ? "Fixed" : "Transactions", r.cost, r.barcode]),
+    imp: (recs, s) => { const seen = new Set<string>(); return perRow(recs, (v, n) => {
+      const old = v.sku ? s.inv_items.find(r => live(r) && low(r.sku) === low(v.sku)) : s.inv_items.find(r => live(r) && low(r.name) === low(v.name)), isNew = !old, d: Record<string, any> = {};
+      if (v.name) d.name = v.name; else if (isNew) return "Name is missing.";
+      const k = low(v.sku || d.name || old!.name); if (seen.has(k)) return `"${v.sku || d.name}" is already earlier in the file.`; seen.add(k);
+      if (v["name localized"]) d.nameAr = v["name localized"];
+      if (v.category) { const cat = s.inv_categories.find(x => live(x) && low(x.name) === low(v.category)); if (!cat) return `Category "${v.category}" not found (add it in Inventory Categories first).`; d.category = cat.name; }
+      if (v["storage unit"]) d.storageUnit = v["storage unit"]; else if (isNew) return "Storage unit is missing.";
+      if (v["ingredient unit"]) d.ingredientUnit = v["ingredient unit"]; else if (isNew) return "Ingredient unit is missing.";
+      if (v["storage to ingredient"]) { if (!(+v["storage to ingredient"] > 0)) return `Storage to ingredient "${v["storage to ingredient"]}" isn't a number above 0.`; d.factor = +v["storage to ingredient"]; } else if (isNew) return "Storage to ingredient is missing.";
+      if (v["costing method"]) d.costingMethod = /fix/i.test(v["costing method"]) ? "fixed" : "transactions"; else if (isNew) d.costingMethod = "transactions";
+      if (v.cost) { if (isNaN(+v.cost)) return `Cost "${v.cost}" isn't a number.`; d.cost = +v.cost; } else if (isNew && d.costingMethod === "fixed") return "Cost is missing (fixed costing).";
+      if (v.barcode) d.barcode = v.barcode;
+      if (isNew) d.sku = v.sku || nextSku(s, "inv_items", "IN", n);
+      return { name: d.name || old!.name, col: "inv_items", id: old?.id, data: d };
+    }); } }];
+const SUP_IO: IoSet[] = [
+  { name: "suppliers", head: ["Name", "Code", "Contact Name", "Phone", "Email", "Address", "Notes"],
+    exp: s => s.suppliers.filter(live).map(r => [r.name, r.code, r.contactName, r.phone, r.email, r.address, r.notes]),
+    imp: (recs, s) => { const seen = new Set<string>(); let max = 0; s.suppliers.forEach(r => { const m = /^SUP-?(\d+)$/i.exec(r.code || ""); if (m) max = Math.max(max, +m[1]); });
+      return perRow(recs, (v, n) => {
+        const old = v.code ? s.suppliers.find(r => live(r) && low(r.code) === low(v.code)) : s.suppliers.find(r => live(r) && low(r.name) === low(v.name)), isNew = !old, d: Record<string, any> = {};
+        if (v.name) d.name = v.name; else if (isNew) return "Name is missing.";
+        const k = low(d.name || old!.name); if (seen.has(k)) return `"${d.name || old!.name}" is already earlier in the file.`; seen.add(k);
+        if (isNew && s.suppliers.some(r => live(r) && low(r.name) === k)) return `Another supplier is already called "${d.name}".`;
+        for (const [h, f] of [["code", "code"], ["contact name", "contactName"], ["phone", "phone"], ["email", "email"], ["address", "address"], ["notes", "notes"]]) if (v[h]) d[f] = v[h];
+        if (isNew && !d.code) d.code = "SUP-" + String(max + n + 1).padStart(3, "0");
+        return { name: d.name || old!.name, col: "suppliers", id: old?.id, data: d };
+      }); } }];
 const OPTION_IO: IoSet[] = [
   { name: "options", head: ["Modifier", "Name", "Name Localized", "SKU", "Price", "Tax Group", "Costing Method", "Cost", "Active"],
     exp: s => s.modifier_options.filter(live).map(o => [s.modifiers.find(m => m.id === o.modifierId)?.name, o.name, o.nameAr, o.sku, o.price ?? 0,
@@ -315,7 +346,7 @@ export const CRUD: Record<string, CrudCfg> = {
     unique: "name",
   },
   suppliers: {
-    col: "suppliers", title: "Suppliers", one: "Supplier", tabs: allDel, detail: "/supplier",
+    col: "suppliers", title: "Suppliers", one: "Supplier", tabs: allDel, detail: "/supplier", io: SUP_IO,
     search: r => [r.name, r.code, r.contactName, r.phone, r.email].join(" "),
     cols: [{ h: "Name", cell: r => <B>{r.name}</B> }, { h: "Code", cell: r => r.code || "" }, { h: "Contact", cell: r => r.contactName || "—" }, { h: "Phone", cell: r => r.phone || "—" }, { h: "Email", cell: r => r.email || "—" }, created],
     fields: [{ k: "name", l: "Name", req: true }, { k: "code", l: "Code", auto: s => "SUP-" + String(s.suppliers.length + 1).padStart(3, "0") }, { k: "contactName", l: "Contact Name" }, { k: "phone", l: "Phone" }, { k: "email", l: "Email" },
@@ -383,7 +414,7 @@ export const CRUD: Record<string, CrudCfg> = {
     canDelete: (r, s) => { const n = s.users.filter(u => !u.deleted && ((u.roleIds || []).includes(r.id) || u.roleId === r.id)).length; return n ? `This role is used by ${n} employee${n === 1 ? "" : "s"}. Remove it from ${n === 1 ? "that employee" : "those employees"} first.` : ""; },
   },
   "inv-items": {
-    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item", urlFilter: ["icat", "category"],
+    col: "inv_items", title: "Inventory Products", one: "Product", needs: ["inv_categories"], detail: "/inv-item", urlFilter: ["icat", "category"], io: INV_IO,
     tabs: [["all", "All", live], ["items", "Products", r => live(r) && !(r.ingredients || []).length && !r.menuItem], ["produced", "Production Products", r => live(r) && (r.ingredients || []).length > 0], ["menu", "Product Items", r => live(r) && !!r.menuItem], ["deleted", "Deleted", del]],
     sort: (a, b) => String(b.sku || "").localeCompare(String(a.sku || ""), undefined, { numeric: true }),
     search: r => r.name + " " + (r.sku || "") + " " + (r.category || ""),
