@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router";
 import { RiArrowRightUpLine, RiComputerLine, RiMoonLine, RiMore2Fill, RiSettings5Line, RiSunLine } from "@remixicon/react";
 import { cx, focusRing } from "@/components/tremor/utils";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { useTheme } from "@/contexts/theme-context";
 import { useAuth } from "@/lib/auth";
 
@@ -21,7 +21,6 @@ export function UserMenu({ compact, top }: { compact?: boolean; top?: boolean })
         </>}
       </DropdownMenuTrigger>
       <DropdownMenuContent align={compact || top ? "end" : "start"} className="sm:!min-w-[calc(var(--radix-dropdown-menu-trigger-width))]">
-        <DropdownMenuLabel className="truncate">{staff?.email || staff?.phone || name}</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>

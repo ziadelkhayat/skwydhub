@@ -2,9 +2,12 @@
 layer(base);
 
 @import "tailwindcss";
+
 @plugin "@tailwindcss/forms";
 
 @custom-variant dark (&:is(.dark *));
+/* the portal and admin look (index.html has class="portal"; the POS page doesn't) */
+@custom-variant portal (&:where(.portal, .portal *));
 
 @theme {
   /* Tremor: Inter on Tailwind's default theme */
@@ -122,3 +125,109 @@ layer(base);
     font-size: 16px;
   }
 }
+
+
+/* ───────────── Portal look: "Soft Indigo" (D), font Outfit (E) ─────────────
+   Only under .portal (the back office and admin); the POS page keeps Tremor's defaults.
+   Tremor's blue becomes indigo everywhere in the portal (buttons, links, charts, focus rings). */
+.portal {
+  --font-sans: Outfit, Tajawal, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-blue-50: oklch(96.2% 0.018 272.314);
+  --color-blue-100: oklch(93% 0.034 272.788);
+  --color-blue-200: oklch(87% 0.065 274.039);
+  --color-blue-300: oklch(78.5% 0.115 274.713);
+  --color-blue-400: oklch(67.3% 0.182 276.935);
+  --color-blue-500: oklch(58.5% 0.233 277.117);
+  --color-blue-600: oklch(51.1% 0.262 276.966);
+  --color-blue-700: oklch(45.7% 0.24 277.023);
+  --color-blue-800: oklch(39.8% 0.195 277.366);
+  --color-blue-900: oklch(35.9% 0.144 278.697);
+  --color-blue-950: oklch(25.7% 0.09 281.288);
+  --portal-canvas: #f3f4f9;
+}
+.portal.dark, .dark .portal { --portal-canvas: #070b16; }
+.portal body { font-family: var(--font-sans); }
+
+/* Inputs: the label sits inside the box (Inputs 3). A form row whose label is followed by a text box, a text area or a list:
+   the label is laid over the top of the box and the value goes under it; help and error text stay below the box. */
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > input[data-slot="input"]:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"])),
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + textarea),
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[role="combobox"]),
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[aria-haspopup="dialog"]),
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + select) {
+  position: relative;
+  gap: 0;
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > input[data-slot="input"]:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"])) > [data-slot="field-label"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + textarea) > [data-slot="field-label"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[role="combobox"]) > [data-slot="field-label"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[aria-haspopup="dialog"]) > [data-slot="field-label"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + select) > [data-slot="field-label"] {
+  position: absolute; top: 7px; inset-inline-start: 13px; inset-inline-end: 36px; z-index: 1;
+  margin: 0 !important; pointer-events: none;
+  font-size: 11px; line-height: 14px; font-weight: 500; color: var(--color-gray-500);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > input[data-slot="input"]) > div > input[data-slot="input"]:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + textarea) > textarea,
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[role="combobox"]) > button[role="combobox"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + button[aria-haspopup="dialog"]) > button[aria-haspopup="dialog"],
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + select) > select {
+  height: auto; min-height: 48px; padding-top: 22px; padding-bottom: 6px; border-radius: 10px;
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + textarea) > textarea { padding-top: 24px; }
+
+/* fields made of several controls (phone with its country code, a date picker, a PIN with Generate…): the whole row becomes one box with the label inside,
+   and the controls in it lose their own lines. Lists of choices, switches, check boxes and pictures keep their own look. */
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) {
+  position: relative; gap: 0; min-height: 48px; padding: 20px 6px 3px; box-sizing: border-box;
+  border: 1px solid var(--color-gray-300); border-radius: 10px; background: #fff;
+}
+:is(.dark .portal, .portal.dark) [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) {
+  border-color: var(--color-gray-800); background: var(--color-gray-950);
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)):focus-within {
+  border-color: var(--color-blue-500); box-shadow: 0 0 0 2px var(--color-blue-200);
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) > [data-slot="field-label"] {
+  position: absolute; top: 7px; inset-inline-start: 13px; z-index: 1; margin: 0 !important; pointer-events: none;
+  font-size: 11px; line-height: 14px; font-weight: 500; color: var(--color-gray-500);
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select) {
+  border-color: transparent !important; box-shadow: none !important; background: transparent; outline: none;
+  min-height: 0; height: 24px; padding-top: 0; padding-bottom: 0; padding-inline: 7px;
+}
+
+:is(.dark .portal, .portal.dark) [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)):focus-within { box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-blue-500) 35%, transparent); }
+
+/* a Generate (or similar) button inside one of those boxes: small, beside the value, in the box's colours */
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) > div > button:last-child:not([role="combobox"]):not([aria-haspopup]) {
+  height: 28px !important; min-height: 0; padding: 0 12px !important; align-self: center; margin-top: -2px;
+  font-size: 12.5px; font-weight: 600; border-radius: 8px; border-color: transparent !important; box-shadow: none !important;
+  background: var(--color-blue-50) !important; color: var(--color-blue-600) !important;
+}
+:is(.dark .portal, .portal.dark) [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) > div > button:last-child:not([role="combobox"]):not([aria-haspopup]) {
+  background: color-mix(in oklab, var(--color-blue-500) 18%, transparent) !important; color: var(--color-blue-300) !important;
+}
+.portal [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) > div > button:last-child:not([role="combobox"]):not([aria-haspopup]):hover { background: var(--color-blue-100) !important; }
+:is(.dark .portal, .portal.dark) [data-slot="field"]:has(> [data-slot="field-label"] + div > :nth-child(2)):has(> [data-slot="field-label"] + div :is(input[data-slot="input"], button[role="combobox"], button[aria-haspopup="dialog"], select)):not(:has(> [data-slot="field-label"] + div > input)):not(:has(> div [aria-pressed], > div [role="radio"], > div [role="switch"], > div [role="checkbox"], > div img, > div textarea)) > div > button:last-child:not([role="combobox"]):not([aria-haspopup]):hover { background: color-mix(in oklab, var(--color-blue-500) 28%, transparent) !important; }
+
+/* lines between rows: the very light ones (gray-100) are a step darker in the portal so every list shows its rows */
+.portal :where(.divide-gray-100) > :not(:last-child) { border-color: var(--color-gray-200); }
+.portal :where(.border-gray-100) { border-color: var(--color-gray-200); }
+
+/* ───────────── Dark mode: the browser's own parts follow the theme ─────────────
+   Dropdown lists of select boxes, date and time pickers, scrollbars and autofilled fields are drawn by the browser;
+   without this they stay white (light text on a white list) when the portal is dark. */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+.dark select option, .dark select optgroup { background-color: var(--color-gray-950); color: var(--color-gray-50); }
+.dark select option:disabled { color: var(--color-gray-500); }
+.dark input:-webkit-autofill, .dark textarea:-webkit-autofill, .dark select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-gray-50); caret-color: var(--color-gray-50);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-gray-950) inset; transition: background-color 9999s;
+}
+/* row lines and loading spinners that only had a light colour */
+:is(.dark .portal, .portal.dark) :where(.divide-gray-100, .divide-gray-200) > :not(:last-child),
+:is(.dark .portal, .portal.dark) :where(.border-gray-100) { border-color: var(--color-gray-800); }
+.dark .animate-spin.border-gray-200 { border-color: var(--color-gray-800); border-top-color: var(--color-blue-500); }

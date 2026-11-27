@@ -1,39 +1,50 @@
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
-import { CategoryBarCard, ReportCard, ProgressBarCard, CAT_COLORS, changeBadge } from "@/components/tremor/overview/OverviewCards";
-import { BarList } from "@/components/tremor/BarList";
 // Summary: the same live numbers as the current portal (rpc skwyd_dashboard), laid out like the Tremor dashboard template Overview.
 // Filters: brand, store, a business day / a week (Mon–Sun) / a month / custom dates, and comparing with another period of the same kind
 // (the one before by default, or one picked by its date).
 import { useCol, type Row } from "@/lib/db";
 import { sb } from "@/lib/supabase";
-import { money } from "@/lib/util";
 import { useEffect, useState } from "react";
 import { PeriodPicker } from "../ui/PeriodPicker";
 import { Label } from "@/components/tremor/Label";
-import { Switch } from "@/components/ui/switch";
-import { SegTabs } from "../ui/SegTabs";
+import { Switch } from "@/components/tremor/Switch";
+import { TabNavigation, TabNavigationLink } from "@/components/tremor/TabNavigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
+import { SummaryGeneral } from "./SummaryGeneral";
 import { BrandsTab, CallCenterTab, InventoryTab, StoresTab, useStoreLive } from "./SummaryTabs";
 import { useSearchParams } from "react-router";
-import { cx, focusRing } from "@/components/tremor/utils";
+import { useAuth } from "@/lib/auth";
 
 const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
-const today = () => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; };
+// the business day ends at the store's day start (or the company's day end), e.g. 04:00: sales before it count on the day before
+const cutOf = (v?: string) => { const m = /^(\d{1,2}):(\d{2})/.exec(v || ""); return m ? Math.min(719, (+m[1]) * 60 + (+m[2])) : 0; };
+const today = (cut = 0, tz?: string) => { const now = new Date(Date.now() - cut * 60000);
+  const p = tz ? new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now) : iso(now);
+  return new Date(p + "T12:00:00"); };
 
 export default function Dashboard() {
-  useCol("settings");
+  const sets = useCol("settings") || [], co = (sets.find((x: Row) => x.id === "company") || {}) as any;
+  const tz = co.timeZone || "Asia/Beirut";
   const brands = (useCol("brands") || []).filter((x: Row) => !x.deleted), stores = (useCol("branches") || []).filter((x: Row) => x.active !== false && !x.settings?.deletedAt);
 
   // Day / Week (Mon–Sun) / Month of one business date, "compared to" the period before, last year, or nothing
-  const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(today);
+  const [kind, setKind] = useState<"1" | "7" | "30">("1"), [at, setAt] = useState<Date>(() => today());
   const [cmp, setCmp] = useState(false), [cmpAt, setCmpAt] = useState<Date | null>(null);
   const [brand, setBrand] = useState(""), [store, setStore] = useState("");
   const [D, setD] = useState<any>(null), [P, setP] = useState<any>(null), [err, setErr] = useState("");
   const myStores = stores.filter((x: Row) => inSel(brand, x.brandId));
   // tabs: General, Brands, Stores, Inventory, Call Center (?tab= in the address)
   const [sp, setSp] = useSearchParams(), tab = sp.get("tab") || "general";
+  const { staff } = useAuth();
   const TABS: [string, string][] = [["general", "General"], ["brands", "Brands"], ["stores", "Stores"], ["inventory", "Inventory"], ["callcenter", "Call Center"]];
   const brIds = store ? selList(store) : brand ? myStores.map((x: Row) => String(x.id)) : null;
+  // the day end of the stores shown (the most common one when they differ)
+  const cut = (() => { const c: Record<number, number> = {}; (brIds ? stores.filter((x: Row) => brIds.includes(String(x.id))) : stores).forEach((b: Row) => { const k = cutOf(b.settings?.dayStart || co.dayEnd); c[k] = (c[k] || 0) + 1; });
+    const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? +top[0] : cutOf(co.dayEnd); })();
+  // until the user picks a date, "today" is today's business day (before the day end it is still yesterday)
+  const [picked, setPicked] = useState(false);
+  useEffect(() => { if (!picked) setAt(today(cut, tz)); }, [cut, tz, picked]);
   const L = useStoreLive(brIds, brand, tab === "brands" || tab === "stores" || tab === "callcenter");
   const whs = useCol("warehouses") || [];
   const locIds = store ? selList(store) : brand ? [...myStores.map((x: Row) => String(x.id)), ...whs.filter((w: Row) => !w.brandId || inSel(brand, w.brandId)).map((w: Row) => String(w.id))] : null;
@@ -44,11 +55,10 @@ export default function Dashboard() {
   const per = span(kind, at);
   // compared with: the period picked on the second calendar, or the one just before
   const cmpPer = span(kind, cmpAt || new Date(+per.start - 86400000));
-  const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n]);
+  const key = JSON.stringify([iso(per.start), per.n, brand, store, cmp, iso(cmpPer.start), cmpPer.n, cut, tz]);
   useEffect(() => { let off = false; setD(null); setP(null); setErr("");
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Beirut";
     const br = brIds;
-    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz });
+    const call = (start: Date, n: number) => sb.rpc("skwyd_dashboard", { p_day: iso(new Date(+start + (n - 1) * 86400000)), p_days: n, p_branches: br && br.length ? br : null, p_brand: brand && !brand.includes(",") ? brand : null, p_tz: tz, p_cut: cut });
     Promise.all([call(per.start, per.n), cmp ? call(cmpPer.start, cmpPer.n) : Promise.resolve(null)]).then(([a, b]: any[]) => { if (off) return; const e = a.error || b?.error; if (e) setErr(e.message); else { setD(a.data || {}); setP(b ? b.data || {} : null); } });
     return () => { off = true; }; }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -57,19 +67,12 @@ export default function Dashboard() {
   const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
   // the numbers of one period, as values (for the comparison) and as text
   const nums = (X: any) => { const k = +X.orders || sum(hrsOf(X, "n")), ns = +X.net || sum(hrsOf(X, "net")), ps = +X.payments || sum(hrsOf(X, "pay"));
-    return [k, ns, ps, k ? ns / k : 0, +(X.active?.n ?? X.open ?? 0), +(X.declined?.n ?? 0), +X.discount || 0, +X.tax || 0, +(X.returns?.v || X.refunds?.v || 0), +(X.voids?.v || 0)]; };
+    return [k, ns, ps, k ? ns / k : 0, +(X.active?.n ?? X.open ?? 0), +(X.declined?.n ?? 0), +X.discount || 0, +X.tax || 0, +(X.returns?.v || X.refunds?.v || 0), (+X.voids?.v || 0) + (+X.voidItems || 0)]; };
   const cur = D ? nums(D) : [], old = P ? nums(P) : null;
   const fmtD = (d: Date) => iso(d).split("-").reverse().join("-");
 
   const labels = Array.from({ length: 24 }, (_, h) => (h % 12 || 12) + (h < 12 ? " AM" : " PM"));
   const ch = (j: number) => (old && old[j] ? (cur[j] - old[j]) / Math.abs(old[j]) : null);
-  const tot = (l: any[], k: string) => l.reduce((x, y) => x + (+y[k] || 0), 0);
-  const TYPE: Record<string, string> = { dinein: "In Store", fast: "In Store", pickup: "Pickup", takeaway: "Pickup", delivery: "Delivery", other: "Other" };
-  const CH: Record<string, string> = { pos: "POS", callcenter: "Call Center", web: "Web", api: "API", other: "Other" };
-  const cat = (list: any[], k: string, label: (x: any) => string, fmt: (v: number) => string) => {
-    const merged = new Map<string, number>(); for (const x of list || []) merged.set(label(x), (merged.get(label(x)) || 0) + (+x[k] || 0));
-    const all = [...merged.entries()].filter(([, v]) => v).sort((a, b) => b[1] - a[1]), T = all.reduce((x, [, v]) => x + v, 0) || 1;
-    return all.map(([t, v], i) => ({ title: t, value: fmt(v), percentage: v / T * 100, color: CAT_COLORS[i % CAT_COLORS.length] })); };
   const bucket = per.n === 1 ? "hour" : "day";
   const series = (k: string, avg = false) => {
     if (bucket === "hour") { const a = hrs(k === "avg" ? "net" : k), n = hrs("n"), b = P ? hrsOf(P, k === "avg" ? "net" : k) : null, pn = P ? hrsOf(P, "n") : null;
@@ -79,27 +82,25 @@ export default function Dashboard() {
     return Array.from({ length: per.n }, (_, i) => { const d = new Date(+per.start + i * 86400000), pd = new Date(+cmpPer.start + i * 86400000), x = dm.get(iso(d)), y = pm?.get(iso(pd));
       const v = (r: any) => !r ? 0 : k === "avg" ? (+r.n ? +r.net / +r.n : 0) : +r[k] || 0;
       return { label: fmtD(d), value: v(x), previousValue: pm ? v(y) : null }; }); };
-  const fmtN = (v: number) => Math.round(v).toLocaleString();
   // the report cards; "View Report" opens the matching report, already filtered to this period, brand and store, in a new window
   const rpt = (r: string) => { const q = new URLSearchParams({ r, from: iso(per.start), to: iso(new Date(+per.start + (per.n - 1) * 86400000)), group: per.n === 1 ? "hour" : "day" });
     if (brand) q.set("brand", brand); if (store) q.set("store", store); return "/" + (r === "voids" ? "business-reports" : "sales-reports") + "?" + q; };
-  const cards = [{ t: "Orders", j: 0, k: "n", f: fmtN, r: "sales" }, { t: "Net Sales", j: 1, k: "net", f: money, r: "sales" }, { t: "Net Payments", j: 2, k: "pay", f: money, r: "payments" },
-    { t: "Return Amount", j: 8, k: "ret", f: money, r: "voids" }, { t: "Discount Amount", j: 6, k: "disc", f: money, r: "sales" }, { t: "Average Ticket", j: 3, k: "avg", f: money, r: "sales" }];
 
   // sticky filter bar, a report card per number (value + chart + View Report), then the breakdowns
   return (
     <>
-      <nav aria-label="Summary" className="no-scrollbar mb-4 flex items-center overflow-x-auto border-b border-gray-200 dark:border-gray-800">
-        {TABS.map(([k, l]) => <button key={k} type="button" onClick={() => setSp(k === "general" ? {} : { tab: k })} aria-current={tab === k ? "page" : undefined}
-          className={cx("-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 pb-3 pt-1 text-sm font-medium transition-all", focusRing, tab === k ? "border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-500 hover:dark:text-gray-400")}>{l}</button>)}
-      </nav>
+      <h1 className="mb-6 text-lg font-semibold break-words text-gray-900 sm:text-xl dark:text-gray-50">Welcome {staff?.name || "User"}</h1>
+      <TabNavigation className="mb-4">
+        {TABS.map(([k, l]) => <TabNavigationLink key={k} asChild active={tab === k}><button type="button" onClick={() => setSp(k === "general" ? {} : { tab: k })}>{l}</button></TabNavigationLink>)}
+      </TabNavigation>
       <div className="sticky top-16 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10 lg:pt-4 dark:border-gray-800 dark:bg-gray-950">
         {<FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setStore(st => selList(st).filter(id => inSel(v, stores.find((x: Row) => x.id === id)?.brandId)).join(",")); }} all="All brands" options={brands.map(b => ({ value: String(b.id), label: String(b.name) }))} />}
         <FilterSelect multiple title="Store" value={store} onChange={v => setStore(v)} all="All stores" options={myStores.map(b => ({ value: String(b.id), label: String(b.name) }))} />
-        {tab !== "stores" && <><SegTabs value={kind} onChange={v => { setKind(v as any); setCmpAt(null); }} items={[["1", "Day"], ["7", "Week"], ["30", "Month"]]} />
-        <PeriodPicker kind={kind} value={at} onChange={d => { setAt(d); setCmpAt(null); }} max={today()} />
-        {tab === "general" && <Label className="flex h-[30px] cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Switch checked={cmp} onCheckedChange={setCmp} aria-label="Compare" />Compare</Label>}
-        {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today()} />}</>}
+        {tab !== "stores" && <><Tabs value={kind} onValueChange={v => { setKind(v as any); setCmpAt(null); }}>
+          <TabsList variant="solid">{([["1", "Day"], ["7", "Week"], ["30", "Month"]] as const).map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}</TabsList></Tabs>
+        <PeriodPicker kind={kind} value={at} onChange={d => { setPicked(true); setAt(d); setCmpAt(null); }} max={today(cut, tz)} />
+        {tab === "general" && <div className="flex items-center gap-2"><Switch id="cmp" checked={cmp} onCheckedChange={setCmp} /><Label htmlFor="cmp">Compare</Label></div>}
+        {cmp && tab === "general" && <PeriodPicker kind={kind} value={cmpPer.start} onChange={d => setCmpAt(d)} max={today(cut, tz)} />}</>}
       </div>
       {tab === "stores" ? <div className="mt-8"><StoresTab L={L} stores={myStores.filter((x: Row) => !store || inSel(store, x.id))} /></div>
         : tab === "inventory" ? <div className="mt-8"><InventoryTab locIds={locIds} from={iso(per.start)} to={iso(new Date(+per.start + (per.n - 1) * 86400000))} /></div>
@@ -107,35 +108,9 @@ export default function Dashboard() {
         : !D ? <p className="mt-8 text-sm text-gray-500">Loading live numbers…</p>
         : tab === "brands" ? <div className="mt-8"><BrandsTab D={D} L={L} stores={stores} brands={brands} brand={brand} /></div>
         : tab === "callcenter" ? <div className="mt-8"><CallCenterTab D={D} L={L} stores={stores} /></div>
-        : <>
-          <dl className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {cards.map(c => <ReportCard key={c.t} title={c.t} value={c.f(cur[c.j])} previous={old ? c.f(old[c.j]) : undefined} change={ch(c.j)} compare={!!P} formatter={c.f} data={series(c.k, c.k === "avg")} href={rpt(c.r)} />)}
-          </dl>
-          <section aria-labelledby="breakdown">
-            <h2 id="breakdown" className="mt-14 scroll-mt-10 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50">Breakdown</h2>
-            <div className="mt-6 grid grid-cols-1 gap-14 sm:grid-cols-2 xl:grid-cols-3">
-              <ProgressBarCard title="Sales by store" change={ch(1)} value={money(cur[1])} valueDescription="net sales"
-                data={(D.branches || []).filter((b: any) => +b.net).sort((a: any, b: any) => +b.net - +a.net).slice(0, 4).map((b: any) => ({ title: stores.find((x: Row) => x.id === b.id)?.name || "Other", current: money(+b.net), percentage: tot(D.branches, "net") ? +b.net / tot(D.branches, "net") * 100 : 0 }))}
-                footer={<>{fmtN(cur[0])} orders · average ticket {money(cur[3])}</>} />
-              <CategoryBarCard title="Orders" change={ch(0)} value={fmtN(cur[0])} valueDescription="closed orders" subtitle="By order type"
-                data={cat(D.types, "n", x => TYPE[x.k] || x.k, fmtN)}
-                footer={<>By channel: {cat(D.channels, "n", x => CH[x.k] || x.k, fmtN).map(x => `${x.title} ${x.value}`).join(" · ") || "—"}</>} />
-              <CategoryBarCard title="Payments" change={ch(2)} value={money(cur[2])} valueDescription="collected" subtitle="By payment method"
-                data={cat(D.payMethods, "v", x => String(x.k).replace(/^./, c => c.toUpperCase()), money)}
-                footer={<>Tax {money(cur[7])} · voids {money(cur[9])}</>} />
-              <div>
-                <div className="flex items-center gap-x-2"><dt className="font-bold text-gray-900 sm:text-sm dark:text-gray-50">Top items</dt></div>
-                <dd className="mt-2 text-sm text-gray-500">By sales this period</dd>
-                {(D.products || []).length ? <BarList className="mt-4" data={(D.products || []).slice(0, 6).map((p: any) => ({ name: p.name, value: +p.v || 0 }))} valueFormatter={(v: number) => money(v)} />
-                  : <p className="mt-4 text-sm text-gray-500">No items sold yet.</p>}
-              </div>
-            </div>
-            <dl className="mt-14 grid grid-cols-2 gap-6 border-t border-gray-200 pt-8 sm:grid-cols-4 dark:border-gray-800">
-              {([["Active orders", fmtN(cur[4]), 4], ["Declined", fmtN(cur[5]), 5], ["Taxes", money(cur[7]), 7], ["Voids", money(cur[9]), 9]] as [string, string, number][]).map(([t, v, j]) => (
-                <div key={t}><dt className="flex items-center gap-2 text-sm text-gray-500">{t}{P && changeBadge(ch(j))}</dt><dd className="mt-1 text-xl text-gray-900 dark:text-gray-50">{v}</dd></div>))}
-            </dl>
-          </section>
-        </>}
+        : <div className="mt-8"><SummaryGeneral D={D} P={P} cur={cur} old={old} ch={ch} series={series} byHour={per.n === 1} stores={stores} rpt={rpt}
+            perLabel={per.n === 1 ? fmtD(per.start) : fmtD(per.start) + " – " + fmtD(new Date(+per.start + (per.n - 1) * 86400000))}
+            cmpLabel={per.n === 1 ? fmtD(cmpPer.start) : fmtD(cmpPer.start) + " – " + fmtD(new Date(+cmpPer.start + (cmpPer.n - 1) * 86400000))} /></div>}
     </>
   );
 }

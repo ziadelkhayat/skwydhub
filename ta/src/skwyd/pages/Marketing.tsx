@@ -46,6 +46,7 @@ function FormDialog({ title, onClose, onSave, onDelete, saveLbl = "Save", busy, 
 /* ---------------- Loyalty ---------------- */
 const LY_DEF: Record<string, any> = { enabled: false, method: "points", minOrder: 1, delayMin: 60, rewardType: "pct", rewardValue: 10, maxDiscount: 0, required: 0, validityDays: 365, sms: false };
 
+const B = ({ children }: { children: React.ReactNode }) => <b className="font-semibold text-gray-900 dark:text-gray-50">({children})</b>;
 export function LoyaltyPage() {
   const sets = useCol("settings");
   const [c, setC] = useState<Record<string, any> | null>(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
@@ -67,7 +68,6 @@ export function LoyaltyPage() {
     if (await saveDoc("loyalty", data, "loyalty settings")) toast("Loyalty settings saved"); setBusy(false);
   }
   const num = (k: string, l: string) => <F l={l} req><Input className="h-9" type="number" min="0" step="any" value={c[k] ?? ""} onChange={e => set(k, e.target.value)} /></F>;
-  const B = ({ children }: { children: React.ReactNode }) => <b className="font-semibold text-gray-900 dark:text-gray-50">({children})</b>;
   return (
     <>
       <PageBreadcrumb pageTitle="Loyalty Settings" />

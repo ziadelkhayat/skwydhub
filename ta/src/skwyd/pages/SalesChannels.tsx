@@ -1,4 +1,4 @@
-import { BrandStoreFilters, inBS, useBrandStore } from "../ui/BrandStore";
+import { inBS, useBrandStore } from "../ui/BrandStore";
 import { inSel } from "@/components/tremor/data-table/FilterSelect";
 import { PageHead } from "../ui/Record";
 import { Label } from "@/components/tremor/Label";
@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { Input } from "@/components/ui/input";
 import { Input as TInput } from "@/components/tremor/Input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeftIcon, ChevronDownIcon, PlusIcon } from "@/icons";
 import { put, remove, type Row } from "@/lib/db";
@@ -126,15 +126,14 @@ function Tree({ s, M, open }: { s: S; M: M; open: (b: string, c: string) => void
   const list = s.branches.filter(b => live(b) && b.active !== false && inBS(s.branches, F.brand, F.store, b.id)), brands = s.brands.filter(b => live(b) && (!F.brand || inSel(F.brand, b.id)));
   const tog = (k: string) => setEx(o => { const n = new Set(o); if (n.has(k)) { n.delete(k); if (k.startsWith("b:")) list.filter(b => b.brandId === k.slice(2)).forEach(b => n.delete(b.id)); } else n.add(k); return n; });
   const Chev = ({ on }: { on: boolean }) => <ChevronDownIcon className={cn("size-4 text-gray-400 transition-transform", !on && "-rotate-90 rtl:rotate-90")} />;
-  const brRow = (b: Row) => { const cs = M.scFor(b.id), on = ex.has(b.id); return <div key={b.id}>
+  const brRow = (b: Row) => { const cs = M.scFor(b.id), on = ex.has(b.id); return <div key={b.id} className="border-t border-gray-200 dark:border-gray-800">
     <button type="button" onClick={() => tog(b.id)} className="flex w-full items-center gap-3 px-5 py-3 ps-10 text-start text-sm hover:bg-gray-50 dark:hover:bg-white/3"><Chev on={on} /><b className="font-medium text-gray-900 dark:text-gray-50">{b.name}</b><span className="text-gray-500">{cs.length} channel{cs.length === 1 ? "" : "s"}</span></button>
-    {on && <div className="pb-2">{cs.map(c => <button key={c.id} type="button" onClick={() => open(b.id, scCode(c))} className="flex w-full items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm hover:bg-gray-50 dark:hover:bg-white/3">
+    {on && <div className="pb-2">{cs.map(c => <button key={c.id} type="button" onClick={() => open(b.id, scCode(c))} className="flex w-full border-t border-gray-100 dark:border-gray-800 items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm hover:bg-gray-50 dark:hover:bg-white/3">
       <span className="min-w-0 flex-1"><b className="block font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{(SC_KINDS.find(k => k[0] === c.kind) || SC_KINDS[3])[1]} · {[...new Set((c.types || []).map(t => t === "fast" ? "dinein" : t))].map(t => (OTYPES.find(x => x[0] === t) || [t, t])[1]).join(", ")}</span></span><span className="text-gray-400">›</span></button>)}
-      <button type="button" onClick={() => setDlg(b.id)} className="flex w-full items-center gap-3 px-5 py-2.5 ps-16 text-start text-sm text-blue-500 hover:bg-gray-50 dark:hover:bg-white/3"><PlusIcon className="size-4" />Create Sales Channel</button></div>}</div>; };
+      <div className="py-1.5 ps-14"><Button variant="ghost" onClick={() => setDlg(b.id)} className="gap-2 text-blue-600 dark:text-blue-500"><PlusIcon className="size-4" />Create Sales Channel</Button></div></div>}</div>; };
   const loose = list.filter(b => !b.brandId || !brands.some(x => x.id === b.brandId));
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" />
-    <div className="mb-4 flex flex-wrap items-center gap-2"><BrandStoreFilters brands={s.brands} stores={s.branches} {...F} /></div>
     <div className={BOX + " divide-y divide-gray-100 overflow-hidden dark:divide-white/5"}>
       {!list.length ? <EmptyState text="No active stores." /> : <>
         {brands.map(bd => { const bs = list.filter(b => b.brandId === bd.id), on = ex.has("b:" + bd.id); return <div key={bd.id}>
@@ -178,6 +177,9 @@ function ScDialog({ s, M, b, code, onClose, onSaved, onDeleted }: { s: S; M: M; 
 }
 
 /* ---------- one channel's menu ---------- */
+const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <Checkbox aria-label={label} className="shrink-0" checked={on} onCheckedChange={(chk: boolean) => set(chk)} onClick={e => e.stopPropagation()} />;
+const Acts = ({ items }: { items: [string, () => void, boolean?][] }) => <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>Actions<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
+  <DropdownMenuContent align="start" className="w-44 p-2">{items.map(([t, f, d]) => <DropdownMenuItem key={t} className={d ? "text-error-500" : ""} onClick={f}>{t}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
 function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch; back: () => void; go: (b: string, c: string) => void }) {
   const code = scCode(ch), br = s.branches.find(x => x.id === b), types = OTYPES.filter(([t]) => M.chTypes(b, code).includes(t));
   const [cat0, setCat] = useState(""), [cq, setCq] = useState(""), [q, setQ] = useState(""), [cex, setCex] = useState<Set<string>>(new Set()), [csel, setCsel] = useState<Set<string>>(new Set()), [isel, setIsel] = useState<Set<string>>(new Set());
@@ -259,9 +261,6 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
   const others = M.scFor(b).filter(c => scCode(c) !== code);
   const nCatTop = rowsOf("").filter(x => !x.sub).map(x => x.c), nCatOn = nCatTop.filter(catOn).length;
   const vis = rowsOf(cq.trim().toLowerCase()).filter(({ c, sub }) => !sub || cq || cex.has(catPar(c)));
-  const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <Checkbox aria-label={label} className="shrink-0" checked={on} onCheckedChange={(chk: boolean) => set(chk)} onClick={e => e.stopPropagation()} />;
-  const Acts = ({ items }: { items: [string, () => void, boolean?][] }) => <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>Actions<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
-    <DropdownMenuContent align="start" className="w-44 p-2">{items.map(([t, f, d]) => <DropdownMenuItem key={t} className={d ? "text-error-500" : ""} onClick={f}>{t}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
   const PriceIn = ({ v, ph, dis, onSet, label }: { v: string; ph: number; dis?: boolean; onSet: (v: string) => void; label: string }) =>
     <Input key={v} aria-label={label} inputMode="decimal" defaultValue={v} placeholder={String(ph)} disabled={dis} className={cn("h-9 w-24 text-end", v !== "" && "border-blue-300 bg-blue-25 dark:bg-blue-500/10")} onBlur={e => { const x = e.target.value.trim(); if (x !== v) onSet(x); }} onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />;
 
@@ -318,7 +317,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
                     <span onClick={e => e.stopPropagation()}><Switch size="sm" checked={x.on} aria-label={nm + " on the " + ch.name + " menu"} onCheckedChange={v => setTypesOf([r.id], v)} /></span></div></TableCell>
                   <TableCell className="min-w-48 px-3 py-2.5"><div className="flex items-center gap-3">{par ? <span className="text-gray-400">↳</span> : <span className="size-9 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">{r.imageUrl && <img src={r.imageUrl} alt="" className="size-full object-cover" />}</span>}
                     <span><b className="block font-medium text-gray-900 dark:text-gray-50">{nm}{!x.stock && <Badge variant="light" color="error" size="sm" className="ms-2">Sold out</Badge>}
-                      {!par && M.links(r).length > 0 && <button type="button" onClick={e => { e.stopPropagation(); setItem(r.id); }} className="ms-2 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-500/30 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-400/10">{M.links(r).length} modifier{M.links(r).length === 1 ? "" : "s"} ›</button>}</b><span className="text-xs text-gray-500">{vk.length ? `${vk.length} variants below` : money(base) + " · " + (Object.values(x.tprices).some(Boolean) ? "order type prices" : types.every(([t]) => x.types[t]) ? "all types" : types.filter(([t]) => x.types[t]).map(([, tl]) => tl).join(", ") || "off")}</span></span></div></TableCell>
+                      {!par && M.links(r).length > 0 && <Button variant="secondary" onClick={e => { e.stopPropagation(); setItem(r.id); }} className="ms-2 px-2 py-0.5 text-xs">{M.links(r).length} modifier{M.links(r).length === 1 ? "" : "s"} ›</Button>}</b><span className="text-xs text-gray-500">{vk.length ? `${vk.length} variants below` : money(base) + " · " + (Object.values(x.tprices).some(Boolean) ? "order type prices" : types.every(([t]) => x.types[t]) ? "all types" : types.filter(([t]) => x.types[t]).map(([, tl]) => tl).join(", ") || "off")}</span></span></div></TableCell>
                   {types.map(([t, tl]) => <TableCell key={t} className="px-3 py-2.5" onClick={e => e.stopPropagation()}>{!vk.length && <div className="flex items-center gap-2"><Switch size="sm" checked={x.types[t]} aria-label={`${nm} as ${tl}`} onCheckedChange={v => change({ [r.id]: { ["t_" + t]: v } })} />
                     <PriceIn v={x.tprices[t]} ph={base} dis={!x.types[t]} label={`${nm} ${tl} price`} onSet={v => change({ [r.id]: { ["tp_" + t]: v } })} /></div>}</TableCell>)}
                   <TableCell className="px-3 py-2.5 text-end" onClick={e => e.stopPropagation()}><DropdownMenu><DropdownMenuTrigger className="rounded px-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5" aria-label="Product actions">⋯</DropdownMenuTrigger>
@@ -333,8 +332,8 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
 
     {item && (() => { const r = s.products.find(x => x.id === item && live(x)); if (!r) return null; const ls = M.links(r);
       const rule = (l: any) => { const mn = +l.min || 0, mx = +l.max || 0; return mn && mx && mn === mx ? `Choose ${mn}` : mn && mx ? `Choose ${mn} to ${mx}` : mn ? `At least ${mn}` : mx ? `Up to ${mx}` : "Optional"; };
-      return <Sheet open onOpenChange={v => !v && setItem("")}><SheetContent side="right" className="w-full overflow-y-auto sm:max-w-3xl">
-        <SheetHeader className="p-0"><SheetTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{r.name}</SheetTitle><span className="text-sm text-gray-500">{[s.brands.find(x => x.id === br?.brandId)?.name, br?.name, ch.name].filter(Boolean).join(" / ")}</span></SheetHeader>
+      return <Drawer open onOpenChange={v => !v && setItem("")}><DrawerContent className="w-full overflow-y-auto sm:max-w-3xl">
+        <DrawerHeader className="p-0"><DrawerTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{r.name}</DrawerTitle><span className="text-sm text-gray-500">{[s.brands.find(x => x.id === br?.brandId)?.name, br?.name, ch.name].filter(Boolean).join(" / ")}</span></DrawerHeader>
         {!ls.length ? <p className="text-sm text-gray-500">This item has no modifiers.</p> : <div className="overflow-x-auto"><Table className="w-full min-w-[560px] text-sm"><TableBody>{ls.map((l: any) => { const os = M.modOptions(l.modifierId), gt = grpTypes(l), gOn = types.some(([t]) => gt[t]);
           return [<TableRow key={l.modifierId} className={cn("border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-[#090E1A]", !gOn && "opacity-60")}><TableCell className="px-3 py-2.5"><div className="flex flex-wrap items-center gap-2">
             <Switch size="sm" checked={gOn} aria-label={M.modName(l.modifierId) + " on this menu"} onCheckedChange={v => change({ ["mg:" + r.id + "|" + l.modifierId]: Object.fromEntries(types.map(([t]) => ["to_" + t, v])) })} />
@@ -346,7 +345,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
                 <Label className="ms-auto flex items-center gap-2 text-xs text-gray-500"><Switch size="sm" checked={x.stock} aria-label={o.name + " in stock"} onCheckedChange={v => change({ ["mo:" + r.id + "|" + o.id]: { stock: v } })} />{x.stock ? "In stock" : "Sold out"}</Label></div></TableCell>
               {types.map(([t, tl]) => <TableCell key={t} className="px-3 py-2"><div className="flex items-center gap-2"><Switch size="sm" checked={x.types[t]} aria-label={`${o.name} for ${tl}`} onCheckedChange={v => { const on2 = types.some(([y]) => y === t ? v : x.types[y]); change({ ["mo:" + r.id + "|" + o.id]: { ["to_" + t]: v, on: on2 } }); }} />
                 <PriceIn v={x.tprices[t]} ph={ob} dis={!x.types[t]} label={`${o.name} ${tl} price`} onSet={v => change({ ["mo:" + r.id + "|" + o.id]: { ["tp_" + t]: v } })} /></div></TableCell>)}</TableRow>; })]; })}</TableBody></Table></div>}
-      </SheetContent></Sheet>; })()}
+      </DrawerContent></Drawer>; })()}
 
     {edit !== false && <CatDialog s={s} M={M} b={b} code={code} c={edit} cats={cats} onClose={() => setEdit(false)} onNew={id => setCat(id)} />}
     {adding && cur && <AddItems s={s} M={M} c={cur} onClose={() => setAdding(false)} />}

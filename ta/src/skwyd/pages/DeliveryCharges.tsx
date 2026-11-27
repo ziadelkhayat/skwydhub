@@ -43,7 +43,7 @@ export default function DeliveryChargesPage() {
   const all = s.zones.filter(z => live(z) && z.branchId && s.branches.some(b => b.id === z.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   const qq = q.trim().toLowerCase();
   const inB = (id: string) => !brand || inSel(brand, s.branches.find(b => b.id === id)?.brandId);
-  const list = all.filter(z => (!br || z.branchId === br) && inB(z.branchId) && (!qq || (z.name + " " + bName(z.branchId) + " " + (chargeOf(z)?.name || "")).toLowerCase().includes(qq)));
+  const list = all.filter(z => inSel(br, z.branchId) && inB(z.branchId) && (!qq || (z.name + " " + bName(z.branchId) + " " + (chargeOf(z)?.name || "")).toLowerCase().includes(qq)));
   const picked = list.filter(z => sel.has(z.id)).map(z => z.id), allOn = list.length > 0 && picked.length === list.length;
   const brs = s.branches.filter(b => all.some(z => z.branchId === b.id) && inB(b.id));
   return (
@@ -53,7 +53,7 @@ export default function DeliveryChargesPage() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center"><FilterSelect multiple title="Brand" value={brand} onChange={v => { setBrand(v); setBr(""); setSel(new Set()); }} all="All Brands" options={s.brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-          <FilterSelect title="Store" value={br} onChange={v => { setBr(v); setSel(new Set()); }} all="All Stores" options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} /></div>
+          <FilterSelect multiple title="Store" value={br} onChange={v => { setBr(v); setSel(new Set()); }} all="All Stores" options={brs.map(b => ({ value: String(b.id), label: String(b.name) }))} /></div>
           <Searchbar type="search" className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" placeholder="Search..." value={q} onChange={e => setQ(e.target.value)} />
         </div>
         {picked.length > 0 && <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 bg-blue-50/50 px-5 py-3 sm:px-6 dark:border-gray-800 dark:bg-blue-500/5">

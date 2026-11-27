@@ -21,8 +21,9 @@ function useSections() {
 }
 
 const itemCls = (on: boolean) => cx(
-  on ? "text-blue-600 dark:text-blue-500" : "text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50",
-  "flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900",
+  // the open page: a tinted block (Menu 2)
+  on ? "bg-blue-100/70 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" : "text-gray-700 hover:bg-white/80 hover:text-gray-900 dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50",
+  "flex w-full items-center gap-x-2.5 rounded-[10px] px-2.5 py-2 text-sm font-medium transition",
   focusRing,
 );
 
@@ -30,7 +31,7 @@ function NavList({ onGo }: { onGo?: () => void }) {
   const { pathname } = useLocation();
   const sections = useSections();
   return (
-    <nav aria-label="Main" className="flex flex-1 flex-col gap-y-6">
+    <nav aria-label="Main" className="flex flex-1 flex-col">
       {sections.map(sec => (
         <div key={sec.label}>
           <ul role="list" className="space-y-0.5">
@@ -52,9 +53,9 @@ export function AppSidebar() {
   return (
     <>
       {/* sidebar (lg+) */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo markClass="h-9 w-8" wordClass="h-10 w-auto" /></Link>
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col">
+        <aside className="flex grow flex-col gap-y-6 overflow-y-auto bg-(--portal-canvas) p-4">
+          <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center justify-center px-2 pt-1", focusRing)}><SkwydLogo stacked markClass="h-12 w-10" wordClass="h-9 w-auto" /></Link>
           <NavList />
         </aside>
       </div>
@@ -71,7 +72,7 @@ export function AppSidebar() {
               <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/30 data-[state=open]:animate-dialogOverlayShow" />
               <DialogPrimitive.Content aria-describedby={undefined} onOpenAutoFocus={e => e.preventDefault()} className="fixed inset-y-2 right-2 z-[101] flex w-[min(20rem,calc(100vw-1rem))] flex-col overflow-y-auto rounded-md border border-gray-200 bg-white p-4 shadow-lg data-[state=open]:animate-drawerSlideLeftAndFade dark:border-gray-900 dark:bg-gray-950">
                 <div className="mb-4 flex items-center justify-between gap-2">
-                  <DialogPrimitive.Title><span className="sr-only">Skwyd Hub</span><SkwydLogo markClass="h-8 w-7" wordClass="h-9 w-auto" /></DialogPrimitive.Title>
+                  <DialogPrimitive.Title><span className="sr-only">Skwyd Hub</span><SkwydLogo stacked markClass="h-11 w-9" wordClass="h-8 w-auto" /></DialogPrimitive.Title>
                   <DialogPrimitive.Close aria-label="Close menu" className={cx("rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900", focusRing)}><RiCloseLine className="size-5" /></DialogPrimitive.Close>
                 </div>
                 <NavList onGo={() => setMobile(false)} />

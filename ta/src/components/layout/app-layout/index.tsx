@@ -6,6 +6,7 @@ import { Outlet, useLocation } from "react-router";
 import { GroupTabs } from "./group-tabs";
 import { Blocked, SubBar, useAccess } from "@/lib/access";
 import { UserMenu } from "./user-menu";
+import { GlobalSearch } from "./global-search";
 
 export default function AppLayout({
   children,
@@ -27,14 +28,17 @@ export default function AppLayout({
   };
 
   return (
-    <div className={cn("min-h-svh bg-white dark:bg-gray-950", isAiRoute && "h-svh overflow-hidden")}>
+    <div className={cn("min-h-svh bg-white dark:bg-gray-950 lg:bg-(--portal-canvas)", isAiRoute && "h-svh overflow-hidden")}>
       <AppSidebar />
 
-      <main className={cn("min-w-0 lg:pl-72", isAiRoute && "h-svh overflow-hidden")}>
+      {/* the page sits in a white panel on the gray canvas, beside the menu (Soft Indigo) */}
+      <main className={cn("min-w-0 lg:py-2 lg:pr-2 lg:pl-60", isAiRoute && "h-svh overflow-hidden")}>
+        <div className="min-h-[calc(100svh-1rem)] bg-white lg:rounded-[18px] lg:border lg:border-gray-200/80 dark:bg-gray-950 lg:dark:border-gray-800">
         {/* the signed-in user, top right (lg+; below lg it is in the top bar) */}
-        {!isAiRoute ? <div className="hidden justify-end px-10 pt-4 lg:flex"><UserMenu top /></div> : null}
+        {!isAiRoute ? <div className="hidden items-center justify-between gap-4 px-6 pt-4 lg:flex"><GlobalSearch /><UserMenu top /></div> : null}
 
         <div className={getRouteSpecificStyles()}><SubBar /><GroupTabs />{!acc.ready ? null : acc.canOpen(pathname) ? <Suspense fallback={<div className="flex justify-center py-20"><span className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" /></div>}>{children ?? <Outlet />}</Suspense> : <Blocked path={pathname} />}</div>
+        </div>
       </main>
       <ScrollToTop />
     </div>

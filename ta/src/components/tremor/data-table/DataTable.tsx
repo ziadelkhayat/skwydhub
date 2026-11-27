@@ -1,6 +1,9 @@
 // Tremor dashboard template DataTable, made generic for Skwyd lists:
 // filter bar (search, column filters, export, column view options), sortable headers, row selection with a
 // command bar for bulk actions, a ••• menu per row, and "Showing x–y of z" pagination.
+import { ViewOptions } from "./DataTableViewOptions";
+import { groupOf } from "@/components/layout/app-layout/nav-data";
+import { useLocation } from "react-router";
 import * as React from "react";
 import {
   type ColumnDef, type ColumnFiltersState, type FilterFn, type Row, type RowSelectionState, type SortingState, type VisibilityState,
@@ -18,7 +21,6 @@ import { CommandBar, CommandBarBar, CommandBarCommand, CommandBarSeperator, Comm
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { FilterMulti, FilterSelect } from "./FilterSelect";
 import { DataTablePagination } from "./DataTablePagination";
-import { ViewOptions } from "./DataTableViewOptions";
 import { sortValue, textOf } from "./textOf";
 
 export type DTColumn<T> = {
@@ -42,7 +44,7 @@ const includesFilter: FilterFn<any> = (row, id, v) => {
 };
 
 export function DataTable<T>({
-  data, columns, getRowId, searchPlaceholder = "Search...", filters = [], toolbar, actions, rowActions, bulk, onRowClick, onExport,
+  data, columns, getRowId, searchPlaceholder = "Search...", filters = [], toolbar, actions, rowActions, bulk, onRowClick, onExport, searchEnd, hideView,
   empty = "No results.", pageSize = 20, initialSort, searchText, server,
 }: {
   data: T[];
@@ -58,6 +60,10 @@ export function DataTable<T>({
   bulk?: DTBulk<T>[];
   onRowClick?: (r: T) => void;
   onExport?: (rows: T[]) => void;
+  /** search box on the right side of the bar */
+  searchEnd?: boolean;
+  /** hide the View (columns) button */
+  hideView?: boolean;
   empty?: React.ReactNode;
   pageSize?: number;
   initialSort?: SortingState;
@@ -66,6 +72,7 @@ export function DataTable<T>({
   /** rows paged and searched on the server: data is one page */
   server?: { page: number; total: number; onPage: (page: number) => void; search: string; onSearch: (q: string) => void };
 }) {
+  const { pathname } = useLocation();
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [sorting, setSorting] = React.useState<SortingState>(initialSort || []);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -120,6 +127,9 @@ export function DataTable<T>({
     getCoreRowModel: getCoreRowModel(), getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(),
   });
+  const search = searchPlaceholder !== false && groupOf(pathname)?.key !== "skManage" ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
+              onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
+              className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" /> : null;
   const selected = table.getSelectedRowModel().rows.map(r => r.original);
   const isFiltered = columnFilters.length > 0 || !!globalFilter || !!server?.search;
 
@@ -134,11 +144,7 @@ export function DataTable<T>({
             return f.type === "select"
               ? <FilterSelect key={f.column} title={f.title} options={f.options} value={(v as string) || ""} onChange={x => col.setFilterValue(x || undefined)} />
               : <FilterMulti key={f.column} title={f.title} options={f.options} value={(v as string[]) || []} onChange={x => col.setFilterValue(x.length ? x : undefined)} />; })}
-          {searchPlaceholder !== false && (
-            <Searchbar type="search" placeholder={searchPlaceholder} value={term}
-              onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
-              className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" />
-          )}
+          {!searchEnd && search}
           {isFiltered && (
             <Button variant="ghost" onClick={() => { table.resetColumnFilters(); setTerm(""); setGlobalFilter(""); server?.onSearch(""); }}
               className="border border-gray-200 px-2 font-semibold text-blue-600 sm:border-none sm:py-1 dark:border-gray-800 dark:text-blue-500">
@@ -147,26 +153,30 @@ export function DataTable<T>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {onExport && (
+          {searchEnd && search}
+          {onExport && !["skManage", "skCatalog", "skEmployees"].includes(groupOf(pathname)?.key || "") && (
             <Button variant="secondary" className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex" onClick={() => onExport(table.getFilteredRowModel().rows.map(r => r.original))}>
               <RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export
             </Button>
           )}
-          <ViewOptions table={table} />
+          {/* View (column options): not on the Catalog and Inventory pages */}
           {actions}
         </div>
       </div>
 
-      <div className="relative overflow-hidden overflow-x-auto">
+      {/* the list scrolls inside its box so the column titles stay on top (sticky header) */}
+      <div className="relative max-h-[calc(100dvh-13rem)] min-h-40 overflow-auto">
         <Table>
           <TableHead>
             {table.getHeaderGroups().map(hg => (
               <TableRow key={hg.id} className="border-y border-gray-200 dark:border-gray-800">
                 {hg.headers.map(h => (
-                  <TableHeaderCell key={h.id} className={cx("whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
+                  <TableHeaderCell key={h.id} className={cx("sticky top-0 z-10 whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
                     {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                   </TableHeaderCell>
                 ))}
+                {/* View (column options): an icon at the end of the column titles, only on Orders */}
+                {!hideView && pathname === "/orders" && <TableHeaderCell className="sticky top-0 right-0 z-20 w-10 py-1 text-end"><ViewOptions table={table} icon /></TableHeaderCell>}
               </TableRow>
             ))}
           </TableHead>

@@ -62,6 +62,8 @@ const TableHeaderCell = React.forwardRef<
     className={cx(
       // base
       "border-b px-4 py-3.5 text-left text-sm font-semibold",
+      // portal look: gray header (Tables 2)
+      "portal:bg-gray-50 portal:py-3 portal:text-gray-700 dark:portal:bg-gray-900 dark:portal:text-gray-300",
       // text color
       "text-gray-900 dark:text-gray-50",
       // border color
@@ -85,6 +87,8 @@ const TableBody = React.forwardRef<
       "divide-y",
       // divide color
       "divide-gray-200 dark:divide-gray-800",
+      // portal look: zebra rows with a line between rows (Tables 2)
+      "portal:[&>tr:nth-child(even)]:bg-gray-50/70 dark:portal:[&>tr:nth-child(even)]:bg-gray-900/40",
       className,
     )}
     {...props}

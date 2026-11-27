@@ -25,10 +25,11 @@ import { EmptyState } from "../ui/EmptyState";
 import { Card, F, L, SEL } from "../ui/kit";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
+import { FiltersButton, ListFilters, applyF, type FDef, type FVals } from "../ui/ListFilters";
 
 const DEV_TYPES: [string, string][] = [["cashier", "POS"], ["kds", "KDS"], ["notifier", "Notifier"], ["display", "Display"], ["sub_cashier", "Sub POS"]];
 const TYPE_NOTE: Record<string, string> = { cashier: "Cashier register", sub_cashier: "Second register", kds: "Kitchen screen", notifier: "Order alerts", display: "Customer screen" };
-const devType = (t?: string) => (DEV_TYPES.find(x => x[0] === t) || [, t === "waiter" ? "Waiter" : (t || "—")])[1];
+const devType = (t?: string) => (DEV_TYPES.find(x => x[0] === t) || [undefined, t === "waiter" ? "Waiter" : (t || "—")])[1];
 const devRef = (devs: Row[]) => { const used = new Set(devs.filter(d => !d.deleted).map(d => String(d.reference || "").toUpperCase())); for (let n = 1; ; n++) { const r = "POS" + String(n).padStart(2, "0"); if (!used.has(r)) return r; } };
 const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
 const online = (d: Row) => !!d.lastSeen && Date.now() - +new Date(d.lastSeen) < 6 * 60000;
@@ -53,11 +54,15 @@ export default function DevicesPage() {
   const s = useS(["devices", "branches", "brands"]);
   const [sp] = useSearchParams(), nav = useNavigate(), id = sp.get("id");
   const [tab, setTab] = useState("all"), [create, setCreate] = useState(false), bs = useBrandStore();
+  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false);
   if (!s) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   const bName = (id?: string) => s.branches.find(b => b.id === id)?.name || "";
   const open = id && s.devices.find(d => d.id === id && live(d));
   if (open) return <DevicePage d={open} s={s} bName={bName} back={() => nav("/devices")} />;
-  const all = s.devices.filter(live), list = all.filter(d => (tab === "all" || d.type === tab) && inBS(s.branches, bs.brand, bs.store, d.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
+  const defs: FDef<Row>[] = [{ k: "name", l: "Name", get: d => d.name }, { k: "ref", l: "Reference", get: d => d.reference }, { k: "code", l: "Code", ph: "Activation code", get: d => d.code },
+    { k: "used", l: "In Use", t: "multi", opts: [["yes", "Used"], ["no", "Not Used"]], get: d => d.activatedAt ? "yes" : "no" },
+    { k: "online", l: "Online", t: "multi", opts: [["yes", "Online"], ["no", "Offline"]], get: d => online(d) ? "yes" : "no" }];
+  const all = s.devices.filter(live), list = applyF(all, defs, F).filter(d => (tab === "all" || d.type === tab) && inBS(s.branches, bs.brand, bs.store, d.branchId)).sort((a, b) => bName(a.branchId).localeCompare(bName(b.branchId)) || String(a.name).localeCompare(String(b.name)));
   return (
     <>
       <PageBreadcrumb pageTitle="Devices" />
@@ -70,13 +75,14 @@ export default function DevicesPage() {
           { id: "Status", title: "Status", cell: d => <>{d.activatedAt ? <Badge variant="light" color="success">Used</Badge> : <Badge variant="light" color="light">Not Used</Badge>}</> },
           { id: "Store", title: "Store", cell: d => <>{bName(d.branchId) || "—"}</> },
         ]}
-        toolbar={<><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} /><BrandStoreFilters brands={s.brands} stores={s.branches} {...bs} /></>}
+        toolbar={<><SegTabs value={tab} onChange={setTab} items={[["all", "All"], ...DEV_TYPES]} /><BrandStoreFilters brands={s.brands} stores={s.branches} {...bs} /><FiltersButton F={F} onClick={() => setFOpen(true)} /></>}
         actions={<><Button className="h-[30px] py-1" onClick={() => setCreate(true)}><PlusIcon className="size-4" />Create Device</Button></>}
         onRowClick={d => { openWin("/devices?id=" + d.id); }}
         rowActions={[...([{ label: "Open", onSelect: (d: any) => { openWin("/devices?id=" + d.id); } }])]}
         empty={<EmptyState text={all.length ? "No devices of this type." : "No devices yet"} />}
       />
       {create && <CreateDevice s={s} onClose={() => setCreate(false)} />}
+      <ListFilters open={fOpen} defs={defs} F={F} onApply={f => { setF(f); setFOpen(false); }} onClose={() => setFOpen(false)} />
     </>
   );
 }

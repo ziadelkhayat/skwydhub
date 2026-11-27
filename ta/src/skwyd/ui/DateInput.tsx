@@ -1,3 +1,4 @@
+import { Button } from "@/components/tremor/Button";
 // Tremor Date Picker / Date Range Picker: shows dd-mm-yyyy, keeps yyyy-mm-dd as the value
 import { RiCloseLine } from "@remixicon/react";
 import { DatePicker, DateRangePicker } from "@/components/tremor/DatePicker";
@@ -29,7 +30,7 @@ export function RangeInput({ from, to, onChange }: { from: string; to: string; o
     <div className="relative">
       <DateRangePicker value={from ? { from: toDate(from), to: toDate(to || from) } : undefined} onChange={r => r?.from ? onChange(iso(r.from), iso(r.to || r.from)) : onChange("", "")}
         placeholder="Business Date" presets={datePresets()} enableYearNavigation align="start" className="h-9 w-full py-1.5" />
-      {from && <button type="button" aria-label="Clear dates" onClick={() => onChange("", "")} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-900"><RiCloseLine className="size-4" /></button>}
+      {from && <Button variant="ghost" aria-label="Clear dates" onClick={() => onChange("", "")} className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5"><RiCloseLine className="size-4" /></Button>}
     </div>
   );
 }

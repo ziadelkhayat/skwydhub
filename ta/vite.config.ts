@@ -12,6 +12,8 @@ export default defineConfig({
     tailwindcss(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
+  // two pages: the back office (index.html) and the POS web app (pos.html, packaged as the Android POS with Capacitor)
+  build: { rollupOptions: { input: { main: path.resolve(import.meta.dirname, "index.html"), pos: path.resolve(import.meta.dirname, "pos.html") } } },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

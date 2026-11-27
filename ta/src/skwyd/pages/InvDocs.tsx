@@ -471,7 +471,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
         <div key={i} className="flex items-center gap-3"><span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold", x.st === "done" ? "bg-green-500 text-white" : x.st === "now" ? "bg-blue-500 text-white" : x.st === "bad" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-white/5")}>{x.st === "done" ? "✓" : i + 1}</span>
           <span><b className="block text-sm font-medium text-gray-900 dark:text-gray-50">{x.t}</b><small className="text-xs text-gray-500">{x.sub}</small></span></div>))}</Card>}
       <Card className="mb-6 grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 lg:grid-cols-4 lg:p-6">{info.map(([l, v]) => <L key={l} l={l}>{v}</L>)}</Card>
-      {pv === "pc" ? <Usage page /> : pv === "pw" ? <div className="space-y-3"><h3 className="font-semibold text-gray-900 dark:text-gray-50">Items</h3>
+      {pv === "pc" ? Usage({ page: true }) : pv === "pw" ? <div className="space-y-3"><h3 className="font-semibold text-gray-900 dark:text-gray-50">Items</h3>
         {(() => { const w = d.items.filter((l: any) => +l.waste > 0); return !w.length ? <p className="border-t border-gray-100 px-6 py-5 text-sm text-gray-500 dark:border-gray-800">Nothing was wasted.</p>
           : <Table className="min-w-full border-t border-gray-200 dark:border-gray-800"><TableHead><TableRow className="border-y border-gray-200 dark:border-gray-800"><TableHeaderCell className={TH}>Name</TableHeaderCell><TableHeaderCell className={TH}>SKU</TableHeaderCell><TableHeaderCell className={TH + " text-end"}>Deducted Quantity</TableHeaderCell></TableRow></TableHead>
             <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">{w.map((l: any) => { const it = itemOf(l.itemId) || {} as any; return <TableRow key={l.itemId}><TableCell className={TD}>{it.name || "(deleted item)"}</TableCell><TableCell className={TD}>{it.sku || ""}</TableCell><TableCell className={TD + " text-end"}>{n2(+l.waste)} {storUnit(it)}</TableCell></TableRow>; })}</TableBody></Table>; })()}</div>
@@ -497,7 +497,7 @@ function DocPage({ route, K, s, id, view }: { route: string; K: K; s: S; id: str
                 {total != null && <TableFoot className="border-t border-gray-200 dark:border-white/10"><TableRow><TableCell className={TD + " font-semibold text-gray-900 dark:text-gray-50"} colSpan={head.length - 1}>Total</TableCell><TableCell className={TD + " text-end font-semibold text-gray-900 dark:text-gray-50"}>{money(total)}</TableCell>{!ro && <TableCell />}</TableRow></TableFoot>}</Table>}
           </div>
         </div>
-        {K.kind === "production" && d.items.length > 0 && !ro && <Usage />}
+        {K.kind === "production" && d.items.length > 0 && !ro && Usage({})}
       </>}
       {dlg?.kind === "add" && <PickDialog title="Add Items" opts={avail.map(i => [i.id, i.name, i.sku || ""])} value={[]} onClose={() => setDlg(null)} onSave={ids => { const n = addItems(ids); if (n) toast(`${n} item${n === 1 ? "" : "s"} added`); }} />}
       {dlg?.kind === "head" && <HeadDialog d={d} K={K} s={s} locs={locs} onClose={() => setDlg(null)} onSave={p => { up(p); setDlg(null); }} />}

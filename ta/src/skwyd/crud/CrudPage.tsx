@@ -26,22 +26,36 @@ import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTab
 import { downloadCsv, sortValue, textOf } from "@/components/tremor/data-table/textOf";
 import { SegTabs } from "../ui/SegTabs";
 import { toast } from "../ui/toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
+import { Checkbox } from "@/components/tremor/Checkbox";
+import { RiArrowDownSLine } from "@remixicon/react";
+import { SEL_LOOK } from "../ui/kit";
+import { FiltersButton, ListFilters, applyF, type FDef, type FVals } from "../ui/ListFilters";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/tremor/Dropdown";
+import { RiUploadCloud2Line } from "@remixicon/react";
 
 export type Opt = [string, string];
 export type S = Record<string, Row[]>;
 export type CField = {
   k: string; l: string; t?: "text" | "number" | "select" | "textarea" | "chk" | "multi" | "items" | "image" | "head" | "date" | "phone" | "pin";
-  req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any;
+  req?: boolean; ph?: string; note?: string; full?: boolean; lockEdit?: boolean; def?: any; drop?: boolean;
   opts?: (s: S) => Opt[]; auto?: (s: S) => any; when?: { k: string; is: any }; hideIf?: (r: Row | null, s: S) => boolean;
 };
 export type CCol = { h: string; cell: (r: Row, s: S) => ReactNode; num?: boolean };
+/** Import / Export: each set is one CSV layout (e.g. items, items ingredients); import builds a plan of rows to add or change */
+export type IoOp = { name: string; col: string; id?: string; newId?: string; data: Record<string, any> };
+export type IoSet = { name: string; head: string[]; exp: (s: S) => unknown[][]; imp: (recs: Record<string, string>[], s: S) => { ops: IoOp[]; errs: string[] };
+  before?: (d: Record<string, any>, cache: Record<string, string>) => Promise<void>; after?: () => Promise<void> };
 export type CrudCfg = {
+  io?: IoSet[];   // Import / Export menu
+  kids?: (r: Row, s: S) => Row[];   // rows shown under a row (an item's variants): hidden from the list, opened with the arrow
   col: string; title: string; one: string; needs?: string[]; addLbl?: string;
   tabs: [string, string, (r: Row) => boolean][];
   sort?: (a: Row, b: Row) => number; search?: (r: Row, s: S) => string;
-  cols: CCol[]; fields: CField[]; unique?: string; note?: string;
+  cols: CCol[]; fields: CField[]; unique?: string; note?: string; sortable?: boolean; noSearch?: boolean;
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
+  filters?: (s: S) => FDef<Row>[];   // a Filters button with a side panel
   detail?: string;   // open rows on their own page (path?id=)
   form?: (p: { s: S; row: Row | null; onClose: () => void }) => ReactNode;   // a page of its own form instead of the generic one
   urlFilter?: [string, string];
@@ -64,6 +78,8 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
   const [fb, setFb] = useState(""), [fs, setFs] = useState("");
   const [tab, setTab] = useState(cfg.tabs[0][0]);
   const [edit, setEdit] = useState<Row | null | undefined>(undefined);   // undefined = closed, null = new
+  const [sorting, setSorting] = useState(false);
+  const [F, setF] = useState<FVals>({}), [fOpen, setFOpen] = useState(false), [imp, setImp] = useState<IoSet | null>(null), [openK, setOpenK] = useState<Set<string>>(new Set());
   const [sp, setSp] = useSearchParams();
   const uf = cfg.urlFilter && sp.get(cfg.urlFilter[0]);
 
@@ -72,10 +88,13 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
     const f = cfg.tabs.find(t => t[0] === tab)?.[2] || live;
     const hit = (sel: string, l: string[]) => !sel || !l.length || l.some(x => inSel(sel, x));
     const brandsOf = (r: Row) => cfg.scope?.brand ? cfg.scope.brand(r, s).filter(Boolean) : (cfg.scope?.store?.(r, s) || []).map(id => s.branches.find(b => b.id === id)?.brandId).filter(Boolean);
-    return s[cfg.col].filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
+    return applyF(s[cfg.col], cfg.filters ? cfg.filters(s) : [], F).filter(f).filter(r => !uf || r[cfg.urlFilter![1]] === uf)
       .filter(r => !cfg.scope || (hit(fb, brandsOf(r)) && (!cfg.scope.store || hit(fs, cfg.scope.store(r, s).filter(Boolean)))))
       .sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))));
-  }, [s, tab, cfg, uf, fb, fs]);
+  }, [s, tab, cfg, uf, fb, fs, F]);
+  // variants: hide them from the list and show them under their item when it is opened (the arrow)
+  const kidIds = useMemo(() => !s || !cfg.kids ? new Set<string>() : new Set(s[cfg.col].flatMap(r => cfg.kids!(r, s).map(k => k.id))), [s, cfg]);
+  const rows = useMemo(() => !s || !cfg.kids ? list : list.filter(r => !kidIds.has(r.id)).flatMap(r => openK.has(r.id) ? [r, ...cfg.kids!(r, s).map(k => ({ ...k, __kid: true }))] : [r]), [s, cfg, list, kidIds, openK]);
   const open = (r: Row) => cfg.detail ? openWin(cfg.detail + "?id=" + r.id) : setEdit(r);
   const del = async (rows: Row[], on: boolean) => {
     if (!s) return;
@@ -84,7 +103,12 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
     try { for (const r of rows) await softDelete(cfg.col, r.id, on); toast(on ? `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} deleted` : `${rows.length === 1 ? cfg.one : rows.length + " " + cfg.title.toLowerCase()} restored`, on ? "error" : "success"); }
     catch (e: any) { toast(e?.message || "Couldn't save.", "error"); } };
   const deletedTab = /deleted/i.test(cfg.tabs.find(t => t[0] === tab)?.[1] || "");
-  const columns = useMemo<DTColumn<Row>[]>(() => !s ? [] : cfg.cols.map(c => ({ id: c.h, title: c.h, num: c.num, value: r => sortValue(c.cell(r, s)), cell: r => c.cell(r, s) })), [s, cfg]);
+  const columns = useMemo<DTColumn<Row>[]>(() => !s ? [] : cfg.cols.map((c, i) => ({ id: c.h, title: c.h, num: c.num, value: r => sortValue(c.cell(r, s)),
+    cell: r => { if (i || !cfg.kids) return c.cell(r, s); const n = r.__kid ? 0 : cfg.kids(r, s).length, on = openK.has(r.id);
+      return <span className="flex items-center gap-1">{n ? <button type="button" aria-label={(on ? "Hide" : "Show") + " variants of " + r.name} aria-expanded={on}
+        onClick={e => { e.stopPropagation(); setOpenK(x => { const y = new Set(x); if (on) y.delete(r.id); else y.add(r.id); return y; }); }}
+        className="flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><RiArrowDownSLine className={cn("size-5 transition-transform", !on && "-rotate-90")} aria-hidden="true" /></button>
+        : <span className={cn("shrink-0", r.__kid ? "w-12 ps-4 text-gray-400" : "w-7")} aria-hidden="true">{r.__kid ? "↳" : ""}</span>}{c.cell(r, s)}</span>; } })), [s, cfg, openK]);
 
   // Tremor dashboard template "Details" page: title, then the data table (filter bar, sortable columns, row menu, pagination)
   return (
@@ -95,27 +119,70 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
       {!s ? <div className="p-10 text-center text-sm text-gray-500">Loading…</div> : (
         <DataTable<Row>
           key={tab}
-          data={list}
+          data={rows}
           columns={columns}
           getRowId={r => r.id}
           searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
-          toolbar={cfg.tabs.length > 1 || cfg.scope ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
+          searchPlaceholder={cfg.noSearch || cfg.filters ? false : undefined}
+          toolbar={cfg.tabs.length > 1 || cfg.scope || cfg.filters ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
             {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
-            {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}</> : undefined}
-          actions={<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button>}
+            {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}{cfg.filters && <FiltersButton F={F} onClick={() => setFOpen(true)} />}</> : undefined}
+          actions={<>{cfg.io && s && <IoMenu sets={cfg.io} s={s} title={cfg.title} onImport={setImp} />}{cfg.sortable && <Button variant="secondary" onClick={() => setSorting(true)} className="h-[30px] py-1">Sort</Button>}<Button onClick={() => setEdit(null)} className="h-[30px] py-1"><PlusIcon className="size-4" />{cfg.addLbl || "Add " + cfg.one}</Button></>}
           onRowClick={open}
           rowActions={[
             { label: cfg.detail ? "Open" : "Edit", onSelect: open },
             ...(deletedTab ? [{ label: "Restore", onSelect: (r: Row) => del([r], false) }] : [{ label: "Delete", danger: true, onSelect: (r: Row) => del([r], true) }]),
           ]}
           bulk={deletedTab ? [{ label: "Restore", action: (rows: Row[]) => del(rows, false) }] : [{ label: "Delete", action: (rows: Row[]) => del(rows, true) }]}
-          onExport={rows => downloadCsv(cfg.title, cfg.cols.map(c => c.h), rows.map(r => cfg.cols.map(c => textOf(c.cell(r, s)))))}
+          onExport={cfg.io ? undefined : rows => downloadCsv(cfg.title, cfg.cols.map(c => c.h), rows.map(r => cfg.cols.map(c => textOf(c.cell(r, s)))))}
           empty={<EmptyState text={tab === cfg.tabs[0][0] ? `No ${cfg.title.toLowerCase()} yet.` : "Nothing here."} />}
           pageSize={PER}
         />
       )}
+      {imp && s && <ImportDialog set={imp} s={s} onClose={() => setImp(null)} />}
+      {cfg.filters && s && <ListFilters open={fOpen} defs={cfg.filters(s)} F={F} onApply={f => { setF(f); setFOpen(false); }} onClose={() => setFOpen(false)} />}
+      {sorting && s && <SortDialog cfg={cfg} rows={s[cfg.col].filter(cfg.tabs[0][2]).sort(cfg.sort || ((a, b) => String(a.name || "").localeCompare(String(b.name || ""))))} onClose={() => setSorting(false)} />}
       {edit !== undefined && s && (cfg.form ? <Suspense fallback={null}>{cfg.form({ s, row: edit, onClose: () => setEdit(undefined) })}</Suspense> : <EditDialog cfg={cfg} s={s} row={edit} onClose={() => setEdit(undefined)} />)}
     </>
+  );
+}
+
+/** Sort: put the rows in the order they show (e.g. the POS payment buttons). Drag a row, or use the arrows; Save writes each row's sort number. */
+function SortDialog({ cfg, rows, onClose }: { cfg: CrudCfg; rows: Row[]; onClose: () => void }) {
+  const [l, setL] = useState<Row[]>(rows), [busy, setBusy] = useState(false), [drag, setDrag] = useState<number | null>(null);
+  const move = (from: number, to: number) => setL(x => { if (to < 0 || to >= x.length || from === to) return x; const n = [...x]; const [r] = n.splice(from, 1); n.splice(to, 0, r); return n; });
+  async function save() {
+    setBusy(true);
+    try { for (let i = 0; i < l.length; i++) if (l[i].sort !== i) await put(cfg.col, l[i].id, { sort: i }); toast("Order saved"); onClose(); }
+    catch (e: any) { toast(e?.message || "Couldn't save.", "error"); setBusy(false); }
+  }
+  const arrow = "flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:hover:bg-gray-800";
+  return (
+    <Dialog open onOpenChange={o => !o && onClose()}>
+      <DialogContent className="w-full p-0 sm:max-w-lg">
+        <div className="p-6 sm:p-8">
+          <DialogHeader className="gap-1 sm:gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Sort {cfg.title}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">Drag a row, or use the arrows. The POS shows them in this order.</DialogDescription>
+          </DialogHeader>
+          <ul className="mt-6 max-h-[60vh] space-y-2 overflow-y-auto">
+            {l.map((r, i) => (
+              <li key={r.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => { e.preventDefault(); if (drag !== null && drag !== i) { move(drag, i); setDrag(i); } }} onDragEnd={() => setDrag(null)}
+                className={cn("flex cursor-grab items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-950", drag === i && "opacity-50")}>
+                <span className="w-6 text-center text-sm text-gray-400">{i + 1}</span>
+                <span aria-hidden="true" className="text-gray-400">⋮⋮</span>
+                <span className="flex-1 truncate text-sm font-medium text-gray-900 dark:text-gray-50">{r.name}</span>
+                <button type="button" aria-label={`Move ${r.name} up`} className={arrow} disabled={i === 0} onClick={() => move(i, i - 1)}>↑</button>
+                <button type="button" aria-label={`Move ${r.name} down`} className={arrow} disabled={i === l.length - 1} onClick={() => move(i, i + 1)}>↓</button>
+              </li>))}
+          </ul>
+          <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -177,8 +244,100 @@ export function EditDialog({ cfg, s, row, onClose }: { cfg: CrudCfg; s: S; row: 
   );
 }
 
+/** several choices as a dropdown with tick boxes (a field with drop: true); shows the picked names, or "All" when every one is picked */
+function MultiDrop({ label, opts, cur, set, ph }: { label: ReactNode; opts: Opt[]; cur: string[]; set: (v: string[]) => void; ph?: string }) {
+  const picked = opts.filter(([v]) => cur.includes(v)).map(o => o[1]), all = opts.length > 0 && picked.length === opts.length;
+  return (
+    <Popover>{label}
+      <PopoverTrigger asChild>
+        <button type="button" className={cn(SEL_LOOK, "flex w-full items-center justify-between gap-2 text-left")}>
+          <span className={cn("truncate", !picked.length && "text-gray-400 dark:text-gray-500")}>{!picked.length ? ph || "Choose..." : all && opts.length > 1 ? "All" : picked.join(", ")}</span>
+          <RiArrowDownSLine className="size-4 shrink-0 text-gray-500" aria-hidden="true" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="z-[110] w-[var(--radix-popover-trigger-width)] p-2">
+        <div className="max-h-64 overflow-y-auto">
+          {opts.length > 1 && <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-900">
+            <Checkbox checked={all} onCheckedChange={c => set(c ? opts.map(o => o[0]) : [])} />All</label>}
+          {opts.map(([v, l]) => <label key={v} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-900">
+            <Checkbox checked={cur.includes(v)} onCheckedChange={c => set(c ? [...cur, v] : cur.filter(x => x !== v))} />{l}</label>)}
+        </div>
+      </PopoverContent>
+    </Popover>);
+}
+
+/** CSV text to rows (quotes, commas and new lines inside quotes) */
+export function parseCsv(t: string): string[][] {
+  const out: string[][] = []; let row: string[] = [], cur = "", q = false; t = t.replace(/^\uFEFF/, "");
+  for (let i = 0; i < t.length; i++) { const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ",") { row.push(cur); cur = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && t[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(x => x.trim())) out.push(row); row = []; }
+    else cur += c; }
+  row.push(cur); if (row.some(x => x.trim())) out.push(row); return out;
+}
+
+function IoMenu({ sets, s, title, onImport }: { sets: IoSet[]; s: S; title: string; onImport: (x: IoSet) => void }) {
+  const cap = (x: string) => x[0].toUpperCase() + x.slice(1);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild><Button variant="secondary" className="h-[30px] py-1"><RiUploadCloud2Line className="size-4" aria-hidden="true" />Import / Export</Button></DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-56">
+        {sets.map(x => <DropdownMenuItem key={"i" + x.name} onSelect={() => onImport(x)}>Import {x.name}</DropdownMenuItem>)}
+        <DropdownMenuSeparator />
+        {sets.map(x => <DropdownMenuItem key={"e" + x.name} onSelect={() => downloadCsv(title === cap(x.name) ? title : cap(x.name), x.head, x.exp(s).map(r => r.map(v => v == null ? "" : String(v))))}>Export {x.name}</DropdownMenuItem>)}
+      </DropdownMenuContent>
+    </DropdownMenu>);
+}
+
+function ImportDialog({ set, s, onClose }: { set: IoSet; s: S; onClose: () => void }) {
+  const [plan, setPlan] = useState<{ ops: IoOp[]; errs: string[] } | null>(null), [busy, setBusy] = useState(false), [done, setDone] = useState(0), [file, setFile] = useState("");
+  async function pick(f?: File) {
+    if (!f) return; setFile(f.name);
+    const rows = parseCsv(await f.text()); if (rows.length < 2) return setPlan({ ops: [], errs: ["The file has no rows under the header."] });
+    const head = rows[0].map(h => h.trim().toLowerCase());
+    setPlan(set.imp(rows.slice(1).map(r => Object.fromEntries(head.map((h, j) => [h, String(r[j] ?? "").trim()]))), s));
+  }
+  async function run() {
+    if (!plan) return; setBusy(true); const cache: Record<string, string> = {}; let k = 0;
+    try {
+      for (const o of plan.ops) { const d = { ...o.data }; if (set.before) await set.before(d, cache);
+        if (o.id) await put(o.col, o.id, d); else await put(o.col, o.newId || newId(o.col.slice(0, 3)), { ...d, deleted: false }); setDone(++k); }
+      if (set.after) await set.after();
+      toast(`${k} row${k === 1 ? "" : "s"} imported`); onClose();
+    } catch (e: any) { toast((e?.message || "Couldn't import") + ` (stopped after ${k} rows)`, "error"); } finally { setBusy(false); }
+  }
+  const nNew = plan?.ops.filter(o => !o.id).length || 0, nUpd = (plan?.ops.length || 0) - nNew;
+  return (
+    <Dialog open onOpenChange={o => !o && !busy && onClose()}>
+      <DialogContent className="w-full p-0 sm:max-w-xl">
+        <div className="p-6 sm:p-8">
+          <DialogHeader className="gap-1 sm:gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-800 sm:text-2xl dark:text-gray-50">Import {set.name}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">A CSV file with these columns: {set.head.join(", ")}. Rows that match an existing one (by SKU) change it; the others are added.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-50 dark:hover:bg-gray-900">
+              <RiUploadCloud2Line className="size-4" aria-hidden="true" />{file || "Choose a CSV file"}
+              <input type="file" accept=".csv,text/csv" className="sr-only" onChange={e => pick(e.target.files?.[0])} /></label>
+            <Button type="button" variant="ghost" onClick={() => downloadCsv(set.name + " template", set.head, [])}>Download template</Button>
+          </div>
+          {plan && <div className="mt-5 space-y-3 text-sm">
+            <p className="text-gray-900 dark:text-gray-50"><b>{nNew}</b> to add · <b>{nUpd}</b> to change{plan.errs.length ? <> · <b className="text-red-500">{plan.errs.length}</b> with problems (skipped)</> : null}</p>
+            {plan.errs.length > 0 && <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+              {plan.errs.slice(0, 100).map((e, i) => <li key={i}>{e}</li>)}{plan.errs.length > 100 && <li>…and {plan.errs.length - 100} more</li>}</ul>}
+          </div>}
+          <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            <Button type="button" disabled={busy || !plan?.ops.length} onClick={run}>{busy ? `Importing ${done}/${plan?.ops.length}…` : `Import ${plan?.ops.length || ""} rows`}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>);
+}
+
 function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) => void; s: S; locked: boolean }) {
-  const full = f.full || f.t === "textarea" || f.t === "multi" || f.t === "items" || f.t === "image";
+  const full = f.full || f.t === "textarea" || (f.t === "multi" && !f.drop) || f.t === "items" || f.t === "image";
   const label = <FieldLabel className="mb-1.5 block">{f.l}{f.req && <span className="text-red-500"> *</span>}</FieldLabel>;
   const note = f.note && <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{f.note}</p>;
   if (f.t === "chk") return (
@@ -192,6 +351,8 @@ function FieldBox({ f, v, set, s, locked }: { f: CField; v: any; set: (v: any) =
         <SelectTrigger className="h-9 w-full"><SelectValue placeholder={f.ph || "Choose..."} /></SelectTrigger>
         <SelectContent>{opts.map(([value, l]) => <SelectItem key={value} value={value}>{l}</SelectItem>)}</SelectContent>
       </Select>{note}</Field>); }
+  if (f.t === "multi" && f.drop) { const cur: string[] = Array.isArray(v) ? v : [];
+    return (<Field className={cn(full && "col-span-full")}><MultiDrop label={label} opts={(f.opts ? f.opts(s) : []).filter(o => !o[0].startsWith("@"))} cur={cur} set={set} ph={f.ph} />{note}</Field>); }
   if (f.t === "multi") { const opts = f.opts ? f.opts(s) : [], cur: string[] = Array.isArray(v) ? v : [];
     return (<Field className="col-span-full">{label}
       <div className="flex flex-wrap gap-2">{opts.map(([value, l]) => { if (value.startsWith("@")) return <h5 key={value} className="mt-3 w-full text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">{value.slice(1)}</h5>; const on = cur.includes(value);

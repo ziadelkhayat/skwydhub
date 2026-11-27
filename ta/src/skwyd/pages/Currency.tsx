@@ -66,15 +66,12 @@ export default function CurrencyPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Currency" />
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">The currency your menu prices are in, how many decimals they show, and an optional second currency.</p>
-        {admin && <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>}
-      </div>
       {!admin && <p className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-sm text-gray-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-white/80">Only the owner or an admin can change the currency.</p>}
       {err && <p className="mb-6 rounded-md border border-red-500 bg-red-50 p-4 text-sm text-gray-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-white/80">{err}</p>}
       <div className="space-y-6">
         <div className={box}>
-          <h3 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-50">Main Currency</h3>
+          <div className="mb-5 flex items-center justify-between gap-4"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Main Currency</h3>
+            {admin && <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button>}</div>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-3">
             <F l="Main currency" req help={locked ? "Set when the business was created. It can't be changed." : undefined}>
               <SelectNative className={SEL} disabled={!admin || locked} value={d.currency} onChange={e => setD((o: any) => ({ ...o, currency: e.target.value, currencySymbol: "", currency2: o.currency2 === e.target.value ? "" : o.currency2 }))}>{CURRENCIES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>
@@ -87,7 +84,7 @@ export default function CurrencyPage() {
         </div>
         <div className={box}>
           <div className="mb-5 flex items-center justify-between gap-4"><h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Secondary Currency</h3>
-            {admin && (on2 ? <Button variant="outline" onClick={off2}>Deactivate</Button> : <Button onClick={() => setOn2(true)}>Activate</Button>)}</div>
+            {admin && (on2 ? <div className="flex gap-3"><Button variant="outline" onClick={off2}>Deactivate</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></div> : <Button onClick={() => setOn2(true)}>Activate</Button>)}</div>
           {!on2 ? <p className="text-sm text-gray-500 dark:text-gray-400">The secondary currency is off: the POS and web ordering show prices and totals in the main currency only. Activate it to add one.</p> : <>
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-4">
               <F l="Secondary currency" req><SelectNative className={SEL} disabled={!admin} value={d.currency2} onChange={e => setD((o: any) => ({ ...o, currency2: e.target.value, currencySymbol2: "" }))}><option value="">Choose…</option>{CURRENCIES.filter(([k]) => k !== d.currency).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</SelectNative></F>

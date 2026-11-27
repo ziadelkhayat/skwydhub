@@ -11,6 +11,8 @@ const buttonVariants = tv({
   base: [
     // base
     "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out",
+    // portal look: rounder buttons (Buttons 2)
+    "portal:rounded-[10px]",
     // disabled
     "disabled:pointer-events-none disabled:shadow-none",
     // focus
@@ -30,6 +32,7 @@ const buttonVariants = tv({
         // disabled
         "disabled:bg-blue-100 disabled:text-gray-400",
         "disabled:dark:bg-blue-800 disabled:dark:text-blue-400",
+        "portal:shadow-[0_1px_2px_rgb(79_70_229/0.35)]",
       ],
       secondary: [
         // border
@@ -43,6 +46,9 @@ const buttonVariants = tv({
         // disabled
         "disabled:text-gray-400",
         "disabled:dark:text-gray-600",
+        // portal look: a soft tinted button with no line (Buttons 2)
+        "portal:border-transparent portal:bg-blue-50 portal:text-blue-700 portal:shadow-none portal:hover:bg-blue-100",
+        "dark:portal:bg-blue-500/10 dark:portal:text-blue-300 dark:portal:hover:bg-blue-500/20",
       ],
       light: [
         // base

@@ -15,6 +15,10 @@ export const selList = (sel: string) => (sel ? sel.split(",") : []);
 
 export function FilterSelect({ title, options, value, onChange, all, required, multiple }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean; multiple?: boolean }) {
   if (multiple) return <FilterMulti title={title} options={options} value={selList(value)} onChange={l => onChange(l.join(","))} />;
+  return <FilterOne title={title} options={options} value={value} onChange={onChange} all={all} required={required} />;
+}
+// one choice (its own component, so the hooks below always run in the same order)
+function FilterOne({ title, options, value, onChange, all, required }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const cur = options.find(o => o.value === value);
   return (
@@ -73,5 +77,35 @@ export function FilterMulti({ title, options, value, onChange }: { title: string
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+/** a dropdown field with several choices (checkboxes) for filter panels; value is comma-joined, "" = any */
+export function MultiField({ label, options, value, onChange, placeholder = "Any" }: { label: string; options: Opt[]; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const sel = selList(value), labels = options.filter(o => sel.includes(o.value)).map(o => o.label);
+  const id = React.useId();
+  return (
+    <div className="space-y-1.5">
+      <p className="text-sm font-medium text-gray-900 dark:text-gray-50">{label}</p>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button type="button" className={cx("flex h-9 w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-3 text-left text-sm shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-950/50", focusRing)}>
+            <span className={cx("flex-1 truncate", labels.length ? "text-gray-900 dark:text-gray-50" : "text-gray-400")}>{labels.length ? labels.join(", ") : placeholder}</span>
+            {labels.length > 1 && <span className="rounded bg-blue-50 px-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-400">{labels.length}</span>}
+            <RiArrowDownSLine className="size-4 shrink-0 text-gray-500" aria-hidden="true" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" sideOffset={6} className="z-[110] w-[var(--radix-popover-trigger-width)] min-w-48 p-2">
+          <div className="max-h-60 space-y-0.5 overflow-y-auto">
+            {options.map(o => (
+              <label key={o.value} htmlFor={id + o.value} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                <Checkbox id={id + o.value} checked={sel.includes(o.value)} onCheckedChange={c => onChange((c ? [...sel, o.value] : sel.filter(x => x !== o.value)).join(","))} />{o.label}
+              </label>
+            ))}
+          </div>
+          {sel.length > 0 && <button type="button" onClick={() => onChange("")} className="mt-1 w-full rounded border-t border-gray-200 px-2 pt-2 text-left text-xs font-medium text-blue-600 dark:border-gray-800">Clear</button>}
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

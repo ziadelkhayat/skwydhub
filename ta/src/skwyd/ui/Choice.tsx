@@ -1,11 +1,11 @@
-// Choice buttons in Tremor's RadioCard look (Tremor Button base; selected = blue border + ring, like RadioCardItem when checked).
+// A choice that is on or off: Tremor's Toggle, shown picked in Tremor blue (as a checked RadioCard).
 import * as React from "react";
-import { Button } from "@/components/tremor/Button";
+import { Toggle } from "@/components/tremor/Toggle";
 import { cx } from "@/components/tremor/utils";
 
-export function ChoiceButton({ on, className, ...props }: React.ComponentProps<typeof Button> & { on: boolean }) {
+export function ChoiceButton({ on, className, ...props }: Omit<React.ComponentProps<typeof Toggle>, "pressed" | "onPressedChange"> & { on: boolean }) {
   return (
-    <Button type="button" variant="secondary" aria-pressed={on} data-state={on ? "checked" : "unchecked"}
-      className={cx("h-auto min-h-9 font-medium", on && "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500 hover:bg-blue-50 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/10", className)} {...props} />
+    <Toggle pressed={on}
+      className={cx("h-auto min-h-9 px-3 py-2", "data-[state=on]:border-blue-500 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700 data-[state=on]:ring-1 data-[state=on]:ring-blue-500 dark:data-[state=on]:border-blue-500 dark:data-[state=on]:bg-blue-500/10 dark:data-[state=on]:text-blue-400", className)} {...props} />
   );
 }

@@ -21,7 +21,7 @@ import { money } from "@/lib/util";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { live, useS, type S } from "../crud/CrudPage";
-import { askYes } from "../ui/confirm";
+import { askText, askYes } from "../ui/confirm";
 import { EmptyState } from "../ui/EmptyState";
 import { F, SEL, TD, TH, TR } from "../ui/kit";
 import { baseMap, LB, loadLeaflet } from "../ui/leaflet";
@@ -44,6 +44,8 @@ const tblOf = (s: S, b: string) => { const d: any = s.settings.find(x => x.id ==
 const tblSave = async (b: string, list: any[], secs?: string[]) => { await put("settings", "tables", { [b]: list, ...(secs ? { [b + "__sections"]: secs } : {}) }); };
 const nextNo = (l: any[]) => l.reduce((m, t) => Math.max(m, /^\d+$/.test(String(t.name)) ? +t.name : 0), 0) + 1;
 
+const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>{rows.map((r, i) => <TableRow key={i} className={TR}>{r.map((c, j) => <TableCell key={j} className={TD}>{c}</TableCell>)}</TableRow>)}</TableBody></Table></div>;
+const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <Section title={title} act={act}>{children}</Section>;
 export default function StorePage() {
   const s = useS(["branches", "brands", "tax_groups", "zones", "users", "devices", "charges", "payment_methods", "settings"]), [sp] = useSearchParams(), nav = useNavigate();
   const [edit, setEdit] = useState(false), [sec, setSec] = useState<string | null | undefined>(undefined), [pays, setPays] = useState(false), [zonesDlg, setZonesDlg] = useState(false), [cnt, setCnt] = useState<{ orders: number | null; inv: number | null }>({ orders: null, inv: null }), [busy, setBusy] = useState(false);
@@ -63,11 +65,9 @@ export default function StorePage() {
   const dch: any = (s.settings.find(x => x.id === "dcharges") as any)?.map || {}, chOf = (z: Row) => s.charges.find(c => c.id === dch[z.id] && live(c));
   const deleted = b.active === false || b.deleted;
   const saveSt = async (patch: any, msg: string) => { try { await put("branches", b.id, { settings: { ...st, ...patch }, updatedAt: new Date().toISOString() }); toast(msg); } catch { toast("Couldn't save. You may not have edit access.", "error"); } };
-  const Tbl = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => !rows.length ? <p className="text-sm text-gray-500">No data to display</p> : <div className="overflow-x-auto"><Table className="w-full"><TableHead><TableRow>{head.map(h => <TableHeaderCell key={h} className={TH}>{h}</TableHeaderCell>)}</TableRow></TableHead><TableBody>{rows.map((r, i) => <TableRow key={i} className={TR}>{r.map((c, j) => <TableCell key={j} className={TD}>{c}</TableCell>)}</TableRow>)}</TableBody></Table></div>;
-  const Sec = ({ title, act, children }: { title: string; act?: React.ReactNode; children: React.ReactNode }) => <Section title={title} act={act}>{children}</Section>;
   async function wipe(kind: "orders" | "inv") {
     const c = await count(), what = kind === "orders" ? `all ${c.orders} orders` : `all ${c.inv} inventory transactions`;
-    const typed = window.prompt(`This permanently deletes ${what} of ${b!.name}. It can't be undone.${kind === "orders" ? "\n\nReference numbers keep counting. This store's check numbers start again at 100001 and returns at RET-100001." : ""}\n\nType the store name to confirm:`);
+    const typed = await askText(`This permanently deletes ${what} of ${b!.name}. It can't be undone.${kind === "orders" ? "\n\nReference numbers keep counting. This store's check numbers start again at 100001 and returns at RET-100001." : ""}\n\nType the store name to confirm.`, "Delete", true, b!.name);
     if (typed == null) return; if (typed.trim().toLowerCase() !== b!.name.trim().toLowerCase()) return toast("The name didn't match · nothing was deleted", "error");
     setBusy(true);
     try { const chk = (r: any) => { if (r.error && !/does not exist|schema cache/i.test(r.error.message || "")) throw r.error; };
@@ -158,6 +158,7 @@ function MapPick({ lat, lng, set }: { lat: string; lng: string; set: (a: string,
 }
 
 /** the full store form (add or edit), the same fields and checks as the portal's branch form */
+const H = ({ t }: { t: string }) => <h4 className="col-span-full mt-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-gray-50">{t}</h4>;
 export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose: () => void }) {
   const st = row?.settings || {}, co: any = s.settings.find(x => x.id === "company") || {}, brands = s.brands.filter(live);
   const tagDoc: any = s.settings.find(x => x.id === "tags") || {}, tagList = (tagDoc.list || []).filter((t: any) => t.type === "branch" && !t.deleted);
@@ -188,7 +189,6 @@ export function StoreForm({ s, row, onClose }: { s: S; row: Row | null; onClose:
       toast(row ? "Store updated" : `${name} added`); onClose(); }
     catch { setErr("Couldn't save. You may not have edit access to this page."); } finally { setBusy(false); }
   }
-  const H = ({ t }: { t: string }) => <h4 className="col-span-full mt-2 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-gray-50">{t}</h4>;
   return <Dialog open onOpenChange={x => !x && onClose()}><DialogContent className="w-full p-6 sm:max-w-3xl"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{row ? "Edit Store" : "Add Store"}</DialogTitle></DialogHeader>
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <H t="General" />

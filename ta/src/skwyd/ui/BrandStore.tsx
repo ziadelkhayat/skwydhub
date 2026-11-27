@@ -12,6 +12,7 @@ export function useBrandStore() {
 export const inBS = (stores: Row[], brand: string, store: string, branchId?: string | null) =>
   !branchId ? true : (!store || inSel(store, branchId)) && (!brand || inSel(brand, stores.find(b => b.id === branchId)?.brandId));
 
+/** Brand + Store filter buttons (Tremor, several choices each), always shown on the page. Picking brands keeps only the stores of those brands. */
 export function BrandStoreFilters({ brands, stores, brand, setBrand, store, setStore, storeTitle = "Store" }: {
   brands: Row[]; stores: Row[]; brand: string; setBrand: (v: string) => void; store: string; setStore: (v: string) => void; storeTitle?: string;
 }) {
