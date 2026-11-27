@@ -85,7 +85,8 @@ export function Register() {
   const fields = () => { const f: any = orderFields(x, cart, t, { table, guests, customerName: cust.name, phone: cust.phone, disc, receiptNotes: notes.receipt, notes: notes.kitchen });
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
-  const askCust = async (tp: OType) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } };
+  // back: opened from Pickup & Delivery, its Back button returns there
+  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} />); if (r) { setCust(r.cust); switchType(r.type); } else back?.(); };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
@@ -218,7 +219,7 @@ export function Register() {
     say(r.n > 1 ? `Sent to ${r.n} printers` : "Printed");
   };
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
-  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
+  const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway", pdBoard); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => pdBoard()} />)} />);
   // Functions: a full page of big tiles in groups (Shift, Orders, Device)
   const fnPage = () => { const close = () => setDlg(null), go = (f: () => void) => () => f();

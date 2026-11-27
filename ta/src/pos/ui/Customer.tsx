@@ -35,7 +35,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </div>);
 }
 
-export function CustomerDialog({ type, types, init, onDone, area }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string } }) {
+export function CustomerDialog({ type, types, init, onDone, area, back }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
@@ -123,7 +123,7 @@ export function CustomerDialog({ type, types, init, onDone, area }: { type: OTyp
     </>);
   // on the register it opens in the menu's place like Discount (the cart stays on the left)
   return area
-    ? <Panel area={area} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
+    ? <Panel area={area} back={back} title="Customer Details" sub={t === "delivery" ? "Delivery" : t === "dinein" ? "In Store" : "Pickup"} onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
     : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
       <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;
