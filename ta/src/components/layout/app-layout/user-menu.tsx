@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { useTheme } from "@/contexts/theme-context";
 import { useAuth } from "@/lib/auth";
 
-export function UserMenu({ compact }: { compact?: boolean }) {
+export function UserMenu({ compact, top }: { compact?: boolean; top?: boolean }) {
   const { staff, signOut } = useAuth();
   const go = useNavigate();
   const { themeMode, setThemeMode } = useTheme();
@@ -14,13 +14,13 @@ export function UserMenu({ compact }: { compact?: boolean }) {
   const avatar = <span className={cx("flex shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300", compact ? "size-7" : "size-8")} aria-hidden="true">{ini}</span>;
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="User settings" className={cx("group flex items-center rounded-md text-sm font-medium text-gray-900 hover:bg-gray-100 data-[state=open]:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-400/10 data-[state=open]:dark:bg-gray-400/10", compact ? "p-1" : "w-full justify-between p-2", focusRing)}>
+      <DropdownMenuTrigger aria-label="User settings" className={cx("group flex items-center rounded-md text-sm font-medium text-gray-900 hover:bg-gray-100 data-[state=open]:bg-gray-100 dark:text-gray-50 hover:dark:bg-gray-400/10 data-[state=open]:dark:bg-gray-400/10", compact ? "p-1" : top ? "gap-3 p-1.5 pr-2" : "w-full justify-between p-2", focusRing)}>
         {compact ? avatar : <>
           <span className="flex min-w-0 items-center gap-3">{avatar}<span className="truncate">{name}</span></span>
           <RiMore2Fill className="size-4 shrink-0 text-gray-500 group-hover:text-gray-700 group-hover:dark:text-gray-400" aria-hidden="true" />
         </>}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={compact ? "end" : "start"} className="sm:!min-w-[calc(var(--radix-dropdown-menu-trigger-width))]">
+      <DropdownMenuContent align={compact || top ? "end" : "start"} className="sm:!min-w-[calc(var(--radix-dropdown-menu-trigger-width))]">
         <DropdownMenuLabel className="truncate">{staff?.email || staff?.phone || name}</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuSub>
