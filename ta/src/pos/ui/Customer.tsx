@@ -40,16 +40,16 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
-  const [newAddr, setNewAddr] = useState(false), [custId, setCustId] = useState(""), [raw, setRaw] = useState<any[]>([]), [editIdx, setEditIdx] = useState(-1), [sureDel, setSureDel] = useState(-1), [addrOpen, setAddrOpen] = useState(false), [ins, setIns] = useState<null | { n: number; spent: number; last: string; fav: string[]; voids: number }>(null);
+  const [newAddr, setNewAddr] = useState(false), [custId, setCustId] = useState(""), [raw, setRaw] = useState<any[]>([]), [editIdx, setEditIdx] = useState(-1), [sureDel, setSureDel] = useState(-1), [addrOpen, setAddrOpen] = useState(false), [ins, setIns] = useState<null | { n: number; spent: number; last: string; fav: string[]; voids: number }>(null), [prev, setPrev] = useState<any[]>([]);
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
   // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
   const filled = useRef("");   // the name a found phone number filled in: it goes when the number changes
   useEffect(() => { if (filled.current && c.name === filled.current) { filled.current = ""; setC(o => ({ ...o, name: "" })); } }, [c.phone]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setWho(null); setSaved([]); setIns(null); return; }
+  useEffect(() => { const ph = normPhone(c.phone); if (ph.length < 8 || !sb) { setWho(null); setSaved([]); setIns(null); setPrev([]); return; }
     let off = false; const tm = setTimeout(async () => {
       const { data } = await sb.from("customers").select("id,name,phone,addresses,blacklisted,notes,tags").in("phone", phoneVariants(ph)).limit(1); if (off) return;
-      setEditIdx(-1); setIns(null);
+      setEditIdx(-1); setIns(null); setPrev([]);
       const d = data?.[0]; if (!d) { setWho({ name: "", notes: "", black: false, isNew: true }); setSaved([]); setNewAddr(true); return; }
       const all = (d.addresses || []).filter((a: any) => a?.address); setCustId(d.id); setRaw(all);
       const sv = all.map((a: any) => a.address) as string[];
@@ -58,7 +58,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
       const { data: os } = await sb.from("orders").select("id,total,status,created_at,items,type").in("phone", phoneVariants(ph)).order("created_at", { ascending: false }).limit(200); if (off) return;
       const done = (os || []).filter((o: any) => o.status === "closed"), cnt: Record<string, number> = {};
       done.forEach((o: any) => (o.items || []).forEach((i: any) => { cnt[i.name] = (cnt[i.name] || 0) + (+i.qty || 1); }));
-      setIns({ n: done.length, spent: done.reduce((a: number, o: any) => a + (+o.total || 0), 0), last: (os || [])[0]?.created_at || "", fav: Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k), voids: (os || []).filter((o: any) => ["void", "declined"].includes(o.status)).length });
+      setIns({ n: done.length, spent: done.reduce((a: number, o: any) => a + (+o.total || 0), 0), last: (os || [])[0]?.created_at || "", fav: Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k), voids: (os || []).filter((o: any) => ["void", "declined"].includes(o.status)).length }); setPrev((os || []).slice(0, 10));
       filled.current = d.name || ""; setC(o => ({ ...o, name: d.name || o.name,   // a saved customer: their saved name replaces what was typed
         addr: addrJoin(o.addr) || !sv.length ? o.addr : addrParts(sv[0]) }));
     }, 400); return () => { off = true; clearTimeout(tm); }; }, [c.phone, sb]);
@@ -77,6 +77,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
       {err && area ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
       <div className={del || area ? "grid grid-cols-2 gap-6" : ""}>
         <div className="space-y-3">
+          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
           {src.length > 0 && t !== "dinein" && <div>
             <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger><SelectValue placeholder="Order source *" /></SelectTrigger>
               <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
@@ -117,7 +118,6 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
         </div>
         {/* the right side: what we know about the customer, then the delivery addresses under it */}
         <div className="space-y-5">
-          {t !== "dinein" && <Seg value={t} onChange={k => setT(k)} items={types.filter(k => k !== "dinein").map(k => [k, k === "delivery" ? "Delivery" : "Pickup"] as [OType, string])} />}
           {who ? <div className={cx("rounded-2xl p-4", who.black ? "bg-red-50 dark:bg-red-500/10" : who.isNew ? "bg-gray-50 dark:bg-gray-900" : "bg-blue-50 dark:bg-blue-500/10")}>
             <div className="flex items-center gap-3"><span className={cx("flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white", who.black ? "bg-red-600" : "bg-blue-600")}>{((c.name || who.name || "?").trim()[0] || "?").toUpperCase()}</span>
               <div className="min-w-0"><p className="truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{who.isNew ? "New customer" : c.name || who.name || "Customer"}</p>
@@ -130,6 +130,19 @@ export function CustomerDialog({ type, types, init, onDone, area, back }: { type
               {ins.fav.length ? <p>Usually orders: {ins.fav.join(", ")}</p> : null}
               {ins.voids ? <p className="text-red-700 dark:text-red-400">{ins.voids} void or declined {ins.voids === 1 ? "order" : "orders"}</p> : null}</div> : null}
           </div> : null}
+          {/* their previous orders, newest first */}
+          {prev.length && who && !who.isNew ? <div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">Previous orders</h3>
+            <div className="max-h-[300px] space-y-2 overflow-y-auto">
+              {prev.map(o => { const bad = ["void", "declined"].includes(o.status), its = (o.items || []).map((i: any) => (+i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ");
+                return <div key={o.id} className="rounded-xl border border-gray-200 px-4 py-2.5 dark:border-gray-800">
+                  <div className="flex items-center gap-2 text-[15px]"><span className="font-semibold text-gray-900 dark:text-gray-50">{fmtD(o.created_at)}</span>
+                    <span className="text-gray-500">{o.type === "delivery" ? "Delivery" : o.type === "pickup" ? "Pickup" : "In Store"}</span>
+                    {bad ? <span className="rounded-md bg-red-50 px-1.5 text-[13px] font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{o.status === "void" ? "Void" : "Declined"}</span> : null}
+                    <span className={cx("ms-auto font-semibold tabular-nums", bad ? "text-gray-400 line-through" : "text-gray-900 dark:text-gray-50")}>{money(S, +o.total || 0)}</span></div>
+                  {its ? <p className="truncate text-[14px] text-gray-600 dark:text-gray-400">{its}</p> : null}
+                </div>; })}
+            </div></div> : null}
         </div>
       </div>
     </>);
