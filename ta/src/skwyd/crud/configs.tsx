@@ -245,7 +245,7 @@ export const CRUD: Record<string, CrudCfg> = {
       { k: "barcode", l: "Barcode" }, { k: "cost", l: "Cost (Per Storage Unit)", t: "number", req: true, when: { k: "costingMethod", is: "fixed" } }],
   },
   charges: {
-    col: "charges", title: "Charges", one: "Charge", scope: { brand: r => r.brandIds || [], store: r => r.branchIds || [] }, needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort,
+    col: "charges", title: "Charges", one: "Charge", needs: ["tax_groups", "brands", "branches"], tabs: allDel, sort: bySort, sortable: true, noSearch: true,
     search: r => r.name + " " + (r.nameAr || ""),
     cols: [{ h: "Name", cell: nameCell }, { h: "Type", cell: r => r.type === "percent" ? "Percentage" : r.type === "open" ? "Open amount" : "Amount" },
       { h: "Value", cell: r => r.type === "percent" ? (+r.value || 0) + " %" : r.type === "open" ? "Open" : money(r.value), num: true },

@@ -39,7 +39,7 @@ export type CrudCfg = {
   col: string; title: string; one: string; needs?: string[]; addLbl?: string;
   tabs: [string, string, (r: Row) => boolean][];
   sort?: (a: Row, b: Row) => number; search?: (r: Row, s: S) => string;
-  cols: CCol[]; fields: CField[]; unique?: string; note?: string; sortable?: boolean;
+  cols: CCol[]; fields: CField[]; unique?: string; note?: string; sortable?: boolean; noSearch?: boolean;
   prep?: (data: Record<string, any>, id: string | null, s: S) => Promise<string | void> | string | void;
   canDelete?: (r: Row, s: S) => string;
   detail?: string;   // open rows on their own page (path?id=)
@@ -100,6 +100,7 @@ export default function CrudPage({ cfg }: { cfg: CrudCfg }) {
           columns={columns}
           getRowId={r => r.id}
           searchText={r => cfg.search ? cfg.search(r, s) : String(r.name || "")}
+          searchPlaceholder={cfg.noSearch ? false : undefined}
           toolbar={cfg.tabs.length > 1 || cfg.scope ? <>{cfg.tabs.length > 1 && <SegTabs value={tab} onChange={v => setTab(v)} items={cfg.tabs.map(t => [t[0], t[1]])} />}
             {cfg.scope && <FilterSelect multiple title="Brand" value={fb} onChange={v => { setFb(v); setFs(x => selList(x).filter(id => inSel(v, s.branches.find(b => b.id === id)?.brandId)).join(",")); }} options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />}
             {cfg.scope?.store && <FilterSelect multiple title="Store" value={fs} onChange={setFs} options={s.branches.filter(b => live(b) && b.active !== false && inSel(fb, b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />}</> : undefined}
