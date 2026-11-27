@@ -144,7 +144,7 @@ export function totals(x: Ctx, cart: Line[], d: Disc = null, picked: string[] = 
 }
 
 /* ---------- cashiers ---------- */
-export const usePins = (S: Data) => S.users.some(u => live(u) && u.pinHash);
+export const pinsOn = (S: Data) => S.users.some(u => live(u) && u.pinHash);
 export const isAdminUser = (u?: Row | null) => !!u && (u.role === "owner" || u.role === "admin");
 export const posUsers = (S: Data, branchId: string) => S.users.filter(u => live(u) && u.pinHash && (isAdminUser(u) || !(u.branchIds || []).length || u.branchIds.includes(branchId)));
 export const pinHash = async (id: string, pin: string) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("slick:" + id + ":" + pin)))].map(b => b.toString(16).padStart(2, "0")).join("");
@@ -239,7 +239,7 @@ export function custMissing(t: OType, c: Cust, needSource = true) {
 }
 
 /* ---------- what the signed-in cashier may do (roles; owners and admins everything; no PIN users = open register) ---------- */
-export const can = (S: Data, cashier: Row | null, perm: string) => !usePins(S) || (!!cashier && (isAdminUser(cashier) || userPerms(S, cashier).includes(perm)));
+export const can = (S: Data, cashier: Row | null, perm: string) => !pinsOn(S) || (!!cashier && (isAdminUser(cashier) || userPerms(S, cashier).includes(perm)));
 
 /* ---------- void (open order) and return (done order), pos.html openVR / doVR ---------- */
 export const retLeft = (o: Row, ix: number) => Math.max(0, +((o.items || [])[ix]?.qty || 0) - (o.returnedItems || []).filter((r: any) => r.ix === ix).reduce((s: number, r: any) => s + (+r.qty || 0), 0));

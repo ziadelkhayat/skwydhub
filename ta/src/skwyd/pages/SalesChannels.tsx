@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown";
 import { Input } from "@/components/ui/input";
 import { Input as TInput } from "@/components/tremor/Input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeftIcon, ChevronDownIcon, PlusIcon } from "@/icons";
 import { put, remove, type Row } from "@/lib/db";
@@ -178,6 +178,9 @@ function ScDialog({ s, M, b, code, onClose, onSaved, onDeleted }: { s: S; M: M; 
 }
 
 /* ---------- one channel's menu ---------- */
+const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <Checkbox aria-label={label} className="shrink-0" checked={on} onCheckedChange={(chk: boolean) => set(chk)} onClick={e => e.stopPropagation()} />;
+const Acts = ({ items }: { items: [string, () => void, boolean?][] }) => <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>Actions<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
+  <DropdownMenuContent align="start" className="w-44 p-2">{items.map(([t, f, d]) => <DropdownMenuItem key={t} className={d ? "text-error-500" : ""} onClick={f}>{t}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
 function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch; back: () => void; go: (b: string, c: string) => void }) {
   const code = scCode(ch), br = s.branches.find(x => x.id === b), types = OTYPES.filter(([t]) => M.chTypes(b, code).includes(t));
   const [cat0, setCat] = useState(""), [cq, setCq] = useState(""), [q, setQ] = useState(""), [cex, setCex] = useState<Set<string>>(new Set()), [csel, setCsel] = useState<Set<string>>(new Set()), [isel, setIsel] = useState<Set<string>>(new Set());
@@ -259,9 +262,6 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
   const others = M.scFor(b).filter(c => scCode(c) !== code);
   const nCatTop = rowsOf("").filter(x => !x.sub).map(x => x.c), nCatOn = nCatTop.filter(catOn).length;
   const vis = rowsOf(cq.trim().toLowerCase()).filter(({ c, sub }) => !sub || cq || cex.has(catPar(c)));
-  const CB = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => <Checkbox aria-label={label} className="shrink-0" checked={on} onCheckedChange={(chk: boolean) => set(chk)} onClick={e => e.stopPropagation()} />;
-  const Acts = ({ items }: { items: [string, () => void, boolean?][] }) => <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>Actions<ChevronDownIcon className="size-4" /></DropdownMenuTrigger>
-    <DropdownMenuContent align="start" className="w-44 p-2">{items.map(([t, f, d]) => <DropdownMenuItem key={t} className={d ? "text-error-500" : ""} onClick={f}>{t}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
   const PriceIn = ({ v, ph, dis, onSet, label }: { v: string; ph: number; dis?: boolean; onSet: (v: string) => void; label: string }) =>
     <Input key={v} aria-label={label} inputMode="decimal" defaultValue={v} placeholder={String(ph)} disabled={dis} className={cn("h-9 w-24 text-end", v !== "" && "border-blue-300 bg-blue-25 dark:bg-blue-500/10")} onBlur={e => { const x = e.target.value.trim(); if (x !== v) onSet(x); }} onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />;
 
@@ -333,8 +333,8 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
 
     {item && (() => { const r = s.products.find(x => x.id === item && live(x)); if (!r) return null; const ls = M.links(r);
       const rule = (l: any) => { const mn = +l.min || 0, mx = +l.max || 0; return mn && mx && mn === mx ? `Choose ${mn}` : mn && mx ? `Choose ${mn} to ${mx}` : mn ? `At least ${mn}` : mx ? `Up to ${mx}` : "Optional"; };
-      return <Sheet open onOpenChange={v => !v && setItem("")}><SheetContent side="right" className="w-full overflow-y-auto sm:max-w-3xl">
-        <SheetHeader className="p-0"><SheetTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{r.name}</SheetTitle><span className="text-sm text-gray-500">{[s.brands.find(x => x.id === br?.brandId)?.name, br?.name, ch.name].filter(Boolean).join(" / ")}</span></SheetHeader>
+      return <Drawer open onOpenChange={v => !v && setItem("")}><DrawerContent className="w-full overflow-y-auto sm:max-w-3xl">
+        <DrawerHeader className="p-0"><DrawerTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{r.name}</DrawerTitle><span className="text-sm text-gray-500">{[s.brands.find(x => x.id === br?.brandId)?.name, br?.name, ch.name].filter(Boolean).join(" / ")}</span></DrawerHeader>
         {!ls.length ? <p className="text-sm text-gray-500">This item has no modifiers.</p> : <div className="overflow-x-auto"><Table className="w-full min-w-[560px] text-sm"><TableBody>{ls.map((l: any) => { const os = M.modOptions(l.modifierId), gt = grpTypes(l), gOn = types.some(([t]) => gt[t]);
           return [<TableRow key={l.modifierId} className={cn("border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-[#090E1A]", !gOn && "opacity-60")}><TableCell className="px-3 py-2.5"><div className="flex flex-wrap items-center gap-2">
             <Switch size="sm" checked={gOn} aria-label={M.modName(l.modifierId) + " on this menu"} onCheckedChange={v => change({ ["mg:" + r.id + "|" + l.modifierId]: Object.fromEntries(types.map(([t]) => ["to_" + t, v])) })} />
@@ -346,7 +346,7 @@ function ChannelPage({ s, M, b, ch, back, go }: { s: S; M: M; b: string; ch: Ch;
                 <Label className="ms-auto flex items-center gap-2 text-xs text-gray-500"><Switch size="sm" checked={x.stock} aria-label={o.name + " in stock"} onCheckedChange={v => change({ ["mo:" + r.id + "|" + o.id]: { stock: v } })} />{x.stock ? "In stock" : "Sold out"}</Label></div></TableCell>
               {types.map(([t, tl]) => <TableCell key={t} className="px-3 py-2"><div className="flex items-center gap-2"><Switch size="sm" checked={x.types[t]} aria-label={`${o.name} for ${tl}`} onCheckedChange={v => { const on2 = types.some(([y]) => y === t ? v : x.types[y]); change({ ["mo:" + r.id + "|" + o.id]: { ["to_" + t]: v, on: on2 } }); }} />
                 <PriceIn v={x.tprices[t]} ph={ob} dis={!x.types[t]} label={`${o.name} ${tl} price`} onSet={v => change({ ["mo:" + r.id + "|" + o.id]: { ["tp_" + t]: v } })} /></div></TableCell>)}</TableRow>; })]; })}</TableBody></Table></div>}
-      </SheetContent></Sheet>; })()}
+      </DrawerContent></Drawer>; })()}
 
     {edit !== false && <CatDialog s={s} M={M} b={b} code={code} c={edit} cats={cats} onClose={() => setEdit(false)} onNew={id => setCat(id)} />}
     {adding && cur && <AddItems s={s} M={M} c={cur} onClose={() => setAdding(false)} />}

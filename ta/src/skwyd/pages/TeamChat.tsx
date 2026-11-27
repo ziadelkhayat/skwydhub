@@ -86,20 +86,20 @@ export function TeamChatPage() {
   </>;
 }
 
+const tog = (l: string[], set: (x: string[]) => void, id: string, v: boolean) => set(v ? [...l, id] : l.filter(x => x !== id));
+const Pick = ({ items, on, set }: { items: [string, string, string?][]; on: string[]; set: (x: string[]) => void }) => <div className="custom-scrollbar max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-800">{!items.length ? <p className="text-sm text-gray-500">None yet</p> : items.map(([id, t, n]) =>
+  <Label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={on.includes(id)} onCheckedChange={(chk: boolean) => tog(on, set, id, chk)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</Label>)}</div>;
 function GroupDialog({ s, g, kind, by, onClose, onSaved, onDeleted }: { s: S; g?: Row; kind: string; by: string; onClose: () => void; onSaved: (id: string) => void; onDeleted: () => void }) {
   const chan = g ? g.kind === "channel" : kind === "channel", T = chan ? "Channel" : "Group";
   const emps = s.users.filter(u => live(u) && u.active !== false && !isAdminRow(u)).sort((a, b) => String(a.name).localeCompare(String(b.name))), roles = s.roles.filter(live).sort((a, b) => String(a.name).localeCompare(String(b.name)));
   const stores = s.branches.filter(b => live(b) && b.active !== false);
   const [nm, setNm] = useState(g?.name || ""), [mem, setMem] = useState<string[]>(g?.memberIds || []), [rs, setRs] = useState<string[]>(g?.roleIds || []), [bs, setBs] = useState<string[]>(g?.branchIds || []), [q, setQ] = useState(""), [err, setErr] = useState("");
-  const tog = (l: string[], set: (x: string[]) => void, id: string, v: boolean) => set(v ? [...l, id] : l.filter(x => x !== id));
   const vis = emps.filter(u => !q.trim() || String(u.name).toLowerCase().includes(q.trim().toLowerCase()));
   async function save() { if (!nm.trim()) return setErr(`Enter a ${T.toLowerCase()} name.`); if (!mem.length && !rs.length && !bs.length) return setErr("Choose at least one store, role or employee.");
     try { const id = g?.id || nid("cg"); await put("chat_groups", id, g ? { name: nm.trim(), memberIds: mem, roleIds: rs, branchIds: bs } : { name: nm.trim(), kind: chan ? "channel" : "group", memberIds: mem, roleIds: rs, branchIds: bs, createdBy: by, deleted: false });
       toast(g ? T + " saved" : T + " created"); onSaved(id); onClose(); } catch { setErr(`Couldn't save the ${T.toLowerCase()}.`); } }
   async function del() { if (!(await askYes(`Delete the ${T.toLowerCase()} ${g!.name}? Its messages are removed for everyone.`, "Delete", true))) return;
     try { await put("chat_groups", g!.id, { deleted: true }); toast(T + " deleted"); onDeleted(); onClose(); } catch { setErr(`Couldn't delete the ${T.toLowerCase()}.`); } }
-  const Pick = ({ items, on, set }: { items: [string, string, string?][]; on: string[]; set: (x: string[]) => void }) => <div className="custom-scrollbar max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-800">{!items.length ? <p className="text-sm text-gray-500">None yet</p> : items.map(([id, t, n]) =>
-    <Label key={id} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Checkbox checked={on.includes(id)} onCheckedChange={(chk: boolean) => tog(on, set, id, chk)} />{t}{n && <span className="text-xs text-gray-500">{n}</span>}</Label>)}</div>;
   return <Dialog open onOpenChange={v => !v && onClose()}><DialogContent className="w-full p-6 sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{g ? "Edit " + T : "New " + T}</DialogTitle></DialogHeader>
     <div className="mt-4 space-y-4">
       {chan && <p className="text-sm text-gray-500">Only the back office and the channel's creator can post. Members read the announcements in the app.</p>}

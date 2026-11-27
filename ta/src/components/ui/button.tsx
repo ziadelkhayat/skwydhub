@@ -1,6 +1,6 @@
 // Tremor Raw Button, with the size and variant names our pages already use.
 import * as React from "react";
-import { buttonVariants as tremorButton } from "@/components/tremor/Button";
+import { Button as TremorButton, buttonVariants as tremorButton } from "@/components/tremor/Button";
 import { cx } from "@/components/tremor/utils";
 import { withRender } from "./render";
 
@@ -28,10 +28,13 @@ function buttonVariants({ variant = "default", size = "default", className }: { 
   );
 }
 
-type ButtonProps = React.ComponentProps<"button"> & { variant?: Variant; size?: Size; render?: React.ReactElement };
+type ButtonProps = React.ComponentProps<"button"> & { variant?: Variant; size?: Size; render?: React.ReactElement; isLoading?: boolean; loadingText?: string };
 
+// the Tremor Button itself; render={<Link … />} makes the link look like the button
 function Button({ className, variant = "default", size = "default", type, render, ...props }: ButtonProps) {
-  return withRender("button", { "data-slot": "button", type: render ? undefined : (type ?? "button"), className: buttonVariants({ variant, size, className }), render, ...props });
+  if (render) return withRender("button", { "data-slot": "button", className: buttonVariants({ variant, size, className }), render, ...props });
+  return <TremorButton data-slot="button" type={type ?? "button"} variant={VARIANT[variant]} className={cx("[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", SIZE[size],
+    variant === "link" && "h-auto! border-0! p-0! font-normal text-blue-600 shadow-none hover:bg-transparent hover:underline dark:text-blue-500", className)} {...props} />;
 }
 
 export { Button, buttonVariants };

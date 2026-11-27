@@ -15,6 +15,10 @@ export const selList = (sel: string) => (sel ? sel.split(",") : []);
 
 export function FilterSelect({ title, options, value, onChange, all, required, multiple }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean; multiple?: boolean }) {
   if (multiple) return <FilterMulti title={title} options={options} value={selList(value)} onChange={l => onChange(l.join(","))} />;
+  return <FilterOne title={title} options={options} value={value} onChange={onChange} all={all} required={required} />;
+}
+// one choice (its own component, so the hooks below always run in the same order)
+function FilterOne({ title, options, value, onChange, all, required }: { title: string; options: Opt[]; value: string; onChange: (v: string) => void; all?: string; required?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const cur = options.find(o => o.value === value);
   return (

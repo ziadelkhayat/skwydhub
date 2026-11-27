@@ -87,7 +87,7 @@ export function NotesPop({ init, onDone }: { init: { receipt: string; kitchen: s
   const R2 = ({ k, ic, l, help }: { k: "kitchen" | "receipt"; ic: string; l: string; help: string }) => (
     <Rowb onClick={() => { setWhich(k); setT(init[k] || ""); }}><span className="flex size-9 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-500"><Icon name={ic} className="size-5" /></span>
       <span className="min-w-0 flex-1"><span className="block text-sm font-medium text-gray-900 dark:text-gray-50">{l}</span><span className="block truncate text-xs text-gray-500">{init[k] || help}</span></span></Rowb>);
-  return <div><R2 k="kitchen" ic="chef" l="Kitchen Note" help="Printed on the kitchen ticket" /><R2 k="receipt" ic="note" l="Receipt Note" help="Printed for the customer" /></div>;
+  return <div>{R2({ k: "kitchen", ic: "chef", l: "Kitchen Note", help: "Printed on the kitchen ticket" })}{R2({ k: "receipt", ic: "note", l: "Receipt Note", help: "Printed for the customer" })}</div>;
 }
 
 // Held orders (Retrieve)

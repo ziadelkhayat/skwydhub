@@ -96,6 +96,7 @@ const Chips = ({ opts, value, onChange }: { opts: [string, string][]; value: str
     <ChoiceButton on={on} key={k} aria-pressed={on} onClick={() => onChange(on ? value.filter(x => x !== k) : [...value, k])}
       className="h-9">{t}</ChoiceButton>); })}</div>);
 
+const KV = ({ k, children }: { k: string; children: React.ReactNode }) => <div className="flex justify-between gap-3 py-2 text-sm"><span className="text-gray-500 dark:text-gray-400">{k}</span><b className="text-end font-medium text-gray-900 dark:text-gray-50">{children}</b></div>;
 function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[]; save: (l: any[]) => Promise<boolean>; onClose: () => void }) {
   const ed = !!p0;
   const [P, setP] = useState<any>(() => JSON.parse(JSON.stringify(p0 || { type: "disc", valueType: "pct", orderTypes: OT.map(x => x[0]), days: [], branchIds: [], active: true, buyQty: 1, getQty: 1, getPct: 100, freeQty: 1 })));
@@ -134,7 +135,6 @@ function PromoForm({ p0, s, list, save, onClose }: { p0: any; s: S; list: any[];
     if (ok) { toast(ed ? "Promotion saved" : "Promotion created"); onClose(); }
   }
   const st = status({ ...P, deleted: false }), dy = (P.days || []).map((k: string) => DAYS.find(x => x[0] === k)?.[1]).filter(Boolean), br = (P.branchIds || []).map((id: string) => s.branches.find(b => b.id === id)?.name).filter(Boolean);
-  const KV = ({ k, children }: { k: string; children: React.ReactNode }) => <div className="flex justify-between gap-3 py-2 text-sm"><span className="text-gray-500 dark:text-gray-400">{k}</span><b className="text-end font-medium text-gray-900 dark:text-gray-50">{children}</b></div>;
   const stepBtn = (n: number, t: string) => <button type="button" onClick={() => n === 1 ? setStep(1) : next()} className={"flex items-center gap-2 text-sm font-medium " + (step === n ? "text-blue-500" : "text-gray-500 dark:text-gray-400")}>
     <i className={"flex size-6 items-center justify-center rounded-full text-xs not-italic " + (step === n ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-white/5")}>{n}</i>{t}</button>;
   return (

@@ -36,11 +36,11 @@ export function Head({ title, onClose, children, back = "Register" }: { title: s
 export const Full = ({ children }: { children: ReactNode }) => <div className="fixed inset-0 z-20 flex flex-col bg-gray-50 dark:bg-gray-950">{children}</div>;
 
 const TYPE_IC: Record<string, string> = { dinein: "table", pickup: "bag", takeaway: "bag", delivery: "scooter" };
+const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <div className="flex gap-2.5" aria-label={l}>
+  <Icon name={ic} className="mt-0.5 size-4 shrink-0 text-gray-400" /><div className="min-w-0"><p className="truncate text-sm text-gray-900 dark:text-gray-50">{v}</p>{sub ? <p className="truncate text-xs text-gray-500">{sub}</p> : null}</div></div>;
 function Tile({ o, onOpen, onDriver, onDispatch }: { o: Row; onOpen: () => void; onDriver?: () => void; onDispatch?: () => void }) {
   const st = stOf(o), src = String(o.source || "").trim(), ch = CH[o.channel] || "POS", mod = o.updatedAt && o.updatedAt !== o.createdAt && tm(o.updatedAt) !== tm(o.createdAt) ? "Modified " + tm(o.updatedAt) : undefined;
   const who = ["pos", "callcenter"].includes(o.channel || "pos") && o.agent ? String(o.agent).replace(/\s*\(auto\)\s*$/i, "") : "";
-  const Ln = ({ ic, l, v, sub }: { ic: string; l: string; v: string; sub?: string }) => <div className="flex gap-2.5" aria-label={l}>
-    <Icon name={ic} className="mt-0.5 size-4 shrink-0 text-gray-400" /><div className="min-w-0"><p className="truncate text-sm text-gray-900 dark:text-gray-50">{v}</p>{sub ? <p className="truncate text-xs text-gray-500">{sub}</p> : null}</div></div>;
   return <Card className="space-y-2 p-3">
     <button type="button" onClick={onOpen} className="block w-full space-y-2 text-left" aria-label={"Order " + (o.ref || ordRef(o))}>
       <div className="flex items-center gap-2"><span className="font-semibold text-gray-900 dark:text-gray-50">{o.ref || ordRef(o)}</span><Badge variant={st.tone}>{st.label}</Badge></div>

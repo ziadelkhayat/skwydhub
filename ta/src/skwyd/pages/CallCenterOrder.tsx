@@ -1,3 +1,4 @@
+import { askYes } from "../ui/confirm";
 import { Label } from "@/components/tremor/Label";
 import { Card } from "@/components/tremor/Card";
 import { SegTabs } from "../ui/SegTabs";
@@ -210,9 +211,9 @@ export default function CallCenterOrder({ order, onClose, init, onNav }: { order
     try { sessionStorage.setItem("skwydCcInit", JSON.stringify(x)); } catch { /* */ } onNav("/call-center-order?held=re&t=" + Date.now()); };
   const reorder = () => reorderOf(o);
   // a past order of this customer, put into a new order (the current cart is replaced, so ask first when it has items)
-  const reorderPast = (r: any) => { if (cart.length && !window.confirm("Replace the items in this order with order " + (r.ref || r.no || "") + "?")) return; reorderOf({ ...r, phone, customerName: name.trim() || cust?.name }); };
+  const reorderPast = async (r: any) => { if (cart.length && !await askYes("Replace the items in this order with order " + (r.ref || r.no || "") + "?")) return; reorderOf({ ...r, phone, customerName: name.trim() || cust?.name }); };
   // a saved address taken off the customer
-  const delAddr = async (i: number) => { const a = cust.addresses[i], x = addrSplit(a.address); if (!window.confirm("Delete the saved address " + (x.label || x.street || "Address " + (i + 1)) + "?")) return;
+  const delAddr = async (i: number) => { const a = cust.addresses[i], x = addrSplit(a.address); if (!await askYes("Delete the saved address " + (x.label || x.street || "Address " + (i + 1)) + "?", "Delete", true)) return;
     const list = cust.addresses.filter((_: any, k: number) => k !== i), { error } = await sb.from("customers").update({ addresses: list }).eq("id", cust.id);
     if (error) return setErr("Couldn't delete the address."); setCust({ ...cust, addresses: list }); setAddrIx(null); setAddr(addrSplit("")); toast("Address deleted"); };
   async function setStatus(st: string, why?: string) {

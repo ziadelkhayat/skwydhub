@@ -58,12 +58,12 @@ export default function CallCenterPage() {
   const [seen, setSeen] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("skwyd_er_seen") || "[]"); } catch { return []; } });
   const answers = rows.filter(o => { const er = o.editRequest; return er && ["approved", "rejected"].includes(er.status) && !seen.includes(er.id) && (!er.decidedAt || Date.now() - +new Date(er.decidedAt) < 12 * 3600000); });
   const dismiss = (id: string) => { const v = [...seen, id].slice(-300); setSeen(v); try { localStorage.setItem("skwyd_er_seen", JSON.stringify(v)); } catch { /* */ } };
+  const bName = (id: string) => branches.find(b => b.id === id)?.name, brName = (id: string) => brands.find(b => b.id === id)?.name;
   const toasted = useRef<Set<string>>(new Set());
   useEffect(() => { answers.forEach(o => { const er = o.editRequest; if (toasted.current.has(er.id)) return; toasted.current.add(er.id);
     toast(er.status === "approved" ? `${bName(o.branchId) || "The store"} approved the change to order ${o.ref || o.no}` : `${bName(o.branchId) || "The store"} rejected the change to order ${o.ref || o.no}${er.reason ? ": " + er.reason : ""}`, er.status === "approved" ? "success" : "error"); }); }, [answers.map(o => o.editRequest.id).join()]); // eslint-disable-line react-hooks/exhaustive-deps
   // users who can use the call center (their role allows it, or they manage everything); the person signed in too
   const agents = [...new Set([...users.filter(u => live(u) && u.active !== false && u.role !== "owner" && u.role !== "admin" && roles.filter(r => ((u.roleIds || []).length ? u.roleIds : u.roleId ? [u.roleId] : []).includes(r.id) && live(r)).flatMap(r => r.permissions || []).some((p: string) => p === "bo_callcenter" || p === "bo_manage")).map(u => u.name), ...(staff?.name ? [staff.name] : [])])].sort((a, b) => a.localeCompare(b));
-  const bName = (id: string) => branches.find(b => b.id === id)?.name, brName = (id: string) => brands.find(b => b.id === id)?.name;
   const tm = (t: string) => { if (!t) return "—"; const d = new Date(t); const h = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); return bizDate(d) === bizDate(new Date()) ? h : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", " + h; };
   return (
     <>
@@ -104,10 +104,10 @@ const CARD_ICON: Record<string, React.ReactNode> = {
   "In Store": <><rect x="3" y="7" width="18" height="5" rx="1" /><path d="M6 12v8M18 12v8" /></>,
   "Created by": <><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /><path d="M19 20a3 3 0 0 1-3 2h-3" /></>,
 };
+const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
 function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => string; bName: (id: string) => string | undefined; brName: (id: string) => string | undefined; onOpen: () => void }) {
   const disp = o.status === "active" && o.dispatchedAt, src = o.channel && !["pos", "callcenter"].includes(o.channel) && (!o.source || o.source === "Website") ? "Web" : String(o.source || "").trim(), chl = CHL[o.channel] || o.channel || "";
   const color = disp ? "info" : o.status === "closed" ? "success" : o.status === "active" ? "primary" : ["pending", "review"].includes(o.status) ? "warning" : "error";
-  const R = ({ k, children, sub }: { k: string; children: React.ReactNode; sub?: React.ReactNode }) => { const d = CARD_ICON[k]; return <div className="flex gap-2.5 text-sm"><span title={k} aria-label={k} className="flex w-4 shrink-0 justify-center pt-px text-gray-400">{d ? <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg> : k}</span><span className="min-w-0 text-gray-700 dark:text-gray-300">{children}{sub && <span className="block text-xs text-gray-400">{sub}</span>}</span></div>; };
   return (
     <Card asChild className="block w-full p-3 text-start transition hover:border-blue-500"><button type="button" onClick={onOpen} >
       <div className="mb-2.5 flex flex-wrap items-center gap-2"><b className="text-base font-semibold text-gray-900 dark:text-gray-50">{o.ref || o.no || "—"}</b><Badge variant="light" color={color as any}>{disp ? "Dispatched" + (o.driverName ? " · " + o.driverName : "") : SUB[o.status] || o.status}</Badge></div>

@@ -10,7 +10,7 @@ import { cx } from "@/components/tremor/utils";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Row } from "../lib/db";
 import kv from "../lib/kv";
-import { addrJoin, allowedTypes, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, usePins, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
+import { addrJoin, allowedTypes, can, chg2, CUR2, custMissing, fullyBack, kidsOf, lineKey, lineNet, menu, modData, modLabel, money, money2, newId, nextOrderNo, num2, openShift, orderFields, posSources, prodOos, prodPrice, saleBlock, tilePrice, totals, pinsOn, type Ctx, type Cust, type Disc, type Line, type OType } from "../lib/pos";
 import { appSet, kitchenText, printerHas, printJob, receiptText } from "../lib/print";
 import { useStore } from "../lib/store";
 import { onAlertOpen, pendingCount } from "./Alert";
@@ -155,7 +155,7 @@ export function Register() {
       reset();
       const last = paid[paid.length - 1];
       if (last.type === "cash") await ask<void>(done => <ChangeShown amount={last.change} title={`Sale complete · ${parts.length} checks`} money={cur} onClose={() => done()} />); else say(`Sale complete · ${money(S, total)} · ${parts.length} checks`);
-      if (device!.settings?.lockAfterSale && usePins(S)) setCashier(null);
+      if (device!.settings?.lockAfterSale && pinsOn(S)) setCashier(null);
       return;
     }
     const { haId, ...pp } = p, payment = { ...pp, ...(t.rnd ? { rounding: t.rnd } : {}) }, oid = live_eo ? live_eo.id : newId("pos"), no = live_eo?.no || await takeNo();
@@ -167,7 +167,7 @@ export function Register() {
     reset();
     if (p.type === "cash") await ask<void>(done => <ChangeShown amount={p.change} title={"Sale complete · " + money(S, total)} money={cur} second={CUR2(S) ? CUR2(S)!.code + " " + num2(chg2(S, p.change), CUR2(S)!.dec) : ""} onClose={() => done()} />);
     else say("Sale complete · " + money(S, total));
-    if (device!.settings?.lockAfterSale && usePins(S)) setTimeout(() => setCashier(null), p.type === "cash" ? 0 : 1500);   // Device settings: log out after each sale
+    if (device!.settings?.lockAfterSale && pinsOn(S)) setTimeout(() => setCashier(null), p.type === "cash" ? 0 : 1500);   // Device settings: log out after each sale
   };
   const askTable = async () => { const v = await ask<number | null>(done => <NumberAsk title="Table number" initial={table} onDone={done} />); if (v != null) { setTable(v ? String(v) : ""); if (v && otype !== "dinein") switchType("dinein"); } };
 
@@ -240,7 +240,7 @@ export function Register() {
   }, [S.orders]); // eslint-disable-line react-hooks/exhaustive-deps
   // signed out after a few idle minutes (Device settings: lock minutes, else the brand's logout minutes)
   const lastTouch = useRef(Date.now());
-  useEffect(() => { const mins = +(device!.settings?.lockMinutes ?? appSetOf().logoutMinutes ?? 10); if (!(mins > 0) || !usePins(S)) return;
+  useEffect(() => { const mins = +(device!.settings?.lockMinutes ?? appSetOf().logoutMinutes ?? 10); if (!(mins > 0) || !pinsOn(S)) return;
     const h = setInterval(() => { if (Date.now() - lastTouch.current > mins * 60000 && !cart.length) setCashier(null); }, 15000); return () => clearInterval(h); }, [cart.length, S.users]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const qty = (i: number, d: number) => { const l = cart[i];

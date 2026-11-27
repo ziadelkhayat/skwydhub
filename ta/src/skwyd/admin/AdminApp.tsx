@@ -8,7 +8,7 @@ import { sb } from "@/lib/supabase";
 import { cx, focusRing } from "@/components/tremor/utils";
 import { RiBillLine, RiBuilding2Line, RiHome2Line, RiMenuLine, RiMore2Fill, RiPriceTag3Line, RiSettings5Line } from "@remixicon/react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/tremor/Drawer";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router";
 import { Toaster } from "../ui/toast";
@@ -64,8 +64,8 @@ function Shell() {
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"><aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">{brand}{nav}<div className="mt-auto">{user}</div></aside></div>
     <div className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-2 shadow-sm sm:px-4 lg:hidden dark:border-gray-800 dark:bg-gray-950">
       <span className="font-semibold text-gray-900 dark:text-gray-50">Skwyd Hub Admin</span>
-      <Sheet open={open} onOpenChange={setOpen}><SheetTrigger aria-label="Open menu" className={cx("rounded-md p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300", focusRing)}><RiMenuLine className="size-6" /></SheetTrigger>
-        <SheetContent side="right" className="sm:max-w-xs"><SheetHeader><SheetTitle>Skwyd Hub Admin</SheetTitle></SheetHeader>{nav}<div className="mt-auto">{user}</div></SheetContent></Sheet>
+      <Drawer open={open} onOpenChange={setOpen}><DrawerTrigger aria-label="Open menu" className={cx("rounded-md p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300", focusRing)}><RiMenuLine className="size-6" /></DrawerTrigger>
+        <DrawerContent className="sm:max-w-xs"><DrawerHeader><DrawerTitle>Skwyd Hub Admin</DrawerTitle></DrawerHeader>{nav}<div className="mt-auto">{user}</div></DrawerContent></Drawer>
     </div>
     <main className="lg:pl-72"><div className="mx-auto w-full max-w-(--breakpoint-2xl) p-4 sm:px-6 sm:pt-8 sm:pb-10 lg:px-10 lg:pt-7">
       {view && <div className="mb-6 flex flex-wrap items-center gap-2 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 ring-1 ring-inset ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400">Viewing <b>{view.name}</b> in the portal

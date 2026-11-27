@@ -28,7 +28,7 @@ import { toast } from "../ui/toast";
 
 const DEV_TYPES: [string, string][] = [["cashier", "POS"], ["kds", "KDS"], ["notifier", "Notifier"], ["display", "Display"], ["sub_cashier", "Sub POS"]];
 const TYPE_NOTE: Record<string, string> = { cashier: "Cashier register", sub_cashier: "Second register", kds: "Kitchen screen", notifier: "Order alerts", display: "Customer screen" };
-const devType = (t?: string) => (DEV_TYPES.find(x => x[0] === t) || [, t === "waiter" ? "Waiter" : (t || "—")])[1];
+const devType = (t?: string) => (DEV_TYPES.find(x => x[0] === t) || [undefined, t === "waiter" ? "Waiter" : (t || "—")])[1];
 const devRef = (devs: Row[]) => { const used = new Set(devs.filter(d => !d.deleted).map(d => String(d.reference || "").toUpperCase())); for (let n = 1; ; n++) { const r = "POS" + String(n).padStart(2, "0"); if (!used.has(r)) return r; } };
 const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
 const online = (d: Row) => !!d.lastSeen && Date.now() - +new Date(d.lastSeen) < 6 * 60000;

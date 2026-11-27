@@ -99,7 +99,7 @@ function VarWin<V extends { name: string; price: number }>({ o, list, done }: { 
   return <Dialog open={open} onOpenChange={v => !v && close(null)}><DialogContent className="w-full p-0 sm:max-w-xl">
     <DialogHeader className="border-b border-gray-200 px-6 py-4 dark:border-gray-800"><DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">{o.name}</DialogTitle></DialogHeader>
     <div className="px-6 py-5"><h4 className="mb-3 text-base font-semibold text-gray-900 dark:text-gray-50">{o.setName}</h4>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{list.map((v, i) => <Card asChild className="flex min-h-24 flex-col items-center justify-center p-3 text-center transition hover:border-blue-500"><button key={i} type="button" onClick={() => close(v)} >
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{list.map((v, i) => <Card key={i} asChild className="flex min-h-24 flex-col items-center justify-center p-3 text-center transition hover:border-blue-500"><button type="button" onClick={() => close(v)} >
         <b className="text-sm font-medium text-gray-900 dark:text-gray-50">{v.name}</b><span className="mt-0.5 text-xs text-gray-500">{o.money(+v.price || 0)}</span></button></Card>)}</div></div>
     <div className="flex justify-end border-t border-gray-200 px-6 py-4 dark:border-gray-800"><Button variant="outline" onClick={() => close(null)}>Cancel</Button></div>
   </DialogContent></Dialog>;

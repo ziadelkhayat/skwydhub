@@ -35,7 +35,7 @@ function locsOf(s: S, brand: string) {
 const Head = ({ title, back, children }: { title: string; back: () => void; children?: React.ReactNode }) => <>
   <PageBreadcrumb pageTitle={title} />
   <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" onClick={back}><ArrowLeftIcon className="size-5" />Inventory Reports</Button><div className="flex flex-wrap gap-3">{children}</div></div></>;
-const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => true ? <FilterSelect multiple title="Brand" value={v} onChange={v => set(v)} all="All Brands" options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} /> : null;
+const BrandSel = ({ s, v, set }: { s: S; v: string; set: (x: string) => void }) => <FilterSelect multiple title="Brand" value={v} onChange={v => set(v)} all="All Brands" options={s.brands.filter(live).map(b => ({ value: String(b.id), label: String(b.name) }))} />;
 
 export function InvLevelsPage() {
   const s = useS(["inv_items", "inv_categories", "branches", "warehouses", "brands"]), nav = useNavigate();

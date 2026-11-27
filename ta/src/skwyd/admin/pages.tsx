@@ -32,17 +32,17 @@ const Empty = ({ t }: { t: string }) => <p className="px-6 py-10 text-center tex
 const mrrOf = (cs: any[]) => cs.filter(c => !c.sub?.complimentary && c.sub?.state === "active").reduce((a, c) => a + Number(c.quote?.total || 0) / (c.quote?.cycle === "yearly" ? 12 : 1), 0);
 
 /* ---------- dashboard: the business at a glance ---------- */
+const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className="space-y-3">
+  <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">{title}</h3>
+  {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-500 dark:bg-blue-500/15">{initials(c.name)}</span>
+    <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
 export function AdminDashboard() {
   const { data } = useAdmin(), cs = data.companies || [], cur = data.settings?.currency || "USD", now = new Date(), hr = now.getHours();
   const count = (st: string) => cs.filter(c => !c.sub?.complimentary && c.sub?.state === st).length;
   const ending = cs.filter(c => !c.sub?.complimentary && ["trial", "grace"].includes(c.sub?.state) && c.sub?.daysLeft != null).sort((a, b) => a.sub.daysLeft - b.sub.daysLeft).slice(0, 6);
   const newest = cs.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 6);
   const busy = cs.filter(c => c.orders30).sort((a, b) => (b.orders30 || 0) - (a.orders30 || 0)).slice(0, 6);
-  const List = ({ title, rows, cell }: { title: string; rows: any[]; cell: (c: any) => React.ReactNode }) => <div className="space-y-3">
-    <h3 className="border-b border-gray-200 px-6 py-4 text-base font-medium text-gray-800 dark:border-gray-800 dark:text-gray-50">{title}</h3>
-    {rows.length ? rows.map(c => <button key={c.id} type="button" onClick={() => openWin("/company?id=" + c.id)} className="flex w-full items-center gap-3 px-6 py-3 text-start hover:bg-gray-50 dark:hover:bg-white/2">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-500 dark:bg-blue-500/15">{initials(c.name)}</span>
-      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium text-gray-900 dark:text-gray-50">{c.name}</b><span className="text-xs text-gray-500">{c.account_no}</span></span>{cell(c)}</button>) : <Empty t="Nothing yet." />}</div>;
   return <>
     <PageBreadcrumb pageTitle="Dashboard" />
     <H t={hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"} sub={`${now.toLocaleDateString("en-GB", { weekday: "long" })} ${dmy(now)} · every restaurant on Skwyd Hub, their plans and what they owe.`} />
