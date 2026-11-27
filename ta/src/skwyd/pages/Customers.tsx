@@ -80,7 +80,10 @@ export default function CustomersPage() {
       <PageBreadcrumb pageTitle="Customers" />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
-        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Customers", cols.map(c => c.title), rows.map(c => cols.map(x => String(x.value?.(c) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button>
+        <div className="ms-auto flex flex-wrap items-center justify-end gap-2">
+            <div className="w-44"><DateInput placeholder="Updated after" value={F.updated || ""} onChange={v => { setF(f => { const n = { ...f }; if (v) n.updated = v; else delete n.updated; return n; }); setPage(1); }} /></div>
+            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Customers", cols.map(c => c.title), rows.map(c => cols.map(x => String(x.value?.(c) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button><Button className="h-[30px] py-1" onClick={() => setEdit(null)}><PlusIcon className="size-4" />Add Customer</Button></div>
       </div>
       {chips.length > 0 && <div className="mb-3 flex flex-wrap items-center gap-1.5">
         {chips.map(c => <span key={c.k} className="flex items-center gap-1 rounded-md bg-gray-100 py-1 ps-2.5 pe-1 text-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">{c.l}: <b className="font-semibold">{c.v}</b>
@@ -93,11 +96,6 @@ export default function CustomersPage() {
           data={rows} columns={cols} getRowId={c => c.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder={false}
-          toolbar={<>
-            <div className="w-44"><DateInput placeholder="Updated after" value={F.updated || ""} onChange={v => { setF(f => { const n = { ...f }; if (v) n.updated = v; else delete n.updated; return n; }); setPage(1); }} /></div>
-            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          </>}
-          actions={<Button className="h-[30px] py-1" onClick={() => setEdit(null)}><PlusIcon className="size-4" />Add Customer</Button>}
           onRowClick={c => openWin("/customer?id=" + c.id)}
           rowActions={[{ label: "Open", onSelect: c => openWin("/customer?id=" + c.id) }, { label: "Edit", onSelect: c => setEdit(c) }]}
           searchEnd

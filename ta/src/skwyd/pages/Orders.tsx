@@ -118,7 +118,12 @@ export default function OrdersPage() {
       <PageBreadcrumb pageTitle="Orders" />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
-        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Orders", cols.map(c => c.title), rows.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button>
+        <div className="ms-auto flex flex-wrap items-center justify-end gap-2">
+            <FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <div className="w-60"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; }); setPage(1); }} /></div>
+            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Orders", cols.map(c => c.title), rows.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button></div>
       </div>
       {/* the filters in use, each removable; all of them are set in the Filters side panel */}
       {chips.length > 0 && <div className="mb-3 flex flex-wrap items-center gap-1.5">
@@ -133,12 +138,6 @@ export default function OrdersPage() {
           getRowId={o => o.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder={false}
-          toolbar={<>
-            <FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-            <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-            <div className="w-60"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; }); setPage(1); }} /></div>
-            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
-          </>}
           onRowClick={o => openWin("/order?id=" + o.id)}
           rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
           searchEnd
