@@ -10,13 +10,13 @@ import { Icon } from "./Icon";
 /** the register's menu area: every window opened from the register (Sheet) shows there, the cart stays on the left */
 export const AreaCtx = createContext<{ cartW: string } | null>(null);
 
-export function Panel({ area, title, sub, onClose, action, children, className }: { area: { cartW: string }; title: string; sub?: string; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string }) {
+export function Panel({ area, title, sub, onClose, action, children, className, cartOpen }: { area: { cartW: string }; title: ReactNode; sub?: ReactNode; onClose: () => void; action?: ReactNode; children: ReactNode; className?: string; cartOpen?: boolean }) {
   return (
     <>
       {/* the cart stays visible; a tap on it closes the window */}
-      <button type="button" aria-label="Close" className="fixed inset-y-0 left-0 z-30 cursor-default" style={{ width: area.cartW }} onClick={onClose} />
+      {cartOpen ? null : <button type="button" aria-label="Close" className="fixed inset-y-0 left-0 z-30 cursor-default" style={{ width: area.cartW }} onClick={onClose} />}
       <div className="fixed inset-y-0 right-0 z-30 flex bg-gray-200 p-4 portal:bg-[var(--portal-canvas)] dark:bg-gray-900 dark:portal:bg-gray-900" style={{ left: area.cartW }}>
-        <section role="dialog" aria-label={title} className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_1px_2px_rgb(16_24_40/0.06),0_8px_24px_rgb(16_24_40/0.08)] dark:bg-gray-950">
+        <section role="dialog" aria-label={typeof title === "string" ? title : "Window"} className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_1px_2px_rgb(16_24_40/0.06),0_8px_24px_rgb(16_24_40/0.08)] dark:bg-gray-950">
           <header className="flex shrink-0 items-center gap-4 border-b border-gray-100 px-4 py-3.5 dark:border-gray-800">
             <Button variant="secondary" aria-label="Close" className="size-14 shrink-0 rounded-[14px] p-0" onClick={onClose}><Icon name="x" className="size-6" /></Button>
             <div className="min-w-0 flex-1"><p className="truncate text-2xl font-semibold text-gray-900 dark:text-gray-50">{title}</p>{sub ? <p className="truncate text-sm text-gray-500">{sub}</p> : null}</div>

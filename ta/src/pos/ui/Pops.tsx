@@ -19,22 +19,49 @@ const same = (a: string[], b: string[]) => a.length === b.length && a.every(x =>
 
 // The windows of the register's top buttons open over the menu (the cart stays in view): big tiles, a big keypad, one main button at the top right.
 
-// Discount: the saved discounts as tiles (greyed out when the order doesn't qualify), a % / amount keypad on the right
-export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string }; onDone: (d: Disc | undefined) => void }) {
+// Discount: the whole order (saved discounts or a % / amount), or one item: tap a cart line while this is open to discount that item
+export type DiscLine = { name: string; qty: number; price: number; disc?: number; discPct?: number };
+export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area, onDone, line, onWhole, onLineDone }: { x: Ctx; cart: Line[]; cur: (n: number) => string; sym: string; allowPct: boolean; allowAmt: boolean; init: Disc; area: { cartW: string };
+  onDone: (d: Disc | undefined) => void; line?: DiscLine | null; onWhole: () => void; onLineDone: (r: { disc?: number; discPct?: number }) => void }) {
   const sets = dsHere(x), [setSel, setSetSel] = useState<any>(() => init?.setId ? sets.find(d => d.id === init.setId) || null : null);
   const [type, setType] = useState<"pct" | "amt">(init?.type === "amt" && !init.setId ? "amt" : allowPct ? "pct" : "amt"), [v, setV] = useState(init && !init.setId && init.value ? String(init.value) : init?.setVal ? String(init.setVal) : "");
+  const [lt, setLt] = useState<"pct" | "amt">(allowPct ? "pct" : "amt"), [lv, setLv] = useState("");
+  const [lastLine, setLastLine] = useState<DiscLine | null | undefined>(line);
+  if (line !== lastLine) { setLastLine(line); setLt(line?.disc && !line.discPct && allowAmt ? "amt" : allowPct ? "pct" : "amt"); setLv(line?.discPct ? String(line.discPct) : line?.disc ? String(line.disc) : ""); }
   const sub = cart.reduce((a, l) => a + (+l.price || 0) * (+l.qty || 0) - (+(l.disc ?? 0) || 0), 0);
   const open = setSel?.open, typing = !setSel || open, pct = setSel ? setSel.type !== "fixed" : type === "pct";
   const save = setSel && !open ? dsCalc(x, cart, setSel, 0).amt : !(+v > 0) ? 0 : pct ? sub * Math.min(100, +v) / 100 : Math.min(sub, +v);
   const ok = setSel ? (!open || +v > 0) : +v > 0 && !(pct && +v > 100);
   const apply = () => onDone(setSel ? { type: "amt", value: 0, name: setSel.name, setId: setSel.id, ...(open ? { setVal: +v } : {}) } : { type, value: +v });
+  // one item: its line total, and what the discount takes off it
+  const full = line ? line.price * line.qty : 0, lx = +lv || 0, ld = lt === "pct" ? full * Math.min(100, lx) / 100 : Math.min(lx, full), lok = lx > 0 ? !(lt === "pct" && lx > 100) : !!(line?.disc);
+  const pad = (val: string, isPct: boolean, setter: (f: (s: string) => string) => void, label: string) => <>
+    <div className="flex h-20 items-center justify-between rounded-2xl border-2 border-blue-600 px-5 dark:border-blue-500"><span className="text-gray-500">{label}</span>
+      <span className="text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{val === "" ? (isPct ? "0%" : sym + "0") : isPct ? val + "%" : sym + val}</span></div>
+    <NumPad onKey={k => setter(s => typed(k, s))} dot /></>;
+  if (line) return (
+    <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">{line.name}</span></span>} sub={`${line.qty} × ${cur(line.price)} = ${cur(full)}`} onClose={() => onDone(undefined)}
+      action={<>{line.disc ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onLineDone({})}>Remove</Main> : null}<Main disabled={!lok || !(lx > 0)} onClick={() => onLineDone(lt === "pct" ? { discPct: Math.min(100, lx), disc: +ld.toFixed(2) } : { disc: +ld.toFixed(2) })}>Apply</Main></>}>
+      <div className="flex h-full gap-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <p className="rounded-2xl bg-blue-50 px-5 py-4 text-lg text-blue-900 dark:bg-blue-500/10 dark:text-blue-200">Discounting one item: <b>{line.name}</b>. Tap another item in the cart to switch.</p>
+          <Main variant="secondary" onClick={onWhole}>Discount the whole order instead</Main>
+          {ld > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">Item total</span>
+            <b className="tabular-nums text-gray-900 dark:text-gray-50">{cur(full - ld)} <span className="font-medium text-emerald-600">(−{cur(ld)})</span></b></div> : null}
+        </div>
+        <div className="w-[330px] shrink-0 space-y-2.5">
+          {allowPct && allowAmt ? <Seg value={lt} onChange={k => { setLt(k); setLv(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
+          {pad(lv, lt === "pct", setLv, "This item")}
+        </div>
+      </div>
+    </Panel>);
   return (
-    <Panel area={area} title="Discount" sub="The whole order · tap a cart line instead to discount one item" onClose={() => onDone(undefined)}
+    <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">Whole order</span></span>} sub="To discount one item, tap it in the cart" onClose={() => onDone(undefined)}
       action={<>{init ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onDone(null)}>Remove</Main> : null}<Main disabled={!ok} onClick={apply}>Apply</Main></>}>
       <div className="flex h-full gap-6">
         <div className="flex min-w-0 flex-1 flex-col">
           <Label>Saved discounts</Label>
-          {!sets.length ? <p className="text-gray-500">No saved discounts. Add them in the back office.</p> : null}
+          {!sets.length ? <p className="text-gray-500">No saved discounts.</p> : null}
           <div className="grid grid-cols-2 gap-3">
             {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
               return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={d.name}
@@ -45,9 +72,7 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
         </div>
         {typing ? <div className="w-[330px] shrink-0 space-y-2.5">
           {setSel ? <p className="py-3 text-lg font-semibold text-gray-900 dark:text-gray-50">{setSel.name}</p> : allowPct && allowAmt ? <Seg value={type} onChange={k => { setType(k); setV(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
-          <div className="flex h-20 items-center justify-between rounded-2xl border-2 border-blue-600 px-5 dark:border-blue-500"><span className="text-gray-500">{setSel ? "Value" : "Custom"}</span>
-            <span className="text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? (pct ? "0%" : sym + "0") : pct ? v + "%" : sym + v}</span></div>
-          <NumPad onKey={k => setV(s => typed(k, s))} dot />
+          {pad(v, pct, setV, setSel ? "Value" : "Custom")}
         </div> : null}
       </div>
     </Panel>);

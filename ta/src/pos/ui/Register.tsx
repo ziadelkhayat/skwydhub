@@ -42,7 +42,7 @@ export function Register() {
   const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = useMemo(() => ({ cartW: CART_W }), []);
-  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false);
+  const [pop, setPop] = useState<string | null>(null), [sureClear, setSureClear] = useState(false), [discLine, setDiscLine] = useState<number | null>(null);
   const say = (s: string) => notify(s);
   const press = useHold();
 
@@ -197,7 +197,7 @@ export function Register() {
       if (!["active", "pending", "closed"].includes(live_eo.status)) return say("This order can't be voided");
       return setDlg(<VoidReturnDialog x={x} o={live_eo} area={area} onDone={msg => { setDlg(null); if (msg) { say(msg); reset(); } }} />); }
     if (ro && a !== "Print" && a !== "Tags") return say("This order is done");
-    if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); return setPop(a); }
+    if (a === "Discount") { if (!allowPct && !allowAmt) return say("Your role doesn't allow discounts."); setDiscLine(null); return setPop(a); }
     if (a === "Charges") { if (!can(S, cashier, "pos_charges")) return say("Your role doesn't allow charges."); return setPop(a); }
     if (a === "Notes") return setPop(a);
     if (a === "Print") return doPrint("receipt");
@@ -255,6 +255,8 @@ export function Register() {
   useEffect(() => { const mins = +(device!.settings?.lockMinutes ?? appSetOf().logoutMinutes ?? 10); if (!(mins > 0) || !pinsOn(S)) return;
     const h = setInterval(() => { if (Date.now() - lastTouch.current > mins * 60000 && !cart.length) setCashier(null); }, 15000); return () => clearInterval(h); }, [cart.length, S.users]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // with Discount open, a tap on a cart line discounts that item
+  const pickDiscLine = (i: number) => { const l = cart[i]; if (l.saved) return say("This item was sent to the kitchen. Void it to change it."); setDiscLine(i); };
   const qty = (i: number, d: number) => { const l = cart[i];
     if (ro || live_eo?.status === "pending") return say(live_eo?.status === "pending" ? "Accept the order first" : "This order is done");
     if (d < 0 && l?.saved && l.qty - 1 < l.saved) return action("Void");   // an item already sent is voided, with a manager's approval
@@ -338,9 +340,9 @@ export function Register() {
           {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
-            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
+            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", pop === "Discount" && discLine === i ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
               {ro || sent ? <span className="min-w-7 text-[16px] text-gray-500">{l.qty}×</span> : null}
-              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" {...press(() => editLine(i), () => lineExtras(i, "disc"))}>
+              <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" {...press(() => (pop === "Discount" ? pickDiscLine(i) : editLine(i)), () => lineExtras(i, "disc"))}>
                 <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
                 {/* the modifiers one under the other, each with its price on the right */}
                 {(l.options || []).length ? optRows(l.options!).map((o, k) => <span key={k} className="flex gap-2 ps-3 text-xs text-gray-500"><span className="flex-1 truncate">{(o.n > 1 ? o.n + "× " : "") + o.name}</span>{o.price ? <span>+{money(S, o.price)}</span> : null}</span>)
@@ -417,7 +419,11 @@ export function Register() {
       {pop === "Tags" ? <TagsPop S={S} init={tagInit} area={area} onDone={tagsDone} />
         : pop === "Retrieve" || pop === "Hold" ? <HeldPop held={held} cur={cur} label={heldLabel} area={area} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)}
           {...(pop === "Hold" ? { onHold: (nm: string) => hold(nm), defName: table ? tblLbl(table) : cust.name || "" } : {})} />
-        : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
+        : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area}
+          line={discLine != null && cart[discLine] ? { name: cart[discLine].name, qty: cart[discLine].qty, price: cart[discLine].price, disc: cart[discLine].disc, discPct: cart[discLine].discPct } : null}
+          onWhole={() => setDiscLine(null)} onLineDone={r => { const i = discLine!, nm = cart[i]?.name; setCart(c => c.map((y, j) => { if (j !== i) return y; const z: Line = { ...y }; delete z.disc; delete z.discPct; if (r.disc) z.disc = r.disc; if (r.discPct) z.discPct = r.discPct; return reDisc(z); }));
+            setPop(null); setDiscLine(null); say(r.disc ? `Discount on ${nm}: −${money(S, r.disc)}` : `Discount removed from ${nm}`); }}
+          onDone={d => { setPop(null); setDiscLine(null); if (d !== undefined) { setDisc(d); say(d ? "Discount on the whole order" + (d.name ? ": " + d.name : d.type === "pct" ? ": " + d.value + "%" : ": −" + money(S, d.value)) : "Order discount removed"); } }} />
         : pop === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} area={area} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
         : pop === "Notes" ? <NotesPop init={notes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
       {dlg}
