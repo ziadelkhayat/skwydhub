@@ -31,7 +31,7 @@ function NavList({ onGo }: { onGo?: () => void }) {
   const { pathname } = useLocation();
   const sections = useSections();
   return (
-    <nav aria-label="Main" className="flex flex-1 flex-col gap-y-6">
+    <nav aria-label="Main" className="flex flex-1 flex-col">
       {sections.map(sec => (
         <div key={sec.label}>
           <ul role="list" className="space-y-0.5">
@@ -53,7 +53,7 @@ export function AppSidebar() {
   return (
     <>
       {/* sidebar (lg+) */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col">
         <aside className="flex grow flex-col gap-y-6 overflow-y-auto bg-(--portal-canvas) p-4">
           <Link to="/" aria-label="Skwyd Hub" className={cx("flex items-center px-2 pt-1", focusRing)}><SkwydLogo markClass="h-9 w-8" wordClass="h-10 w-auto" /></Link>
           <NavList />

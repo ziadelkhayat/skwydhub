@@ -127,7 +127,7 @@ export function DataTable<T>({
     getCoreRowModel: getCoreRowModel(), getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(),
   });
-  const search = searchPlaceholder !== false ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
+  const search = searchPlaceholder !== false && groupOf(pathname)?.key !== "skManage" ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
               onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
               className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" /> : null;
   const selected = table.getSelectedRowModel().rows.map(r => r.original);
@@ -154,27 +154,29 @@ export function DataTable<T>({
         </div>
         <div className="flex items-center gap-2">
           {searchEnd && search}
-          {onExport && (
+          {onExport && !["skManage", "skCatalog", "skEmployees"].includes(groupOf(pathname)?.key || "") && (
             <Button variant="secondary" className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex" onClick={() => onExport(table.getFilteredRowModel().rows.map(r => r.original))}>
               <RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export
             </Button>
           )}
           {/* View (column options): not on the Catalog and Inventory pages */}
-          {!hideView && !["skCatalog", "skInventory"].includes(groupOf(pathname)?.key || "") && <ViewOptions table={table} />}
           {actions}
         </div>
       </div>
 
-      <div className="relative overflow-hidden overflow-x-auto">
+      {/* the list scrolls inside its box so the column titles stay on top (sticky header) */}
+      <div className="relative max-h-[calc(100dvh-13rem)] min-h-40 overflow-auto">
         <Table>
           <TableHead>
             {table.getHeaderGroups().map(hg => (
               <TableRow key={hg.id} className="border-y border-gray-200 dark:border-gray-800">
                 {hg.headers.map(h => (
-                  <TableHeaderCell key={h.id} className={cx("whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
+                  <TableHeaderCell key={h.id} className={cx("sticky top-0 z-10 whitespace-nowrap py-1 text-sm sm:text-xs", h.column.columnDef.meta?.className)}>
                     {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                   </TableHeaderCell>
                 ))}
+                {/* View (column options): an icon at the end of the column titles, only on Orders */}
+                {!hideView && pathname === "/orders" && <TableHeaderCell className="sticky top-0 right-0 z-20 w-10 py-1 text-end"><ViewOptions table={table} icon /></TableHeaderCell>}
               </TableRow>
             ))}
           </TableHead>

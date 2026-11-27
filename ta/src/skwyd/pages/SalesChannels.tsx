@@ -1,4 +1,4 @@
-import { BrandStoreFilters, inBS, useBrandStore } from "../ui/BrandStore";
+import { inBS, useBrandStore } from "../ui/BrandStore";
 import { inSel } from "@/components/tremor/data-table/FilterSelect";
 import { PageHead } from "../ui/Record";
 import { Label } from "@/components/tremor/Label";
@@ -134,7 +134,6 @@ function Tree({ s, M, open }: { s: S; M: M; open: (b: string, c: string) => void
   const loose = list.filter(b => !b.brandId || !brands.some(x => x.id === b.brandId));
   return <>
     <PageBreadcrumb pageTitle="Sales Channels" />
-    <div className="mb-4 flex flex-wrap items-center gap-2"><BrandStoreFilters brands={s.brands} stores={s.branches} {...F} /></div>
     <div className={BOX + " divide-y divide-gray-100 overflow-hidden dark:divide-white/5"}>
       {!list.length ? <EmptyState text="No active stores." /> : <>
         {brands.map(bd => { const bs = list.filter(b => b.brandId === bd.id), on = ex.has("b:" + bd.id); return <div key={bd.id}>

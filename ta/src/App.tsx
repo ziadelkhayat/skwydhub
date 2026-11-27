@@ -9,6 +9,9 @@ import { lazy, Suspense } from "react";
 
 // every page loads only when it is opened (smaller first download, faster on phones)
 const CrudPage = lazy(() => import("@/skwyd/crud/CrudPage"));
+const TaxesGroups = lazy(() => import("@/skwyd/pages/TaxesGroups"));
+const ModifiersPage = lazy(() => import("@/skwyd/pages/ModifiersPage"));
+const ToOptions = lazy(() => import("@/skwyd/pages/ModifiersPage").then(m => ({ default: m.ToOptions })));
 const Dashboard = lazy(() => import("@/skwyd/pages/Dashboard"));
 const OrdersPage = lazy(() => import("@/skwyd/pages/Orders"));
 const CustomersPage = lazy(() => import("@/skwyd/pages/Customers"));
@@ -61,7 +64,7 @@ const CombosPage = lazy(() => import("@/skwyd/pages/Lists").then(m => ({ default
 // the addresses of the inventory document lists and the report hubs (InvDocs DOC_KINDS, Reports RPT_HUB)
 const DOC_ROUTES = ["quantity-adjustments", "cost-adjustments", "inventory-count", "spot-check", "po", "purchase-orders", "transfer-orders", "transfers", "production", "count-sheets"];
 const RPT_ROUTES = ["sales-reports", "inventory-reports", "business-reports", "employee-reports", "analysis-reports"];
-import { Outlet, Route, Routes, useLocation } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { Blocked, Locked, useAccess, useSub } from "@/lib/access";
 
 // Skwyd Hub back office on the TailAdmin template. Addresses with no page show NotMoved (Kitchen Flows: Coming next, as in the portal).
@@ -126,7 +129,7 @@ function Gate() {
           <Route path="/purchasing" element={<PurchasingReportPage />} />
           {RPT_ROUTES.map(k => <Route key={k} path={"/" + k} element={<ReportsPage />} />)}
           {DOC_ROUTES.map(k => <Route key={k} path={"/" + k} element={<InvDocsPage />} />)}
-          {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={<CrudPage key={k} cfg={cfg} />} />)}
+          {Object.entries(CRUD).map(([k, cfg]) => <Route key={k} path={"/" + k} element={k === "taxes" ? <TaxesGroups /> : k === "modifiers" ? <ModifiersPage /> : k === "modifier-options" ? <ToOptions /> : k === "tax-groups" ? <Navigate to="/taxes" replace /> : <CrudPage key={k} cfg={cfg} />} />)}
           <Route path="*" element={<NotMoved />} />
         </Route>
         {/* full-screen pages: no sidebar or header, the same permissions */}

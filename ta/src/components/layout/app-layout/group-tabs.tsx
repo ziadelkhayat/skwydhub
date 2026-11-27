@@ -18,7 +18,7 @@ export function GroupTabs() {
   const g = groupOf(pathname);
   const subs = g ? g.subItems!.filter(x => canOpen(x.path)) : [];
   // the tabs that don't fit the width go into a "More" menu at the end of the row
-  const box = useRef<HTMLDivElement>(null), meas = useRef<HTMLDivElement>(null), [fit, setFit] = useState(99);
+  const box = useRef<HTMLDivElement>(null), meas = useRef<HTMLDivElement>(null), [, setFit] = useState(99);
   useLayoutEffect(() => {
     const calc = () => { const W = box.current?.clientWidth || 0, ws = [...(meas.current?.children || [])].map(c => (c as HTMLElement).offsetWidth), more = 110;
       let used = 0, n = 0; for (let i = 0; i < ws.length; i++) { const rest = i < ws.length - 1 ? more : 0; if (used + ws[i] + rest > W) break; used += ws[i]; n++; }
@@ -27,12 +27,13 @@ export function GroupTabs() {
   if (!g) return null;
   const isOn = (x: { path: string }) => pathname === x.path || pathname.startsWith(x.path + "/");
   const tab = (x: { key: string; path: string }) => { const Icon = ICONS[x.key]; return <>{Icon && <Icon className="size-4 shrink-0" aria-hidden="true" />}{LABELS[x.key]}</>; };
-  const shown = subs.slice(0, fit), extra = subs.slice(fit), extraOn = extra.find(isOn);
+  // every tab shows; the ones that don't fit go on a second line (no "More" menu)
+  const shown = subs, extra: typeof subs = [], extraOn = extra.find(isOn);
   return (
     <div ref={box} className="relative mb-6">
       {/* measuring row (invisible) */}
       <div ref={meas} aria-hidden="true" className="pointer-events-none invisible absolute flex">{subs.map(x => <span key={x.path} className={TAB}>{tab(x)}</span>)}</div>
-      <nav aria-label={LABELS[g.key]} className="flex items-center gap-1">
+      <nav aria-label={LABELS[g.key]} className="flex flex-wrap items-center gap-1">
         {shown.map(x => <Link key={x.path} to={x.path} aria-current={isOn(x) ? "page" : undefined} className={tabCls(isOn(x))}>{tab(x)}</Link>)}
         {extra.length > 0 && (
           <DropdownMenu>

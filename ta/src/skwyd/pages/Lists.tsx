@@ -116,7 +116,7 @@ const TAG_TYPES: [string, string, string][] = [
   ["customer", "Customer", "Create tags to help you filter and group customers easily, e.g. VIP Customers, Corporate."], ["branch", "Store", "Create tags to help you filter and group stores easily, e.g. Mall Stores, High Traffic."],
   ["inventory", "Inventory Product", "Create tags to help you filter and group inventory products easily, e.g. Weekly Stocktaking, Vegetables."], ["order", "Order", "Create tags to help you filter and group orders easily, e.g. Staff Meal, Driver Order."],
   ["supplier", "Supplier", "Create tags to help you filter and group suppliers easily, e.g. Cash Suppliers, High Quality."], ["user", "User", "Create tags to help you filter and group users easily, e.g. Supervisors, Night Shift."],
-  ["product", "Item", "Create tags to help you filter and group items easily, e.g. Spicy, Best Seller."], ["device", "Device", "Create tags to help you filter and group devices easily, e.g. Main Cashier, Waiter."]];
+  ["product", "Item", "Create tags to help you filter and group items easily, e.g. Spicy, Best Seller."], ["option", "Modifier Option", "Create tags to help you filter and group modifier options easily, e.g. Spicy, Extra Protein."], ["device", "Device", "Create tags to help you filter and group devices easily, e.g. Main Cashier, Waiter."]];
 
 export function TagsPage() {
   const sets = useCol("settings");
@@ -171,7 +171,7 @@ export function AllergensPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Allergens" />
-      <div className="max-w-3xl"><Section title="Allergens" empty="Add the allergens your items can contain. They show on the item page and to customers."
+      <div className="mx-auto max-w-3xl"><Section title="Allergens" empty="Add the allergens your items can contain. They show on the item page and to customers."
         items={list.map(x => ({ key: x, name: x, nameAr: ar[x] }))} onNew={() => setForm({})} onOpen={it => setForm({ a: it.key })}
         onMove={keys => save(keys).then(ok => ok && toast("Order saved"))}
         action={it => { const n = used(it.key); return <span className="text-xs text-gray-500">{n} item{n === 1 ? "" : "s"}</span>; }} /></div>
