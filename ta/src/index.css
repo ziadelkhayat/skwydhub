@@ -8,6 +8,19 @@ layer(base);
 @custom-variant dark (&:is(.dark *));
 /* the portal and admin look (index.html has class="portal"; the POS page doesn't) */
 @custom-variant portal (&:where(.portal, .portal *));
+/* the POS: windows open full screen */
+@custom-variant pos (&:where(.pos, .pos *));
+
+/* the POS on a touch tablet: fields and pickers are at least 52px high with 17px text (finger size) */
+@layer components {
+  .pos :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, button[role="combobox"]) {
+    min-height: 52px;
+    font-size: 17px;
+    border-radius: 12px;
+  }
+  .pos [role="dialog"] :is(h2, [data-dialog-title]) { font-size: 24px; }
+  .pos [role="dialog"] label { font-size: 15px; }
+}
 
 @theme {
   /* Tremor: Inter on Tailwind's default theme */

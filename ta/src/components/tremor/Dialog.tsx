@@ -50,7 +50,7 @@ DialogOverlay.displayName = "DialogOverlay"
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitives.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitives.Content>
->(({ className, ...props }, forwardedRef) => {
+>(({ className, children, ...props }, forwardedRef) => {
   return (
     <DialogPortal>
       <DialogOverlay>
@@ -59,6 +59,8 @@ const DialogContent = React.forwardRef<
           className={cx(
             // base
             "fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border p-6 shadow-lg portal:rounded-[18px] portal:border-transparent dark:portal:border-gray-800",
+            // the POS: every window takes the whole screen, its content in a centred column
+            "pos:!inset-0 pos:!h-full pos:!max-h-none pos:!w-full pos:!max-w-none pos:!translate-x-0 pos:!translate-y-0 pos:!rounded-none pos:!border-0 pos:!p-0 pos:!shadow-none pos:flex pos:flex-col",
             // border color
             "border-gray-200 dark:border-gray-900",
             // background color
@@ -69,7 +71,7 @@ const DialogContent = React.forwardRef<
             className,
           )}
           {...props}
-        />
+        ><div className="contents pos:mx-auto pos:flex pos:w-full pos:max-w-[max(var(--pos-w,56rem),26rem)] pos:flex-1 pos:flex-col pos:px-8 pos:py-8">{children}</div></DialogPrimitives.Content>
       </DialogOverlay>
     </DialogPortal>
   )
@@ -127,7 +129,7 @@ const DialogFooter = ({
   return (
     <div
       className={cx(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pos:mt-auto pos:gap-3 pos:space-x-0 pos:pt-6 pos:[&>button]:h-14 pos:[&>button]:min-w-36 pos:[&>button]:rounded-[14px] pos:[&>button]:px-7 pos:[&>button]:text-[17px]",
         className,
       )}
       {...props}

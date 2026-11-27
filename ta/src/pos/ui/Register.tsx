@@ -3,9 +3,7 @@
 // the bottom bar: Functions, Orders, Tables, Pickup & Delivery, New. Same rules as the Android POS it replaces.
 import { Badge } from "@/components/tremor/Badge";
 import { Button } from "@/components/tremor/Button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/tremor/Dropdown";
 import { Input } from "@/components/tremor/Input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/tremor/Popover";
 import { cx } from "@/components/tremor/utils";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Row } from "../lib/db";
@@ -14,7 +12,7 @@ import { addrJoin, allowedTypes, can, chg2, CUR2, custMissing, fullyBack, kidsOf
 import { appSet, kitchenText, printerHas, printJob, receiptText } from "../lib/print";
 import { useStore } from "../lib/store";
 import { onAlertOpen, pendingCount } from "./Alert";
-import { OrdersList, ordRef, PDBoard } from "./Boards";
+import { FnPage, OrdersList, ordRef, PDBoard } from "./Boards";
 import { CustomerDialog } from "./Customer";
 import { DriversDialog } from "./Drivers";
 import { useHold } from "./hold";
@@ -23,7 +21,8 @@ import { PrintersDialog, ReportsDialog, VoidReturnDialog } from "./Manage";
 import { notify } from "./notify";
 import { ChangeShown, EndDayDialog, endDayBlock, PayDialog, SplitDialog, TillDialog, type Paid } from "./Pay";
 import { LineExtras, ModPicker, NumberAsk, Sheet, VariantPicker, type LineEdit, type Picked } from "./Pickers";
-import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
+import { ChargesPop, DiscountPop, HeldPop, NotesPop, orderTags, QUICK_NOTES, ReasonAsk, tagDoc, TagsPop, type Held } from "./Pops";
+import { Chip } from "./Touch";
 import { TablesDialog, tblLbl } from "./Tables";
 
 const TYPE_LBL: Record<OType, string> = { dinein: "In Store", takeaway: "Pickup", delivery: "Delivery" };
@@ -40,7 +39,7 @@ export function Register() {
   const x: Ctx = { S, device: device!, branch, otype };
   const live_eo = eo ? S.orders.find(o => o.id === eo.id) || eo : null, ro = !!live_eo && !["active", "pending"].includes(live_eo.status);
   const m = useMemo(() => menu(x), [S, otype, device]); // eslint-disable-line react-hooks/exhaustive-deps
-  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the category tiles; a tile opens its items, Back goes up
+  const top = cat && m.cats.some(c => c.id === cat) ? cat : "";   // "" = the first top category
   const t = totals(x, cart, disc, picked, openCh, live_eo && otype === "delivery" ? +live_eo.deliveryFee || 0 : 0);   // a web or call-center delivery keeps its delivery fee
   const area = { cartW: CART_W };
   const [pop, setPop] = useState<string | null>(null);
@@ -174,15 +173,15 @@ export function Register() {
   // Hold: the cart is put aside on this register (H1, H2…) and retrieved later
   const HK = "skwyd_held_" + device!.id;
   const heldList = async (): Promise<Held[]> => { try { return JSON.parse((await kv.getItem(HK)) || "[]"); } catch { return []; } };
-  const hold = async () => { if (!cart.length || live_eo) return say(live_eo ? "Save the open order instead" : "Nothing to hold");
+  const hold = async (name = "") => { setPop(null); if (!cart.length || live_eo) return say(live_eo ? "Save the open order instead" : "Nothing to hold");
     const l = await heldList(), n = Math.max(0, ...l.map(h => h.n)) + 1;
-    await kv.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes } }]));
-    reset(); say("Order held as H" + n); };
+    await kv.setItem(HK, JSON.stringify([...l, { id: newId("h"), n, at: new Date().toISOString(), total: t.total, data: { cart, otype, table, cust, disc, picked, openCh, notes, ...(name ? { name } : {}) } }]));
+    reset(); say("Order held as " + (name || "H" + n)); };
   const [held, setHeld] = useState<Held[]>([]), [heldN, setHeldN] = useState(0);
   const [tagInit, setTagInit] = useState<string[]>([]);
   const tagsDone = (r: string[] | null) => { setPop(null); if (r) { setTags(r); if (live_eo && ro) saveTags(live_eo.id, r); } };
-  const heldLabel = (h: Held) => { const d = h.data || {}; return d.table ? tblLbl(d.table) : [TYPE_LBL[d.otype as OType] || d.otype, d.cust?.name].filter(Boolean).join(" · "); };
-  const delHeld = async (h: Held) => { const l = (await heldList()).filter(y => y.id !== h.id); await kv.setItem(HK, JSON.stringify(l)); setHeld(l); setHeldN(l.length); if (!l.length) setPop(null); };
+  const heldLabel = (h: Held) => { const d = h.data || {}; if (d.name) return d.name; return d.table ? tblLbl(d.table) : [TYPE_LBL[d.otype as OType] || d.otype, d.cust?.name].filter(Boolean).join(" · "); };
+  const delHeld = async (h: Held) => { const l = (await heldList()).filter(y => y.id !== h.id); await kv.setItem(HK, JSON.stringify(l)); setHeld(l); setHeldN(l.length); if (!l.length && pop === "Retrieve") setPop(null); };
   const retrieve = async (h: Held) => { setPop(null); const l = await heldList();
     if (cart.length) return say("Finish or hold the current order first");
     const d = h.data; setCart(d.cart); setOtype(d.otype); setTable(d.table); setCust(d.cust); setDisc(d.disc); setPicked(d.picked); setOpenCh(d.openCh); setNotes(d.notes);
@@ -205,7 +204,7 @@ export function Register() {
     // Kitchen sends what wasn't sent yet and saves the order at the same time
     if (a === "Kitchen") { if (!cart.some(l => l.qty > (l.saved || 0))) return say("Nothing new to send"); await doPrint("kitchen"); return saveOrder(true); }
     if (a === "Tags") { setTagInit(tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] || [] : [])); return setPop(a); }
-    if (a === "Hold") return hold();
+    if (a === "Hold") { if (!cart.length || live_eo) return say(live_eo ? "Save the open order instead" : "Nothing to hold"); setHeld(await heldList()); return setPop(a); }
     if (a === "Retrieve") { if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); return setPop(a); }
   };
   // Print: the bill of this order (or its receipt when done); Kitchen: the ticket of what wasn't sent yet (all of it on a new order)
@@ -222,6 +221,20 @@ export function Register() {
   // Pickup & Delivery: today's pickup and delivery orders, a new one, and the drivers
   const pdBoard = () => setDlg(<PDBoard x={x} onOpen={openOrder} onClose={() => setDlg(null)} onNew={() => { setDlg(null); reset(); askCust(types.find(k => k !== "dinein") || "takeaway"); }}
     onDrivers={() => setDlg(<DriversDialog x={x} onOpen={openOrder} onClose={() => pdBoard()} />)} />);
+  // Functions: a full page of big tiles in groups (Shift, Orders, Device)
+  const fnPage = () => { const close = () => setDlg(null), go = (f: () => void) => () => f();
+    const till = () => { if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); };
+    const endDay = () => { if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={msg => { setDlg(null); if (msg) say(msg); }} />); };
+    const reports = () => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={fnPage} />); };
+    const printers = () => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={fnPage} />); };
+    setDlg(<FnPage title="Functions" who={[cashier?.name || device!.name, branch?.name, device!.name, openShift(x) ? "Till open" : "Till closed"].filter(Boolean).join(" · ")} onClose={close} groups={[
+      { title: "Shift", items: [{ icon: "till", label: openShift(x) ? "Close Till" : "Open Till", onClick: go(till) }, { icon: "dayend", label: "End of Day", onClick: go(endDay) }] },
+      { title: "Orders", items: [{ icon: "list", label: "Orders", onClick: () => setDlg(<OrdersList x={x} onOpen={openOrder} onClose={fnPage} />) }, { icon: "ret", label: "Orders on hold", onClick: async () => { close(); if (cart.length) return say("Finish or hold the current order first"); setHeld(await heldList()); setPop("Retrieve"); } }] },
+      { title: "Device", items: [{ icon: "chart", label: "Reports", onClick: go(reports) }, { icon: "device", label: "Printers & Devices", onClick: go(printers) },
+        { icon: sound ? "sound" : "mute", label: sound ? "Sound On" : "Sound Off", onClick: () => { const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); close(); say(v ? "Sound on" : "Sound off"); } },
+        { icon: "sync", label: "Sync Now", onClick: () => { reload(); close(); say(online ? "Syncing…" : "No connection"); } }] },
+      { title: "", items: [{ icon: "logout", label: "Sign Out", bad: true, onClick: () => { close(); reset(); setCashier(null); } }] },
+    ]} />); };
   // Functions → Sound On / Off (kept on the tablet)
   const [sound, setSound] = useState(true);
   useEffect(() => { kv.getItem("skwyd_sound").then(v => setSound(v !== "off")); }, []);
@@ -260,13 +273,16 @@ export function Register() {
       if (r.note) z.note = r.note; else delete z.note; z.mods = modLabel((y.options || []).length ? optRows(y.options!).map(o => (o.n > 1 ? o.n + "× " : "") + o.name).join(", ") : "", r.note); if (!z.mods) delete z.mods; return reDisc(z); })); };
   const switchType = (k: OType) => { setOtype(k); const y = { ...x, otype: k }; setCart(c => c.map(l => { const p = S.products.find(z => z.id === l.productId); return p && p.pricingMethod !== "open" ? { ...l, price: +(prodPrice(y, p) + (l.options || []).reduce((a: number, o: any) => a + (+o.price || 0), 0)).toFixed(2) } : l; })); };
 
-  const items = q.trim() ? m.search(q) : top ? [...m.subsOf(top).map(c => ({ sub: c })), ...m.itemsOf(top)] : m.tops.map(c => ({ sub: c }));
-  const tiles: any[] = [...(top && !q.trim() ? [{ back: true }] : []), ...items];
+  // the category buttons are the top categories; the grid shows the picked one's sub-categories and items (Back goes up from a sub-category)
+  const [srch, setSrch] = useState(false);
+  const cur0 = top || m.tops[0]?.id || "", rootOf = (id: string): string => { const p0 = m.parentOf(id); return p0 ? rootOf(p0) : id; }, root = cur0 ? rootOf(cur0) : "";
+  const items = q.trim() ? m.search(q) : cur0 ? [...m.subsOf(cur0).map(c => ({ sub: c })), ...m.itemsOf(cur0)] : [];
+  const tiles: any[] = [...(cur0 && cur0 !== root && !q.trim() ? [{ back: true }] : []), ...items];
   // the menu grid: 6 across, 3 down, filling the space exactly; more tiles scroll a page (3 rows) at a time
   const gridRef = useRef<HTMLDivElement>(null), [gh, setGh] = useState(0);
   useEffect(() => { const el = gridRef.current; if (!el) return; const ro2 = new ResizeObserver(() => setGh(el.clientHeight)); ro2.observe(el); return () => ro2.disconnect(); }, []);
   const tileH = gh ? (gh - TG * (ROWS - 1)) / ROWS : 160;
-  useEffect(() => { gridRef.current?.scrollTo({ top: 0 }); }, [top, q]);
+  useEffect(() => { gridRef.current?.scrollTo({ top: 0 }); }, [cur0, q]);
 
   // the top buttons follow the order: new, saved (open), done, or returned / voided
   const st = live_eo?.status, unsent = cart.some(l => l.qty > (l.saved || 0)), noTable = otype === "dinein" && !table.trim();
@@ -281,32 +297,32 @@ export function Register() {
   const c = live_eo ? { name: live_eo.customerName, phone: live_eo.phone, addr: live_eo.address } : { name: cust.name, phone: cust.phone, addr: otype === "delivery" ? addrJoin(cust.addr) : "" };
   const STL: Record<string, [string, "success" | "error" | "warning"]> = { closed: ["Done", "success"], void: ["Void", "error"], returned: ["Returned", "error"], refund: ["Returned", "error"], declined: ["Declined", "error"], pending: ["Waiting for you", "warning"] };
   const tg = (tags ?? (live_eo ? tagDoc(S).on?.order?.[live_eo.id] : null) ?? []).map((id: string) => orderTags(S).find(z => z.id === id)?.name).filter(Boolean) as string[];
-  const popW: Record<string, number> = { Discount: 560, Retrieve: 600, Tags: 400, Charges: 400, Notes: 380 };
+  const quickNotes = lines(appSetOf().quickNotes, QUICK_NOTES.join("\n"));
 
   return (
     <div className="flex h-full bg-gray-200 portal:bg-[var(--portal-canvas)] dark:bg-gray-900 dark:portal:bg-gray-900" onPointerDownCapture={() => { lastTouch.current = Date.now(); }}>
       {/* ---------- cart: the full height on the left ---------- */}
       <aside className="relative z-[1] flex h-full flex-col border-r border-gray-200 bg-white portal:border-r-0 portal:shadow-[4px_0_18px_rgb(16_24_40/0.06)] dark:border-gray-800 dark:bg-gray-950 dark:portal:border-r" style={{ width: CART_W }}>
-        <div className="flex items-start gap-2 px-4 pt-3">
+        <div className="flex items-start gap-2 px-4 pt-3.5 text-[16px]">
           {live_eo && STL[st] ? <Badge variant={STL[st][1]}>{STL[st][0]}</Badge> : null}
           <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="size-5 text-blue-600 dark:text-blue-500" />
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
             <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>
             {otype === "dinein" && table ? <span className="flex items-center gap-1">
-              <button type="button" disabled={!!live_eo} onClick={askTable} className="font-semibold text-blue-600 dark:text-blue-500" aria-label="Change table">· {tblLbl(table)}</button>
+              <button type="button" disabled={!!live_eo} onClick={askTable} className="-my-2 rounded-lg px-2 py-2 font-semibold text-blue-600 dark:text-blue-500" aria-label="Change table">· {tblLbl(table)}</button>
               {guests ? <span className="text-sm text-gray-500">{guests} guests</span> : null}
-              {!live_eo ? <Button variant="ghost" className="p-1" aria-label="Remove table" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-4 text-red-600" /></Button> : null}</span> : null}
+              {!live_eo ? <Button variant="ghost" className="-my-2 size-10 p-0" aria-label="Remove table" onClick={() => { setTable(""); setGuests(0); }}><Icon name="x" className="size-4 text-red-600" /></Button> : null}</span> : null}
           </div>
           {!online || pending ? <Badge variant="warning">{!online ? (pending ? `Offline · ${pending}` : "Offline") : `Syncing ${pending}`}</Badge> : null}
           <div className="text-right"><p className="text-[11px] text-gray-500">Order</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo?.no || "New"}</p></div>
           {live_eo?.ref ? <div className="ms-2 text-right"><p className="text-[11px] text-gray-500">Reference</p><p className="font-semibold text-gray-900 dark:text-gray-50">{live_eo.ref}</p></div> : null}
         </div>
         <div className="flex gap-2 border-b border-gray-200 px-4 py-2.5 dark:border-gray-800">
-          <Button variant="secondary" disabled={!!live_eo} onClick={() => askCust(otype)} className="h-12 flex-1 justify-start gap-2 px-3 text-left">
+          <Button variant="secondary" disabled={!!live_eo} onClick={() => askCust(otype)} className="h-14 flex-1 justify-start gap-2.5 rounded-[14px] px-4 text-left">
             <Icon name="user" className="size-5 shrink-0 text-gray-600 dark:text-gray-400" />
-            <span className="min-w-0 flex-1">{c.name || c.phone ? <><span className="block truncate text-sm font-semibold">{c.name || c.phone}</span>{c.name && c.phone ? <span className="block truncate text-xs font-normal text-gray-500">{c.phone}</span> : null}</> : <span className="text-sm font-normal text-gray-500">Add customer</span>}</span>
+            <span className="min-w-0 flex-1">{c.name || c.phone ? <><span className="block truncate text-[16px] font-semibold">{c.name || c.phone}</span>{c.name && c.phone ? <span className="block truncate text-xs font-normal text-gray-500">{c.phone}</span> : null}</> : <span className="text-[16px] font-normal text-gray-500">Add customer</span>}</span>
           </Button>
-          {cust.name && !live_eo && otype === "dinein" ? <Button variant="ghost" aria-label="Remove customer" className="h-12" onClick={() => setCust(CART0)}><Icon name="x" className="size-4 text-red-600" /></Button> : null}
+          {cust.name && !live_eo && otype === "dinein" ? <Button variant="ghost" aria-label="Remove customer" className="size-14" onClick={() => setCust(CART0)}><Icon name="x" className="size-4 text-red-600" /></Button> : null}
         </div>
         {c.addr ? <p className="line-clamp-2 px-4 pt-2 text-xs text-gray-500">{c.addr}</p> : null}
         {/* the order's tags and notes, at the top of the cart under the customer */}
@@ -323,10 +339,10 @@ export function Register() {
           {cart.map((l, i) => { const sent = !!l.saved && l.qty <= (l.saved || 0), tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
-            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex items-center gap-2.5 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
-              {ro || sent ? <span className="min-w-6 text-sm text-gray-500">{l.qty}×</span> : null}
+            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
+              {ro || sent ? <span className="min-w-7 text-[16px] text-gray-500">{l.qty}×</span> : null}
               <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left" {...press(() => editLine(i), () => lineExtras(i, "disc"))}>
-                <span className="line-clamp-2 text-sm font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
+                <span className="line-clamp-2 text-[16px] font-medium text-gray-900 dark:text-gray-50">{l.name}{tag ? <span className={cx("ms-2 text-[11px] font-semibold", tag[1])}>{tag[0]}</span> : null}</span>
                 {/* the modifiers one under the other, each with its price on the right */}
                 {(l.options || []).length ? optRows(l.options!).map((o, k) => <span key={k} className="flex gap-2 ps-3 text-xs text-gray-500"><span className="flex-1 truncate">{(o.n > 1 ? o.n + "× " : "") + o.name}</span>{o.price ? <span>+{money(S, o.price)}</span> : null}</span>)
                   : l.mods && !l.note ? <span className="block ps-3 text-xs text-gray-500">{l.mods}</span> : null}
@@ -334,14 +350,14 @@ export function Register() {
                 {/* the item's note is the last line under the item */}
                 {l.note ? <span className="block text-xs italic text-gray-500">Note: {l.note}</span> : null}
               </button>
-              {ro || sent ? null : <div className="flex items-center rounded-md border border-gray-300 dark:border-gray-800">
-                <Button variant="ghost" className="size-9 p-0" aria-label={"Less " + l.name} disabled={left <= 1} onClick={() => qty(i, -1)}><Icon name="minus" className="size-4" /></Button>
-                <span className="min-w-6 text-center text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-50">{left}</span>
-                <Button variant="ghost" className="size-9 p-0" aria-label={"More " + l.name} onClick={() => qty(i, 1)}><Icon name="plus" className="size-4" /></Button></div>}
-              <span className="w-20 text-right text-sm font-medium tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineNet(l))}</span>
+              {ro || sent ? null : <div className="flex items-center rounded-xl bg-gray-100 dark:bg-gray-900">
+                <Button variant="ghost" className="size-12 p-0 text-blue-700 dark:text-blue-400" aria-label={"Less " + l.name} disabled={left <= 1} onClick={() => qty(i, -1)}><Icon name="minus" className="size-5" /></Button>
+                <span className="min-w-7 text-center text-[17px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{left}</span>
+                <Button variant="ghost" className="size-12 p-0 text-blue-700 dark:text-blue-400" aria-label={"More " + l.name} onClick={() => qty(i, 1)}><Icon name="plus" className="size-5" /></Button></div>}
+              <span className="w-20 text-right text-[16px] font-semibold tabular-nums text-gray-900 dark:text-gray-50">{money(S, lineNet(l))}</span>
             </SwipeRow>; })}
         </div>
-        <div className="space-y-1 border-t border-gray-200 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-800">
+        <div className="space-y-1 border-t border-gray-200 px-4 py-2.5 text-[15px] text-gray-500 dark:border-gray-800">
           {t.disc ? <Sum l={t.promo ? t.promo.name : disc?.name ? disc.name : disc?.type === "pct" ? `Discount ${disc.value}%` : "Discount"} r={"−" + money(S, t.disc)} /> : null}
           {t.charges.map(ch => <Sum key={ch.id} l={ch.name} r={money(S, ch.amount)} />)}
           <Sum l="Subtotal" r={money(S, t.net)} />
@@ -351,83 +367,75 @@ export function Register() {
         </div>
         <div className="flex gap-2.5 px-4 pb-4 pt-0.5">
           {erPending(live_eo) ? <>
-            <Button variant="destructive" className="h-14 flex-1 text-base" onClick={() => erDecide(false)}>Reject</Button>
-            <Button className="h-14 flex-[2] text-base portal:rounded-xl" onClick={() => erDecide(true)}>Approve</Button>
+            <Button variant="destructive" className="h-[72px] flex-1 rounded-2xl text-lg" onClick={() => erDecide(false)}>Reject</Button>
+            <Button className="h-[72px] flex-[2] rounded-2xl text-lg" onClick={() => erDecide(true)}>Approve</Button>
           </> : st === "pending" ? <>
-            <Button variant="destructive" className="h-14 flex-1 text-base" onClick={decline}>Decline</Button>
-            <Button className="h-14 flex-[2] text-base portal:rounded-xl" onClick={accept}>Accept</Button>
-          </> : ro ? <div className={cx("flex h-14 flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
+            <Button variant="destructive" className="h-[72px] flex-1 rounded-2xl text-lg" onClick={decline}>Decline</Button>
+            <Button className="h-[72px] flex-[2] rounded-2xl text-lg" onClick={accept}>Accept</Button>
+          </> : ro ? <div className={cx("flex h-[72px] flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
               <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
               <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
           : <>
             {/* Save: keeps the order open and starts a new one (an In Store order needs a table); Kitchen saves too but leaves the order in the cart */}
-            {live_eo || !noTable ? <Button variant="secondary" className="h-14 flex-1 text-base" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
-            <Button className="h-14 flex-[2] justify-between px-5 text-base portal:rounded-xl" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+            {live_eo || !noTable ? <Button variant="secondary" className="h-[72px] flex-1 rounded-2xl text-lg" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
+            <Button className="h-[72px] flex-[2] justify-between rounded-2xl px-6 text-xl shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>Pay</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
           </>}
         </div>
       </aside>
 
       {/* ---------- menu ---------- */}
       <main className="flex h-full min-w-0 flex-1 flex-col gap-3 px-4 pt-3">
-        <div className="grid grid-cols-8 gap-2">
-          {acts.map(a => {
-            const btn = <Button key={a} className={cx("relative aspect-square h-auto flex-col gap-1.5 p-0 text-[13px] portal:rounded-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
-              <Icon name={BTN[a]} className="size-6" />{a}
-              {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-gray-200 bg-red-600 px-1 text-[11px] font-bold dark:border-gray-900">{heldN}</span> : null}</Button>;
-            if (!["Discount", "Charges", "Notes", "Tags", "Retrieve"].includes(a)) return btn;
-            return <Popover key={a} open={pop === a} onOpenChange={o => { if (!o) setPop(null); }}>
-              <PopoverTrigger asChild>{btn}</PopoverTrigger>
-              <PopoverContent sideOffset={8} collisionPadding={8} className="max-h-[80dvh] overflow-y-auto p-2" style={{ width: popW[a] }} onOpenAutoFocus={e => e.preventDefault()}>
-                {a === "Tags" ? <TagsPop S={S} init={tagInit} onDone={tagsDone} />
-                  : a === "Retrieve" ? <HeldPop held={held} cur={cur} label={heldLabel} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)} />
-                  : a === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
-                  : a === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
-                  : <NotesPop init={notes} onDone={r => { setPop(null); if (r) setNotes(r); }} />}
-              </PopoverContent></Popover>;
-          })}
+        {/* the top buttons and, beside them, the category buttons; search opens in their place */}
+        <div className="flex gap-2.5">
+          {acts.map(a => <Button key={a} className={cx("relative h-[72px] w-[88px] shrink-0 flex-col gap-1 rounded-[14px] p-0 text-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
+            <Icon name={BTN[a]} className="size-7" />{a}
+            {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
-        <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-11 portal:[&>input]:rounded-[10px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
+        <div className="flex gap-2.5">
+          {srch ? <>
+            <Input type="search" autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="flex-1 [&>input]:h-[52px] [&>input]:text-[17px]" />
+            <Chip onClick={() => { setQ(""); setSrch(false); }}><Icon name="x" className="size-5" />Close</Chip>
+          </> : <>
+            <Chip onClick={() => setSrch(true)} className="w-[52px] justify-center px-0"><span className="sr-only">Search items</span><Icon name="search" className="size-6" /></Chip>
+            <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto [scrollbar-width:none]">{m.tops.map(c => <Chip key={c.id} on={root === c.id} onClick={() => { setQ(""); setCat(c.id); }}>{c.name}</Chip>)}</div>
+          </>}
+        </div>
         <div ref={gridRef} className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto">
-          {!m.tops.length ? <p className="p-5 text-sm text-gray-500">No POS menu at this store.</p> : null}
-          {q.trim() && !items.length ? <p className="p-5 text-sm text-gray-500">No items match.</p> : null}
+          {!m.tops.length ? <p className="p-5 text-gray-500">No POS menu at this store.</p> : null}
+          {q.trim() && !items.length ? <p className="p-5 text-gray-500">No items match.</p> : null}
           <div className="grid" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`, gap: TG, gridAutoRows: tileH }}>
             {tiles.map((it: any, k: number) => it.back
-              ? <Button key="back" variant="secondary" className="h-full snap-start flex-col gap-1 border-dashed" onClick={() => setCat(m.parentOf(top))}><Icon name="back" className="size-6" />Back</Button>
+              ? <Button key="back" variant="secondary" className="h-full snap-start flex-col gap-1.5 rounded-[14px] text-[16px]" onClick={() => setCat(m.parentOf(cur0))}><Icon name="back" className="size-7" />Back</Button>
               : it.sub ? <Tile key={it.sub.id} name={it.sub.name} img={it.sub.imageUrl} snap={k % (COLS * ROWS) < COLS} onClick={() => { setQ(""); setCat(it.sub.id); }} />
               : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * ROWS) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
           </div>
         </div>
-        <nav className="mb-4 flex h-14 items-center justify-evenly rounded-md border border-gray-200 bg-white portal:rounded-2xl portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="ghost" className="h-12 gap-2 text-[15px]"><Icon name="grid" className="size-5" />Functions</Button></DropdownMenuTrigger>
-            <DropdownMenuContent align="start" side="top" className="w-72">
-              <DropdownMenuLabel><span className="block text-sm font-semibold normal-case text-gray-900 dark:text-gray-50">{cashier?.name || device!.name}</span><span className="block text-xs font-normal normal-case">{[branch?.name, device!.name].filter(Boolean).join(" · ")}</span></DropdownMenuLabel>
-              <Fn icon="till" label={openShift(x) ? "Close Till" : "Open Till"} onSelect={() => { if (!can(S, cashier, "pos_shift")) return say("Your role doesn't allow opening or closing the till."); tillDlg(); }} />
-              <Fn icon="dayend" label="End of Day" onSelect={() => { if (!can(S, cashier, "pos_endday")) return say("Your role doesn't allow ending the day."); const b = endDayBlock(x); if (b) return say(b); setDlg(<EndDayDialog x={x} onDone={msg => { setDlg(null); if (msg) say(msg); }} />); }} />
-              <Fn icon="chart" label="Reports" onSelect={() => { if (!can(S, cashier, "pos_reports") && !can(S, cashier, "pos_endday")) return say("Your role doesn't allow POS reports."); setDlg(<ReportsDialog x={x} say={say} onClose={() => setDlg(null)} />); }} />
-              <Fn icon="device" label="Printers & Devices" onSelect={() => { if (!can(S, cashier, "pos_settings")) return say("Your role doesn't allow device settings."); setDlg(<PrintersDialog x={x} onClose={() => setDlg(null)} />); }} />
-              <Fn icon={sound ? "sound" : "mute"} label={sound ? "Sound On" : "Sound Off"} onSelect={e => { e.preventDefault(); const v = !sound; setSound(v); kv.setItem("skwyd_sound", v ? "on" : "off"); }} />
-              <Fn icon="sync" label="Sync Now" onSelect={() => { reload(); say(online ? "Syncing…" : "No connection"); }} />
-              <DropdownMenuSeparator />
-              <Fn icon="logout" label="Sign Out" bad onSelect={() => { reset(); setCashier(null); }} />
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="ghost" className="h-12 gap-2 text-[15px]" onClick={() => setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)}><Icon name="list" className="size-5" />Orders</Button>
-          <Button variant="ghost" className="h-12 gap-2 text-[15px]" onClick={() => setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
-            const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />)}><Icon name="table" className="size-5" />Tables</Button>
-          <Button variant="ghost" className="relative h-12 gap-2 text-[15px]" onClick={pdBoard}><Icon name="scooter" className="size-5" />Pickup & Delivery
-            {pdN ? <span className="absolute -right-1 top-0 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[11px] font-bold text-white dark:border-gray-950">{pdN}</span> : null}</Button>
-          <Button variant="ghost" className="h-12 gap-2 text-[15px]" onClick={reset}><Icon name="plus" className="size-5" />New</Button>
+        <nav className="mb-4 flex shrink-0 gap-1.5 rounded-[18px] border border-gray-200 bg-white p-1.5 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
+          <NavB icon="grid" label="Functions" onClick={fnPage} />
+          <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
+          <NavB icon="table" label="Tables" onClick={() => setDlg(<TablesDialog x={x} onClose={() => setDlg(null)} onOpen={openOrder} onFree={async n => { setDlg(null); if (live_eo) reset(); setTable(n); if (otype !== "dinein") switchType("dinein");
+            const g = await ask<number | null>(done => <NumberAsk title={"Guests at " + tblLbl(n)} onDone={done} />); if (g != null) setGuests(Math.max(0, Math.round(g))); }} />)} />
+          <NavB icon="scooter" label="Pickup & Delivery" onClick={pdBoard} n={pdN} />
+          <NavB icon="plus" label="New" onClick={reset} />
         </nav>
       </main>
+      {pop === "Tags" ? <TagsPop S={S} init={tagInit} area={area} onDone={tagsDone} />
+        : pop === "Retrieve" || pop === "Hold" ? <HeldPop held={held} cur={cur} label={heldLabel} area={area} onPick={retrieve} onDelete={delHeld} onClose={() => setPop(null)}
+          {...(pop === "Hold" ? { onHold: (nm: string) => hold(nm), defName: table ? tblLbl(table) : cust.name || "" } : {})} />
+        : pop === "Discount" ? <DiscountPop x={x} cart={cart} cur={cur} sym={sym} allowPct={allowPct} allowAmt={allowAmt} init={disc} area={area} onDone={d => { setPop(null); if (d !== undefined) setDisc(d); }} />
+        : pop === "Charges" ? <ChargesPop x={x} cur={cur} picked={picked} open={openCh} area={area} onDone={r => { setPop(null); if (r) { setPicked(r.picked); setOpenCh(r.open); } }} />
+        : pop === "Notes" ? <NotesPop init={notes} quick={quickNotes} area={area} onDone={r => { setPop(null); if (r) setNotes(r); }} /> : null}
       {dlg}
     </div>
   );
 }
 
 const Sum = ({ l, r }: { l: string; r: string }) => <div className="flex justify-between"><span>{l}</span><span className="tabular-nums">{r}</span></div>;
-const Fn = ({ icon, label, onSelect, bad }: { icon: string; label: string; onSelect: (e: Event) => void; bad?: boolean }) => (
-  <DropdownMenuItem onSelect={onSelect} className={cx("h-11 gap-3 text-[15px]", bad && "text-red-600 dark:text-red-500")}><Icon name={icon} className={cx("size-5", bad ? "text-red-600" : "text-blue-600 dark:text-blue-500")} />{label}</DropdownMenuItem>);
+// a button of the bottom bar: the icon over its label, 68px high
+const NavB = ({ icon, label, onClick, n }: { icon: string; label: string; onClick: () => void; n?: number }) => (
+  <button type="button" onClick={onClick} className="relative flex h-[68px] flex-1 flex-col items-center justify-center gap-1 rounded-[14px] text-[15px] font-medium text-gray-700 active:bg-blue-50 dark:text-gray-300 dark:active:bg-blue-500/10">
+    <Icon name={icon} className="size-7 text-blue-600 dark:text-blue-500" />{label}
+    {n ? <span className="absolute right-3 top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold text-white dark:border-gray-950">{n}</span> : null}</button>);
 
 // a menu tile: a Tremor card with the photo across its top (cropped to fit), the name on up to 3 lines and the price in blue
 function Tile({ name, img, sub, oos, snap, onClick }: { name: string; img?: string; sub?: string; oos?: boolean; snap?: boolean; onClick: () => void }) {
@@ -435,9 +443,9 @@ function Tile({ name, img, sub, oos, snap, onClick }: { name: string; img?: stri
     <button type="button" disabled={oos} onClick={onClick} aria-label={name + (sub ? ", " + sub : "")}
       className={cx("flex h-full flex-col overflow-hidden rounded-md bg-white text-center shadow-xs portal:rounded-[14px] portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.07)] hover:bg-blue-50 disabled:opacity-50 dark:bg-gray-950 dark:hover:bg-blue-500/10", snap && "snap-start")}>
       <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-amber-50/60 dark:bg-gray-900">{img ? <img src={img} alt="" className="size-full object-cover" /> : <Icon name="bowl" className="size-7 text-gray-400" />}</span>
-      <span className="flex h-[66px] shrink-0 flex-col justify-between px-1.5 pb-1.5 pt-1">
-        <span className="line-clamp-2 text-[12.5px] font-medium leading-[15px] text-gray-900 dark:text-gray-50">{name}</span>
-        {sub ? <span className={cx("truncate text-[12.5px] font-semibold", oos ? "text-red-600" : "text-blue-600 dark:text-blue-500")}>{oos ? "Out of stock" : sub}</span> : null}</span>
+      <span className="flex h-[72px] shrink-0 flex-col justify-between px-2 pb-2 pt-1.5">
+        <span className="line-clamp-2 text-[15px] font-medium leading-[18px] text-gray-900 dark:text-gray-50">{name}</span>
+        {sub ? <span className={cx("truncate text-[15px] font-semibold", oos ? "text-red-600" : "text-blue-600 dark:text-blue-500")}>{oos ? "Out of stock" : sub}</span> : null}</span>
     </button>);
 }
 // a line's options, the same ones counted together: [{ name, n, price }]

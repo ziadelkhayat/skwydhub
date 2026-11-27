@@ -4,7 +4,6 @@
 import { Button } from "@/components/tremor/Button";
 import { Callout } from "@/components/tremor/Callout";
 import { Card } from "@/components/tremor/Card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/tremor/Tabs";
 import { cx } from "@/components/tremor/utils";
 import { useEffect, useState } from "react";
 import type { Row } from "../lib/db";
@@ -13,6 +12,7 @@ import { useStore } from "../lib/store";
 import { Full, Head } from "./Boards";
 import { useHold } from "./hold";
 import { Icon } from "./Icon";
+import { Chip } from "./Touch";
 
 export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()).filter(Boolean);   // merged tables are saved as "3+4"
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
@@ -58,30 +58,33 @@ export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (
   const shown = all.filter(t => !sec || (t.section || "") === sec);
   return (
     <Full><Head title={!tm ? "Tables" : tm.mode === "move" ? (tm.from ? `Move ${tblLbl(tm.from)} to a free table` : "Pick the table to move") : (tm.from ? `Merge ${tblLbl(tm.from)} into another occupied table` : "Pick the first table to merge")} onClose={onClose}>
-      <span className="text-sm text-gray-500">{busyN} of {all.length} occupied</span>
-      <Button variant={tm?.mode === "move" ? "primary" : "secondary"} className="h-11" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "move" ? null : { mode: "move" }); }}>{tm?.mode === "move" ? "Cancel Move" : "Change Table"}</Button>
-      <Button variant={tm?.mode === "merge" ? "primary" : "secondary"} className="h-11" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }}>{tm?.mode === "merge" ? "Cancel Merge" : "Merge Tables"}</Button></Head>
-      {msg || confirm ? <Callout className="mx-4 mt-3" variant={confirm ? "default" : "neutral"} title={confirm ? (tm!.mode === "move" ? `Move ${tblLbl(tm!.from)} to ${tblLbl(confirm)}?` : `Merge ${tblLbl(tm!.from)} into ${tblLbl(confirm)}?`) : msg}>
+      <span className="text-[15px] text-gray-500">{busyN} of {all.length} occupied</span></Head>
+      {msg || confirm ? <Callout className="mx-4 mt-3 text-[16px]" variant={confirm ? "default" : "neutral"} title={confirm ? (tm!.mode === "move" ? `Move ${tblLbl(tm!.from)} to ${tblLbl(confirm)}?` : `Merge ${tblLbl(tm!.from)} into ${tblLbl(confirm)}?`) : msg}>
         {confirm ? <>{tm!.mode === "merge" ? <p>Its items move to {tblLbl(confirm)} and {tblLbl(tm!.from)} becomes free.</p> : null}
-          <div className="mt-2 flex gap-2"><Button variant="secondary" onClick={() => setConfirm(null)}>Cancel</Button><Button onClick={() => run(confirm)}>{tm!.mode === "move" ? "Move" : "Merge"}</Button></div></> : null}</Callout> : null}
+          <div className="mt-3 flex gap-2.5 [&>button]:h-14 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]"><Button variant="secondary" onClick={() => setConfirm(null)}>Cancel</Button><Button onClick={() => run(confirm)}>{tm!.mode === "move" ? "Move" : "Merge"}</Button></div></> : null}</Callout> : null}
       <div className="flex min-h-0 flex-1 flex-col p-4">
-        {secs.length > 1 ? <Tabs value={sec} onValueChange={setSec} className="mb-3"><TabsList variant="solid">{["", ...secs].map(k => { const l = all.filter(t => !k || (t.section || "") === k);
-          return <TabsTrigger key={k || "all"} value={k}>{`${k || "All"} (${l.filter(t => orders(t.name).length).length}/${l.length})`}</TabsTrigger>; })}</TabsList></Tabs> : null}
+        {secs.length > 1 ? <div className="mb-4 flex gap-2.5 overflow-x-auto [scrollbar-width:none]">{["", ...secs].map(k => { const l = all.filter(t => !k || (t.section || "") === k);
+          return <Chip key={k || "all"} on={sec === k} onClick={() => setSec(k)}>{`${k || "All"} ${l.filter(t => orders(t.name).length).length}/${l.length}`}</Chip>; })}</div> : null}
         {!all.length ? <p className="text-sm text-gray-500">No tables set up for this store yet. Add them in the back office under Manage → Stores → the store → Sections & Tables.</p> :
-          <div className="grid flex-1 grid-cols-[repeat(auto-fill,minmax(150px,1fr))] content-start gap-3 overflow-y-auto pb-3">{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
+          <div className="grid flex-1 grid-cols-6 content-start gap-3.5 overflow-y-auto pb-3">{shown.map(t => { const os = orders(t.name), own = os.filter(o => tblParts(o.table)[0] === t.name), m = os[0] ? mins(os[0].createdAt) : 0;
             const busy = os.length > 0, merged = busy && !own.length, on = tm?.from === t.name;
             const age = !busy ? AGE[0] : merged ? MERGED : AGE[m < 15 ? 1 : m < 30 ? 2 : m < 60 ? 3 : 4];
-            return <Card key={t.name} asChild className={cx("flex h-28 select-none flex-col justify-between border-2 p-3 text-left", age.c, on && "ring-2 ring-blue-500")}>
+            return <Card key={t.name} asChild className={cx("flex h-[140px] select-none flex-col justify-between rounded-[18px] border-[2.5px] p-4 text-left", age.c, on && "ring-4 ring-blue-500")}>
               <button type="button" aria-label={tblLbl(t.name) + (busy ? ", occupied" : ", free")} {...press(() => tap(t.name), () => hold(t.name))}>
-                <span className="flex items-center justify-between"><span className="font-semibold text-gray-900 dark:text-gray-50">{tblLbl(t.name)}</span>
+                <span className="flex items-center justify-between"><span className="text-xl font-semibold text-gray-900 dark:text-gray-50">{tblLbl(t.name)}</span>
                   {busy && +(own[0] || os[0]).guests ? <span className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400"><Icon name="user" className="size-3.5" />{+(own[0] || os[0]).guests}</span> : null}</span>
-                {!busy ? <span className={cx("text-sm", age.t)}>Free</span> : merged ? <span className={cx("text-xs", age.t)}>Merged with {tblLbl(tblParts(os[0].table)[0])}</span> : <span>
-                  <span className="block font-semibold text-gray-900 dark:text-gray-50">{money(x.S, own.reduce((a, o) => a + (+o.total || 0), 0))}</span>
-                  <span className={cx("block text-xs", age.t)}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</span>
+                {!busy ? <span className={cx("text-[15px] font-medium", age.t)}>Free</span> : merged ? <span className={cx("text-xs", age.t)}>Merged with {tblLbl(tblParts(os[0].table)[0])}</span> : <span>
+                  <span className="block text-xl font-semibold text-gray-900 dark:text-gray-50">{money(x.S, own.reduce((a, o) => a + (+o.total || 0), 0))}</span>
+                  <span className={cx("block text-sm font-semibold", age.t)}>#{own[0].no || "—"}{own.length > 1 ? ` +${own.length - 1}` : ""} · {dur(m)}</span>
                   {tblParts(own[0].table).length > 1 ? <span className="block text-xs text-violet-700 dark:text-violet-400">With {tblParts(own[0].table).filter(y => y !== t.name).map(y => tblLbl(y)).join(", ")}</span> : null}</span>}
               </button></Card>; })}</div>}
-        <div className="flex flex-wrap items-center gap-4 pt-2">{[...AGE, MERGED].map(a => <span key={a.l} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400"><span className={cx("size-3.5 rounded border-2", a.c)} />{a.l}</span>)}
-          <span className="text-xs text-gray-500">Hold an occupied table to move it.</span></div>
+        <div className="flex flex-wrap items-center gap-4 pb-3 pt-2">{[...AGE, MERGED].map(a => <span key={a.l} className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"><span className={cx("size-4 rounded border-2", a.c)} />{a.l}</span>)}
+          <span className="text-sm text-gray-500">Hold an occupied table to move it.</span></div>
+        {/* the table actions, big at the bottom */}
+        <div className="flex gap-3">
+          <Button variant={tm?.mode === "move" ? "primary" : "secondary"} className="h-16 flex-1 gap-2 rounded-2xl text-[17px]" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "move" ? null : { mode: "move" }); }}><Icon name="ret" className="size-6" />{tm?.mode === "move" ? "Cancel move" : "Change table"}</Button>
+          <Button variant={tm?.mode === "merge" ? "primary" : "secondary"} className="h-16 flex-1 gap-2 rounded-2xl text-[17px]" onClick={() => { setMsg(""); setConfirm(null); setTm(tm?.mode === "merge" ? null : { mode: "merge" }); }}><Icon name="table" className="size-6" />{tm?.mode === "merge" ? "Cancel merge" : "Merge tables"}</Button>
+        </div>
       </div>
     </Full>);
 }

@@ -17,7 +17,7 @@ import { Icon } from "./Icon";
 export function Sheet({ title, onClose, width = 680, children, footer }: { title: string; onClose: () => void; width?: number; children: ReactNode; footer?: ReactNode }) {
   return (
     <Dialog open onOpenChange={o => { if (!o) onClose(); }}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto" style={{ maxWidth: width }}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto" style={{ maxWidth: width, ["--pos-w" as any]: width + 64 + "px" }}>
         <DialogHeader><DialogTitle className="truncate">{title}</DialogTitle></DialogHeader>
         <div className="mt-4">{children}</div>
         {footer ? <DialogFooter className="mt-6 items-center gap-2">{footer}</DialogFooter> : null}
@@ -27,11 +27,11 @@ export function Sheet({ title, onClose, width = 680, children, footer }: { title
 }
 
 /** a − n + stepper from Tremor buttons */
-export const Stepper = ({ n, onLess, onMore, lessOff, big }: { n: number; onLess: () => void; onMore: () => void; lessOff?: boolean; big?: boolean }) => (
-  <div className="flex items-center rounded-md border border-gray-300 dark:border-gray-800">
-    <Button variant="ghost" aria-label="One less" disabled={lessOff} onClick={onLess} className={big ? "size-12" : "size-9"}><Icon name="minus" className="size-4" /></Button>
+export const Stepper = ({ n, onLess, onMore, lessOff }: { n: number; onLess: () => void; onMore: () => void; lessOff?: boolean; big?: boolean }) => (
+  <div className="flex items-center rounded-xl bg-gray-100 text-blue-700 dark:bg-gray-900 dark:text-blue-400">
+    <Button variant="ghost" aria-label="One less" disabled={lessOff} onClick={onLess} className="size-12"><Icon name="minus" className="size-4" /></Button>
     <span className="min-w-8 text-center font-semibold tabular-nums text-gray-900 dark:text-gray-50">{n}</span>
-    <Button variant="ghost" aria-label="One more" onClick={onMore} className={big ? "size-12" : "size-9"}><Icon name="plus" className="size-4" /></Button>
+    <Button variant="ghost" aria-label="One more" onClick={onMore} className="size-12"><Icon name="plus" className="size-4" /></Button>
   </div>);
 
 export type Picked = { options: { id: string; modifierId: string; name: string; price: number }[]; unitPrice: number; mods: string; note: string; qty?: number };
@@ -68,20 +68,20 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
   const groups = links.map((l, gi) => (
     <section key={l.modifierId} className="mb-5">
       <div className="mb-2 flex items-center gap-2">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-50">{data.groups[l.modifierId]?.name || "Options"}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{data.groups[l.modifierId]?.name || "Options"}</h3>
         <Badge variant={+(l.min || 0) ? "error" : "neutral"}>{modRule(l)}</Badge>
         {+(l.free || 0) ? <span className="text-sm text-gray-500">{l.free} free</span> : null}
       </div>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {l.opts.map(o => { const n = sel[gi][o.id] || 0, mx = +(l.max || 0), full = mx > 1 && cnt(gi) >= mx && !n, dis = o.oos || full, rep = l.multi && mx !== 1;
           return (
-            <Card key={o.id} asChild className={cx("relative flex min-h-16 flex-col justify-center p-3 text-left", n ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:border-blue-500 dark:bg-blue-500/10" : "hover:bg-gray-50 dark:hover:bg-gray-900", dis && !n && "opacity-45")}>
+            <Card key={o.id} asChild className={cx("relative flex min-h-[88px] flex-col justify-center rounded-2xl p-4 text-left", n ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:border-blue-500 dark:bg-blue-500/10" : "hover:bg-gray-50 dark:hover:bg-gray-900", dis && !n && "opacity-45")}>
               <button type="button" disabled={dis && !n} onClick={() => tap(gi, o)} aria-label={o.name + (n ? ", " + n + " picked" : "")}>
-                <span className={cx("line-clamp-2 text-sm font-medium text-gray-900 dark:text-gray-50", n && "pe-7")}>{o.name}</span>
-                <span className={cx("text-xs", o.oos ? "text-amber-600" : "text-gray-500")}>{o.oos ? "Out of stock" : o.price ? "+" + money(o.price) : "Free"}</span>
-                {n ? <span className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white dark:bg-blue-500">{rep ? n : <Icon name="check" className="size-4" />}</span> : null}
+                <span className={cx("line-clamp-2 text-[17px] font-medium text-gray-900 dark:text-gray-50", n && "pe-9")}>{o.name}</span>
+                <span className={cx("text-[15px]", o.oos ? "text-amber-600" : "text-gray-500")}>{o.oos ? "Out of stock" : o.price ? "+" + money(o.price) : "Free"}</span>
+                {n ? <span className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-blue-500">{rep ? n : <Icon name="check" className="size-4" />}</span> : null}
                 {n && rep ? <span role="button" tabIndex={0} aria-label={"One less " + o.name} onClick={e => { e.stopPropagation(); tap(gi, o, -1); }}
-                  className="absolute bottom-2 right-2 flex size-7 items-center justify-center rounded-full border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-950"><Icon name="minus" className="size-3.5" /></span> : null}
+                  className="absolute bottom-2 right-2 flex size-10 items-center justify-center rounded-full border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-950"><Icon name="minus" className="size-3.5" /></span> : null}
               </button>
             </Card>); })}
       </div>
@@ -91,16 +91,16 @@ export function ModPicker({ name, basePrice, data, money, onDone, edit, area }: 
     <>
       <button type="button" aria-label="Close options" className="fixed inset-y-0 left-0 z-30 cursor-default" style={{ width: area.cartW }} onClick={() => onDone(null)} />
       <div className="fixed inset-y-0 right-0 z-30 flex flex-col bg-gray-100 dark:bg-gray-900" style={{ left: area.cartW }}>
-        <div className="flex items-center gap-3 border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-gray-950">
-          <div className="min-w-0 flex-1"><p className="truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{name}</p><p className="text-sm text-gray-500">{money(basePrice)}</p></div>
-          <Button variant="secondary" aria-label="Close" className="size-11" onClick={() => onDone(null)}><Icon name="x" /></Button>
+        <div className="flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-3.5 dark:border-gray-800 dark:bg-gray-950">
+          <Button variant="secondary" aria-label="Close" className="size-14 shrink-0 rounded-[14px] p-0" onClick={() => onDone(null)}><Icon name="x" className="size-6" /></Button>
+          <div className="min-w-0 flex-1"><p className="truncate text-2xl font-semibold text-gray-900 dark:text-gray-50">{name}</p><p className="text-[15px] text-gray-500">{money(basePrice)}</p></div>
+          <Button className="h-14 rounded-[14px] px-7 text-[17px]" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button>
         </div>
         <div className="flex-1 overflow-y-auto p-5">{groups}</div>
         {err ? <p className="px-5 pb-2 text-sm text-red-600 dark:text-red-500">{err}</p> : null}
         <div className="flex items-center gap-3 border-t border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-gray-950">
-          <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1 [&>input]:h-12" />
+          <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Note for this item" aria-label="Item note" className="flex-1" />
           <Stepper n={qty} big onLess={() => setQty(q => Math.max(1, q - 1))} onMore={() => setQty(q => Math.min(99, q + 1))} lessOff={qty <= 1} />
-          <Button className="h-12 px-6 text-base" onClick={ok}>{(edit ? "Save · " : "Add · ") + money(price() * qty)}</Button>
         </div>
       </div>
     </>);
@@ -120,9 +120,9 @@ export function VariantPicker({ name, setName, list, money, onDone }: { name: st
     <Sheet title={name} onClose={() => onDone(null)} width={620}>
       <div className="mb-3 flex items-center gap-2"><h3 className="font-semibold text-gray-900 dark:text-gray-50">{setName || "Choose a variant"}</h3><Badge variant="neutral">Choose 1</Badge></div>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        {list.map(v => <Card key={v.id} asChild className={cx("flex h-24 flex-col justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-900", v.oos && "opacity-45")}>
+        {list.map(v => <Card key={v.id} asChild className={cx("flex h-28 flex-col justify-between rounded-2xl p-5 text-left hover:bg-gray-50 dark:hover:bg-gray-900", v.oos && "opacity-45")}>
           <button type="button" disabled={v.oos} onClick={() => onDone(v.id)}>
-            <span className="font-semibold text-gray-900 dark:text-gray-50">{v.name}</span><span className={cx("text-sm font-medium", v.oos ? "text-amber-600" : "text-blue-600 dark:text-blue-500")}>{v.oos ? "Out of stock" : money(v.price)}</span>
+            <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">{v.name}</span><span className={cx("text-[17px] font-medium", v.oos ? "text-amber-600" : "text-blue-600 dark:text-blue-500")}>{v.oos ? "Out of stock" : money(v.price)}</span>
           </button></Card>)}
       </div>
     </Sheet>);
@@ -131,8 +131,10 @@ export function VariantPicker({ name, setName, list, money, onDone }: { name: st
 /** a keypad of Tremor buttons */
 export function NumPad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", dot ? "." : "c", "0", "b"];
-  return <div className="grid grid-cols-3 gap-2">{keys.map(k => <Button key={k} variant={k === "c" || k === "b" ? "ghost" : "secondary"} className="h-14 text-xl font-medium" aria-label={k === "c" ? "Clear" : k === "b" ? "Delete" : k} onClick={() => onKey(k)}>
-    {k === "b" ? <Icon name="del" /> : k === "c" ? <span className="text-sm">Clear</span> : k}</Button>)}</div>;
+  // finger-sized keys: 76px high, soft tinted
+  return <div className="grid grid-cols-3 gap-2.5">{keys.map(k => <button type="button" key={k} aria-label={k === "c" ? "Clear" : k === "b" ? "Delete" : k} onClick={() => onKey(k)}
+    className={cx("flex h-[76px] items-center justify-center rounded-2xl text-[28px] font-semibold", k === "c" || k === "b" ? "text-gray-700 active:bg-gray-100 dark:text-gray-300 dark:active:bg-gray-900" : "bg-blue-50 text-blue-700 active:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400")}>
+    {k === "b" ? <Icon name="del" className="size-7" /> : k === "c" ? <span className="text-base font-medium">Clear</span> : k}</button>)}</div>;
 }
 
 // a number typed on the pad: open price, table, guests, opening cash…
@@ -143,7 +145,7 @@ export function NumberAsk({ title, initial = "", money, onDone }: { title: strin
     <Sheet title={title} onClose={() => onDone(null)} width={380} footer={<>
       <Button variant="secondary" className="flex-1" onClick={() => onDone(null)}>Cancel</Button>
       <Button className="flex-1" disabled={v === "" || isNaN(+v)} onClick={() => onDone(+v)}>OK</Button></>}>
-      <div className="mb-4 flex h-14 items-center justify-center rounded-md border-2 border-blue-500 text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? " " : money && !v.endsWith(".") ? money(+v) : v}</div>
+      <div className="mb-4 flex h-20 items-center justify-center rounded-2xl border-2 border-blue-500 text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? " " : money && !v.endsWith(".") ? money(+v) : v}</div>
       <NumPad onKey={key} dot={!!money} />
     </Sheet>);
 }
@@ -168,7 +170,7 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
     <div className="fixed inset-y-0 left-0 z-30 flex flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950" style={{ width: area.cartW }}>
       <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
         <div className="min-w-0 flex-1"><p className="truncate font-semibold text-gray-900 dark:text-gray-50">{part === "note" ? "Note · " + name : part === "disc" ? "Discount · " + name : q + " × " + name}</p><p className="text-sm text-gray-500">{money(unit)} each</p></div>
-        <Button variant="secondary" aria-label="Back to the cart" className="size-11" onClick={() => onDone(null)}><Icon name="x" /></Button>
+        <Button variant="secondary" aria-label="Back to the cart" className="size-14 rounded-[14px] p-0" onClick={() => onDone(null)}><Icon name="x" className="size-6" /></Button>
       </div>
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
         {!part && <div className="flex items-center justify-between gap-3">
@@ -180,7 +182,7 @@ export function LineExtras({ name, unit, qty, note, disc, discPct, money, canPct
       </div>
       <div className="flex items-center gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800">
         <div className="flex-1"><p className="text-sm text-gray-500">Line total</p><p className="font-semibold text-gray-900 dark:text-gray-50">{money(full - d)}{d > 0 ? <span className="ms-2 text-sm font-normal text-gray-500 line-through">{money(full)}</span> : null}</p></div>
-        <Button className="h-12 px-8 text-base" onClick={save}>Save</Button>
+        <Button className="h-14 rounded-[14px] px-8 text-[17px]" onClick={save}>Save</Button>
       </div>
     </div>);
   return (
