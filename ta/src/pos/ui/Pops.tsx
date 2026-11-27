@@ -4,6 +4,7 @@
 import { Button } from "@/components/tremor/Button";
 import { Input } from "@/components/tremor/Input";
 import { RadioCardGroup, RadioCardItem } from "@/components/tremor/RadioCardGroup";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/tremor/Select";
 import { Textarea } from "@/components/tremor/Textarea";
 import { cx } from "@/components/tremor/utils";
 import { useState } from "react";
@@ -65,22 +66,23 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
   return (
     <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">Whole order</span></span>} onClose={() => onDone(undefined)}
       action={<>{init ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onDone(null)}>Remove</Main> : null}<Main disabled={!ok} onClick={apply}>Apply</Main></>}>
-      <div className="flex h-full flex-row-reverse gap-6">
+      <div className="flex h-full gap-6">
+        <div className="w-[330px] shrink-0 space-y-2.5">
+          {/* saved discounts in a dropdown on top; Custom = type a % or an amount */}
+          {sets.length ? <Select value={setSel?.id || "_custom"} onValueChange={id => { setSetSel(id === "_custom" ? null : sets.find(d => d.id === id) || null); setV(""); }}>
+            <SelectTrigger aria-label="Saved discount"><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="_custom" className="py-3 text-[17px]">Custom discount</SelectItem>
+              {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
+                return <SelectItem key={d.id} value={d.id} disabled={off} className="py-3 text-[17px]">{d.name}{d.open ? "" : off ? " · " + (c.why || "Not for this order") : " · −" + cur(c.amt)}</SelectItem>; })}</SelectContent></Select> : null}
+          {typing ? <>
+            {!setSel && allowPct && allowAmt ? <Seg value={type} onChange={k => { setType(k); setV(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
+            {pad(v, pct, setV, setSel ? setSel.name : "Custom")}
+          </> : null}
+        </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <Label>Saved discounts</Label>
-          {!sets.length ? <p className="text-gray-500">No saved discounts.</p> : null}
-          <div className="grid grid-cols-2 gap-3">
-            {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
-              return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={<span className="flex items-center gap-2.5"><Icon name="pct" className="size-6 text-blue-600 dark:text-blue-500" />{d.name}</span>}
-                sub={d.open ? (d.type === "fixed" ? "You type the amount" : "You type the %") : off ? c.why || "Not for this order" : "−" + cur(c.amt)} />; })}
-          </div>
           {save > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">New total</span>
             <b className="tabular-nums text-gray-900 dark:text-gray-50">{cur(sub - save)} <span className="font-medium text-emerald-600">(−{cur(save)})</span></b></div> : null}
         </div>
-        {typing ? <div className="w-[330px] shrink-0 space-y-2.5">
-          {setSel ? <p className="py-3 text-lg font-semibold text-gray-900 dark:text-gray-50">{setSel.name}</p> : allowPct && allowAmt ? <Seg value={type} onChange={k => { setType(k); setV(""); }} items={[["pct", "%"], ["amt", "Amount"]]} /> : null}
-          {pad(v, pct, setV, setSel ? "Value" : "Custom")}
-        </div> : null}
       </div>
     </Panel>);
 }
