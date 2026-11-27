@@ -101,8 +101,9 @@ export function Register() {
   // a saved order's customer: their details, address and history, to look at only
   const viewCust = () => { const o = live_eo!; setDlg(<CustomerDialog view type={o.type === "pickup" ? "takeaway" : (o.type as OType)} types={types} init={{ name: o.customerName || "", phone: o.phone || "", source: o.source || "", addr: addrParts(o.address || "") }} area={area} onDone={() => setDlg(null)} />); };
   // the cart shows the type picked in the customer window at once; leaving the window puts the old type back
-  const askCust = async (tp: OType, back?: () => void) => { const was = otype; const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} onType={switchType} />);
-    goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); switchType(was); back?.(); } };
+  const custWas = useRef<OType | null>(null);   // the type before the customer window opened (kept when the dropdown changes it while open)
+  const askCust = async (tp: OType, back?: () => void) => { if (custWas.current === null) custWas.current = otype; const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} onType={switchType} />);
+    const was = custWas.current || otype; custWas.current = null; goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); switchType(was); back?.(); } };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
@@ -339,7 +340,7 @@ export function Register() {
             {/* the order type: a dropdown on a new order (Pickup / Delivery open the customer window) */}
             {!live_eo && types.length > 1 ? <Popover open={typeOpen} onOpenChange={setTypeOpen}>
               <PopoverTrigger asChild><button type="button" className="-my-2 flex h-11 items-center gap-1.5 rounded-xl px-2 text-[19px] font-semibold text-gray-900 active:bg-gray-100 dark:text-gray-50">{TYPE_LBL[otype] || otype}<Icon name="down" className="size-5 text-gray-500" /></button></PopoverTrigger>
-              <PopoverContent align="start" sideOffset={6} className="w-56 space-y-1 p-2">{types.map(k => <button key={k} type="button" onClick={() => { setTypeOpen(false); if (k === otype) return; if (k === "dinein") switchType("dinein"); else askCust(k); }}
+              <PopoverContent align="start" sideOffset={6} className="w-56 space-y-1 p-2">{types.map(k => <button key={k} type="button" onClick={() => { setTypeOpen(false); if (k === otype) return; if (k === "dinein" && custWas.current === null) switchType("dinein"); else askCust(k); }}
                 className={cx("flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-[17px] font-medium", k === otype ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400" : "text-gray-900 active:bg-gray-100 dark:text-gray-50")}>
                 <Icon name={k === "delivery" ? "scooter" : k === "dinein" ? "store" : "bag"} className="size-5" />{TYPE_LBL[k]}</button>)}</PopoverContent></Popover>
               : <span className="font-semibold text-gray-900 dark:text-gray-50">{TYPE_LBL[otype] || otype}</span>}

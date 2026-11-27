@@ -44,6 +44,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
   const set = (k: keyof Cust, v: any) => { setC(o => ({ ...o, [k]: v })); setErr(""); };
   const setA = (k: keyof Addr, v: string) => setC(o => ({ ...o, addr: { ...o.addr, [k]: v } }));
   // a returning customer: their name, notes and saved addresses (the first one is picked if none is yet)
+  useEffect(() => { setT(type); }, [type]);   // the cart dropdown changed the type while this window is open
   useEffect(() => { onType?.(t); }, [t]); // eslint-disable-line react-hooks/exhaustive-deps
   const filled = useRef("");   // the name a found phone number filled in: it goes when the number changes
   useEffect(() => { if (filled.current && c.name === filled.current) { filled.current = ""; setC(o => ({ ...o, name: "" })); } }, [c.phone]); // eslint-disable-line react-hooks/exhaustive-deps
