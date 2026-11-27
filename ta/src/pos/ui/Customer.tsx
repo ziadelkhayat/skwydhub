@@ -11,7 +11,7 @@ import { useStore } from "../lib/store";
 import { Icon } from "./Icon";
 import { notify } from "./notify";
 import { Sheet } from "./Pickers";
-import { Main, Panel, Seg } from "./Touch";
+import { Main, Panel } from "./Touch";
 
 const Field = ({ label, value, onChange, tel }: { label: string; value: string; onChange: (v: string) => void; tel?: boolean }) => { const id = useId();
   // the label is the placeholder inside the field
@@ -82,7 +82,6 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
       {err && area ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{err}</p> : null}
       <div className={del || area ? "grid grid-cols-2 gap-6" : ""}>
         <div className="space-y-3">
-          {types.length > 1 && <Seg value={t} onChange={k => setT(k)} items={types.map(k => [k, k === "delivery" ? "Delivery" : k === "dinein" ? "In Store" : "Pickup"] as [OType, string])} />}
           {src.length > 0 && t !== "dinein" && <div>
             <Select value={c.source || ""} onValueChange={s => set("source", s)}><SelectTrigger><SelectValue placeholder="Order source *" /></SelectTrigger>
               <SelectContent>{src.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>}
