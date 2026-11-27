@@ -284,9 +284,9 @@ export function Register() {
   const popW: Record<string, number> = { Discount: 560, Retrieve: 600, Tags: 400, Charges: 400, Notes: 380 };
 
   return (
-    <div className="flex h-full bg-gray-200 dark:bg-gray-900" onPointerDownCapture={() => { lastTouch.current = Date.now(); }}>
+    <div className="flex h-full bg-gray-200 portal:bg-[var(--portal-canvas)] dark:bg-gray-900 dark:portal:bg-gray-900" onPointerDownCapture={() => { lastTouch.current = Date.now(); }}>
       {/* ---------- cart: the full height on the left ---------- */}
-      <aside className="flex h-full flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950" style={{ width: CART_W }}>
+      <aside className="relative z-[1] flex h-full flex-col border-r border-gray-200 bg-white portal:border-r-0 portal:shadow-[4px_0_18px_rgb(16_24_40/0.06)] dark:border-gray-800 dark:bg-gray-950 dark:portal:border-r" style={{ width: CART_W }}>
         <div className="flex items-start gap-2 px-4 pt-3">
           {live_eo && STL[st] ? <Badge variant={STL[st][1]}>{STL[st][0]}</Badge> : null}
           <Icon name={otype === "delivery" ? "scooter" : otype === "dinein" ? "store" : "bag"} className="size-5 text-blue-600 dark:text-blue-500" />
@@ -352,17 +352,17 @@ export function Register() {
         <div className="flex gap-2.5 px-4 pb-4 pt-0.5">
           {erPending(live_eo) ? <>
             <Button variant="destructive" className="h-14 flex-1 text-base" onClick={() => erDecide(false)}>Reject</Button>
-            <Button className="h-14 flex-[2] text-base" onClick={() => erDecide(true)}>Approve</Button>
+            <Button className="h-14 flex-[2] text-base portal:rounded-xl" onClick={() => erDecide(true)}>Approve</Button>
           </> : st === "pending" ? <>
             <Button variant="destructive" className="h-14 flex-1 text-base" onClick={decline}>Decline</Button>
-            <Button className="h-14 flex-[2] text-base" onClick={accept}>Accept</Button>
+            <Button className="h-14 flex-[2] text-base portal:rounded-xl" onClick={accept}>Accept</Button>
           </> : ro ? <div className={cx("flex h-14 flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
               <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
               <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
           : <>
             {/* Save: keeps the order open and starts a new one (an In Store order needs a table); Kitchen saves too but leaves the order in the cart */}
             {live_eo || !noTable ? <Button variant="secondary" className="h-14 flex-1 text-base" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
-            <Button className="h-14 flex-[2] justify-between px-5 text-base" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+            <Button className="h-14 flex-[2] justify-between px-5 text-base portal:rounded-xl" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
           </>}
         </div>
       </aside>
@@ -371,7 +371,7 @@ export function Register() {
       <main className="flex h-full min-w-0 flex-1 flex-col gap-3 px-4 pt-3">
         <div className="grid grid-cols-8 gap-2">
           {acts.map(a => {
-            const btn = <Button key={a} className={cx("relative aspect-square h-auto flex-col gap-1.5 p-0 text-[13px]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
+            const btn = <Button key={a} className={cx("relative aspect-square h-auto flex-col gap-1.5 p-0 text-[13px] portal:rounded-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
               <Icon name={BTN[a]} className="size-6" />{a}
               {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-gray-200 bg-red-600 px-1 text-[11px] font-bold dark:border-gray-900">{heldN}</span> : null}</Button>;
             if (!["Discount", "Charges", "Notes", "Tags", "Retrieve"].includes(a)) return btn;
@@ -386,7 +386,7 @@ export function Register() {
               </PopoverContent></Popover>;
           })}
         </div>
-        <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-11" />
+        <Input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search items" aria-label="Search items" className="[&>input]:h-11 portal:[&>input]:rounded-[10px] portal:[&>input]:border-transparent portal:[&>input]:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(16_24_40/0.05)]" />
         <div ref={gridRef} className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto">
           {!m.tops.length ? <p className="p-5 text-sm text-gray-500">No POS menu at this store.</p> : null}
           {q.trim() && !items.length ? <p className="p-5 text-sm text-gray-500">No items match.</p> : null}
@@ -397,7 +397,7 @@ export function Register() {
               : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * ROWS) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
           </div>
         </div>
-        <nav className="mb-4 flex h-14 items-center justify-evenly rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+        <nav className="mb-4 flex h-14 items-center justify-evenly rounded-md border border-gray-200 bg-white portal:rounded-2xl portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
           <DropdownMenu>
             <DropdownMenuTrigger asChild><Button variant="ghost" className="h-12 gap-2 text-[15px]"><Icon name="grid" className="size-5" />Functions</Button></DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-72">
@@ -433,7 +433,7 @@ const Fn = ({ icon, label, onSelect, bad }: { icon: string; label: string; onSel
 function Tile({ name, img, sub, oos, snap, onClick }: { name: string; img?: string; sub?: string; oos?: boolean; snap?: boolean; onClick: () => void }) {
   return (
     <button type="button" disabled={oos} onClick={onClick} aria-label={name + (sub ? ", " + sub : "")}
-      className={cx("flex h-full flex-col overflow-hidden rounded-md bg-white text-center shadow-xs hover:bg-blue-50 disabled:opacity-50 dark:bg-gray-950 dark:hover:bg-blue-500/10", snap && "snap-start")}>
+      className={cx("flex h-full flex-col overflow-hidden rounded-md bg-white text-center shadow-xs portal:rounded-[14px] portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.07)] hover:bg-blue-50 disabled:opacity-50 dark:bg-gray-950 dark:hover:bg-blue-500/10", snap && "snap-start")}>
       <span className="flex min-h-0 w-full flex-1 items-center justify-center bg-amber-50/60 dark:bg-gray-900">{img ? <img src={img} alt="" className="size-full object-cover" /> : <Icon name="bowl" className="size-7 text-gray-400" />}</span>
       <span className="flex h-[66px] shrink-0 flex-col justify-between px-1.5 pb-1.5 pt-1">
         <span className="line-clamp-2 text-[12.5px] font-medium leading-[15px] text-gray-900 dark:text-gray-50">{name}</span>

@@ -18,9 +18,9 @@ export const tblParts = (n: any) => String(n || "").split("+").map(x => x.trim()
 export const tblLbl = (n: any) => { const l = tblParts(n); if (!l.length) return String(n || ""); return l.every(x => /^\d+$/.test(x)) ? (l.length > 1 ? "Tables " : "Table ") + l.join(" + ") : l.join(" + "); };
 
 // a table's colour shows how long it has been open
-const AGE = [{ l: "Free", c: "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950", t: "text-emerald-600" }, { l: "Under 15 min", c: "border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10", t: "text-emerald-700 dark:text-emerald-400" },
-  { l: "15 – 30 min", c: "border-amber-400 bg-amber-50 dark:bg-amber-500/10", t: "text-amber-700 dark:text-amber-400" }, { l: "30 min – 1 hour", c: "border-orange-500 bg-orange-50 dark:bg-orange-500/10", t: "text-orange-700 dark:text-orange-400" },
-  { l: "Over 1 hour", c: "border-red-500 bg-red-50 dark:bg-red-500/10", t: "text-red-700 dark:text-red-400" }], MERGED = { l: "Merged", c: "border-violet-500 bg-violet-50 dark:bg-violet-500/10", t: "text-violet-700 dark:text-violet-400" };
+const AGE = [{ l: "Free", c: "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950", t: "text-emerald-600" }, { l: "Under 15 min", c: "border-emerald-400 portal:border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10", t: "text-emerald-700 dark:text-emerald-400" },
+  { l: "15 – 30 min", c: "border-amber-400 portal:border-amber-400 bg-amber-50 dark:bg-amber-500/10", t: "text-amber-700 dark:text-amber-400" }, { l: "30 min – 1 hour", c: "border-orange-500 portal:border-orange-500 bg-orange-50 dark:bg-orange-500/10", t: "text-orange-700 dark:text-orange-400" },
+  { l: "Over 1 hour", c: "border-red-500 portal:border-red-500 bg-red-50 dark:bg-red-500/10", t: "text-red-700 dark:text-red-400" }], MERGED = { l: "Merged", c: "border-violet-500 portal:border-violet-500 bg-violet-50 dark:bg-violet-500/10", t: "text-violet-700 dark:text-violet-400" };
 export function TablesDialog({ x, onFree, onOpen, onClose }: { x: Ctx; onFree: (name: string) => void; onOpen: (o: Row) => void; onClose: () => void }) {
   const { write } = useStore(), [tm, setTm] = useState<{ mode: "move" | "merge"; from?: string } | null>(null), [msg, setMsg] = useState(""), [confirm, setConfirm] = useState<string | null>(null);
   const press = useHold();
