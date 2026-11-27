@@ -31,7 +31,7 @@ export default function AppLayout({
       <AppSidebar />
 
       {/* the page sits in a white panel on the gray canvas, beside the menu (Soft Indigo) */}
-      <main className={cn("min-w-0 lg:py-2 lg:pr-2 lg:pl-72", isAiRoute && "h-svh overflow-hidden")}>
+      <main className={cn("min-w-0 lg:py-2 lg:pr-2 lg:pl-60", isAiRoute && "h-svh overflow-hidden")}>
         <div className="min-h-[calc(100svh-1rem)] bg-white lg:rounded-[18px] lg:border lg:border-gray-200/80 dark:bg-gray-950 lg:dark:border-gray-800">
         {/* the signed-in user, top right (lg+; below lg it is in the top bar) */}
         {!isAiRoute ? <div className="hidden justify-end px-6 pt-4 lg:flex"><UserMenu top /></div> : null}
