@@ -56,7 +56,8 @@ export function CustomerDialog({ type, types, init, onDone, area }: { type: OTyp
       const done = (os || []).filter((o: any) => o.status === "closed"), cnt: Record<string, number> = {};
       done.forEach((o: any) => (o.items || []).forEach((i: any) => { cnt[i.name] = (cnt[i.name] || 0) + (+i.qty || 1); }));
       setIns({ n: done.length, spent: done.reduce((a: number, o: any) => a + (+o.total || 0), 0), last: (os || [])[0]?.created_at || "", fav: Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k), voids: (os || []).filter((o: any) => ["void", "declined"].includes(o.status)).length });
-      setC(o => ({ ...o, name: o.name.trim() ? o.name : d.name || "", addr: addrJoin(o.addr) || !sv.length ? o.addr : addrParts(sv[0]) }));
+      setC(o => ({ ...o, name: d.name || o.name,   // a saved customer: their saved name replaces what was typed
+        addr: addrJoin(o.addr) || !sv.length ? o.addr : addrParts(sv[0]) }));
     }, 400); return () => { off = true; clearTimeout(tm); }; }, [c.phone, sb]);
   // the customer's saved addresses changed (edit / delete): saved on the customer at once
   const saveAddrs = async (list: any[], msg: string) => { if (!sb || !custId) return; const { error } = await sb.from("customers").update({ addresses: list }).eq("id", custId);
