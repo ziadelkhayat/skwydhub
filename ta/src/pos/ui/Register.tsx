@@ -86,13 +86,18 @@ export function Register() {
     if (otype !== "dinein") { f.address = otype === "delivery" ? addrJoin(cust.addr) : ""; if (cust.source) f.source = cust.source; }
     if (live_eo) { delete f.customerName; delete f.phone; delete f.address; delete f.source; } return f; };
   // back: opened from Pickup & Delivery, its Back button returns there
-  // a past order tapped in the customer window: its items (still on the menu) go into the cart
+  // a past order tapped in the customer window shows its items in the cart (only that order's); Reorder at the bottom takes the customer
+  // window's choices (Pickup / Delivery, customer) and keeps the items; the bin, or leaving the window, puts the cart back as it was
+  const [preview, setPreview] = useState(false), before = useRef<Line[] | null>(null), goRef = useRef<(() => void) | null>(null), undoRef = useRef<(() => void) | null>(null);
   const reorder = (items: any[]) => { if (ro) return say("This order is done");
     const ok = (items || []).filter((i: any) => { const p = S.products.find((q: any) => q.id === i.productId); return p && !p.deleted && !prodOos(x, p); });
     if (!ok.length) return say("These items aren't on the menu now");
-    setCart(c => [...c, ...ok.map((i: any): Line => ({ productId: i.productId, name: i.name, price: +i.price || 0, qty: +i.qty || 1, ...(i.options?.length ? { options: i.options } : {}), ...(i.note ? { note: i.note } : {}), ...(i.mods ? { mods: i.mods } : {}) }))]);
-    say(ok.length < items.length ? "Added to the cart (some items aren't on the menu now)" : "Added to the cart"); };
-  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} />); if (r) { setCust(r.cust); switchType(r.type); } else back?.(); };
+    if (before.current === null) before.current = cart;
+    setCart([...before.current, ...ok.map((i: any): Line => ({ productId: i.productId, name: i.name, price: +i.price || 0, qty: +i.qty || 1, ...(i.options?.length ? { options: i.options } : {}), ...(i.note ? { note: i.note } : {}), ...(i.mods ? { mods: i.mods } : {}) }))]);
+    setPreview(true); if (ok.length < items.length) say("Some items aren't on the menu now"); };
+  const unpreview = () => { if (before.current !== null) setCart(before.current); before.current = null; setPreview(false); undoRef.current?.(); };
+  const askCust = async (tp: OType, back?: () => void) => { const r = await ask<{ type: OType; cust: Cust } | null>(done => <CustomerDialog type={tp} types={types} init={cust} area={area} back={back ? "Back" : undefined} onDone={done} onReorder={reorder} goRef={goRef} undoRef={undoRef} />);
+    goRef.current = null; undoRef.current = null; if (r) { before.current = null; setPreview(false); setCust(r.cust); switchType(r.type); } else { unpreview(); back?.(); } };
   const who = () => cashier?.name || device!.name;
   const appSetOf = () => appSet(S, branch?.brandId);
   const accept = async () => { const o = live_eo!, now = new Date().toISOString();
@@ -362,7 +367,7 @@ export function Register() {
             const tag = live_eo ? (st === "void" ? ["Void", "text-red-600"] : allBack || st === "returned" || st === "refund" ? ["Returned", "text-red-600"] : sent && ["active", "pending"].includes(st) ? ["Sent", "text-emerald-600"] : null) : null;
             const left = l.qty - (l.saved || 0);
             // swipe an unsent line left to delete it; − stops at 1
-            return <SwipeRow key={i} enabled={!ro && !sent} onDelete={() => qty(i, -left)} onTap={() => (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLines.includes(i)) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
+            return <SwipeRow key={i} enabled={!ro && !sent && !preview} onDelete={() => qty(i, -left)} onTap={() => preview ? undefined : (pop === "Discount" ? pickDiscLine(i) : pop === "VR" ? pickVr(i) : editLine(i))} className={cx("flex min-h-[72px] items-center gap-3 border-b border-gray-100 px-4 py-2.5 dark:border-gray-900", (pop === "Discount" && discLines.includes(i)) || (pop === "VR" && vrSel[i]) ? "bg-blue-100 ring-2 ring-inset ring-blue-600 dark:bg-blue-500/20" : live_eo && !l.saved && !ro ? "bg-blue-50 dark:bg-blue-500/10" : "bg-white dark:bg-gray-950")}>
               {/* the quantity before the item (3×); tap the item to change it */}
               <span className={cx("min-w-9 text-[17px] font-semibold tabular-nums", gone ? "text-gray-400 line-through" : "text-blue-700 dark:text-blue-400")}>{l.qty}×</span>
               <button type="button" aria-label={l.name} className="min-w-0 flex-1 text-left">
@@ -401,7 +406,10 @@ export function Register() {
           </> : ro ? <div className={cx("flex h-[60px] flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
               <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
               <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
-          : <>
+          : preview ? <>
+            <Button variant="secondary" aria-label="Clear cart" className="h-[60px] w-[60px] shrink-0 rounded-2xl p-0 text-red-600 dark:text-red-500" onClick={unpreview}><Icon name="trash" className="size-6" /></Button>
+            <Button className="h-[60px] flex-1 justify-between rounded-2xl px-6 text-lg" onClick={() => goRef.current?.()}><span>Reorder</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+          </> : <>
             {/* Save: keeps the order open and starts a new one (an In Store order needs a table); Kitchen saves too but leaves the order in the cart */}
             {/* Clear: empties a new order's cart (a second tap confirms) */}
             {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[60px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[60px] p-0")}

@@ -36,7 +36,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
     </div>);
 }
 
-export function CustomerDialog({ type, types, init, onDone, area, back, onReorder }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string; onReorder?: (items: any[]) => void }) {
+export function CustomerDialog({ type, types, init, onDone, area, back, onReorder, goRef, undoRef }: { type: OType; types: OType[]; init: Cust; onDone: (r: { type: OType; cust: Cust } | null) => void; area?: { cartW: string }; back?: string; onReorder?: (items: any[]) => void; goRef?: { current: (() => void) | null }; undoRef?: { current: (() => void) | null } }) {
   const { S, sb } = useStore();
   const [t, setT] = useState<OType>(type);   // In Store: just the customer's name and phone
   const [c, setC] = useState<Cust>(init), [saved, setSaved] = useState<string[]>([]), [who, setWho] = useState<null | { name: string; notes: string; black: boolean; isNew?: boolean }>(null), [err, setErr] = useState("");
@@ -69,6 +69,10 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
   const go = () => { const m = t === "dinein" ? (c.phone && c.phone.replace(/\D/g, "").length < 6 ? "Enter a valid phone number" : "") : custMissing(t, c, src.length > 0); if (m) return setErr(m);
     if (editIdx >= 0 && addrJoin(c.addr) !== saved[editIdx]) saveAddrs(raw.map((r, j) => (j === editIdx ? { ...r, address: addrJoin(c.addr) } : r)), "Address saved");
     onDone({ type: t, cust: { ...c, phone: normPhone(c.phone) || c.phone } }); };
+  if (goRef) goRef.current = go;   // Reorder in the cart saves like Save
+  // the bin in the cart while a past order shows: Pickup / Delivery goes back to what it was before the tap
+  const tBefore = useRef<OType | null>(null);
+  if (undoRef) undoRef.current = () => { if (tBefore.current) setT(tBefore.current); tBefore.current = null; };
   // Save stays greyed until the required fields are filled
   const need = t === "dinein" ? !(c.phone.replace(/\D/g, "").length >= 6 && c.name.trim()) : !!custMissing(t, c, src.length > 0);
   const addrVal = newAddr ? "_new" : String(saved.findIndex(a => addrJoin(addrParts(a)) === addrJoin(c.addr)));
@@ -135,7 +139,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
             <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">Previous orders</h3>
             <div className="max-h-[300px] space-y-2 overflow-y-auto">
               {prev.map(o => { const bad = ["void", "declined"].includes(o.status), its = (o.items || []).map((i: any) => (+i.qty > 1 ? i.qty + "× " : "") + i.name).join(", ");
-                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => onReorder?.(o.items || [])} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
+                return <button type="button" key={o.id} disabled={!onReorder} onClick={() => { if (tBefore.current === null) tBefore.current = t; if (o.type !== "dinein" && types.includes(o.type)) setT(o.type); onReorder?.(o.items || []); }} className="block w-full rounded-xl border border-gray-200 px-4 py-2.5 text-left active:bg-blue-50 dark:border-gray-800 dark:active:bg-blue-500/10">
                   <div className="flex items-center gap-2 text-[15px]"><span className="font-semibold text-gray-900 dark:text-gray-50">{fmtD(o.created_at)}</span>
                     <span className="text-gray-500">{o.type === "delivery" ? "Delivery" : o.type === "pickup" ? "Pickup" : "In Store"}</span>
                     {bad ? <span className="rounded-md bg-red-50 px-1.5 text-[13px] font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">{o.status === "void" ? "Void" : "Declined"}</span> : null}
@@ -148,7 +152,7 @@ export function CustomerDialog({ type, types, init, onDone, area, back, onReorde
     </>);
   // on the register it opens in the menu's place like Discount (the cart stays on the left)
   return area
-    ? <Panel area={area} back={back} title="Customer Details" onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
+    ? <Panel area={area} cartOpen={!!goRef} back={back} title="Customer Details" onClose={() => onDone(null)} action={<Main disabled={need} onClick={go}>Save</Main>}>{body}</Panel>
     : <Sheet title="Customer Details" width={del ? 1000 : 540} onClose={() => onDone(null)} footer={<>
       <span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span>
       <Button variant="secondary" className="h-11 min-w-28" onClick={() => onDone(null)}>Cancel</Button><Button className="h-11 min-w-36" onClick={go}>Continue</Button></>}>{body}</Sheet>;
