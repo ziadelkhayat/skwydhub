@@ -197,3 +197,7 @@ layer(base);
   border-color: transparent !important; box-shadow: none !important; background: transparent; outline: none;
   min-height: 0; height: 24px; padding-top: 0; padding-bottom: 0; padding-inline: 7px;
 }
+
+/* lines between rows: the very light ones (gray-100) are a step darker in the portal so every list shows its rows */
+.portal :where(.divide-gray-100) > :not(:last-child) { border-color: var(--color-gray-200); }
+.portal :where(.border-gray-100) { border-color: var(--color-gray-200); }
