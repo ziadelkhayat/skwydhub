@@ -379,21 +379,21 @@ export function Register() {
         </div>
         <div className="flex gap-2.5 px-4 pb-4 pt-0.5">
           {erPending(live_eo) ? <>
-            <Button variant="destructive" className="h-[72px] flex-1 rounded-2xl text-lg" onClick={() => erDecide(false)}>Reject</Button>
-            <Button className="h-[72px] flex-[2] rounded-2xl text-lg" onClick={() => erDecide(true)}>Approve</Button>
+            <Button variant="destructive" className="h-[60px] flex-1 rounded-2xl text-[17px]" onClick={() => erDecide(false)}>Reject</Button>
+            <Button className="h-[60px] flex-[2] rounded-2xl text-[17px]" onClick={() => erDecide(true)}>Approve</Button>
           </> : st === "pending" ? <>
-            <Button variant="destructive" className="h-[72px] flex-1 rounded-2xl text-lg" onClick={decline}>Decline</Button>
-            <Button className="h-[72px] flex-[2] rounded-2xl text-lg" onClick={accept}>Accept</Button>
-          </> : ro ? <div className={cx("flex h-[72px] flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
+            <Button variant="destructive" className="h-[60px] flex-1 rounded-2xl text-[17px]" onClick={decline}>Decline</Button>
+            <Button className="h-[60px] flex-[2] rounded-2xl text-[17px]" onClick={accept}>Accept</Button>
+          </> : ro ? <div className={cx("flex h-[60px] flex-1 items-center justify-between gap-3 rounded-md border px-4", st === "closed" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-400" : st === "void" ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400")}>
               <span className="truncate text-sm font-medium">{st === "closed" ? ["Paid", live_eo!.payment?.method || live_eo!.payment?.type, live_eo!.invoiceNo ? "Check " + live_eo!.invoiceNo : ""].filter(Boolean).join(" · ") : st === "void" ? ["Voided", live_eo!.voidReason, live_eo!.handledBy ? "by " + live_eo!.handledBy : ""].filter(Boolean).join(" · ") : ["Returned", live_eo!.voidReason].filter(Boolean).join(" · ")}</span>
               <span className={cx("text-lg font-semibold tabular-nums", st === "void" && "line-through")}>{(st === "closed" || st === "void" ? "" : "−") + money(S, t.total)}</span></div>
           : <>
             {/* Save: keeps the order open and starts a new one (an In Store order needs a table); Kitchen saves too but leaves the order in the cart */}
             {/* Clear: empties a new order's cart (a second tap confirms) */}
-            {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[72px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[72px] p-0")}
-              onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-7" />}</Button> : null}
-            {live_eo || !noTable ? <Button variant="secondary" className="h-[72px] flex-1 rounded-2xl text-lg" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
-            <Button className="h-[72px] flex-[2] justify-between rounded-2xl px-6 text-xl shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
+            {!live_eo && cart.length ? <Button variant="secondary" aria-label={sureClear ? "Tap again to clear the cart" : "Clear cart"} className={cx("h-[60px] shrink-0 rounded-2xl text-red-600 dark:text-red-500", sureClear ? "w-28 bg-red-50 text-base font-semibold dark:bg-red-500/10" : "w-[60px] p-0")}
+              onClick={() => { if (sureClear) { setSureClear(false); reset(); say("Cart cleared"); } else { setSureClear(true); setTimeout(() => setSureClear(false), 3000); } }}>{sureClear ? "Clear?" : <Icon name="trash" className="size-6" />}</Button> : null}
+            {live_eo || !noTable ? <Button variant="secondary" className="h-[60px] flex-1 rounded-2xl text-[17px]" disabled={!cart.length} onClick={() => saveOrder()}>Save</Button> : null}
+            <Button className="h-[60px] flex-[2] justify-between rounded-2xl px-6 text-lg shadow-[0_6px_18px_rgb(79_70_229/0.35)]" disabled={!cart.length} onClick={pay}><span>TOTAL</span><span className="tabular-nums">{money(S, t.total)}</span></Button>
           </>}
         </div>
       </aside>
@@ -402,7 +402,7 @@ export function Register() {
       <main className="flex h-full min-w-0 flex-1 flex-col gap-3 px-4 pt-3">
         {/* the top buttons and, beside them, the category buttons; search opens in their place */}
         <div className="flex gap-2.5">
-          {acts.map(a => <Button key={a} className={cx("relative h-[72px] w-[88px] shrink-0 flex-col gap-1 rounded-[14px] p-0 text-[14px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
+          {acts.map(a => <Button key={a} className={cx("relative size-[76px] shrink-0 flex-col gap-1 rounded-[14px] p-0 text-[13px] portal:shadow-[0_2px_4px_rgb(79_70_229/0.25),0_8px_18px_rgb(79_70_229/0.18)]", pop === a && "ring-[3px] ring-blue-300")} onClick={() => action(a)}>
             <Icon name={BTN[a]} className="size-7" />{a}
             {a === "Retrieve" && heldN ? <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold dark:border-gray-900">{heldN}</span> : null}</Button>)}
         </div>
@@ -422,7 +422,7 @@ export function Register() {
               : <Tile key={it.id + k} name={it.name} img={it.imageUrl} oos={prodOos(x, it)} snap={k % (COLS * rows) < COLS} sub={it.pricingMethod === "open" ? "Open price" : (kidsOf(x, it).length ? "From " : "") + money(S, tilePrice(x, it))} onClick={() => add(it)} />)}
           </div>
         </div>
-        <nav className="mb-4 box-border flex h-[72px] shrink-0 gap-1.5 rounded-2xl border border-gray-200 bg-white p-1 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
+        <nav className="mb-4 box-border flex h-[60px] shrink-0 gap-1.5 rounded-2xl border border-gray-200 bg-white p-1 portal:border-transparent portal:shadow-[0_1px_2px_rgb(16_24_40/0.06),0_6px_16px_rgb(16_24_40/0.08)] dark:border-gray-800 dark:bg-gray-950">
           <NavB icon="grid" label="Functions" onClick={fnPage} />
           <NavB icon="list" label="Orders" onClick={() => setDlg(<OrdersList x={x} area={area} onOpen={openOrder} onClose={() => setDlg(null)} />)} />
           <NavB icon="table" label="Tables" onClick={tablesPage} />
@@ -450,8 +450,8 @@ export function Register() {
 const Sum = ({ l, r }: { l: string; r: string }) => <div className="flex justify-between"><span>{l}</span><span className="tabular-nums">{r}</span></div>;
 // a button of the bottom bar: the icon over its label, 68px high
 const NavB = ({ icon, label, onClick, n }: { icon: string; label: string; onClick: () => void; n?: number }) => (
-  <button type="button" onClick={onClick} className="relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[15px] font-medium text-gray-700 active:bg-blue-50 dark:text-gray-300 dark:active:bg-blue-500/10">
-    <Icon name={icon} className="size-7 text-blue-600 dark:text-blue-500" />{label}
+  <button type="button" onClick={onClick} className="relative flex h-full flex-1 flex-col items-center justify-center gap-0 rounded-xl text-[14px] font-medium text-gray-700 active:bg-blue-50 dark:text-gray-300 dark:active:bg-blue-500/10">
+    <Icon name={icon} className="size-6 text-blue-600 dark:text-blue-500" />{label}
     {n ? <span className="absolute right-3 top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold text-white dark:border-gray-950">{n}</span> : null}</button>);
 
 // a menu tile: a Tremor card with the photo across its top (cropped to fit), the name on up to 3 lines and the price in blue
