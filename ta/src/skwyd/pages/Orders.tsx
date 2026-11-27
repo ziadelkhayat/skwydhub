@@ -1,3 +1,4 @@
+import { RiDownloadLine } from "@remixicon/react";
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 // Orders: the same tabs, search, columns and order panel as the current portal (index.html viewOrders / ordQuery), in TailAdmin layout.
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
@@ -66,22 +67,8 @@ export default function OrdersPage() {
  
   const [tick, setTick] = useState(0);
   const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
-  const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
-  // every filter, its label and its choices (the side panel and the chips use the same list)
-  const opts: Record<string, [string, [string, string][]]> = {
-    status: ["Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]]],
-    type: ["Order type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]]],
-    ahead: ["Ahead", [["yes", "Yes"], ["no", "No"]]],
-    source: ["Source", sources.filter(x => !x.deleted).map(x => [String(x.name), String(x.name)])],
-    channel: ["Sales channel", Object.entries(CHL).filter(([k]) => k !== "web")],
-    pay: ["Payment type", [...new Set([...pms.filter(x => !x.deleted).map(x => String(x.name)), "Cash", "Card", "Other"])].map(x => [x, x])],
-    device: ["Device", devices.filter(x => !x.deleted).map(x => [String(x.id), String(x.name)])],
-  };
-  const nameIn = (list: any[], ids: string) => selList(ids).map(id => list.find(x => x.id === id)?.name || "—").join(", ");
+  const opts = useOrderOpts();
   const chips: { k: string; l: string; v: string; keys: string[] }[] = [
-    ...(F.from ? [{ k: "date", l: "Business date", v: fmtDate(F.from) + (F.to && F.to !== F.from ? " – " + fmtDate(F.to) : ""), keys: ["from", "to"] }] : []),
-    ...(F.brand ? [{ k: "brand", l: "Brand", v: nameIn(brands, F.brand), keys: ["brand"] }] : []),
-    ...(F.branch ? [{ k: "branch", l: "Store", v: nameIn(branches, F.branch), keys: ["branch"] }] : []),
     ...Object.entries(opts).filter(([k]) => F[k]).map(([k, [l, o]]) => ({ k, l, v: o.find(x => x[0] === F[k])?.[1] || F[k], keys: [k] })),
     ...([["ref", "Reference"], ["num", "Number"], ["cust", "Customer"], ["rnotes", "Receipt notes"], ["knotes", "Kitchen notes"]] as const).filter(([k]) => String(F[k] || "").trim()).map(([k, l]) => ({ k, l, v: F[k], keys: [k] })),
   ];
@@ -129,12 +116,15 @@ export default function OrdersPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Orders" />
-      <SegTabs className="mb-4 flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={ORD_TABS} />
+        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Orders", cols.map(c => c.title), rows.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button>
+      </div>
       {/* the filters in use, each removable; all of them are set in the Filters side panel */}
       {chips.length > 0 && <div className="mb-3 flex flex-wrap items-center gap-1.5">
         {chips.map(c => <span key={c.k} className="flex items-center gap-1 rounded-md bg-gray-100 py-1 ps-2.5 pe-1 text-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">{c.l}: <b className="font-semibold">{c.v}</b>
           <button type="button" aria-label={"Remove " + c.l + " filter"} className="rounded px-1 text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800" onClick={() => { setF(f => { const n = { ...f }; c.keys.forEach(k => delete n[k]); return n; }); setPage(1); }}>×</button></span>)}
-        <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => { setF({}); setPage(1); }}>Clear all</Button>
+        <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => { setF(f => keepOut(f)); setPage(1); }}>Clear all</Button>
       </div>}
       {err ? <p className="py-6 text-sm text-red-600">Couldn't load orders: {err}</p> : (
         <DataTable<any>
@@ -143,22 +133,60 @@ export default function OrdersPage() {
           getRowId={o => o.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder="Search reference, customer, phone..."
-          toolbar={<Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>}
+          toolbar={<>
+            <FilterSelect multiple title="Brand" value={F.brand || ""} onChange={v => { setF({ ...F, brand: v, branch: selList(F.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(",") }); setPage(1); }} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <FilterSelect multiple title="Store" value={F.branch || ""} onChange={v => { setF({ ...F, branch: v }); setPage(1); }} all="All Stores" options={branches.filter(b => !b.deleted && inSel(F.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
+            <div className="w-60"><RangeInput from={F.from || ""} to={F.to || ""} onChange={(a, b) => { setF(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; }); setPage(1); }} /></div>
+            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+          </>}
           onRowClick={o => openWin("/order?id=" + o.id)}
           rowActions={[{ label: "Open", onSelect: o => openWin("/order?id=" + o.id) }]}
-          onExport={list => downloadCsv("Orders", cols.map(c => c.title), list.map(o => cols.map(c => String(c.value?.(o) ?? ""))))}
+          searchEnd
+          hideView
           empty={<EmptyState text={loading ? "Loading orders…" : q ? "No orders match these filters." : tab === "today" ? "You don't have orders today" : "You don't have orders here"} />}
           pageSize={PER}
         />
       )}
-      <FilterPanel open={fOpen} F={F} opts={opts} brands={brands} branches={branches} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />
+      <FilterPanel noDate open={fOpen} F={F} opts={opts} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />
     </>
   );
 }
 
+// every Orders filter, its label and its choices (Orders and Call Center use the same list)
+export function useOrderOpts() {
+  const devices = useCol("devices") || [], sources = useCol("order_sources") || [], pms = useCol("payment_methods") || [];
+  // every filter, its label and its choices (the side panel and the chips use the same list)
+  return {
+    status: ["Status", [["pending", "Pending"], ["open", "Active"], ["declined", "Declined"], ["closed", "Done"], ["returns", "Returned"], ["voids", "Void"], ["draft", "Draft"]]],
+    type: ["Order type", [["dinein", "In Store"], ["pickup", "Pick Up"], ["delivery", "Delivery"]]],
+    ahead: ["Ahead", [["yes", "Yes"], ["no", "No"]]],
+    source: ["Source", sources.filter(x => !x.deleted).map(x => [String(x.name), String(x.name)])],
+    channel: ["Sales channel", Object.entries(CHL).filter(([k]) => k !== "web")],
+    pay: ["Payment type", [...new Set([...pms.filter(x => !x.deleted).map(x => String(x.name)), "Cash", "Card", "Other"])].map(x => [x, x])],
+    device: ["Device", devices.filter(x => !x.deleted).map(x => [String(x.id), String(x.name)])],
+  } as Record<string, [string, [string, string][]]>;
+}
+const SGRP_ST = SGRP;
+// the same filters, checked on orders already loaded (Call Center board)
+export function matchF(o: any, F: Record<string, string>) {
+  const has = (v: any, t?: string) => !String(t || "").trim() || String(v || "").toLowerCase().includes(String(t).trim().toLowerCase());
+  if (F.source && o.source !== F.source) return false; if (F.channel && o.channel !== F.channel) return false;
+  if (F.type && !(F.type === "pickup" ? ["pickup", "takeaway"].includes(o.type) : o.type === F.type)) return false;
+  if (F.pay && String(o.payment?.method || "").toLowerCase() !== F.pay.toLowerCase()) return false;
+  if (F.ahead && (F.ahead === "yes") !== !!o.scheduledAt) return false;
+  if (F.device && o.deviceId !== F.device) return false;
+  if (F.status && SGRP_ST[F.status] && !SGRP_ST[F.status].includes(o.status)) return false;
+  if (String(F.num || "").trim() && String(o.no) !== String(F.num).trim()) return false;
+  return has(o.ref, F.ref) && (has(o.customerName, F.cust) || has(o.phone, F.cust)) && has(o.receiptNotes, F.rnotes) && has(o.notes, F.knotes);
+}
+/** how many of the panel's filters are set (Brand and Store sit outside the panel) */
+export const countF = (F: Record<string, string>, noDate?: boolean) => Object.keys(F).filter(k => String(F[k] || "").trim() && !["brand", "branch", "to", ...(noDate ? ["from"] : [])].includes(k)).length;
+
+// Brand, Store and dates sit outside the panel: Clear all and Reset all keep them
+const keepOut = (f: Record<string, string>) => Object.fromEntries(Object.entries(f).filter(([k]) => ["brand", "branch", "from", "to"].includes(k)));
 const H = ({ t }: { t: string }) => <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t}</h3>;
 // Filters: a Tremor side panel with every filter, grouped (When, Where, Order, Source and payment, Find); "Show orders" applies them.
-function FilterPanel({ open, F, opts, brands, branches, onApply, onClose }: { open: boolean; F: Record<string, string>; opts: Record<string, [string, [string, string][]]>; brands: any[]; branches: any[];
+export function FilterPanel({ open, F, opts, onApply, onClose, noDate }: { open: boolean; noDate?: boolean; F: Record<string, string>; opts: Record<string, [string, [string, string][]]>;
   onApply: (f: Record<string, string>) => void; onClose: () => void }) {
   const [d, setD] = useState<Record<string, string>>({ ...F });
   useEffect(() => { if (open) setD({ ...F }); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -172,19 +200,15 @@ function FilterPanel({ open, F, opts, brands, branches, onApply, onClose }: { op
       <DrawerContent className="sm:max-w-md">
         <DrawerHeader><DrawerTitle>Filters</DrawerTitle></DrawerHeader>
         <DrawerBody className="-mx-6 space-y-7 overflow-y-auto px-6">
-          <section className="space-y-3"><H t="When" /><div><p className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">Business date</p><RangeInput from={d.from || ""} to={d.to || ""} onChange={(a, b) => setD(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; })} /></div></section>
-          <section className="space-y-3"><H t="Where" />
-            <div className="flex flex-wrap gap-2">
-              <FilterSelect multiple title="Brand" value={d.brand || ""} onChange={v => setD(x => { const n = { ...x }; if (v) n.brand = v; else delete n.brand; const st = selList(n.branch || "").filter(id => inSel(v, branches.find(b => b.id === id)?.brandId)).join(","); if (st) n.branch = st; else delete n.branch; return n; })} all="All Brands" options={brands.filter(b => !b.deleted).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-              <FilterSelect multiple title="Store" value={d.branch || ""} onChange={v => set("branch", v)} all="All Stores" options={branches.filter(b => !b.deleted && inSel(d.brand || "", b.brandId)).map(b => ({ value: String(b.id), label: String(b.name) }))} />
-            </div>{chooser("device")}</section>
+          {!noDate && <section className="space-y-3"><H t="When" /><div><p className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">Business date</p><RangeInput from={d.from || ""} to={d.to || ""} onChange={(a, b) => setD(x => { const n = { ...x }; if (a) { n.from = a; n.to = b || a; } else { delete n.from; delete n.to; } return n; })} /></div></section>}
+          <section className="space-y-3"><H t="Device" />{chooser("device")}</section>
           <section className="space-y-4"><H t="Order" />{chooser("status")}{chooser("type")}{chooser("ahead")}</section>
           <section className="space-y-4"><H t="Source and payment" />{chooser("source")}{chooser("channel")}{chooser("pay")}</section>
           <section className="space-y-3"><H t="Find" />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{txt("ref", "Reference", "e.g. 100045")}{txt("num", "Number", "Order number")}{txt("cust", "Customer", "Name or phone")}{txt("rnotes", "Receipt notes")}{txt("knotes", "Kitchen notes")}</div></section>
         </DrawerBody>
         <DrawerFooter className="-mx-6 -mb-2 gap-2 border-t border-gray-200 px-6 pt-4 dark:border-gray-800">
-          <Button variant="ghost" className="sm:me-auto" onClick={() => setD({})}>Reset all</Button>
+          <Button variant="ghost" className="sm:me-auto" onClick={() => setD(x => keepOut(x))}>Reset all</Button>
           <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply(d)}>Show orders</Button>
         </DrawerFooter>
       </DrawerContent>

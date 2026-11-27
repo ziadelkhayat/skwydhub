@@ -93,8 +93,7 @@ export function SummaryGeneral({ D, P, cur, old, ch, series, perLabel, cmpLabel,
 
   return (
     <div className="space-y-8">
-      {empty ? <Callout title="No sales in this period yet" variant="neutral">Pick another day, week or month, or check the Brand and Store filters.</Callout>
-        : up != null && old ? <Callout variant={Math.abs(up) < 0.0005 || up > 0 ? "success" : "warning"}
+      {!empty && up != null && old ? <Callout variant={Math.abs(up) < 0.0005 || up > 0 ? "success" : "warning"}
             title={Math.abs(up) < 0.0005 ? `Net sales unchanged against ${cmpLabel}` : `Net sales ${up > 0 ? "up" : "down"} ${Math.abs(up * 100).toFixed(1)}% against ${cmpLabel}`}>
             <div className="mt-2 space-y-1.5 text-xs">
               <div className="flex items-center gap-3"><span className="w-40 shrink-0 truncate">{perLabel}</span><ProgressBar value={cur[1] / big * 100} variant={up >= 0 ? "success" : "warning"} /><span className="w-28 shrink-0 text-right tabular-nums">{money(cur[1])}</span></div>

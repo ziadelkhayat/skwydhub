@@ -44,7 +44,7 @@ const includesFilter: FilterFn<any> = (row, id, v) => {
 };
 
 export function DataTable<T>({
-  data, columns, getRowId, searchPlaceholder = "Search...", filters = [], toolbar, actions, rowActions, bulk, onRowClick, onExport,
+  data, columns, getRowId, searchPlaceholder = "Search...", filters = [], toolbar, actions, rowActions, bulk, onRowClick, onExport, searchEnd, hideView,
   empty = "No results.", pageSize = 20, initialSort, searchText, server,
 }: {
   data: T[];
@@ -60,6 +60,10 @@ export function DataTable<T>({
   bulk?: DTBulk<T>[];
   onRowClick?: (r: T) => void;
   onExport?: (rows: T[]) => void;
+  /** search box on the right side of the bar */
+  searchEnd?: boolean;
+  /** hide the View (columns) button */
+  hideView?: boolean;
   empty?: React.ReactNode;
   pageSize?: number;
   initialSort?: SortingState;
@@ -123,6 +127,9 @@ export function DataTable<T>({
     getCoreRowModel: getCoreRowModel(), getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(),
   });
+  const search = searchPlaceholder !== false ? <Searchbar type="search" placeholder={searchPlaceholder} value={term}
+              onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
+              className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" /> : null;
   const selected = table.getSelectedRowModel().rows.map(r => r.original);
   const isFiltered = columnFilters.length > 0 || !!globalFilter || !!server?.search;
 
@@ -137,11 +144,7 @@ export function DataTable<T>({
             return f.type === "select"
               ? <FilterSelect key={f.column} title={f.title} options={f.options} value={(v as string) || ""} onChange={x => col.setFilterValue(x || undefined)} />
               : <FilterMulti key={f.column} title={f.title} options={f.options} value={(v as string[]) || []} onChange={x => col.setFilterValue(x.length ? x : undefined)} />; })}
-          {searchPlaceholder !== false && (
-            <Searchbar type="search" placeholder={searchPlaceholder} value={term}
-              onChange={e => { setTerm(e.target.value); setGlobal(e.target.value); }}
-              className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]" />
-          )}
+          {!searchEnd && search}
           {isFiltered && (
             <Button variant="ghost" onClick={() => { table.resetColumnFilters(); setTerm(""); setGlobalFilter(""); server?.onSearch(""); }}
               className="border border-gray-200 px-2 font-semibold text-blue-600 sm:border-none sm:py-1 dark:border-gray-800 dark:text-blue-500">
@@ -150,13 +153,14 @@ export function DataTable<T>({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {searchEnd && search}
           {onExport && (
             <Button variant="secondary" className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex" onClick={() => onExport(table.getFilteredRowModel().rows.map(r => r.original))}>
               <RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export
             </Button>
           )}
           {/* View (column options): not on the Catalog and Inventory pages */}
-          {!["skCatalog", "skInventory"].includes(groupOf(pathname)?.key || "") && <ViewOptions table={table} />}
+          {!hideView && !["skCatalog", "skInventory"].includes(groupOf(pathname)?.key || "") && <ViewOptions table={table} />}
           {actions}
         </div>
       </div>

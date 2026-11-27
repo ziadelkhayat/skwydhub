@@ -1,4 +1,5 @@
 import { BrandStoreFilters } from "../ui/BrandStore";
+import { FilterPanel, matchF, countF, useOrderOpts } from "./Orders";
 import { FilterSelect, inSel, selList } from "@/components/tremor/data-table/FilterSelect";
 import { Card } from "@/components/tremor/Card";
 // Call Center board: the business day's call center and web orders in columns (Drafts, Pending, Active, Done,
@@ -7,7 +8,7 @@ import { Card } from "@/components/tremor/Card";
 import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CallIcon } from "@/icons";
+import { CallIcon, FilterIcon } from "@/icons";
 import { useAuth } from "@/lib/auth";
 import { useCol } from "@/lib/db";
 import { sb } from "@/lib/supabase";
@@ -35,6 +36,7 @@ export default function CallCenterPage() {
   const { staff } = useAuth();
   const [F0, setF] = useState<{ brand: string; branch: string; date: string; user: string }>({ brand: "", branch: "", date: "", user: "" });
   const [rows, setRows] = useState<any[]>([]), [tick, setTick] = useState(0);
+  const [PF, setPF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false), opts = useOrderOpts(), nF = countF(PF, true);
   // the business day: a store's day starts at its day start (or the company's day end); a store that ended its day early starts the next one then
   const cut = (bid?: string) => cutOf(branches.find(b => b.id === bid)?.settings?.dayStart || (sets.find(x => x.id === "company") as any)?.dayEnd);
   const bizDate = (t: any, bid?: string) => { const ms = +new Date(t); let d = isoDay(new Date(ms - cut(bid) * 60000));
@@ -42,7 +44,7 @@ export default function CallCenterPage() {
   const day = F0.date || bizDate(new Date(), F0.branch || undefined);
   useEffect(() => { let off = false;
     (async () => { const a = new Date(day + "T00:00:00"); a.setDate(a.getDate() - 1); const b = new Date(day + "T00:00:00"); b.setDate(b.getDate() + 2);
-      const { data } = await sb.from("orders").select("id,ref,no,invoice_no,status,channel,source,type,branch_id,brand_id,customer_name,phone,total,agent,driver_name,dispatched_at,void_reason,created_at,updated_at,edit_request,return_no")
+      const { data } = await sb.from("orders").select("id,ref,no,invoice_no,status,channel,source,type,branch_id,brand_id,customer_name,phone,total,agent,payment,scheduled_at,device_id,receipt_notes,notes,driver_name,dispatched_at,void_reason,created_at,updated_at,edit_request,return_no")
         .neq("channel", "pos").gte("created_at", a.toISOString()).lt("created_at", b.toISOString()).order("created_at", { ascending: false }).limit(2000);
       if (!off) setRows((data || []).map(camel)); })();
     return () => { off = true; }; }, [day, tick]);
@@ -51,7 +53,7 @@ export default function CallCenterPage() {
   const route = (bid: string) => (sets.find(x => x.id === "brand_" + bid) as any)?.webOrderRoute || coSet().webOrderRoute || "branch";
   const ccWeb = (o: any) => o.channel === "callcenter" || o.status === "review" || route(o.brandId) === "callcenter";
   const byUser = (o: any, n: string) => o.agent === n || o.agent === String(n).split(/\s+/)[0];
-  const list = rows.filter(o => ccWeb(o) && (!F0.brand || inSel(F0.brand, o.brandId)) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || inSel(F0.branch, o.branchId)) && (!F0.user || selList(F0.user).some(u => byUser(o, u))));
+  const list = rows.filter(o => ccWeb(o) && (!F0.brand || inSel(F0.brand, o.brandId)) && bizDate(o.createdAt, o.branchId) === (F0.date || bizDate(new Date(), o.branchId)) && (!F0.branch || inSel(F0.branch, o.branchId)) && (!F0.user || selList(F0.user).some(u => byUser(o, u))) && matchF(o, PF));
   const colOf = (k: string) => list.filter(o => k === "void" ? ["void", "returned", "refund"].includes(o.status) : k === "active" ? o.status === "active" : k === "pending" ? ["pending", "review"].includes(o.status) : o.status === k);
   // the store answered a change sent from the call center (edit or void of an accepted order): a message here until it is closed;
   // nothing changes on the order when the store rejects it
@@ -78,8 +80,10 @@ export default function CallCenterPage() {
           <BrandStoreFilters brands={brands} stores={branches} brand={F0.brand} setBrand={v => setF(f => ({ ...f, brand: v }))} store={F0.branch} setStore={v => setF(f => ({ ...f, branch: v }))} />
           <div className="w-44"><DateInput value={F0.date || bizDate(new Date())} onChange={x => setF(f => ({ ...f, date: x && x !== bizDate(new Date()) ? x : "" }))} /></div>
           <FilterSelect multiple title="User" value={F0.user} onChange={v => setF(f => ({ ...f, user: v }))} options={agents.map(n => ({ value: n, label: n }))} />
+          <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
           <Button onClick={() => nav("/call-center-order")}><CallIcon className="size-5" />New Order</Button></div>
       </div>
+      <FilterPanel noDate open={fOpen} F={PF} opts={opts} onApply={f => { setPF(f); setFOpen(false); }} onClose={() => setFOpen(false)} />
       <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-5">
         {COLS.map(([k, t, desc]) => { const col = colOf(k); return (
           <div key={k} className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/2" title={desc}>
@@ -123,4 +127,3 @@ function Tile({ o, tm, bName, brName, onOpen }: { o: any; tm: (t: string) => str
       {o.editRequest && o.status === "active" && <p className="mt-1 text-xs text-gray-500">{o.editRequest.status === "pending" ? "Order edit: waiting for the store" : o.editRequest.status === "approved" ? "Order edit approved" : "Order edit rejected" + (o.editRequest.reason ? ": " + o.editRequest.reason : "")}</p>}
     </button></Card>);
 }
-

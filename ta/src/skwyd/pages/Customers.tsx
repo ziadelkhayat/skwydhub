@@ -1,3 +1,4 @@
+import { RiDownloadLine } from "@remixicon/react";
 import { DataTable, type DTColumn } from "@/components/tremor/data-table/DataTable";
 import { downloadCsv } from "@/components/tremor/data-table/textOf";
 import { SelectNative } from "@/components/tremor/SelectNative";
@@ -10,7 +11,9 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusIcon } from "@/icons";
+import { FilterIcon, PlusIcon } from "@/icons";
+import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/tremor/Drawer";
+import { ChoiceButton } from "../ui/Choice";
 import { sb } from "@/lib/supabase";
 import { fmtDate, openWin } from "@/lib/util";
 import { useEffect, useState } from "react";
@@ -23,18 +26,48 @@ const TABS: [string, string][] = [["all", "All"], ["orders", "Has Orders"], ["ne
 const PER = 50;
 const ago = (t?: string) => { if (!t) return "—"; const d = Math.floor((Date.now() - +new Date(t)) / 86400000); return d <= 0 ? "Today" : d === 1 ? "Yesterday" : d < 31 ? d + " days ago" : fmtDate(t); };
 const tel = (p: string) => String(p || "").replace(/^\+961(\d{1,2})(\d{3})(\d{3})$/, "+961 $1 $2 $3");
+const CF_LBL: Record<string, string> = { name: "Name", phone: "Phone", email: "Email", tag: "Tag", orders: "Has orders", black: "Blacklisted", loyalty: "Loyalty", house: "House account" };
+const YN: Record<string, string> = { yes: "Yes", no: "No" };
+// Customers Filters: a Tremor side panel (the Updated after date sits outside it)
+function CustFilters({ open, F, onApply, onClose }: { open: boolean; F: Record<string, string>; onApply: (f: Record<string, string>) => void; onClose: () => void }) {
+  const [d, setD] = useState<Record<string, string>>({ ...F });
+  useEffect(() => { if (open) setD({ ...F }); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const set = (k: string, v: string) => setD(x => { const n = { ...x }; if (v) n[k] = v; else delete n[k]; return n; });
+  const yn = (k: string) => <div key={k} className="space-y-2"><p className="text-sm font-medium text-gray-900 dark:text-gray-50">{CF_LBL[k]}</p>
+    <div className="flex flex-wrap gap-1.5">{Object.entries(YN).map(([v, t]) => <ChoiceButton key={v} on={d[k] === v} onClick={() => set(k, d[k] === v ? "" : v)} className="min-h-8 py-1 text-sm">{t}</ChoiceButton>)}</div></div>;
+  const txt = (k: string, ph?: string) => <Field key={k}><FieldLabel>{CF_LBL[k]}</FieldLabel><Input placeholder={ph || ""} value={d[k] || ""} onChange={e => set(k, e.target.value)} /></Field>;
+  const H = ({ t }: { t: string }) => <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t}</h3>;
+  return (
+    <Drawer open={open} onOpenChange={o => !o && onClose()}>
+      <DrawerContent className="sm:max-w-md">
+        <DrawerHeader><DrawerTitle>Filters</DrawerTitle></DrawerHeader>
+        <DrawerBody className="-mx-6 space-y-7 overflow-y-auto px-6">
+          <section className="space-y-3"><H t="Find" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{txt("name")}{txt("phone", "e.g. 70123456")}{txt("email")}{txt("tag", "e.g. VIP")}</div></section>
+          <section className="space-y-4"><H t="Customer" />{yn("orders")}{yn("black")}{yn("loyalty")}{yn("house")}</section>
+        </DrawerBody>
+        <DrawerFooter className="-mx-6 -mb-2 gap-2 border-t border-gray-200 px-6 pt-4 dark:border-gray-800">
+          <Button variant="ghost" className="sm:me-auto" onClick={() => setD(x => (x.updated ? { updated: x.updated } : {}) as Record<string, string>)}>Reset all</Button>
+          <Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={() => onApply(d)}>Show customers</Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
 const CCS = ["+961", "+971", "+966", "+974", "+965", "+973", "+968", "+962", "+20", "+90", "+33", "+44", "+1"];
 
 export default function CustomersPage() {
   const [tab, setTab] = useState("all"), [q, setQ] = useState(""), [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]), [count, setCount] = useState(0), [loading, setLoading] = useState(true), [err, setErr] = useState(""), [tick, setTick] = useState(0);
   const [edit, setEdit] = useState<any>(undefined);
+  const [F, setF] = useState<Record<string, string>>({}), [fOpen, setFOpen] = useState(false);
+  const chips = Object.entries(F).filter(([k, v]) => k !== "updated" && String(v || "").trim()).map(([k, v]) => ({ k, l: CF_LBL[k] || k, v: YN[v] || v }));
+  const nF = chips.length;
   useEffect(() => { let off = false; setLoading(true);
     const t = setTimeout(async () => {
-      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER });
+      const { data, error } = await sb.rpc("skwyd_customers", { p_q: q.trim(), p_filter: tab, p_sort: "last", p_limit: PER, p_offset: (page - 1) * PER, p_f: F });
       if (off) return; setLoading(false);
       if (error) setErr(error.message); else { setErr(""); setRows((data as any)?.rows || []); setCount((data as any)?.count || 0); } }, q ? 250 : 0);
-    return () => { off = true; clearTimeout(t); }; }, [tab, q, page, tick]);
+    return () => { off = true; clearTimeout(t); }; }, [tab, q, page, tick, F]);
   const cols: DTColumn<any>[] = [
     { id: "name", title: "Name", value: c => c.name || "", hideable: false, cell: c => <><span className="font-medium text-gray-900 dark:text-gray-50">{c.name || "Unnamed"}</span>{c.blacklisted && <Badge className="ms-2" variant="light" color="error">Blacklisted</Badge>}
       {(c.tags || []).length > 0 && <span className="mt-1 flex gap-1">{c.tags.map((t: string) => <Badge key={t} variant="light" color="primary">{t}</Badge>)}</span>}</> },
@@ -46,16 +79,30 @@ export default function CustomersPage() {
   return (
     <>
       <PageBreadcrumb pageTitle="Customers" />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <SegTabs className="flex-wrap self-start overflow-visible" value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />
+        <Button variant="secondary" className="gap-x-2 px-2 py-1.5 text-xs" onClick={() => downloadCsv("Customers", cols.map(c => c.title), rows.map(c => cols.map(x => String(x.value?.(c) ?? ""))))}><RiDownloadLine className="size-4 shrink-0" aria-hidden="true" />Export</Button>
+      </div>
+      {chips.length > 0 && <div className="mb-3 flex flex-wrap items-center gap-1.5">
+        {chips.map(c => <span key={c.k} className="flex items-center gap-1 rounded-md bg-gray-100 py-1 ps-2.5 pe-1 text-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">{c.l}: <b className="font-semibold">{c.v}</b>
+          <button type="button" aria-label={"Remove " + c.l + " filter"} className="rounded px-1 text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800" onClick={() => { setF(f => { const n = { ...f }; delete n[c.k]; return n; }); setPage(1); }}>×</button></span>)}
+        <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => { setF(f => (f.updated ? { updated: f.updated } : {}) as Record<string, string>); setPage(1); }}>Clear all</Button>
+      </div>}
+      <CustFilters open={fOpen} F={F} onApply={f => { setF(f); setPage(1); setFOpen(false); }} onClose={() => setFOpen(false)} />
       {err ? <p className="py-6 text-sm text-red-600">Couldn't load customers: {err}</p> : (
         <DataTable<any>
           data={rows} columns={cols} getRowId={c => c.id}
           server={{ page, total: Math.max(count, (page - 1) * PER + rows.length), onPage: setPage, search: q, onSearch: v => { setQ(v); setPage(1); } }}
           searchPlaceholder="Search name or phone..."
-          toolbar={<SegTabs value={tab} onChange={v => { setTab(v); setPage(1); }} items={TABS} />}
+          toolbar={<>
+            <div className="w-44"><DateInput placeholder="Updated after" value={F.updated || ""} onChange={v => { setF(f => { const n = { ...f }; if (v) n.updated = v; else delete n.updated; return n; }); setPage(1); }} /></div>
+            <Button variant={nF ? "secondary" : "outline"} className="h-[30px] py-1" onClick={() => setFOpen(true)}><FilterIcon className="size-4" />Filters{nF ? <Badge variant="solid" color="primary" className="ms-1">{nF}</Badge> : null}</Button>
+          </>}
           actions={<Button className="h-[30px] py-1" onClick={() => setEdit(null)}><PlusIcon className="size-4" />Add Customer</Button>}
           onRowClick={c => openWin("/customer?id=" + c.id)}
           rowActions={[{ label: "Open", onSelect: c => openWin("/customer?id=" + c.id) }, { label: "Edit", onSelect: c => setEdit(c) }]}
-          onExport={list => downloadCsv("Customers", cols.map(c => c.title), list.map(c => cols.map(x => String(x.value?.(c) ?? ""))))}
+          searchEnd
+          hideView
           empty={<EmptyState text={loading ? "Loading customers…" : q || tab !== "all" ? "No customers match." : "No customers yet"} />}
           pageSize={PER}
         />
