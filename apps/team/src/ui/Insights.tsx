@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { dmy, hm, LS, sb, ymd } from "../lib/sb";
 import { C, F, R } from "../lib/theme";
 import { Icon } from "./Icon";
+import { SkwydLogo } from "./Logo";
 import { Btn, Card, Pill, T } from "./kit";
 
 type Row = Record<string, any>;
@@ -42,8 +43,8 @@ function Login({ onIn, msg }: { onIn: () => void; msg: string }) {
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 24, gap: 12 }} keyboardShouldPersistTaps="handled">
       <View style={{ alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <View style={{ width: 56, height: 56, borderRadius: R.lg, backgroundColor: C.brand, alignItems: "center", justifyContent: "center" }}><Icon name="chart" size={28} color="#fff" /></View>
-        <T w="s" size={22}>SKWYD Insights</T><T color={C.mut}>For the owner and admins</T>
+        <SkwydLogo label="insights" />
+        <T color={C.mut}>For the owner and admins</T>
       </View>
       <T w="m" size={14} color={C.ink2}>Account number</T>
       <TextInput value={acct} onChangeText={setAcct} keyboardType="number-pad" accessibilityLabel="Account number" style={inp} />
