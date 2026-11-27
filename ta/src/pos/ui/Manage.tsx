@@ -104,7 +104,7 @@ export function VoidReturnDialog({ x, o, onDone, area, sel, setSel }: { x: Ctx; 
       </div>
     </>);
   return area
-    ? <Panel area={area} cartOpen={!!sel} title={title} sub={kind === "void" ? "Pick what to void and why" : "Pick what to return and why"} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
+    ? <Panel area={area} cartOpen={!!sel} title={title} onClose={() => onDone()} action={<Main variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Main>}>{body}</Panel>
     : <Sheet title={title} width={660} onClose={() => onDone()} footer={<><span className="flex-1 text-sm text-red-600 dark:text-red-500">{err}</span><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button variant="destructive" onClick={go}>{kind === "void" ? "Void" : "Return"}</Button></>}>{body}</Sheet>;
 }
 

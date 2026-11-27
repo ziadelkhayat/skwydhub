@@ -51,9 +51,9 @@ export function Pick({ on, onClick, title, sub, disabled, right, className }: { 
 }
 
 /** a big two- or three-way switch (%, Amount; Pickup, Delivery) */
-export const Seg = <T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: [T, string][] }) => (
+export const Seg = <T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: [T, ReactNode][] }) => (
   <div className="flex rounded-[14px] bg-gray-100 p-1 dark:bg-gray-900">{items.map(([k, l]) =>
-    <button key={k} type="button" aria-pressed={value === k} onClick={() => onChange(k)} className={cx("h-14 flex-1 rounded-[11px] px-4 text-[17px] font-semibold",
+    <button key={k} type="button" aria-pressed={value === k} onClick={() => onChange(k)} className={cx("flex h-14 flex-1 items-center justify-center gap-2 rounded-[11px] px-4 text-[17px] font-semibold",
       value === k ? "bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50" : "text-gray-500")}>{l}</button>)}</div>);
 
 /** the section label inside a window */

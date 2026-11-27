@@ -21,7 +21,7 @@ export function Sheet({ title, onClose, width = 680, children, footer, back }: {
   if (area) return (
     <Panel area={area} title={title} onClose={onClose} back={back} className="flex flex-col">
       <div className="mx-auto w-full" style={{ maxWidth: Math.max(width, 420) }}>{children}</div>
-      {footer ? <div className="mx-auto mt-auto flex w-full items-center justify-end gap-3 pt-6 [&>button]:h-14 [&>button]:min-w-36 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]" style={{ maxWidth: Math.max(width, 420) }}>{footer}</div> : null}
+      {footer ? <div className="mx-auto mt-auto flex w-full items-center justify-center gap-3 pt-6 [&>button]:h-14 [&>button]:min-w-36 [&>button]:rounded-[14px] [&>button]:px-7 [&>button]:text-[17px]" style={{ maxWidth: Math.max(width, 420) }}>{footer}</div> : null}
     </Panel>);
   return (
     <Dialog open onOpenChange={o => { if (!o) onClose(); }}>

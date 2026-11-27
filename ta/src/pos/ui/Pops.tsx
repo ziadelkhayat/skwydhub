@@ -54,7 +54,7 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
       </div>
     </Panel>);
   return (
-    <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">Whole order</span></span>} sub="To discount one item, tap it in the cart" onClose={() => onDone(undefined)}
+    <Panel area={area} cartOpen title={<span className="flex items-center gap-2">Discount · <span className="text-blue-700 dark:text-blue-400">Whole order</span></span>} onClose={() => onDone(undefined)}
       action={<>{init ? <Main variant="secondary" className="text-red-600 dark:text-red-500" onClick={() => onDone(null)}>Remove</Main> : null}<Main disabled={!ok} onClick={apply}>Apply</Main></>}>
       <div className="flex h-full gap-6">
         <div className="flex min-w-0 flex-1 flex-col">
@@ -62,7 +62,7 @@ export function DiscountPop({ x, cart, cur, sym, allowPct, allowAmt, init, area,
           {!sets.length ? <p className="text-gray-500">No saved discounts.</p> : null}
           <div className="grid grid-cols-2 gap-3">
             {sets.map(d => { const c = dsCalc(x, cart, d, 0), off = !d.open && !(c.amt > 0);
-              return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={d.name}
+              return <Pick key={d.id} on={setSel?.id === d.id} disabled={off} onClick={() => { setSetSel(setSel?.id === d.id ? null : d); setV(""); }} title={<span className="flex items-center gap-2.5"><Icon name="pct" className="size-5 text-gray-400" />{d.name}</span>}
                 sub={d.open ? (d.type === "fixed" ? "You type the amount" : "You type the %") : off ? c.why || "Not for this order" : "−" + cur(c.amt)} />; })}
           </div>
           {save > 0 ? <div className="mt-auto flex items-center justify-between rounded-2xl bg-emerald-50 px-5 py-4 text-lg dark:bg-emerald-500/10"><span className="text-gray-700 dark:text-gray-300">New total</span>
@@ -82,12 +82,11 @@ export function ChargesPop({ x, cur, picked, open, area, onDone }: { x: Ctx; cur
   const amt = (c: any) => c.type === "percent" ? c.value + "%" : c.type === "open" ? (o[c.id] ? cur(o[c.id]) : "You type the amount") : cur(+c.value || 0);
   const tap = (c: any) => { const on = p.includes(c.id); if (c.type === "open" && !on) { setAsk(c.id); setV(o[c.id] ? String(o[c.id]) : ""); return; } setAsk(null); setP(l => on ? l.filter(y => y !== c.id) : [...l, c.id]); };
   return (
-    <Panel area={area} title="Charges" sub="Added on top of the order" onClose={() => onDone(null)} action={<Main disabled={same(p, picked) && JSON.stringify(o) === JSON.stringify(open)} onClick={() => onDone({ picked: p, open: o })}>Apply</Main>}>
+    <Panel area={area} title="Charges" onClose={() => onDone(null)} action={<Main disabled={same(p, picked) && JSON.stringify(o) === JSON.stringify(open)} onClick={() => onDone({ picked: p, open: o })}>Apply</Main>}>
       <div className="flex h-full gap-6">
         <div className="min-w-0 flex-1">
           {!list.length ? <p className="text-gray-500">No charges for this order type. Add them in the back office under Manage → Charges.</p> : <>
-            <Label>Charges · {p.length} on</Label>
-            <div className="grid grid-cols-2 gap-3">{list.map(c => <Pick key={c.id} on={p.includes(c.id) || ask === c.id} onClick={() => tap(c)} title={c.name} sub={amt(c)} />)}</div></>}
+            <div className={cx("grid gap-3", ask ? "grid-cols-2" : "grid-cols-3")}>{list.map(c => <Pick key={c.id} on={p.includes(c.id) || ask === c.id} onClick={() => tap(c)} title={<span className="flex items-center gap-2.5"><Icon name="dollar" className="size-5 text-gray-400" />{c.name}</span>} sub={amt(c)} />)}</div></>}
         </div>
         {ask ? <div className="w-[330px] shrink-0 space-y-2.5">
           <p className="py-3 text-lg font-semibold text-gray-900 dark:text-gray-50">{list.find(c => c.id === ask)?.name}</p>
@@ -105,9 +104,9 @@ export function NotesPop({ init, area, onDone }: { init: { receipt: string; kitc
   const [which, setWhich] = useState<"kitchen" | "receipt">("kitchen"), [n, setN] = useState(init), t = n[which];
   const key = (k: string) => setN(m => ({ ...m, [which]: k === "\b" ? m[which].slice(0, -1) : (m[which] + k).slice(0, 300) }));
   return (
-    <Panel area={area} title="Notes" sub={which === "kitchen" ? "Printed on the kitchen ticket" : "Printed on the customer's receipt"} onClose={() => onDone(null)}
+    <Panel area={area} title="Notes" onClose={() => onDone(null)}
       action={<Main disabled={n.kitchen.trim() === (init.kitchen || "").trim() && n.receipt.trim() === (init.receipt || "").trim()} onClick={() => onDone({ kitchen: n.kitchen.trim(), receipt: n.receipt.trim() })}>Save</Main>} className="flex flex-col gap-4">
-      <Seg value={which} onChange={setWhich} items={[["kitchen", "Kitchen note"], ["receipt", "Receipt note"]]} />
+      <Seg value={which} onChange={setWhich} items={[["kitchen", <><Icon name="chef" className="size-5" />Kitchen note</>], ["receipt", <><Icon name="note" className="size-5" />Receipt note</>]]} />
       <div className="relative">
         <Textarea value={t} inputMode="none" onChange={e => setN(m => ({ ...m, [which]: e.target.value }))} placeholder="Type the note" aria-label={which === "kitchen" ? "Kitchen note" : "Receipt note"} className="min-h-24 text-lg" />
         {t ? <button type="button" onClick={() => setN(m => ({ ...m, [which]: "" }))} className="absolute right-2 top-2 rounded-lg px-3 py-2 text-[15px] font-medium text-red-600">Clear</button> : null}
@@ -132,7 +131,7 @@ export function HeldPop({ held, cur, label, onPick, onDelete, onClose, onHold, d
         : <Button variant="secondary" aria-label={"Delete H" + h.n} className="size-14 rounded-[14px] p-0" onClick={() => setSure(h.id)}><Icon name="trash" className="size-5 text-red-600" /></Button>}
       <Main onClick={() => onPick(h)}>Resume</Main></div>; })}</div>;
   return (
-    <Panel area={area} title={onHold ? "Hold order" : "Orders on hold"} sub={onHold ? "Park this order and start a new one" : held.length + " on this register"} onClose={onClose}
+    <Panel area={area} title={onHold ? "Hold order" : "Orders on hold"} onClose={onClose}
       action={onHold ? <Main onClick={() => onHold(name.trim())}>Hold</Main> : null}>
       <div className="flex h-full gap-6">
         {onHold ? <div className="min-w-0 flex-1 space-y-4"><Label>Name this order</Label>
@@ -150,7 +149,7 @@ export const orderTags = (S: Data) => (tagDoc(S).list || []).filter((t: any) => 
 export function TagsPop({ S, init, area, onDone }: { S: Data; init: string[]; area: { cartW: string }; onDone: (ids: string[] | null) => void }) {
   const l = orderTags(S), [sel, setSel] = useState(init);
   return (
-    <Panel area={area} title="Tags" sub="Pick any · they show on the order and the kitchen ticket" onClose={() => onDone(null)} action={<Main disabled={same(sel, init)} onClick={() => onDone(sel)}>Save</Main>}>
+    <Panel area={area} title="Tags" onClose={() => onDone(null)} action={<Main disabled={same(sel, init)} onClick={() => onDone(sel)}>Save</Main>}>
       {!l.length ? <p className="text-gray-500">No order tags yet. Add them in the back office under Manage → Tags.</p> :
         <div className="grid grid-cols-3 gap-3">{l.map(t => { const on = sel.includes(t.id);
           return <Pick key={t.id} on={on} onClick={() => setSel(v => (on ? v.filter(y => y !== t.id) : [...v, t.id]))} title={<span className="flex items-center gap-2.5"><Icon name="tag" className="size-5 text-gray-400" />{t.name}</span>} />; })}</div>}

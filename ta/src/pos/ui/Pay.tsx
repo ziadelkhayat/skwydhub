@@ -123,8 +123,9 @@ export function TillDialog({ x, onDone }: { x: Ctx; onDone: (msg?: string) => vo
   };
   const sales = sh ? shiftSales(x, sh) : [];
   return (
-    <Sheet title={sh ? "Close Till" : "Open Till"} width={680} onClose={() => onDone()} footer={<><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button onClick={sh ? close : open}>{sh ? "Close Till" : "Open Till"}</Button></>}>
-      <div className="grid gap-6 md:grid-cols-[1fr_260px]">
+    <Sheet title={sh ? "Close Till" : "Open Till"} width={380} onClose={() => onDone()} footer={<><Button variant="secondary" onClick={() => onDone()}>Cancel</Button><Button onClick={sh ? close : open}>{sh ? "Close Till" : "Open Till"}</Button></>}>
+      {/* one centred column: (the shift's figures,) the amount, the keypad */}
+      <div className="mx-auto w-full max-w-[380px] space-y-3">
         <div className="space-y-3">
           {sh ? <>
             <p className="text-sm text-gray-500">Opened by {sh.cashier || "—"} at {new Date(sh.openedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
@@ -132,8 +133,8 @@ export function TillDialog({ x, onDone }: { x: Ctx; onDone: (msg?: string) => vo
               {[["Orders", String(sales.filter(o => o.status === "closed").length)], ["Net sales", cur(sales.reduce((a, o) => a + (+o.total || 0) - (+o.tax || 0), 0))], ["Opening cash", cur(+sh.openingCash || 0)], ["Expected cash", cur(expectedCash(x, sh))]].map(([l, r]) => <Stat key={l} l={l} v={r} />)}
             </div>
             <p className="pt-2 text-sm text-gray-500">Count the cash in the drawer</p>
-          </> : <p className="text-sm text-gray-500">Enter the till amount</p>}
-          <div className="flex h-14 items-center justify-center rounded-md border-2 border-blue-500 text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? (sh ? cur(expectedCash(x, sh)) : cur(0)) : cur(+v)}</div>
+          </> : <p className="text-center text-[15px] text-gray-500">Enter the till amount</p>}
+          <div className="flex h-20 items-center justify-center rounded-2xl border-2 border-blue-500 text-4xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">{v === "" ? (sh ? cur(expectedCash(x, sh)) : cur(0)) : cur(+v)}</div>
         </div>
         <NumPad onKey={pad(setV)} dot />
       </div>
