@@ -267,7 +267,7 @@ function MultiDrop({ label, opts, cur, set, ph }: { label: ReactNode; opts: Opt[
 }
 
 /** CSV text to rows (quotes, commas and new lines inside quotes) */
-function parseCsv(t: string): string[][] {
+export function parseCsv(t: string): string[][] {
   const out: string[][] = []; let row: string[] = [], cur = "", q = false; t = t.replace(/^\uFEFF/, "");
   for (let i = 0; i < t.length; i++) { const c = t[i];
     if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
